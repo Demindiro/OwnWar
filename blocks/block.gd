@@ -5,6 +5,7 @@ extends Resource
 export(String) var name
 export(Mesh) var mesh
 export(PackedScene) var scene
+export(int) var mass = 1
 
 var id
 

@@ -4,6 +4,8 @@ const LOADER_MAX_TIME = 1 / 30
 
 export var blocks: Dictionary = {}
 
+var blocks_by_id: Array = [null]
+
 var _loader
 
 onready var _blocks_mesh_library: MeshLibrary = MeshLibrary.new()
@@ -12,13 +14,15 @@ onready var _blocks_mesh_library: MeshLibrary = MeshLibrary.new()
 func _ready():
 	Block.add_block(preload("res://blocks/cube.tres"))
 	Block.add_block(preload("res://blocks/wheels/wheel.tres"))
+	var id = 1
 	for name in blocks:
-		var id = _blocks_mesh_library.get_last_unused_item_id()
 		var block = blocks[name]
 		_blocks_mesh_library.create_item(id)
 		_blocks_mesh_library.set_item_mesh(id, block.mesh)
 		_blocks_mesh_library.set_item_name(id, block.name)
+		blocks_by_id.append(block)
 		block.id = id
+		id += 1
 
 
 func _process(_delta):

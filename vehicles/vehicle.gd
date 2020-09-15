@@ -23,7 +23,27 @@ func _ready():
 	_spawn_block(-1, 0, 5, 0, wheel)
 	_spawn_block(3, 0, 0, 0, wheel)
 	_spawn_block(3, 0, 5, 0, wheel)
+	_correct_center_of_mass()
 	_set_collision_box(Vector3(0, 0, 0), Vector3(2, 2, 0))
+
+
+func _correct_center_of_mass() -> void:
+	var total_mass = 0
+	var position = Vector3.ZERO
+	for cell in $GridMap.get_used_cells():
+		var id = $GridMap.get_cell_item(cell.x, cell.y, cell.z)
+		var mass = Global.blocks_by_id[id].mass
+		position += cell * mass
+		total_mass += mass
+	position /= total_mass
+	position += Vector3.ONE * 0.5
+	print_debug(position)
+	for child in get_children():
+		remove_child(child)
+		child.translate(-position)
+		add_child(child)
+#	translate(position / 2)
+
 
 
 func _spawn_block(x: int, y: int, z: int, r: int, block: Block) -> void:
