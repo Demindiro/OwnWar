@@ -2,15 +2,17 @@ class_name Block
 
 extends Resource
 
+export(String) var name
 export(Mesh) var mesh
+var id
 
 
 func _init(p_mesh: Mesh = null):
 	mesh = p_mesh
 
 
-static func add_block(name: String, block: Block):
-	if name in Global.blocks:
-		push_error("Block name is already registered: '%s'" % name)
+static func add_block(block: Block):
+	if block.name in Global.blocks:
+		push_error("Block name is already registered: '%s'" % block.name)
 		return
-	Global.blocks[name] = block
+	Global.blocks[block.name] = block
