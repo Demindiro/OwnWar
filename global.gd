@@ -1,8 +1,8 @@
-class_name Global
-
 extends Node
 
 const LOADER_MAX_TIME = 1 / 30
+
+export var blocks: Dictionary = {}
 
 var _loader
 

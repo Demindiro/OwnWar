@@ -9,25 +9,29 @@
 config_version=4
 
 _global_script_classes=[ {
-"base": "",
+"base": "Resource",
+"class": "Block",
+"language": "GDScript",
+"path": "res://blocks/block.gd"
+}, {
+"base": "EditorVCSInterface",
 "class": "GitAPI",
 "language": "NativeScript",
 "path": "res://git_api.gdns"
-}, {
-"base": "Node",
-"class": "Global",
-"language": "GDScript",
-"path": "res://global.gd"
 } ]
 _global_script_class_icons={
-"GitAPI": "",
-"Global": ""
+"Block": "",
+"GitAPI": ""
 }
 
 [application]
 
 config/name="Own War"
 config/icon="res://icon.png"
+
+[autoload]
+
+Global="*res://global.gd"
 
 [gdnative]
 
