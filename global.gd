@@ -2,7 +2,7 @@ extends Node
 
 const LOADER_MAX_TIME = 1 / 30
 
-export var blocks: Dictionary = { }
+export var blocks: Dictionary = {}
 
 var _loader
 
@@ -11,6 +11,7 @@ onready var _blocks_mesh_library: MeshLibrary = MeshLibrary.new()
 
 func _ready():
 	Block.add_block(preload("res://blocks/cube.tres"))
+	Block.add_block(preload("res://blocks/wheels/wheel.tres"))
 	for name in blocks:
 		var id = _blocks_mesh_library.get_last_unused_item_id()
 		var block = blocks[name]
