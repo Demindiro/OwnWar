@@ -18,10 +18,16 @@ _global_script_classes=[ {
 "class": "GitAPI",
 "language": "NativeScript",
 "path": "res://git_api.gdns"
+}, {
+"base": "Spatial",
+"class": "Vehicle",
+"language": "GDScript",
+"path": "res://vehicles/vehicle.gd"
 } ]
 _global_script_class_icons={
 "Block": "",
-"GitAPI": ""
+"GitAPI": "",
+"Vehicle": ""
 }
 
 [application]
