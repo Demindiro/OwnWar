@@ -8,4 +8,4 @@
 script = ExtResource( 1 )
 name = "cube"
 mesh = SubResource( 1 )
-mass = 1
+mass = 10

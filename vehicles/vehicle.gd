@@ -41,6 +41,8 @@ func _correct_center_of_mass() -> void:
 	position += Vector3.ONE * 0.5
 	for child in get_children():
 		child.translate(-position)
+		remove_child(child) # Necessary to force VehicleWheel to move
+		add_child(child)    # See VehicleWheel3D::_notification in vehicle_body_3d.cpp:81
 	translate(position)
 
 
@@ -53,11 +55,11 @@ func _spawn_block(x: int, y: int, z: int, r: int, block: Block) -> void:
 		node.translation = Vector3(x, y, z) + Vector3.ONE / 2
 		add_child(node)
 	start_position.x = x if start_position.x > x else start_position.x
-	start_position.y = x if start_position.y > y else start_position.y
-	start_position.z = x if start_position.z > z else start_position.z
+	start_position.y = y if start_position.y > y else start_position.y
+	start_position.z = z if start_position.z > z else start_position.z
 	end_position.x = x if end_position.x < x else end_position.x
-	end_position.y = x if end_position.y < y else end_position.y
-	end_position.z = x if end_position.z < z else end_position.z
+	end_position.y = y if end_position.y < y else end_position.y
+	end_position.z = z if end_position.z < z else end_position.z
 
 
 func _set_collision_box(start: Vector3, end: Vector3) -> void:
