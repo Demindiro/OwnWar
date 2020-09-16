@@ -23,11 +23,17 @@ _global_script_classes=[ {
 "class": "Vehicle",
 "language": "GDScript",
 "path": "res://vehicles/vehicle.gd"
+}, {
+"base": "Spatial",
+"class": "Wheel",
+"language": "GDScript",
+"path": "res://blocks/wheels/wheel.gd"
 } ]
 _global_script_class_icons={
 "Block": "",
 "GitAPI": "",
-"Vehicle": ""
+"Vehicle": "",
+"Wheel": ""
 }
 
 [application]

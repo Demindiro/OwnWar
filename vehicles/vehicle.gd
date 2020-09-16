@@ -2,6 +2,8 @@ class_name Vehicle
 
 extends Spatial
 
+var start_position = Vector3.ONE * INF
+var end_position = Vector3.ONE * -INF
 
 func _ready():
 	$GridMap.mesh_library = Global._blocks_mesh_library
@@ -17,14 +19,14 @@ func _ready():
 				c += 1 if (z != 0 and z != 5) else 0
 				if c > 1:
 					continue
-				_spawn_block(x, y, z, 0, cube)
+				_spawn_block(x, y, z, 0, cube)				
 	# Wheels
 	_spawn_block(-1, 0, 0, 0, wheel)
 	_spawn_block(-1, 0, 5, 0, wheel)
 	_spawn_block(3, 0, 0, 0, wheel)
 	_spawn_block(3, 0, 5, 0, wheel)
+	_set_collision_box(start_position, end_position)
 	_correct_center_of_mass()
-	_set_collision_box(Vector3(0, 0, 0), Vector3(2, 2, 0))
 
 
 func _correct_center_of_mass() -> void:
@@ -37,12 +39,9 @@ func _correct_center_of_mass() -> void:
 		total_mass += mass
 	position /= total_mass
 	position += Vector3.ONE * 0.5
-	print_debug(position)
 	for child in get_children():
-		remove_child(child)
 		child.translate(-position)
-		add_child(child)
-#	translate(position / 2)
+	translate(position)
 
 
 
@@ -53,11 +52,16 @@ func _spawn_block(x: int, y: int, z: int, r: int, block: Block) -> void:
 		assert(node is Spatial)
 		node.translation = Vector3(x, y, z) + Vector3.ONE / 2
 		add_child(node)
+	start_position.x = x if start_position.x > x else start_position.x
+	start_position.y = x if start_position.y > y else start_position.y
+	start_position.z = x if start_position.z > z else start_position.z
+	end_position.x = x if end_position.x < x else end_position.x
+	end_position.y = x if end_position.y < y else end_position.y
+	end_position.z = x if end_position.z < z else end_position.z
 
 
 func _set_collision_box(start: Vector3, end: Vector3) -> void:
-	start -= Vector3.ONE / 2
-	end += Vector3.ONE / 2
+	end += Vector3.ONE
 	var center = (start + end) / 2
 	var extents = (end - start) / 2
 	$CollisionShape.transform.origin = center
