@@ -1,0 +1,35 @@
+[remap]
+
+importer="texture"
+type="StreamTexture"
+path.s3tc="res://.import/set3_example_4.png-a3188277fa551ca4b9cc1e75f4e1c695.s3tc.stex"
+metadata={
+"imported_formats": [ "s3tc" ],
+"vram_texture": true
+}
+
+[deps]
+
+source_file="res://addons/tiles/metal_grid/set3_example_4.png"
+dest_files=[ "res://.import/set3_example_4.png-a3188277fa551ca4b9cc1e75f4e1c695.s3tc.stex" ]
+
+[params]
+
+compress/mode=2
+compress/lossy_quality=0.7
+compress/hdr_mode=0
+compress/bptc_ldr=0
+compress/normal_map=0
+flags/repeat=true
+flags/filter=true
+flags/mipmaps=true
+flags/anisotropic=false
+flags/srgb=1
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/HDR_as_SRGB=false
+process/invert_color=false
+stream=false
+size_limit=0
+detect_3d=false
+svg/scale=1.0
