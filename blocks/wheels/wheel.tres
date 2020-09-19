@@ -6,5 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 name = "wheel"
+category = "movement"
 scene = ExtResource( 2 )
 mass = 20
+size = Vector3( 1, 1, 1 )

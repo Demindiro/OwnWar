@@ -5,6 +5,7 @@ extends Spatial
 var start_position = Vector3.ONE * INF
 var end_position = Vector3.ONE * -INF
 
+
 func _ready():
 	$GridMap.mesh_library = Global._blocks_mesh_library
 	var cube = Global.blocks["cube"]
@@ -27,6 +28,14 @@ func _ready():
 	_spawn_block(3, 0, 5, 0, wheel)
 	_set_collision_box(start_position, end_position)
 	_correct_center_of_mass()
+
+
+static func save(var path: String, var blocks: Array) -> int:
+	return ERR_PRINTER_ON_FIRE
+	
+
+static func load(var path: String) -> Array:
+	return []
 
 
 func _correct_center_of_mass() -> void:

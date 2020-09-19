@@ -1,6 +1,7 @@
 extends Node
 
 const LOADER_MAX_TIME = 1 / 30
+const VERSION = "0.0.0"
 
 export var blocks: Dictionary = {}
 
@@ -12,8 +13,8 @@ onready var _blocks_mesh_library: MeshLibrary = MeshLibrary.new()
 
 
 func _ready():
-	Block.add_block(preload("res://blocks/cube.tres"))
-	Block.add_block(preload("res://blocks/wheels/wheel.tres"))
+	for file in recurse_directory("res://blocks", ".tres"):
+		Block.add_block(load(file))
 	var id = 1
 	for name in blocks:
 		var block = blocks[name]
@@ -30,6 +31,25 @@ func _process(_delta):
 		_load_scene()
 	else:
 		set_process(false)
+		
+
+func recurse_directory(path: String, ends_with: String = "", _arr := []) -> Array:
+	var directory = Directory.new()
+	directory.open(path)
+	directory.list_dir_begin(true)
+	var file = directory.get_next()
+	while file != "":
+		if directory.current_is_dir():
+			recurse_directory(path.plus_file(file), ends_with, _arr)
+		elif file.ends_with(ends_with):
+			_arr.append(path.plus_file(file))
+		file = directory.get_next()
+	directory.list_dir_end()
+	return _arr
+
+
+func get_block(name: String) -> Block:
+	return blocks[name]
 
 
 func goto_scene(path):
