@@ -17,7 +17,7 @@ func _input(event):
 	if not enabled:
 		return
 	if event is InputEventMouseMotion:
-		if always_capture or event.button_mask & BUTTON_RIGHT:
+		if always_capture or event.button_mask & BUTTON_MASK_RIGHT:
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 			_rot_x -= event.relative.x * angular_speed
 			_rot_y -= event.relative.y * angular_speed
@@ -25,8 +25,11 @@ func _input(event):
 			rotate_object_local(Vector3(0, 1, 0), _rot_x)
 			rotate_object_local(Vector3(1, 0, 0), _rot_y)
 	elif event is InputEventMouseButton:
-		if not always_capture and not event.button_index == BUTTON_RIGHT:
-			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		if not always_capture and event.button_index == BUTTON_RIGHT:
+			if event.is_pressed():
+				Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+			else:
+				Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 
 func _process(delta):
