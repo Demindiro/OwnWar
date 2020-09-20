@@ -51,16 +51,24 @@ static func mirror_rotation(var rotation: int) -> int:
 	match direction:
 		0, 1:
 			match angle:
-				0: angle = 2
-				2: angle = 0
+				3: angle = 1
+				1: angle = 3
 		2, 3:
 			match angle:
 				_: pass
 		4, 5:
 			match angle:
-				0: angle = 2
-				2: angle = 0
+				3: angle = 1
+				1: angle = 3
 	match direction:
 		2: direction = 3
 		3: direction = 2
 	return (direction << 2) | angle
+
+
+static func rotation_to_orthogonal_index(rotation: int) -> int:
+	assert(0 <= rotation and rotation < 24)
+	# For some reason the orientation still isn't correct
+	var basis := rotation_to_basis(rotation)
+	#basis *= Basis(Vector3.BACK, Vector3.UP, Vector3.RIGHT)
+	return basis.get_orthogonal_index()

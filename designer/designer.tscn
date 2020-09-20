@@ -25,20 +25,14 @@ flags_transparent = true
 params_depth_draw_mode = 1
 albedo_color = Color( 1, 1, 1, 0.392157 )
 
-[sub_resource type="QuadMesh" id=15]
+[sub_resource type="QuadMesh" id=4]
 
-[sub_resource type="SpatialMaterial" id=16]
+[sub_resource type="SpatialMaterial" id=5]
 flags_unshaded = true
 albedo_color = Color( 1, 0.00784314, 0.00784314, 1 )
 
-[sub_resource type="SpatialMaterial" id=4]
+[sub_resource type="SpatialMaterial" id=6]
 albedo_color = Color( 0.407843, 0.992157, 0.168627, 1 )
-
-[sub_resource type="InputEventAction" id=5]
-action = "ui_cancel"
-
-[sub_resource type="ShortCut" id=6]
-shortcut = SubResource( 5 )
 
 [sub_resource type="InputEventAction" id=7]
 action = "ui_cancel"
@@ -46,23 +40,29 @@ action = "ui_cancel"
 [sub_resource type="ShortCut" id=8]
 shortcut = SubResource( 7 )
 
-[sub_resource type="CubeMesh" id=9]
-size = Vector3( 1, 1, 1 )
-
-[sub_resource type="DynamicFont" id=14]
-font_data = ExtResource( 8 )
-
-[sub_resource type="InputEventAction" id=10]
+[sub_resource type="InputEventAction" id=9]
 action = "ui_cancel"
 
-[sub_resource type="ShortCut" id=11]
-shortcut = SubResource( 10 )
+[sub_resource type="ShortCut" id=10]
+shortcut = SubResource( 9 )
 
-[sub_resource type="InputEventAction" id=12]
+[sub_resource type="CubeMesh" id=11]
+size = Vector3( 1, 1, 1 )
+
+[sub_resource type="DynamicFont" id=12]
+font_data = ExtResource( 8 )
+
+[sub_resource type="InputEventAction" id=13]
+action = "ui_cancel"
+
+[sub_resource type="ShortCut" id=14]
+shortcut = SubResource( 13 )
+
+[sub_resource type="InputEventAction" id=15]
 action = "ui_accept"
 
-[sub_resource type="ShortCut" id=13]
-shortcut = SubResource( 12 )
+[sub_resource type="ShortCut" id=16]
+shortcut = SubResource( 15 )
 
 [node name="Designer" type="Node"]
 script = ExtResource( 2 )
@@ -94,8 +94,8 @@ texture = ExtResource( 10 )
 
 [node name="Mirror" type="MeshInstance" parent="Floor"]
 transform = Transform( 0.5, 0, 0, 0, -3.25841e-07, 1, 0, -2, -1.62921e-07, 0, 0.001, 0 )
-mesh = SubResource( 15 )
-material/0 = SubResource( 16 )
+mesh = SubResource( 4 )
+material/0 = SubResource( 5 )
 
 [node name="BlockFaceHighlighter" type="Spatial" parent="."]
 
@@ -104,7 +104,7 @@ transform = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 0, 0, 0
 width = 1.01
 height = 1.01
 depth = 0.1
-material = SubResource( 4 )
+material = SubResource( 6 )
 
 [node name="CSGBox" type="CSGBox" parent="BlockFaceHighlighter/CSGBox"]
 operation = 2
@@ -190,7 +190,7 @@ align = 1
 margin_top = 39.0
 margin_right = 159.0
 margin_bottom = 74.0
-shortcut = SubResource( 6 )
+shortcut = SubResource( 8 )
 text = "Continue"
 
 [node name="Save" type="Button" parent="HUD/Menu/Panel/MarginContainer/VBoxContainer"]
@@ -256,7 +256,7 @@ alignment = 2
 margin_left = 1870.0
 margin_right = 1906.0
 margin_bottom = 35.0
-shortcut = SubResource( 8 )
+shortcut = SubResource( 10 )
 text = "X"
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="HUD/Inventory"]
@@ -324,7 +324,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 42.9181, 16.5937, 0 )
 
 [node name="MeshInstance" type="MeshInstance" parent="HUD/Inventory/HBoxContainer2/HBoxContainer2/ViewportContainer/Viewport/Camera"]
 transform = Transform( 0.679543, 0.0364736, 0.732728, 0.321394, 0.883022, -0.34202, -0.65949, 0.467912, 0.588329, 0, 0, -2 )
-mesh = SubResource( 9 )
+mesh = SubResource( 11 )
 material/0 = null
 
 [node name="SaveVehicle" type="CenterContainer" parent="HUD"]
@@ -367,7 +367,7 @@ caret_blink = true
 margin_top = 68.0
 margin_right = 386.0
 margin_bottom = 88.0
-custom_fonts/font = SubResource( 14 )
+custom_fonts/font = SubResource( 12 )
 
 [node name="PanelContainer" type="PanelContainer" parent="HUD/SaveVehicle/PanelContainer/VBoxContainer"]
 margin_top = 92.0
@@ -409,7 +409,7 @@ anchor_bottom = 0.0322581
 margin_right = 191.0
 margin_bottom = 31.0
 size_flags_horizontal = 3
-shortcut = SubResource( 11 )
+shortcut = SubResource( 14 )
 text = "Cancel"
 
 [node name="Save" type="Button" parent="HUD/SaveVehicle/PanelContainer/VBoxContainer/HBoxContainer"]
@@ -417,7 +417,7 @@ margin_left = 195.0
 margin_right = 386.0
 margin_bottom = 31.0
 size_flags_horizontal = 3
-shortcut = SubResource( 13 )
+shortcut = SubResource( 16 )
 text = "Save"
 
 [node name="LoadVehicle" type="CenterContainer" parent="HUD"]
@@ -490,7 +490,7 @@ __meta__ = {
 margin_right = 191.0
 margin_bottom = 31.0
 size_flags_horizontal = 3
-shortcut = SubResource( 11 )
+shortcut = SubResource( 14 )
 text = "Cancel"
 
 [node name="Load" type="Button" parent="HUD/LoadVehicle/PanelContainer/VBoxContainer/HBoxContainer"]
@@ -498,7 +498,7 @@ margin_left = 195.0
 margin_right = 386.0
 margin_bottom = 31.0
 size_flags_horizontal = 3
-shortcut = SubResource( 13 )
+shortcut = SubResource( 16 )
 text = "Load"
 [connection signal="pressed" from="HUD/Menu/Panel/MarginContainer/VBoxContainer/Continue" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="HUD/Menu/Panel/MarginContainer/VBoxContainer/Save" to="HUD/Menu" method="set_visible" binds= [ false ]]
@@ -513,5 +513,5 @@ text = "Load"
 [connection signal="pressed" from="HUD/SaveVehicle/PanelContainer/VBoxContainer/HBoxContainer/Save" to="." method="set_enabled" binds= [ true ]]
 [connection signal="load_vehicle" from="HUD/LoadVehicle" to="." method="load_vehicle"]
 [connection signal="pressed" from="HUD/LoadVehicle/PanelContainer/VBoxContainer/HBoxContainer/Cancel" to="." method="set_enabled" binds= [ true ]]
-[connection signal="pressed" from="HUD/LoadVehicle/PanelContainer/VBoxContainer/HBoxContainer/Load" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="HUD/LoadVehicle/PanelContainer/VBoxContainer/HBoxContainer/Load" to="HUD/LoadVehicle" method="_on_Load_pressed"]
+[connection signal="pressed" from="HUD/LoadVehicle/PanelContainer/VBoxContainer/HBoxContainer/Load" to="." method="set_enabled" binds= [ true ]]
