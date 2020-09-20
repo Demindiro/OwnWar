@@ -39,7 +39,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Own War"
-run/main_scene="res://maps/designer.tscn"
+run/main_scene="res://menus/main.tscn"
 config/icon="res://icon.png"
 
 [autoload]
