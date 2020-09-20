@@ -94,6 +94,7 @@ func place_block(coordinate, rotation):
 		return false
 	var node = MeshInstance.new()
 	node.mesh = block.mesh
+	node.material_override = block.material
 	if block.scene != null:
 		var scene = block.scene.instance()
 		node.add_child(scene)

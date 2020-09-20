@@ -31,6 +31,7 @@ func show_category(var category):
 func show_block(var block_name):
 	var block = Global.blocks[block_name]
 	_preview_mesh.mesh = block.mesh
+	_preview_mesh.material_override = block.material
 	
 	
 func _resolve_node_paths():
