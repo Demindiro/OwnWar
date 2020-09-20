@@ -6,15 +6,12 @@ extends Resource
 export(String) var name: String
 export(String) var category: String = "other"
 export(Mesh) var mesh: Mesh
+export(Material) var material: Material
 export(PackedScene) var scene: PackedScene
 export(int) var mass: int = 1
 export(Vector3) var size: Vector3 = Vector3.ONE
 
 var id
-
-
-func _init(p_mesh: Mesh = null):
-	mesh = p_mesh
 
 
 static func add_block(block: Block):
@@ -64,11 +61,3 @@ static func mirror_rotation(var rotation: int) -> int:
 		2: direction = 3
 		3: direction = 2
 	return (direction << 2) | angle
-
-
-static func rotation_to_orthogonal_index(rotation: int) -> int:
-	assert(0 <= rotation and rotation < 24)
-	# For some reason the orientation still isn't correct
-	var basis := rotation_to_basis(rotation)
-	#basis *= Basis(Vector3.BACK, Vector3.UP, Vector3.RIGHT)
-	return basis.get_orthogonal_index()
