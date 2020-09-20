@@ -1,0 +1,12 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://blocks/block.gd" type="Script" id=1]
+[ext_resource path="res://blocks/debug/vane.obj" type="ArrayMesh" id=2]
+
+[resource]
+script = ExtResource( 1 )
+name = "vane"
+category = "debugging"
+mesh = ExtResource( 2 )
+mass = 1
+size = Vector3( 1, 1, 1 )
