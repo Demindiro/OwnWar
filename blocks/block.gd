@@ -21,7 +21,7 @@ static func add_block(block: Block):
 	Global.blocks[block.name] = block
 
 
-static func rotation_to_basis(var rotation: int) -> Basis:
+static func rotation_to_basis(rotation: int) -> Basis:
 	assert(0 <= rotation and rotation < 24)
 	var angle = rotation & 0b11
 	var direction = (rotation & 0b11100) >> 2
@@ -29,19 +29,19 @@ static func rotation_to_basis(var rotation: int) -> Basis:
 	basis = Basis(Vector3.UP, PI / 2 * angle) * basis
 	match direction:
 		1:
-			basis = Basis.FLIP_Y * basis
+			basis = Basis(Vector3.FORWARD, PI) * basis
 		2:
 			basis = Basis(Vector3.FORWARD, PI / 2) * basis
 		3:
-			basis = Basis.FLIP_X * Basis(Vector3.FORWARD, PI / 2) * basis
+			basis = Basis(Vector3.FORWARD, PI) * Basis(Vector3.FORWARD, PI / 2) * basis
 		4:
 			basis = Basis(Vector3.RIGHT, PI / 2) * basis
 		5:
-			basis = Basis.FLIP_Z * Basis(Vector3.RIGHT, PI / 2) * basis
+			basis = Basis(Vector3.UP, PI) * Basis(Vector3.RIGHT, PI / 2) * basis
 	return basis
 
 
-static func mirror_rotation(var rotation: int) -> int:
+static func mirror_rotation(rotation: int) -> int:
 	assert(0 <= rotation and rotation < 24)
 	var angle = rotation & 0b11
 	var direction = (rotation & 0b11100) >> 2
@@ -61,3 +61,8 @@ static func mirror_rotation(var rotation: int) -> int:
 		2: direction = 3
 		3: direction = 2
 	return (direction << 2) | angle
+	
+
+static func rotation_to_orthogonal_index(rotation: int) -> int:
+	var basis := rotation_to_basis(rotation)
+	return basis.get_orthogonal_index()
