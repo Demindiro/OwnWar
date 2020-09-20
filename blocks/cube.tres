@@ -10,5 +10,5 @@ script = ExtResource( 1 )
 name = "cube"
 category = "structural"
 mesh = SubResource( 1 )
-mass = 10
+mass = 20
 size = Vector3( 1, 1, 1 )

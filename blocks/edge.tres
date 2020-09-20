@@ -8,5 +8,5 @@ script = ExtResource( 1 )
 name = "edge"
 category = "structural"
 mesh = ExtResource( 2 )
-mass = 10
+mass = 20
 size = Vector3( 1, 1, 1 )

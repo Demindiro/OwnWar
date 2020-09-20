@@ -9,6 +9,11 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Reference",
+"class": "AI",
+"language": "GDScript",
+"path": "res://vehicles/ai/ai.gd"
+}, {
 "base": "Resource",
 "class": "Block",
 "language": "GDScript",
@@ -25,6 +30,7 @@ _global_script_classes=[ {
 "path": "res://vehicles/vehicle.gd"
 } ]
 _global_script_class_icons={
+"AI": "",
 "Block": "",
 "GitAPI": "",
 "Vehicle": ""
@@ -33,7 +39,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Own War"
-run/main_scene="res://designer/designer.tscn"
+run/main_scene="res://maps/designer.tscn"
 config/icon="res://icon.png"
 
 [autoload]
@@ -141,6 +147,7 @@ designer_mirror={
 [physics]
 
 3d/physics_engine="Bullet"
+3d/default_gravity=29.4
 
 [rendering]
 

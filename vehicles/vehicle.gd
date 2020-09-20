@@ -2,12 +2,43 @@ class_name Vehicle
 
 extends Spatial
 
+export(GDScript) var ai_script
+export var debug := false
+
 var start_position = Vector3.ONE * INF
 var end_position = Vector3.ONE * -INF
+var ai: AI
+var drive_forward := 0.0
+var drive_yaw := 0.0
+var drive_roll := 0.0
+var brake := 0.0
 
 
 func _ready():
 	$GridMap.mesh_library = Global._blocks_mesh_library
+	if ai_script != null:
+		ai = ai_script.new()
+		ai.init(self)
+		
+
+func _process(_delta):
+	ai.debug = debug
+	if ai != null and ai.debug:
+		ai.debug_draw($"../ImmediateGeometry")
+	
+	
+func _physics_process(_delta):
+	if ai != null:
+		assert(ai is AI)
+		ai.process()
+	drive_forward = clamp(drive_forward, -1, 1)
+	drive_yaw = clamp(drive_yaw, -1, 1)
+	for child in get_children():
+		if child is VehicleWheel:
+			var angle = asin(child.translation.dot(Vector3.FORWARD) / child.translation.length())
+			child.steering = angle * drive_yaw
+			child.engine_force = drive_forward * 40
+			child.brake = brake * 1
 
 
 func load_from_file(path: String) -> int:
@@ -25,7 +56,6 @@ func load_from_file(path: String) -> int:
 		var name = data["blocks"][key][0]
 		var rotation = data["blocks"][key][1]
 		_spawn_block(x, y, z, rotation, Global.blocks[name])
-		yield()
 	_set_collision_box(start_position, end_position)
 	_correct_center_of_mass()
 	return OK
@@ -43,9 +73,9 @@ func _correct_center_of_mass() -> void:
 	position += Vector3.ONE * 0.5
 	for child in get_children():
 		child.translate(-position)
-		remove_child(child) # Necessary to force VehicleWheel to move
-		add_child(child)    # See VehicleWheel3D::_notification in vehicle_body_3d.cpp:81
-	translate(position)
+		if child is VehicleWheel:
+			remove_child(child) # Necessary to force VehicleWheel to move
+			add_child(child)    # See VehicleWheel3D::_notification in vehicle_body_3d.cpp:81
 
 
 

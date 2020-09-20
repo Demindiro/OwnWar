@@ -1,17 +1,18 @@
 extends Spatial
 
 
-export(bool) var autocomplete = true
-
-var coroutine
-
-
 func _ready():
-	coroutine = $Vehicle.load_from_file("user://vehicles/apc.json")
-	while autocomplete and coroutine is GDScriptFunctionState:
-		coroutine = coroutine.resume()
+	$Vehicle.load_from_file("user://vehicles/apc.json")
 
 
-func _on_Button_pressed():
-	if coroutine is GDScriptFunctionState:
-		coroutine = coroutine.resume()
+func _input(event):
+	if event is InputEventMouseButton and event.button_index == 1 and event.pressed:
+		var origin = $Camera.project_ray_origin(event.global_position)
+		var normal = $Camera.project_ray_normal(event.global_position)
+		var space_state := get_world().direct_space_state
+		var result = space_state.intersect_ray(origin, normal * 1000)
+		if len(result) == 0:
+			print("Waypoint ray did not hit an object")
+		else:
+			print("Setting waypoint to " + str(result.position))
+			$Vehicle.ai.waypoint = result.position
