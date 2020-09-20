@@ -1,6 +1,6 @@
 extends Node
 
-const LOADER_MAX_TIME = 1 / 30
+const LOADER_MAX_TIME = 1000 / 30
 const VERSION = "0.0.0"
 
 export var blocks: Dictionary = {}
@@ -8,6 +8,7 @@ export var blocks: Dictionary = {}
 var blocks_by_id: Array = [null]
 
 var _loader
+var _loading_screen
 
 onready var _blocks_mesh_library: MeshLibrary = MeshLibrary.new()
 
@@ -62,26 +63,35 @@ func _goto_scene(path):
 		print_debug("Error creating loader")
 		return
 	set_process(true)
-	get_tree().get_root().queue_free()
-	print_debug("TODO: implement loading animation")
-
+	get_tree().root.get_child(1).queue_free()
+	_loading_screen = preload("res://menus/loading_screen.tscn").instance()
+	get_tree().root.add_child(_loading_screen)
+	_load_scene()
 
 func _load_scene():
-	var t = OS.get_ticks_sec()
-	while OS.get_ticks_sec() < t + LOADER_MAX_TIME:
+	var t = OS.get_ticks_msec()
+	while OS.get_ticks_msec() < t + LOADER_MAX_TIME:
 		var err = _loader.poll()
 		if err == ERR_FILE_EOF:
 			var scene = _loader.get_resource().instance()
 			get_node("/root").add_child(scene)
 			_loader = null
-			break
+			_loading_screen.queue_free()
+			return
 		elif err == OK:
-			_show_loading_progress()
+			pass
 		else:
 			print_debug("Error loading scene")
+			_loading_screen.get_node("LoadingScreen/ColorRect").color = Color.red
 			_loader = null
 			break
+	_show_loading_progress()
 
 
 func _show_loading_progress():
-	print_debug("Progress: %d/%d" % [_loader.get_stage(), _loader.get_stage_count()])
+	var stage = _loader.get_stage()
+	var count = _loader.get_stage_count()
+	var bar = _loading_screen.get_node("ProgressBar")
+	bar.max_value = count
+	bar.value = stage
+	#print("Progress: %d/%d" % [stage, count])

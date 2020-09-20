@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=9 format=2]
+[gd_resource type="Theme" load_steps=10 format=2]
 
 [ext_resource path="res://menus/good_times_rg.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://menus/theme/panel.tres" type="StyleBox" id=2]
@@ -6,7 +6,7 @@
 [sub_resource type="StyleBoxEmpty" id=7]
 
 [sub_resource type="StyleBoxFlat" id=5]
-bg_color = Color( 0.208105, 0.198372, 0.237305, 1 )
+bg_color = Color( 0.207843, 0.2, 0.239216, 1 )
 border_width_left = 1
 border_width_top = 1
 border_color = Color( 0, 0, 0, 1 )
@@ -14,8 +14,8 @@ corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
-expand_margin_left = 4.0
-expand_margin_right = 4.0
+expand_margin_left = 10.0
+expand_margin_right = 10.0
 expand_margin_top = 4.0
 expand_margin_bottom = 4.0
 
@@ -28,20 +28,20 @@ corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
-expand_margin_left = 4.0
-expand_margin_right = 4.0
+expand_margin_left = 10.0
+expand_margin_right = 10.0
 expand_margin_top = 4.0
 expand_margin_bottom = 4.0
 
 [sub_resource type="StyleBoxFlat" id=6]
-bg_color = Color( 0.132782, 0.127563, 0.148438, 1 )
+bg_color = Color( 0.14902, 0.172549, 0.231373, 1 )
 border_color = Color( 0, 0, 0, 1 )
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
-expand_margin_left = 4.0
-expand_margin_right = 4.0
+expand_margin_left = 10.0
+expand_margin_right = 10.0
 expand_margin_top = 4.0
 expand_margin_bottom = 4.0
 
@@ -54,6 +54,13 @@ corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id=8]
+bg_color = Color( 0.207843, 0.2, 0.239216, 1 )
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
 [sub_resource type="DynamicFont" id=2]
 size = 20
@@ -294,10 +301,10 @@ PopupMenu/styles/panel = null
 PopupMenu/styles/panel_disabled = null
 PopupMenu/styles/separator = null
 PopupPanel/styles/panel = null
-ProgressBar/colors/font_color = Color( 0, 0, 0, 1 )
+ProgressBar/colors/font_color = Color( 1, 1, 1, 1 )
 ProgressBar/colors/font_color_shadow = Color( 0, 0, 0, 1 )
 ProgressBar/fonts/font = null
-ProgressBar/styles/bg = null
+ProgressBar/styles/bg = SubResource( 8 )
 ProgressBar/styles/fg = null
 RichTextLabel/colors/default_color = Color( 0, 0, 0, 1 )
 RichTextLabel/colors/font_color_selected = Color( 0, 0, 0, 1 )
