@@ -3,13 +3,14 @@
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
 [ext_resource path="res://designer/designer.gd" type="Script" id=2]
 [ext_resource path="res://designer/floor.gd" type="Script" id=3]
-[ext_resource path="res://menus/theme.tres" type="Theme" id=4]
+[ext_resource path="res://menus/theme/theme.tres" type="Theme" id=4]
 [ext_resource path="res://designer/inventory.gd" type="Script" id=5]
 [ext_resource path="res://designer/save_vehicle.gd" type="Script" id=6]
 [ext_resource path="res://addons/crosshairs/image0018.png" type="Texture" id=7]
 [ext_resource path="res://menus/good_times_rg.ttf" type="DynamicFontData" id=8]
 [ext_resource path="res://designer/load_vehicle.gd" type="Script" id=9]
 [ext_resource path="res://addons/arrow.png" type="Texture" id=10]
+
 
 [sub_resource type="SpatialMaterial" id=1]
 flags_unshaded = true
