@@ -2,6 +2,7 @@ extends "res://designer/vehicle_selector.gd"
 
 
 signal load_vehicle(path)
+signal cancel()
 
 onready var name_box = find_node("Name")
 onready var path_box = find_node("Path")
@@ -41,4 +42,3 @@ func _on_Load_pressed():
 	assert(path.is_valid_filename())
 	var absolute_path = directory.get_current_dir().plus_file(path)
 	emit_signal("load_vehicle", absolute_path)
-	$"../SaveVehicle".set_path(path)

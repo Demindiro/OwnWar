@@ -30,6 +30,11 @@ func set_path(path):
 	if path.ends_with(FILE_EXTENSION):
 		name_box.text = path_to_name(path)
 		_on_Name_text_changed(name_box.text)
+		
+		
+func set_full_path(path):
+	assert(path.begins_with("user://vehicles/"))
+	set_path(path.substr(len("user://vehicles/")))
 
 
 func _on_Save_pressed():

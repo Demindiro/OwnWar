@@ -211,3 +211,8 @@ func _on_Exit_pressed():
 
 func _on_Test_pressed():
 	Global.goto_scene("res://maps/designer.tscn")
+
+
+func _on_LoadVehicle_load_vehicle(path):
+	load_vehicle(path)
+	set_enabled(true)
