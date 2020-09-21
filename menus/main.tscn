@@ -20,7 +20,7 @@ size = Vector2( 1000, 1000 )
 albedo_texture = ExtResource( 1 )
 uv1_scale = Vector3( 66.666, 66.666, 1 )
 
-[sub_resource type="SpatialMaterial" id=6]
+[sub_resource type="SpatialMaterial" id=4]
 flags_unshaded = true
 vertex_color_use_as_albedo = true
 
@@ -32,7 +32,7 @@ func _process(_delta):
 	clear()
 "
 
-[sub_resource type="DynamicFont" id=4]
+[sub_resource type="DynamicFont" id=6]
 size = 10
 font_data = ExtResource( 7 )
 
@@ -77,7 +77,7 @@ keep_distance = 50.0
 
 [node name="ImmediateGeometry" type="ImmediateGeometry" parent="."]
 process_priority = -1
-material_override = SubResource( 6 )
+material_override = SubResource( 4 )
 script = SubResource( 5 )
 
 [node name="HUD" type="Control" parent="."]
@@ -142,7 +142,7 @@ align = 1
 margin_top = 35.0
 margin_right = 250.0
 margin_bottom = 48.0
-custom_fonts/font = SubResource( 4 )
+custom_fonts/font = SubResource( 6 )
 text = "Version 0.0.1"
 align = 1
 __meta__ = {

@@ -4,8 +4,6 @@ extends Reference
 
 # AI Interface
 
-export var debug := false
-
 var vehicle
 var waypoint: Vector3
 

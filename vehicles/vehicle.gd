@@ -5,13 +5,14 @@ extends Spatial
 export(GDScript) var ai_script
 export var debug := false
 
-var start_position = Vector3.ONE * INF
-var end_position = Vector3.ONE * -INF
+var start_position := Vector3.ONE * INF
+var end_position := Vector3.ONE * -INF
 var ai: AI
 var drive_forward := 0.0
 var drive_yaw := 0.0
 var drive_roll := 0.0
 var brake := 0.0
+var weapons_aim_point := Vector3.ZERO
 
 
 func _ready():
@@ -22,9 +23,13 @@ func _ready():
 		
 
 func _process(_delta):
-	ai.debug = debug
-	if ai != null and ai.debug:
-		ai.debug_draw($"../ImmediateGeometry")
+	if debug:
+		if ai != null:
+			ai.debug_draw($"../ImmediateGeometry")
+		for child in get_children():
+			if child is Weapon:
+				child.debug_draw($"../ImmediateGeometry")
+				
 	
 	
 func _physics_process(_delta):
@@ -39,6 +44,8 @@ func _physics_process(_delta):
 			child.steering = angle * drive_yaw
 			child.engine_force = drive_forward * 40
 			child.brake = brake * 1
+		elif child is Weapon:
+			child.aim_at(weapons_aim_point)
 
 
 func load_from_file(path: String) -> int:
