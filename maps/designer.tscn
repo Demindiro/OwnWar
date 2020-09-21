@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=25 format=2]
 
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
 [ext_resource path="res://addons/tiles/metal_grid/set3_example_2.png" type="Texture" id=2]
@@ -7,7 +7,9 @@
 [ext_resource path="res://vehicles/vehicle.tscn" type="PackedScene" id=5]
 [ext_resource path="res://blocks/debug/vane.obj" type="ArrayMesh" id=6]
 [ext_resource path="res://vehicles/ai/brick.gd" type="Script" id=7]
-
+[ext_resource path="res://menus/theme/theme.tres" type="Theme" id=8]
+[ext_resource path="res://menus/main.tscn" type="PackedScene" id=9]
+[ext_resource path="res://designer/designer.tscn" type="PackedScene" id=10]
 
 [sub_resource type="PlaneMesh" id=1]
 size = Vector2( 1000, 1000 )
@@ -66,6 +68,64 @@ albedo_color = Color( 1, 0, 0, 1 )
 [sub_resource type="SpatialMaterial" id=12]
 flags_unshaded = true
 vertex_color_use_as_albedo = true
+
+[sub_resource type="GDScript" id=14]
+script/source = "extends Control
+
+
+var mouse_mode
+
+
+func set_enabled(enabled):
+	print(enabled)
+	visible = enabled
+	get_tree().paused = enabled
+	if enabled:
+		mouse_mode = Input.get_mouse_mode()
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	else:
+		Input.set_mouse_mode(mouse_mode)
+		for child in get_children():
+			child.visible = false
+"
+
+[sub_resource type="GDScript" id=13]
+script/source = "extends CenterContainer
+
+
+# TODO: figure this circular reference stuff out
+#export(PackedScene) var this_scene
+export(PackedScene) var designer_scene
+export(PackedScene) var exit_scene
+
+
+func _input(event):
+	if event.is_action_pressed(\"ui_cancel\"):
+		var enable = !visible
+		get_parent().set_enabled(enable)
+		visible = enable
+
+
+func _on_Continue_pressed():
+	get_parent().set_enabled(visible)
+
+
+func _on_Restart_pressed():
+#	Global.goto_scene(this_scene)
+	Global.goto_scene(load(\"res://maps/designer.tscn\"))
+
+
+func _on_Spawn_pressed():
+	pass # Replace with function body.
+
+
+func _on_Designer_pressed():
+	Global.goto_scene(designer_scene)
+
+
+func _on_Exit_pressed():
+	Global.goto_scene(exit_scene)
+"
 
 [node name="Designer" type="Spatial"]
 script = ExtResource( 4 )
@@ -165,3 +225,98 @@ debug = true
 
 [node name="ImmediateGeometry" type="ImmediateGeometry" parent="."]
 material_override = SubResource( 12 )
+
+[node name="GUI" type="ColorRect" parent="."]
+pause_mode = 2
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 8 )
+color = Color( 0, 0, 0, 0.392157 )
+script = SubResource( 14 )
+
+[node name="Menu" type="CenterContainer" parent="GUI"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = SubResource( 13 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+designer_scene = ExtResource( 10 )
+exit_scene = ExtResource( 9 )
+
+[node name="PanelContainer" type="PanelContainer" parent="GUI/Menu"]
+margin_left = 959.0
+margin_top = 539.0
+margin_right = 961.0
+margin_bottom = 541.0
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="MarginContainer" type="MarginContainer" parent="GUI/Menu/PanelContainer"]
+margin_left = 2.0
+margin_top = 2.0
+margin_right = 249.0
+margin_bottom = 275.0
+custom_constants/margin_right = 20
+custom_constants/margin_top = 20
+custom_constants/margin_left = 20
+custom_constants/margin_bottom = 20
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GUI/Menu/PanelContainer/MarginContainer"]
+margin_left = 20.0
+margin_top = 20.0
+margin_right = 227.0
+margin_bottom = 253.0
+custom_constants/separation = 10
+alignment = 1
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Label" type="Label" parent="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer"]
+margin_right = 207.0
+margin_bottom = 53.0
+text = "Menu
+"
+align = 1
+
+[node name="Continue" type="Button" parent="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer"]
+margin_top = 63.0
+margin_right = 207.0
+margin_bottom = 89.0
+text = "Continue"
+
+[node name="Restart" type="Button" parent="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer"]
+margin_top = 99.0
+margin_right = 207.0
+margin_bottom = 125.0
+text = "Restart"
+
+[node name="Spawn" type="Button" parent="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer"]
+margin_top = 135.0
+margin_right = 207.0
+margin_bottom = 161.0
+text = "Spawn Vehicle"
+
+[node name="Designer" type="Button" parent="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer"]
+margin_top = 171.0
+margin_right = 207.0
+margin_bottom = 197.0
+text = "Designer"
+
+[node name="Exit" type="Button" parent="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer"]
+margin_top = 207.0
+margin_right = 207.0
+margin_bottom = 233.0
+text = "Exit"
+[connection signal="pressed" from="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer/Continue" to="GUI/Menu" method="_on_Continue_pressed"]
+[connection signal="pressed" from="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer/Restart" to="GUI/Menu" method="_on_Restart_pressed"]
+[connection signal="pressed" from="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer/Spawn" to="GUI/Menu" method="_on_Spawn_pressed"]
+[connection signal="pressed" from="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer/Designer" to="GUI/Menu" method="_on_Designer_pressed"]
+[connection signal="pressed" from="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer/Exit" to="GUI/Menu" method="_on_Exit_pressed"]

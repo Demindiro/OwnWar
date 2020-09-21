@@ -1,11 +1,10 @@
 [gd_resource type="Theme" load_steps=10 format=2]
 
-[ext_resource path="res://menus/good_times_rg.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://menus/theme/panel.tres" type="StyleBox" id=2]
 
-[sub_resource type="StyleBoxEmpty" id=7]
+[sub_resource type="StyleBoxEmpty" id=1]
 
-[sub_resource type="StyleBoxFlat" id=5]
+[sub_resource type="StyleBoxFlat" id=2]
 bg_color = Color( 0.207843, 0.2, 0.239216, 1 )
 border_width_left = 1
 border_width_top = 1
@@ -19,7 +18,7 @@ expand_margin_right = 10.0
 expand_margin_top = 4.0
 expand_margin_bottom = 4.0
 
-[sub_resource type="StyleBoxFlat" id=4]
+[sub_resource type="StyleBoxFlat" id=3]
 bg_color = Color( 0.172549, 0.164706, 0.196078, 1 )
 border_width_left = 1
 border_width_top = 1
@@ -33,8 +32,8 @@ expand_margin_right = 10.0
 expand_margin_top = 4.0
 expand_margin_bottom = 4.0
 
-[sub_resource type="StyleBoxFlat" id=6]
-bg_color = Color( 0.14902, 0.172549, 0.231373, 1 )
+[sub_resource type="StyleBoxFlat" id=4]
+bg_color = Color( 0.141176, 0.137255, 0.160784, 1 )
 border_color = Color( 0, 0, 0, 1 )
 corner_radius_top_left = 5
 corner_radius_top_right = 5
@@ -45,7 +44,7 @@ expand_margin_right = 10.0
 expand_margin_top = 4.0
 expand_margin_bottom = 4.0
 
-[sub_resource type="StyleBoxFlat" id=3]
+[sub_resource type="StyleBoxFlat" id=5]
 bg_color = Color( 0.145098, 0.145098, 0.164706, 1 )
 border_width_left = 2
 border_width_top = 2
@@ -55,19 +54,22 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
-[sub_resource type="StyleBoxFlat" id=8]
+[sub_resource type="StyleBoxFlat" id=6]
 bg_color = Color( 0.207843, 0.2, 0.239216, 1 )
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="DynamicFont" id=2]
+[sub_resource type="DynamicFontData" id=7]
+font_path = "res://menus/good_times_rg.ttf"
+
+[sub_resource type="DynamicFont" id=8]
 size = 20
-font_data = ExtResource( 1 )
+font_data = SubResource( 7 )
 
 [resource]
-default_font = SubResource( 2 )
+default_font = SubResource( 8 )
 Button/colors/font_color = Color( 1, 1, 1, 1 )
 Button/colors/font_color_disabled = Color( 1, 1, 1, 1 )
 Button/colors/font_color_hover = Color( 0.988235, 0.988235, 0.988235, 1 )
@@ -75,10 +77,10 @@ Button/colors/font_color_pressed = Color( 1, 1, 1, 1 )
 Button/constants/hseparation = 2
 Button/fonts/font = null
 Button/styles/disabled = null
-Button/styles/focus = SubResource( 7 )
-Button/styles/hover = SubResource( 5 )
-Button/styles/normal = SubResource( 4 )
-Button/styles/pressed = SubResource( 6 )
+Button/styles/focus = SubResource( 1 )
+Button/styles/hover = SubResource( 2 )
+Button/styles/normal = SubResource( 3 )
+Button/styles/pressed = SubResource( 4 )
 CheckBox/colors/font_color = Color( 0, 0, 0, 1 )
 CheckBox/colors/font_color_disabled = Color( 0, 0, 0, 1 )
 CheckBox/colors/font_color_hover = Color( 0, 0, 0, 1 )
@@ -280,7 +282,7 @@ OptionButton/styles/hover = null
 OptionButton/styles/normal = null
 OptionButton/styles/pressed = null
 Panel/styles/panel = ExtResource( 2 )
-PanelContainer/styles/panel = SubResource( 3 )
+PanelContainer/styles/panel = SubResource( 5 )
 PopupDialog/styles/panel = null
 PopupMenu/colors/font_color = Color( 0, 0, 0, 1 )
 PopupMenu/colors/font_color_accel = Color( 0, 0, 0, 1 )
@@ -304,7 +306,7 @@ PopupPanel/styles/panel = null
 ProgressBar/colors/font_color = Color( 1, 1, 1, 1 )
 ProgressBar/colors/font_color_shadow = Color( 0, 0, 0, 1 )
 ProgressBar/fonts/font = null
-ProgressBar/styles/bg = SubResource( 8 )
+ProgressBar/styles/bg = SubResource( 6 )
 ProgressBar/styles/fg = null
 RichTextLabel/colors/default_color = Color( 0, 0, 0, 1 )
 RichTextLabel/colors/font_color_selected = Color( 0, 0, 0, 1 )

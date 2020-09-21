@@ -58,15 +58,23 @@ func goto_scene(path):
 
 
 func _goto_scene(path):
-	_loader = ResourceLoader.load_interactive(path)
-	if _loader == null:
-		print_debug("Error creating loader")
-		return
-	set_process(true)
-	get_tree().root.get_child(1).queue_free()
-	_loading_screen = preload("res://menus/loading_screen.tscn").instance()
-	get_tree().root.add_child(_loading_screen)
-	_load_scene()
+	if path is PackedScene:
+		# TODO figure out how resource handling in Godot _actually_ works
+		var scene = path.instance()
+		get_tree().root.get_child(1).queue_free()
+		get_tree().root.add_child(scene)
+	else:
+		_loader = ResourceLoader.load_interactive(path)
+		if _loader == null:
+			print_debug("Error creating loader")
+			return
+		set_process(true)
+		get_tree().root.get_child(1).queue_free()
+		_loading_screen = preload("res://menus/loading_screen.tscn").instance()
+		get_tree().root.add_child(_loading_screen)
+		_load_scene()
+	get_tree().paused = false
+
 
 func _load_scene():
 	var t = OS.get_ticks_msec()
@@ -74,17 +82,18 @@ func _load_scene():
 		var err = _loader.poll()
 		if err == ERR_FILE_EOF:
 			var scene = _loader.get_resource().instance()
-			get_node("/root").add_child(scene)
+			get_tree().root.add_child(scene)
 			_loader = null
 			_loading_screen.queue_free()
 			return
 		elif err == OK:
 			pass
 		else:
-			print_debug("Error loading scene")
-			_loading_screen.get_node("LoadingScreen/ColorRect").color = Color.red
+			print_debug("Error loading scene: ", err)
+			_loading_screen.get_node("ColorRect").color = Color.red
+			_show_loading_progress()
 			_loader = null
-			break
+			return
 	_show_loading_progress()
 
 

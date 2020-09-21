@@ -8,6 +8,8 @@
 [ext_resource path="res://menus/theme/theme.tres" type="Theme" id=6]
 [ext_resource path="res://menus/good_times_rg.ttf" type="DynamicFontData" id=7]
 
+
+
 [sub_resource type="HeightMapShape" id=1]
 map_width = 1000
 map_depth = 1000

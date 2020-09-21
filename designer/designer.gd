@@ -204,3 +204,10 @@ func _v2a(v):
 func _a2v(a):
 	return Vector3(a[0], a[1], a[2])
 
+
+func _on_Exit_pressed():
+	Global.goto_scene("res://menus/main.tscn")
+
+
+func _on_Test_pressed():
+	Global.goto_scene("res://maps/designer.tscn")
