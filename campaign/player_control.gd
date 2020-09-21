@@ -1,6 +1,9 @@
 extends Spatial
 
 
+export(PackedScene) var vehicle_template
+export(GDScript) var ai
+
 var selected_units = []
 
 var _selecting_units = false
@@ -60,6 +63,15 @@ func _input(event):
 			$HUD.update()
 
 
+func load_vehicle(path):
+	var vehicle = vehicle_template.instance()
+	vehicle.ai_script = ai
+	vehicle.load_from_file(path)
+	vehicle.debug = true
+	add_child(vehicle)
+	vehicle.translation.y = 3
+
+
 func _on_HUD_draw():
 	if _selecting_units:
 		var rect = Rect2(_mouse_position_start, _last_mouse_position - _mouse_position_start)
@@ -69,3 +81,4 @@ func _on_HUD_draw():
 			var position = $Camera.unproject_position(unit.translation)
 			var rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
 			$HUD.draw_rect(rect, Color.orange, false, 2)
+

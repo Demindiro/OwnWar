@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=27 format=2]
 
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
 [ext_resource path="res://addons/tiles/metal_grid/set3_example_2.png" type="Texture" id=2]
@@ -10,6 +10,7 @@
 [ext_resource path="res://menus/theme/theme.tres" type="Theme" id=8]
 [ext_resource path="res://menus/main.tscn" type="PackedScene" id=9]
 [ext_resource path="res://designer/designer.tscn" type="PackedScene" id=10]
+[ext_resource path="res://menus/load_vehicle.tscn" type="PackedScene" id=11]
 
 [sub_resource type="PlaneMesh" id=1]
 size = Vector2( 1000, 1000 )
@@ -69,15 +70,29 @@ albedo_color = Color( 1, 0, 0, 1 )
 flags_unshaded = true
 vertex_color_use_as_albedo = true
 
+[sub_resource type="GDScript" id=15]
+script/source = "extends ImmediateGeometry
+
+
+func _process(_delta):
+	clear()
+"
+
 [sub_resource type="GDScript" id=14]
 script/source = "extends Control
 
 
-var mouse_mode
+var enabled = false setget set_enabled
+
+onready var mouse_mode = Input.get_mouse_mode()
 
 
-func set_enabled(enabled):
-	print(enabled)
+func _ready():
+	set_enabled(enabled)
+
+
+func set_enabled(p_enabled):
+	enabled = p_enabled
 	visible = enabled
 	get_tree().paused = enabled
 	if enabled:
@@ -99,11 +114,13 @@ export(PackedScene) var designer_scene
 export(PackedScene) var exit_scene
 
 
+onready var parent = get_parent()
+
+
 func _input(event):
 	if event.is_action_pressed(\"ui_cancel\"):
-		var enable = !visible
-		get_parent().set_enabled(enable)
-		visible = enable
+		visible = !parent.enabled
+		parent.set_enabled(!parent.enabled)
 
 
 func _on_Continue_pressed():
@@ -115,8 +132,9 @@ func _on_Restart_pressed():
 	Global.goto_scene(load(\"res://maps/designer.tscn\"))
 
 
-func _on_Spawn_pressed():
-	pass # Replace with function body.
+func _on_Load_pressed():
+	$\"../LoadVehicle\".visible = true
+	visible = false
 
 
 func _on_Designer_pressed():
@@ -125,10 +143,13 @@ func _on_Designer_pressed():
 
 func _on_Exit_pressed():
 	Global.goto_scene(exit_scene)
+
 "
 
 [node name="Designer" type="Spatial"]
 script = ExtResource( 4 )
+vehicle_template = ExtResource( 5 )
+ai = ExtResource( 7 )
 
 [node name="Floor" type="StaticBody" parent="."]
 __meta__ = {
@@ -224,7 +245,16 @@ ai_script = ExtResource( 7 )
 debug = true
 
 [node name="ImmediateGeometry" type="ImmediateGeometry" parent="."]
+process_priority = -1
 material_override = SubResource( 12 )
+script = SubResource( 15 )
+
+[node name="HUD" type="Control" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="GUI" type="ColorRect" parent="."]
 pause_mode = 2
@@ -298,11 +328,11 @@ margin_right = 207.0
 margin_bottom = 125.0
 text = "Restart"
 
-[node name="Spawn" type="Button" parent="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="Load" type="Button" parent="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer"]
 margin_top = 135.0
 margin_right = 207.0
 margin_bottom = 161.0
-text = "Spawn Vehicle"
+text = "Load Vehicle"
 
 [node name="Designer" type="Button" parent="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer"]
 margin_top = 171.0
@@ -316,15 +346,12 @@ margin_right = 207.0
 margin_bottom = 233.0
 text = "Exit"
 
-[node name="HUD" type="Control" parent="."]
-margin_right = 40.0
-margin_bottom = 40.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="LoadVehicle" parent="GUI" instance=ExtResource( 11 )]
+[connection signal="draw" from="HUD" to="." method="_on_HUD_draw"]
 [connection signal="pressed" from="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer/Continue" to="GUI/Menu" method="_on_Continue_pressed"]
 [connection signal="pressed" from="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer/Restart" to="GUI/Menu" method="_on_Restart_pressed"]
-[connection signal="pressed" from="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer/Spawn" to="GUI/Menu" method="_on_Spawn_pressed"]
+[connection signal="pressed" from="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer/Load" to="GUI/Menu" method="_on_Load_pressed"]
 [connection signal="pressed" from="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer/Designer" to="GUI/Menu" method="_on_Designer_pressed"]
 [connection signal="pressed" from="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer/Exit" to="GUI/Menu" method="_on_Exit_pressed"]
-[connection signal="draw" from="HUD" to="." method="_on_HUD_draw"]
+[connection signal="cancel" from="GUI/LoadVehicle" to="GUI" method="set_enabled" binds= [ false ]]
+[connection signal="load_vehicle" from="GUI/LoadVehicle" to="." method="load_vehicle"]

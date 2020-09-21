@@ -21,7 +21,6 @@ func process():
 	
 func debug_draw(debug):
 	debug.global_transform = Transform.IDENTITY
-	debug.clear()
 	debug.begin(Mesh.PRIMITIVE_LINE_LOOP)
 	debug.set_color(Color.green)
 	for i in range(16):
