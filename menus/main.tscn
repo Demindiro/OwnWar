@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://addons/tiles/grass/grass_0.png" type="Texture" id=1]
 [ext_resource path="res://vehicles/vehicle.tscn" type="PackedScene" id=2]
@@ -19,6 +19,18 @@ size = Vector2( 1000, 1000 )
 [sub_resource type="SpatialMaterial" id=3]
 albedo_texture = ExtResource( 1 )
 uv1_scale = Vector3( 66.666, 66.666, 1 )
+
+[sub_resource type="SpatialMaterial" id=6]
+flags_unshaded = true
+vertex_color_use_as_albedo = true
+
+[sub_resource type="GDScript" id=5]
+script/source = "extends ImmediateGeometry
+
+
+func _process(_delta):
+	clear()
+"
 
 [sub_resource type="DynamicFont" id=4]
 size = 10
@@ -64,6 +76,9 @@ angular_speed = 2.0
 keep_distance = 50.0
 
 [node name="ImmediateGeometry" type="ImmediateGeometry" parent="."]
+process_priority = -1
+material_override = SubResource( 6 )
+script = SubResource( 5 )
 
 [node name="HUD" type="Control" parent="."]
 anchor_bottom = 1.0
