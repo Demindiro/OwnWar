@@ -6,16 +6,20 @@ extends Spatial
 export(NodePath) var azimuth_node_path
 export(NodePath) var elevation_node_path
 export(NodePath) var projectile_spawn_path
+export(PackedScene) var projectile
+export(int) var projectile_velocity = 100
+export(float) var reload_time = 1.0
 
 var _desired_azimuth = 0
 var _desired_elevation = 0
+var rel_spawn_pos
+var offset_y
+var offset_spawn_y
+var _time_since_last_shot = 0.0
 
 onready var _azimuth_node = get_node(azimuth_node_path)
 onready var _elevation_node = get_node(elevation_node_path)
 onready var _projectile_spawn_node = get_node(projectile_spawn_path)
-var rel_spawn_pos
-var offset_y
-var offset_spawn_y
 
 
 func _ready():
@@ -28,6 +32,10 @@ func _process(_delta):
 	pass
 #	_azimuth_node.transform.basis = Basis(Vector3.UP, _desired_azimuth)
 #	_elevation_node.transform.basis = Basis(Vector3.RIGHT, _desired_elevation)
+
+
+func _physics_process(delta):
+	_time_since_last_shot += delta
 
 
 # TODO: reduce the amount of variables
@@ -70,6 +78,16 @@ func aim_at(position: Vector3, velocity := Vector3.ZERO):
 	# Apply basises
 	_azimuth_node.transform.basis = basis_azi * basis_azi_offset
 	_elevation_node.transform.basis = basis_elev * basis_elev_offset
+	
+
+func fire():
+	if _time_since_last_shot >= reload_time:
+		var node = projectile.instance()
+		node.global_transform = _projectile_spawn_node.global_transform
+		node.linear_velocity = _projectile_spawn_node.global_transform.basis.z
+		node.linear_velocity *= projectile_velocity
+		get_tree().root.get_child(1).add_child(node) # TODO ugly
+		_time_since_last_shot = 0.0
 
 
 func debug_draw(debug):

@@ -264,8 +264,9 @@ can_sleep = false
 ai_script = ExtResource( 7 )
 debug = true
 
-[node name="ImmediateGeometry" type="ImmediateGeometry" parent="."]
+[node name="Debug" type="ImmediateGeometry" parent="."]
 process_priority = -1
+visible = false
 material_override = SubResource( 12 )
 script = SubResource( 13 )
 

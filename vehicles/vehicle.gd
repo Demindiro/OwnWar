@@ -14,6 +14,8 @@ var drive_roll := 0.0
 var brake := 0.0
 var weapons_aim_point := Vector3.ZERO
 
+var _fire_weapons := false
+
 
 func _ready():
 	$GridMap.mesh_library = Global._blocks_mesh_library
@@ -25,10 +27,10 @@ func _ready():
 func _process(_delta):
 	if debug:
 		if ai != null:
-			ai.debug_draw($"../ImmediateGeometry")
+			ai.debug_draw($"../Debug")
 		for child in get_children():
 			if child is Weapon:
-				child.debug_draw($"../ImmediateGeometry")
+				child.debug_draw($"../Debug")
 				
 	
 
@@ -46,6 +48,13 @@ func _physics_process(_delta):
 			child.brake = brake * 1
 		elif child is Weapon:
 			child.aim_at(weapons_aim_point)
+			if _fire_weapons:
+				child.fire()
+	_fire_weapons = false
+	
+			
+func fire_weapons():
+	_fire_weapons = true
 
 
 func load_from_file(path: String) -> int:

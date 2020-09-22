@@ -57,6 +57,8 @@ func _input(event):
 				print("Setting waypoint to " + str(result.position))
 				for unit in selected_units:
 					unit.ai.waypoint = result.position
+		elif event.is_action_pressed("campaign_debug"):
+			$Debug.visible = !$Debug.visible
 	elif event is InputEventMouseMotion:
 		_last_mouse_position = event.position
 		if _selecting_units:

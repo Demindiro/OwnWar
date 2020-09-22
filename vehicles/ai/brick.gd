@@ -26,8 +26,9 @@ func process():
 		vehicle.drive_yaw = 0.0
 		vehicle.drive_forward = 0.0
 		vehicle.brake = 1.0
-	# Aim at some random point
+	# Aim at some random point and fire
 	vehicle.weapons_aim_point = Vector3(5, 25, 5)
+	vehicle.fire_weapons()
 	
 	
 func debug_draw(debug):
