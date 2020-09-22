@@ -4,8 +4,9 @@ extends Reference
 
 # AI Interface
 
-var vehicle
+var vehicle #: Vehicle
 var waypoint: Vector3
+var target #: Vehicle
 
 
 func init(p_vehicle):

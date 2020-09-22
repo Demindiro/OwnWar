@@ -4,6 +4,7 @@ extends Spatial
 
 export(GDScript) var ai_script
 export var debug := false
+export var invulnerable := true
 
 var start_position := Vector3.ONE * INF
 var end_position := Vector3.ONE * -INF
@@ -13,6 +14,7 @@ var drive_yaw := 0.0
 var drive_roll := 0.0
 var brake := 0.0
 var weapons_aim_point := Vector3.ZERO
+var aim_weapons := false
 
 var _fire_weapons := false
 
@@ -22,6 +24,7 @@ func _ready():
 	if ai_script != null:
 		ai = ai_script.new()
 		ai.init(self)
+	$CollisionShape.shape = $CollisionShape.shape.duplicate() # Make shape unique
 		
 
 func _process(_delta):
@@ -47,7 +50,8 @@ func _physics_process(_delta):
 			child.engine_force = drive_forward * 40
 			child.brake = brake * 1
 		elif child is Weapon:
-			child.aim_at(weapons_aim_point)
+			if aim_weapons:
+				child.aim_at(weapons_aim_point)
 			if _fire_weapons:
 				child.fire()
 	_fire_weapons = false
