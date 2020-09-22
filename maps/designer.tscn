@@ -259,14 +259,13 @@ script = ExtResource( 1 )
 speed = 60.0
 
 [node name="Vehicle" parent="." instance=ExtResource( 5 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 73.0535, 31.4193, -47.2128 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 53.59, 18.9958, -47.2128 )
 can_sleep = false
 ai_script = ExtResource( 7 )
-debug = true
+invulnerable = true
 
 [node name="Debug" type="ImmediateGeometry" parent="."]
 process_priority = -1
-visible = false
 material_override = SubResource( 12 )
 script = SubResource( 13 )
 

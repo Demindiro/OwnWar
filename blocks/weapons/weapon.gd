@@ -8,6 +8,7 @@ export(NodePath) var elevation_node_path
 export(NodePath) var projectile_spawn_path
 export(PackedScene) var projectile
 export(int) var projectile_velocity = 100
+export(int) var projectile_damage = 150
 export(float) var reload_time = 1.0
 
 var _desired_azimuth = 0
@@ -86,6 +87,7 @@ func fire():
 		node.global_transform = _projectile_spawn_node.global_transform
 		node.linear_velocity = _projectile_spawn_node.global_transform.basis.z
 		node.linear_velocity *= projectile_velocity
+		node.damage = projectile_damage
 		get_tree().root.get_child(1).add_child(node) # TODO ugly
 		_time_since_last_shot = 0.0
 

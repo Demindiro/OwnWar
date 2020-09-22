@@ -3,8 +3,7 @@ class_name Vehicle
 extends Spatial
 
 export(GDScript) var ai_script
-export var debug := false
-export var invulnerable := true
+export var invulnerable := false
 
 var start_position := Vector3.ONE * INF
 var end_position := Vector3.ONE * -INF
@@ -15,8 +14,12 @@ var drive_roll := 0.0
 var brake := 0.0
 var weapons_aim_point := Vector3.ZERO
 var aim_weapons := false
+var blocks := {}
 
 var _fire_weapons := false
+var _raycast := preload("res://addons/voxel_raycast.gd").new()
+
+var _debug_hits := []
 
 
 func _ready():
@@ -28,14 +31,16 @@ func _ready():
 		
 
 func _process(_delta):
-	if debug:
-		if ai != null:
-			ai.debug_draw($"../Debug")
-		for child in get_children():
-			if child is Weapon:
-				child.debug_draw($"../Debug")
-				
-	
+	if ai != null:
+		ai.debug_draw($"../Debug")
+	for child in get_children():
+		if child is Weapon:
+			child.debug_draw($"../Debug")
+	for hit in _debug_hits:
+		$"../Debug".draw_point(to_global(
+			Vector3(hit[0][0], hit[0][1], hit[0][2]) + $GridMap.translation + Vector3.ONE / 2),
+			hit[1], 0.55)
+
 
 func _physics_process(_delta):
 	if ai != null:
@@ -59,6 +64,33 @@ func _physics_process(_delta):
 			
 func fire_weapons():
 	_fire_weapons = true
+	
+	
+func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
+	var local_origin = to_local(origin) - $GridMap.translation
+	var local_direction = to_local(origin + direction) - to_local(origin)
+	_raycast.start(local_origin, local_direction, 25, 25, 25)
+	_debug_hits = []
+	while not _raycast.finished:
+		var key = [_raycast.x, _raycast.y, _raycast.z]
+		var block = blocks.get(key)
+		if block != null:
+			_debug_hits.append([key, Color.orange])
+			print(damage)
+			if block[1] < damage:
+				damage -= block[1]
+				$GridMap.set_cell_item(key[0], key[1], key[2], GridMap.INVALID_CELL_ITEM)
+				if block[2] != null:
+					block[2].queue_free()
+				blocks.erase(key)
+			else:
+				block[1] -= damage
+				damage = 0
+				break
+		else:
+			_debug_hits.append([key, Color.yellow])
+		_raycast.step()
+	return damage
 
 
 func load_from_file(path: String) -> int:
@@ -98,16 +130,17 @@ func _correct_center_of_mass() -> void:
 			add_child(child)    # See VehicleWheel3D::_notification in vehicle_body_3d.cpp:81
 
 
-
 func _spawn_block(x: int, y: int, z: int, r: int, block: Block) -> void:
 	var basis := Block.rotation_to_basis(r)
 	var orthogonal_index := Block.rotation_to_orthogonal_index(r)
+	var node = null
 	$GridMap.set_cell_item(x, y, z, block.id, orthogonal_index)
 	if block.scene != null:
-		var node = block.scene.instance()
+		node = block.scene.instance()
 		assert(node is Spatial)
 		node.translation = Vector3(x, y, z) + Vector3.ONE / 2
 		add_child(node)
+	blocks[[x, y, z]] = [block.id, block.health, node]
 	start_position.x = x if start_position.x > x else start_position.x
 	start_position.y = y if start_position.y > y else start_position.y
 	start_position.z = z if start_position.z > z else start_position.z

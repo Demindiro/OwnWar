@@ -13,9 +13,20 @@ var _last_mouse_position
 
 func _ready():
 	$Vehicle.load_from_file("user://vehicles/apc.json")
+	var wall = vehicle_template.instance()
+	wall.translation = Vector3.UP * 10 + Vector3.FORWARD * 10
+	wall.call_deferred("rotate_y", PI)
+	wall.load_from_file("user://vehicles/wall.json")
+	wall.name = "Wall"
+	wall.axis_lock_linear_y = true
+	wall.axis_lock_angular_x = true
+	wall.axis_lock_angular_y = true
+	wall.axis_lock_angular_z = true
+	add_child(wall)
 
 
 func _process(_delta):
+	$Vehicle.ai.target = $Wall
 	if len(selected_units) > 0:
 		$HUD.update()
 
@@ -33,7 +44,6 @@ func _input(event):
 					var enemy_units = get_selected_units()
 					_selecting_units = false
 					if len(enemy_units) > 0:
-						print("KILL %s", str(enemy_units[0]))
 						for unit in selected_units:
 							unit.ai.target = enemy_units[0]
 					else:
