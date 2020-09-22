@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=2]
+[gd_scene load_steps=28 format=2]
 
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
 [ext_resource path="res://addons/tiles/metal_grid/set3_example_2.png" type="Texture" id=2]
@@ -11,6 +11,7 @@
 [ext_resource path="res://menus/main.tscn" type="PackedScene" id=9]
 [ext_resource path="res://designer/designer.tscn" type="PackedScene" id=10]
 [ext_resource path="res://menus/load_vehicle.tscn" type="PackedScene" id=11]
+[ext_resource path="res://blocks/weapons/cannon_reviewed.tscn" type="PackedScene" id=12]
 
 [sub_resource type="PlaneMesh" id=1]
 size = Vector2( 1000, 1000 )
@@ -76,6 +77,24 @@ script/source = "extends ImmediateGeometry
 
 func _process(_delta):
 	clear()
+
+
+func draw_point(origin: Vector3, color := Color.white, radius := 1.0):
+	for axis in [[Vector3.UP, Vector3.RIGHT], [Vector3.FORWARD, Vector3.UP],
+			[Vector3.RIGHT, Vector3.FORWARD]]:
+		begin(Mesh.PRIMITIVE_LINE_LOOP)
+		set_color(color)
+		for i in range(16):
+			add_vertex(radius * axis[0].rotated(axis[1], PI / 8 * i) + origin)
+		end()
+
+
+func draw_normal(origin: Vector3, direction: Vector3, color := Color.white):
+	begin(Mesh.PRIMITIVE_LINES)
+	set_color(color)
+	add_vertex(origin)
+	add_vertex(origin + direction)
+	end()
 "
 
 [sub_resource type="GDScript" id=14]
@@ -240,7 +259,8 @@ script = ExtResource( 1 )
 speed = 60.0
 
 [node name="Vehicle" parent="." instance=ExtResource( 5 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 339.317, 190.915, -308.607 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 73.0535, 31.4193, -47.2128 )
+can_sleep = false
 ai_script = ExtResource( 7 )
 debug = true
 
@@ -347,6 +367,9 @@ margin_bottom = 233.0
 text = "Exit"
 
 [node name="LoadVehicle" parent="GUI" instance=ExtResource( 11 )]
+
+[node name="cannon_reviewed" parent="." instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 21.5196, 0 )
 [connection signal="draw" from="HUD" to="." method="_on_HUD_draw"]
 [connection signal="pressed" from="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer/Continue" to="GUI/Menu" method="_on_Continue_pressed"]
 [connection signal="pressed" from="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer/Restart" to="GUI/Menu" method="_on_Restart_pressed"]

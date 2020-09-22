@@ -162,6 +162,7 @@ campaign_set_waypoint={
 
 [physics]
 
+common/physics_fps=300
 3d/physics_engine="Bullet"
 3d/default_gravity=29.4
 

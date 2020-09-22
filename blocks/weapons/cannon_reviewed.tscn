@@ -70,7 +70,7 @@ mesh = SubResource( 3 )
 material/0 = null
 
 [node name="Spatial" type="Spatial" parent="Cube002/Cube003/Cube001/Cube000" index="0"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.791192, 2.61549 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.735, 2.615 )
 
 [node name="Cube004" parent="." index="1"]
 visible = false

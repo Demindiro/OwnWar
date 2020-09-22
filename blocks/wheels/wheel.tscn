@@ -6,7 +6,11 @@
 
 [node name="Wheel" type="VehicleWheel"]
 wheel_radius = 1.0
-wheel_rest_length = 0.5
+wheel_rest_length = 1.2
+suspension_travel = 2.0
+suspension_max_force = 10000.0
+damping_compression = 1.0
+damping_relaxation = 1.0
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
 transform = Transform( -4.37114e-08, -0.5, 0, 1, -2.18557e-08, 0, 0, 0, 1, 0, 0, 0 )

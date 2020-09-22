@@ -31,7 +31,7 @@ func _process(_delta):
 				child.debug_draw($"../ImmediateGeometry")
 				
 	
-	
+
 func _physics_process(_delta):
 	if ai != null:
 		assert(ai is AI)
