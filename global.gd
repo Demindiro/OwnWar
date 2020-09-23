@@ -8,7 +8,9 @@ const SCENE_MENU_MAIN = "res://menu/main.tscn"
 const SCENE_DESIGNER = "res://designer/designer.tscn"
 const SCENE_DESIGNER_MAP = "res://designer/map.tscn"
 const SCENE_LOADING = "res://menu/loading_screen.tscn"
+const SCENE_VEHICLE = "res://unit/vehicle/vehicle.tscn"
 const BLOCK_DIR = "res://block"
+const DEFAULT_AI_SCRIPT = "res://unit/vehicle/ai/ai.gd"
 const ERROR_TO_STRING = [
 		"No errors",
 		"Generic",

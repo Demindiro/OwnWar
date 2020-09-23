@@ -1,7 +1,6 @@
 extends Spatial
 
 
-export(PackedScene) var vehicle_template
 export(GDScript) var ai
 
 var selected_units = []
@@ -13,7 +12,7 @@ var _last_mouse_position
 
 func _ready():
 	$Vehicle.load_from_file("user://vehicles/apc.json")
-	var wall = vehicle_template.instance()
+	var wall = load(Global.SCENE_VEHICLE).instance()
 	wall.translation = Vector3.UP * 10 + Vector3.FORWARD * 10
 	wall.call_deferred("rotate_y", PI)
 	wall.load_from_file("user://vehicles/wall.json")
@@ -71,7 +70,7 @@ func _input(event):
 
 
 func load_vehicle(path):
-	var vehicle = vehicle_template.instance()
+	var vehicle = load(Global.SCENE_VEHICLE).instance()
 	vehicle.ai_script = ai
 	vehicle.load_from_file(path)
 	vehicle.debug = true

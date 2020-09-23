@@ -27,6 +27,9 @@ func _ready():
 	if ai_script != null:
 		ai = ai_script.new()
 		ai.init(self)
+	else:
+		ai = load(Global.DEFAULT_AI_SCRIPT).new()
+		ai.init(self)
 	$CollisionShape.shape = $CollisionShape.shape.duplicate() # Make shape unique
 		
 
