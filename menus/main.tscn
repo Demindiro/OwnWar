@@ -60,7 +60,6 @@ __meta__ = {
 [node name="Vehicle" parent="." instance=ExtResource( 2 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.93254, 0 )
 ai_script = ExtResource( 4 )
-debug = true
 
 [node name="Timer" type="Timer" parent="."]
 wait_time = 3.0
@@ -75,8 +74,9 @@ speed = 0.2
 angular_speed = 2.0
 keep_distance = 50.0
 
-[node name="ImmediateGeometry" type="ImmediateGeometry" parent="."]
+[node name="Debug" type="ImmediateGeometry" parent="."]
 process_priority = -1
+visible = false
 material_override = SubResource( 4 )
 script = SubResource( 5 )
 
