@@ -4,6 +4,12 @@ extends Node
 const WAYPOINT_MIN_RADIUS = 100
 const WAYPOINT_MAX_RADIUS = 200
 
+# God fucking damn cyclic references should be allowed damnit
+#export(PackedScene) var designer
+#export(PackedScene) var test_map
+export(String, FILE, "*.tscn") var designer
+export(String, FILE, "*.tscn") var test_map
+
 
 func _ready():
 	randomize()
@@ -26,11 +32,11 @@ func _on_RandomMap_pressed():
 
 
 func _on_Designer_pressed():
-	Global.goto_scene("res://designer/designer.tscn")
+	Global.goto_scene(designer)
 
 
 func _on_DesignerMap_pressed():
-	Global.goto_scene("res://maps/designer.tscn")
+	Global.goto_scene(test_map)
 
 
 func _on_Settings_pressed():

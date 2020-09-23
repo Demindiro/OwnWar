@@ -2,6 +2,7 @@ extends "res://designer/vehicle_selector.gd"
 
 
 signal load_vehicle(path)
+# warning-ignore:unused_signal
 signal cancel()
 
 onready var name_box = find_node("Name")

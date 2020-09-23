@@ -1,6 +1,8 @@
 [gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://vehicles/vehicle.gd" type="Script" id=1]
+[ext_resource path="res://unit/vehicle/vehicle.gd" type="Script" id=1]
+
+
 
 [sub_resource type="PhysicsMaterial" id=1]
 

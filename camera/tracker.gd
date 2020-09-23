@@ -15,7 +15,7 @@ func _ready():
 
 
 func _process(delta):
-	var factor = clamp(delta * speed, 0, 1)
+	#var factor = clamp(delta * speed, 0, 1)
 	var angular_factor = clamp(delta * angular_speed, 0, 1)
 	var target_distance = (_node.translation - translation).length() - keep_distance
 	var target_direction = (_node.translation - translation).normalized()

@@ -1,6 +1,7 @@
 [gd_resource type="Resource" load_steps=3 format=2]
 
-[ext_resource path="res://blocks/block.gd" type="Script" id=1]
+[ext_resource path="res://block/block.gd" type="Script" id=1]
+
 
 [sub_resource type="CubeMesh" id=1]
 size = Vector3( 1, 1, 1 )

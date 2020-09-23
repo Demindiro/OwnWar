@@ -12,12 +12,12 @@ _global_script_classes=[ {
 "base": "Reference",
 "class": "AI",
 "language": "GDScript",
-"path": "res://vehicles/ai/ai.gd"
+"path": "res://unit/vehicle/ai/ai.gd"
 }, {
 "base": "Resource",
 "class": "Block",
 "language": "GDScript",
-"path": "res://blocks/block.gd"
+"path": "res://block/block.gd"
 }, {
 "base": "EditorVCSInterface",
 "class": "GitAPI",
@@ -27,12 +27,12 @@ _global_script_classes=[ {
 "base": "Spatial",
 "class": "Vehicle",
 "language": "GDScript",
-"path": "res://vehicles/vehicle.gd"
+"path": "res://unit/vehicle/vehicle.gd"
 }, {
 "base": "Spatial",
 "class": "Weapon",
 "language": "GDScript",
-"path": "res://blocks/weapons/weapon.gd"
+"path": "res://block/weapon/weapon.gd"
 } ]
 _global_script_class_icons={
 "AI": "",
@@ -45,7 +45,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Own War"
-run/main_scene="res://menus/main.tscn"
+run/main_scene="res://menu/main.tscn"
 config/icon="res://icon.png"
 
 [autoload]

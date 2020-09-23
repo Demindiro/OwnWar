@@ -82,6 +82,7 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
 				$GridMap.set_cell_item(key[0], key[1], key[2], GridMap.INVALID_CELL_ITEM)
 				if block[2] != null:
 					block[2].queue_free()
+				# warning-ignore:return_value_discarded
 				blocks.erase(key)
 			else:
 				block[1] -= damage
@@ -138,15 +139,15 @@ func _spawn_block(x: int, y: int, z: int, r: int, block: Block) -> void:
 	if block.scene != null:
 		node = block.scene.instance()
 		assert(node is Spatial)
-		node.translation = Vector3(x, y, z) + Vector3.ONE / 2
+		node.transform = Transform(basis, Vector3(x, y, z) + Vector3.ONE / 2)
 		add_child(node)
 	blocks[[x, y, z]] = [block.id, block.health, node]
-	start_position.x = x if start_position.x > x else start_position.x
-	start_position.y = y if start_position.y > y else start_position.y
-	start_position.z = z if start_position.z > z else start_position.z
-	end_position.x = x if end_position.x < x else end_position.x
-	end_position.y = y if end_position.y < y else end_position.y
-	end_position.z = z if end_position.z < z else end_position.z
+	start_position.x = float(x) if start_position.x > x else start_position.x
+	start_position.y = float(y) if start_position.y > y else start_position.y
+	start_position.z = float(z) if start_position.z > z else start_position.z
+	end_position.x = float(x) if end_position.x < x else end_position.x
+	end_position.y = float(y) if end_position.y < y else end_position.y
+	end_position.z = float(z) if end_position.z < z else end_position.z
 
 
 func _set_collision_box(start: Vector3, end: Vector3) -> void:

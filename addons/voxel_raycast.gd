@@ -54,9 +54,9 @@ func start(start: Vector3, direction: Vector3, limit_x: int, limit_y: int, limit
 			return
 		start += direction * t_min
 
-	x = floor(start.x)
-	y = floor(start.y)
-	z = floor(start.z)
+	x = int(floor(start.x))
+	y = int(floor(start.y))
+	z = int(floor(start.z))
 
 	var step = direction.sign()
 	_step_x = int(step.x)

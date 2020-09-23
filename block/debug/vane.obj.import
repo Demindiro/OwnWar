@@ -1,0 +1,19 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/vane.obj-a83daed700eb54e85a1af6b550647bcd.mesh"
+
+[deps]
+
+files=[ "res://.import/vane.obj-a83daed700eb54e85a1af6b550647bcd.mesh" ]
+
+source_file="res://block/debug/vane.obj"
+dest_files=[ "res://.import/vane.obj-a83daed700eb54e85a1af6b550647bcd.mesh", "res://.import/vane.obj-a83daed700eb54e85a1af6b550647bcd.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+offset_mesh=Vector3( 0, 0, 0 )
+optimize_mesh=true

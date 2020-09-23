@@ -4,6 +4,8 @@ extends Node
 const GRID_SIZE = 25
 
 export(bool) var enabled := true
+export(PackedScene) var main_menu
+export(PackedScene) var test_map
 
 var block: Block
 var blocks := {}
@@ -67,6 +69,7 @@ func process_actions():
 			print(_rotation)
 			if mirror:
 				coordinate = [] + coordinate
+				# warning-ignore:integer_division
 				var mirror_x = (GRID_SIZE - 1) / 2
 				var delta = coordinate[0] - mirror_x
 				coordinate[0] = mirror_x - delta
@@ -77,6 +80,7 @@ func process_actions():
 			remove_block(coordinate)
 			if mirror:
 				coordinate = [] + coordinate
+				# warning-ignore:integer_division
 				var mirror_x = (GRID_SIZE - 1) / 2
 				var delta = coordinate[0] - mirror_x
 				coordinate[0] = mirror_x - delta
@@ -109,6 +113,7 @@ func remove_block(coordinate):
 	if coordinate in blocks:
 		var node = blocks[coordinate][2]
 		node.queue_free()
+		# warning-ignore:return_value_discarded
 		blocks.erase(coordinate)
 		return true
 	return false
@@ -170,28 +175,34 @@ func save_vehicle(var path):
 	for coordinate in blocks:
 		data['blocks']["%d,%d,%d" % coordinate] = blocks[coordinate].slice(0, 1)
 	var file := File.new()
-	file.open(path, File.WRITE)
-	file.store_line(to_json(data))
-	print("Saved vehicle as '%s'" % path)
+	var err = file.open(path, File.WRITE)
+	if err != OK:
+		Global.error("Failed to open file '%s'" % path, err)
+	else:
+		file.store_string(to_json(data))
+		print("Saved vehicle as '%s'" % path)
 
 
 func load_vehicle(path):
 	var file := File.new()
-	file.open(path, File.READ)
-	var data = parse_json(file.get_as_text())
-	for child in $Floor/Origin.get_children():
-		if child.name != "Ghost":
-			child.queue_free()
-	blocks.clear()
-	for key in data['blocks']:
-		var coordinate = [null, null, null]
-		var key_components = key.split(',')
-		assert(len(key_components) == 3)
-		for i in range(3):
-			coordinate[i] = int(key_components[i])
-		block    = Global.get_block(data['blocks'][key][0])
-		place_block(coordinate, data['blocks'][key][1])
-	print("Loaded vehicle from '%s'" % path)
+	var err = file.open(path, File.READ)
+	if err != OK:
+		Global.error("Failed to open file '%s'" % path, err)
+	else:
+		var data = parse_json(file.get_as_text())
+		for child in $Floor/Origin.get_children():
+			if child.name != "Ghost":
+				child.queue_free()
+		blocks.clear()
+		for key in data['blocks']:
+			var coordinate = [null, null, null]
+			var key_components = key.split(',')
+			assert(len(key_components) == 3)
+			for i in range(3):
+				coordinate[i] = int(key_components[i])
+			block = Global.get_block(data['blocks'][key][0])
+			place_block(coordinate, data['blocks'][key][1])
+		print("Loaded vehicle from '%s'" % path)
 
 
 # Vector3i in Godot 4...
@@ -206,11 +217,11 @@ func _a2v(a):
 
 
 func _on_Exit_pressed():
-	Global.goto_scene("res://menus/main.tscn")
+	Global.goto_scene(main_menu)
 
 
 func _on_Test_pressed():
-	Global.goto_scene("res://maps/designer.tscn")
+	Global.goto_scene(test_map)
 
 
 func _on_LoadVehicle_load_vehicle(path):

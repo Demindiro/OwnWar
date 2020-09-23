@@ -1,17 +1,15 @@
-[gd_scene load_steps=28 format=2]
+[gd_scene load_steps=26 format=2]
 
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
 [ext_resource path="res://addons/tiles/metal_grid/set3_example_2.png" type="Texture" id=2]
 [ext_resource path="res://addons/tiles/metal_grid/set3_example_3.png" type="Texture" id=3]
 [ext_resource path="res://campaign/player_control.gd" type="Script" id=4]
-[ext_resource path="res://vehicles/vehicle.tscn" type="PackedScene" id=5]
-[ext_resource path="res://blocks/debug/vane.obj" type="ArrayMesh" id=6]
-[ext_resource path="res://vehicles/ai/brick.gd" type="Script" id=7]
-[ext_resource path="res://menus/theme/theme.tres" type="Theme" id=8]
-[ext_resource path="res://menus/main.tscn" type="PackedScene" id=9]
-[ext_resource path="res://designer/designer.tscn" type="PackedScene" id=10]
-[ext_resource path="res://menus/load_vehicle.tscn" type="PackedScene" id=11]
-[ext_resource path="res://blocks/weapons/cannon_reviewed.tscn" type="PackedScene" id=12]
+[ext_resource path="res://unit/vehicle/vehicle.tscn" type="PackedScene" id=5]
+[ext_resource path="res://block/debug/vane.obj" type="ArrayMesh" id=6]
+[ext_resource path="res://unit/vehicle/ai/brick.gd" type="Script" id=7]
+[ext_resource path="res://menu/theme/theme.tres" type="Theme" id=8]
+[ext_resource path="res://menu/load_vehicle.tscn" type="PackedScene" id=11]
+[ext_resource path="res://block/weapon/cannon_reviewed.tscn" type="PackedScene" id=12]
 
 [sub_resource type="PlaneMesh" id=1]
 size = Vector2( 1000, 1000 )
@@ -127,12 +125,6 @@ func set_enabled(p_enabled):
 script/source = "extends CenterContainer
 
 
-# TODO: figure this circular reference stuff out
-#export(PackedScene) var this_scene
-export(PackedScene) var designer_scene
-export(PackedScene) var exit_scene
-
-
 onready var parent = get_parent()
 
 
@@ -147,8 +139,9 @@ func _on_Continue_pressed():
 
 
 func _on_Restart_pressed():
-#	Global.goto_scene(this_scene)
-	Global.goto_scene(load(\"res://maps/designer.tscn\"))
+	var err = get_tree().reload_current_scene()
+	if err != OK:
+		Global.error(\"Failed to reload scene\", err)
 
 
 func _on_Load_pressed():
@@ -157,11 +150,11 @@ func _on_Load_pressed():
 
 
 func _on_Designer_pressed():
-	Global.goto_scene(designer_scene)
+	Global.goto_scene(Global.SCENE_DESIGNER)
 
 
 func _on_Exit_pressed():
-	Global.goto_scene(exit_scene)
+	Global.goto_scene(Global.SCENE_MENU_MAIN)
 
 "
 
@@ -293,8 +286,6 @@ script = SubResource( 15 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-designer_scene = ExtResource( 10 )
-exit_scene = ExtResource( 9 )
 
 [node name="PanelContainer" type="PanelContainer" parent="GUI/Menu"]
 margin_left = 959.0

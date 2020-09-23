@@ -42,7 +42,7 @@ func _physics_process(delta):
 # TODO: reduce the amount of variables
 # I lost countless hours trying to debug this due to the sheer amount of
 # variables
-func aim_at(position: Vector3, velocity := Vector3.ZERO):
+func aim_at(position: Vector3, _velocity := Vector3.ZERO):
 	var rel_pos = to_local(position)
 	var rel_pos_elev = rel_pos - Vector3.UP * offset_y
 	var rel_pos_xz = Vector3(rel_pos.x, 0, rel_pos.z)
