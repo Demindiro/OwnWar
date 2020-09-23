@@ -12,6 +12,7 @@ var _last_mouse_position
 
 func _ready():
 	$Vehicle.load_from_file("user://vehicles/apc.json")
+	$Vehicle.ai = load("res://unit/vehicle/ai/brick.gd").new()
 	var wall = load(Global.SCENE_VEHICLE).instance()
 	wall.translation = Vector3.UP * 10 + Vector3.FORWARD * 10
 	wall.call_deferred("rotate_y", PI)
@@ -58,8 +59,11 @@ func _input(event):
 			var space_state := get_world().direct_space_state
 			var result = space_state.intersect_ray(origin, origin + normal * 1000)
 			if len(result) > 0:
+				print(result.position)
 				for unit in selected_units:
 					unit.ai.waypoint = result.position
+					print(unit)
+					print(unit.ai)
 			$HUD.update()
 		elif event.is_action_pressed("campaign_debug"):
 			$Debug.visible = not $Debug.visible

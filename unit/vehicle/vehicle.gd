@@ -7,7 +7,7 @@ export var invulnerable := false
 
 var start_position := Vector3.ONE * INF
 var end_position := Vector3.ONE * -INF
-var ai: AI
+var ai: AI setget set_ai
 var drive_forward := 0.0
 var drive_yaw := 0.0
 var drive_roll := 0.0
@@ -24,12 +24,11 @@ var _debug_hits := []
 
 func _ready():
 	$GridMap.mesh_library = Global._blocks_mesh_library
-	if ai_script != null:
-		ai = ai_script.new()
-		ai.init(self)
-	else:
-		ai = load(Global.DEFAULT_AI_SCRIPT).new()
-		ai.init(self)
+	if ai == null:
+		if ai_script != null:
+			self.ai = ai_script.new()
+		else:
+			self.ai = load(Global.DEFAULT_AI_SCRIPT).new()
 	$CollisionShape.shape = $CollisionShape.shape.duplicate() # Make shape unique
 		
 
@@ -102,6 +101,13 @@ func load_from_file(path: String) -> int:
 	var err = file.open(path, File.READ)
 	if err != OK:
 		return err
+	for coordinate in blocks:
+		var block = blocks[coordinate]
+		if block[2] != null:
+			block[2].queue_free()
+	blocks.clear()
+	$GridMap.clear()
+	print($GridMap.mesh_library)
 	var data = parse_json(file.get_as_text())
 	for key in data["blocks"]:
 		var components = key.split(',')
@@ -117,21 +123,30 @@ func load_from_file(path: String) -> int:
 	return OK
 
 
+func set_ai(p_ai):
+	if ai != p_ai:
+		ai = p_ai
+		ai.init(self)
+
+
 func _correct_center_of_mass() -> void:
 	var total_mass = 0
 	var position = Vector3.ZERO
-	for cell in $GridMap.get_used_cells():
-		var id = $GridMap.get_cell_item(cell.x, cell.y, cell.z)
-		var mass = Global.blocks_by_id[id].mass
-		position += cell * mass
+	for coordinate in blocks:
+		var block = blocks[coordinate]
+		var mass = Global.blocks_by_id[block[0]].mass
+		position += Vector3(coordinate[0], coordinate[1], coordinate[2]) * mass
 		total_mass += mass
 	position /= total_mass
 	position += Vector3.ONE * 0.5
+	$GridMap.translation = Vector3.ZERO
+	#$CollisionShape.translation = Vector3.ZERO
 	for child in get_children():
 		child.translate(-position)
 		if child is VehicleWheel:
 			remove_child(child) # Necessary to force VehicleWheel to move
 			add_child(child)    # See VehicleWheel3D::_notification in vehicle_body_3d.cpp:81
+
 
 
 func _spawn_block(x: int, y: int, z: int, r: int, block: Block) -> void:
