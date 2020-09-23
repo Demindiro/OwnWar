@@ -1,33 +1,39 @@
 extends Camera
 
 
-export(NodePath) var node setget set_node
-export(float) var speed = 1
-export(float) var angular_speed = 1
-export(float) var keep_distance = 1
-
-var _node
+export(NodePath) var node_path
+export(float) var max_distance = 50
+export(float) var height = 10
 
 
-func _ready():
-	call_deferred("set_node", node)
-	set_process(false)
+func _process(_delta):
+	var node = get_node_or_null(node_path)
+	if node != null:
+		var move_position = node.translation + Vector3.UP * height
+		var basis_look = get_basis(node.translation)
+		var basis_move = get_basis(move_position)
+		var move_distance = (move_position - translation).length() - max_distance
+		var move = basis_move * Vector3.FORWARD * move_distance
+		transform = Transform(basis_look, translation + move)
 
 
-func _process(delta):
-	#var factor = clamp(delta * speed, 0, 1)
-	var angular_factor = clamp(delta * angular_speed, 0, 1)
-	var target_distance = (_node.translation - translation).length() - keep_distance
-	var target_direction = (_node.translation - translation).normalized()
-	var target_translation = target_direction * target_distance
-	target_translation = translation
-	var z = -target_direction
-	var x = -z.cross(Vector3.UP).normalized()
-	var y = -x.cross(z)
-	transform = transform.interpolate_with(Transform(x, y, z, target_translation), angular_factor)
-
-
-func set_node(p_node):
-	node = p_node
-	_node = get_node(node)
-	set_process(_node != null)
+func get_basis(position):
+	var rel_pos = position - translation
+	var rel_pos_xz = Vector3(rel_pos.x, 0, rel_pos.z)
+	var basis_azi = Basis.IDENTITY
+	var basis_elev = Basis.IDENTITY
+	if rel_pos_xz.length() > 1e-4:
+		var cos_azi = Vector3.FORWARD.dot(rel_pos_xz.normalized())
+		var sin_azi = sqrt(1 - cos_azi * cos_azi) * sign(-rel_pos.x)
+		basis_azi = Basis(
+				Vector3(cos_azi, 0, -sin_azi),
+				Vector3.UP,
+				Vector3(sin_azi, 0, cos_azi))
+	if rel_pos.length() > 1e-4:
+		var cos_elev = Vector3.UP.dot(rel_pos.normalized())
+		var sin_elev = sqrt(1 - cos_elev * cos_elev)
+		basis_elev = Basis(
+				Vector3.RIGHT,
+				Vector3(0, sin_elev, cos_elev),
+				Vector3(0, -cos_elev, sin_elev))
+	return basis_azi * basis_elev

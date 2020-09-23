@@ -68,13 +68,10 @@ wait_time = 3.0
 autostart = true
 
 [node name="FollowCamera" type="Camera" parent="."]
-transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 43.6501, 33.42 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 43.6501, 33.42 )
 far = 1000.0
 script = ExtResource( 5 )
-node = NodePath("../Vehicle")
-speed = 0.2
-angular_speed = 2.0
-keep_distance = 50.0
+node_path = NodePath("../Vehicle")
 
 [node name="Debug" type="ImmediateGeometry" parent="."]
 process_priority = -1
