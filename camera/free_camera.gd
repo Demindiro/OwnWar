@@ -10,7 +10,9 @@ var enabled = true setget set_enabled
 
 
 func _ready():
-	pass
+	var euler = transform.basis.get_euler()
+	_rot_x = euler.y
+	_rot_y = euler.x
 
 
 func _input(event):
