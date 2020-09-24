@@ -1,6 +1,6 @@
 class_name Vehicle
 
-extends Spatial
+extends Unit
 
 export(GDScript) var ai_script
 export var invulnerable := false

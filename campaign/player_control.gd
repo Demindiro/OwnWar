@@ -9,22 +9,20 @@ var _selecting_units = false
 var _mouse_position_start
 var _last_mouse_position
 
+### TODO Create GameMaster script
+var material_count = 0
+func add_material(count):
+	material_count += count
+
 
 func _ready():
-	$Vehicle.load_from_file("user://vehicles/apc.json")
-	$Vehicle.ai = load("res://unit/vehicle/ai/brick.gd").new()
-	var wall = load(Global.SCENE_VEHICLE).instance()
-	wall.translation = Vector3.UP * 10 + Vector3.FORWARD * 10
-	wall.call_deferred("rotate_y", PI)
-	wall.load_from_file("user://vehicles/wall.json")
-	wall.name = "Wall"
-	add_child(wall)
-	$Vehicle.ai.target = wall
+	pass
 
 
 func _process(_delta):
 	if len(selected_units) > 0:
 		$HUD.update()
+	$HUD/Resources.text = str(material_count)
 
 
 func _input(event):
@@ -105,4 +103,3 @@ func _on_HUD_draw():
 			var position = $Camera.unproject_position(unit.translation)
 			var rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
 			$HUD.draw_rect(rect, Color.orange, false, 2)
-
