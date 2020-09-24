@@ -55,8 +55,8 @@ func _physics_process(_delta):
 		if child is VehicleWheel:
 			var angle = asin(child.translation.dot(Vector3.FORWARD) / child.translation.length())
 			child.steering = angle * drive_yaw
-			child.engine_force = drive_forward * 10
-			child.brake = brake * 0.25
+			child.engine_force = drive_forward * 30
+			child.brake = brake * 0.1
 		elif child is Weapon:
 			if aim_weapons:
 				child.aim_at(weapons_aim_point)
