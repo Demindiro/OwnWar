@@ -1,23 +1,36 @@
+tool
+
 extends StaticBody
 
 
 export(int) var rng_seed
 export(int) var length = 10 setget set_length
-var ready = false
+export(int) var segment_scale = 1 setget set_segment_scale
+export(bool) var regenerate = true
 
 
 func f(x, z):
-	return cos(x / 16) * sin(z / 16) * 4
+	var r = (x * x + z * z) / 2048
+	if r >= 1:
+		return -1 / (1 * 0.02 + 0.2)
+	else:
+		return cos(PI * r) / (r * 0.02 + 0.2)
 	
 
 func df(x, z):
 	var dx = f(x - 0.5, z) - f(x + 0.5, z)
 	var dz = f(x, z - 0.5) - f(x, z + 0.5)
 	return Vector3(dx, 1, dz).normalized()
+	
 
+func _process(_delta):
+	if regenerate:
+		_ready()
 
 func _ready():
-	ready = true
+	if not regenerate:
+		return
+	regenerate = false
 	var rng = RandomNumberGenerator.new()
 
 	var vertices = []
@@ -25,14 +38,15 @@ func _ready():
 	var normals = []
 	var indices = []
 
+	var a_offset = float(length) * cos(PI / 6)
 	for a in range(length * 2 + 1):
 		var b_len = length * 2 - abs(length - a) + 1
 		var b_offset = float(b_len) / 2
 		for b in range(b_len):
 			var x = float(b) - b_offset
-			var z = float(a) * cos(PI / 6)
+			var z = float(a) * cos(PI / 6) - a_offset
 			var y = f(x, z)
-			vertices.append(Vector3(x, y, z))
+			vertices.append(Vector3(x, y, z) * segment_scale)
 			uvs.append(Vector2(x, z))
 			normals.append(df(x, z))
 	set_indices_bottom(indices)
@@ -96,7 +110,8 @@ func set_indices_top(indices):
 func set_length(p_length):
 	if length != p_length:
 		length = p_length
-		if ready:
-			_ready()
-		else:
-			call_deferred("_ready")
+
+
+func set_segment_scale(p_scale):
+	if segment_scale != p_scale:
+		segment_scale = p_scale
