@@ -11,10 +11,8 @@ export(bool) var regenerate = true
 
 func f(x, z):
 	var r = (x * x + z * z) / 2048
-	if r >= 1:
-		return -1 / (1 * 0.02 + 0.2)
-	else:
-		return cos(PI * r) / (r * 0.02 + 0.2)
+	r = clamp(r, 0, 1)
+	return cos(PI * r) / (r * 0.02 + 0.2)
 	
 
 func df(x, z):
