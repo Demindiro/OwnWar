@@ -1,4 +1,6 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=14 format=2]
+
+[ext_resource path="res://unit/ore/ore.gd" type="Script" id=1]
 
 [sub_resource type="Shader" id=1]
 resource_name = "Shader Nodetree"
@@ -201,6 +203,7 @@ surfaces/0 = {
 radius = 1.1192
 
 [node name="Ore" type="StaticBody"]
+script = ExtResource( 1 )
 
 [node name="Icosphere018" type="MeshInstance" parent="."]
 transform = Transform( 0.11384, 0.000447905, 0.336827, -0.00470236, -0.160884, 0.00341285, 0.278793, -0.00289651, -0.137479, 0.517759, -0.181675, 0.689313 )

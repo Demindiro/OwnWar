@@ -1,29 +1,32 @@
 [gd_scene load_steps=3 format=2]
 
-[sub_resource type="GDScript" id=2]
+[sub_resource type="GDScript" id=1]
 script/source = "extends Unit
 
 
-onready var game_master = get_tree().get_current_scene()
-
+var ore: Ore
 var _ticks_until_next := 0
 
 
 func _physics_process(delta):
 	_ticks_until_next += 1
 	if _ticks_until_next >= Engine.iterations_per_second:
-		game_master.add_material(1)
+		var material = ore.take_material(1)
+		game_master.add_material(team, material)
 		_ticks_until_next = 0
-	
+		if ore.material == 0:
+			set_process(false)
+			set_physics_process(false)
 "
 
-[sub_resource type="CylinderShape" id=1]
+[sub_resource type="CylinderShape" id=2]
 
 [node name="Drill" type="StaticBody"]
-script = SubResource( 2 )
+script = SubResource( 1 )
+max_health = 500
 
 [node name="CSGCylinder" type="CSGCylinder" parent="."]
-transform = Transform( 1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 0, 1.4, 0 )
+transform = Transform( 1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 0, 0, 0 )
 height = 2.0
 sides = 32
 smooth_faces = false
@@ -64,5 +67,5 @@ height = 1.6
 depth = 1.8
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
-transform = Transform( 1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 0, 1.4, 0 )
-shape = SubResource( 1 )
+transform = Transform( 1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 0, 0, 0 )
+shape = SubResource( 2 )
