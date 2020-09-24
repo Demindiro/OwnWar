@@ -4,8 +4,6 @@
 [ext_resource path="res://block/weapon/weapon.gd" type="Script" id=2]
 [ext_resource path="res://projectile/metal_beam.tscn" type="PackedScene" id=3]
 
-
-
 [sub_resource type="ArrayMesh" id=1]
 resource_name = "Cube005"
 surfaces/0 = {
@@ -49,6 +47,7 @@ surfaces/0 = {
 }
 
 [node name="cannon_reviewed" instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0 )
 script = ExtResource( 2 )
 azimuth_node_path = NodePath("Cube002/Cube003")
 elevation_node_path = NodePath("Cube002/Cube003/Cube001")
@@ -57,7 +56,7 @@ projectile = ExtResource( 3 )
 projectile_velocity = 1500
 
 [node name="Cube002" parent="." index="0"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0 )
+transform = Transform( 0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0.133, 0 )
 
 [node name="Cube003" type="MeshInstance" parent="Cube002" index="0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.05367e-07, -0.799876, -1.41561e-07 )

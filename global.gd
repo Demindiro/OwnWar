@@ -11,6 +11,7 @@ const SCENE_LOADING = "res://menu/loading_screen.tscn"
 const SCENE_VEHICLE = "res://unit/vehicle/vehicle.tscn"
 const BLOCK_DIR = "res://block"
 const DEFAULT_AI_SCRIPT = "res://unit/vehicle/ai/ai.gd"
+const BLOCK_SCALE = 0.25
 const ERROR_TO_STRING = [
 		"No errors",
 		"Generic",

@@ -17,8 +17,6 @@ func df(x, z):
 
 
 func _ready():
-	if not ready:
-		$"../Vehicle".call_deferred("load_from_file", "user://vehicles/apc.json")
 	ready = true
 	var rng = RandomNumberGenerator.new()
 

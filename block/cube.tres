@@ -2,9 +2,8 @@
 
 [ext_resource path="res://block/block.gd" type="Script" id=1]
 
-
 [sub_resource type="CubeMesh" id=1]
-size = Vector3( 1, 1, 1 )
+size = Vector3( 0.25, 0.25, 0.25 )
 
 [resource]
 script = ExtResource( 1 )
@@ -12,4 +11,5 @@ name = "cube"
 category = "structural"
 mesh = SubResource( 1 )
 mass = 20
+health = 100
 size = Vector3( 1, 1, 1 )

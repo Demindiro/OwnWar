@@ -14,6 +14,6 @@ dest_files=[ "res://.import/edge.obj-2d5866a9ce31b191edda16a376f4b865.mesh", "re
 [params]
 
 generate_tangents=true
-scale_mesh=Vector3( 0.5, 0.5, 0.5 )
+scale_mesh=Vector3( 0.125, 0.125, 0.125 )
 offset_mesh=Vector3( 0, 0, 0 )
 optimize_mesh=true

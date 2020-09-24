@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
 [ext_resource path="res://addons/tiles/metal_grid/set3_example_2.png" type="Texture" id=2]
@@ -10,7 +10,6 @@
 [ext_resource path="res://menu/theme/theme.tres" type="Theme" id=8]
 [ext_resource path="res://campaign/debug.tscn" type="PackedScene" id=9]
 [ext_resource path="res://menu/load_vehicle.tscn" type="PackedScene" id=11]
-[ext_resource path="res://block/weapon/cannon_reviewed.tscn" type="PackedScene" id=12]
 
 [sub_resource type="PlaneMesh" id=1]
 size = Vector2( 1000, 1000 )
@@ -229,6 +228,9 @@ invulnerable = true
 
 [node name="Debug" parent="." instance=ExtResource( 9 )]
 
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 16.4104, 0 )
+
 [node name="HUD" type="Control" parent="."]
 margin_right = 40.0
 margin_bottom = 40.0
@@ -325,9 +327,6 @@ margin_bottom = 233.0
 text = "Exit"
 
 [node name="LoadVehicle" parent="GUI" instance=ExtResource( 11 )]
-
-[node name="cannon_reviewed" parent="." instance=ExtResource( 12 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 21.5196, 0 )
 [connection signal="draw" from="HUD" to="." method="_on_HUD_draw"]
 [connection signal="pressed" from="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer/Continue" to="GUI/Menu" method="_on_Continue_pressed"]
 [connection signal="pressed" from="GUI/Menu/PanelContainer/MarginContainer/VBoxContainer/Restart" to="GUI/Menu" method="_on_Restart_pressed"]

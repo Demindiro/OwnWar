@@ -15,6 +15,7 @@ var brake := 0.0
 var weapons_aim_point := Vector3.ZERO
 var aim_weapons := false
 var blocks := {}
+var center_of_mass := Vector3.ZERO
 
 var _fire_weapons := false
 var _raycast := preload("res://addons/voxel_raycast.gd").new()
@@ -39,9 +40,9 @@ func _process(_delta):
 		if child is Weapon:
 			child.debug_draw($"../Debug")
 	for hit in _debug_hits:
-		$"../Debug".draw_point(to_global(
-			Vector3(hit[0][0], hit[0][1], hit[0][2]) + $GridMap.translation + Vector3.ONE / 2),
-			hit[1], 0.55)
+		var position = Vector3(hit[0][0], hit[0][1], hit[0][2]) + Vector3.ONE / 2
+		$"../Debug".draw_point(to_global(position * Global.BLOCK_SCALE - center_of_mass),
+				hit[1], 0.55 * Global.BLOCK_SCALE)
 
 
 func _physics_process(_delta):
@@ -54,8 +55,8 @@ func _physics_process(_delta):
 		if child is VehicleWheel:
 			var angle = asin(child.translation.dot(Vector3.FORWARD) / child.translation.length())
 			child.steering = angle * drive_yaw
-			child.engine_force = drive_forward * 40
-			child.brake = brake * 1
+			child.engine_force = drive_forward * 10
+			child.brake = brake * 0.25
 		elif child is Weapon:
 			if aim_weapons:
 				child.aim_at(weapons_aim_point)
@@ -69,7 +70,8 @@ func fire_weapons():
 	
 	
 func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
-	var local_origin = to_local(origin) - $GridMap.translation
+	var local_origin = to_local(origin) + center_of_mass
+	local_origin /= Global.BLOCK_SCALE
 	var local_direction = to_local(origin + direction) - to_local(origin)
 	_raycast.start(local_origin, local_direction, 25, 25, 25)
 	_debug_hits = []
@@ -78,7 +80,6 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
 		var block = blocks.get(key)
 		if block != null:
 			_debug_hits.append([key, Color.orange])
-			print(damage)
 			if block[1] < damage:
 				damage -= block[1]
 				$GridMap.set_cell_item(key[0], key[1], key[2], GridMap.INVALID_CELL_ITEM)
@@ -107,7 +108,6 @@ func load_from_file(path: String) -> int:
 			block[2].queue_free()
 	blocks.clear()
 	$GridMap.clear()
-	print($GridMap.mesh_library)
 	var data = parse_json(file.get_as_text())
 	for key in data["blocks"]:
 		var components = key.split(',')
@@ -131,18 +131,18 @@ func set_ai(p_ai):
 
 func _correct_center_of_mass() -> void:
 	var total_mass = 0
-	var position = Vector3.ZERO
+	center_of_mass = Vector3.ZERO
 	for coordinate in blocks:
 		var block = blocks[coordinate]
 		var mass = Global.blocks_by_id[block[0]].mass
-		position += Vector3(coordinate[0], coordinate[1], coordinate[2]) * mass
+		center_of_mass += Vector3(coordinate[0], coordinate[1], coordinate[2]) * mass
 		total_mass += mass
-	position /= total_mass
-	position += Vector3.ONE * 0.5
+	center_of_mass /= total_mass
+	center_of_mass += Vector3.ONE * 0.5
+	center_of_mass *= Global.BLOCK_SCALE
 	$GridMap.translation = Vector3.ZERO
-	#$CollisionShape.translation = Vector3.ZERO
 	for child in get_children():
-		child.translate(-position)
+		child.translate(-center_of_mass)
 		if child is VehicleWheel:
 			remove_child(child) # Necessary to force VehicleWheel to move
 			add_child(child)    # See VehicleWheel3D::_notification in vehicle_body_3d.cpp:81
@@ -157,7 +157,8 @@ func _spawn_block(x: int, y: int, z: int, r: int, block: Block) -> void:
 	if block.scene != null:
 		node = block.scene.instance()
 		assert(node is Spatial)
-		node.transform = Transform(basis, Vector3(x, y, z) + Vector3.ONE / 2)
+		var position = Vector3(x, y, z) + Vector3.ONE / 2
+		node.transform = Transform(basis, position * Global.BLOCK_SCALE)
 		add_child(node)
 	blocks[[x, y, z]] = [block.id, block.health, node]
 	start_position.x = float(x) if start_position.x > x else start_position.x
@@ -172,5 +173,5 @@ func _set_collision_box(start: Vector3, end: Vector3) -> void:
 	end += Vector3.ONE
 	var center = (start + end) / 2
 	var extents = (end - start) / 2
-	$CollisionShape.transform.origin = center
-	$CollisionShape.shape.extents = extents
+	$CollisionShape.transform.origin = center * Global.BLOCK_SCALE
+	$CollisionShape.shape.extents = extents * Global.BLOCK_SCALE

@@ -20,7 +20,7 @@ func process():
 	var right2d = Vector2(transform.basis.x.x, transform.basis.x.z)
 	vehicle.drive_yaw = -clamp(right2d.dot(distance2d) * 0.1, -1, 1) * 0.2
 	# Correct distance
-	vehicle.drive_forward = 1 if distance2d.length() > 20 else 0
+	vehicle.drive_forward = 1 if distance2d.length() > 5 else 0
 	# Stop if nearby
 	if abs(vehicle.drive_yaw) < 0.1 and vehicle.drive_forward < 0.1:
 		vehicle.drive_yaw = 0.0

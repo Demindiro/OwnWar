@@ -2,6 +2,7 @@ extends Node
 
 
 const GRID_SIZE = 25
+const SCALE = 4
 
 export(bool) var enabled := true
 export(PackedScene) var main_menu
@@ -66,7 +67,6 @@ func process_actions():
 		if ray_voxel_valid:
 			var coordinate = _v2a(_a2v(ray.voxel) + _a2v(ray.get_normal()))
 			place_block(coordinate, _rotation)
-			print(_rotation)
 			if mirror:
 				coordinate = [] + coordinate
 				# warning-ignore:integer_division
@@ -105,6 +105,7 @@ func place_block(coordinate, rotation):
 	$Floor/Origin.add_child(node)
 	node.translation = _a2v(coordinate)
 	node.transform.basis = Block.rotation_to_basis(rotation)
+	node.scale_object_local(Vector3.ONE * SCALE)
 	blocks[coordinate] = [block.name, rotation, node]
 	return true
 
@@ -161,6 +162,7 @@ func highlight_face():
 				ray_voxel_valid = true
 				$Floor/Origin/Ghost.translation = _a2v(place_at)
 				$Floor/Origin/Ghost.transform.basis = Block.rotation_to_basis(_rotation)
+				$Floor/Origin/Ghost.scale_object_local(Vector3.ONE * SCALE)
 			else:
 				ray_voxel_valid = false
 	$Floor/Origin/Ghost.visible = ray_voxel_valid

@@ -18,15 +18,11 @@ func _ready():
 	wall.call_deferred("rotate_y", PI)
 	wall.load_from_file("user://vehicles/wall.json")
 	wall.name = "Wall"
-	wall.axis_lock_linear_y = true
-	wall.axis_lock_angular_x = true
-	wall.axis_lock_angular_y = true
-	wall.axis_lock_angular_z = true
 	add_child(wall)
+	$Vehicle.ai.target = wall
 
 
 func _process(_delta):
-	$Vehicle.ai.target = $Wall
 	if len(selected_units) > 0:
 		$HUD.update()
 
@@ -62,8 +58,6 @@ func _input(event):
 				print(result.position)
 				for unit in selected_units:
 					unit.ai.waypoint = result.position
-					print(unit)
-					print(unit.ai)
 			$HUD.update()
 		elif event.is_action_pressed("campaign_debug"):
 			$Debug.visible = not $Debug.visible
