@@ -12,7 +12,9 @@ func _ready():
 
 
 func get_actions():
-	return [[\"Spawn APC\", \"spawn_vehicle\", \"user://vehicles/apc.json\"]]
+	return [
+			[\"Spawn APC\", \"spawn_vehicle\", [\"user://vehicles/apc.json\"]]
+		]
 
 
 func spawn_vehicle(path):

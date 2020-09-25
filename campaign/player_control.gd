@@ -74,24 +74,22 @@ func _notification(notification):
 
 
 func set_action_buttons(units):
-	var common_actions = null
+	var action_to_units = {}
+	var action_names = {}
 	for unit in units:
-		var actions = unit.get_actions()
-		if common_actions == null:
-			common_actions = actions
-		else:
-			for action in common_actions:
-				if not action in actions:
-					common_actions.erase(action)
+		for action in unit.get_actions():
+			if action in action_to_units:
+				action_to_units[action[1]].append([unit, action[2]])
+			else:
+				action_to_units[action[1]] = [[unit, action[2]]]
+				action_names[action[1]] = action[0]
 	for child in $Actions/HBoxContainer.get_children():
 		child.queue_free()
-	if common_actions == null:
-		return
-	for action in common_actions:
+	for action in action_to_units:
 		var button = _action_button_template.duplicate()
-		button.text = action[0]
-		for unit in units:
-			button.connect("pressed", unit, action[1], action.slice(2, len(action) - 1))
+		button.text = action_names[action]
+		for unit_action in action_to_units[action]:
+			button.connect("pressed", unit_action[0], action, unit_action[1])
 		$Actions/HBoxContainer.add_child(button)
 
 

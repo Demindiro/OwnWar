@@ -27,7 +27,6 @@ anchor_right = 1.0
 margin_left = -150.0
 margin_bottom = 25.0
 text = "FPS: 999"
-align = 2
 __meta__ = {
 "_edit_use_anchors_": false
 }
