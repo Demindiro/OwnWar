@@ -13,10 +13,14 @@ onready var game_master = get_tree().get_current_scene()
 func projectile_hit(_origin: Vector3, _direction: Vector3, damage: int):
 	health -= damage
 	if health <= 0:
-		game_master.remove_unit(team, self)
+		destroy()
 		return -health
 	return 0
 
 
 func get_actions():
 	return []
+
+
+func destroy():
+	game_master.remove_unit(team, self)

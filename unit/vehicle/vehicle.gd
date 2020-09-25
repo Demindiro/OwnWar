@@ -16,7 +16,8 @@ var weapons_aim_point := Vector3.ZERO
 var aim_weapons := false
 var blocks := {}
 var center_of_mass := Vector3.ZERO
-var cost
+var max_cost: int
+var cost: int
 
 var _fire_weapons := false
 var _raycast := preload("res://addons/voxel_raycast.gd").new()
@@ -88,6 +89,9 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
 					block[2].queue_free()
 				# warning-ignore:return_value_discarded
 				blocks.erase(key)
+				cost -= Global.blocks_by_id[block[0]].cost
+				if float(cost) / float(max_cost) < 0.75:
+					destroy()
 			else:
 				block[1] -= damage
 				damage = 0
@@ -109,7 +113,7 @@ func load_from_file(path: String) -> int:
 			block[2].queue_free()
 	blocks.clear()
 	$GridMap.clear()
-	cost = 0
+	max_cost = 0
 	var data = parse_json(file.get_as_text())
 	for key in data["blocks"]:
 		var components = key.split(',')
@@ -120,6 +124,7 @@ func load_from_file(path: String) -> int:
 		var name = data["blocks"][key][0]
 		var rotation = data["blocks"][key][1]
 		_spawn_block(x, y, z, rotation, Global.blocks[name])
+	cost = max_cost
 	_set_collision_box(start_position, end_position)
 	_correct_center_of_mass()
 	return OK
@@ -163,7 +168,7 @@ func _spawn_block(x: int, y: int, z: int, r: int, block: Block) -> void:
 		var position = Vector3(x, y, z) + Vector3.ONE / 2
 		node.transform = Transform(basis, position * Global.BLOCK_SCALE)
 		add_child(node)
-	cost += block.cost
+	max_cost += block.cost
 	blocks[[x, y, z]] = [block.id, block.health, node]
 	start_position.x = float(x) if start_position.x > x else start_position.x
 	start_position.y = float(y) if start_position.y > y else start_position.y
