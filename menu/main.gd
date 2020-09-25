@@ -1,4 +1,4 @@
-extends Node
+extends GameMaster
 
 
 const WAYPOINT_MIN_RADIUS = 100

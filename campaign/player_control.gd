@@ -32,11 +32,9 @@ func _input(event):
 				_mouse_position_start = _last_mouse_position
 				_selecting_units = true
 			else:
-				var units = get_selected_units()
 				_selecting_units = false
 				if Input.is_action_pressed("campaign_attack"):
-					var enemy_units = get_selected_units()
-					_selecting_units = false
+					var enemy_units = get_selected_units(false)
 					if len(enemy_units) > 0:
 						for unit in selected_units:
 							if unit is Vehicle:
@@ -46,8 +44,8 @@ func _input(event):
 							if unit is Vehicle:
 								unit.ai.target = null
 				else:
-					selected_units = units
-					set_action_buttons(units)
+					selected_units = get_selected_units(true)
+					set_action_buttons(selected_units)
 			$Camera.enabled = not _selecting_units
 			update()
 		elif event.is_action_pressed("campaign_set_waypoint"):
@@ -61,17 +59,19 @@ func _input(event):
 						unit.ai.waypoint = result.position
 			update()
 		elif event.is_action_pressed("campaign_debug"):
-			$Debug.visible = not $Debug.visible
+			$"../Debug".visible = not $"../Debug".visible
 	elif event is InputEventMouseMotion:
 		_last_mouse_position = event.position
 		if _selecting_units:
 			update()
-			
 
-func _exit_tree():
-	_action_button_template.free()
-			
-			
+
+func _notification(notification):
+	match notification:
+		NOTIFICATION_PREDELETE:
+			_action_button_template.free()
+
+
 func set_action_buttons(units):
 	var common_actions = null
 	for unit in units:
@@ -103,7 +103,7 @@ func load_vehicle(path):
 	vehicle.translation.y = 3
 
 
-func get_selected_units():
+func get_selected_units(our_team):
 	var start = _last_mouse_position
 	var end = _mouse_position_start
 	if start.x > end.x:
@@ -116,10 +116,11 @@ func get_selected_units():
 		end.y = s
 	var rect = Rect2(start, end - start)
 	var units = []
-	for child in game_master.get_children():
-		if child is Unit and rect.has_point(
-				$Camera.unproject_position(child.translation)):
-			units.append(child)
+	for i in range(len(game_master.teams)):
+		if (i == team) == our_team:
+			for child in game_master.units[i]:
+				if rect.has_point($Camera.unproject_position(child.translation)):
+					units.append(child)
 	return units
 
 

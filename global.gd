@@ -10,7 +10,7 @@ const SCENE_DESIGNER_MAP = "res://designer/map.tscn"
 const SCENE_LOADING = "res://menu/loading_screen.tscn"
 const SCENE_VEHICLE = "res://unit/vehicle/vehicle.tscn"
 const BLOCK_DIR = "res://block"
-const DEFAULT_AI_SCRIPT = "res://unit/vehicle/ai/ai.gd"
+const DEFAULT_AI_SCRIPT = "res://unit/vehicle/ai/brick.gd"
 const BLOCK_SCALE = 0.25
 const ERROR_TO_STRING = [
 		"No errors",
@@ -93,6 +93,12 @@ func _process(_delta):
 		_load_scene()
 	else:
 		set_process(false)
+		
+		
+func _notification(notification):
+	match notification:
+		MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
+			get_tree().root.print_stray_nodes()
 		
 
 func recurse_directory(path: String, ends_with: String = "", _arr := []) -> Array:

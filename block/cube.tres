@@ -12,4 +12,5 @@ category = "structural"
 mesh = SubResource( 1 )
 mass = 20
 health = 100
+cost = 1
 size = Vector3( 1, 1, 1 )

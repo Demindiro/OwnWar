@@ -10,6 +10,7 @@ export(Material) var material: Material
 export(PackedScene) var scene: PackedScene
 export(int) var mass: int = 1
 export(int) var health: int = 100
+export(int) var cost: int = 1
 export(Vector3) var size: Vector3 = Vector3.ONE
 
 var id

@@ -16,6 +16,7 @@ var weapons_aim_point := Vector3.ZERO
 var aim_weapons := false
 var blocks := {}
 var center_of_mass := Vector3.ZERO
+var cost
 
 var _fire_weapons := false
 var _raycast := preload("res://addons/voxel_raycast.gd").new()
@@ -108,6 +109,7 @@ func load_from_file(path: String) -> int:
 			block[2].queue_free()
 	blocks.clear()
 	$GridMap.clear()
+	cost = 0
 	var data = parse_json(file.get_as_text())
 	for key in data["blocks"]:
 		var components = key.split(',')
@@ -137,6 +139,7 @@ func _correct_center_of_mass() -> void:
 		var mass = Global.blocks_by_id[block[0]].mass
 		center_of_mass += Vector3(coordinate[0], coordinate[1], coordinate[2]) * mass
 		total_mass += mass
+	assert(total_mass > 0)
 	center_of_mass /= total_mass
 	center_of_mass += Vector3.ONE * 0.5
 	center_of_mass *= Global.BLOCK_SCALE
@@ -160,6 +163,7 @@ func _spawn_block(x: int, y: int, z: int, r: int, block: Block) -> void:
 		var position = Vector3(x, y, z) + Vector3.ONE / 2
 		node.transform = Transform(basis, position * Global.BLOCK_SCALE)
 		add_child(node)
+	cost += block.cost
 	blocks[[x, y, z]] = [block.id, block.health, node]
 	start_position.x = float(x) if start_position.x > x else start_position.x
 	start_position.y = float(y) if start_position.y > y else start_position.y
