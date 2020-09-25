@@ -1,11 +1,11 @@
 extends Control
 
 
+const SHORTCUT_PREFIX = "campaign_shortcut_"
+const SHORTCUT_COUNT = 10
 export(GDScript) var ai
 export var team := 0
-
 var selected_units = []
-
 onready var game_master = get_tree().get_current_scene()
 
 var _selecting_units = false
@@ -85,11 +85,18 @@ func set_action_buttons(units):
 				action_names[action[1]] = action[0]
 	for child in $Actions/HBoxContainer.get_children():
 		child.queue_free()
+	var shortcut_index = 0
 	for action in action_to_units:
 		var button = _action_button_template.duplicate()
 		button.text = action_names[action]
 		for unit_action in action_to_units[action]:
 			button.connect("pressed", unit_action[0], action, unit_action[1])
+		if shortcut_index < SHORTCUT_COUNT:
+			var input_event = InputEventAction.new()
+			input_event.action = SHORTCUT_PREFIX + str(shortcut_index)
+			shortcut_index += 1
+			button.shortcut = ShortCut.new()
+			button.shortcut.shortcut = input_event
 		$Actions/HBoxContainer.add_child(button)
 
 
