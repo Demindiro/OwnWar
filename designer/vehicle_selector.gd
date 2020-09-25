@@ -28,9 +28,8 @@ func scan_directory():
 
 
 func name_to_path(name):
-	return name.to_lower().replace(' ', '_') + '.json'
+	return Vehicle.name_to_path(name)
 	
 	
 func path_to_name(path):
-	assert(path.ends_with(FILE_EXTENSION))
-	return path.substr(0, len(path) - len(FILE_EXTENSION)).capitalize()
+	return Vehicle.path_to_name(path)

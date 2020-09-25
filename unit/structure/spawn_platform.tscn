@@ -12,9 +12,24 @@ func _ready():
 
 
 func get_actions():
-	return [
-			[\"Spawn APC\", \"spawn_vehicle\", [\"user://vehicles/apc.json\"]]
+	var actions = [
+			[\"Build drill\", \"build_drill\", []]
 		]
+	var directory = Directory.new()
+	var err = directory.open(Global.DIRECTORY_USER_VEHICLES)
+	if err == OK:
+		directory.list_dir_begin(true)
+		var file_name = directory.get_next()
+		while file_name != \"\":
+			if not directory.current_is_dir() and \\
+					file_name.ends_with(Global.FILE_EXTENSION):
+				var action_name = \"Spawn \" + Vehicle.path_to_name(file_name)
+				var path = directory.get_current_dir() + '/' + file_name
+				actions.append([action_name, \"spawn_vehicle\", [path]])
+			file_name = directory.get_next()
+	else:
+		Global.error(err)
+	return actions
 
 
 func spawn_vehicle(path):

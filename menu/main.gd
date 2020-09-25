@@ -42,3 +42,7 @@ func _on_Settings_pressed():
 
 func _on_Exit_pressed():
 	get_tree().quit()
+
+
+func _on_Tutorial_pressed():
+	Global.goto_scene("res://campaign/tutorial/hill.tscn")

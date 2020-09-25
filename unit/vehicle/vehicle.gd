@@ -134,6 +134,15 @@ func set_ai(p_ai):
 	if ai != p_ai:
 		ai = p_ai
 		ai.init(self)
+		
+
+static func path_to_name(path: String) -> String:
+	assert(path.ends_with(Global.FILE_EXTENSION))
+	return path.substr(0, len(path) - len(Global.FILE_EXTENSION)).capitalize()
+	
+	
+static func name_to_path(p_name: String) -> String:
+	return p_name.to_lower().replace(' ', '_') + '.json'
 
 
 func _correct_center_of_mass() -> void:

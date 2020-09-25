@@ -79,25 +79,24 @@ func set_action_buttons(units):
 	for unit in units:
 		for action in unit.get_actions():
 			if action in action_to_units:
-				action_to_units[action[1]].append([unit, action[2]])
+				action_to_units[action[0]].append([unit, action[1], action[2]])
 			else:
-				action_to_units[action[1]] = [[unit, action[2]]]
-				action_names[action[1]] = action[0]
-	for child in $Actions/HBoxContainer.get_children():
+				action_to_units[action[0]] = [[unit, action[1], action[2]]]
+	for child in $Actions.get_children():
 		child.queue_free()
 	var shortcut_index = 0
 	for action in action_to_units:
 		var button = _action_button_template.duplicate()
-		button.text = action_names[action]
+		button.text = action
 		for unit_action in action_to_units[action]:
-			button.connect("pressed", unit_action[0], action, unit_action[1])
+			button.connect("pressed", unit_action[0], unit_action[1], unit_action[2])
 		if shortcut_index < SHORTCUT_COUNT:
 			var input_event = InputEventAction.new()
 			input_event.action = SHORTCUT_PREFIX + str(shortcut_index)
 			shortcut_index += 1
 			button.shortcut = ShortCut.new()
 			button.shortcut.shortcut = input_event
-		$Actions/HBoxContainer.add_child(button)
+		$Actions.add_child(button)
 
 
 func load_vehicle(path):
