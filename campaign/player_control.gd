@@ -24,7 +24,7 @@ func _ready():
 
 
 func _process(_delta):
-	if len(selected_units) > 0:
+	if len(selected_units) > 0 or _selecting_units:
 		update()
 	$Resources.text = "Material: " + str(game_master.material_count[team])
 	$FPS.text = "FPS: " + str(round(1.0 / _delta))
@@ -72,6 +72,17 @@ func _gui_input(event):
 		_last_mouse_position = event.position
 		if _selecting_units:
 			update()
+
+
+func _draw():
+	if _selecting_units:
+		var rect = Rect2(_mouse_position_start, _last_mouse_position - _mouse_position_start)
+		draw_rect(rect, Color.purple, false, 2)
+	for unit in selected_units:
+		if (unit.translation - $Camera.translation).dot(-$Camera.transform.basis.z) > 0:
+			var position = $Camera.unproject_position(unit.translation)
+			var rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
+			draw_rect(rect, Color.orange, false, 2)
 
 
 func _notification(notification):
@@ -199,14 +210,3 @@ func _unit_destroyed(unit):
 	selected_units.erase(unit)
 	set_action_buttons(selected_units)
 	update()
-
-
-func _on_HUD_draw():
-	if _selecting_units:
-		var rect = Rect2(_mouse_position_start, _last_mouse_position - _mouse_position_start)
-		draw_rect(rect, Color.purple, false, 2)
-	for unit in selected_units:
-		if (unit.translation - $Camera.translation).dot(-$Camera.transform.basis.z) > 0:
-			var position = $Camera.unproject_position(unit.translation)
-			var rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
-			draw_rect(rect, Color.orange, false, 2)
