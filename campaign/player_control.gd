@@ -166,15 +166,6 @@ func clear_action_button():
 	_action_to_units = null
 
 
-func load_vehicle(path):
-	var vehicle = load(Global.SCENE_VEHICLE).instance()
-	vehicle.ai_script = ai
-	vehicle.load_from_file(path)
-	vehicle.debug = true
-	add_child(vehicle)
-	vehicle.translation.y = 3
-
-
 func get_selected_units(teams_mask):
 	var start = _last_mouse_position
 	var end = _mouse_position_start
