@@ -52,4 +52,3 @@ transform = Transform( 1, -1.77636e-13, 1.74846e-07, -8.74228e-08, 0.866025, 0.5
 far = 2000.0
 script = ExtResource( 1 )
 speed = 50.0
-[connection signal="draw" from="." to="." method="_on_HUD_draw"]

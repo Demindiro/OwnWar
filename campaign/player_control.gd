@@ -75,14 +75,31 @@ func _gui_input(event):
 
 
 func _draw():
-	if _selecting_units:
-		var rect = Rect2(_mouse_position_start, _last_mouse_position - _mouse_position_start)
-		draw_rect(rect, Color.purple, false, 2)
 	for unit in selected_units:
 		if (unit.translation - $Camera.translation).dot(-$Camera.transform.basis.z) > 0:
 			var position = $Camera.unproject_position(unit.translation)
 			var rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
 			draw_rect(rect, Color.orange, false, 2)
+		if unit is Vehicle and unit.ai.target != null and \
+				(unit.translation - $Camera.translation).dot(-$Camera.transform.basis.z) > 0:
+			var position = $Camera.unproject_position(unit.ai.target.translation)
+			var rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
+			draw_rect(rect, Color.red, false, 2)
+	if _selecting_units:
+		var rect = Rect2(_mouse_position_start, _last_mouse_position - _mouse_position_start)
+		draw_rect(rect, Color.purple, false, 2)
+		var units
+		var color
+		if _action_input_name == null:
+			units = get_selected_units(1 << team)
+			color = Color.green
+		else:
+			units = get_selected_units(_units_teams_mask)
+			color = Color.red
+		for unit in units:
+			var position = $Camera.unproject_position(unit.translation)
+			rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
+			draw_rect(rect, color, false, 2)
 
 
 func _notification(notification):
