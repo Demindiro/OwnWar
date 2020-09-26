@@ -5,7 +5,7 @@ const SHORTCUT_PREFIX = "campaign_shortcut_"
 const SHORTCUT_COUNT = 10
 export(GDScript) var ai
 export var team := 0
-var selected_units = []
+var selected_units = [] setget set_selected_units
 onready var game_master = get_tree().get_current_scene()
 
 var _selecting_units = false
@@ -65,7 +65,7 @@ func _gui_input(event):
 					_mouse_position_start = _last_mouse_position
 				else:
 					_selecting_units = false
-					selected_units = get_selected_units(1 << team)
+					set_selected_units(get_selected_units(1 << team))
 					set_action_buttons(selected_units)
 		update()
 	elif event is InputEventMouseMotion:
@@ -81,6 +81,7 @@ func _notification(notification):
 
 
 func set_action_buttons(units):
+	clear_action_button()
 	var action_to_units = {}
 	var action_names = {}
 	for unit in units:
@@ -193,6 +194,20 @@ func get_selected_units(teams_mask):
 				if rect.has_point($Camera.unproject_position(child.translation)):
 					units.append(child)
 	return units
+
+
+func set_selected_units(units):
+	for unit in selected_units:
+		unit.disconnect("destroyed", self, "_unit_destroyed")
+	for unit in units:
+		unit.connect("destroyed", self, "_unit_destroyed")
+	selected_units = units
+
+
+func _unit_destroyed(unit):
+	selected_units.erase(unit)
+	set_action_buttons(selected_units)
+	update()
 
 
 func _on_HUD_draw():

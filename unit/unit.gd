@@ -3,6 +3,8 @@ class_name Unit
 extends Spatial
 
 
+signal destroyed(unit)
+
 enum Action {
 	INPUT_COORDINATE = 0x1,
 	INPUT_ENEMY_UNITS = 0x2,
@@ -35,3 +37,4 @@ func get_actions():
 
 func destroy():
 	game_master.remove_unit(team, self)
+	emit_signal("destroyed", self)

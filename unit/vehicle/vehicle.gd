@@ -90,7 +90,7 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
 				# warning-ignore:return_value_discarded
 				blocks.erase(key)
 				cost -= Global.blocks_by_id[block[0]].cost
-				if float(cost) / float(max_cost) < 0.75:
+				if float(cost) / float(max_cost) < 0.99:#0.75:
 					destroy()
 			else:
 				block[1] -= damage
