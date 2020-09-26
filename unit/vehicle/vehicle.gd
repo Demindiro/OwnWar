@@ -132,12 +132,17 @@ func load_from_file(path: String) -> int:
 	
 func get_actions():
 	return [
-			['Set waypoint', Action.INPUT_COORDINATE, 'set_waypoint', []]
+			['Set waypoint', Action.INPUT_COORDINATE, 'set_waypoint', []],
+			['Set targets', Action.INPUT_ENEMY_UNITS, 'set_targets', []],
 		]
 
 
 func set_waypoint(waypoint):
 	ai.waypoint = waypoint
+
+
+func set_targets(targets):
+	ai.target = targets[0] if len(targets) > 0 else null
 
 
 func set_ai(p_ai):

@@ -5,7 +5,11 @@ extends Spatial
 
 enum Action {
 	INPUT_COORDINATE = 0x1,
-#	SET_PROPERTY = 0x02,
+	INPUT_ENEMY_UNITS = 0x2,
+	INPUT_ALLIED_UNITS = 0x4,
+	INPUT_OWN_UNITS = 0x8,
+#	INPUT_UNITS = INPUT_ENEMY_UNITS | INPUT_ALLIED_UNITS | INPUT_OWN_UNITS,
+	INPUT_UNITS = 0x2 | 0x4 | 0x8,
 }
 
 export var max_health := 10

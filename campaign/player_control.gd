@@ -1,8 +1,6 @@
 extends Control
 
 
-signal coordinate(coordinate)
-
 const SHORTCUT_PREFIX = "campaign_shortcut_"
 const SHORTCUT_COUNT = 10
 export(GDScript) var ai
@@ -13,6 +11,10 @@ onready var game_master = get_tree().get_current_scene()
 var _selecting_units = false
 var _mouse_position_start
 var _last_mouse_position
+var _units_teams_mask
+var _action_input_name
+var _action_to_units
+var _action_button
 
 onready var _action_button_template := find_node("Template")
 
@@ -28,40 +30,41 @@ func _process(_delta):
 	$FPS.text = "FPS: " + str(round(1.0 / _delta))
 
 
-func _input(event):
-	if event.is_action_type():
-		if event.is_action("campaign_select_units"):
-			if event.pressed:
-				_mouse_position_start = _last_mouse_position
-				_selecting_units = true
-			else:
-				_selecting_units = false
-				if Input.is_action_pressed("campaign_attack"):
-					var enemy_units = get_selected_units(false)
-					if len(enemy_units) > 0:
-						for unit in selected_units:
-							if unit is Vehicle:
-								unit.ai.target = enemy_units[0]
-					else:
-						for unit in selected_units:
-							if unit is Vehicle:
-								unit.ai.target = null
+func _gui_input(event):
+	if event.is_action("campaign_primary"):
+		match _action_input_name:
+			"coordinate":
+				if not event.pressed:
+					var origin = $Camera.project_ray_origin(event.position)
+					var normal = $Camera.project_ray_normal(event.position)
+					var space_state = game_master.get_world().direct_space_state
+					var result = space_state.intersect_ray(origin, origin + normal * 1000)
+					if len(result) > 0:
+						send_coordinate(result.position)
+			"units":
+				if event.pressed:
+					_selecting_units = true
+					_mouse_position_start = _last_mouse_position
 				else:
-					selected_units = get_selected_units(true)
+					_selecting_units = false
+					var units = get_selected_units(_units_teams_mask)
+					send_units(units)
+			_:
+				if event.pressed:
+					_selecting_units = true
+					_mouse_position_start = _last_mouse_position
+				else:
+					_selecting_units = false
+					selected_units = get_selected_units(1 << team)
 					set_action_buttons(selected_units)
-			$Camera.enabled = not _selecting_units
-			update()
-		elif event.is_action_pressed("campaign_set_waypoint"):
-			if len(get_incoming_connections()) > 0:
-				var origin = $Camera.project_ray_origin(event.position)
-				var normal = $Camera.project_ray_normal(event.position)
-				var space_state = game_master.get_world().direct_space_state
-				var result = space_state.intersect_ray(origin, origin + normal * 1000)
-				if len(result) > 0:
-					emit_signal("coordinate", result.position)
-			update()
-		elif event.is_action_pressed("campaign_debug"):
+		update()
+	elif event.is_action("campaign_debug"):
+		if event.pressed:
 			$"../Debug".visible = not $"../Debug".visible
+	elif event.is_action("ui_cancel"):
+		if _action_button != null:
+			if event.pressed:
+				clear_action_button()
 	elif event is InputEventMouseMotion:
 		_last_mouse_position = event.position
 		if _selecting_units:
@@ -91,9 +94,15 @@ func set_action_buttons(units):
 		var button = _action_button_template.duplicate()
 		button.text = action[0]
 		if action[1] & Unit.Action.INPUT_COORDINATE:
-			for unit_action in action_to_units[action]:
-				button.connect("pressed", self, "send_coordinate", [button] + unit_action)
-				button.toggle_mode = true
+			button.connect("pressed", self, "get_coordinate", [button, action_to_units[action]])
+			button.toggle_mode = true
+		elif action[1] & Unit.Action.INPUT_UNITS:
+			if action[1] & Unit.Action.INPUT_ENEMY_UNITS:
+				_units_teams_mask = ~(1 << team)
+			else:
+				_units_teams_mask = 1 << team
+			button.connect("pressed", self, "get_units", [button, action_to_units[action]])
+			button.toggle_mode = true
 		else:
 			for unit_action in action_to_units[action]:
 				button.connect("pressed", unit_action[0], unit_action[1], unit_action[2])
@@ -107,10 +116,50 @@ func set_action_buttons(units):
 		$Actions.add_child(button)
 		
 		
-func send_coordinate(button, unit, function, arguments):
-	var coordinate = yield(self, "coordinate")
-	funcref(unit, function).call_funcv([coordinate] + arguments)
-	button.pressed = false
+func get_coordinate(button, action_to_units):
+	if button == _action_button:
+		clear_action_button()
+		return
+	clear_action_button()
+	_action_input_name = "coordinate"
+	_action_button = button
+	_action_to_units = action_to_units
+	button.pressed = true
+	
+	
+func get_units(button, action_to_units):
+	if button == _action_button:
+		clear_action_button()
+		return
+	clear_action_button()
+	_action_input_name = "units"
+	_action_button = button
+	_action_to_units = action_to_units
+	button.pressed = true
+		
+		
+func send_coordinate(coordinate):
+	for action in _action_to_units:
+		var unit = action[0]
+		var function = action[1]
+		var arguments = action[2]
+		funcref(unit, function).call_funcv([coordinate] + arguments)
+	
+	
+func send_units(units):
+	for action in _action_to_units:
+		var unit = action[0]
+		var function = action[1]
+		var arguments = action[2]
+		funcref(unit, function).call_funcv([units] + arguments)
+
+
+func clear_action_button():
+	if _action_button:
+		_action_button.pressed = false
+	_action_input_name = null
+	_action_button = null
+	_action_to_units = null
 
 
 func load_vehicle(path):
@@ -122,7 +171,7 @@ func load_vehicle(path):
 	vehicle.translation.y = 3
 
 
-func get_selected_units(our_team):
+func get_selected_units(teams_mask):
 	var start = _last_mouse_position
 	var end = _mouse_position_start
 	if start.x > end.x:
@@ -136,7 +185,7 @@ func get_selected_units(our_team):
 	var rect = Rect2(start, end - start)
 	var units = []
 	for i in range(len(game_master.teams)):
-		if (i == team) == our_team:
+		if teams_mask & (1 << i):
 			for child in game_master.units[i]:
 				if rect.has_point($Camera.unproject_position(child.translation)):
 					units.append(child)
