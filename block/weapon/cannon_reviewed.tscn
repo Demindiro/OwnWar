@@ -47,7 +47,7 @@ surfaces/0 = {
 }
 
 [node name="cannon_reviewed" instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00110005, 0 )
 script = ExtResource( 2 )
 azimuth_node_path = NodePath("Cube002/Cube003")
 elevation_node_path = NodePath("Cube002/Cube003/Cube001")
