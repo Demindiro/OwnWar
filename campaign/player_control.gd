@@ -30,6 +30,16 @@ func _process(_delta):
 	$FPS.text = "FPS: " + str(round(1.0 / _delta))
 
 
+func _unhandled_input(event):
+	if event.is_action("campaign_debug"):
+		if event.pressed:
+			$"../Debug".visible = not $"../Debug".visible
+	elif event.is_action("ui_cancel"):
+		if _action_button != null:
+			if event.pressed:
+				clear_action_button()
+
+
 func _gui_input(event):
 	if event.is_action("campaign_primary"):
 		match _action_input_name:
@@ -58,13 +68,6 @@ func _gui_input(event):
 					selected_units = get_selected_units(1 << team)
 					set_action_buttons(selected_units)
 		update()
-	elif event.is_action("campaign_debug"):
-		if event.pressed:
-			$"../Debug".visible = not $"../Debug".visible
-	elif event.is_action("ui_cancel"):
-		if _action_button != null:
-			if event.pressed:
-				clear_action_button()
 	elif event is InputEventMouseMotion:
 		_last_mouse_position = event.position
 		if _selecting_units:
