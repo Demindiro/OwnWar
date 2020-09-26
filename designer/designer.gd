@@ -130,7 +130,18 @@ func select_block(name):
 	$Floor/Origin/Ghost.mesh = block.mesh
 	if block.scene != null:
 		$Camera/MeshInstance.add_child(block.scene.instance())
-		$Floor/Origin/Ghost.add_child(block.scene.instance())
+		var node = block.scene.instance()
+		$Floor/Origin/Ghost.add_child(node)
+		for child in get_children_recursive(node):
+			if child is MeshInstance:
+				if child.material_override != null:
+					child.material_override = child.material_override.duplicate()
+					child.material_override.flags_transparent = true
+					child.material_override.albedo_color.a *= 0.2
+				else:
+					child.material_override = $Floor/Origin/Ghost.material_override
+			elif child is Sprite3D:
+				child.opacity *= 0.2
 
 
 func highlight_face():
@@ -205,6 +216,15 @@ func load_vehicle(path):
 			block = Global.get_block(data['blocks'][key][0])
 			place_block(coordinate, data['blocks'][key][1])
 		print("Loaded vehicle from '%s'" % path)
+
+
+# REEEEEEE https://github.com/godotengine/godot/issues/16105
+func get_children_recursive(node = null, array = []):
+	node = node if node != null else self
+	for child in node.get_children():
+		array.append(child)
+		get_children_recursive(child, array)
+	return array
 
 
 # Vector3i in Godot 4...
