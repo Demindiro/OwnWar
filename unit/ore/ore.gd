@@ -4,7 +4,7 @@ extends Spatial
 
 
 export var max_material := 10000
-
+var drill : Unit
 onready var material := max_material
 
 

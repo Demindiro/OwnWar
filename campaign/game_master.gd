@@ -11,6 +11,7 @@ var teams := ["Player", "Evil AI"]
 var teams_alive := team_count
 var material_count := []
 var units := []
+var ores := []
 
 
 func _enter_tree():
