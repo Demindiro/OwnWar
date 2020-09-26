@@ -13,7 +13,7 @@ func _ready():
 
 func get_actions():
 	var actions = [
-			[\"Build drill\", \"build_drill\", []]
+			[\"Build drill\", Action.INPUT_COORDINATE, \"build_drill\", []]
 		]
 	var directory = Directory.new()
 	var err = directory.open(Global.DIRECTORY_USER_VEHICLES)
@@ -25,7 +25,7 @@ func get_actions():
 					file_name.ends_with(Global.FILE_EXTENSION):
 				var action_name = \"Spawn \" + Vehicle.path_to_name(file_name)
 				var path = directory.get_current_dir() + '/' + file_name
-				actions.append([action_name, \"spawn_vehicle\", [path]])
+				actions.append([action_name, 0, \"spawn_vehicle\", [path]])
 			file_name = directory.get_next()
 	else:
 		Global.error(err)

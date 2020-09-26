@@ -70,6 +70,10 @@ config/icon="res://icon.png"
 
 Global="*res://global.gd"
 
+[debug]
+
+gdscript/warnings/unused_class_variable=true
+
 [display]
 
 window/size/width=1920
@@ -80,6 +84,7 @@ window/size/test_height=810
 [gdnative]
 
 singletons=[ "res://git_api.gdnlib" ]
+singletons_disabled=[ "res://git_api.gdnlib" ]
 
 [input]
 

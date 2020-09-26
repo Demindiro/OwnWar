@@ -1,6 +1,8 @@
 extends Control
 
 
+signal coordinate(coordinate)
+
 const SHORTCUT_PREFIX = "campaign_shortcut_"
 const SHORTCUT_COUNT = 10
 export(GDScript) var ai
@@ -50,14 +52,13 @@ func _input(event):
 			$Camera.enabled = not _selecting_units
 			update()
 		elif event.is_action_pressed("campaign_set_waypoint"):
-			var origin = $Camera.project_ray_origin(event.position)
-			var normal = $Camera.project_ray_normal(event.position)
-			var space_state = game_master.get_world().direct_space_state
-			var result = space_state.intersect_ray(origin, origin + normal * 1000)
-			if len(result) > 0:
-				for unit in selected_units:
-					if unit is Vehicle:
-						unit.ai.waypoint = result.position
+			if len(get_incoming_connections()) > 0:
+				var origin = $Camera.project_ray_origin(event.position)
+				var normal = $Camera.project_ray_normal(event.position)
+				var space_state = game_master.get_world().direct_space_state
+				var result = space_state.intersect_ray(origin, origin + normal * 1000)
+				if len(result) > 0:
+					emit_signal("coordinate", result.position)
 			update()
 		elif event.is_action_pressed("campaign_debug"):
 			$"../Debug".visible = not $"../Debug".visible
@@ -79,24 +80,37 @@ func set_action_buttons(units):
 	for unit in units:
 		for action in unit.get_actions():
 			if action in action_to_units:
-				action_to_units[action[0]].append([unit, action[1], action[2]])
+				action_to_units[[action[0], action[1]]].append([unit, action[2], action[3]])
 			else:
-				action_to_units[action[0]] = [[unit, action[1], action[2]]]
+				action_to_units[[action[0], action[1]]] = [[unit, action[2], action[3]]]
+				pass
 	for child in $Actions.get_children():
 		child.queue_free()
 	var shortcut_index = 0
 	for action in action_to_units:
 		var button = _action_button_template.duplicate()
-		button.text = action
-		for unit_action in action_to_units[action]:
-			button.connect("pressed", unit_action[0], unit_action[1], unit_action[2])
+		button.text = action[0]
+		if action[1] & Unit.Action.INPUT_COORDINATE:
+			for unit_action in action_to_units[action]:
+				button.connect("pressed", self, "send_coordinate", [button] + unit_action)
+				button.toggle_mode = true
+		else:
+			for unit_action in action_to_units[action]:
+				button.connect("pressed", unit_action[0], unit_action[1], unit_action[2])
 		if shortcut_index < SHORTCUT_COUNT:
 			var input_event = InputEventAction.new()
 			input_event.action = SHORTCUT_PREFIX + str(shortcut_index)
-			shortcut_index += 1
 			button.shortcut = ShortCut.new()
 			button.shortcut.shortcut = input_event
+			button.text += " (" + str((shortcut_index + 1) % 10) + ")"
+			shortcut_index += 1
 		$Actions.add_child(button)
+		
+		
+func send_coordinate(button, unit, function, arguments):
+	var coordinate = yield(self, "coordinate")
+	funcref(unit, function).call_funcv([coordinate] + arguments)
+	button.pressed = false
 
 
 func load_vehicle(path):

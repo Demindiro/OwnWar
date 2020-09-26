@@ -128,6 +128,16 @@ func load_from_file(path: String) -> int:
 	_set_collision_box(start_position, end_position)
 	_correct_center_of_mass()
 	return OK
+	
+	
+func get_actions():
+	return [
+			['Set waypoint', Action.INPUT_COORDINATE, 'set_waypoint', []]
+		]
+
+
+func set_waypoint(waypoint):
+	ai.waypoint = waypoint
 
 
 func set_ai(p_ai):
