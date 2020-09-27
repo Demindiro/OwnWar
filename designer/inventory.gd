@@ -32,6 +32,10 @@ func show_block(var block_name):
 	var block = Global.blocks[block_name]
 	_preview_mesh.mesh = block.mesh
 	_preview_mesh.material_override = block.material
+	for child in _preview_mesh.get_children():
+		child.queue_free()
+	if block.scene != null:
+		_preview_mesh.add_child(block.scene.instance())
 	
 	
 func _resolve_node_paths():
