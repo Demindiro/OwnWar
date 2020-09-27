@@ -11,6 +11,7 @@ func _ready():
 	randomize()
 	$"../Vehicle".load_from_file("user://vehicles/apc.json")
 	call_deferred("_on_Timer_timeout")
+	find_node("Version").text = "Version " + Global.VERSION
 
 
 func _on_Timer_timeout():

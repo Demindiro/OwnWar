@@ -154,7 +154,7 @@ margin_bottom = 25.0
 text = "Own War"
 align = 1
 
-[node name="Label2" type="Label" parent="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="Version" type="Label" parent="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer/VBoxContainer"]
 margin_top = 35.0
 margin_right = 250.0
 margin_bottom = 48.0
