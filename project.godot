@@ -24,11 +24,6 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://campaign/game_master.gd"
 }, {
-"base": "EditorVCSInterface",
-"class": "GitAPI",
-"language": "NativeScript",
-"path": "res://git_api.gdns"
-}, {
 "base": "Spatial",
 "class": "Ore",
 "language": "GDScript",
@@ -53,7 +48,6 @@ _global_script_class_icons={
 "AI": "",
 "Block": "",
 "GameMaster": "",
-"GitAPI": "",
 "Ore": "",
 "Unit": "",
 "Vehicle": "",
@@ -83,8 +77,8 @@ window/size/test_height=810
 
 [gdnative]
 
-singletons=[ "res://git_api.gdnlib" ]
-singletons_disabled=[ "res://git_api.gdnlib" ]
+singletons=[  ]
+singletons_disabled=[  ]
 
 [input]
 
