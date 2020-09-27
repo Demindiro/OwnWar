@@ -81,7 +81,7 @@ func _draw():
 			var rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
 			draw_rect(rect, Color.orange, false, 2)
 		if unit is Vehicle and unit.ai.target != null and \
-				(unit.translation - $Camera.translation).dot(-$Camera.transform.basis.z) > 0:
+				(unit.ai.target.translation - $Camera.translation).dot(-$Camera.transform.basis.z) > 0:
 			var position = $Camera.unproject_position(unit.ai.target.translation)
 			var rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
 			draw_rect(rect, Color.red, false, 2)
