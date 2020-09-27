@@ -1,0 +1,26 @@
+assets:
+  - asset: addons/arrow.png
+    author: oglsdl
+    source: https://opengameart.org/content/glow-arrow
+    license: cc0
+  - asset: addons/crosshairs
+    author: LoneCoder
+    source: https://opengameart.org/content/64-crosshairs-pack-split
+    license: cc0
+  - asset: addons/tiles/wall_decals
+    author: yughues
+    source: https://opengameart.org/content/free-decals-01-sci-fi
+    license: cc0
+  - asset: addons/tiles/grass/grass_0.png
+    author: Lamoot
+    source: https://opengameart.org/content/grass-001
+    license: cc-by 3.0
+  - asset: addons/weapons/cannon_reviewed.escn
+    author: nazzyc
+    source: https://opengameart.org/content/turret-reviwed
+    license: cc-by 3.0
+  - asset: addons/ores/Minirals.escn
+    author: Tech Knight
+    source: https://opengameart.org/content/4-minerals
+    license: cc0
+
