@@ -47,10 +47,10 @@ func _process(_delta):
 				hit[1], 0.55 * Global.BLOCK_SCALE)
 
 
-func _physics_process(_delta):
+func _physics_process(delta):
 	if ai != null:
 		assert(ai is AI)
-		ai.process()
+		ai.process(delta)
 	drive_forward = clamp(drive_forward, -1, 1)
 	drive_yaw = clamp(drive_yaw, -1, 1)
 	for child in get_children():
@@ -128,6 +128,12 @@ func load_from_file(path: String) -> int:
 	_set_collision_box(start_position, end_position)
 	_correct_center_of_mass()
 	return OK
+	
+
+func coordinate_to_vector(coordinate):
+	var position = Vector3(coordinate[0], coordinate[1], coordinate[2])
+	position *= Global.BLOCK_SCALE
+	return position - center_of_mass
 	
 	
 func get_actions():

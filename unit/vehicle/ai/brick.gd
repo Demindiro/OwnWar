@@ -1,10 +1,12 @@
 extends AI
 
 # Minimal (usable) AI implementaion
+var random_block_coordinate = [-1, -1, -1]
+var time_until_block_switch = 0
 
 
-func process():
-	.process()
+func process(delta):
+	.process(delta)
 	var transform = vehicle.transform
 	var position = transform.origin
 	var forward = transform.basis.z
@@ -55,7 +57,17 @@ func process():
 	# Fire at target
 	if target != null:
 		vehicle.aim_weapons = true
-		vehicle.weapons_aim_point = target.translation
+		if target is Vehicle:
+			# Pick a random (alive) block so we don't shoot at air constantly
+			if not random_block_coordinate in target.blocks or time_until_block_switch >= 3:
+				var keys = target.blocks.keys()
+				random_block_coordinate = keys[randi() % len(keys)]
+				time_until_block_switch = 0
+			time_until_block_switch += delta
+			var local_position = target.coordinate_to_vector(random_block_coordinate)
+			vehicle.weapons_aim_point = target.to_global(local_position)
+		else:
+			vehicle.weapons_aim_point = target.translation
 		vehicle.fire_weapons()
 	else:
 		vehicle.aim_weapons = false
@@ -64,7 +76,7 @@ func process():
 func debug_draw(debug):
 	.debug_draw(debug)
 	if target != null:
-		debug.draw_point(vehicle.weapons_aim_point, Color.red, 1)
+		debug.draw_point(vehicle.weapons_aim_point, Color.red, Global.BLOCK_SCALE)
 		debug.begin(Mesh.PRIMITIVE_LINES)
 		debug.set_color(Color.red)
 		debug.add_vertex(vehicle.translation)

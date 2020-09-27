@@ -14,7 +14,7 @@ func init(p_vehicle):
 	waypoint = vehicle.translation
 
 
-func process():
+func process(_delta):
 	pass
 		
 	
