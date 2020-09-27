@@ -114,11 +114,11 @@ func set_action_buttons(units):
 	var action_names = {}
 	for unit in units:
 		for action in unit.get_actions():
-			if action in action_to_units:
-				action_to_units[[action[0], action[1]]].append([unit, action[2], action[3]])
+			var key = [action[0], action[1]]
+			if key in action_to_units:
+				action_to_units[key].append([unit, action[2], action[3]])
 			else:
-				action_to_units[[action[0], action[1]]] = [[unit, action[2], action[3]]]
-				pass
+				action_to_units[key] = [[unit, action[2], action[3]]]
 	for child in $Actions.get_children():
 		child.queue_free()
 	var shortcut_index = 0
