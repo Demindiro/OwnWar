@@ -1,14 +1,10 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://unit/structure/platform.obj" type="ArrayMesh" id=1]
 [ext_resource path="res://addons/arrow.png" type="Texture" id=2]
-[ext_resource path="res://unit/structure/drill.tscn" type="PackedScene" id=3]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Unit
-
-
-export(PackedScene) var drill_scene
 
 
 func _ready():
@@ -16,9 +12,7 @@ func _ready():
 
 
 func get_actions():
-	var actions = [
-			[\"Build drill\", Action.INPUT_COORDINATE, \"build_drill\", []]
-		]
+	var actions = []
 	var directory = Directory.new()
 	var err = directory.open(Global.DIRECTORY_USER_VEHICLES)
 	if err == OK:
@@ -57,25 +51,6 @@ func spawn_vehicle(path):
 		vehicle.ai = load(\"res://unit/vehicle/ai/brick.gd\").new()
 		return vehicle
 
-
-func build_drill(coordinate):
-	var closest_ore = null
-	var max_distance = 3.0
-	for ore in game_master.ores:
-		var distance = (ore.translation - coordinate).length()
-		if ore.drill == null and distance < max_distance:
-			closest_ore = ore
-			max_distance = distance
-	if closest_ore != null:
-		var material = game_master.take_material(team, 50, true)
-		if material == 0:
-			print(\"Not enough material to build drill (need %d)\" % 50)
-			return
-		var drill = drill_scene.instance()
-		drill.translation = closest_ore.translation + Vector3.UP * 1.4
-		game_master.add_unit(team, drill)
-		drill.ore = closest_ore
-		closest_ore.drill = drill
 "
 
 [sub_resource type="BoxShape" id=2]
@@ -87,7 +62,6 @@ extents = Vector3( 7, 1.077, 2.692 )
 [node name="SpawnPlatform" type="StaticBody"]
 script = SubResource( 1 )
 max_health = 2000
-drill_scene = ExtResource( 3 )
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
 mesh = ExtResource( 1 )
