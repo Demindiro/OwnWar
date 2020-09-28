@@ -17,6 +17,11 @@ func _physics_process(delta):
 		if ore.material == 0:
 			set_process(false)
 			set_physics_process(false)
+
+
+func init(p_ore):
+	ore = p_ore
+	ore.drill = self
 "
 
 [sub_resource type="CylinderShape" id=2]

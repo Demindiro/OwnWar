@@ -184,6 +184,9 @@ team = 1
 [node name="Ore" parent="Map" instance=ExtResource( 5 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 70.2412 )
 
+[node name="Drone" parent="Map" instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 0.999754, -0.022164, 0, 0.022164, 0.999754, 0, 9.15195, 149.567 )
+
 [node name="Vane" type="MeshInstance" parent="Map"]
 transform = Transform( 12, 0, 0, 0, 12, 0, 0, 0, 12, 0, 1.5, 0 )
 mesh = ExtResource( 6 )
@@ -201,9 +204,6 @@ material/0 = SubResource( 9 )
 
 [node name="DirectionalLight" type="DirectionalLight" parent="Map"]
 transform = Transform( 0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 16.4104, 0 )
-
-[node name="Drone" parent="Map" instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 0.999754, -0.022164, 0, 0.022164, 0.999754, 0, 9.15195, 149.567 )
 
 [node name="HUD" parent="." instance=ExtResource( 4 )]
 
