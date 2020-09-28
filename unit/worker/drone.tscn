@@ -1,0 +1,135 @@
+[gd_scene load_steps=6 format=2]
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends Unit
+
+
+const SPEED = 20
+onready var waypoint = translation
+
+
+onready var rotors = [
+		$ArmLF/Rotor,
+		$ArmRF/Rotor,
+		$ArmLB/Rotor,
+		$ArmRB/Rotor,
+	]
+
+
+func _process(delta):
+	for rotor in rotors:
+		rotor.rotate_object_local(Vector3.UP, delta * 50)
+		
+		
+func _physics_process(delta):
+	var distance = waypoint - translation
+	var distance_xz = Vector3(distance.x, 0, distance.z)
+	var distance_xz_length2 = distance_xz.length_squared()
+	var speed = SPEED if distance_xz_length2 > SPEED * SPEED * delta * delta else \\
+			sqrt(distance_xz_length2) / delta
+	var velocity_direction = distance_xz.normalized()
+	var height = translation.y - $RayCast.get_collision_point().y if \\
+			$RayCast.is_colliding() else 5
+	if height < 2:
+		velocity_direction = (velocity_direction + Vector3.UP).normalized()
+	elif height > 3:
+		velocity_direction = (velocity_direction + Vector3.DOWN).normalized()
+	if distance_xz_length2 > 1e-5:
+		$\".\".move_and_slide(velocity_direction * speed, Vector3.UP,
+				false, 4, PI / 4, false)
+
+
+func get_actions():
+	return [
+			['Set waypoint', Action.INPUT_COORDINATE, 'set_waypoint', []],
+		]
+
+
+func set_waypoint(coordinate):
+	waypoint = coordinate
+"
+
+[sub_resource type="CubeMesh" id=1]
+size = Vector3( 0.8, 0.3, 1 )
+
+[sub_resource type="CubeMesh" id=3]
+size = Vector3( 0.1, 0.1, 1.5 )
+
+[sub_resource type="CubeMesh" id=4]
+size = Vector3( 1.8, 0.01, 0.05 )
+
+[sub_resource type="BoxShape" id=5]
+extents = Vector3( 1.625, 0.125, 1.625 )
+
+[node name="Drone" type="KinematicBody"]
+script = SubResource( 2 )
+unit_name = "worker"
+
+[node name="Body" type="MeshInstance" parent="."]
+mesh = SubResource( 1 )
+material/0 = null
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="ArmLF" type="MeshInstance" parent="."]
+transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0.795495, 0, 0.795495 )
+mesh = SubResource( 3 )
+material/0 = null
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Rotor" type="MeshInstance" parent="ArmLF"]
+transform = Transform( 1, -2.38419e-07, 0, 2.38419e-07, 1, 0, 0, 0, 1, 0, 0.06, 0.675 )
+mesh = SubResource( 4 )
+material/0 = null
+
+[node name="ArmRF" type="MeshInstance" parent="."]
+transform = Transform( 0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -0.795495, 0, 0.795495 )
+mesh = SubResource( 3 )
+material/0 = null
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Rotor" type="MeshInstance" parent="ArmRF"]
+transform = Transform( -1, 1.50996e-07, 0, -1.50996e-07, -1, 0, 0, 0, 1, 0, 0.06, 0.675 )
+mesh = SubResource( 4 )
+material/0 = null
+
+[node name="ArmLB" type="MeshInstance" parent="."]
+transform = Transform( -0.707107, 0, 0.707106, 0, 1, 0, -0.707106, 0, -0.707107, 0.795495, 0, -0.795495 )
+mesh = SubResource( 3 )
+material/0 = null
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Rotor" type="MeshInstance" parent="ArmLB"]
+transform = Transform( -1, 1.50996e-07, 0, -1.50996e-07, -1, 0, 0, 7.10543e-15, 1, -5.96046e-08, 0.06, 0.675 )
+mesh = SubResource( 4 )
+material/0 = null
+
+[node name="ArmRB" type="MeshInstance" parent="."]
+transform = Transform( -0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, -0.707107, -0.795495, 0, -0.795495 )
+mesh = SubResource( 3 )
+material/0 = null
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Rotor" type="MeshInstance" parent="ArmRB"]
+transform = Transform( 1, -2.38419e-07, 0, 2.38419e-07, 1, 0, 0, 0, 1, 0, 0.06, 0.675 )
+mesh = SubResource( 4 )
+material/0 = null
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+shape = SubResource( 5 )
+
+[node name="RayCast" type="RayCast" parent="."]
+enabled = true
+cast_to = Vector3( 0, -5, 0 )
