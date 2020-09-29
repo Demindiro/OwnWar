@@ -6,13 +6,19 @@
 script/source = "extends Unit
 
 
+enum Task {
+		TAKE_MATERIAL,
+		PUT_MATERIAL,
+		BUILD_STRUCTURE,
+		GOTO_WAYPOINT,
+	}
+
 const SPEED = 20
 export(PackedScene) var drill_ghost
 export(int) var max_materials = 100
+var tasks = []
 var materials = 0
-var ghost = null
 var last_build_frame = 0
-onready var waypoint = translation
 onready var rotors = [
 		$ArmLF/Rotor,
 		$ArmRF/Rotor,
@@ -27,7 +33,45 @@ func _process(delta):
 		
 		
 func _physics_process(delta):
-	var distance = waypoint - translation
+	if len(tasks) == 0:
+		return
+	var task = tasks[0]
+	match task[0]:
+		Task.GOTO_WAYPOINT:
+			if move_towards(task[1], delta):
+				tasks.remove(0)
+		Task.BUILD_STRUCTURE:
+			if task[1] != null:
+				if translation.distance_squared_to(task[1].translation) <= 9:
+					if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
+						print(\"yeye\")
+						var material = game_master.take_material(team, 1)
+						material = task[1].add_build_progress(material)
+						game_master.add_material(team, material)
+						last_build_frame = Engine.get_physics_frames()
+				else:
+					move_towards(task[1].translation, delta)
+			else:
+				tasks.remove(0)
+
+
+func get_actions():
+	return [
+			['Set waypoint', Action.INPUT_COORDINATE, 'set_waypoint', []],
+			[\"Build drill\", Action.INPUT_COORDINATE, \"build_drill\", []],
+		]
+
+
+func add_task(task):
+	tasks = [task]
+
+
+func set_waypoint(coordinate):
+	add_task([Task.GOTO_WAYPOINT, coordinate])
+
+
+func move_towards(position, delta):
+	var distance = position - translation
 	var distance_xz = Vector3(distance.x, 0, distance.z)
 	var distance_xz_length2 = distance_xz.length_squared()
 	var speed = SPEED if distance_xz_length2 > SPEED * SPEED * delta * delta else \\
@@ -43,25 +87,6 @@ func _physics_process(delta):
 		$\".\".move_and_slide(velocity_direction * speed, Vector3.UP,
 				false, 4, PI / 4, false)
 
-	if ghost != null:
-		if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames() and \\
-				translation.distance_squared_to(ghost.translation) <= 9:
-			var material = game_master.take_material(team, 1)
-			material = ghost.add_build_progress(material)
-			game_master.add_material(team, material)
-			last_build_frame = Engine.get_physics_frames()
-
-
-func get_actions():
-	return [
-			['Set waypoint', Action.INPUT_COORDINATE, 'set_waypoint', []],
-			[\"Build drill\", Action.INPUT_COORDINATE, \"build_drill\", []],
-		]
-
-
-func set_waypoint(coordinate):
-	waypoint = coordinate
-
 
 func build_drill(coordinate):
 	var closest_ore = null
@@ -72,16 +97,12 @@ func build_drill(coordinate):
 			closest_ore = ore
 			max_distance = distance
 	if closest_ore != null:
-		ghost = drill_ghost.instance()
+		var ghost = drill_ghost.instance()
 		ghost.translation = closest_ore.translation + Vector3.UP * 1.4
 		ghost.init_arguments = [closest_ore]
-		ghost.connect(\"built\", self, \"_on_built\")
+		#ghost.connect(\"built\", self, \"_on_built\")
 		game_master.add_child(ghost)
-		set_waypoint(ghost.translation)
-
-
-func _on_built(_structure):
-	ghost = null
+		add_task([Task.BUILD_STRUCTURE, ghost])
 "
 
 [sub_resource type="CubeMesh" id=2]
