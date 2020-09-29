@@ -45,14 +45,14 @@ func _physics_process(delta):
 				tasks.remove(0)
 		Task.BUILD_STRUCTURE:
 			if task[1] != null:
-				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-					if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
-						var material = game_master.take_material(team, 1)
-						material = task[1].add_build_progress(material)
-						game_master.add_material(team, material)
-						last_build_frame = Engine.get_physics_frames()
-				else:
-					move_towards(task[1].translation, delta)
+				if material > 0:
+					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+						if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
+							material -= 1
+							material += task[1].add_build_progress(1)
+							last_build_frame = Engine.get_physics_frames()
+					else:
+						move_towards(task[1].translation, delta)
 			else:
 				tasks.remove(0)
 		Task.TAKE_MATERIAL:
