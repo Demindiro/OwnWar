@@ -57,13 +57,17 @@ func _physics_process(delta):
 
 func get_actions():
 	return [
-			['Set waypoint', Action.INPUT_COORDINATE, 'set_waypoint', []],
+			[\"Set waypoint\", Action.INPUT_COORDINATE, \"set_waypoint\", []],
+			[\"Build\", Action.INPUT_OWN_UNITS, \"build\", []],
 			[\"Build drill\", Action.INPUT_COORDINATE, \"build_drill\", []],
 		]
 
 
-func add_task(task):
-	tasks = [task]
+func add_task(task, force_append = false):
+	if force_append:
+		tasks.append(task)
+	else:
+		tasks = [task]
 
 
 func set_waypoint(coordinate):
@@ -88,6 +92,13 @@ func move_towards(position, delta):
 				false, 4, PI / 4, false)
 
 
+func build(ghosts):
+	var force_append = false
+	for ghost in ghosts:
+		add_task([Task.BUILD_STRUCTURE, ghost], force_append)
+		force_append = true
+
+
 func build_drill(coordinate):
 	var closest_ore = null
 	var max_distance = 3.0
@@ -100,8 +111,7 @@ func build_drill(coordinate):
 		var ghost = drill_ghost.instance()
 		ghost.translation = closest_ore.translation + Vector3.UP * 1.4
 		ghost.init_arguments = [closest_ore]
-		#ghost.connect(\"built\", self, \"_on_built\")
-		game_master.add_child(ghost)
+		game_master.add_unit(team, ghost)
 		add_task([Task.BUILD_STRUCTURE, ghost])
 "
 

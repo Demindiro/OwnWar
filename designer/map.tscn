@@ -185,6 +185,12 @@ team = 1
 [node name="Ore" parent="Map" instance=ExtResource( 5 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 70.2412 )
 
+[node name="Ore2" parent="Map" instance=ExtResource( 5 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.62004, 0, 70.2412 )
+
+[node name="Ore3" parent="Map" instance=ExtResource( 5 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 11.4464, 0, 70.2412 )
+
 [node name="Drone" parent="Map" instance=ExtResource( 1 )]
 transform = Transform( 1, 0, 0, 0, 0.999754, -0.022164, 0, 0.022164, 0.999754, -45.0914, 9.15196, 71.3294 )
 
