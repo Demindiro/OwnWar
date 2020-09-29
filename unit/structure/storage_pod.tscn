@@ -4,29 +4,29 @@
 script/source = "extends Unit
 
 
-export var max_materials := 10000
-export var materials := 0
+export var max_material := 10000
+export var material := 0
 
 
-func put_materials(p_materials):
-	var max_put = max_materials - materials
-	if max_put > p_materials:
-		materials += p_materials
+func put_material(p_material):
+	var max_put = max_material - material
+	if max_put > p_material:
+		material += p_material
 		return 0
 	else:
-		materials = max_materials
-		return p_materials - max_put
+		material = max_material
+		return p_material - max_put
 
 
-func take_materials(p_materials, exact = false):
-	if materials > p_materials:
-		materials -= p_materials
-		return p_materials
+func take_material(p_material, exact = false):
+	if material > p_material:
+		material -= p_material
+		return p_material
 	elif exact:
 		return 0
 	else:
-		var remainder = materials
-		materials = 0
+		var remainder = material
+		material = 0
 		return remainder
 "
 
