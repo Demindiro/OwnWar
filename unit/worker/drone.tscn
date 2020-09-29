@@ -98,8 +98,9 @@ func move_towards(position, delta):
 func build(ghosts):
 	var force_append = false
 	for ghost in ghosts:
-		add_task([Task.BUILD_STRUCTURE, ghost], force_append)
-		force_append = true
+		if ghost is Ghost:
+			add_task([Task.BUILD_STRUCTURE, ghost], force_append)
+			force_append = true
 
 
 func build_drill(coordinate):
