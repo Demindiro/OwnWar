@@ -39,7 +39,7 @@ size = Vector3( 0.2, 2, 0.2 )
 [sub_resource type="BoxShape" id=3]
 extents = Vector3( 1, 1, 2.5 )
 
-[node name="StaticBody" type="StaticBody"]
+[node name="StoragePod" type="StaticBody"]
 script = SubResource( 4 )
 
 [node name="Body" type="MeshInstance" parent="."]
