@@ -72,6 +72,7 @@ func build_drill(coordinate):
 		ghost.init_arguments = [closest_ore]
 		ghost.connect(\"built\", self, \"_on_built\")
 		game_master.add_child(ghost)
+		set_waypoint(ghost.translation)
 
 
 func _on_built(_structure):
