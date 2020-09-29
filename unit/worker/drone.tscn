@@ -61,9 +61,11 @@ func _physics_process(delta):
 				else:
 					var closest_pod = null
 					for pod in game_master.get_units(team, \"storage_pod\"):
-						if closest_pod == null or translation.distance_to(closest_pod) > \\
-								translation.distance_to(pod):
-									tasks.push_front([Task.TAKE_MATERIAL, pod])
+						if pod.material > 0 and (closest_pod == null or \\
+								translation.distance_to(closest_pod) > \\
+								translation.distance_to(pod)):
+									closest_pod = pod
+					tasks.push_front([Task.TAKE_MATERIAL, closest_pod])
 			else:
 				tasks.remove(0)
 		Task.TAKE_MATERIAL:
@@ -76,12 +78,22 @@ func _physics_process(delta):
 					move_towards(task[1].translation, delta)
 			else:
 				tasks.remove(0)
+		Task.PUT_MATERIAL:
+			if task[1] != null:
+				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+					self.material = task[1].put_material(material)
+					tasks.remove(0)
+				else:
+					move_towards(task[1].translation, delta)
+			else:
+				tasks.remove(0)
 
 
 func get_actions():
 	return [
 			[\"Set waypoint\", Action.INPUT_COORDINATE, \"set_waypoint\", []],
 			[\"Take material\", Action.INPUT_OWN_UNITS, \"take_material_from\", []],
+			[\"Put material\", Action.INPUT_OWN_UNITS, \"put_material_in\", []],
 			[\"Build\", Action.INPUT_OWN_UNITS, \"build\", []],
 			[\"Build drill\", Action.INPUT_COORDINATE, \"build_drill\", []],
 		]
@@ -151,6 +163,14 @@ func take_material_from(units):
 			force_append = true
 
 
+func put_material_in(units):
+	var force_append = false
+	for unit in units:
+		if unit.has_method(\"put_material\"):
+			add_task([Task.PUT_MATERIAL, unit], force_append)
+			force_append = true
+
+
 func set_material(p_material):
 	assert(0 <= p_material and p_material <= max_material)
 	material = p_material
@@ -173,6 +193,10 @@ func draw_debug(debug):
 			Task.TAKE_MATERIAL:
 				if task[1] != null:
 					color = Color.purple
+					position = task[1].translation
+			Task.PUT_MATERIAL:
+				if task[1] != null:
+					color = Color.cyan
 					position = task[1].translation
 		if color != null:
 			debug.draw_circle(position, color)
