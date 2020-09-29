@@ -30,6 +30,7 @@ onready var rotors = [
 func _process(delta):
 	for rotor in rotors:
 		rotor.rotate_object_local(Vector3.UP, delta * 50)
+	draw_debug(game_master.get_node(\"Debug\"))
 		
 		
 func _physics_process(delta):
@@ -44,7 +45,6 @@ func _physics_process(delta):
 			if task[1] != null:
 				if translation.distance_squared_to(task[1].translation) <= 9:
 					if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
-						print(\"yeye\")
 						var material = game_master.take_material(team, 1)
 						material = task[1].add_build_progress(material)
 						game_master.add_material(team, material)
@@ -116,6 +116,25 @@ func build_drill(coordinate):
 		ghost.init_arguments = [closest_ore]
 		game_master.add_unit(team, ghost)
 		add_task([Task.BUILD_STRUCTURE, ghost])
+
+
+func draw_debug(debug):
+	var start = translation
+	for task in tasks:
+		var color
+		var position
+		match task[0]:
+			Task.GOTO_WAYPOINT:
+				color = Color.green
+				position = task[1] + Vector3.UP * Global.BLOCK_SCALE
+			Task.BUILD_STRUCTURE:
+				if task[1] == null:
+					continue
+				color = Color.orange
+				position = task[1].translation
+		debug.draw_circle(position, color)
+		debug.draw_line(start, position, color)
+		start = position
 "
 
 [sub_resource type="CubeMesh" id=2]
