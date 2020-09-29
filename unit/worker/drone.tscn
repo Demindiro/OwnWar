@@ -8,6 +8,8 @@ script/source = "extends Unit
 
 const SPEED = 20
 export(PackedScene) var drill_ghost
+export(int) var max_materials = 100
+var materials = 0
 var ghost = null
 var last_build_frame = 0
 onready var waypoint = translation
