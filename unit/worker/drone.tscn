@@ -58,6 +58,12 @@ func _physics_process(delta):
 							last_build_frame = Engine.get_physics_frames()
 					else:
 						move_towards(task[1].translation, delta)
+				else:
+					var closest_pod = null
+					for pod in game_master.get_units(team, \"storage_pod\"):
+						if closest_pod == null or translation.distance_to(closest_pod) > \\
+								translation.distance_to(pod):
+									tasks.push_front([Task.TAKE_MATERIAL, pod])
 			else:
 				tasks.remove(0)
 		Task.TAKE_MATERIAL:
