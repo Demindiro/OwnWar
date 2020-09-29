@@ -129,13 +129,13 @@ func draw_debug(debug):
 				color = Color.green
 				position = task[1] + Vector3.UP * Global.BLOCK_SCALE
 			Task.BUILD_STRUCTURE:
-				if task[1] == null:
-					continue
-				color = Color.orange
-				position = task[1].translation
-		debug.draw_circle(position, color)
-		debug.draw_line(start, position, color)
-		start = position
+				if task[1] != null:
+					color = Color.orange
+					position = task[1].translation
+		if color != null:
+			debug.draw_circle(position, color)
+			debug.draw_line(start, position, color)
+			start = position
 "
 
 [sub_resource type="CubeMesh" id=2]
