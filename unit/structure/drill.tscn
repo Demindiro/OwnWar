@@ -19,6 +19,16 @@ func _physics_process(delta):
 			if ore.material == 0:
 				set_process(false)
 				set_physics_process(false)
+				
+
+func take_material(p_material):
+	if p_material < material:
+		material -= p_material
+		return p_material
+	else:
+		var remainder = material
+		material = 0
+		return material
 
 
 func init(p_ore):

@@ -189,10 +189,14 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 70.2412 )
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.62004, 0, 70.2412 )
 
 [node name="Ore3" parent="Map" instance=ExtResource( 5 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 11.4464, 0, 70.2412 )
+transform = Transform( 1, 0, 0, 0, 0.99997, 0.00776664, 0, -0.00776664, 0.99997, 11.4464, 0, 70.2412 )
 
 [node name="Drone" parent="Map" instance=ExtResource( 1 )]
 transform = Transform( 1, 0, 0, 0, 0.999754, -0.022164, 0, 0.022164, 0.999754, -45.0914, 9.15196, 71.3294 )
+
+[node name="StoragePod" parent="Map" instance=ExtResource( 7 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -72.3055, 0, 39.8329 )
+material = 5000
 
 [node name="Vane" type="MeshInstance" parent="Map"]
 transform = Transform( 12, 0, 0, 0, 12, 0, 0, 0, 12, 0, 1.5, 0 )
@@ -211,9 +215,6 @@ material/0 = SubResource( 9 )
 
 [node name="DirectionalLight" type="DirectionalLight" parent="Map"]
 transform = Transform( 0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 16.4104, 0 )
-
-[node name="StaticBody" parent="Map" instance=ExtResource( 7 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -72.3055, 0, 39.8329 )
 
 [node name="HUD" parent="." instance=ExtResource( 4 )]
 

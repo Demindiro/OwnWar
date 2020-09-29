@@ -13,11 +13,13 @@ enum Task {
 		GOTO_WAYPOINT,
 	}
 
-const SPEED = 20
+const SPEED = 20.0
+const INTERACTION_DISTANCE = 3.0
+const INTERACTION_DISTANCE_2 = INTERACTION_DISTANCE * INTERACTION_DISTANCE
 export(PackedScene) var drill_ghost
-export(int) var max_materials = 100
+export(int) var max_material = 100
 var tasks = []
-var materials = 0
+var material = 0
 var last_build_frame = 0
 onready var rotors = [
 		$ArmLF/Rotor,
@@ -43,7 +45,7 @@ func _physics_process(delta):
 				tasks.remove(0)
 		Task.BUILD_STRUCTURE:
 			if task[1] != null:
-				if translation.distance_squared_to(task[1].translation) <= 9:
+				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
 					if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
 						var material = game_master.take_material(team, 1)
 						material = task[1].add_build_progress(material)
@@ -53,11 +55,22 @@ func _physics_process(delta):
 					move_towards(task[1].translation, delta)
 			else:
 				tasks.remove(0)
+		Task.TAKE_MATERIAL:
+			if task[1] != null:
+				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+					var material_space = max_material - material
+					material += task[1].take_material(material_space)
+					tasks.remove(0)
+				else:
+					move_towards(task[1].translation, delta)
+			else:
+				tasks.remove(0)
 
 
 func get_actions():
 	return [
 			[\"Set waypoint\", Action.INPUT_COORDINATE, \"set_waypoint\", []],
+			[\"Take material\", Action.INPUT_OWN_UNITS, \"take_material_from\", []],
 			[\"Build\", Action.INPUT_OWN_UNITS, \"build\", []],
 			[\"Build drill\", Action.INPUT_COORDINATE, \"build_drill\", []],
 		]
@@ -119,6 +132,14 @@ func build_drill(coordinate):
 		add_task([Task.BUILD_STRUCTURE, ghost])
 
 
+func take_material_from(units):
+	var force_append = false
+	for unit in units:
+		if unit.has_method(\"take_material\"):
+			add_task([Task.TAKE_MATERIAL, unit], force_append)
+			force_append = true
+
+
 func draw_debug(debug):
 	var start = translation
 	for task in tasks:
@@ -131,6 +152,10 @@ func draw_debug(debug):
 			Task.BUILD_STRUCTURE:
 				if task[1] != null:
 					color = Color.orange
+					position = task[1].translation
+			Task.TAKE_MATERIAL:
+				if task[1] != null:
+					color = Color.purple
 					position = task[1].translation
 		if color != null:
 			debug.draw_circle(position, color)
