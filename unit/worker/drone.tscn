@@ -9,6 +9,7 @@ script/source = "extends Unit
 const SPEED = 20
 export(PackedScene) var drill_ghost
 var ghost = null
+var last_build_frame = 0
 onready var waypoint = translation
 onready var rotors = [
 		$ArmLF/Rotor,
@@ -41,10 +42,12 @@ func _physics_process(delta):
 				false, 4, PI / 4, false)
 
 	if ghost != null:
-		if translation.distance_squared_to(ghost.translation) <= 9:
+		if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames() and \\
+				translation.distance_squared_to(ghost.translation) <= 9:
 			var material = game_master.take_material(team, 1)
 			material = ghost.add_build_progress(material)
 			game_master.add_material(team, material)
+			last_build_frame = Engine.get_physics_frames()
 
 
 func get_actions():
