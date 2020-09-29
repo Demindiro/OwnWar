@@ -64,7 +64,7 @@ func get_actions():
 
 
 func add_task(task, force_append = false):
-	if force_append:
+	if force_append or Input.is_action_pressed(\"campaign_append_action\"):
 		tasks.append(task)
 	else:
 		tasks = [task]
@@ -90,6 +90,9 @@ func move_towards(position, delta):
 	if distance_xz_length2 > 1e-5:
 		$\".\".move_and_slide(velocity_direction * speed, Vector3.UP,
 				false, 4, PI / 4, false)
+		return false
+	else:
+		return true
 
 
 func build(ghosts):
