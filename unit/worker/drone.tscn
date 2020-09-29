@@ -14,7 +14,7 @@ enum Task {
 	}
 
 const SPEED = 20.0
-const INTERACTION_DISTANCE = 3.0
+const INTERACTION_DISTANCE = 6.0
 const INTERACTION_DISTANCE_2 = INTERACTION_DISTANCE * INTERACTION_DISTANCE
 export(PackedScene) var drill_ghost
 export(int) var max_material = 100
