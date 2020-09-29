@@ -56,6 +56,7 @@ extents = Vector3( 1, 1, 2.5 )
 
 [node name="StoragePod" type="StaticBody"]
 script = SubResource( 4 )
+unit_name = "storage_pod"
 
 [node name="Body" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0 )
