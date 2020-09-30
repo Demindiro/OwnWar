@@ -106,7 +106,7 @@ func get_actions():
 			[\"Build drill\", Action.INPUT_COORDINATE, \"build_drill\", []],
 		]
 	for ghost_name in ghosts:
-		actions += [[\"Build \" + ghost_name, Action.INPUT_COORDINATE,
+		actions += [[\"Build \" + ghost_name, Action.INPUT_COORDINATE | Action.INPUT_SCROLL,
 				\"build_ghost\", [ghost_name]]]
 	return actions
 
@@ -151,9 +151,9 @@ func build(flags, ghosts):
 			force_append = true
 			
 			
-func build_ghost(flags, position, ghost_name):
+func build_ghost(flags, position, scroll, ghost_name):
 	var ghost = ghosts[ghost_name].instance()
-	ghost.translation = position
+	ghost.transform = Transform(Basis.IDENTITY.rotated(Vector3.UP, scroll * PI / 8), position)
 	game_master.add_unit(team, ghost)
 	add_task([Task.BUILD_STRUCTURE, ghost], flags & 0x1 > 0)
 
