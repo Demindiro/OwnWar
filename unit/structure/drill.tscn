@@ -28,7 +28,7 @@ func take_material(p_material):
 	else:
 		var remainder = material
 		material = 0
-		return material
+		return remainder
 
 
 func init(p_ore):
