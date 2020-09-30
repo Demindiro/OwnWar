@@ -100,15 +100,15 @@ func get_actions():
 		]
 
 
-func add_task(task, force_append = false):
-	if force_append or Input.is_action_pressed(\"campaign_append_action\"):
+func add_task(task, force_append):
+	if force_append:
 		tasks.append(task)
 	else:
 		tasks = [task]
 
 
 func set_waypoint(flags, coordinate):
-	add_task([Task.GOTO_WAYPOINT, coordinate])
+	add_task([Task.GOTO_WAYPOINT, coordinate], flags & 0x1 > 0)
 
 
 func move_towards(position, delta):
@@ -153,11 +153,11 @@ func build_drill(flags, coordinate):
 		ghost.translation = closest_ore.translation + Vector3.UP * 1.4
 		ghost.init_arguments = [closest_ore]
 		game_master.add_unit(team, ghost)
-		add_task([Task.BUILD_STRUCTURE, ghost])
+		add_task([Task.BUILD_STRUCTURE, ghost], flags & 0x1 > 0)
 
 
 func take_material_from(flags, units):
-	var force_append = false
+	var force_append = flags & 0x1 > 0
 	for unit in units:
 		if unit.has_method(\"take_material\"):
 			add_task([Task.TAKE_MATERIAL, unit], force_append)
@@ -165,7 +165,7 @@ func take_material_from(flags, units):
 
 
 func put_material_in(flags, units, auto = false):
-	var force_append = false
+	var force_append = flags & 0x1 > 0
 	for unit in units:
 		if unit.has_method(\"put_material\"):
 			add_task([Task.PUT_MATERIAL_AUTO if auto else Task.PUT_MATERIAL, unit],
