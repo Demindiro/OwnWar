@@ -143,11 +143,11 @@ func get_actions():
 		]
 
 
-func set_waypoint(waypoint):
+func set_waypoint(flags, waypoint):
 	ai.waypoint = waypoint
 
 
-func set_targets(targets):
+func set_targets(flags, targets):
 	ai.target = targets[0] if len(targets) > 0 else null
 
 

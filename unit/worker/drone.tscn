@@ -107,7 +107,7 @@ func add_task(task, force_append = false):
 		tasks = [task]
 
 
-func set_waypoint(coordinate):
+func set_waypoint(flags, coordinate):
 	add_task([Task.GOTO_WAYPOINT, coordinate])
 
 
@@ -132,7 +132,7 @@ func move_towards(position, delta):
 		return true
 
 
-func build(ghosts):
+func build(flags, ghosts):
 	var force_append = false
 	for ghost in ghosts:
 		if ghost is Ghost:
@@ -140,7 +140,7 @@ func build(ghosts):
 			force_append = true
 
 
-func build_drill(coordinate):
+func build_drill(flags, coordinate):
 	var closest_ore = null
 	var max_distance = 3.0
 	for ore in game_master.ores:
@@ -156,7 +156,7 @@ func build_drill(coordinate):
 		add_task([Task.BUILD_STRUCTURE, ghost])
 
 
-func take_material_from(units):
+func take_material_from(flags, units):
 	var force_append = false
 	for unit in units:
 		if unit.has_method(\"take_material\"):
@@ -164,7 +164,7 @@ func take_material_from(units):
 			force_append = true
 
 
-func put_material_in(units, auto = false):
+func put_material_in(flags, units, auto = false):
 	var force_append = false
 	for unit in units:
 		if unit.has_method(\"put_material\"):

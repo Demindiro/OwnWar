@@ -15,6 +15,7 @@ var _units_teams_mask
 var _action_input_name
 var _action_to_units
 var _action_button
+var _append_action = false
 
 onready var _action_button_template := find_node("Template")
 
@@ -30,7 +31,9 @@ func _process(_delta):
 
 
 func _unhandled_input(event):
-	if event.is_action("campaign_debug"):
+	if event.is_action("campaign_append_action"):
+		_append_action = event.pressed
+	elif event.is_action("campaign_debug"):
 		if event.pressed:
 			$"../Debug".visible = not $"../Debug".visible
 	elif event.is_action("ui_cancel"):
@@ -135,8 +138,7 @@ func set_action_buttons(units):
 			button.connect("pressed", self, "get_units", [button, action_to_units[action]])
 			button.toggle_mode = true
 		else:
-			for unit_action in action_to_units[action]:
-				button.connect("pressed", unit_action[0], unit_action[1], unit_action[2])
+			button.connect("pressed", self, "send_plain", [action_to_units[action]])
 		if shortcut_index < SHORTCUT_COUNT:
 			var input_event = InputEventAction.new()
 			input_event.action = SHORTCUT_PREFIX + str(shortcut_index)
@@ -173,16 +175,25 @@ func send_coordinate(coordinate):
 	for action in _action_to_units:
 		var unit = action[0]
 		var function = action[1]
-		var arguments = action[2]
-		funcref(unit, function).call_funcv([coordinate] + arguments)
+		var arguments = [get_modifier_flags(), coordinate]
+		arguments += action[2]
+		funcref(unit, function).call_funcv(arguments)
 	
 	
 func send_units(units):
 	for action in _action_to_units:
 		var unit = action[0]
 		var function = action[1]
-		var arguments = action[2]
-		funcref(unit, function).call_funcv([units] + arguments)
+		var arguments = [get_modifier_flags(), units] + action[2]
+		funcref(unit, function).call_funcv(arguments)
+		
+
+func send_plain(action_to_units):
+	for action in action_to_units:
+		var unit = action[0]
+		var function = action[1]
+		var arguments = [get_modifier_flags()] + action[2]
+		funcref(unit, function).call_funcv(arguments)
 
 
 func clear_action_button():
@@ -220,6 +231,12 @@ func set_selected_units(units):
 	for unit in units:
 		unit.connect("destroyed", self, "_unit_destroyed")
 	selected_units = units
+
+
+func get_modifier_flags():
+	var flags = 0
+	flags |= 0x1 if _append_action else 0
+	return flags
 
 
 func _unit_destroyed(unit):

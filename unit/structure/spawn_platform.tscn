@@ -45,7 +45,7 @@ func get_actions():
 	return actions
 
 
-func spawn_vehicle(path):
+func spawn_vehicle(flags, path):
 	if queued_vehicle != null:
 		queued_vehicle.free()
 	queued_vehicle = load(Global.SCENE_VEHICLE).instance()
