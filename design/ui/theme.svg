@@ -7,6 +7,7 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="1920px"
@@ -21,6 +22,42 @@
    inkscape:export-ydpi="96">
   <defs
      id="defs34">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1061">
+      <stop
+         style="stop-color:#002255;stop-opacity:1"
+         offset="0"
+         id="stop1057" />
+      <stop
+         style="stop-color:#0055d4;stop-opacity:1"
+         offset="1"
+         id="stop1059" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1053">
+      <stop
+         style="stop-color:#0044aa;stop-opacity:1"
+         offset="0"
+         id="stop1049" />
+      <stop
+         style="stop-color:#0066ff;stop-opacity:1"
+         offset="1"
+         id="stop1051" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1024">
+      <stop
+         style="stop-color:#0055d4;stop-opacity:1"
+         offset="0"
+         id="stop1020" />
+      <stop
+         style="stop-color:#003380;stop-opacity:1"
+         offset="1"
+         id="stop1022" />
+    </linearGradient>
     <inkscape:perspective
        sodipodi:type="inkscape:persp3d"
        inkscape:vp_x="82.83251 : 754.15234 : 1"
@@ -28,6 +65,46 @@
        inkscape:vp_z="2002.8325 : 754.15234 : 1"
        inkscape:persp3d-origin="1042.8325 : 574.15234 : 1"
        id="perspective25" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1024"
+       id="linearGradient1026"
+       x1="298.04297"
+       y1="960.57812"
+       x2="326.04297"
+       y2="988.57812"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.1428571,0,0,1.1428571,-42.577567,-141.22545)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1024"
+       id="linearGradient1047"
+       x1="213.87518"
+       y1="986.82196"
+       x2="93.17804"
+       y2="866.12482"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.025641,0,0,1.025641,-1.9365803,-25.755735)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1053"
+       id="linearGradient1055"
+       x1="379.61395"
+       y1="995.82886"
+       x2="351.69855"
+       y2="967.86359"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.1428571,0,0,1.1428571,-50.242651,-142.26127)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1061"
+       id="linearGradient1063"
+       x1="448.58072"
+       y1="987.85303"
+       x2="420.58072"
+       y2="959.85303"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.1428571,0,0,1.1428571,-60.082961,-141.12186)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -36,9 +113,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.3791667"
-     inkscape:cx="349.23475"
-     inkscape:cy="254.35164"
+     inkscape:zoom="2.7583334"
+     inkscape:cx="177.45731"
+     inkscape:cy="189.62515"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -47,7 +124,7 @@
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:snap-bbox="false"
+     inkscape:snap-bbox="true"
      inkscape:bbox-paths="true"
      inkscape:snap-smooth-nodes="false"
      inkscape:snap-object-midpoints="false"
@@ -61,7 +138,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -70,30 +147,30 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:7;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke;opacity:1"
+       style="opacity:1;fill:url(#linearGradient1047);fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:3.07692313;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
        id="rect1019"
-       width="120.69713"
-       height="120.69713"
-       x="93.17804"
-       y="866.12482"
+       width="123.79192"
+       height="123.79192"
+       x="93.630638"
+       y="862.57739"
        inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/dialog/dialog.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
     <path
-       inkscape:transform-center-y="19.635215"
-       inkscape:transform-center-x="-19.635221"
-       style="fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;opacity:1"
-       d="m 110.20821,849.9734 -33.181583,33.18158 v 38.39169 H 105.4666 v -28.6227 l 14.50869,-14.51062 H 148.5999 V 849.9734 Z"
+       inkscape:transform-center-y="20.13868"
+       inkscape:transform-center-x="-20.138686"
+       style="opacity:1;fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:3.07692313;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 111.09748,846.01186 -34.032391,34.03239 v 39.37609 H 106.23429 V 890.06373 L 121.115,875.18104 h 29.35857 v -29.16918 z"
        id="path4744"
        inkscape:connector-curvature="0"
        inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/dialog/dialog.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
     <path
-       inkscape:transform-center-y="-19.635193"
-       inkscape:transform-center-x="-19.635204"
-       style="fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;opacity:1"
-       d="m 77.026611,969.79186 33.181579,33.18154 h 38.39169 V 974.53338 H 119.97719 L 105.46656,960.02472 V 931.40015 H 77.026611 Z"
+       inkscape:transform-center-y="-20.138677"
+       inkscape:transform-center-x="-20.138669"
+       style="opacity:1;fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:3.07692313;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 77.065073,968.90259 34.032387,34.03231 h 39.37609 v -29.16921 h -29.3566 l -14.8827,-14.88068 V 929.52648 H 77.065073 Z"
        id="path4746"
        inkscape:connector-curvature="0"
        inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/dialog/dialog.png"
@@ -112,38 +189,39 @@
        inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/dialog/dialog.png"
        inkscape:connector-curvature="0"
        id="path4767"
-       d="m 196.84501,1002.9734 33.18159,-33.18159 v -38.3917 h -28.43998 v 28.6227 l -14.50869,14.51062 h -28.62461 v 28.43997 z"
-       style="fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;opacity:1"
-       inkscape:transform-center-x="19.635217"
-       inkscape:transform-center-y="-19.635213" />
+       d="m 199.95574,1002.9349 34.0324,-34.03236 v -39.3761 h -29.16921 v 29.35661 l -14.88071,14.88269 h -29.35857 v 29.16916 z"
+       style="opacity:1;fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:3.07692313;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:transform-center-x="20.138682"
+       inkscape:transform-center-y="-20.138697" />
     <path
        inkscape:export-ydpi="96"
        inkscape:export-xdpi="96"
        inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/dialog/dialog.png"
        inkscape:connector-curvature="0"
        id="path4769"
-       d="m 230.02661,883.15492 -33.18158,-33.18151 h -38.39169 v 28.43999 h 28.62269 l 14.51063,14.50866 v 28.62457 h 28.43995 z"
-       style="fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;opacity:1"
-       inkscape:transform-center-x="19.6352"
-       inkscape:transform-center-y="19.635195" />
+       d="m 233.98815,880.04419 -34.03239,-34.03232 h -39.37609 v 29.16922 h 29.3566 l 14.8827,14.88068 v 29.35853 h 29.16918 z"
+       style="opacity:1;fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:3.07692313;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:transform-center-x="20.138665"
+       inkscape:transform-center-y="20.13866" />
     <path
-       style="fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:6.99999952;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
-       d="M 306.86523 962.07812 L 299.54297 969.40039 L 299.54297 979.75586 L 306.86523 987.07812 L 317.2207 987.07812 L 324.54297 979.75586 L 324.54297 969.40039 L 317.2207 962.07812 L 306.86523 962.07812 z "
+       style="fill:url(#linearGradient1026);fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:3.42857146;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 308.12555,958.29241 -8.36829,8.3683 v 11.83483 l 8.36829,8.36829 h 11.83483 l 8.3683,-8.36829 v -11.83483 l -8.3683,-8.3683 z"
        id="rect4781"
        inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/button/button.png"
        inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
+       inkscape:export-ydpi="96"
+       inkscape:connector-curvature="0" />
     <path
        inkscape:export-ydpi="96"
        inkscape:export-xdpi="96"
        inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/button/button_pressed.png"
        id="path4900"
-       d="m 429.40299,961.35304 -7.32226,7.32227 v 10.35547 l 7.32226,7.32226 h 10.35547 l 7.32227,-7.32226 v -10.35547 l -7.32227,-7.32227 z"
-       style="fill:#003380;fill-opacity:1;fill-rule:evenodd;stroke:#002255;stroke-width:6.99999952;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 430.66331,957.56733 -8.36829,8.3683 v 11.83483 l 8.36829,8.36829 h 11.83483 l 8.3683,-8.36829 v -11.83483 l -8.3683,-8.3683 z"
+       style="fill:url(#linearGradient1063);fill-opacity:1;fill-rule:evenodd;stroke:#002255;stroke-width:3.42857146;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:#0055d4;fill-opacity:1;fill-rule:evenodd;stroke:#0044aa;stroke-width:6.99999952;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
-       d="m 360.52082,969.32888 -7.32226,7.32227 v 10.35547 l 7.32226,7.32226 h 10.35547 l 7.32227,-7.32226 v -10.35547 l -7.32227,-7.32227 z"
+       style="fill:url(#linearGradient1055);fill-opacity:1;fill-rule:evenodd;stroke:#0044aa;stroke-width:3.42857146;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 361.78114,965.54317 -8.36829,8.3683 v 11.83483 l 8.36829,8.36829 h 11.83483 l 8.3683,-8.36829 v -11.83483 l -8.3683,-8.3683 z"
        id="path4902"
        inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/button/button_hover.png"
        inkscape:export-xdpi="96"

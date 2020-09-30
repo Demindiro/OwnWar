@@ -13,6 +13,8 @@
 [ext_resource path="res://menu/main.tscn" type="PackedScene" id=11]
 [ext_resource path="res://designer/map.tscn" type="PackedScene" id=12]
 
+
+
 [sub_resource type="SpatialMaterial" id=1]
 flags_transparent = true
 params_depth_draw_mode = 1
