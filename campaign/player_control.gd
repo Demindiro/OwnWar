@@ -26,7 +26,6 @@ func _ready():
 func _process(_delta):
 	if len(selected_units) > 0 or _selecting_units:
 		update()
-	$Resources.text = "Material: " + str(game_master.material_count[team])
 	$FPS.text = "FPS: " + str(round(1.0 / _delta))
 
 

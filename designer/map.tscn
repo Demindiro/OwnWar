@@ -120,7 +120,6 @@ func _on_Exit_pressed():
 
 [node name="Designer" type="Spatial"]
 script = ExtResource( 10 )
-start_material = 2305843009213693952
 
 [node name="Map" type="Node" parent="."]
 script = SubResource( 1 )

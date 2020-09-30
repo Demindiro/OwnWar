@@ -5,35 +5,16 @@ extends Node
 
 export(NodePath) var victory_screen
 export var team_count := 2
-export var start_material := 100
 
 var teams := ["Player", "Evil AI"]
 var teams_alive := team_count
-var material_count := []
 var units := []
 var ores := []
 
 
 func _enter_tree():
 	for i in team_count:
-		material_count.append(start_material)
 		units.append([])
-
-
-func add_material(team, count):
-	material_count[team] += count
-	
-
-func take_material(team, count, exact = false):
-	if count <= material_count[team]:
-		material_count[team] -= count
-		return count
-	elif not exact:
-		var remaining = material_count[team]
-		material_count[team] = 0
-		return remaining
-	else:
-		return 0
 
 
 func add_unit(team, unit):
