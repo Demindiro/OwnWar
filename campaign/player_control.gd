@@ -117,10 +117,13 @@ func set_action_buttons(units):
 	for unit in units:
 		for action in unit.get_actions():
 			var key = [action[0], action[1]]
+			var value = [unit, action[2], action[3]]
+			if action[1] & Unit.Action.INPUT_TOGGLE:
+				value += [action[4]]
 			if key in action_to_units:
-				action_to_units[key].append([unit, action[2], action[3]])
+				action_to_units[key].append(value)
 			else:
-				action_to_units[key] = [[unit, action[2], action[3]]]
+				action_to_units[key] = [value]
 	for child in $Actions.get_children():
 		child.queue_free()
 	var shortcut_index = 0
@@ -137,6 +140,10 @@ func set_action_buttons(units):
 				_units_teams_mask = 1 << team
 			button.connect("pressed", self, "get_units", [button, action_to_units[action]])
 			button.toggle_mode = true
+		elif action[1] & Unit.Action.INPUT_TOGGLE:
+			button.connect("pressed", self, "send_toggle", [button, action_to_units[action]])
+			button.toggle_mode = true
+			button.pressed = action_to_units[action][0][3]
 		else:
 			button.connect("pressed", self, "send_plain", [action_to_units[action]])
 		if shortcut_index < SHORTCUT_COUNT:
@@ -185,6 +192,14 @@ func send_units(units):
 		var unit = action[0]
 		var function = action[1]
 		var arguments = [get_modifier_flags(), units] + action[2]
+		funcref(unit, function).call_funcv(arguments)
+		
+
+func send_toggle(button, action_to_units):
+	for action in action_to_units:
+		var unit = action[0]
+		var function = action[1]
+		var arguments = [get_modifier_flags(), button.pressed] + action[2]
 		funcref(unit, function).call_funcv(arguments)
 		
 

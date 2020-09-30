@@ -22,6 +22,7 @@ export(int) var max_material = 100
 var tasks = []
 var material = 0 setget set_material
 var last_build_frame = 0
+var loop_tasks = false
 onready var rotors = [
 		$ArmLF/Rotor,
 		$ArmRF/Rotor,
@@ -47,7 +48,7 @@ func _physics_process(delta):
 	match task[0]:
 		Task.GOTO_WAYPOINT:
 			if move_towards(task[1], delta):
-				tasks.remove(0)
+				current_task_completed()
 		Task.BUILD_STRUCTURE:
 			if task[1] != null:
 				if material > 0:
@@ -60,7 +61,7 @@ func _physics_process(delta):
 					else:
 						move_towards(task[1].translation, delta)
 				else:
-					take_materials_from_closest_pod()
+					take_materials_from_closest_pod(delta)
 			else:
 				tasks.remove(0)
 		Task.TAKE_MATERIAL:
@@ -68,23 +69,25 @@ func _physics_process(delta):
 				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
 					var material_space = max_material - material
 					self.material += task[1].take_material(material_space)
-					tasks.remove(0)
+					current_task_completed()
 				else:
 					move_towards(task[1].translation, delta)
 			else:
 				tasks.remove(0)
 		Task.PUT_MATERIAL, Task.PUT_MATERIAL_AUTO:
-			if task[1] != null and task[1].material < task[1].max_material:
-				if material > 0:
+			if task[1] != null:
+				if task[1].material >= task[1].max_material:
+					current_task_completed()
+				elif material > 0:
 					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
 						self.material = task[1].put_material(material)
 						if task[0] != Task.PUT_MATERIAL_AUTO or \\
 								task[1].material == task[1].max_material:
-							tasks.remove(0)
+							current_task_completed()
 					else:
 						move_towards(task[1].translation, delta)
 				else:
-					take_materials_from_closest_pod()
+					take_materials_from_closest_pod(delta)
 			else:
 				tasks.remove(0)
 
@@ -97,6 +100,7 @@ func get_actions():
 			[\"Put material [auto]\", Action.INPUT_OWN_UNITS, \"put_material_in\", [true]],
 			[\"Build\", Action.INPUT_OWN_UNITS, \"build\", []],
 			[\"Build drill\", Action.INPUT_COORDINATE, \"build_drill\", []],
+			[\"Loop tasks\", Action.INPUT_TOGGLE, \"set_loop_tasks\", [], loop_tasks],
 		]
 
 
@@ -173,20 +177,36 @@ func put_material_in(flags, units, auto = false):
 			force_append = true
 			
 
-func take_materials_from_closest_pod():
+func take_materials_from_closest_pod(delta):
 	var closest_pod = null
 	for pod in game_master.get_units(team, \"storage_pod\"):
 		if pod.material > 0 and (closest_pod == null or \\
 				translation.distance_to(closest_pod) > \\
 				translation.distance_to(pod)):
 					closest_pod = pod
-	tasks.push_front([Task.TAKE_MATERIAL, closest_pod])
+	if closest_pod != null:
+		if translation.distance_squared_to(closest_pod.translation) <= INTERACTION_DISTANCE_2:
+			var material_space = max_material - material
+			self.material += closest_pod.take_material(material_space)
+		else:
+			move_towards(closest_pod.translation, delta)
+	
+	
+func current_task_completed():
+	if loop_tasks:
+		tasks.push_back(tasks.pop_front())
+	else:
+		tasks.remove(0)
 
 
 func set_material(p_material):
 	assert(0 <= p_material and p_material <= max_material)
 	material = p_material
 	$Indicator.scale.z = float(material) / max_material
+	
+	
+func set_loop_tasks(flags, p_loop_tasks):
+	loop_tasks = p_loop_tasks
 
 
 func draw_debug(debug):
