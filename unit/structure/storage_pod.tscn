@@ -56,6 +56,7 @@ extents = Vector3( 1, 1, 2.5 )
 
 [node name="StoragePod" type="StaticBody"]
 script = SubResource( 1 )
+max_health = 500
 unit_name = "storage_pod"
 
 [node name="Body" type="MeshInstance" parent="."]

@@ -11,6 +11,7 @@ albedo_color = Color( 1, 1, 1, 0.2 )
 [node name="SpawnPlatformGhost" type="Spatial"]
 script = ExtResource( 2 )
 unit_name = "spawn_platform_ghost"
+cost = 1000
 structure = ExtResource( 3 )
 
 [node name="MeshInstance" type="MeshInstance" parent="."]

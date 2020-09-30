@@ -15,4 +15,3 @@ mesh = SubResource( 1 )
 material/0 = SubResource( 2 )
 script = ExtResource( 1 )
 structure = ExtResource( 2 )
-build_cost = 50
