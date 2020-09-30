@@ -31,6 +31,7 @@ func _process(_delta):
 	if len(selected_units) > 0 or _selecting_units:
 		update()
 	$FPS.text = "FPS: " + str(round(1.0 / _delta))
+	set_unit_info()
 
 
 func _unhandled_input(event):

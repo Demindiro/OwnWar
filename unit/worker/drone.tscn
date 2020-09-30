@@ -109,6 +109,28 @@ func get_actions():
 	return actions
 
 
+func get_info():
+	var info = .get_info()
+	var task_string
+	if len(tasks) > 0:
+		match tasks[0][0]:
+			Task.GOTO_WAYPOINT:
+				task_string = \"Goto\"
+			Task.BUILD_STRUCTURE:
+				task_string = \"Build\"
+			Task.TAKE_MATERIAL:
+				task_string = \"Take\"
+			Task.PUT_MATERIAL:
+				task_string = \"Put\"
+			_:
+				task_string = \"Unknown (BUG)\"
+	else:
+		task_string = \"None\"
+	info[\"Current task\"] = task_string
+	info[\"Total tasks\"] = str(len(tasks))
+	return info
+
+
 func add_task(task, force_append):
 	if force_append:
 		tasks.append(task)
