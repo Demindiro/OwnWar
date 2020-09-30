@@ -252,22 +252,22 @@ func draw_debug(debug):
 "
 
 [sub_resource type="CubeMesh" id=2]
-size = Vector3( 0.8, 0.3, 1 )
+size = Vector3( 0.2, 0.075, 0.25 )
 
 [sub_resource type="CubeMesh" id=3]
-size = Vector3( 0.1, 0.1, 1.5 )
+size = Vector3( 0.025, 0.025, 0.375 )
 
 [sub_resource type="CubeMesh" id=4]
-size = Vector3( 1.8, 0.01, 0.05 )
+size = Vector3( 0.45, 0.002, 0.012 )
 
 [sub_resource type="QuadMesh" id=5]
-size = Vector2( 0.6, 0.8 )
+size = Vector2( 0.17, 0.22 )
 
 [sub_resource type="SpatialMaterial" id=6]
 albedo_color = Color( 0, 0.905882, 1, 1 )
 
 [sub_resource type="BoxShape" id=7]
-extents = Vector3( 1.625, 0.125, 1.625 )
+extents = Vector3( 0.406, 0.031, 0.406 )
 
 [node name="Drone" type="KinematicBody"]
 script = SubResource( 1 )
@@ -286,7 +286,7 @@ __meta__ = {
 }
 
 [node name="ArmLF" type="MeshInstance" parent="."]
-transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0.795495, 0, 0.795495 )
+transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0.176776, 0, 0.176776 )
 mesh = SubResource( 3 )
 material/0 = null
 __meta__ = {
@@ -294,12 +294,12 @@ __meta__ = {
 }
 
 [node name="Rotor" type="MeshInstance" parent="ArmLF"]
-transform = Transform( 1, -2.38419e-07, 0, 2.38419e-07, 1, 0, 0, 0, 1, 0, 0.06, 0.675 )
+transform = Transform( 1, -2.38419e-07, 0, 2.38419e-07, 1, 0, 0, 0, 1, 0, 0.015, 0.175 )
 mesh = SubResource( 4 )
 material/0 = null
 
 [node name="ArmRF" type="MeshInstance" parent="."]
-transform = Transform( 0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -0.795495, 0, 0.795495 )
+transform = Transform( 0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -0.176776, 0, 0.176776 )
 mesh = SubResource( 3 )
 material/0 = null
 __meta__ = {
@@ -307,12 +307,12 @@ __meta__ = {
 }
 
 [node name="Rotor" type="MeshInstance" parent="ArmRF"]
-transform = Transform( -1, 1.50996e-07, 0, -1.50996e-07, -1, 0, 0, 0, 1, 0, 0.06, 0.675 )
+transform = Transform( -1, 1.50996e-07, 0, -1.50996e-07, -1, 0, 0, 0, 1, 0, 0.015, 0.175 )
 mesh = SubResource( 4 )
 material/0 = null
 
 [node name="ArmLB" type="MeshInstance" parent="."]
-transform = Transform( -0.707107, 0, 0.707106, 0, 1, 0, -0.707106, 0, -0.707107, 0.795495, 0, -0.795495 )
+transform = Transform( -0.707107, 0, 0.707106, 0, 1, 0, -0.707106, 0, -0.707107, 0.176777, 0, -0.176776 )
 mesh = SubResource( 3 )
 material/0 = null
 __meta__ = {
@@ -320,12 +320,12 @@ __meta__ = {
 }
 
 [node name="Rotor" type="MeshInstance" parent="ArmLB"]
-transform = Transform( -1, 1.50996e-07, 0, -1.50996e-07, -1, 0, 0, 7.10543e-15, 1, -5.96046e-08, 0.06, 0.675 )
+transform = Transform( -1, 1.50996e-07, 0, -1.50996e-07, -1, 7.10543e-15, 0, 7.10543e-15, 1, 0, 0.015, 0.175 )
 mesh = SubResource( 4 )
 material/0 = null
 
 [node name="ArmRB" type="MeshInstance" parent="."]
-transform = Transform( -0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, -0.707107, -0.795495, 0, -0.795495 )
+transform = Transform( -0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, -0.707107, -0.176776, 0, -0.176776 )
 mesh = SubResource( 3 )
 material/0 = null
 __meta__ = {
@@ -333,7 +333,7 @@ __meta__ = {
 }
 
 [node name="Rotor" type="MeshInstance" parent="ArmRB"]
-transform = Transform( 1, -2.38419e-07, 0, 2.38419e-07, 1, 0, 0, 0, 1, 0, 0.06, 0.675 )
+transform = Transform( 1, -2.38419e-07, 0, 2.38419e-07, 1, 0, 0, 0, 1, 0, 0.015, 0.175 )
 mesh = SubResource( 4 )
 material/0 = null
 __meta__ = {
@@ -341,10 +341,10 @@ __meta__ = {
 }
 
 [node name="Indicator" type="Spatial" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.162034, -0.5 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, -0.11 )
 
 [node name="MeshInstance" type="MeshInstance" parent="Indicator"]
-transform = Transform( 1, 0, 0, 0, -1.62921e-07, 1, 0, -1, -1.62921e-07, 0, 7.45058e-08, 0.5 )
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0.110295 )
 mesh = SubResource( 5 )
 material/0 = SubResource( 6 )
 
