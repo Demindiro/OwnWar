@@ -17,7 +17,6 @@ var aim_weapons := false
 var blocks := {}
 var center_of_mass := Vector3.ZERO
 var max_cost: int
-var cost: int
 
 var _fire_weapons := false
 var _raycast := preload("res://addons/voxel_raycast.gd").new()

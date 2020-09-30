@@ -6,6 +6,7 @@ extends Spatial
 signal destroyed(unit)
 
 enum Action {
+	INPUT_NONE = 0x0,
 	INPUT_COORDINATE = 0x1,
 	INPUT_ENEMY_UNITS = 0x2,
 	INPUT_ALLIED_UNITS = 0x4,
@@ -19,7 +20,7 @@ enum Action {
 export var max_health := 10
 export var team := 0
 export var unit_name := "unit"
-
+export var cost := 10
 onready var health := max_health
 onready var game_master = get_tree().get_current_scene()
 
