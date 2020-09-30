@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://unit/structure/platform.obj" type="ArrayMesh" id=1]
 [ext_resource path="res://addons/arrow.png" type="Texture" id=2]
@@ -7,8 +7,22 @@
 script/source = "extends Unit
 
 
+var material = 0 setget set_material
+var queued_vehicle = null
+
+
 func _ready():
 	unit_name = \"spawn_platform\"
+	set_material(material)
+	$IndicatorVehicle.material_override = $IndicatorVehicle.material_override.duplicate()
+	$IndicatorVehicle.material_override.albedo_color = Color.green
+	
+
+func _notification(notification):
+	match notification:
+		NOTIFICATION_PREDELETE:
+			if queued_vehicle != null:
+				queued_vehicle.free()
 
 
 func get_actions():
@@ -31,26 +45,45 @@ func get_actions():
 
 
 func spawn_vehicle(path):
-	var vehicle = load(Global.SCENE_VEHICLE).instance()
-	var err = vehicle.load_from_file(path)
+	if queued_vehicle != null:
+		queued_vehicle.free()
+	queued_vehicle = load(Global.SCENE_VEHICLE).instance()
+	var err = queued_vehicle.load_from_file(path)
 	if err != OK:
 		Global.error(\"Failed to spawn vehicle from '%s'\" % path, err)
-		vehicle.free()
-		return null
+		queued_vehicle.free()
+		queued_vehicle = null
+		$IndicatorVehicle.material_override.albedo_color = Color.red
 	else:
-		var material = game_master.take_material(team, vehicle.cost, true)
-		if material == 0:
-			print(\"Not enough material to spawn vehicle (need %d)\" % vehicle.cost)
-			vehicle.free()
-			# TODO some kind of error dialog
-			return null
-		game_master.add_unit(team, vehicle)
-		vehicle.global_transform = global_transform
-		vehicle.translate(Vector3.UP * 5)
-		vehicle.rotate_y(PI)
-		vehicle.ai = load(\"res://unit/vehicle/ai/brick.gd\").new()
-		return vehicle
+		queued_vehicle.global_transform = global_transform
+		queued_vehicle.translate(Vector3.UP * 5)
+		queued_vehicle.rotate_y(PI)
+		queued_vehicle.ai = load(\"res://unit/vehicle/ai/brick.gd\").new()
+		$IndicatorVehicle.material_override.albedo_color = Color.orange
+	return queued_vehicle
 
+
+func put_material(p_material):
+	if queued_vehicle == null:
+		return p_material
+	self.material += p_material
+	if material >= queued_vehicle.cost:
+		game_master.add_unit(team, queued_vehicle)
+		var remainder = material - queued_vehicle.cost
+		self.material = 0
+		queued_vehicle = null
+		$IndicatorVehicle.material_override.albedo_color = Color.green
+		return remainder
+	return 0
+
+
+func set_material(p_material):
+	assert(0 <= p_material)
+	material = p_material
+	if queued_vehicle == null:
+		$IndicatorMaterial.scale.z = 0 if material == 0 else 1
+	else:
+		$IndicatorMaterial.scale.z = clamp(float(material) / queued_vehicle.cost, 0, 1)
 "
 
 [sub_resource type="BoxShape" id=2]
@@ -58,6 +91,14 @@ extents = Vector3( 7, 1, 8 )
 
 [sub_resource type="BoxShape" id=3]
 extents = Vector3( 7, 1.077, 2.692 )
+
+[sub_resource type="QuadMesh" id=4]
+
+[sub_resource type="SpatialMaterial" id=5]
+albedo_color = Color( 0, 0.905882, 1, 1 )
+
+[sub_resource type="SpatialMaterial" id=6]
+albedo_color = Color( 0, 0, 0, 0.392157 )
 
 [node name="SpawnPlatform" type="StaticBody"]
 script = SubResource( 1 )
@@ -77,3 +118,17 @@ shape = SubResource( 2 )
 [node name="CollisionShape2" type="CollisionShape" parent="."]
 transform = Transform( 1, 0, 0, 0, 0.928479, 0.371384, 0, -0.371384, 0.928479, 0, -1, -10.1 )
 shape = SubResource( 3 )
+
+[node name="IndicatorMaterial" type="Spatial" parent="."]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 6.9, 1.01, 7.4 )
+
+[node name="MeshInstance" type="MeshInstance" parent="IndicatorMaterial"]
+transform = Transform( 1, 0, 0, 0, -5.55135e-07, 1, 0, -12.7, -4.37114e-08, 0, 0, 6.35 )
+mesh = SubResource( 4 )
+material/0 = SubResource( 5 )
+
+[node name="IndicatorVehicle" type="MeshInstance" parent="."]
+transform = Transform( -4.37114e-08, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, 4.37114e-08, 1.91069e-15, -6.4, 1.01, 7.4 )
+material_override = SubResource( 6 )
+mesh = SubResource( 4 )
+material/0 = null
