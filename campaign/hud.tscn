@@ -47,3 +47,25 @@ focus_mode = 0
 custom_fonts/font = SubResource( 1 )
 enabled_focus_mode = 0
 text = "T"
+
+[node name="UnitInfo" type="PanelContainer" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -500.0
+margin_top = -400.0
+margin_right = -20.0
+margin_bottom = -20.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="GridContainer" type="GridContainer" parent="UnitInfo"]
+margin_left = 40.0
+margin_top = 40.0
+margin_right = 440.0
+margin_bottom = 340.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 2

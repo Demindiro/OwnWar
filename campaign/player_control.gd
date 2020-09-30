@@ -18,6 +18,7 @@ var _action_button
 var _action_flags
 var _append_action = false
 var _scroll = 0
+var _unit_info_index = 0
 
 onready var _action_button_template := find_node("Template")
 
@@ -71,6 +72,8 @@ func _gui_input(event):
 					_selecting_units = false
 					set_selected_units(get_selected_units(1 << team))
 					set_action_buttons(selected_units)
+					_unit_info_index = 0
+					set_unit_info()
 		update()
 	elif event.is_action("campaign_scroll_up"):
 		if event.pressed:
@@ -264,6 +267,29 @@ func get_modifier_flags():
 	var flags = 0
 	flags |= 0x1 if _append_action else 0
 	return flags
+
+
+func set_unit_info():
+	if len(selected_units) == 0:
+		return
+	if _unit_info_index >= len(selected_units):
+		_unit_info_index = 0
+	elif _unit_info_index < 0:
+		_unit_info_index = len(selected_units) - 1
+	var unit_info = selected_units[_unit_info_index].get_info()
+	for child in $UnitInfo/GridContainer.get_children():
+		child.queue_free()
+	for key in unit_info:
+		var label_key = Label.new()
+		var label_value = Label.new()
+		label_key.text = key
+		label_value.text = str(unit_info[key])
+		label_key.clip_text = true
+		label_value.clip_text = true
+		label_key.size_flags_horizontal |= Label.SIZE_EXPAND_FILL
+		label_value.size_flags_horizontal |= Label.SIZE_EXPAND_FILL
+		$UnitInfo/GridContainer.add_child(label_key)
+		$UnitInfo/GridContainer.add_child(label_value)
 
 
 func _unit_destroyed(unit):

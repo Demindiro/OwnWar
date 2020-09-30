@@ -39,6 +39,12 @@ func get_actions():
 	return []
 
 
+func get_info():
+	return {
+			"Health": str(health) + " / " + str(max_health)
+		}
+
+
 func destroy():
 	game_master.remove_unit(team, self)
 	emit_signal("destroyed", self)
