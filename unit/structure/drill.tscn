@@ -21,6 +21,13 @@ func _physics_process(delta):
 				set_physics_process(false)
 				
 
+func get_info():
+	var info = .get_info()
+	info[\"Ore\"] = ore.material
+	info[\"Material\"] = \"%d / %d\" % [material, max_material]
+	return info
+
+
 func take_material(p_material):
 	if p_material < material:
 		material -= p_material
