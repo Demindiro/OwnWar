@@ -1,6 +1,5 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
 [ext_resource path="res://campaign/player_control.gd" type="Script" id=2]
 [ext_resource path="res://menu/theme/theme.tres" type="Theme" id=3]
 [ext_resource path="res://menu/good_times_rg.ttf" type="DynamicFontData" id=4]
@@ -48,9 +47,3 @@ focus_mode = 0
 custom_fonts/font = SubResource( 1 )
 enabled_focus_mode = 0
 text = "T"
-
-[node name="Camera" type="Camera" parent="."]
-transform = Transform( 1, -1.77636e-13, 1.74846e-07, -8.74228e-08, 0.866025, 0.5, -1.51421e-07, -0.5, 0.866025, -1.34565e-06, 17.77, 184.608 )
-far = 2000.0
-script = ExtResource( 1 )
-speed = 50.0

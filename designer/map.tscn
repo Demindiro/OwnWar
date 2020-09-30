@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=26 format=2]
 
 [ext_resource path="res://unit/worker/drone.tscn" type="PackedScene" id=1]
 [ext_resource path="res://addons/tiles/metal_grid/set3_example_2.png" type="Texture" id=2]
@@ -13,6 +13,7 @@
 [ext_resource path="res://menu/load_vehicle.tscn" type="PackedScene" id=11]
 [ext_resource path="res://unit/structure/spawn_platform_ghost.tscn" type="PackedScene" id=12]
 [ext_resource path="res://unit/structure/storage_pod_ghost.tscn" type="PackedScene" id=13]
+[ext_resource path="res://camera/free_camera.gd" type="Script" id=14]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node
@@ -222,6 +223,12 @@ material/0 = SubResource( 9 )
 transform = Transform( 0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 16.4104, 0 )
 
 [node name="HUD" parent="." instance=ExtResource( 4 )]
+
+[node name="Camera" type="Camera" parent="HUD"]
+transform = Transform( 0.770113, 0.200224, -0.605671, 0, 0.949464, 0.313876, 0.637908, -0.24172, 0.731194, -47.744, 14.2517, 67.2209 )
+far = 1000.0
+script = ExtResource( 14 )
+speed = 50.0
 
 [node name="GUI" type="ColorRect" parent="."]
 pause_mode = 2
