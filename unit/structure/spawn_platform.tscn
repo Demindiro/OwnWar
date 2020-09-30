@@ -8,6 +8,7 @@ script/source = "extends Unit
 
 
 var material = 0 setget set_material
+var max_material setget , get_max_material
 var queued_vehicle = null
 
 
@@ -84,6 +85,10 @@ func set_material(p_material):
 		$IndicatorMaterial.scale.z = 0 if material == 0 else 1
 	else:
 		$IndicatorMaterial.scale.z = clamp(float(material) / queued_vehicle.cost, 0, 1)
+
+
+func get_max_material():
+	return 0 if queued_vehicle == null else queued_vehicle.cost
 "
 
 [sub_resource type="BoxShape" id=2]

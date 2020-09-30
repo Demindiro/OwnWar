@@ -9,6 +9,7 @@ script/source = "extends Unit
 enum Task {
 		TAKE_MATERIAL,
 		PUT_MATERIAL,
+		PUT_MATERIAL_AUTO,
 		BUILD_STRUCTURE,
 		GOTO_WAYPOINT,
 	}
@@ -59,13 +60,7 @@ func _physics_process(delta):
 					else:
 						move_towards(task[1].translation, delta)
 				else:
-					var closest_pod = null
-					for pod in game_master.get_units(team, \"storage_pod\"):
-						if pod.material > 0 and (closest_pod == null or \\
-								translation.distance_to(closest_pod) > \\
-								translation.distance_to(pod)):
-									closest_pod = pod
-					tasks.push_front([Task.TAKE_MATERIAL, closest_pod])
+					take_materials_from_closest_pod()
 			else:
 				tasks.remove(0)
 		Task.TAKE_MATERIAL:
@@ -78,13 +73,18 @@ func _physics_process(delta):
 					move_towards(task[1].translation, delta)
 			else:
 				tasks.remove(0)
-		Task.PUT_MATERIAL:
+		Task.PUT_MATERIAL, Task.PUT_MATERIAL_AUTO:
 			if task[1] != null:
-				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-					self.material = task[1].put_material(material)
-					tasks.remove(0)
+				if material > 0:
+					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+						self.material = task[1].put_material(material)
+						if task[0] != Task.PUT_MATERIAL_AUTO or \\
+								task[1].material == task[1].max_material:
+							tasks.remove(0)
+					else:
+						move_towards(task[1].translation, delta)
 				else:
-					move_towards(task[1].translation, delta)
+					take_materials_from_closest_pod()
 			else:
 				tasks.remove(0)
 
@@ -94,6 +94,7 @@ func get_actions():
 			[\"Set waypoint\", Action.INPUT_COORDINATE, \"set_waypoint\", []],
 			[\"Take material\", Action.INPUT_OWN_UNITS, \"take_material_from\", []],
 			[\"Put material\", Action.INPUT_OWN_UNITS, \"put_material_in\", []],
+			[\"Put material [auto]\", Action.INPUT_OWN_UNITS, \"put_material_in\", [true]],
 			[\"Build\", Action.INPUT_OWN_UNITS, \"build\", []],
 			[\"Build drill\", Action.INPUT_COORDINATE, \"build_drill\", []],
 		]
@@ -163,12 +164,23 @@ func take_material_from(units):
 			force_append = true
 
 
-func put_material_in(units):
+func put_material_in(units, auto = false):
 	var force_append = false
 	for unit in units:
 		if unit.has_method(\"put_material\"):
-			add_task([Task.PUT_MATERIAL, unit], force_append)
+			add_task([Task.PUT_MATERIAL_AUTO if auto else Task.PUT_MATERIAL, unit],
+					force_append)
 			force_append = true
+			
+
+func take_materials_from_closest_pod():
+	var closest_pod = null
+	for pod in game_master.get_units(team, \"storage_pod\"):
+		if pod.material > 0 and (closest_pod == null or \\
+				translation.distance_to(closest_pod) > \\
+				translation.distance_to(pod)):
+					closest_pod = pod
+	tasks.push_front([Task.TAKE_MATERIAL, closest_pod])
 
 
 func set_material(p_material):
@@ -198,6 +210,10 @@ func draw_debug(debug):
 				if task[1] != null:
 					color = Color.cyan
 					position = task[1].translation
+			Task.PUT_MATERIAL_AUTO:
+				if task[1] != null:
+					color = Color.darkcyan
+					position = task[1].translation
 		if color != null:
 			debug.draw_circle(position, color)
 			debug.draw_line(start, position, color)
@@ -213,13 +229,13 @@ size = Vector3( 0.1, 0.1, 1.5 )
 [sub_resource type="CubeMesh" id=4]
 size = Vector3( 1.8, 0.01, 0.05 )
 
-[sub_resource type="QuadMesh" id=6]
+[sub_resource type="QuadMesh" id=5]
 size = Vector2( 0.6, 0.8 )
 
-[sub_resource type="SpatialMaterial" id=7]
+[sub_resource type="SpatialMaterial" id=6]
 albedo_color = Color( 0, 0.905882, 1, 1 )
 
-[sub_resource type="BoxShape" id=5]
+[sub_resource type="BoxShape" id=7]
 extents = Vector3( 1.625, 0.125, 1.625 )
 
 [node name="Drone" type="KinematicBody"]
@@ -294,11 +310,11 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.162034, -0.5 )
 
 [node name="MeshInstance" type="MeshInstance" parent="Indicator"]
 transform = Transform( 1, 0, 0, 0, -1.62921e-07, 1, 0, -1, -1.62921e-07, 0, 7.45058e-08, 0.5 )
-mesh = SubResource( 6 )
-material/0 = SubResource( 7 )
+mesh = SubResource( 5 )
+material/0 = SubResource( 6 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
-shape = SubResource( 5 )
+shape = SubResource( 7 )
 
 [node name="RayCast" type="RayCast" parent="."]
 enabled = true
