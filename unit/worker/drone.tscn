@@ -229,7 +229,7 @@ size = Vector3( 0.1, 0.1, 1.5 )
 [sub_resource type="CubeMesh" id=4]
 size = Vector3( 1.8, 0.01, 0.05 )
 
-[sub_resource type="QuadMesh" id=5]
+[sub_resource type="QuadMesh" id=8]
 size = Vector2( 0.6, 0.8 )
 
 [sub_resource type="SpatialMaterial" id=6]
@@ -310,7 +310,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.162034, -0.5 )
 
 [node name="MeshInstance" type="MeshInstance" parent="Indicator"]
 transform = Transform( 1, 0, 0, 0, -1.62921e-07, 1, 0, -1, -1.62921e-07, 0, 7.45058e-08, 0.5 )
-mesh = SubResource( 5 )
+mesh = SubResource( 8 )
 material/0 = SubResource( 6 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
