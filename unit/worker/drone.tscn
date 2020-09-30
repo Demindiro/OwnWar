@@ -195,8 +195,8 @@ func take_materials_from_closest_pod(delta):
 	var closest_pod = null
 	for pod in game_master.get_units(team, \"storage_pod\"):
 		if pod.material > 0 and (closest_pod == null or \\
-				translation.distance_to(closest_pod) > \\
-				translation.distance_to(pod)):
+				translation.distance_to(closest_pod.translation) > \\
+				translation.distance_to(pod.translation)):
 					closest_pod = pod
 	if closest_pod != null:
 		if translation.distance_squared_to(closest_pod.translation) <= INTERACTION_DISTANCE_2:
