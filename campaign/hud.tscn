@@ -277,6 +277,8 @@ func get_modifier_flags():
 
 
 func set_unit_info():
+	for child in $UnitInfo/GridContainer.get_children():
+		child.queue_free()
 	if len(selected_units) == 0:
 		return
 	if _unit_info_index >= len(selected_units):
@@ -284,8 +286,6 @@ func set_unit_info():
 	elif _unit_info_index < 0:
 		_unit_info_index = len(selected_units) - 1
 	var unit_info = selected_units[_unit_info_index].get_info()
-	for child in $UnitInfo/GridContainer.get_children():
-		child.queue_free()
 	for key in unit_info:
 		var label_key = Label.new()
 		var label_value = Label.new()
