@@ -6,19 +6,19 @@
 [ext_resource path="res://menu/button/button_hover.tres" type="StyleBox" id=4]
 [ext_resource path="res://menu/button/button_pressed.tres" type="StyleBox" id=5]
 
-[sub_resource type="StyleBoxFlat" id=6]
+[sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.207843, 0.2, 0.239216, 1 )
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="DynamicFont" id=7]
+[sub_resource type="DynamicFont" id=2]
 size = 20
 font_data = ExtResource( 1 )
 
 [resource]
-default_font = SubResource( 7 )
+default_font = SubResource( 2 )
 Button/colors/font_color = Color( 1, 1, 1, 1 )
 Button/colors/font_color_disabled = Color( 1, 1, 1, 1 )
 Button/colors/font_color_hover = Color( 0.988235, 0.988235, 0.988235, 1 )
@@ -255,7 +255,7 @@ PopupPanel/styles/panel = null
 ProgressBar/colors/font_color = Color( 1, 1, 1, 1 )
 ProgressBar/colors/font_color_shadow = Color( 0, 0, 0, 1 )
 ProgressBar/fonts/font = null
-ProgressBar/styles/bg = SubResource( 6 )
+ProgressBar/styles/bg = SubResource( 1 )
 ProgressBar/styles/fg = null
 RichTextLabel/colors/default_color = Color( 0, 0, 0, 1 )
 RichTextLabel/colors/font_color_selected = Color( 0, 0, 0, 1 )
