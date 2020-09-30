@@ -289,6 +289,7 @@ func set_unit_info():
 		label_value.clip_text = true
 		label_key.size_flags_horizontal |= Label.SIZE_EXPAND_FILL
 		label_value.size_flags_horizontal |= Label.SIZE_EXPAND_FILL
+		label_value.align = Label.ALIGN_RIGHT
 		$UnitInfo/GridContainer.add_child(label_key)
 		$UnitInfo/GridContainer.add_child(label_value)
 
