@@ -7,6 +7,8 @@
 script/source = "extends Unit
 
 
+# Thank cyclic PackedScene errors for this
+export(PackedScene) var worker = load(\"res://unit/worker/drone.tscn\")
 var material = 0 setget set_material
 var max_material setget , get_max_material
 var queued_vehicle = null
@@ -27,7 +29,7 @@ func _notification(notification):
 
 
 func get_actions():
-	var actions = []
+	var actions = [[\"Spawn Drone\", Action.INPUT_NONE, \"spawn_worker\", []]]
 	var directory = Directory.new()
 	var err = directory.open(Global.DIRECTORY_USER_VEHICLES)
 	if err == OK:
@@ -43,6 +45,17 @@ func get_actions():
 	else:
 		Global.error(err)
 	return actions
+
+
+func spawn_worker(flags):
+	if queued_vehicle != null:
+		queued_vehicle.free()
+	queued_vehicle = worker.instance()
+	$IndicatorVehicle.material_override.albedo_color = Color.orange
+	queued_vehicle.global_transform = global_transform
+	queued_vehicle.translate(Vector3.UP * 5)
+	queued_vehicle.rotate_y(PI)
+	return queued_vehicle
 
 
 func spawn_vehicle(flags, path):
