@@ -65,6 +65,19 @@ func _physics_process(delta):
 				child.fire()
 	_fire_weapons = false
 	
+	
+func get_info():
+	var info = .get_info()
+	var remaining_health = 0
+	var remaining_cost = 0
+	for coordinate in blocks:
+		var block = blocks[coordinate]
+		remaining_health += block[1]
+		remaining_cost += Global.blocks_by_id[block[0]].cost
+	info["Health"] = "%d / %d" % [remaining_health, max_health]
+	info["Cost"] = "%d / %d" % [remaining_cost, max_cost]
+	return info
+	
 			
 func fire_weapons():
 	_fire_weapons = true
@@ -113,6 +126,7 @@ func load_from_file(path: String) -> int:
 	blocks.clear()
 	$GridMap.clear()
 	max_cost = 0
+	max_health = 0
 	var data = parse_json(file.get_as_text())
 	for key in data["blocks"]:
 		var components = key.split(',')
@@ -198,6 +212,7 @@ func _spawn_block(x: int, y: int, z: int, r: int, block: Block) -> void:
 		node.transform = Transform(basis, position * Global.BLOCK_SCALE)
 		add_child(node)
 	max_cost += block.cost
+	max_health += block.health
 	blocks[[x, y, z]] = [block.id, block.health, node]
 	start_position.x = float(x) if start_position.x > x else start_position.x
 	start_position.y = float(y) if start_position.y > y else start_position.y
