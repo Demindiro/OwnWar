@@ -64,7 +64,7 @@ func _physics_process(delta):
 					else:
 						move_towards(task[1].translation, delta)
 				else:
-					take_materials_from_closest_pod(delta)
+					take_materials_from_closest_pod(delta, task[1])
 			else:
 				tasks.remove(0)
 		Task.TAKE_MATERIAL:
@@ -90,7 +90,7 @@ func _physics_process(delta):
 					else:
 						move_towards(task[1].translation, delta)
 				else:
-					take_materials_from_closest_pod(delta)
+					take_materials_from_closest_pod(delta, task[1])
 			else:
 				tasks.remove(0)
 
@@ -191,13 +191,14 @@ func put_material_in(flags, units, auto = false):
 			force_append = true
 			
 
-func take_materials_from_closest_pod(delta):
+func take_materials_from_closest_pod(delta, exclude_pod):
 	var closest_pod = null
 	for pod in game_master.get_units(team, \"storage_pod\"):
-		if pod.material > 0 and (closest_pod == null or \\
+		if pod != exclude_pod and pod.material > 0 and \\
+				(closest_pod == null or \\
 				translation.distance_to(closest_pod.translation) > \\
 				translation.distance_to(pod.translation)):
-					closest_pod = pod
+			closest_pod = pod
 	if closest_pod != null:
 		if translation.distance_squared_to(closest_pod.translation) <= INTERACTION_DISTANCE_2:
 			var material_space = max_material - material
