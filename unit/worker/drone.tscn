@@ -1,0 +1,356 @@
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://unit/structure/drill_ghost.tscn" type="PackedScene" id=1]
+[ext_resource path="res://unit/structure/spawn_platform_ghost.tscn" type="PackedScene" id=2]
+[ext_resource path="res://unit/structure/storage_pod_ghost.tscn" type="PackedScene" id=3]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Unit
+
+
+enum Task {
+		TAKE_MATERIAL,
+		PUT_MATERIAL,
+		BUILD_STRUCTURE,
+		GOTO_WAYPOINT,
+	}
+
+const SPEED = 20.0
+const INTERACTION_DISTANCE = 6.0
+const INTERACTION_DISTANCE_2 = INTERACTION_DISTANCE * INTERACTION_DISTANCE
+export(Dictionary) var ghosts = {}
+export(PackedScene) var drill_ghost
+export(int) var max_material = 100
+var tasks = []
+var material = 0 setget set_material
+var last_build_frame = 0
+var loop_tasks = false
+onready var rotors = [
+		$ArmLF/Rotor,
+		$ArmRF/Rotor,
+		$ArmLB/Rotor,
+		$ArmRB/Rotor,
+	]
+	
+	
+func _ready():
+	set_material(material)
+
+
+func _process(delta):
+	for rotor in rotors:
+		rotor.rotate_object_local(Vector3.UP, delta * 50)
+	draw_debug(game_master.get_node(\"Debug\"))
+		
+		
+func _physics_process(delta):
+	if len(tasks) == 0:
+		return
+	var task = tasks[0]
+	match task[0]:
+		Task.GOTO_WAYPOINT:
+			if move_towards(task[1], delta):
+				current_task_completed()
+		Task.BUILD_STRUCTURE:
+			if task[1] != null:
+				if material > 0:
+					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+						if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
+							material -= 1
+							material += task[1].add_build_progress(1)
+							set_material(material)
+							last_build_frame = Engine.get_physics_frames()
+					else:
+						move_towards(task[1].translation, delta)
+				else:
+					take_materials_from_closest_pod(delta, task[1])
+			else:
+				tasks.remove(0)
+		Task.TAKE_MATERIAL:
+			if task[1] != null:
+				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+					var material_space = max_material - material
+					self.material += task[1].take_material(material_space)
+					current_task_completed()
+				else:
+					move_towards(task[1].translation, delta)
+			else:
+				tasks.remove(0)
+		Task.PUT_MATERIAL:
+			if task[1] != null:
+				if task[1].material >= task[1].max_material:
+					current_task_completed()
+				elif material > 0:
+					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+						self.material = task[1].put_material(material)
+						if task[1].material == task[1].max_material:
+							current_task_completed()
+					else:
+						move_towards(task[1].translation, delta)
+				else:
+					if not take_materials_from_closest_pod(delta, task[1]):
+						current_task_completed()
+			else:
+				tasks.remove(0)
+
+
+func get_actions():
+	var actions = [
+			[\"Set waypoint\", Action.INPUT_COORDINATE, \"set_waypoint\", []],
+			[\"Take material\", Action.INPUT_OWN_UNITS, \"take_material_from\", []],
+			[\"Put material\", Action.INPUT_OWN_UNITS, \"put_material_in\", []],
+			[\"Build\", Action.INPUT_OWN_UNITS, \"build\", []],
+			[\"Loop tasks\", Action.INPUT_TOGGLE, \"set_loop_tasks\", [], loop_tasks],
+			[\"Build drill\", Action.INPUT_COORDINATE, \"build_drill\", []],
+		]
+	for ghost_name in ghosts:
+		actions += [[\"Build \" + ghost_name, Action.INPUT_COORDINATE | Action.INPUT_SCROLL,
+				\"build_ghost\", [ghost_name]]]
+	return actions
+
+
+func add_task(task, force_append):
+	if force_append:
+		tasks.append(task)
+	else:
+		tasks = [task]
+
+
+func set_waypoint(flags, coordinate):
+	add_task([Task.GOTO_WAYPOINT, coordinate], flags & 0x1 > 0)
+
+
+func move_towards(position, delta):
+	var distance = position - translation
+	var distance_xz = Vector3(distance.x, 0, distance.z)
+	var distance_xz_length2 = distance_xz.length_squared()
+	var speed = SPEED if distance_xz_length2 > SPEED * SPEED * delta * delta else \\
+			sqrt(distance_xz_length2) / delta
+	var velocity_direction = distance_xz.normalized()
+	var height = translation.y - $RayCast.get_collision_point().y if \\
+			$RayCast.is_colliding() else 5
+	if height < 1:
+		velocity_direction = (velocity_direction + Vector3.UP).normalized()
+	elif height > 4:
+		velocity_direction = (velocity_direction + Vector3.DOWN).normalized()
+	if distance_xz_length2 > 1e-5:
+		$\".\".move_and_slide(velocity_direction * speed, Vector3.UP,
+				false, 4, PI / 4, false)
+		return false
+	else:
+		return true
+
+
+func build(flags, ghosts):
+	var force_append = false
+	for ghost in ghosts:
+		if ghost is Ghost:
+			add_task([Task.BUILD_STRUCTURE, ghost], force_append)
+			force_append = true
+			
+			
+func build_ghost(flags, position, scroll, ghost_name):
+	var ghost = ghosts[ghost_name].instance()
+	ghost.transform = Transform(Basis.IDENTITY.rotated(Vector3.UP, scroll * PI / 8), position)
+	game_master.add_unit(team, ghost)
+	add_task([Task.BUILD_STRUCTURE, ghost], flags & 0x1 > 0)
+
+
+func build_drill(flags, coordinate):
+	var closest_ore = null
+	var max_distance = 3.0
+	for ore in game_master.ores:
+		var distance = (ore.translation - coordinate).length()
+		if ore.drill == null and distance < max_distance:
+			closest_ore = ore
+			max_distance = distance
+	if closest_ore != null:
+		var ghost = drill_ghost.instance()
+		ghost.translation = closest_ore.translation + Vector3.UP * 1.4
+		ghost.init_arguments = [closest_ore]
+		game_master.add_unit(team, ghost)
+		add_task([Task.BUILD_STRUCTURE, ghost], flags & 0x1 > 0)
+
+
+func take_material_from(flags, units):
+	var force_append = flags & 0x1 > 0
+	for unit in units:
+		if unit.has_method(\"take_material\"):
+			add_task([Task.TAKE_MATERIAL, unit], force_append)
+			force_append = true
+
+
+func put_material_in(flags, units):
+	var force_append = flags & 0x1 > 0
+	for unit in units:
+		if unit.has_method(\"put_material\"):
+			add_task([Task.PUT_MATERIAL, unit],
+					force_append)
+			force_append = true
+			
+
+func take_materials_from_closest_pod(delta, exclude_pod):
+	var closest_pod = null
+	for pod in game_master.get_units(team, \"storage_pod\"):
+		if pod != exclude_pod and pod.material > 0 and \\
+				(closest_pod == null or \\
+				translation.distance_to(closest_pod.translation) > \\
+				translation.distance_to(pod.translation)):
+			closest_pod = pod
+	if closest_pod != null:
+		if translation.distance_squared_to(closest_pod.translation) <= INTERACTION_DISTANCE_2:
+			var material_space = max_material - material
+			self.material += closest_pod.take_material(material_space)
+		else:
+			move_towards(closest_pod.translation, delta)
+		return true
+	return false
+	
+	
+func current_task_completed():
+	if loop_tasks:
+		tasks.push_back(tasks.pop_front())
+	else:
+		tasks.remove(0)
+
+
+func set_material(p_material):
+	assert(0 <= p_material and p_material <= max_material)
+	material = p_material
+	$Indicator.scale.z = float(material) / max_material
+	
+	
+func set_loop_tasks(flags, p_loop_tasks):
+	loop_tasks = p_loop_tasks
+
+
+func draw_debug(debug):
+	var start = translation
+	for task in tasks:
+		var color
+		var position
+		match task[0]:
+			Task.GOTO_WAYPOINT:
+				color = Color.green
+				position = task[1] + Vector3.UP * Global.BLOCK_SCALE
+			Task.BUILD_STRUCTURE:
+				if task[1] != null:
+					color = Color.orange
+					position = task[1].translation
+			Task.TAKE_MATERIAL:
+				if task[1] != null:
+					color = Color.purple
+					position = task[1].translation
+			Task.PUT_MATERIAL:
+				if task[1] != null:
+					color = Color.cyan
+					position = task[1].translation
+		if color != null:
+			debug.draw_circle(position, color)
+			debug.draw_line(start, position, color)
+			start = position
+"
+
+[sub_resource type="CubeMesh" id=2]
+size = Vector3( 0.2, 0.075, 0.25 )
+
+[sub_resource type="CubeMesh" id=3]
+size = Vector3( 0.025, 0.025, 0.375 )
+
+[sub_resource type="CubeMesh" id=4]
+size = Vector3( 0.45, 0.002, 0.012 )
+
+[sub_resource type="QuadMesh" id=5]
+size = Vector2( 0.17, 0.22 )
+
+[sub_resource type="SpatialMaterial" id=6]
+albedo_color = Color( 0, 0.905882, 1, 1 )
+
+[sub_resource type="BoxShape" id=7]
+extents = Vector3( 0.406, 0.031, 0.406 )
+
+[node name="Drone" type="KinematicBody"]
+script = SubResource( 1 )
+unit_name = "worker"
+ghosts = {
+"Spawn Platform": ExtResource( 2 ),
+"Storage Pod": ExtResource( 3 )
+}
+drill_ghost = ExtResource( 1 )
+
+[node name="Body" type="MeshInstance" parent="."]
+mesh = SubResource( 2 )
+material/0 = null
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="ArmLF" type="MeshInstance" parent="."]
+transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0.176776, 0, 0.176776 )
+mesh = SubResource( 3 )
+material/0 = null
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Rotor" type="MeshInstance" parent="ArmLF"]
+transform = Transform( 1, -2.38419e-07, 0, 2.38419e-07, 1, 0, 0, 0, 1, 0, 0.015, 0.175 )
+mesh = SubResource( 4 )
+material/0 = null
+
+[node name="ArmRF" type="MeshInstance" parent="."]
+transform = Transform( 0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -0.176776, 0, 0.176776 )
+mesh = SubResource( 3 )
+material/0 = null
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Rotor" type="MeshInstance" parent="ArmRF"]
+transform = Transform( -1, 1.50996e-07, 0, -1.50996e-07, -1, 0, 0, 0, 1, 0, 0.015, 0.175 )
+mesh = SubResource( 4 )
+material/0 = null
+
+[node name="ArmLB" type="MeshInstance" parent="."]
+transform = Transform( -0.707107, 0, 0.707106, 0, 1, 0, -0.707106, 0, -0.707107, 0.176777, 0, -0.176776 )
+mesh = SubResource( 3 )
+material/0 = null
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Rotor" type="MeshInstance" parent="ArmLB"]
+transform = Transform( -1, 1.50996e-07, 0, -1.50996e-07, -1, 7.10543e-15, 0, 7.10543e-15, 1, 0, 0.015, 0.175 )
+mesh = SubResource( 4 )
+material/0 = null
+
+[node name="ArmRB" type="MeshInstance" parent="."]
+transform = Transform( -0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, -0.707107, -0.176776, 0, -0.176776 )
+mesh = SubResource( 3 )
+material/0 = null
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Rotor" type="MeshInstance" parent="ArmRB"]
+transform = Transform( 1, -2.38419e-07, 0, 2.38419e-07, 1, 0, 0, 0, 1, 0, 0.015, 0.175 )
+mesh = SubResource( 4 )
+material/0 = null
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Indicator" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, -0.11 )
+
+[node name="MeshInstance" type="MeshInstance" parent="Indicator"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0.110295 )
+mesh = SubResource( 5 )
+material/0 = SubResource( 6 )
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+shape = SubResource( 7 )
+
+[node name="RayCast" type="RayCast" parent="."]
+enabled = true
+cast_to = Vector3( 0, -5, 0 )

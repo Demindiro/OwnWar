@@ -22,6 +22,23 @@ func draw_point(origin: Vector3, color := Color.white, radius := 1.0):
 		end()
 
 
+func draw_circle(origin: Vector3, color := Color.white, radius := 1.0):
+	begin(Mesh.PRIMITIVE_LINE_LOOP)
+	set_color(color)
+	for i in range(16):
+		var r = i * PI / 8
+		add_vertex(Vector3(cos(r), 0, sin(r)) + origin)
+	end()
+
+
+func draw_line(start: Vector3, end: Vector3, color := Color.white):
+	begin(Mesh.PRIMITIVE_LINES)
+	set_color(color)
+	add_vertex(start)
+	add_vertex(end)
+	end()
+
+
 func draw_normal(origin: Vector3, direction: Vector3, color := Color.white):
 	begin(Mesh.PRIMITIVE_LINES)
 	set_color(color)

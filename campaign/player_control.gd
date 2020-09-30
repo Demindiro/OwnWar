@@ -15,6 +15,9 @@ var _units_teams_mask
 var _action_input_name
 var _action_to_units
 var _action_button
+var _action_flags
+var _append_action = false
+var _scroll = 0
 
 onready var _action_button_template := find_node("Template")
 
@@ -26,12 +29,13 @@ func _ready():
 func _process(_delta):
 	if len(selected_units) > 0 or _selecting_units:
 		update()
-	$Resources.text = "Material: " + str(game_master.material_count[team])
 	$FPS.text = "FPS: " + str(round(1.0 / _delta))
 
 
 func _unhandled_input(event):
-	if event.is_action("campaign_debug"):
+	if event.is_action("campaign_append_action"):
+		_append_action = event.pressed
+	elif event.is_action("campaign_debug"):
 		if event.pressed:
 			$"../Debug".visible = not $"../Debug".visible
 	elif event.is_action("ui_cancel"):
@@ -68,6 +72,12 @@ func _gui_input(event):
 					set_selected_units(get_selected_units(1 << team))
 					set_action_buttons(selected_units)
 		update()
+	elif event.is_action("campaign_scroll_up"):
+		if event.pressed:
+			_scroll += 1
+	elif event.is_action("campaign_scroll_down"):
+		if event.pressed:
+			_scroll -= 1
 	elif event is InputEventMouseMotion:
 		_last_mouse_position = event.position
 		if _selecting_units:
@@ -115,10 +125,13 @@ func set_action_buttons(units):
 	for unit in units:
 		for action in unit.get_actions():
 			var key = [action[0], action[1]]
+			var value = [unit, action[2], action[3]]
+			if action[1] & Unit.Action.INPUT_TOGGLE:
+				value += [action[4]]
 			if key in action_to_units:
-				action_to_units[key].append([unit, action[2], action[3]])
+				action_to_units[key].append(value)
 			else:
-				action_to_units[key] = [[unit, action[2], action[3]]]
+				action_to_units[key] = [value]
 	for child in $Actions.get_children():
 		child.queue_free()
 	var shortcut_index = 0
@@ -126,7 +139,8 @@ func set_action_buttons(units):
 		var button = _action_button_template.duplicate()
 		button.text = action[0]
 		if action[1] & Unit.Action.INPUT_COORDINATE:
-			button.connect("pressed", self, "get_coordinate", [button, action_to_units[action]])
+			button.connect("pressed", self, "get_coordinate",
+					[button, action_to_units[action], action[1]])
 			button.toggle_mode = true
 		elif action[1] & Unit.Action.INPUT_UNITS:
 			if action[1] & Unit.Action.INPUT_ENEMY_UNITS:
@@ -135,9 +149,12 @@ func set_action_buttons(units):
 				_units_teams_mask = 1 << team
 			button.connect("pressed", self, "get_units", [button, action_to_units[action]])
 			button.toggle_mode = true
+		elif action[1] & Unit.Action.INPUT_TOGGLE:
+			button.connect("pressed", self, "send_toggle", [button, action_to_units[action]])
+			button.toggle_mode = true
+			button.pressed = action_to_units[action][0][3]
 		else:
-			for unit_action in action_to_units[action]:
-				button.connect("pressed", unit_action[0], unit_action[1], unit_action[2])
+			button.connect("pressed", self, "send_plain", [action_to_units[action]])
 		if shortcut_index < SHORTCUT_COUNT:
 			var input_event = InputEventAction.new()
 			input_event.action = SHORTCUT_PREFIX + str(shortcut_index)
@@ -148,7 +165,7 @@ func set_action_buttons(units):
 		$Actions.add_child(button)
 		
 		
-func get_coordinate(button, action_to_units):
+func get_coordinate(button, action_to_units, action_flags):
 	if button == _action_button:
 		clear_action_button()
 		return
@@ -156,6 +173,7 @@ func get_coordinate(button, action_to_units):
 	_action_input_name = "coordinate"
 	_action_button = button
 	_action_to_units = action_to_units
+	_action_flags = action_flags
 	button.pressed = true
 	
 	
@@ -174,16 +192,35 @@ func send_coordinate(coordinate):
 	for action in _action_to_units:
 		var unit = action[0]
 		var function = action[1]
-		var arguments = action[2]
-		funcref(unit, function).call_funcv([coordinate] + arguments)
+		var arguments = [get_modifier_flags(), coordinate]
+		if _action_flags & Unit.Action.INPUT_SCROLL:
+			arguments += [_scroll]
+		arguments += action[2]
+		funcref(unit, function).call_funcv(arguments)
 	
 	
 func send_units(units):
 	for action in _action_to_units:
 		var unit = action[0]
 		var function = action[1]
-		var arguments = action[2]
-		funcref(unit, function).call_funcv([units] + arguments)
+		var arguments = [get_modifier_flags(), units] + action[2]
+		funcref(unit, function).call_funcv(arguments)
+		
+
+func send_toggle(button, action_to_units):
+	for action in action_to_units:
+		var unit = action[0]
+		var function = action[1]
+		var arguments = [get_modifier_flags(), button.pressed] + action[2]
+		funcref(unit, function).call_funcv(arguments)
+		
+
+func send_plain(action_to_units):
+	for action in action_to_units:
+		var unit = action[0]
+		var function = action[1]
+		var arguments = [get_modifier_flags()] + action[2]
+		funcref(unit, function).call_funcv(arguments)
 
 
 func clear_action_button():
@@ -221,6 +258,12 @@ func set_selected_units(units):
 	for unit in units:
 		unit.connect("destroyed", self, "_unit_destroyed")
 	selected_units = units
+
+
+func get_modifier_flags():
+	var flags = 0
+	flags |= 0x1 if _append_action else 0
+	return flags
 
 
 func _unit_destroyed(unit):
