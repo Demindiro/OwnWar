@@ -242,10 +242,10 @@ __meta__ = {
 }
 
 [node name="PanelContainer" type="PanelContainer" parent="GUI/Menu"]
-margin_left = 959.0
-margin_top = 539.0
-margin_right = 961.0
-margin_bottom = 541.0
+margin_left = 920.0
+margin_top = 500.0
+margin_right = 1000.0
+margin_bottom = 580.0
 __meta__ = {
 "_editor_description_": ""
 }
@@ -267,7 +267,7 @@ __meta__ = {
 margin_left = 20.0
 margin_top = 20.0
 margin_right = 227.0
-margin_bottom = 253.0
+margin_bottom = 348.0
 custom_constants/separation = 10
 alignment = 1
 __meta__ = {

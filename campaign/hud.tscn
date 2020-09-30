@@ -1,8 +1,13 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
 [ext_resource path="res://campaign/player_control.gd" type="Script" id=2]
 [ext_resource path="res://menu/theme/theme.tres" type="Theme" id=3]
+[ext_resource path="res://menu/good_times_rg.ttf" type="DynamicFontData" id=4]
+
+[sub_resource type="DynamicFont" id=1]
+size = 10
+font_data = ExtResource( 4 )
 
 [node name="HUD" type="Control"]
 anchor_right = 1.0
@@ -24,20 +29,23 @@ __meta__ = {
 }
 
 [node name="Actions" type="VBoxContainer" parent="."]
-anchor_top = 0.6
+anchor_top = 1.0
 anchor_bottom = 1.0
 margin_left = 20.0
-margin_top = -0.480011
+margin_top = -1017.0
 margin_right = 320.0
 margin_bottom = -20.0
+alignment = 2
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Template" type="Button" parent="Actions"]
+margin_top = 964.0
 margin_right = 300.0
-margin_bottom = 26.0
+margin_bottom = 997.0
 focus_mode = 0
+custom_fonts/font = SubResource( 1 )
 enabled_focus_mode = 0
 text = "T"
 
