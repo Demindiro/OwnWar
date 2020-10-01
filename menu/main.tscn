@@ -95,7 +95,7 @@ margin_top = 276.566
 margin_right = 80.7993
 margin_bottom = 276.566
 title = "Own War"
-buttons = [ [ "Campaign", "campaign" ] ]
+buttons = [ [ "Campaign", "campaign" ], [ "A", "V" ] ]
 
 [node name="Version" type="Label" parent="GUI/Main"]
 margin_left = 220.0

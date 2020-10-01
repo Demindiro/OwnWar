@@ -12,6 +12,7 @@ var ready = false
 func _ready():
 	ready = true
 	set_title(title)
+	print(buttons)
 	set_buttons(buttons)
 
 
