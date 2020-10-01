@@ -309,8 +309,6 @@ func _unit_destroyed(unit):
 [node name="HUD" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = 1.18921
-margin_bottom = 1.18921
 script = SubResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -327,10 +325,9 @@ __meta__ = {
 }
 
 [node name="Actions" type="VBoxContainer" parent="."]
-anchor_top = 1.0
 anchor_bottom = 1.0
 margin_left = 20.0
-margin_top = -1017.0
+margin_top = -4096.0
 margin_right = 320.0
 margin_bottom = -20.0
 alignment = 2
@@ -339,9 +336,9 @@ __meta__ = {
 }
 
 [node name="Template" parent="Actions" instance=ExtResource( 2 )]
-margin_top = 956.0
+margin_top = 5115.0
 margin_right = 300.0
-margin_bottom = 997.629
+margin_bottom = 5156.63
 
 [node name="UnitInfo" parent="." instance=ExtResource( 1 )]
 anchor_left = 1.0
