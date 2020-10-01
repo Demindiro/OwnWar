@@ -1,7 +1,8 @@
 [gd_scene load_steps=5 format=2]
 
+[ext_resource path="res://menu/dialog/independent_panel.tscn" type="PackedScene" id=1]
+[ext_resource path="res://menu/button/button.tscn" type="PackedScene" id=2]
 [ext_resource path="res://menu/theme/theme.tres" type="Theme" id=3]
-[ext_resource path="res://menu/good_times_rg.ttf" type="DynamicFontData" id=4]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Control
@@ -306,14 +307,9 @@ func _unit_destroyed(unit):
 	update()
 "
 
-[sub_resource type="DynamicFont" id=2]
-size = 10
-font_data = ExtResource( 4 )
-
 [node name="HUD" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource( 3 )
 script = SubResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -341,33 +337,30 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Template" type="Button" parent="Actions"]
-margin_top = 964.0
+[node name="Template" parent="Actions" instance=ExtResource( 2 )]
+margin_top = 956.0
 margin_right = 300.0
-margin_bottom = 997.0
-focus_mode = 0
-custom_fonts/font = SubResource( 2 )
-enabled_focus_mode = 0
-text = "T"
+margin_bottom = 997.629
 
-[node name="UnitInfo" type="PanelContainer" parent="."]
+[node name="UnitInfo" parent="." instance=ExtResource( 1 )]
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -500.0
-margin_top = -400.0
-margin_right = -20.0
-margin_bottom = -20.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
+margin_left = -370.0
+margin_top = -430.0
+margin_right = -351.063
+margin_bottom = -439.162
+theme = ExtResource( 3 )
+title = "Unit Info"
 
 [node name="GridContainer" type="GridContainer" parent="UnitInfo"]
 margin_left = 40.0
 margin_top = 40.0
-margin_right = 440.0
-margin_bottom = 340.0
+margin_right = 300.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
