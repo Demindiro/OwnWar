@@ -3,13 +3,9 @@
 [ext_resource path="res://menu/button/button_hover.png" type="Texture" id=1]
 
 [resource]
-content_margin_left = 10.0
-content_margin_right = 10.0
-content_margin_top = 10.0
-content_margin_bottom = 10.0
 texture = ExtResource( 1 )
-region_rect = Rect2( 0, 0, 32, 32 )
-margin_left = 15.0
-margin_right = 15.0
-margin_top = 15.0
-margin_bottom = 15.0
+region_rect = Rect2( 0, 0, 200, 60 )
+margin_left = 16.0
+margin_right = 16.4545
+margin_top = 10.7895
+margin_bottom = 10.8398

@@ -33,9 +33,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="890.5501"
-     inkscape:cy="576.95593"
+     inkscape:zoom="1.4"
+     inkscape:cx="844.94994"
+     inkscape:cy="542.13823"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="false"
@@ -141,7 +141,7 @@
        height="125"
        x="775"
        y="300"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
     <rect
@@ -151,7 +151,7 @@
        width="40"
        id="rect1494"
        style="fill:#003380;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:3.88290191;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
     <rect
@@ -161,7 +161,7 @@
        height="30"
        x="785"
        y="613.57141"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
     <path
@@ -169,7 +169,7 @@
        d="m 775,625 10,18.57141 16.42857,-19.99998 L 785,613.57141 775,625"
        id="path1500"
        inkscape:connector-curvature="0"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
     <path
@@ -177,7 +177,7 @@
        id="path1502"
        d="M 825,425 815,443.57141 798.57143,423.57143 815,413.57141 825,425"
        style="fill:#003380;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
     <rect
@@ -188,7 +188,7 @@
        id="rect1504"
        style="fill:#003380;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:4.34121656;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        transform="rotate(90)"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
     <path
@@ -196,7 +196,7 @@
        d="m 775,300 25,-25 12.16265,29.07657 c 0,0 -20.58186,11.49049 -21.33947,11.11168 C 790.06556,314.80945 775,300 775,300 Z"
        id="path1506"
        inkscape:connector-curvature="0"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
     <rect
@@ -207,7 +207,7 @@
        height="190"
        x="285"
        y="-1110"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
     <path
@@ -215,7 +215,7 @@
        id="path1516"
        d="m 1000,325 18.5715,-10 -20,-16.4285 -10,16.4285 11.4285,10"
        style="fill:#003380;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
     <path
@@ -223,7 +223,7 @@
        d="m 1000,275 18.5715,10 -20,16.4285 L 988.5715,285 1000,275"
        id="path1518"
        inkscape:connector-curvature="0"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
     <path
@@ -231,7 +231,7 @@
        id="path1520"
        d="m 1110,285 18.5715,10 -20,16.4285 -10,-16.4285 L 1110,285"
        style="fill:#003380;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
     <rect
@@ -241,7 +241,7 @@
        height="20"
        x="1110"
        y="295"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
   </g>
@@ -249,22 +249,31 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Buttons"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <path
-       style="fill:#003380;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#002255;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 860,520 15,-10 h 170 l 15,10 v 40 l -15,10 H 875 l -15,-10 z"
        id="path1534"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/button_pressed.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <path
        inkscape:connector-curvature="0"
        id="path1536"
        d="m 860,600 15,-10 h 170 l 15,10 v 40 l -15,10 H 875 l -15,-10 z"
-       style="fill:#003380;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+       style="fill:#2c5aa0;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/button_disabled.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <path
-       style="fill:#003380;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#0055d4;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 860,440 15,-10 h 170 l 15,10 v 40 l -15,10 H 875 l -15,-10 z"
        id="path1538"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/button_hover.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <path
        inkscape:connector-curvature="0"
        id="path1540"
@@ -274,7 +283,7 @@
        inkscape:export-ydpi="96"
        inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/button.png" />
     <path
-       style="fill:#003380;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 860,680 15,-10 h 170 l 15,10 v 40 l -15,10 H 875 l -15,-10 z"
        id="path1542"
        inkscape:connector-curvature="0" />

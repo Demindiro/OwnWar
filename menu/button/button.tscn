@@ -1,0 +1,23 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://menu/button/button.tres" type="StyleBox" id=1]
+[ext_resource path="res://menu/font.tres" type="DynamicFont" id=2]
+[ext_resource path="res://menu/button/button_disabled.tres" type="StyleBox" id=3]
+[ext_resource path="res://menu/button/button_pressed.tres" type="StyleBox" id=4]
+[ext_resource path="res://menu/button/button_hover.tres" type="StyleBox" id=5]
+[ext_resource path="res://menu/button/button_focus.tres" type="StyleBox" id=6]
+
+[node name="MenuButton" type="Button"]
+margin_right = 113.454
+margin_bottom = 41.6293
+rect_min_size = Vector2( 40, 40 )
+custom_styles/hover = ExtResource( 5 )
+custom_styles/pressed = ExtResource( 4 )
+custom_styles/focus = ExtResource( 6 )
+custom_styles/disabled = ExtResource( 3 )
+custom_styles/normal = ExtResource( 1 )
+custom_fonts/font = ExtResource( 2 )
+text = "Button"
+__meta__ = {
+"_edit_use_anchors_": false
+}
