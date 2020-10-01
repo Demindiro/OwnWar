@@ -151,11 +151,13 @@ margin_bottom = 245.629
 text = "Exit"
 
 [node name="Campaign" parent="GUI" instance=ExtResource( 10 )]
+visible = false
 anchor_top = 0.5
 anchor_bottom = 0.5
 margin_left = 475.0
 margin_top = -210.0
-margin_right = 60.0
+margin_right = 475.0
+margin_bottom = 138.0
 title = "Campaign"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="GUI/Campaign"]
