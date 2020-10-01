@@ -83,7 +83,7 @@ window/size/test_height=810
 
 [editor_plugins]
 
-enabled=PoolStringArray( "editor/ui/menu" )
+enabled=PoolStringArray(  )
 
 [gdnative]
 

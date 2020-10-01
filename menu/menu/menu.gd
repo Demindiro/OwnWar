@@ -1,4 +1,4 @@
-tool
+#tool Fuck tools - buggy as shit
 extends Control
 
 
@@ -7,6 +7,7 @@ signal pressed(button_name)
 export(String) var title = "Title" setget set_title
 export(Array, Array, String) var buttons = [] setget set_buttons
 var ready = false
+
 
 func _ready():
 	ready = true
@@ -17,6 +18,14 @@ func _ready():
 func set_buttons(p_buttons):
 	if not ready:
 		return # Not _ready() yet
+	# If in the editor, fix up the array
+	if Engine.editor_hint:
+		print(p_buttons)
+		p_buttons = p_buttons.duplicate(true)
+		print(p_buttons)
+		for i in len(p_buttons):
+			if len(p_buttons[i]) != 2:
+				p_buttons[i] = ["", ""]
 	buttons = p_buttons
 	for child in $Panel/VBoxContainer.get_children():
 		child.queue_free()
