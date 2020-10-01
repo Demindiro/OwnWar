@@ -2,11 +2,13 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="1920px"
@@ -18,6 +20,26 @@
    sodipodi:docname="menu.svg">
   <defs
      id="defs843">
+    <linearGradient
+       id="linearGradient3174"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#4d4d4d;stop-opacity:1;"
+         offset="0"
+         id="stop3172" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient3158">
+      <stop
+         style="stop-color:#666666;stop-opacity:1"
+         offset="0"
+         id="stop3154" />
+      <stop
+         style="stop-color:#4d4d4d;stop-opacity:1"
+         offset="1"
+         id="stop3156" />
+    </linearGradient>
     <inkscape:perspective
        sodipodi:type="inkscape:persp3d"
        inkscape:vp_x="0 : 540 : 1"
@@ -25,6 +47,46 @@
        inkscape:vp_z="1920 : 540 : 1"
        inkscape:persp3d-origin="960 : 360 : 1"
        id="perspective1472" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3158"
+       id="radialGradient3162"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.1939768,0.67861225,-5.6889046,-1.6261359,2794.8765,151.44897)"
+       cx="1006.4226"
+       cy="316.34448"
+       fx="1006.4226"
+       fy="316.34448"
+       r="176.78615" />
+    <meshgradient
+       inkscape:collect="always"
+       id="meshgradient3206"
+       gradientUnits="userSpaceOnUse"
+       x="772.77892"
+       y="268.73828">
+      <meshrow
+         id="meshrow7816">
+        <meshpatch
+           id="meshpatch7818">
+          <stop
+             path="c 13.4401,5.0511  172.847,1.01029  357.508,4.54582"
+             style="stop-color:#ffffff;stop-opacity:1"
+             id="stop7820" />
+          <stop
+             path="c 0,124.001  0,248.003  0,372.004"
+             style="stop-color:#666666;stop-opacity:1"
+             id="stop7822" />
+          <stop
+             path="c -119.001,0  -238.003,0  -357.004,0"
+             style="stop-color:#ffffff;stop-opacity:1"
+             id="stop7824" />
+          <stop
+             path="c -7.57508,-205.318  -18.6876,-185.372  -0.50401,-376.55"
+             style="stop-color:#666666;stop-opacity:1"
+             id="stop7826" />
+        </meshpatch>
+      </meshrow>
+    </meshgradient>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -33,18 +95,18 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4"
-     inkscape:cx="844.94994"
-     inkscape:cy="542.13823"
+     inkscape:zoom="1.979899"
+     inkscape:cx="997.34165"
+     inkscape:cy="600.7496"
      inkscape:document-units="px"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer3"
      showgrid="false"
      inkscape:window-width="1920"
      inkscape:window-height="1020"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:snap-bbox="true"
+     inkscape:snap-bbox="false"
      inkscape:bbox-nodes="true"
      inkscape:snap-grids="true"
      inkscape:bbox-paths="true"
@@ -67,7 +129,7 @@
      inkscape:label="Panel"
      inkscape:groupmode="layer"
      id="layer1"
-     style="display:inline"
+     style="display:inline;opacity:0.5"
      sodipodi:insensitive="true">
     <rect
        style="opacity:1;fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:3.07692313;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
@@ -120,7 +182,7 @@
        inkscape:transform-center-x="20.138665"
        inkscape:transform-center-y="20.13866" />
     <path
-       style="fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:5.32908344;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#333333;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:5.32908344;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 800,300 v 455 l 25,25 h 270 l 25,-25 V 300 Z"
        id="rect925"
        inkscape:connector-curvature="0"
@@ -132,115 +194,11 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Edge"
-     style="display:inline"
-     sodipodi:insensitive="true">
-    <rect
-       style="fill:#003380;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:3.43203306;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     style="display:inline">
+    <path
+       style="fill:url(#radialGradient3162);fill-opacity:1;fill-rule:evenodd;stroke:url(#meshgradient3206);stroke-width:3.43203306;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 800 275 L 775 300 L 775 425 L 775 625 L 785 643.57227 L 815 643.57227 L 815 613.57227 L 815 443.57227 L 825 425 L 825 325 L 1000 325 L 1018.5723 315 L 1110 315 L 1128.5723 315 L 1128.5723 295 L 1110 285 L 1018.5723 285 L 1000 275 L 800 275 z "
        id="rect1488"
-       width="50"
-       height="125"
-       x="775"
-       y="300"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
-       inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
-    <rect
-       y="425"
-       x="775"
-       height="200"
-       width="40"
-       id="rect1494"
-       style="fill:#003380;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:3.88290191;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
-       inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
-    <rect
-       style="fill:#003380;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.30236483;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect1496"
-       width="30"
-       height="30"
-       x="785"
-       y="613.57141"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
-       inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
-    <path
-       style="fill:#003380;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 775,625 10,18.57141 16.42857,-19.99998 L 785,613.57141 775,625"
-       id="path1500"
-       inkscape:connector-curvature="0"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
-       inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
-    <path
-       inkscape:connector-curvature="0"
-       id="path1502"
-       d="M 825,425 815,443.57141 798.57143,423.57143 815,413.57141 825,425"
-       style="fill:#003380;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
-       inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
-    <rect
-       y="-1000"
-       x="275"
-       height="200"
-       width="50"
-       id="rect1504"
-       style="fill:#003380;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:4.34121656;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       transform="rotate(90)"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
-       inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
-    <path
-       style="fill:#003380;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 775,300 25,-25 12.16265,29.07657 c 0,0 -20.58186,11.49049 -21.33947,11.11168 C 790.06556,314.80945 775,300 775,300 Z"
-       id="path1506"
-       inkscape:connector-curvature="0"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
-       inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
-    <rect
-       transform="rotate(90)"
-       style="fill:#003380;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:3.27754664;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect1512"
-       width="30"
-       height="190"
-       x="285"
-       y="-1110"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
-       inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
-    <path
-       inkscape:connector-curvature="0"
-       id="path1516"
-       d="m 1000,325 18.5715,-10 -20,-16.4285 -10,16.4285 11.4285,10"
-       style="fill:#003380;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
-       inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
-    <path
-       style="fill:#003380;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 1000,275 18.5715,10 -20,16.4285 L 988.5715,285 1000,275"
-       id="path1518"
-       inkscape:connector-curvature="0"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
-       inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
-    <path
-       inkscape:connector-curvature="0"
-       id="path1520"
-       d="m 1110,285 18.5715,10 -20,16.4285 -10,-16.4285 L 1110,285"
-       style="fill:#003380;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
-       inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
-    <rect
-       style="fill:#003380;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:6.24738693;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect1524"
-       width="18.571499"
-       height="20"
-       x="1110"
-       y="295"
        inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel_edge.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
@@ -249,7 +207,8 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Buttons"
-     style="display:inline">
+     style="display:inline"
+     sodipodi:insensitive="true">
     <path
        style="fill:#002255;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 860,520 15,-10 h 170 l 15,10 v 40 l -15,10 H 875 l -15,-10 z"
@@ -286,6 +245,9 @@
        style="fill:#3771c8;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 860,680 15,-10 h 170 l 15,10 v 40 l -15,10 H 875 l -15,-10 z"
        id="path1542"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/button_focus.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
   </g>
 </svg>
