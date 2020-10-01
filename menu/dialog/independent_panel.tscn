@@ -1,9 +1,9 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://menu/menu/panel.tres" type="StyleBox" id=1]
 [ext_resource path="res://menu/menu/panel_edge.png" type="Texture" id=2]
+[ext_resource path="res://menu/theme/theme.tres" type="Theme" id=3]
 [ext_resource path="res://menu/font.tres" type="DynamicFont" id=5]
-
 
 [sub_resource type="GDScript" id=1]
 script/source = "tool
@@ -19,28 +19,31 @@ func set_title(p_title):
 "
 
 [node name="IndependentPanel" type="Control"]
+margin_right = 320.0
+margin_bottom = 380.0
+theme = ExtResource( 3 )
 script = SubResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Panel" type="Panel" parent="."]
-margin_right = 320.0
-margin_bottom = 300.0
+anchor_right = 1.0
+anchor_bottom = 1.0
 rect_min_size = Vector2( 320, 380 )
 custom_styles/panel = ExtResource( 1 )
 __meta__ = {
-"_edit_lock_": true
+"_edit_use_anchors_": false
 }
 
 [node name="TextureRect" type="TextureRect" parent="."]
+anchor_right = 1.028
 margin_left = -25.0
-margin_top = -24.5407
-margin_right = 330.403
-margin_bottom = 344.459
+margin_top = -25.0
+margin_right = 0.0400085
+margin_bottom = 344.0
 texture = ExtResource( 2 )
 __meta__ = {
-"_edit_lock_": true,
 "_edit_use_anchors_": false
 }
 
@@ -55,6 +58,5 @@ valign = 1
 autowrap = true
 clip_text = true
 __meta__ = {
-"_edit_lock_": true,
 "_edit_use_anchors_": false
 }

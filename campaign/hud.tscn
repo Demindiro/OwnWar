@@ -1,8 +1,7 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://menu/dialog/independent_panel.tscn" type="PackedScene" id=1]
 [ext_resource path="res://menu/button/button.tscn" type="PackedScene" id=2]
-[ext_resource path="res://menu/theme/theme.tres" type="Theme" id=3]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Control
@@ -294,8 +293,8 @@ func set_unit_info():
 		label_value.text = str(unit_info[key])
 		label_key.clip_text = true
 		label_value.clip_text = true
-		label_key.size_flags_horizontal |= Label.SIZE_EXPAND_FILL
-		label_value.size_flags_horizontal |= Label.SIZE_EXPAND_FILL
+		label_key.size_flags_horizontal = Label.SIZE_EXPAND_FILL
+		label_value.size_flags_horizontal = Label.SIZE_EXPAND_FILL
 		label_value.align = Label.ALIGN_RIGHT
 		$UnitInfo/GridContainer.add_child(label_key)
 		$UnitInfo/GridContainer.add_child(label_value)
@@ -310,6 +309,8 @@ func _unit_destroyed(unit):
 [node name="HUD" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+margin_top = 1.18921
+margin_bottom = 1.18921
 script = SubResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -347,17 +348,18 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -370.0
-margin_top = -430.0
-margin_right = -351.063
-margin_bottom = -439.162
-theme = ExtResource( 3 )
-title = "Unit Info"
+margin_left = -450.0
+margin_top = -450.0
+margin_right = -40.0
+margin_bottom = -40.0
 
 [node name="GridContainer" type="GridContainer" parent="UnitInfo"]
+anchor_right = 1.0
+anchor_bottom = 1.0
 margin_left = 40.0
 margin_top = 40.0
-margin_right = 300.0
+margin_right = -20.0
+margin_bottom = -20.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 2
