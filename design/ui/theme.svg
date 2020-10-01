@@ -77,16 +77,6 @@
        gradientTransform="matrix(1.1428571,0,0,1.1428571,-42.577567,-141.22545)" />
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient1024"
-       id="linearGradient1047"
-       x1="213.87518"
-       y1="986.82196"
-       x2="93.17804"
-       y2="866.12482"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.025641,0,0,1.025641,-1.9365803,-25.755735)" />
-    <linearGradient
-       inkscape:collect="always"
        xlink:href="#linearGradient1053"
        id="linearGradient1055"
        x1="379.61395"
@@ -114,8 +104,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.7583334"
-     inkscape:cx="177.45731"
-     inkscape:cy="189.62515"
+     inkscape:cx="191.23374"
+     inkscape:cy="146.12062"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -147,7 +137,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="opacity:1;fill:url(#linearGradient1047);fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:3.07692313;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
+       style="opacity:1;fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:3.07692313;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
        id="rect1019"
        width="123.79192"
        height="123.79192"

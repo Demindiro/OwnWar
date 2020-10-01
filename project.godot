@@ -81,6 +81,10 @@ window/size/height=1080
 window/size/test_width=1440
 window/size/test_height=810
 
+[editor_plugins]
+
+enabled=PoolStringArray( "editor/ui/menu" )
+
 [gdnative]
 
 singletons=[  ]

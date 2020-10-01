@@ -1,0 +1,64 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://menu/menu/menu_panel.tres" type="StyleBox" id=1]
+[ext_resource path="res://menu/menu/panel_edge.png" type="Texture" id=2]
+[ext_resource path="res://menu/menu/menu_button.tscn" type="PackedScene" id=3]
+[ext_resource path="res://menu/menu/menu.gd" type="Script" id=4]
+[ext_resource path="res://menu/font.tres" type="DynamicFont" id=5]
+
+[node name="Menu" type="Control"]
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="Panel" parent="."]
+margin_right = 320.0
+margin_bottom = 300.0
+rect_min_size = Vector2( 320, 380 )
+custom_styles/panel = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+margin_left = 40.0
+margin_top = 40.0
+margin_right = 300.0
+margin_bottom = 360.0
+custom_constants/separation = 10
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TextureRect" type="TextureRect" parent="."]
+margin_left = -25.0
+margin_top = -24.5407
+margin_right = 330.403
+margin_bottom = 344.459
+texture = ExtResource( 2 )
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="MenuButton" parent="." instance=ExtResource( 3 )]
+visible = false
+margin_left = 40.0
+margin_top = 40.0
+margin_right = 300.0
+margin_bottom = 81.6293
+
+[node name="Title" type="Label" parent="."]
+margin_left = 11.0
+margin_top = -25.0
+margin_right = 196.0
+margin_bottom = 25.0
+custom_fonts/font = ExtResource( 5 )
+text = "Title"
+valign = 1
+autowrap = true
+clip_text = true
+__meta__ = {
+"_edit_use_anchors_": false
+}

@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1920px"
+   height="1080px"
+   viewBox="0 0 1920 1080"
+   version="1.1"
+   id="SVGRoot"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="menu.svg">
+  <defs
+     id="defs843">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 540 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1920 : 540 : 1"
+       inkscape:persp3d-origin="960 : 360 : 1"
+       id="perspective1472" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="890.5501"
+     inkscape:cy="576.95593"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer2"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1020"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:snap-bbox="true"
+     inkscape:bbox-nodes="true"
+     inkscape:snap-grids="true"
+     inkscape:bbox-paths="true"
+     inkscape:snap-bbox-edge-midpoints="true"
+     inkscape:snap-object-midpoints="false"
+     inkscape:snap-bbox-midpoints="true" />
+  <metadata
+     id="metadata846">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Panel"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline"
+     sodipodi:insensitive="true">
+    <rect
+       style="opacity:1;fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:3.07692313;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
+       id="rect1019"
+       width="123.79192"
+       height="123.79192"
+       x="-226.1817"
+       y="468.10403"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/dialog/dialog.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       inkscape:transform-center-y="20.13868"
+       inkscape:transform-center-x="-20.138686"
+       style="opacity:1;fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:3.07692313;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m -208.71485,451.53848 -34.03239,34.03239 v 39.37609 h 29.1692 v -29.35661 l 14.88071,-14.88269 h 29.35857 v -29.16918 z"
+       id="path4744"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/dialog/dialog.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       inkscape:transform-center-y="-20.138677"
+       inkscape:transform-center-x="-20.138669"
+       style="opacity:1;fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:3.07692313;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m -242.74725,574.42921 34.03238,34.03231 h 39.37609 v -29.16921 h -29.3566 l -14.8827,-14.88068 V 535.0531 h -29.16917 z"
+       id="path4746"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/dialog/dialog.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       inkscape:export-ydpi="96"
+       inkscape:export-xdpi="96"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/dialog/dialog.png"
+       inkscape:connector-curvature="0"
+       id="path4767"
+       d="m -119.85658,608.46152 34.0324,-34.03236 v -39.3761 h -29.16921 v 29.35661 l -14.88071,14.88269 h -29.35858 v 29.16916 z"
+       style="opacity:1;fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:3.07692313;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:transform-center-x="20.138682"
+       inkscape:transform-center-y="-20.138697" />
+    <path
+       inkscape:export-ydpi="96"
+       inkscape:export-xdpi="96"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/dialog/dialog.png"
+       inkscape:connector-curvature="0"
+       id="path4769"
+       d="m -85.82417,485.57081 -34.03239,-34.03232 h -39.3761 v 29.16922 h 29.35661 l 14.8827,14.88068 v 29.35853 h 29.16918 z"
+       style="opacity:1;fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:3.07692313;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:transform-center-x="20.138665"
+       inkscape:transform-center-y="20.13866" />
+    <path
+       style="fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:5.32908344;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 800,300 v 455 l 25,25 h 270 l 25,-25 V 300 Z"
+       id="rect925"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="Edge"
+     style="display:inline"
+     sodipodi:insensitive="true">
+    <rect
+       style="fill:#003380;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:3.43203306;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1488"
+       width="50"
+       height="125"
+       x="775"
+       y="300"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       y="425"
+       x="775"
+       height="200"
+       width="40"
+       id="rect1494"
+       style="fill:#003380;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:3.88290191;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#003380;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.30236483;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1496"
+       width="30"
+       height="30"
+       x="785"
+       y="613.57141"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:#003380;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 775,625 10,18.57141 16.42857,-19.99998 L 785,613.57141 775,625"
+       id="path1500"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path1502"
+       d="M 825,425 815,443.57141 798.57143,423.57143 815,413.57141 825,425"
+       style="fill:#003380;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       y="-1000"
+       x="275"
+       height="200"
+       width="50"
+       id="rect1504"
+       style="fill:#003380;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:4.34121656;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       transform="rotate(90)"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:#003380;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 775,300 25,-25 12.16265,29.07657 c 0,0 -20.58186,11.49049 -21.33947,11.11168 C 790.06556,314.80945 775,300 775,300 Z"
+       id="path1506"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       transform="rotate(90)"
+       style="fill:#003380;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:3.27754664;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1512"
+       width="30"
+       height="190"
+       x="285"
+       y="-1110"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path1516"
+       d="m 1000,325 18.5715,-10 -20,-16.4285 -10,16.4285 11.4285,10"
+       style="fill:#003380;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:#003380;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 1000,275 18.5715,10 -20,16.4285 L 988.5715,285 1000,275"
+       id="path1518"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path1520"
+       d="m 1110,285 18.5715,10 -20,16.4285 -10,-16.4285 L 1110,285"
+       style="fill:#003380;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#003380;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:6.24738693;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1524"
+       width="18.571499"
+       height="20"
+       x="1110"
+       y="295"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Buttons"
+     sodipodi:insensitive="true">
+    <path
+       style="fill:#003380;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 860,520 15,-10 h 170 l 15,10 v 40 l -15,10 H 875 l -15,-10 z"
+       id="path1534"
+       inkscape:connector-curvature="0" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path1536"
+       d="m 860,600 15,-10 h 170 l 15,10 v 40 l -15,10 H 875 l -15,-10 z"
+       style="fill:#003380;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       style="fill:#003380;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 860,440 15,-10 h 170 l 15,10 v 40 l -15,10 H 875 l -15,-10 z"
+       id="path1538"
+       inkscape:connector-curvature="0" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path1540"
+       d="m 860,360 15,-10 h 170 l 15,10 v 40 l -15,10 H 875 l -15,-10 z"
+       style="fill:#003380;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/button.png" />
+    <path
+       style="fill:#003380;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 860,680 15,-10 h 170 l 15,10 v 40 l -15,10 H 875 l -15,-10 z"
+       id="path1542"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>
