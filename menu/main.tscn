@@ -101,10 +101,10 @@ margin_bottom = 0.396851
 title = "Own War"
 
 [node name="Version" type="Label" parent="GUI/Main"]
-margin_left = 219.077
-margin_top = -14.5237
-margin_right = 310.077
-margin_bottom = 14.4763
+margin_left = 220.401
+margin_top = -12.6697
+margin_right = 311.401
+margin_bottom = 16.3303
 custom_fonts/font = SubResource( 6 )
 text = "0.0.0"
 align = 1
