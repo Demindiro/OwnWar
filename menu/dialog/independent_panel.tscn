@@ -1,8 +1,9 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://menu/menu/menu_panel.tres" type="StyleBox" id=1]
+[ext_resource path="res://menu/menu/panel.tres" type="StyleBox" id=1]
 [ext_resource path="res://menu/menu/panel_edge.png" type="Texture" id=2]
 [ext_resource path="res://menu/font.tres" type="DynamicFont" id=5]
+
 
 [sub_resource type="GDScript" id=1]
 script/source = "tool
