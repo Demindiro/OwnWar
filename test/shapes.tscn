@@ -7,16 +7,21 @@ script/source = "extends Node
 
 
 export(int, 1, 8) var segments := 1 setget set_segments
-var generators = {
-		\"corner\": load(\"res://block/chassis/generate_shapes_corner.gd\").new()
+export var generator_index := 0
+var generators := {
+		\"corner\": load(\"res://block/chassis/generate_shapes_corner.gd\").new(),
+		\"square_corner\": load(\"res://block/chassis/generate_shapes_square_corner.gd\").new(),
 	}
-var meshes = {}
-var mesh_names = {}
-var variant_index
-var mesh_name
+var generator_names := []
+var meshes := {}
+var mesh_names := {}
+var variant_index: int
 
 
 func _ready():
+	for name in generators:
+		generator_names.append(name)
+	generator_index %= len(generator_names)
 	set_segments(segments)
 
 
@@ -32,32 +37,36 @@ func set_segments(p_segments):
 			meshes[key].append(generator.result)
 			mesh_names[key].append(generator.get_name())
 			generator.step()
-	for key in meshes:
-		mesh_name = key
-		variant_index = 0
-		$MeshInstance.mesh = meshes[mesh_name][variant_index]
-		$UI/VariantIndex.text = \"%d (%d)\" % [variant_index, len(meshes[mesh_name])]
-		$UI/Segments.text = str(segments)
-		$UI/MeshName.text = mesh_names[mesh_name][variant_index]
-		break
+	var name = generator_names[generator_index]
+	variant_index = 0
+	$MeshInstance.mesh = meshes[name][variant_index]
+	$UI/VariantIndex.text = \"%d (%d)\" % [variant_index, len(meshes[name])]
+	$UI/Segments.text = str(segments)
+	$UI/MeshName.text = mesh_names[name][variant_index]
+
+
+func update():
+	var name = generator_names[generator_index]
+	$MeshInstance.mesh = meshes[name][variant_index]
+	$UI/VariantIndex.text = \"%d (%d)\" % [variant_index, len(meshes[name])]
+	$UI/MeshName.text = mesh_names[name][variant_index]
+	
 
 
 func _on_NextVariant_pressed():
+	var name = generator_names[generator_index]
 	variant_index += 1
-	if variant_index >= len(meshes[mesh_name]):
+	if variant_index >= len(meshes[name]):
 		variant_index = 0
-	$MeshInstance.mesh = meshes[mesh_name][variant_index]
-	$UI/VariantIndex.text = \"%d (%d)\" % [variant_index, len(meshes[mesh_name])]
-	$UI/MeshName.text = mesh_names[mesh_name][variant_index]
+	update()
 
 
 func _on_PreviousVariant_pressed():
+	var name = generator_names[generator_index]
 	variant_index -= 1
 	if variant_index < 0:
-		variant_index = len(meshes[mesh_name]) - 1
-	$MeshInstance.mesh = meshes[mesh_name][variant_index]
-	$UI/VariantIndex.text = \"%d (%d)\" % [variant_index, len(meshes[mesh_name])]
-	$UI/MeshName.text = mesh_names[mesh_name][variant_index]
+		variant_index = len(meshes[name]) - 1
+	update()
 
 
 func _on_IncreaseSegments_pressed():
@@ -67,6 +76,22 @@ func _on_IncreaseSegments_pressed():
 func _on_DecreaseSegments_pressed():
 	if segments > 1:
 		set_segments(segments - 1)
+
+
+func _on_NextMesh_pressed():
+	generator_index += 1
+	if generator_index >= len(generator_names):
+		generator_index = 0
+	variant_index = 0
+	update()
+
+
+func _on_PreviousMesh_pressed():
+	generator_index -= 1
+	if generator_index < 0:
+		generator_index = len(generator_names) - 1
+	variant_index = 0
+	update()
 "
 
 [sub_resource type="GDScript" id=7]
@@ -143,6 +168,7 @@ func _ready():
 
 [node name="Shapes" type="Node"]
 script = SubResource( 1 )
+generator_index = 1
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 script = SubResource( 7 )
@@ -166,16 +192,6 @@ script = SubResource( 4 )
 [node name="UI" type="Control" parent="."]
 margin_right = 40.0
 margin_bottom = 40.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="MeshName" type="Label" parent="UI"]
-margin_left = 269.0
-margin_top = 22.0
-margin_right = 400.0
-margin_bottom = 41.0
-text = "Blah"
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -249,7 +265,43 @@ align = 2
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="NextMesh" type="Button" parent="UI"]
+margin_left = 4.0
+margin_top = 244.922
+margin_right = 148.0
+margin_bottom = 264.922
+focus_mode = 0
+enabled_focus_mode = 0
+text = "Next Mesh"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PreviousMesh" type="Button" parent="UI"]
+margin_left = 4.0
+margin_top = 264.922
+margin_right = 148.0
+margin_bottom = 284.922
+focus_mode = 0
+enabled_focus_mode = 0
+text = "Previous Mesh"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MeshName" type="Label" parent="UI"]
+margin_left = 189.54
+margin_top = 252.963
+margin_right = 320.54
+margin_bottom = 271.963
+text = "Blah"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 [connection signal="pressed" from="UI/NextVariant" to="." method="_on_NextVariant_pressed"]
 [connection signal="pressed" from="UI/PreviousVariant" to="." method="_on_PreviousVariant_pressed"]
 [connection signal="pressed" from="UI/IncreaseSegments" to="." method="_on_IncreaseSegments_pressed"]
 [connection signal="pressed" from="UI/DecreaseSegments" to="." method="_on_DecreaseSegments_pressed"]
+[connection signal="pressed" from="UI/NextMesh" to="." method="_on_NextMesh_pressed"]
+[connection signal="pressed" from="UI/PreviousMesh" to="." method="_on_PreviousMesh_pressed"]
