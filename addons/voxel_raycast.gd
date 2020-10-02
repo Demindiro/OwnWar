@@ -49,10 +49,17 @@ func start(start: Vector3, direction: Vector3, limit_x: int, limit_y: int, limit
 		var t_a = (aabb.position - start) / direction
 		var t_b = (aabb.end - start) / direction
 		var t_min = max(max(min(t_a.x, t_b.x), min(t_a.y, t_b.y)), min(t_a.z, t_b.z))
-		var _t_max2 = min(min(max(t_a.x, t_b.x), max(t_a.y, t_b.y)), max(t_a.z, t_b.z))
-		if t_min > _t_max2 or t_min < 0:
+		var t_max = min(min(max(t_a.x, t_b.x), max(t_a.y, t_b.y)), max(t_a.z, t_b.z))
+		if t_min > t_max or t_min < 0:
 			return
 		start += direction * t_min
+		match t_min:
+			t_a.x, t_b.x: _last_step = 1
+			t_a.y, t_b.y: _last_step = 2
+			t_a.z, t_b.z: _last_step = 3
+			_: assert(false)
+	else:
+		_last_step = 0
 
 	x = int(floor(start.x))
 	y = int(floor(start.y))
@@ -117,7 +124,6 @@ func get_normal() -> Array:
 		3:
 			return [0, 0, -_step_z]
 		_:
-			assert(false)
 			return [0, 0, 0]
 
 
