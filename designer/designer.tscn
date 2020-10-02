@@ -223,35 +223,37 @@ margin_bottom = 920.0
 size_flags_horizontal = 3
 
 [node name="Categories" type="ScrollContainer" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer"]
-margin_right = 144.0
+margin_right = 150.0
 margin_bottom = 920.0
 size_flags_vertical = 3
 scroll_horizontal_enabled = false
 
 [node name="VBoxContainer" type="VBoxContainer" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer/Categories"]
-margin_right = 144.0
+margin_right = 150.0
 margin_bottom = 920.0
 size_flags_vertical = 3
 
 [node name="Template" type="Button" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer/Categories/VBoxContainer"]
-margin_right = 144.454
+margin_right = 150.0
 margin_bottom = 41.6293
+rect_min_size = Vector2( 150, 0 )
 text = "Category"
 
 [node name="Blocks" type="ScrollContainer" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer"]
-margin_left = 148.0
-margin_right = 247.0
+margin_left = 154.0
+margin_right = 304.0
 margin_bottom = 920.0
 scroll_horizontal_enabled = false
 
 [node name="GridContainer" type="GridContainer" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer/Blocks"]
-margin_right = 99.0
+margin_right = 150.0
 margin_bottom = 41.0
 columns = 2
 
 [node name="Template" type="Button" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer/Blocks/GridContainer"]
-margin_right = 99.4545
+margin_right = 150.0
 margin_bottom = 41.6293
+rect_min_size = Vector2( 150, 0 )
 text = "Block"
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="GUI/Inventory/Inventory/HBoxContainer2"]
