@@ -155,11 +155,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="948.30839"
-     inkscape:cy="536.45358"
+     inkscape:zoom="1.4"
+     inkscape:cx="922.14063"
+     inkscape:cy="463.8584"
      inkscape:document-units="px"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1920"
      inkscape:window-height="1020"
@@ -181,7 +181,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -189,8 +189,7 @@
      inkscape:label="Panel"
      inkscape:groupmode="layer"
      id="layer1"
-     style="display:inline;opacity:0.5"
-     sodipodi:insensitive="true">
+     style="display:inline;opacity:0.5">
     <rect
        style="opacity:1;fill:#0044aa;fill-opacity:1;fill-rule:evenodd;stroke:#003380;stroke-width:3.07692313;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:3.20000005;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
        id="rect1019"
@@ -249,6 +248,14 @@
        inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/menu/panel.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path47"
+       d="m 860.22722,777.69847 15,-10 H 1045.227 l 15.0001,10 v 39.99999 l -15.0001,10.00001 H 875.22722 l -15,-10.00001 z"
+       style="display:inline;fill:#000000;fill-opacity:0.50196078;stroke:none;stroke-width:4.00014114;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/button/button_hover.png" />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -269,7 +276,8 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Buttons"
-     style="display:inline">
+     style="display:inline"
+     sodipodi:insensitive="true">
     <path
        inkscape:connector-curvature="0"
        id="path1536"
@@ -282,7 +290,7 @@
        inkscape:connector-curvature="0"
        id="path1540"
        d="m 859.91643,363.27762 14.71254,-9.36118 H 1041.371 l 14.7126,9.36118 v 37.44475 l -14.7126,9.3612 H 874.62897 l -14.71254,-9.3612 z"
-       style="fill:#343434;fill-opacity:0.50196078;stroke:url(#radialGradient7842);stroke-width:3.833;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#343434;fill-opacity:0.50196078;stroke:url(#radialGradient7842);stroke-width:3.83299994;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96"
        inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/button/button.png" />
