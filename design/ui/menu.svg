@@ -156,7 +156,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="922.14063"
+     inkscape:cx="921.42634"
      inkscape:cy="463.8584"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -251,11 +251,11 @@
     <path
        inkscape:connector-curvature="0"
        id="path47"
-       d="m 860.22722,777.69847 15,-10 H 1045.227 l 15.0001,10 v 39.99999 l -15.0001,10.00001 H 875.22722 l -15,-10.00001 z"
+       d="m 859.51293,816.2699 15,-10 h 169.99977 l 15.0001,10 v 39.99999 l -15.0001,10.00001 H 874.51293 l -15,-10.00001 z"
        style="display:inline;fill:#000000;fill-opacity:0.50196078;stroke:none;stroke-width:4.00014114;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96"
-       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/button/button_hover.png" />
+       inkscape:export-filename="/home/david/Documents/Godot/Own War/menu/panel/subpanel.png" />
   </g>
   <g
      inkscape:groupmode="layer"
