@@ -349,6 +349,7 @@ margin_left = -450.0
 margin_top = -450.0
 margin_right = -40.0
 margin_bottom = -40.0
+title = "Unit Info"
 
 [node name="GridContainer" type="GridContainer" parent="UnitInfo"]
 anchor_right = 1.0
