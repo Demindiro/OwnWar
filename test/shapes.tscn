@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
 
@@ -11,6 +11,7 @@ export var generator_index := 0
 var generators := {
 		\"corner\": load(\"res://block/chassis/generate_shapes_corner.gd\").new(),
 		\"square_corner\": load(\"res://block/chassis/generate_shapes_square_corner.gd\").new(),
+		\"cube_a\": load(\"res://block/chassis/generate_shapes_cube_a.gd\").new(),
 	}
 var generator_names := []
 var meshes := {}
@@ -170,9 +171,21 @@ func _ready():
 	end()
 "
 
+[sub_resource type="InputEventKey" id=8]
+scancode = 16777349
+
+[sub_resource type="ShortCut" id=9]
+shortcut = SubResource( 8 )
+
+[sub_resource type="InputEventKey" id=10]
+scancode = 16777347
+
+[sub_resource type="ShortCut" id=11]
+shortcut = SubResource( 10 )
+
 [node name="Shapes" type="Node"]
 script = SubResource( 1 )
-generator_index = 1
+generator_index = 2
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 script = SubResource( 7 )
@@ -207,6 +220,7 @@ margin_right = 148.0
 margin_bottom = 25.0
 focus_mode = 0
 enabled_focus_mode = 0
+shortcut = SubResource( 9 )
 text = "Next variant"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -219,6 +233,7 @@ margin_right = 148.0
 margin_bottom = 45.0
 focus_mode = 0
 enabled_focus_mode = 0
+shortcut = SubResource( 11 )
 text = "Previous Variant"
 __meta__ = {
 "_edit_use_anchors_": false
