@@ -75,7 +75,7 @@ func process_actions():
 				coordinate[0] = mirror_x - delta
 				place_block(coordinate, Block.mirror_rotation(_rotation))
 	elif Input.is_action_just_pressed("designer_remove_block"):
-		if ray_voxel_valid:
+		if not ray.finished:
 			var coordinate = [] + ray.voxel
 			remove_block(coordinate)
 			if mirror:
