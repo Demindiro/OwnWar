@@ -14,6 +14,7 @@ var generators := {
 		\"cube_a\": load(\"res://block/chassis/generate_shapes_cube_a.gd\").new(),
 		\"edge_a\": load(\"res://block/chassis/generate_shapes_edge_a.gd\").new(),
 		\"inverse_corner\": load(\"res://block/chassis/generate_shapes_inverse_corner.gd\").new(),
+		\"inverse_square_corner\": load(\"res://block/chassis/generate_shapes_inverse_square_corner.gd\").new(),
 	}
 var generator_names := []
 var meshes := {}
@@ -187,7 +188,7 @@ shortcut = SubResource( 10 )
 
 [node name="Shapes" type="Node"]
 script = SubResource( 1 )
-generator_index = 4
+generator_index = 5
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 script = SubResource( 7 )
