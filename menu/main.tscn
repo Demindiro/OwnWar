@@ -149,6 +149,7 @@ margin_bottom = 245.629
 text = "Exit"
 
 [node name="Campaign" parent="GUI" instance=ExtResource( 10 )]
+visible = false
 margin_left = 455.733
 margin_top = 43.9472
 margin_right = 455.733
