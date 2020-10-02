@@ -36,6 +36,10 @@ func set_segments(p_segments):
 		while not generator.finished:
 			meshes[key].append(generator.result)
 			mesh_names[key].append(generator.get_name())
+			if generator.get_name() == null:
+				breakpoint
+				var aaaaa = generator.get_name()
+				pass
 			generator.step()
 	var name = generator_names[generator_index]
 	variant_index = 0

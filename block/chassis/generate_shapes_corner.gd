@@ -6,6 +6,10 @@ var _index_y: int
 var _index_z: int
 
 
+func _init():
+	._set_indices_count(3)
+
+
 func start(segments: int, scale: Vector3, offset: Vector3):
 	.start(segments, scale, offset)
 	_index_x = segments

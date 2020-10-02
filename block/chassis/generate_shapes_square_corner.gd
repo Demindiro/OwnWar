@@ -1,30 +1,18 @@
 extends "res://block/chassis/generate_shapes.gd"
 
 
-var indices: PoolIntArray
-var name = "square_corner"
+func _init():
+	name = "square_corner"
+	._set_indices_count(5)
 
 
 func start(segments: int, scale: Vector3, offset: Vector3):
 	.start(segments, scale, offset)
-	indices = PoolIntArray()
-	for i in range(5):
-		indices.append(segments)
-	indices[0] += 1
-	finished = false
 	step()
 
 
 func step():
-	for i in len(indices):
-		indices[i] -= 1
-		if indices[i] == 0:
-			if i == len(indices) - 1:
-				finished = true
-				return
-			indices[i] = segments
-		else:
-			break
+	.step()
 	var fractions = PoolRealArray()
 	for index in indices:
 		fractions.append(float(index) / float(segments))
@@ -62,26 +50,3 @@ func step():
 	array[Mesh.ARRAY_NORMAL] = normals
 	result = ArrayMesh.new()
 	result.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, array)
-
-
-
-func get_name():
-	var lowest_value = segments
-	for value in indices:
-		if value < lowest_value:
-			lowest_value = value
-	for divisor in range(lowest_value, 0, -1):
-		var found = true
-		if segments % divisor != 0:
-			continue
-		for value in indices:
-			if value % lowest_value != 0:
-				found = false
-				break
-		if found:
-			var _name = name + "_" + str(segments / divisor)
-			var pre = "_"
-			for index in indices:
-				_name += pre + str(index)
-				pre = "-"
-			return _name
