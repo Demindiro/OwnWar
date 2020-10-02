@@ -1,0 +1,255 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node
+
+
+export(int, 1, 8) var segments := 1 setget set_segments
+var generators = {
+		\"corner\": load(\"res://block/chassis/generate_shapes_corner.gd\").new()
+	}
+var meshes = {}
+var mesh_names = {}
+var variant_index
+var mesh_name
+
+
+func _ready():
+	set_segments(segments)
+
+
+func set_segments(p_segments):
+	segments = p_segments
+	variant_index = 0
+	for key in generators:
+		var generator = generators[key]
+		generator.start(segments, Vector3.ONE, Vector3.ZERO)
+		meshes[key] = []
+		mesh_names[key] = []
+		while not generator.finished:
+			meshes[key].append(generator.result)
+			mesh_names[key].append(generator.get_name())
+			generator.step()
+	for key in meshes:
+		mesh_name = key
+		variant_index = 0
+		$MeshInstance.mesh = meshes[mesh_name][variant_index]
+		$UI/VariantIndex.text = \"%d (%d)\" % [variant_index, len(meshes[mesh_name])]
+		$UI/Segments.text = str(segments)
+		$UI/MeshName.text = mesh_names[mesh_name][variant_index]
+		break
+
+
+func _on_NextVariant_pressed():
+	variant_index += 1
+	if variant_index >= len(meshes[mesh_name]):
+		variant_index = 0
+	$MeshInstance.mesh = meshes[mesh_name][variant_index]
+	$UI/VariantIndex.text = \"%d (%d)\" % [variant_index, len(meshes[mesh_name])]
+	$UI/MeshName.text = mesh_names[mesh_name][variant_index]
+
+
+func _on_PreviousVariant_pressed():
+	variant_index -= 1
+	if variant_index < 0:
+		variant_index = len(meshes[mesh_name]) - 1
+	$MeshInstance.mesh = meshes[mesh_name][variant_index]
+	$UI/VariantIndex.text = \"%d (%d)\" % [variant_index, len(meshes[mesh_name])]
+	$UI/MeshName.text = mesh_names[mesh_name][variant_index]
+
+
+func _on_IncreaseSegments_pressed():
+	set_segments(segments + 1)
+
+
+func _on_DecreaseSegments_pressed():
+	if segments > 1:
+		set_segments(segments - 1)
+"
+
+[sub_resource type="GDScript" id=7]
+script/source = "extends DirectionalLight
+
+
+var rot_x = PI / 4 * 3
+var rot_y = -PI / 4
+
+
+func _process(delta):
+	if Input.is_key_pressed(KEY_UP):
+		rot_y += delta
+	if Input.is_key_pressed(KEY_DOWN):
+		rot_y -= delta
+	if Input.is_key_pressed(KEY_LEFT):
+		rot_x -= delta
+	if Input.is_key_pressed(KEY_RIGHT):
+		rot_x += delta
+	transform.basis = Basis.IDENTITY.rotated(Vector3.UP, rot_x) * \\
+			Basis.IDENTITY.rotated(Vector3.RIGHT, rot_y)
+"
+
+[sub_resource type="SpatialMaterial" id=6]
+flags_unshaded = true
+vertex_color_use_as_albedo = true
+
+[sub_resource type="GDScript" id=5]
+script/source = "extends ImmediateGeometry
+
+func _ready():
+	clear()
+	begin(Mesh.PRIMITIVE_LINES)
+	set_color(Color.yellow)
+	add_vertex(Vector3.ZERO)
+	add_vertex(Vector3.BACK * 2)
+	end()
+"
+
+[sub_resource type="SpatialMaterial" id=2]
+flags_disable_ambient_light = true
+
+[sub_resource type="SpatialMaterial" id=3]
+flags_unshaded = true
+vertex_color_use_as_albedo = true
+
+[sub_resource type="GDScript" id=4]
+script/source = "extends ImmediateGeometry
+
+
+func _ready():
+	clear()
+	begin(Mesh.PRIMITIVE_LINES)
+	set_color(Color.red)
+	add_vertex(Vector3.ZERO)
+	add_vertex(Vector3.RIGHT)
+	end()
+	begin(Mesh.PRIMITIVE_LINES)
+	set_color(Color.green)
+	add_vertex(Vector3.ZERO)
+	add_vertex(Vector3.UP)
+	end()
+	begin(Mesh.PRIMITIVE_LINES)
+	set_color(Color.blue)
+	add_vertex(Vector3.ZERO)
+	add_vertex(Vector3.FORWARD)
+	end()
+	begin(Mesh.PRIMITIVE_LINES)
+	set_color(Color.white)
+	add_vertex(Vector3.ZERO)
+	add_vertex(Vector3.ONE.normalized())
+	end()
+"
+
+[node name="Shapes" type="Node"]
+script = SubResource( 1 )
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+script = SubResource( 7 )
+
+[node name="ImmediateGeometry" type="ImmediateGeometry" parent="DirectionalLight"]
+material_override = SubResource( 6 )
+script = SubResource( 5 )
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 2.36516, 5.66657 )
+script = ExtResource( 1 )
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+material_override = SubResource( 2 )
+
+[node name="Axises" type="ImmediateGeometry" parent="."]
+transform = Transform( 5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0 )
+material_override = SubResource( 3 )
+script = SubResource( 4 )
+
+[node name="UI" type="Control" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MeshName" type="Label" parent="UI"]
+margin_left = 269.0
+margin_top = 22.0
+margin_right = 400.0
+margin_bottom = 41.0
+text = "Blah"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="NextVariant" type="Button" parent="UI"]
+margin_left = 4.0
+margin_top = 5.0
+margin_right = 148.0
+margin_bottom = 25.0
+focus_mode = 0
+enabled_focus_mode = 0
+text = "Next variant"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PreviousVariant" type="Button" parent="UI"]
+margin_left = 4.0
+margin_top = 25.0
+margin_right = 148.0
+margin_bottom = 45.0
+focus_mode = 0
+enabled_focus_mode = 0
+text = "Previous Variant"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VariantIndex" type="Label" parent="UI"]
+margin_left = 153.498
+margin_top = 5.87627
+margin_right = 187.498
+margin_bottom = 23.8763
+text = "1"
+align = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="IncreaseSegments" type="Button" parent="UI"]
+margin_left = 4.0
+margin_top = 130.5
+margin_right = 148.0
+margin_bottom = 150.5
+focus_mode = 0
+enabled_focus_mode = 0
+text = "Increase Segments"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DecreaseSegments" type="Button" parent="UI"]
+margin_left = 4.0
+margin_top = 150.5
+margin_right = 148.0
+margin_bottom = 170.5
+focus_mode = 0
+enabled_focus_mode = 0
+text = "Decrease Segments"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Segments" type="Label" parent="UI"]
+margin_left = 161.507
+margin_top = 134.021
+margin_right = 195.507
+margin_bottom = 152.021
+text = "1"
+align = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="pressed" from="UI/NextVariant" to="." method="_on_NextVariant_pressed"]
+[connection signal="pressed" from="UI/PreviousVariant" to="." method="_on_PreviousVariant_pressed"]
+[connection signal="pressed" from="UI/IncreaseSegments" to="." method="_on_IncreaseSegments_pressed"]
+[connection signal="pressed" from="UI/DecreaseSegments" to="." method="_on_DecreaseSegments_pressed"]
