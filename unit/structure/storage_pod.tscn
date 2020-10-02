@@ -12,6 +12,12 @@ func _ready():
 	set_material(material)
 
 
+func get_info():
+	var info = .get_info()
+	info[\"Material\"] = str(material) + \" / \" + str(max_material)
+	return info
+
+
 func put_material(p_material):
 	var max_put = max_material - material
 	if max_put > p_material:

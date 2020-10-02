@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://addons/tiles/grass/grass_0.png" type="Texture" id=1]
 [ext_resource path="res://unit/vehicle/vehicle.tscn" type="PackedScene" id=2]
@@ -7,6 +7,8 @@
 [ext_resource path="res://camera/tracker.gd" type="Script" id=5]
 [ext_resource path="res://menu/theme/theme.tres" type="Theme" id=6]
 [ext_resource path="res://menu/good_times_rg.ttf" type="DynamicFontData" id=7]
+[ext_resource path="res://menu/button/button.tscn" type="PackedScene" id=8]
+[ext_resource path="res://menu/dialog/independent_panel.tscn" type="PackedScene" id=10]
 
 [sub_resource type="HeightMapShape" id=1]
 map_width = 1000
@@ -32,16 +34,7 @@ func _process(_delta):
 	clear()
 "
 
-[sub_resource type="GDScript" id=6]
-script/source = "extends HBoxContainer
-# Y u no resize properly?
-
-
-func _process(_delta):
-	margin_left = 0
-"
-
-[sub_resource type="DynamicFont" id=7]
+[sub_resource type="DynamicFont" id=6]
 size = 10
 font_data = ExtResource( 7 )
 
@@ -88,228 +81,101 @@ material_override = SubResource( 4 )
 script = SubResource( 5 )
 
 [node name="GUI" type="Control" parent="."]
+anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 0
 theme = ExtResource( 6 )
 script = ExtResource( 3 )
 __meta__ = {
+"_edit_lock_": true,
 "_edit_use_anchors_": false
 }
-campaign_dialog = NodePath("CenterContainer/HBoxContainer/Campaign")
 
-[node name="CenterContainer" type="CenterContainer" parent="GUI"]
-anchor_top = 0.5
-anchor_bottom = 0.5
-margin_top = -117.0
-size_flags_horizontal = 8
+[node name="Main" parent="GUI" instance=ExtResource( 10 )]
+margin_left = 40.733
+margin_top = 44.3442
+margin_right = 40.733
+margin_bottom = 254.344
+title = "Own War"
+
+[node name="Version" type="Label" parent="GUI/Main"]
+margin_left = 220.401
+margin_top = -12.6697
+margin_right = 311.401
+margin_bottom = 16.3303
+custom_fonts/font = SubResource( 6 )
+text = "0.0.0"
+align = 1
+valign = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="HBoxContainer" type="HBoxContainer" parent="GUI/CenterContainer"]
-margin_right = 342.0
-margin_bottom = 234.0
-script = SubResource( 6 )
-
-[node name="Main" type="MarginContainer" parent="GUI/CenterContainer/HBoxContainer"]
-margin_right = 342.0
-margin_bottom = 234.0
-custom_constants/margin_left = 50
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="PanelContainer" type="PanelContainer" parent="GUI/CenterContainer/HBoxContainer/Main"]
-margin_left = 50.0
-margin_right = 342.0
-margin_bottom = 234.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="MarginContainer" type="MarginContainer" parent="GUI/CenterContainer/HBoxContainer/Main/PanelContainer"]
-margin_left = 2.0
-margin_top = 2.0
-margin_right = 292.0
-margin_bottom = 234.0
-custom_constants/margin_right = 20
-custom_constants/margin_top = 20
-custom_constants/margin_left = 20
-custom_constants/margin_bottom = 20
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="VBoxContainer" type="VBoxContainer" parent="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer"]
-margin_left = 20.0
-margin_top = 20.0
-margin_right = 270.0
-margin_bottom = 212.0
-rect_min_size = Vector2( 250, 0 )
+[node name="VBoxContainer" type="VBoxContainer" parent="GUI/Main"]
+margin_left = 40.0
+margin_top = 40.0
+margin_right = 305.0
 custom_constants/separation = 10
-
-[node name="Label" type="Label" parent="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer/VBoxContainer"]
-margin_right = 250.0
-margin_bottom = 25.0
-text = "Own War"
-align = 1
-
-[node name="Version" type="Label" parent="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer/VBoxContainer"]
-margin_top = 35.0
-margin_right = 250.0
-margin_bottom = 48.0
-custom_fonts/font = SubResource( 7 )
-text = "Version 0.0.1"
-align = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Campaign" type="Button" parent="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer/VBoxContainer"]
-margin_top = 58.0
-margin_right = 250.0
-margin_bottom = 84.0
+[node name="Campaign" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
+margin_right = 265.0
 text = "Campaign"
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="RandomMap" type="Button" parent="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer/VBoxContainer"]
-visible = false
-margin_top = 94.0
-margin_right = 250.0
-margin_bottom = 120.0
-text = "Random Map"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Designer" type="Button" parent="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer/VBoxContainer"]
-margin_top = 94.0
-margin_right = 250.0
-margin_bottom = 120.0
+[node name="Designer" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
+margin_top = 51.0
+margin_right = 265.0
+margin_bottom = 92.6293
 text = "Designer"
 
-[node name="DesignerMap" type="Button" parent="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer/VBoxContainer"]
-margin_top = 130.0
-margin_right = 250.0
-margin_bottom = 156.0
+[node name="DesignerMap" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
+margin_top = 102.0
+margin_right = 265.0
+margin_bottom = 143.629
 text = "Designer Map"
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="Settings" type="Button" parent="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer/VBoxContainer"]
-visible = false
-margin_top = 202.0
-margin_right = 250.0
-margin_bottom = 228.0
+[node name="Settings" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
+margin_top = 153.0
+margin_right = 265.0
+margin_bottom = 194.629
 text = "Settings"
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="Exit" type="Button" parent="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer/VBoxContainer"]
-margin_top = 166.0
-margin_right = 250.0
-margin_bottom = 192.0
+[node name="Exit" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
+margin_top = 204.0
+margin_right = 265.0
+margin_bottom = 245.629
 text = "Exit"
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="Campaign" type="MarginContainer" parent="GUI/CenterContainer/HBoxContainer"]
+[node name="Campaign" parent="GUI" instance=ExtResource( 10 )]
 visible = false
-margin_left = 346.0
-margin_right = 688.0
-margin_bottom = 234.0
-custom_constants/margin_left = 50
-__meta__ = {
-"_edit_use_anchors_": false
-}
+margin_left = 455.733
+margin_top = 43.9472
+margin_right = 455.733
+margin_bottom = 391.947
+title = "Campaign"
 
-[node name="PanelContainer" type="PanelContainer" parent="GUI/CenterContainer/HBoxContainer/Campaign"]
-margin_left = 50.0
-margin_right = 342.0
-margin_bottom = 234.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="MarginContainer" type="MarginContainer" parent="GUI/CenterContainer/HBoxContainer/Campaign/PanelContainer"]
-margin_left = 2.0
-margin_top = 2.0
-margin_right = 292.0
-margin_bottom = 234.0
-custom_constants/margin_right = 20
-custom_constants/margin_top = 20
-custom_constants/margin_left = 20
-custom_constants/margin_bottom = 20
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="VBoxContainer" type="VBoxContainer" parent="GUI/CenterContainer/HBoxContainer/Campaign/PanelContainer/MarginContainer"]
-margin_left = 20.0
-margin_top = 20.0
-margin_right = 270.0
-margin_bottom = 212.0
-rect_min_size = Vector2( 250, 0 )
+[node name="VBoxContainer" type="VBoxContainer" parent="GUI/Campaign"]
+margin_left = 40.0
+margin_top = 40.0
+margin_right = 305.0
 custom_constants/separation = 10
-
-[node name="Label" type="Label" parent="GUI/CenterContainer/HBoxContainer/Campaign/PanelContainer/MarginContainer/VBoxContainer"]
-margin_right = 250.0
-margin_bottom = 25.0
-text = "Campaign"
-align = 1
-
-[node name="Label2" type="Label" parent="GUI/CenterContainer/HBoxContainer/Campaign/PanelContainer/MarginContainer/VBoxContainer"]
-margin_top = 35.0
-margin_right = 250.0
-margin_bottom = 48.0
-custom_fonts/font = SubResource( 7 )
-align = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Load" type="Button" parent="GUI/CenterContainer/HBoxContainer/Campaign/PanelContainer/MarginContainer/VBoxContainer"]
-visible = false
-margin_top = 58.0
-margin_right = 250.0
-margin_bottom = 84.0
-text = "Load"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="New" type="Button" parent="GUI/CenterContainer/HBoxContainer/Campaign/PanelContainer/MarginContainer/VBoxContainer"]
-visible = false
-margin_top = 94.0
-margin_right = 250.0
-margin_bottom = 120.0
-text = "New"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Tutorial" type="Button" parent="GUI/CenterContainer/HBoxContainer/Campaign/PanelContainer/MarginContainer/VBoxContainer"]
-margin_top = 58.0
-margin_right = 250.0
-margin_bottom = 84.0
+[node name="Tutorial" parent="GUI/Campaign/VBoxContainer" instance=ExtResource( 8 )]
+margin_right = 265.0
 text = "Tutorial"
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 0.866025, 0.25, -0.433013, 0, 0.866025, 0.5, 0.5, -0.433013, 0.75, 0, 25.7531, 0 )
 light_energy = 0.5
 [connection signal="timeout" from="Timer" to="GUI" method="_on_Timer_timeout"]
-[connection signal="pressed" from="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer/VBoxContainer/Campaign" to="GUI" method="_on_Campaign_pressed"]
-[connection signal="pressed" from="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer/VBoxContainer/RandomMap" to="GUI" method="_on_RandomMap_pressed"]
-[connection signal="pressed" from="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer/VBoxContainer/Designer" to="GUI" method="_on_Designer_pressed"]
-[connection signal="pressed" from="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer/VBoxContainer/DesignerMap" to="GUI" method="_on_DesignerMap_pressed"]
-[connection signal="pressed" from="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer/VBoxContainer/Settings" to="GUI" method="_on_Settings_pressed"]
-[connection signal="pressed" from="GUI/CenterContainer/HBoxContainer/Main/PanelContainer/MarginContainer/VBoxContainer/Exit" to="GUI" method="_on_Exit_pressed"]
-[connection signal="pressed" from="GUI/CenterContainer/HBoxContainer/Campaign/PanelContainer/MarginContainer/VBoxContainer/Tutorial" to="GUI" method="_on_Tutorial_pressed"]
+[connection signal="pressed" from="GUI/Main/VBoxContainer/Campaign" to="GUI" method="_on_Campaign_pressed"]
+[connection signal="pressed" from="GUI/Main/VBoxContainer/Designer" to="GUI" method="_on_Designer_pressed"]
+[connection signal="pressed" from="GUI/Main/VBoxContainer/DesignerMap" to="GUI" method="_on_DesignerMap_pressed"]
+[connection signal="pressed" from="GUI/Main/VBoxContainer/Settings" to="GUI" method="_on_Settings_pressed"]
+[connection signal="pressed" from="GUI/Main/VBoxContainer/Exit" to="GUI" method="_on_Exit_pressed"]
+[connection signal="pressed" from="GUI/Campaign/VBoxContainer/Tutorial" to="GUI" method="_on_Tutorial_pressed"]

@@ -1,4 +1,4 @@
-extends Control
+extends "res://menu/dialog/independent_panel.gd"
 
 
 const VEHICLE_DIRECTORY = "vehicles"

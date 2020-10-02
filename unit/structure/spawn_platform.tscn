@@ -12,6 +12,7 @@ export(PackedScene) var worker = load(\"res://unit/worker/drone.tscn\")
 var material = 0 setget set_material
 var max_material setget , get_max_material
 var queued_vehicle = null
+var queued_vehicle_name
 
 
 func _ready():
@@ -26,6 +27,14 @@ func _notification(notification):
 		NOTIFICATION_PREDELETE:
 			if queued_vehicle != null:
 				queued_vehicle.free()
+
+
+func get_info():
+	var info = .get_info()
+	info[\"Material\"] = str(material) + \" / \" + str(get_max_material())
+	if queued_vehicle != null:
+		info[\"Queued\"] = queued_vehicle_name
+	return info
 
 
 func get_actions():
@@ -55,6 +64,7 @@ func spawn_worker(flags):
 	queued_vehicle.global_transform = global_transform
 	queued_vehicle.translate(Vector3.UP * 5)
 	queued_vehicle.rotate_y(PI)
+	queued_vehicle_name = \"Worker Drone\"
 	return queued_vehicle
 
 
@@ -74,6 +84,7 @@ func spawn_vehicle(flags, path):
 		queued_vehicle.rotate_y(PI)
 		queued_vehicle.ai = load(\"res://unit/vehicle/ai/brick.gd\").new()
 		$IndicatorVehicle.material_override.albedo_color = Color.orange
+		queued_vehicle_name = Vehicle.path_to_name(path.get_file())
 	return queued_vehicle
 
 

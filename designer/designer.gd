@@ -45,11 +45,11 @@ func _process(_delta):
 func set_enabled(var p_enabled):
 	enabled = p_enabled
 	if p_enabled:
-		$HUD/Menu.visible = false
-		$HUD/Inventory.visible = false
-		$HUD/SaveVehicle.visible = false
-		$HUD/LoadVehicle.visible = false
-	$HUD/Tint.visible = not enabled
+		$GUI/Menu.visible = false
+		$GUI/Inventory.visible = false
+		$GUI/SaveVehicle.visible = false
+		$GUI/LoadVehicle.visible = false
+	#$GUI/Tint.visible = not enabled
 	$Camera.enabled = enabled
 	set_process(enabled)
 	set_process_input(enabled)
@@ -59,10 +59,10 @@ func set_enabled(var p_enabled):
 func process_actions():
 	if Input.is_action_just_pressed("ui_cancel"):
 		set_enabled(false)
-		$HUD/Menu.visible = true
+		$GUI/Menu.visible = true
 	elif Input.is_action_pressed("designer_open_inventory"):
 		set_enabled(false)
-		$HUD/Inventory.visible = true
+		$GUI/Inventory.visible = true
 	elif Input.is_action_just_pressed("designer_place_block"):
 		if ray_voxel_valid:
 			var coordinate = _v2a(_a2v(ray.voxel) + _a2v(ray.get_normal()))
@@ -75,7 +75,7 @@ func process_actions():
 				coordinate[0] = mirror_x - delta
 				place_block(coordinate, Block.mirror_rotation(_rotation))
 	elif Input.is_action_just_pressed("designer_remove_block"):
-		if ray_voxel_valid:
+		if not ray.finished:
 			var coordinate = [] + ray.voxel
 			remove_block(coordinate)
 			if mirror:

@@ -13,6 +13,7 @@ var _block_button_template: Button
 var _block_container: Node
 var _preview_mesh: MeshInstance
 var _designer: Node
+var _escape_pressed := false
 
 
 func _ready():
@@ -22,6 +23,17 @@ func _ready():
 	for c in categories:
 		show_category(c)
 		break
+		
+		
+func _unhandled_input(event):
+	if not $"..".visible:
+		return
+	if event.is_action("ui_cancel") or event.is_action("designer_open_inventory"):
+		if event.pressed:
+			_escape_pressed = true
+		elif _escape_pressed:
+			$"..".visible = false
+			_escape_pressed = false
 	
 	
 func show_category(var category):
