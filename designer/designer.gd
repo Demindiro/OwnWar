@@ -159,27 +159,23 @@ func highlight_face():
 			ray_hits_block = false
 		else:
 			var direction = ray.get_normal()
-			if direction[0] == 0 and direction[1] == 0 and direction[2] == 0:
-				ray_voxel_valid = false
-				ray_hits_block = false
+			var place_at = _v2a(_a2v(ray.voxel) + _a2v(direction))
+			var x = _a2v(direction)
+			var y = Vector3.RIGHT.cross(x)
+			var z = y.cross(x)
+			if y.length_squared() < 0.01:
+				z = Vector3.UP.cross(x)
+				y = z.cross(x)
+			$BlockFaceHighlighter.transform = Transform(x, y, z, _a2v(place_at) + 
+					(Vector3.ONE - _a2v(direction)) * 0.5)
+			if AABB(Vector3.ZERO, Vector3.ONE * (GRID_SIZE - 1)).has_point(_a2v(place_at)) \
+					and not place_at in blocks:
+				ray_voxel_valid = true
+				$Floor/Origin/Ghost.translation = _a2v(place_at)
+				$Floor/Origin/Ghost.transform.basis = Block.rotation_to_basis(_rotation)
+				$Floor/Origin/Ghost.scale_object_local(Vector3.ONE * SCALE)
 			else:
-				var place_at = _v2a(_a2v(ray.voxel) + _a2v(direction))
-				var x = _a2v(direction)
-				var y = Vector3.RIGHT.cross(x)
-				var z = y.cross(x)
-				if y.length_squared() < 0.01:
-					z = Vector3.UP.cross(x)
-					y = z.cross(x)
-				$BlockFaceHighlighter.transform = Transform(x, y, z, _a2v(place_at) + 
-						(Vector3.ONE - _a2v(direction)) * 0.5)
-				if AABB(Vector3.ZERO, Vector3.ONE * (GRID_SIZE - 1)).has_point(_a2v(place_at)) \
-						and not place_at in blocks:
-					ray_voxel_valid = true
-					$Floor/Origin/Ghost.translation = _a2v(place_at)
-					$Floor/Origin/Ghost.transform.basis = Block.rotation_to_basis(_rotation)
-					$Floor/Origin/Ghost.scale_object_local(Vector3.ONE * SCALE)
-				else:
-					ray_voxel_valid = false
+				ray_voxel_valid = false
 	$Floor/Origin/Ghost.visible = ray_voxel_valid
 	$BlockFaceHighlighter.visible = ray_hits_block
 	$BlockFaceHighlighter/CSGBox.material.albedo_color = Color.green if ray_voxel_valid else Color.red

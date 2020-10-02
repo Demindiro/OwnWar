@@ -45,12 +45,15 @@ func start(start: Vector3, direction: Vector3, limit_x: int, limit_y: int, limit
 	assert(limit_y > 0)
 	assert(limit_z > 0)
 	var aabb = AABB(Vector3.ZERO, Vector3(limit_x, limit_y, limit_z))
-	if not aabb.has_point(start):
+	var in_aabb = aabb.has_point(start)
+	if not in_aabb:
 		var t_a = (aabb.position - start) / direction
 		var t_b = (aabb.end - start) / direction
 		var t_min = max(max(min(t_a.x, t_b.x), min(t_a.y, t_b.y)), min(t_a.z, t_b.z))
 		var t_max = min(min(max(t_a.x, t_b.x), max(t_a.y, t_b.y)), max(t_a.z, t_b.z))
 		if t_min > t_max or t_min < 0:
+			finished = true
+			_last_step = 0
 			return
 		start += direction * t_min
 		match t_min:
@@ -58,8 +61,6 @@ func start(start: Vector3, direction: Vector3, limit_x: int, limit_y: int, limit
 			t_a.y, t_b.y: _last_step = 2
 			t_a.z, t_b.z: _last_step = 3
 			_: assert(false)
-	else:
-		_last_step = 0
 
 	x = int(floor(start.x))
 	y = int(floor(start.y))
@@ -81,6 +82,18 @@ func start(start: Vector3, direction: Vector3, limit_x: int, limit_y: int, limit
 	var impact_rel_pos = start - Vector3(x, y, z)
 	_t_max = (planes - impact_rel_pos) / direction
 	_t_delta = step / direction
+
+	if in_aabb:
+		if _t_max.x > _t_max.y:
+			if _t_max.x > _t_max.z:
+				_last_step = 1
+			else:
+				_last_step = 3
+		else:
+			if _t_max.y > _t_max.z:
+				_last_step = 2
+			else:
+				_last_step = 3
 	
 	finished = false
 	
@@ -124,6 +137,7 @@ func get_normal() -> Array:
 		3:
 			return [0, 0, -_step_z]
 		_:
+			assert(false)
 			return [0, 0, 0]
 
 
