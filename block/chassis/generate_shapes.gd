@@ -51,7 +51,7 @@ func get_name():
 			var _name = name + "_" + str(segments / divisor)
 			var pre = "_"
 			for index in indices:
-				_name += pre + str(index)
+				_name += pre + str(index / divisor)
 				pre = "-"
 			return _name
 
