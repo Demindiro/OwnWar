@@ -1,6 +1,10 @@
 extends "res://block/chassis/mesh/mesh.gd"
 
 
+func _init():
+	name = "cube_a"
+
+
 func generate(transform, x, y, z, u, v, w, a):
 	var vertices = PoolVector3Array()
 	var normals = PoolVector3Array()

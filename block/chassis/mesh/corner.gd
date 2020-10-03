@@ -1,7 +1,11 @@
 extends "res://block/chassis/mesh/mesh.gd"
 
 
-static func generate(transform, x, y, z):
+func _init():
+	name = "corner"
+
+
+func generate(transform, x, y, z):
 	var vertices = PoolVector3Array()
 	var normals = PoolVector3Array()
 	

@@ -33,7 +33,7 @@ func step():
 
 
 func get_name():
-	return indice_generator.get_name(name)
+	return indice_generator.get_name(mesh_generator.name)
 
 
 func _set_indices_count(count: int):

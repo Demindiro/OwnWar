@@ -1,6 +1,10 @@
 extends "res://block/chassis/mesh/mesh.gd"
 
 
+func _init():
+	name = "inverse_corner"
+
+
 func generate(transform, x, y, z, u, v, w):
 	var vertices = PoolVector3Array()
 	var normals = PoolVector3Array()

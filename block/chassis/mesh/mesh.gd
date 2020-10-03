@@ -1,4 +1,4 @@
 extends Reference
 
-func _ready():
-	pass
+
+var name := "mesh"
