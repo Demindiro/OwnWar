@@ -19,6 +19,7 @@ export(Array, GDScript) var generator_paths := [
 		preload("res://block/chassis/variant/complex/inverse_corner.gd"),
 		preload("res://block/chassis/variant/complex/inverse_square_corner.gd"),
 	]
+var generator
 var meshes := []
 var mesh_names := []
 var variant_index: int
@@ -32,7 +33,7 @@ func _ready():
 
 func set_segments(p_segments):
 	segments = p_segments
-	var generator = generator_paths[generator_index].new()
+	generator = generator_paths[generator_index].new()
 	generator.start(segments, Vector3.ONE, Vector3.ZERO)
 	meshes = []
 	mesh_names = []
@@ -42,18 +43,15 @@ func set_segments(p_segments):
 		generator.step()
 	var name = generator_names[generator_index]
 	variant_index = posmod(variant_index, len(meshes))
-	$MeshInstance.mesh = meshes[variant_index]
-	$UI/VariantIndex.text = "%d (%d)" % [variant_index, len(meshes)]
 	$UI/Segments.text = str(segments)
-	$UI/MeshName.text = mesh_names[variant_index]
+	update()
 
 
 func update():
-	$MeshInstance.mesh = meshes[variant_index]
+	$MeshInstance.mesh = generator.get_mesh(meshes[variant_index])
 	$UI/VariantIndex.text = "%d (%d)" % [variant_index, len(meshes)]
 	$UI/MeshName.text = mesh_names[variant_index]
 	
-
 
 func _on_NextVariant_pressed():
 	variant_index = posmod(variant_index + 1, len(meshes))

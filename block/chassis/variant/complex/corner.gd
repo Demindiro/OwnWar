@@ -19,4 +19,9 @@ func step():
 	var y = Vector3(0, fractions[1], 0)
 	var z = Vector3(0, 0, fractions[2])
 	
-	result = mesh_generator.generate(Transform.IDENTITY, x, y, z)
+	result = [x, y, z]
+
+
+func get_mesh(data: Array):
+	assert(len(data) == 3)
+	return mesh_generator.generate(Transform.IDENTITY, data[0], data[1], data[2])

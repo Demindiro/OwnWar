@@ -23,4 +23,10 @@ func step():
 	var w = Vector3(fractions[7], fractions[8], 0)
 	var a = Vector3(fractions[9], fractions[10], fractions[11])
 	
-	result = mesh_generator.generate(Transform.IDENTITY, x, y, z, u, v, w, a)
+	result = [x, y, z, u, v, w, a]
+
+
+func get_mesh(data: Array):
+	assert(len(data) == 7)
+	return mesh_generator.generate(Transform.IDENTITY, data[0], data[1], data[2],
+			data[3], data[4], data[5], data[6])

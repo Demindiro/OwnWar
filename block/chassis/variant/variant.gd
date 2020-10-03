@@ -36,5 +36,9 @@ func get_name():
 	return indice_generator.get_name(mesh_generator.name)
 
 
+func get_mesh(data: Array):
+	pass
+
+
 func _set_indices_count(count: int):
 	indice_count = count
