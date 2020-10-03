@@ -12,9 +12,9 @@ func generate(transform, x, y, z, u, v, w, a):
 	var normal_xl = (x - v).cross(w - x).normalized()
 	var normal_yl = (y - u).cross(y - w).normalized()
 	var normal_zl = (z - u).cross(v - z).normalized()
-	var normal_xh = (a - v).cross(a - x).normalized()
+	var normal_xh = (a - v).cross(a - w).normalized()
 	var normal_yh = (a - u).cross(w - a).normalized()
-	var normal_zh = (a - u).cross(a - z).normalized()
+	var normal_zh = (a - u).cross(a - v).normalized()
 	
 	for vertex in [Vector3.ZERO, y, u, Vector3.ZERO, u, z]: # -X
 		vertices.append(vertex)
