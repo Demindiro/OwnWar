@@ -21,4 +21,7 @@ func _is_valid():
 	# No pointiness
 	if (x.x < u.x or z.z < u.z) or (x.x < v.x or y.y < v.y):
 		return false
+	# No vertices on diagonal
+	if (x - u).cross(x - y).length_squared() < 1e-5:
+		return false
 	return true
