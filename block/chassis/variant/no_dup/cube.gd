@@ -29,4 +29,9 @@ func _is_valid():
 	var a_z = min(u.z, v.z)
 	if a_x < a.x or a_y < a.y or a_z < a.z:
 		return false
+	# No mirror
+	if u.y < u.z or v.x < v.z or w.y < w.z:
+		return false
+	if a.x < a.y or a.y < a.z:
+		return false
 	return true

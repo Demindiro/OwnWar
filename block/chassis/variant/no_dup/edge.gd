@@ -1,4 +1,4 @@
-extends "res://block/chassis/variant/complex/edge_a.gd"
+extends "res://block/chassis/variant/complex/edge_b.gd"
 
 
 func step():

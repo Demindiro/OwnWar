@@ -10,8 +10,8 @@ func generate(transform, x, y, z, u, v):
 	var normals = PoolVector3Array()
 	
 	var normal_x = (x - u).cross(v - x).normalized()
-	var normal_e0 = (z - y).cross(u - z).normalized()
-	var normal_e1 = (v - y).cross(v - u).normalized()
+	var normal_e0 = (z - y).cross(v - z).normalized()
+	var normal_e1 = (v - z).cross(v - u).normalized()
 	
 	for vertex in [Vector3.ZERO, y, z]: # -X
 		vertices.append(vertex)
