@@ -34,4 +34,17 @@ func _is_valid():
 		return false
 	if a.x < a.y or a.y < a.z:
 		return false
+	# No vertices on diagonal
+	if (x - w).cross(y - x).length_squared() < 1e-5 or \
+			(x - v).cross(z - v).length_squared() < 1e-5 or \
+			(y - u).cross(z - u).length_squared() < 1e-5:
+		return false
+	# No dents
+	# Distance point plane:
+	#  - Determine normal (cross product)
+	#  - Determine distance (dot product with normal and a)
+	# Can maybe be more efficient but idk
+	print((w - u).cross(w - v).dot(w - a))
+	if (w - u).cross(w - v).dot(a - w) < 1e-5:
+		return false
 	return true

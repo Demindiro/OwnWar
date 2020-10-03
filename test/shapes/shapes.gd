@@ -49,6 +49,8 @@ func set_segments(p_segments):
 
 
 func update():
+#	VisualServer.set_debug_generate_wireframes(true)
+#	get_viewport().debug_draw = Viewport.DEBUG_DRAW_WIREFRAME
 	$MeshInstance.mesh = generator.get_mesh(meshes[variant_index])
 	$UI/VariantIndex.text = "%d (%d)" % [variant_index, len(meshes)]
 	$UI/MeshName.text = mesh_names[variant_index]
