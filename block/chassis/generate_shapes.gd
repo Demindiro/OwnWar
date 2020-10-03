@@ -8,6 +8,11 @@ var scale: Vector3
 var offset: Vector3
 var indices: PoolIntArray
 var name := "mesh"
+var mesh_generator
+
+
+func _set_generator():
+	mesh_generator = load("res://block/chassis/mesh/%s.gd" % name).new()
 
 
 func start(p_segments: int, p_scale: Vector3, p_offset: Vector3):
