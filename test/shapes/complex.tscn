@@ -1,108 +1,9 @@
 [gd_scene load_steps=13 format=2]
 
-[ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
+[ext_resource path="res://test/shapes/shapes.gd" type="Script" id=1]
+[ext_resource path="res://camera/free_camera.gd" type="Script" id=2]
 
 [sub_resource type="GDScript" id=1]
-script/source = "extends Node
-
-
-export(int, 1, 8) var segments := 1 setget set_segments
-export var generator_index := 0
-var generators := {
-		\"corner\": load(\"res://block/chassis/variant/complex/corner.gd\").new(),
-		\"square_corner\": load(\"res://block/chassis/variant/complex/square_corner.gd\").new(),
-		\"cube_a\": load(\"res://block/chassis/variant/complex/cube_a.gd\").new(),
-		\"edge_a\": load(\"res://block/chassis/variant/complex/edge_a.gd\").new(),
-		\"inverse_corner\": load(\"res://block/chassis/variant/complex/inverse_corner.gd\").new(),
-		\"inverse_square_corner\": load(\"res://block/chassis/variant/complex/inverse_square_corner.gd\").new(),
-	}
-var generator_names := []
-var meshes := {}
-var mesh_names := {}
-var variant_index: int
-
-
-func _ready():
-	for name in generators:
-		generator_names.append(name)
-	generator_index %= len(generator_names)
-	set_segments(segments)
-
-
-func set_segments(p_segments):
-	segments = p_segments
-	variant_index = 0
-	for key in generators:
-		var generator = generators[key]
-		generator.start(segments, Vector3.ONE, Vector3.ZERO)
-		meshes[key] = []
-		mesh_names[key] = []
-		while not generator.finished:
-			meshes[key].append(generator.result)
-			mesh_names[key].append(generator.get_name())
-			if generator.get_name() == null:
-				breakpoint
-				var aaaaa = generator.get_name()
-				pass
-			generator.step()
-	var name = generator_names[generator_index]
-	variant_index = 0
-	$MeshInstance.mesh = meshes[name][variant_index]
-	$UI/VariantIndex.text = \"%d (%d)\" % [variant_index, len(meshes[name])]
-	$UI/Segments.text = str(segments)
-	$UI/MeshName.text = mesh_names[name][variant_index]
-
-
-func update():
-	var name = generator_names[generator_index]
-	$MeshInstance.mesh = meshes[name][variant_index]
-	$UI/VariantIndex.text = \"%d (%d)\" % [variant_index, len(meshes[name])]
-	$UI/MeshName.text = mesh_names[name][variant_index]
-	
-
-
-func _on_NextVariant_pressed():
-	var name = generator_names[generator_index]
-	variant_index += 1
-	if variant_index >= len(meshes[name]):
-		variant_index = 0
-	update()
-
-
-func _on_PreviousVariant_pressed():
-	var name = generator_names[generator_index]
-	variant_index -= 1
-	if variant_index < 0:
-		variant_index = len(meshes[name]) - 1
-	update()
-
-
-func _on_IncreaseSegments_pressed():
-	set_segments(segments + 1)
-
-
-func _on_DecreaseSegments_pressed():
-	if segments > 1:
-		set_segments(segments - 1)
-
-
-func _on_NextMesh_pressed():
-	generator_index += 1
-	if generator_index >= len(generator_names):
-		generator_index = 0
-	variant_index = 0
-	update()
-
-
-func _on_PreviousMesh_pressed():
-	generator_index -= 1
-	if generator_index < 0:
-		generator_index = len(generator_names) - 1
-	variant_index = 0
-	update()
-"
-
-[sub_resource type="GDScript" id=7]
 script/source = "extends DirectionalLight
 
 
@@ -123,11 +24,11 @@ func _process(delta):
 			Basis.IDENTITY.rotated(Vector3.RIGHT, rot_y)
 "
 
-[sub_resource type="SpatialMaterial" id=6]
+[sub_resource type="SpatialMaterial" id=2]
 flags_unshaded = true
 vertex_color_use_as_albedo = true
 
-[sub_resource type="GDScript" id=5]
+[sub_resource type="GDScript" id=3]
 script/source = "extends ImmediateGeometry
 
 func _ready():
@@ -139,14 +40,14 @@ func _ready():
 	end()
 "
 
-[sub_resource type="SpatialMaterial" id=2]
+[sub_resource type="SpatialMaterial" id=4]
 flags_disable_ambient_light = true
 
-[sub_resource type="SpatialMaterial" id=3]
+[sub_resource type="SpatialMaterial" id=5]
 flags_unshaded = true
 vertex_color_use_as_albedo = true
 
-[sub_resource type="GDScript" id=4]
+[sub_resource type="GDScript" id=6]
 script/source = "extends ImmediateGeometry
 
 
@@ -174,40 +75,40 @@ func _ready():
 	end()
 "
 
-[sub_resource type="InputEventKey" id=8]
+[sub_resource type="InputEventKey" id=7]
 scancode = 16777349
 
-[sub_resource type="ShortCut" id=9]
-shortcut = SubResource( 8 )
+[sub_resource type="ShortCut" id=8]
+shortcut = SubResource( 7 )
 
-[sub_resource type="InputEventKey" id=10]
+[sub_resource type="InputEventKey" id=9]
 scancode = 16777347
 
-[sub_resource type="ShortCut" id=11]
-shortcut = SubResource( 10 )
+[sub_resource type="ShortCut" id=10]
+shortcut = SubResource( 9 )
 
 [node name="Shapes" type="Node"]
-script = SubResource( 1 )
+script = ExtResource( 1 )
 generator_index = 5
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
-script = SubResource( 7 )
+script = SubResource( 1 )
 
 [node name="ImmediateGeometry" type="ImmediateGeometry" parent="DirectionalLight"]
-material_override = SubResource( 6 )
-script = SubResource( 5 )
+material_override = SubResource( 2 )
+script = SubResource( 3 )
 
 [node name="Camera" type="Camera" parent="."]
 transform = Transform( 1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 2.36516, 5.66657 )
-script = ExtResource( 1 )
+script = ExtResource( 2 )
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
-material_override = SubResource( 2 )
+material_override = SubResource( 4 )
 
 [node name="Axises" type="ImmediateGeometry" parent="."]
 transform = Transform( 5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0 )
-material_override = SubResource( 3 )
-script = SubResource( 4 )
+material_override = SubResource( 5 )
+script = SubResource( 6 )
 
 [node name="UI" type="Control" parent="."]
 margin_right = 40.0
@@ -223,7 +124,7 @@ margin_right = 148.0
 margin_bottom = 25.0
 focus_mode = 0
 enabled_focus_mode = 0
-shortcut = SubResource( 9 )
+shortcut = SubResource( 8 )
 text = "Next variant"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -236,7 +137,7 @@ margin_right = 148.0
 margin_bottom = 45.0
 focus_mode = 0
 enabled_focus_mode = 0
-shortcut = SubResource( 11 )
+shortcut = SubResource( 10 )
 text = "Previous Variant"
 __meta__ = {
 "_edit_use_anchors_": false

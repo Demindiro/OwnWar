@@ -1,0 +1,86 @@
+extends Node
+
+
+export(int, 1, 8) var segments := 1 setget set_segments
+export var generator_index := 0
+export(Array, String) var generator_names := [
+		"corner",
+		"square_corner",
+		"cube_a",
+		"edge_a",
+		"inverse_corner",
+		"inverse_square_corner",
+	]
+export(Array, GDScript) var generator_paths := [
+		preload("res://block/chassis/variant/complex/corner.gd"),
+		preload("res://block/chassis/variant/complex/square_corner.gd"),
+		preload("res://block/chassis/variant/complex/cube_a.gd"),
+		preload("res://block/chassis/variant/complex/edge_a.gd"),
+		preload("res://block/chassis/variant/complex/inverse_corner.gd"),
+		preload("res://block/chassis/variant/complex/inverse_square_corner.gd"),
+	]
+var meshes := []
+var mesh_names := []
+var variant_index: int
+
+
+func _ready():
+	assert(len(generator_names) == len(generator_paths))
+	generator_index %= len(generator_names)
+	set_segments(segments)
+
+
+func set_segments(p_segments):
+	segments = p_segments
+	var generator = generator_paths[generator_index].new()
+	generator.start(segments, Vector3.ONE, Vector3.ZERO)
+	meshes = []
+	mesh_names = []
+	while not generator.finished:
+		meshes.append(generator.result)
+		mesh_names.append(generator.get_name())
+		generator.step()
+	var name = generator_names[generator_index]
+	variant_index = posmod(variant_index, len(meshes))
+	$MeshInstance.mesh = meshes[variant_index]
+	$UI/VariantIndex.text = "%d (%d)" % [variant_index, len(meshes)]
+	$UI/Segments.text = str(segments)
+	$UI/MeshName.text = mesh_names[variant_index]
+
+
+func update():
+	$MeshInstance.mesh = meshes[variant_index]
+	$UI/VariantIndex.text = "%d (%d)" % [variant_index, len(meshes)]
+	$UI/MeshName.text = mesh_names[variant_index]
+	
+
+
+func _on_NextVariant_pressed():
+	variant_index = posmod(variant_index + 1, len(meshes))
+	update()
+
+
+func _on_PreviousVariant_pressed():
+	variant_index = posmod(variant_index - 1, len(meshes))
+	update()
+
+
+func _on_IncreaseSegments_pressed():
+	set_segments(segments + 1)
+
+
+func _on_DecreaseSegments_pressed():
+	if segments > 1:
+		set_segments(segments - 1)
+
+
+func _on_NextMesh_pressed():
+	generator_index = posmod(generator_index + 1, len(generator_names))
+	set_segments(segments)
+	update()
+
+
+func _on_PreviousMesh_pressed():
+	generator_index = posmod(generator_index - 1, len(generator_names))
+	set_segments(segments)
+	update()
