@@ -1,6 +1,11 @@
 extends "res://block/chassis/variant/complex/cube_b.gd"
 
 
+var _blacklist = [
+		PoolIntArray([2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1]),
+		PoolIntArray([2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1]),
+	]
+
 
 func step():
 	.step()
@@ -44,7 +49,11 @@ func _is_valid():
 	#  - Determine normal (cross product)
 	#  - Determine distance (dot product with normal and a)
 	# Can maybe be more efficient but idk
-	print((w - u).cross(w - v).dot(w - a))
 	if (w - u).cross(w - v).dot(a - w) < 1e-5:
 		return false
-	return true
+	return not _is_blacklisted()
+	
+	
+func _is_blacklisted():
+	# Some duplicate variants I haven't managed to eliminate automagically yet
+	return indice_generator.indices in _blacklist
