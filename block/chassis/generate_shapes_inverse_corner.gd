@@ -14,9 +14,6 @@ func start(segments: int, scale: Vector3, offset: Vector3):
 
 func step():
 	.step()
-	var fractions = PoolRealArray()
-	for index in indices:
-		fractions.append(float(index) / float(segments))
 		
 	var x = Vector3(fractions[0], 0, 0)
 	var y = Vector3(0, fractions[1], 0)
