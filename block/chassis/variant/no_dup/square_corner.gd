@@ -15,7 +15,8 @@ func start(segments: int, scale: Vector3, offset: Vector3):
 func step():
 	.step()
 	while fractions[0] < fractions[1] or fractions[1] < fractions[2] \
-		or fractions[0] < fractions[3] or fractions[2] < fractions[4]:
+		or fractions[0] < fractions[3] or fractions[2] < fractions[4] \
+		or fractions[3] < fractions[4]:
 		if finished:
 			return
 		.step()

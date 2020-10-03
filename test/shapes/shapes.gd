@@ -45,14 +45,14 @@ func set_segments(p_segments):
 		generator.step()
 	var name = generator_names[generator_index]
 	variant_index = posmod(variant_index, len(meshes))
-	$UI/Segments.text = str(segments)
-	update()
+	call_deferred("update")
 
 
 func update():
 	$MeshInstance.mesh = generator.get_mesh(meshes[variant_index])
 	$UI/VariantIndex.text = "%d (%d)" % [variant_index, len(meshes)]
 	$UI/MeshName.text = mesh_names[variant_index]
+	$UI/Segments.text = str(segments)
 	
 
 func _on_NextVariant_pressed():
