@@ -9,12 +9,12 @@ script/source = "extends Node
 export(int, 1, 8) var segments := 1 setget set_segments
 export var generator_index := 0
 var generators := {
-		\"corner\": load(\"res://block/chassis/generate_shapes_corner.gd\").new(),
-		\"square_corner\": load(\"res://block/chassis/generate_shapes_square_corner.gd\").new(),
-		\"cube_a\": load(\"res://block/chassis/generate_shapes_cube_a.gd\").new(),
-		\"edge_a\": load(\"res://block/chassis/generate_shapes_edge_a.gd\").new(),
-		\"inverse_corner\": load(\"res://block/chassis/generate_shapes_inverse_corner.gd\").new(),
-		\"inverse_square_corner\": load(\"res://block/chassis/generate_shapes_inverse_square_corner.gd\").new(),
+		\"corner\": load(\"res://block/chassis/variant/complex/corner.gd\").new(),
+		\"square_corner\": load(\"res://block/chassis/variant/complex/square_corner.gd\").new(),
+		\"cube_a\": load(\"res://block/chassis/variant/complex/cube_a.gd\").new(),
+		\"edge_a\": load(\"res://block/chassis/variant/complex/edge_a.gd\").new(),
+		\"inverse_corner\": load(\"res://block/chassis/variant/complex/inverse_corner.gd\").new(),
+		\"inverse_square_corner\": load(\"res://block/chassis/variant/complex/inverse_square_corner.gd\").new(),
 	}
 var generator_names := []
 var meshes := {}

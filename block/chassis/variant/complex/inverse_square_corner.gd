@@ -1,8 +1,8 @@
-extends "res://block/chassis/generate_shapes.gd"
+extends "res://block/chassis/variant/variant.gd"
 
 
 func _init():
-	name = "inverse_corner"
+	name = "inverse_square_corner"
 	._set_generator()
 	._set_indices_count(9)
 
