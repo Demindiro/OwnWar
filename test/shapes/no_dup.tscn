@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://test/shapes/shapes.gd" type="Script" id=1]
 [ext_resource path="res://block/chassis/variant/no_dup/corner.gd" type="Script" id=2]
@@ -7,6 +7,7 @@
 [ext_resource path="res://block/chassis/variant/no_dup/cube.gd" type="Script" id=5]
 [ext_resource path="res://block/chassis/variant/no_dup/edge.gd" type="Script" id=6]
 [ext_resource path="res://block/chassis/variant/no_dup/inverse_corner.gd" type="Script" id=7]
+[ext_resource path="res://block/chassis/variant/no_dup/inverse_square_corner.gd" type="Script" id=8]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends DirectionalLight
@@ -94,9 +95,9 @@ shortcut = SubResource( 9 )
 
 [node name="Shapes" type="Node"]
 script = ExtResource( 1 )
-generator_index = 4
-generator_names = [ "corner", "square_corner", "cube", "edge", "inverse_corner" ]
-generator_paths = [ ExtResource( 2 ), ExtResource( 4 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 7 ) ]
+generator_index = 5
+generator_names = [ "corner", "square_corner", "cube", "edge", "inverse_corner", "inverse_square_corner" ]
+generator_paths = [ ExtResource( 2 ), ExtResource( 4 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 7 ), ExtResource( 8 ) ]
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 script = SubResource( 1 )
