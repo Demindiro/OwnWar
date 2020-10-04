@@ -69,6 +69,7 @@ config/icon="res://icon.png"
 [autoload]
 
 Global="*res://global.gd"
+GenerateBlocks="*res://block/chassis/generate_blocks.gd"
 
 [debug]
 
