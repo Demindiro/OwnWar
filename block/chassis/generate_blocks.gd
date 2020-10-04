@@ -17,7 +17,7 @@ func _enter_tree():
 			var rotation = block_data["rotation"]
 			var mirror = block_data["mirror"]
 			var transform = Transform(Block.rotation_to_basis(rotation), Vector3.ZERO)
-			transform = transform.scaled(Vector3.ONE * 2)
+			transform = transform.scaled(Vector3.ONE * Global.BLOCK_SCALE)
 			transform = transform.translated(-Vector3.ONE / 2)
 
 			generator.start(2)
