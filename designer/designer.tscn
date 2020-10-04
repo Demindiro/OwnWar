@@ -66,6 +66,14 @@ script = ExtResource( 2 )
 main_menu = ExtResource( 11 )
 test_map = ExtResource( 12 )
 
+[node name="Lights" type="Node" parent="."]
+
+[node name="SW" type="DirectionalLight" parent="Lights"]
+transform = Transform( -0.707107, 0.353553, -0.612372, 0, 0.866025, 0.5, 0.707107, 0.353553, -0.612372, 0, 16.9646, 0 )
+
+[node name="NW" type="DirectionalLight" parent="Lights"]
+transform = Transform( 0.707107, -0.353553, 0.612373, 0, 0.866025, 0.5, -0.707107, -0.353553, 0.612372, 0, 16.9646, 0 )
+
 [node name="Camera" type="Camera" parent="."]
 transform = Transform( -1, 0, -3.25841e-07, -1.62921e-07, 0.866025, 0.5, 2.82187e-07, 0.5, -0.866025, -0.112284, 5.09171, -11.6802 )
 script = ExtResource( 1 )
