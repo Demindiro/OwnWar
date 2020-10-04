@@ -11,7 +11,7 @@ func _enter_tree():
 			preload("res://block/chassis/variant/no_dup/square_corner.gd").new(),
 		]
 	var transform = Transform.IDENTITY
-	transform.origin -= Vector3(1, 1, 1) / 2 * Global.BLOCK_SCALE
+	transform.origin -= Vector3(1, 1, 1) / 2
 	transform = transform.scaled(Vector3.ONE * Global.BLOCK_SCALE)
 	for generator in generators:
 		generator.start(2)
