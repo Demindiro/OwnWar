@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=21 format=2]
 
 [ext_resource path="res://test/shapes/manual.gd" type="Script" id=1]
 [ext_resource path="res://block/chassis/variant/no_dup/corner.gd" type="Script" id=2]
@@ -92,6 +92,15 @@ scancode = 16777347
 
 [sub_resource type="ShortCut" id=10]
 shortcut = SubResource( 9 )
+
+[sub_resource type="GDScript" id=12]
+script/source = "extends LineEdit
+
+
+func _input(event):
+	if event is InputEventMouseButton and not get_global_rect().has_point(event.position):
+		release_focus()
+"
 
 [sub_resource type="CubeMesh" id=11]
 
@@ -273,29 +282,18 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="MirrorRotationOffset" type="CheckButton" parent="Save"]
-anchor_top = 0.0198425
-anchor_bottom = 0.0198425
-margin_left = -278.745
-margin_top = 145.392
-margin_right = -104.745
-margin_bottom = 185.392
+[node name="MirrorRotationOffset" type="VSlider" parent="Save"]
+margin_left = -62.3082
+margin_top = 25.0
+margin_right = -46.3082
+margin_bottom = 285.0
 focus_mode = 0
-enabled_focus_mode = 0
-text = "Mirror Offset"
+max_value = 23.0
+tick_count = 23
+ticks_on_borders = true
 __meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="BlockName" type="LineEdit" parent="Save"]
-margin_left = -276.5
-margin_top = 45.0
-margin_right = -167.5
-margin_bottom = 75.0
-focus_mode = 0
-placeholder_text = "Block Name"
-__meta__ = {
-"_edit_use_anchors_": false
+"_edit_use_anchors_": false,
+"_editor_description_": ""
 }
 
 [node name="Save" type="Button" parent="Save"]
@@ -309,6 +307,59 @@ text = "Save"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="Load" type="Button" parent="Save"]
+margin_left = -203.623
+margin_top = 180.713
+margin_right = -97.6228
+margin_bottom = 200.713
+focus_mode = 0
+enabled_focus_mode = 0
+text = "Load"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Delete" type="Button" parent="Save"]
+margin_left = -274.623
+margin_top = 436.301
+margin_right = -168.623
+margin_bottom = 456.301
+focus_mode = 0
+enabled_focus_mode = 0
+text = "Delete"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SaveState" type="Label" parent="Save"]
+margin_left = -274.623
+margin_top = 186.713
+margin_right = -234.623
+margin_bottom = 200.713
+text = "N/A"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BlockName" type="LineEdit" parent="Save"]
+margin_left = -276.0
+margin_top = 45.0
+margin_right = -91.0
+margin_bottom = 75.0
+focus_mode = 1
+placeholder_text = "Block Name"
+caret_blink = true
+script = SubResource( 12 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SavedBlocks" type="VBoxContainer" parent="Save"]
+margin_left = -331.0
+margin_top = 492.0
+margin_right = -177.0
+margin_bottom = 526.0
 
 [node name="MeshInstance2" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -3, 0 )
@@ -327,4 +378,10 @@ material/0 = null
 [connection signal="pressed" from="UI/PreviousMesh" to="." method="_on_PreviousMesh_pressed"]
 [connection signal="value_changed" from="Save/RotationOffset" to="." method="_on_RotationOffset_value_changed"]
 [connection signal="toggled" from="Save/GenerateMirrorMesh" to="." method="_on_GenerateMirrorMesh_toggled"]
-[connection signal="toggled" from="Save/MirrorRotationOffset" to="." method="_on_MirrorRotationOffset_toggled"]
+[connection signal="value_changed" from="Save/MirrorRotationOffset" to="." method="_on_MirrorRotationOffset_value_changed"]
+[connection signal="pressed" from="Save/Save" to="." method="_on_Save_pressed"]
+[connection signal="pressed" from="Save/Load" to="." method="_on_Load_pressed"]
+[connection signal="pressed" from="Save/Delete" to="." method="_on_Delete_pressed"]
+[connection signal="focus_entered" from="Save/BlockName" to="." method="_on_BlockName_focus_entered"]
+[connection signal="focus_exited" from="Save/BlockName" to="." method="_on_BlockName_focus_exited"]
+[connection signal="text_changed" from="Save/BlockName" to="." method="_on_BlockName_text_changed"]

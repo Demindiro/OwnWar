@@ -24,6 +24,7 @@ export(Array, GDScript) var generator_paths := [
 var generator
 var meshes := []
 var mesh_names := []
+var mesh_indices := []
 var variant_index: int
 var transform := Transform.IDENTITY
 
@@ -40,9 +41,11 @@ func set_segments(p_segments):
 	generator.start(segments)
 	meshes = []
 	mesh_names = []
+	mesh_indices = []
 	while not generator.finished:
 		meshes.append(generator.result)
 		mesh_names.append(generator.get_name())
+		mesh_indices.append(generator.indice_generator.indices)
 		generator.step()
 	var name = generator_names[generator_index]
 	variant_index = posmod(variant_index, len(meshes))
