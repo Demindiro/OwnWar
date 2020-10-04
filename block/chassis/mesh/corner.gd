@@ -14,9 +14,11 @@ func generate(transform, x, y, z):
 	y = transform * y
 	z = transform * z
 	
-	for vertex in [z, y, x]: # Side
+	var normal_e = (x - y).cross(x - z).normalized()
+	
+	for vertex in [z, y, x]: # E
 		vertices.append(vertex)
-		normals.append(Vector3.ONE.normalized())
+		normals.append(normal_e)
 	for vertex in [o, y, z]: # X
 		vertices.append(vertex)
 		normals.append(Vector3.LEFT)
