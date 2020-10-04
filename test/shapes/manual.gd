@@ -126,6 +126,7 @@ func _on_Load_pressed():
 	rotation = block_data["rotation"]
 	$Save/RotationOffset.value = rotation
 	$Save/MirrorRotationOffset.value = mirror_rotation
+	$Save/GenerateMirrorMesh.pressed = mirror_mode == MirrorMode.GENERATE
 	update()
 
 
