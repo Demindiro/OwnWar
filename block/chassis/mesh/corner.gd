@@ -9,6 +9,10 @@ func generate(transform, x, y, z):
 	var vertices = PoolVector3Array()
 	var normals = PoolVector3Array()
 	
+	x = transform * x
+	y = transform * y
+	z = transform * z
+	
 	for vertex in [z, y, x]: # Side
 		vertices.append(vertex)
 		normals.append(Vector3.ONE.normalized())
