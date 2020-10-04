@@ -38,7 +38,7 @@ func _enter_tree():
 				mirror_block.name = generator.get_name() + "_m"
 				mirror_block.human_name = block_name + " (M)"
 				mirror_block.category = "generated"
-				mirror_block.mesh = generator.get_mesh(generator.get_result(), transform, true)
+				mirror_block.mesh = generator.get_mesh(generator.get_result(), mirror_transform, true)
 				Block.add_block(mirror_block)
 			else:
 				var mirror_transform = Transform(Block.rotation_to_basis(mirror), Vector3.ZERO) * transform
