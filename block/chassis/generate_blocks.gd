@@ -11,5 +11,11 @@ static func get_meshes():
 			preload("res://block/chassis/variant/no_dup/square_corner.gd").new(),
 		]
 	var meshes = []
+	var transform = Transform.IDENTITY
+	transform = transform.translated(Vector3(-1, -1, -1) / 2)
 	for generator in generators:
 		generator.start()
+		while not generator.finished:
+			meshes.append(generator.get_mesh(generator.result, transform))
+			generator.step()
+	return meshes

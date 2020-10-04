@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Spatial
+
+
+func _ready():
+	var x = 0
+	var y = 0
+	for block in Global.blocks_by_id:
+		if block != null:
+			var mesh = MeshInstance.new()
+			mesh.mesh = block.mesh
+			if block.scene != null:
+				var scene = block.scene.instance()
+				mesh.add_child(scene)
+			mesh.translation = Vector3(x, 0, y) * 2
+			add_child(mesh)
+			x += 1
+			if x >= 64:
+				x = 0
+				y += 1
+"
+
+[node name="All" type="Spatial"]
+script = SubResource( 1 )
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 0.965926, -0.12941, 0.224144, 0, 0.866025, 0.5, -0.258819, -0.482963, 0.836516, 15, 6, 4 )
+script = ExtResource( 1 )
