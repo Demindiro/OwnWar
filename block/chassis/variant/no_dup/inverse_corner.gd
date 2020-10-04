@@ -19,6 +19,7 @@ func step():
 
 
 func _is_valid():
+	var result = get_result()
 	var x = result[0]
 	var y = result[1]
 	var z = result[2]

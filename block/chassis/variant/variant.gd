@@ -1,7 +1,6 @@
 extends Reference
 
 
-var result
 var name := "mesh"
 var mesh_generator
 var indice_generator
@@ -34,6 +33,14 @@ func get_name():
 
 func get_mesh(data: Array):
 	pass
+
+
+func set_indices(indices: PoolIntArray):
+	assert(len(indices) == indice_count)
+	indice_generator.indices = indices
+	fractions = PoolRealArray()
+	for index in indice_generator.indices:
+		fractions.append(float(index) / float(indice_generator.segments))
 
 
 func _set_indices_count(count: int):

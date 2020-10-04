@@ -14,15 +14,16 @@ func start(segments: int):
 
 func step():
 	.step()
-	
+
+
+func get_result():
 	var x = Vector3(fractions[0], 0, 0)
 	var y = Vector3(0, fractions[1], 0)
 	var z = Vector3(0, 0, fractions[2])
 	var u = Vector3(0, fractions[3], fractions[4])
 	var v = Vector3(fractions[5], 0, fractions[6])
 	var w = Vector3(fractions[7], fractions[8], 0)
-	
-	result = [x, y, z, u, v, w]
+	return [x, y, z, u, v, w]
 
 
 func get_mesh(data: Array, transform := Transform.IDENTITY, flip_faces := false):

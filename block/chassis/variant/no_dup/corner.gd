@@ -18,12 +18,14 @@ func step():
 		if finished:
 			return
 		.step()
-	
+
+
+
+func get_result():
 	var x = Vector3(fractions[0], 0, 0)
 	var y = Vector3(0, fractions[1], 0)
 	var z = Vector3(0, 0, fractions[2])
-	
-	result = [x, y, z]
+	return [x, y, z]
 
 
 func get_mesh(data: Array, transform := Transform.IDENTITY, flip_faces := false):

@@ -43,7 +43,7 @@ func set_segments(p_segments):
 	mesh_names = []
 	mesh_indices = []
 	while not generator.finished:
-		meshes.append(generator.result)
+		meshes.append(generator.get_result())
 		mesh_names.append(generator.get_name())
 		mesh_indices.append(generator.indice_generator.indices)
 		generator.step()

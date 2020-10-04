@@ -2,23 +2,42 @@ extends Node
 
 
 func _enter_tree():
-	var generators = [
-			preload("res://block/chassis/variant/no_dup/corner.gd").new(),
-			preload("res://block/chassis/variant/no_dup/cube.gd").new(),
-			preload("res://block/chassis/variant/no_dup/edge.gd").new(),
-			preload("res://block/chassis/variant/no_dup/inverse_corner.gd").new(),
-			preload("res://block/chassis/variant/no_dup/inverse_square_corner.gd").new(),
-			preload("res://block/chassis/variant/no_dup/square_corner.gd").new(),
-		]
-	var transform = Transform.IDENTITY
-	transform = transform.translated(-Vector3.ONE / 2)
-	transform = transform.scaled(Vector3.ONE * Global.BLOCK_SCALE)
-	for generator in generators:
-		generator.start(2)
-		while not generator.finished:
+	var file := File.new()
+	var err := file.open("res://block/chassis/shapes.json", File.READ)
+	if err != OK:
+		Global.error("Couldn't read shapes file", err)
+		return
+	var data = parse_json(file.get_as_text())
+	for generator_name in data:
+		var blocks = data[generator_name]
+		var generator = load("res://block/chassis/variant/complex/%s.gd" % generator_name).new()
+		for block_name in blocks:
+			var block_data = blocks[block_name]
+			var indices = PoolIntArray(block_data["indices"])
+			var rotation = block_data["rotation"]
+			var mirror = block_data["mirror"]
+			var transform = Transform(Block.rotation_to_basis(rotation), Vector3.ZERO)
+			transform = transform.scaled(Vector3.ONE * 2)
+			transform = transform.translated(-Vector3.ONE / 2)
+
+			generator.start(2)
+			generator.set_indices(indices)
+			var result = generator.get_result()
+			var mesh = generator.get_mesh(result, transform)
+			var block_full_name = generator.get_name()
+
 			var block = Block.new()
 			block.name = generator.get_name()
 			block.category = "generated"
-			block.mesh = generator.get_mesh(generator.result, transform)
+			block.mesh = generator.get_mesh(generator.get_result(), transform)
 			Block.add_block(block)
-			generator.step()
+			if mirror < 0:
+				var mirror_transform = Transform.FLIP_X * transform
+				var mirror_block = Block.new()
+				mirror_block.name = generator.get_name()
+				mirror_block.category = "generated"
+				mirror_block.mesh = generator.get_mesh(generator.get_result(), transform, true)
+				Block.add_block(mirror_block)
+			else:
+				var mirror_transform = Transform(Block.rotation_to_basis(mirror), Vector3.ZERO) * transform
+				# TODO

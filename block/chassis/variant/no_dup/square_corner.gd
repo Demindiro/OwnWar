@@ -26,6 +26,7 @@ func get_mesh(data: Array, transform := Transform.IDENTITY, flip_faces := false)
 
 
 func _is_valid():
+	var result = get_result()
 	var x = result[0]
 	var y = result[1]
 	var z = result[2]
