@@ -1,12 +1,10 @@
 extends "res://test/shapes/shapes.gd"
 
 
-enum MirrorMode { GENERATE, OFFSET }
 export(String, FILE, "*.json") var data_path := "res://block/chassis/shapes.json"
 var data: Dictionary
 var rotation := 0
-var mirror_mode: int = MirrorMode.OFFSET
-var mirror_rotation := 0
+var mirror := 0
 
 
 func _ready():
@@ -70,11 +68,11 @@ func update_mirror():
 	var mirror_transform
 	var flip_faces = false
 	$MirrorInstance.visible = true
-	if mirror_mode == MirrorMode.GENERATE:
+	if mirror < 0:
 		mirror_transform = Transform.FLIP_X * transform
 		flip_faces = true
-	elif mirror_mode == MirrorMode.OFFSET:
-		mirror_transform = Transform(Block.rotation_to_basis(mirror_rotation), Vector3.ZERO) * transform
+	else:
+		mirror_transform = Transform(Block.rotation_to_basis(mirror), Vector3.ZERO) * transform
 	$MirrorInstance.mesh = generator.get_mesh(meshes[variant_index], mirror_transform, flip_faces)
 
 
@@ -84,17 +82,15 @@ func _on_RotationOffset_value_changed(value):
 
 
 func _on_GenerateMirrorMesh_toggled(button_pressed):
-	mirror_mode = MirrorMode.GENERATE if button_pressed else MirrorMode.OFFSET
 	if button_pressed:
 		$Save/MirrorRotationOffset.value = 0
+		mirror = -1
 	update()
 
 
 func _on_MirrorRotationOffset_value_changed(value):
-	mirror_mode = MirrorMode.OFFSET
-	mirror_rotation = value
-	if value > 0:
-		$Save/GenerateMirrorMesh.pressed = false
+	mirror = value
+	$Save/GenerateMirrorMesh.pressed = false
 	update()
 
 
@@ -105,7 +101,7 @@ func _on_Save_pressed():
 	data[generator.name][block_name] = {
 			"indices": mesh_indices[variant_index],
 			"rotation": rotation,
-			"mirror": -1 if mirror_mode == MirrorMode.GENERATE else mirror_rotation
+			"mirror": mirror
 		}
 	save_data()
 	update()
@@ -120,13 +116,11 @@ func _on_Load_pressed():
 			variant_index = i
 			break
 	assert(variant_index >= 0)
-	mirror_mode = MirrorMode.GENERATE if block_data["mirror"] < 0 else MirrorMode.OFFSET
-	if mirror_mode == MirrorMode.OFFSET:
-		mirror_rotation = block_data["mirror"]
+	mirror = block_data["mirror"]
 	rotation = block_data["rotation"]
 	$Save/RotationOffset.value = rotation
-	$Save/MirrorRotationOffset.value = mirror_rotation
-	$Save/GenerateMirrorMesh.pressed = mirror_mode == MirrorMode.GENERATE
+	$Save/MirrorRotationOffset.value = mirror if mirror >= 0 else 0
+	$Save/GenerateMirrorMesh.pressed = mirror < 0
 	update()
 
 
