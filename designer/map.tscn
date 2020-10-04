@@ -128,17 +128,17 @@ func _on_Exit_pressed():
 
 "
 
-[sub_resource type="InputEventAction" id=13]
+[sub_resource type="InputEventAction" id=12]
 action = "ui_cancel"
 
-[sub_resource type="ShortCut" id=14]
-shortcut = SubResource( 13 )
+[sub_resource type="ShortCut" id=13]
+shortcut = SubResource( 12 )
 
-[sub_resource type="InputEventAction" id=15]
+[sub_resource type="InputEventAction" id=14]
 action = "ui_accept"
 
-[sub_resource type="ShortCut" id=16]
-shortcut = SubResource( 15 )
+[sub_resource type="ShortCut" id=15]
+shortcut = SubResource( 14 )
 
 [node name="Designer" type="Spatial"]
 script = ExtResource( 10 )
@@ -240,6 +240,9 @@ material/0 = SubResource( 9 )
 
 [node name="DirectionalLight" type="DirectionalLight" parent="Map"]
 transform = Transform( 0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 16.4104, 0 )
+shadow_enabled = true
+directional_shadow_blend_splits = true
+directional_shadow_depth_range = 1
 
 [node name="HUD" parent="." instance=ExtResource( 4 )]
 
@@ -375,7 +378,7 @@ __meta__ = {
 margin_right = 130.0
 margin_bottom = 41.6293
 size_flags_horizontal = 3
-shortcut = SubResource( 14 )
+shortcut = SubResource( 13 )
 text = "Cancel"
 
 [node name="Load" type="Button" parent="GUI/LoadVehicle/VBoxContainer/HBoxContainer"]
@@ -383,7 +386,7 @@ margin_left = 134.0
 margin_right = 265.0
 margin_bottom = 41.6293
 size_flags_horizontal = 3
-shortcut = SubResource( 16 )
+shortcut = SubResource( 15 )
 text = "Load"
 
 [node name="Debug" parent="." instance=ExtResource( 9 )]
