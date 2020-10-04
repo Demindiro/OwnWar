@@ -18,7 +18,7 @@ onready var ray := preload("res://addons/voxel_raycast.gd").new()
 
 
 func _ready():
-	select_block("cube")
+	select_block(Global.blocks_by_id[1].name)
 	set_enabled(true) # Disable UIs
 	$Floor/Mirror.visible = mirror
 
