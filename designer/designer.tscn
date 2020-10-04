@@ -248,7 +248,6 @@ scroll_horizontal_enabled = false
 [node name="GridContainer" type="GridContainer" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer/Blocks"]
 margin_right = 150.0
 margin_bottom = 41.0
-columns = 2
 
 [node name="Template" type="Button" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer/Blocks/GridContainer"]
 margin_right = 150.0
