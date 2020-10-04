@@ -28,6 +28,7 @@ func _enter_tree():
 
 			var block = Block.new()
 			block.name = generator.get_name()
+			block.human_name = block_name
 			block.category = "generated"
 			block.mesh = generator.get_mesh(generator.get_result(), transform)
 			Block.add_block(block)
@@ -35,6 +36,7 @@ func _enter_tree():
 				var mirror_transform = Transform.FLIP_X * transform
 				var mirror_block = Block.new()
 				mirror_block.name = generator.get_name()
+				mirror_block.human_name = block_name + " (M)"
 				mirror_block.category = "generated"
 				mirror_block.mesh = generator.get_mesh(generator.get_result(), transform, true)
 				Block.add_block(mirror_block)
