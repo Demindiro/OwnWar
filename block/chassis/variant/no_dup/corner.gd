@@ -26,6 +26,6 @@ func step():
 	result = [x, y, z]
 
 
-func get_mesh(data: Array, transform := Transform.IDENTITY):
+func get_mesh(data: Array, transform := Transform.IDENTITY, flip_faces := false):
 	assert(len(data) == 3)
-	return mesh_generator.generate(transform, data[0], data[1], data[2])
+	return mesh_generator.generate(transform, data[0], data[1], data[2], flip_faces)

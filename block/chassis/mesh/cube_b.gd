@@ -5,9 +5,8 @@ func _init():
 	name = "cube_b"
 
 
-func generate(transform, x, y, z, u, v, w, a):
+func generate(transform, x, y, z, u, v, w, a, flip_faces := false):
 	var vertices = PoolVector3Array()
-	var normals = PoolVector3Array()
 	
 	var o = transform * Vector3.ZERO
 	x = transform * x
@@ -18,45 +17,32 @@ func generate(transform, x, y, z, u, v, w, a):
 	w = transform * w
 	a = transform * a
 	
-	var normal_xl = (x - v).cross(w - x).normalized()
-	var normal_yl = (y - u).cross(y - w).normalized()
-	var normal_zl = (z - u).cross(v - z).normalized()
-	var normal_xh = (a - v).cross(a - w).normalized()
-	var normal_yh = (a - u).cross(w - a).normalized()
-	var normal_zh = (a - u).cross(a - v).normalized()
-	
 	for vertex in [o, y, u, o, u, z]: # -X
 		vertices.append(vertex)
-		normals.append(Vector3.LEFT)
 	for vertex in [o, v, x, o, z, v]: # -Y
 		vertices.append(vertex)
-		normals.append(Vector3.DOWN)
 	for vertex in [o, x, w, o, w, y]: # -Z
 		vertices.append(vertex)
-		normals.append(Vector3.FORWARD)
 	for vertex in [x, v, w]: # +X (L)
 		vertices.append(vertex)
-		normals.append(normal_xl)
 	for vertex in [y, w, u]: # +Y (L)
 		vertices.append(vertex)
-		normals.append(normal_yl)
 	for vertex in [z, u, v]: # +Z (L)
 		vertices.append(vertex)
-		normals.append(normal_zl)
 	for vertex in [a, w, v]: # +X (L)
 		vertices.append(vertex)
-		normals.append(normal_xh)
 	for vertex in [a, u, w]: # +Y (L)
 		vertices.append(vertex)
-		normals.append(normal_yh)
 	for vertex in [a, v, u]: # +Z (L)
 		vertices.append(vertex)
-		normals.append(normal_zh)
+		
+	if flip_faces:
+		vertices.invert()
 		
 	var array = []
 	array.resize(Mesh.ARRAY_MAX)
 	array[Mesh.ARRAY_VERTEX] = vertices
-	array[Mesh.ARRAY_NORMAL] = normals
+	array[Mesh.ARRAY_NORMAL] = get_normals(vertices)
 	var result = ArrayMesh.new()
 	result.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, array)
 	return result

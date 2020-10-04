@@ -23,7 +23,7 @@ func step():
 	result = [x, y, z, u]
 
 
-func get_mesh(data: Array, transform := Transform.IDENTITY):
+func get_mesh(data: Array, transform := Transform.IDENTITY, flip_faces := false):
 	assert(len(data) == 4)
 	return mesh_generator.generate(transform, data[0], data[1], data[2],
-			data[3])
+			data[3], flip_faces)
