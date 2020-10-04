@@ -9,6 +9,7 @@ func generate(transform, x, y, z, w):
 	var vertices = PoolVector3Array()
 	var normals = PoolVector3Array()
 	
+	var o = transform * Vector3.ZERO
 	x = transform * x
 	y = transform * y
 	z = transform * z
@@ -20,16 +21,16 @@ func generate(transform, x, y, z, w):
 	for vertex in [z, y, w]: # Side (Z)
 		vertices.append(vertex)
 		normals.append((z - w).cross(w - y).normalized())
-	for vertex in [Vector3.ZERO, w, x]: # Y (X)
+	for vertex in [o, w, x]: # Y (X)
 		vertices.append(vertex)
 		normals.append(Vector3.DOWN)
-	for vertex in [Vector3.ZERO, z, w]: # Y (Z)
+	for vertex in [o, z, w]: # Y (Z)
 		vertices.append(vertex)
 		normals.append(Vector3.DOWN)
-	for vertex in [Vector3.ZERO, y, z]: # X
+	for vertex in [o, y, z]: # X
 		vertices.append(vertex)
 		normals.append(Vector3.LEFT)
-	for vertex in [Vector3.ZERO, x, y]: # Z
+	for vertex in [o, x, y]: # Z
 		vertices.append(vertex)
 		normals.append(Vector3.FORWARD)
 	
