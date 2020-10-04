@@ -246,6 +246,15 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="SavedBlocks" type="VBoxContainer" parent="UI"]
+margin_left = 49.5745
+margin_top = 336.979
+margin_right = 203.575
+margin_bottom = 370.979
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="Save" type="Control" parent="."]
 anchor_left = 1.0
 anchor_right = 1.0
@@ -354,12 +363,6 @@ script = SubResource( 12 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="SavedBlocks" type="VBoxContainer" parent="Save"]
-margin_left = -331.0
-margin_top = 492.0
-margin_right = -177.0
-margin_bottom = 526.0
 
 [node name="MeshInstance2" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -3, 0 )

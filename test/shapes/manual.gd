@@ -52,8 +52,7 @@ func update():
 		$Save/SaveState.text = "Not saved"
 		$Save/Load.disabled = true
 		$Save/Delete.disabled = true
-	update_mirror()
-	for child in $Save/SavedBlocks.get_children():
+	for child in $UI/SavedBlocks.get_children():
 		child.queue_free()
 	if generator.name in data:
 		for block_name in data[generator.name]:
@@ -61,7 +60,8 @@ func update():
 			button.text = block_name
 			button.connect("pressed", $Save/BlockName, "set_text", [block_name])
 			button.connect("pressed", self, "_on_Load_pressed", [], CONNECT_DEFERRED)
-			$Save/SavedBlocks.add_child(button)
+			$UI/SavedBlocks.add_child(button)
+	update_mirror()	
 	
 	
 func update_mirror():
@@ -85,6 +85,8 @@ func _on_GenerateMirrorMesh_toggled(button_pressed):
 	if button_pressed:
 		$Save/MirrorRotationOffset.value = 0
 		mirror = -1
+	else:
+		mirror = 0
 	update()
 
 
