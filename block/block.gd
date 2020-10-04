@@ -4,6 +4,7 @@ extends Resource
 
 
 export(String) var name: String
+export(String) var human_name: String
 export(String) var category: String = "other"
 export(Mesh) var mesh: Mesh
 export(Material) var material: Material
