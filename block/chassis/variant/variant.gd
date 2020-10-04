@@ -2,8 +2,6 @@ extends Reference
 
 
 var result
-var scale: Vector3
-var offset: Vector3
 var name := "mesh"
 var mesh_generator
 var indice_generator
@@ -17,10 +15,8 @@ func _set_generator():
 	indice_generator = load("res://block/chassis/indice/all.gd").new()
 
 
-func start(p_segments: int, p_scale: Vector3, p_offset: Vector3):
+func start(p_segments: int):
 	indice_generator.start(p_segments, indice_count)
-	scale = p_scale
-	offset = p_offset
 	finished = indice_generator.finished
 	
 	

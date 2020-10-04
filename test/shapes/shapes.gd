@@ -36,7 +36,7 @@ func _ready():
 func set_segments(p_segments):
 	segments = p_segments
 	generator = generator_paths[generator_index].new()
-	generator.start(segments, Vector3.ONE, Vector3.ZERO)
+	generator.start(segments)
 	meshes = []
 	mesh_names = []
 	while not generator.finished:

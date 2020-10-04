@@ -7,8 +7,8 @@ func _init():
 	._set_indices_count(12)
 
 
-func start(segments: int, scale: Vector3, offset: Vector3):
-	.start(segments, scale, offset)
+func start(segments: int):
+	.start(segments)
 	step()
 
 
@@ -26,7 +26,7 @@ func step():
 	result = [x, y, z, u, v, w, a]
 
 
-func get_mesh(data: Array):
+func get_mesh(data: Array, transform := Transform.IDENTITY):
 	assert(len(data) == 7)
-	return mesh_generator.generate(Transform.IDENTITY, data[0], data[1], data[2],
+	return mesh_generator.generate(transform, data[0], data[1], data[2],
 			data[3], data[4], data[5], data[6])
