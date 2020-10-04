@@ -35,7 +35,7 @@ func _enter_tree():
 			if mirror < 0:
 				var mirror_transform = Transform.FLIP_X * transform
 				var mirror_block = Block.new()
-				mirror_block.name = generator.get_name()
+				mirror_block.name = generator.get_name() + "_m"
 				mirror_block.human_name = block_name + " (M)"
 				mirror_block.category = "generated"
 				mirror_block.mesh = generator.get_mesh(generator.get_result(), transform, true)
