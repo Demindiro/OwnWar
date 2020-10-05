@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=2]
+[gd_scene load_steps=30 format=2]
 
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
 [ext_resource path="res://designer/designer.gd" type="Script" id=2]
@@ -8,6 +8,7 @@
 [ext_resource path="res://designer/save_vehicle.gd" type="Script" id=6]
 [ext_resource path="res://addons/crosshairs/image0018.png" type="Texture" id=7]
 [ext_resource path="res://menu/good_times_rg.ttf" type="DynamicFontData" id=8]
+[ext_resource path="res://designer/color_picker.gd" type="Script" id=9]
 [ext_resource path="res://addons/arrow.png" type="Texture" id=10]
 [ext_resource path="res://menu/main.tscn" type="PackedScene" id=11]
 [ext_resource path="res://designer/map.tscn" type="PackedScene" id=12]
@@ -197,6 +198,7 @@ margin_bottom = 296.629
 text = "Exit"
 
 [node name="Inventory" parent="GUI" instance=ExtResource( 13 )]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 40.0
@@ -278,7 +280,7 @@ stretch = true
 [node name="Viewport" type="Viewport" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer2/ViewportContainer"]
 size = Vector2( 878, 920 )
 handle_input_locally = false
-render_target_update_mode = 3
+render_target_update_mode = 0
 
 [node name="Camera" type="Camera" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer2/ViewportContainer/Viewport"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 42.9181, 16.5937, 0 )
@@ -452,20 +454,59 @@ margin_bottom = 41.6293
 size_flags_horizontal = 3
 shortcut = SubResource( 15 )
 text = "Load"
+
+[node name="ColorPicker" parent="GUI" instance=ExtResource( 13 )]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -160.0
+margin_top = -190.0
+margin_right = 160.0
+margin_bottom = 190.0
+script = ExtResource( 9 )
+
+[node name="GridContainer" type="GridContainer" parent="GUI/ColorPicker"]
+margin_left = 40.0
+margin_top = 40.0
+margin_right = 305.0
+margin_bottom = 354.0
+custom_constants/vseparation = 3
+custom_constants/hseparation = 3
+columns = 5
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Template" type="Button" parent="GUI/ColorPicker/GridContainer"]
+margin_right = 50.0
+margin_bottom = 50.0
+rect_min_size = Vector2( 50, 50 )
+
+[node name="ColorRect" type="ColorRect" parent="GUI/ColorPicker/GridContainer/Template"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Continue" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Test" to="." method="_on_Test_pressed"]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Save" to="GUI/SaveVehicle" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Save" to="GUI/Menu" method="set_visible" binds= [ false ]]
-[connection signal="pressed" from="GUI/Menu/VBoxContainer/Load" to="GUI/LoadVehicle" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Load" to="GUI/Menu" method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="GUI/Menu/VBoxContainer/Load" to="GUI/LoadVehicle" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Exit" to="." method="_on_Exit_pressed"]
 [connection signal="hide" from="GUI/Inventory" to="." method="set_enabled" binds= [ true ]]
 [connection signal="save_vehicle" from="GUI/SaveVehicle" to="." method="save_vehicle"]
 [connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Cancel" to="." method="set_enabled" binds= [ true ]]
-[connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Save" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Save" to="GUI/SaveVehicle" method="_on_Save_pressed"]
-[connection signal="load_vehicle" from="GUI/LoadVehicle" to="." method="load_vehicle"]
+[connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Save" to="." method="set_enabled" binds= [ true ]]
 [connection signal="load_vehicle" from="GUI/LoadVehicle" to="GUI/SaveVehicle" method="set_full_path"]
+[connection signal="load_vehicle" from="GUI/LoadVehicle" to="." method="load_vehicle"]
 [connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Cancel" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Load" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Load" to="GUI/LoadVehicle" method="_on_Load_pressed"]
+[connection signal="hide" from="GUI/ColorPicker" to="." method="set_enabled" binds= [ true ]]

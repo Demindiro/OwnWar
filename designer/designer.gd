@@ -49,7 +49,7 @@ func set_enabled(var p_enabled):
 		$GUI/Inventory.visible = false
 		$GUI/SaveVehicle.visible = false
 		$GUI/LoadVehicle.visible = false
-	#$GUI/Tint.visible = not enabled
+		$GUI/ColorPicker.visible = false
 	$Camera.enabled = enabled
 	set_process(enabled)
 	set_process_input(enabled)
@@ -90,6 +90,9 @@ func process_actions():
 	elif Input.is_action_just_pressed("designer_mirror"):
 		mirror = not mirror
 		$Floor/Mirror.visible = mirror
+	elif Input.is_action_just_pressed("designer_open_colorpicker"):
+		set_enabled(false)
+		$GUI/ColorPicker.visible = true
 
 
 func place_block(coordinate, rotation):
