@@ -3,6 +3,8 @@ class_name Block
 extends Resource
 
 
+const ROTATION_TO_ORTHOGONAL_INDEX = [0, 16, 10, 22, 2, 18, 8, 20, 3, 19, 9, 21,
+		1, 17, 11, 23, 4, 5, 6, 7, 14, 13, 12, 15]
 export(String) var name: String
 export(String) var human_name: String
 export(String) var category: String = "other"
@@ -13,8 +15,48 @@ export(int) var mass: int = 1
 export(int) var health: int = 100
 export(int) var cost: int = 1
 export(Vector3) var size: Vector3 = Vector3.ONE
+export(PoolIntArray) var mirror_rotation_map: PoolIntArray
+#export(Block) var mirror_block: Block
+export(Resource) var mirror_block
+var id: int
 
-var id
+
+func _init():
+	set_mirror_rotation_offset(0)
+	mirror_block = self
+
+
+func set_mirror_rotation_offset(rotation: int) -> void:
+	assert(0 <= rotation and rotation < 24)
+	for i in range(24):
+		var offset_basis = rotation_to_basis(rotation)
+		mirror_rotation_map = PoolIntArray()
+		mirror_rotation_map.resize(24)
+		mirror_rotation_map[i] = basis_to_rotation(get_basis(i) * offset_basis)
+		var angle = i & 0b11
+		var direction = (i & 0b11100) >> 2
+		if rotation % 2 == 0:
+			match angle:
+				3: angle = 1
+				1: angle = 3
+		else:
+			match angle:
+				0: angle = 3
+				1: angle = 2
+				2: angle = 1
+				3: angle = 0
+		match direction:
+			2: direction = 3
+			3: direction = 2
+		mirror_rotation_map[i] = (direction << 2) | angle
+
+
+func get_basis(rotation: int) -> Basis:
+	return rotation_to_basis(rotation)
+
+
+func get_mirror_rotation(rotation: int) -> int:
+	return mirror_rotation_map[rotation]
 
 
 static func add_block(block: Block):
@@ -44,28 +86,39 @@ static func rotation_to_basis(rotation: int) -> Basis:
 	return basis
 
 
-static func mirror_rotation(rotation: int) -> int:
-	assert(0 <= rotation and rotation < 24)
-	var angle = rotation & 0b11
-	var direction = (rotation & 0b11100) >> 2
-	match direction:
-		0, 1:
-			match angle:
-				3: angle = 1
-				1: angle = 3
-		2, 3:
-			match angle:
-				_: pass
-		4, 5:
-			match angle:
-				3: angle = 1
-				1: angle = 3
-	match direction:
-		2: direction = 3
-		3: direction = 2
-	return (direction << 2) | angle
-	
+static func basis_to_rotation(basis: Basis) -> int:
+	return orthogonal_index_to_rotation(basis.get_orthogonal_index())
+
+
+#static func mirror_rotation(rotation: int) -> int:
+#	assert(0 <= rotation and rotation < 24)
+#	var angle = rotation & 0b11
+#	var direction = (rotation & 0b11100) >> 2
+#	match direction:
+#		0, 1:
+#			match angle:
+#				3: angle = 1
+#				1: angle = 3
+#		2, 3:
+#			match angle:
+#				_: pass
+#		4, 5:
+#			match angle:
+#				3: angle = 1
+#				1: angle = 3
+#	match direction:
+#		2: direction = 3
+#		3: direction = 2
+#	return (direction << 2) | angle
+#
 
 static func rotation_to_orthogonal_index(rotation: int) -> int:
-	var basis := rotation_to_basis(rotation)
-	return basis.get_orthogonal_index()
+	return ROTATION_TO_ORTHOGONAL_INDEX[rotation]
+
+
+static func orthogonal_index_to_rotation(index: int) -> int:
+	for i in range(24):
+		if ROTATION_TO_ORTHOGONAL_INDEX[i] == index:
+			return i
+	assert(false)
+	return -1
