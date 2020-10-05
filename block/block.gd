@@ -27,7 +27,7 @@ func _init():
 
 
 func set_mirror_rotation_offset(rotation: int) -> void:
-	assert(0 <= rotation and rotation < 24)
+	assert(0 <= rotation and rotation < 4)
 	for i in range(24):
 		var offset_basis = rotation_to_basis(rotation)
 		mirror_rotation_map = PoolIntArray()
