@@ -113,6 +113,9 @@ func place_block(coordinate, rotation):
 	node.transform.basis = block.get_basis(rotation)
 	node.scale_object_local(Vector3.ONE * SCALE)
 	node.material_override = material
+	for child in get_children_recursive(node):
+		if child is GeometryInstance and not child is Sprite3D:
+			child.material_override = material
 	blocks[coordinate] = [block.name, rotation, node, material.albedo_color]
 	return true
 
@@ -149,6 +152,10 @@ func select_block(name):
 					child.material_override = $Floor/Origin/Ghost.material_override
 			elif child is Sprite3D:
 				child.opacity *= 0.2
+	$Camera/MeshInstance.material_override = material
+	for child in get_children_recursive($Camera/MeshInstance):
+		if child is GeometryInstance and not child is Sprite3D:
+			child.material_override = material
 
 
 func highlight_face():
@@ -239,13 +246,19 @@ func set_material(p_material: SpatialMaterial):
 	# Damn exports...
 	if not has_node("Floor/Origin/Ghost"):
 		call_deferred("set_material", p_material)
-		return 
+		return
 	material = p_material
 	var ghost_material := material.duplicate() as SpatialMaterial
 	ghost_material.flags_transparent = true
 	ghost_material.albedo_color.a *= 0.6
 	$Floor/Origin/Ghost.material_override = ghost_material
-
+	$Camera/MeshInstance.material_override = material
+	for child in get_children_recursive($Floor/Origin/Ghost):
+		if child is GeometryInstance and not child is Sprite3D:
+			child.material_override = ghost_material
+	for child in get_children_recursive($Camera/MeshInstance):
+		if child is GeometryInstance and not child is Sprite3D:
+			child.material_override = material
 
 # Vector3i in Godot 4...
 # Gib Godot 4 pls (> °-°)>
