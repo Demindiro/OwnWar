@@ -7,6 +7,7 @@ const SCALE = 4
 export(bool) var enabled := true
 export(PackedScene) var main_menu
 export(PackedScene) var test_map
+export var material: SpatialMaterial setget set_material
 
 var block: Block
 var blocks := {}
@@ -49,7 +50,7 @@ func set_enabled(var p_enabled):
 		$GUI/Inventory.visible = false
 		$GUI/SaveVehicle.visible = false
 		$GUI/LoadVehicle.visible = false
-	#$GUI/Tint.visible = not enabled
+		$GUI/ColorPicker.visible = false
 	$Camera.enabled = enabled
 	set_process(enabled)
 	set_process_input(enabled)
@@ -90,6 +91,9 @@ func process_actions():
 	elif Input.is_action_just_pressed("designer_mirror"):
 		mirror = not mirror
 		$Floor/Mirror.visible = mirror
+	elif Input.is_action_just_pressed("designer_open_colorpicker"):
+		set_enabled(false)
+		$GUI/ColorPicker.visible = true
 
 
 func place_block(coordinate, rotation):
@@ -108,7 +112,11 @@ func place_block(coordinate, rotation):
 	node.translation = _a2v(coordinate)
 	node.transform.basis = block.get_basis(rotation)
 	node.scale_object_local(Vector3.ONE * SCALE)
-	blocks[coordinate] = [block.name, rotation, node]
+	node.material_override = material
+	for child in get_children_recursive(node):
+		if child is GeometryInstance and not child is Sprite3D:
+			child.material_override = material
+	blocks[coordinate] = [block.name, rotation, node, material.albedo_color]
 	return true
 
 
@@ -144,6 +152,10 @@ func select_block(name):
 					child.material_override = $Floor/Origin/Ghost.material_override
 			elif child is Sprite3D:
 				child.opacity *= 0.2
+	$Camera/MeshInstance.material_override = material
+	for child in get_children_recursive($Camera/MeshInstance):
+		if child is GeometryInstance and not child is Sprite3D:
+			child.material_override = material
 
 
 func highlight_face():
@@ -188,7 +200,9 @@ func save_vehicle(var path):
 	data['game_version'] = Global.VERSION
 	data['blocks'] = {}
 	for coordinate in blocks:
-		data['blocks']["%d,%d,%d" % coordinate] = blocks[coordinate].slice(0, 1)
+		var block_data = blocks[coordinate].duplicate()
+		block_data.remove(2)
+		data['blocks']["%d,%d,%d" % coordinate] = block_data
 	var file := File.new()
 	var err = file.open(path, File.WRITE)
 	if err != OK:
@@ -217,6 +231,10 @@ func load_vehicle(path):
 			for i in range(3):
 				coordinate[i] = int(key_components[i])
 			block = Global.get_block(data['blocks'][key][0])
+			var color_components = data["blocks"][key][2].split_floats(",")
+			var color = Color(color_components[0], color_components[1],
+					color_components[2], color_components[3])
+			_on_ColorPicker_pick_color(color)
 			place_block(coordinate, data['blocks'][key][1])
 		print("Loaded vehicle from '%s'" % path)
 
@@ -229,6 +247,24 @@ func get_children_recursive(node = null, array = []):
 		get_children_recursive(child, array)
 	return array
 
+
+func set_material(p_material: SpatialMaterial):
+	# Damn exports...
+	if not has_node("Floor/Origin/Ghost"):
+		call_deferred("set_material", p_material)
+		return
+	material = p_material
+	var ghost_material := material.duplicate() as SpatialMaterial
+	ghost_material.flags_transparent = true
+	ghost_material.albedo_color.a *= 0.6
+	$Floor/Origin/Ghost.material_override = ghost_material
+	$Camera/MeshInstance.material_override = material
+	for child in get_children_recursive($Floor/Origin/Ghost):
+		if child is GeometryInstance and not child is Sprite3D:
+			child.material_override = ghost_material
+	for child in get_children_recursive($Camera/MeshInstance):
+		if child is GeometryInstance and not child is Sprite3D:
+			child.material_override = material
 
 # Vector3i in Godot 4...
 # Gib Godot 4 pls (> °-°)>
@@ -252,3 +288,9 @@ func _on_Test_pressed():
 func _on_LoadVehicle_load_vehicle(path):
 	load_vehicle(path)
 	set_enabled(true)
+
+
+func _on_ColorPicker_pick_color(color):
+	var mat := SpatialMaterial.new()
+	mat.albedo_color = color
+	set_material(mat)
