@@ -3,7 +3,8 @@ extends "res://menu/dialog/independent_panel.gd"
 
 signal pick_color(color)
 const COLORS = [Color.white, Color.gray, Color.black, Color.red, Color.green,
-		Color.blue, Color.yellow, Color.purple]
+		Color.blue, Color.yellow, Color.purple, Color.orange, Color.darkgreen,
+		Color.beige, Color.brown]
 var _template
 var _escape_pressed = false
 
