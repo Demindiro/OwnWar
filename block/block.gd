@@ -24,11 +24,12 @@ export(int) var health: int = 100
 export(int) var cost: int = 1
 # warning-ignore:unused_class_variable
 export(Vector3) var size: Vector3 = Vector3.ONE
-export(PoolIntArray) var mirror_rotation_map: PoolIntArray
+export(int) var mirror_rotation_offset := 0 setget set_mirror_rotation_offset
 #export(Block) var mirror_block: Block
 export(Resource) var mirror_block
 # warning-ignore:unused_class_variable
 var id: int
+var mirror_rotation_map: PoolIntArray
 
 
 func _init():
@@ -37,6 +38,7 @@ func _init():
 
 
 func set_mirror_rotation_offset(rotation: int) -> void:
+	mirror_rotation_offset = rotation
 	assert(0 <= rotation and rotation < 4)
 	for i in range(24):
 		var offset_basis = rotation_to_basis(rotation)
