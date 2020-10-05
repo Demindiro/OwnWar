@@ -48,9 +48,6 @@ static func convert_vehicle_data(data):
 			"recent version of the game")
 		return null
 	var mapping = get_block_name_mapping(file_version, game_version)
-	print(file_version)
-	print(game_version)
-	print(mapping)
 	var converted_data = {}
 	var converted_blocks = {}
 	converted_data["game_version"] = Global.VERSION

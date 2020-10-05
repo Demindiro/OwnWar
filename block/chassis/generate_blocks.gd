@@ -22,9 +22,6 @@ func _enter_tree():
 
 			generator.start(2)
 			generator.set_indices(indices)
-			var result = generator.get_result()
-			var mesh = generator.get_mesh(result, transform)
-			var block_full_name = generator.get_name()
 
 			var block = Block.new()
 			block.name = generator.get_name()

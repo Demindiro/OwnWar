@@ -27,7 +27,7 @@ func draw_circle(origin: Vector3, color := Color.white, radius := 1.0):
 	set_color(color)
 	for i in range(16):
 		var r = i * PI / 8
-		add_vertex(Vector3(cos(r), 0, sin(r)) + origin)
+		add_vertex(Vector3(cos(r) * radius, 0, sin(r) * radius) + origin)
 	end()
 
 

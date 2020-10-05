@@ -11,8 +11,6 @@ export(int) var projectile_velocity = 100
 export(int) var projectile_damage = 150
 export(float) var reload_time = 1.0
 
-var _desired_azimuth = 0
-var _desired_elevation = 0
 var rel_spawn_pos
 var offset_y
 var offset_spawn_y

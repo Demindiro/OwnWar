@@ -31,7 +31,7 @@ func process(delta):
 		vehicle.drive_forward = 0
 	elif velocity > 10:
 		# Prevent going too fast when trying to make a sharp turn
-		vehicle.drive_forward *= 1 if forward2d.dot(distance2d.normalized()) > 0.5 else 0.5
+		vehicle.drive_forward *= 1.0 if forward2d.dot(distance2d.normalized()) > 0.5 else 0.5
 		# Slow down if trying to turn
 		if forward2d.dot(distance2d.normalized()) > 1:
 			vehicle.brake = 0.5

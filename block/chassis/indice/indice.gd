@@ -16,5 +16,5 @@ func step():
 	pass
 	
 	
-func get_name(prefix: String):
+func get_name(_prefix: String):
 	pass

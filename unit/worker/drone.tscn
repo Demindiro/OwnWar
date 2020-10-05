@@ -164,9 +164,9 @@ func move_towards(position, delta):
 		return true
 
 
-func build(flags, ghosts):
-	var force_append = false
-	for ghost in ghosts:
+func build(flags, units):
+	var force_append = flags & 0x1 > 0
+	for ghost in units:
 		if ghost is Ghost:
 			add_task([Task.BUILD_STRUCTURE, ghost], force_append)
 			force_append = true
@@ -243,7 +243,7 @@ func set_material(p_material):
 	$Indicator.scale.z = float(material) / max_material
 	
 	
-func set_loop_tasks(flags, p_loop_tasks):
+func set_loop_tasks(_flags, p_loop_tasks):
 	loop_tasks = p_loop_tasks
 
 

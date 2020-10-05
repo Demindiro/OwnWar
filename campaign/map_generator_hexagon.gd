@@ -64,9 +64,7 @@ func _ready():
 	var concave_triangles = PoolVector3Array()
 	for i in indices:
 		concave_triangles.append(vertices[i])
-	print(len(concave_triangles))
 	$CollisionShape.shape.set_faces(concave_triangles)
-	print(len($CollisionShape.shape.get_faces()))
 
 
 func set_indices_bottom(indices):

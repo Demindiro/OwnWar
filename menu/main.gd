@@ -4,8 +4,6 @@ extends Control
 const WAYPOINT_MIN_RADIUS = 100
 const WAYPOINT_MAX_RADIUS = 200
 
-export(NodePath) var campaign_dialog
-
 
 func _ready():
 	randomize()

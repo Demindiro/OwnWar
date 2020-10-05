@@ -6,9 +6,11 @@ extends Node
 export(NodePath) var victory_screen
 export var team_count := 2
 
+# warning-ignore:unused_class_variable
 var teams := ["Player", "Evil AI"]
 var teams_alive := team_count
 var units := []
+# warning-ignore:unused_class_variable
 var ores := []
 
 

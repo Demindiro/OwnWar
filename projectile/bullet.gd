@@ -1,7 +1,6 @@
 extends RigidBody
 
 
-var velocity := Vector3.ZERO
 var damage := 0
 
 onready var mesh = $MeshInstance

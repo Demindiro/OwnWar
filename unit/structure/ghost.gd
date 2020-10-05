@@ -26,5 +26,6 @@ func add_build_progress(material):
 		if unit.has_method("init") or init_arguments != []:
 			unit.callv("init", init_arguments)
 		destroy()
+		emit_signal("built", unit)
 		return cost - build_progress
 	return 0
