@@ -53,9 +53,17 @@ static func convert_vehicle_data(data):
 	converted_data["game_version"] = Global.VERSION
 	var old_blocks = data["blocks"]
 	for key in old_blocks:
-		var block_data = data["blocks"][key].duplicate(true)
+		var block_data = _convert_block_data(data["blocks"][key], file_version)
 		if block_data[0] in mapping:
 			block_data[0] = mapping[block_data[0]]
 		converted_blocks[key] = block_data
 	converted_data["blocks"] = converted_blocks
 	return converted_data
+	
+	
+static func _convert_block_data(data, file_version):
+	data = data.duplicate(true)
+	if file_version < Vector3(0, 5, 0):
+		assert(len(data) == 2)
+		data.append(Color.white)
+	return data

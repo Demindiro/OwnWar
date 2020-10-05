@@ -131,7 +131,10 @@ func load_from_file(path: String) -> int:
 		var z = int(components[2])
 		var name = data["blocks"][key][0]
 		var rotation = data["blocks"][key][1]
-		_spawn_block(x, y, z, rotation, Global.blocks[name])
+		var color_components = data["blocks"][key][2].split_floats(",")
+		var color = Color(color_components[0], color_components[1],
+				color_components[2], color_components[3])
+		_spawn_block(x, y, z, rotation, Global.blocks[name], color)
 	cost = max_cost
 	_set_collision_box(start_position, end_position)
 	_correct_center_of_mass()
@@ -194,10 +197,12 @@ func _correct_center_of_mass() -> void:
 
 
 
-func _spawn_block(x: int, y: int, z: int, r: int, block: Block) -> void:
+func _spawn_block(x: int, y: int, z: int, r: int, block: Block, color: Color) -> void:
 	var basis := Block.rotation_to_basis(r)
 	var orthogonal_index := Block.rotation_to_orthogonal_index(r)
 	var node: Spatial
+	var material := SpatialMaterial.new()
+	material.albedo_color = color
 	if block.mesh != null:
 		node = MeshInstance.new()
 		node.mesh = block.mesh
@@ -209,6 +214,9 @@ func _spawn_block(x: int, y: int, z: int, r: int, block: Block) -> void:
 		assert(false)
 	var position = Vector3(x, y, z) + Vector3.ONE / 2
 	node.transform = Transform(basis, position * Global.BLOCK_SCALE)
+	for child in get_children_recursive(node) + [node]:
+		if child is GeometryInstance and not child is Sprite3D:
+			child.material_override = material
 	add_child(node)
 	max_cost += block.cost
 	max_health += block.health
@@ -227,3 +235,12 @@ func _set_collision_box(start: Vector3, end: Vector3) -> void:
 	var extents = (end - start) / 2
 	$CollisionShape.transform.origin = center * Global.BLOCK_SCALE
 	$CollisionShape.shape.extents = extents * Global.BLOCK_SCALE
+
+
+# REEEEEEE https://github.com/godotengine/godot/issues/16105
+func get_children_recursive(node = null, array = []):
+	node = node if node != null else self
+	for child in node.get_children():
+		array.append(child)
+		get_children_recursive(child, array)
+	return array

@@ -200,7 +200,9 @@ func save_vehicle(var path):
 	data['game_version'] = Global.VERSION
 	data['blocks'] = {}
 	for coordinate in blocks:
-		data['blocks']["%d,%d,%d" % coordinate] = blocks[coordinate].slice(0, 1)
+		var block_data = blocks[coordinate].duplicate()
+		block_data.remove(2)
+		data['blocks']["%d,%d,%d" % coordinate] = block_data
 	var file := File.new()
 	var err = file.open(path, File.WRITE)
 	if err != OK:
@@ -229,6 +231,10 @@ func load_vehicle(path):
 			for i in range(3):
 				coordinate[i] = int(key_components[i])
 			block = Global.get_block(data['blocks'][key][0])
+			var color_components = data["blocks"][key][2].split_floats(",")
+			var color = Color(color_components[0], color_components[1],
+					color_components[2], color_components[3])
+			_on_ColorPicker_pick_color(color)
 			place_block(coordinate, data['blocks'][key][1])
 		print("Loaded vehicle from '%s'" % path)
 
