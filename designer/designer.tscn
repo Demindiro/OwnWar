@@ -15,10 +15,7 @@
 [ext_resource path="res://menu/dialog/independent_panel.tscn" type="PackedScene" id=13]
 [ext_resource path="res://designer/load_vehicle.gd" type="Script" id=14]
 
-[sub_resource type="SpatialMaterial" id=1]
-flags_transparent = true
-params_depth_draw_mode = 1
-albedo_color = Color( 1, 1, 1, 0.392157 )
+[sub_resource type="SpatialMaterial" id=16]
 
 [sub_resource type="QuadMesh" id=2]
 
@@ -66,6 +63,7 @@ shortcut = SubResource( 14 )
 script = ExtResource( 2 )
 main_menu = ExtResource( 11 )
 test_map = ExtResource( 12 )
+material = SubResource( 16 )
 
 [node name="Lights" type="Node" parent="."]
 
@@ -92,7 +90,6 @@ script = ExtResource( 3 )
 
 [node name="Ghost" type="MeshInstance" parent="Floor/Origin"]
 transform = Transform( 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, -1 )
-material_override = SubResource( 1 )
 
 [node name="Arrow" type="Sprite3D" parent="Floor"]
 transform = Transform( -1.62921e-07, -1, 0, -1.62921e-07, 2.65431e-14, -1, 1, -1.62921e-07, -1.62921e-07, 0, 0.002, 0 )

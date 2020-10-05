@@ -112,7 +112,8 @@ func place_block(coordinate, rotation):
 	node.translation = _a2v(coordinate)
 	node.transform.basis = block.get_basis(rotation)
 	node.scale_object_local(Vector3.ONE * SCALE)
-	blocks[coordinate] = [block.name, rotation, node]
+	node.material_override = material
+	blocks[coordinate] = [block.name, rotation, node, material.albedo_color]
 	return true
 
 
@@ -235,6 +236,10 @@ func get_children_recursive(node = null, array = []):
 
 
 func set_material(p_material: SpatialMaterial):
+	# Damn exports...
+	if not has_node("Floor/Origin/Ghost"):
+		call_deferred("set_material", p_material)
+		return 
 	material = p_material
 	var ghost_material := material.duplicate() as SpatialMaterial
 	ghost_material.flags_transparent = true
