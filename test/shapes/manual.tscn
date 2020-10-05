@@ -297,8 +297,8 @@ margin_top = 25.0
 margin_right = -46.3082
 margin_bottom = 285.0
 focus_mode = 0
-max_value = 23.0
-tick_count = 23
+max_value = 3.0
+tick_count = 4
 ticks_on_borders = true
 __meta__ = {
 "_edit_use_anchors_": false,
