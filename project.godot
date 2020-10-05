@@ -272,4 +272,5 @@ common/physics_fps=300
 [rendering]
 
 vram_compression/import_etc2=false
+limits/rendering/max_renderable_elements=131072
 environment/default_environment="res://default_env.tres"

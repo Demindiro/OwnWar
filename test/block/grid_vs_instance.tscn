@@ -1,0 +1,130 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node
+
+
+export var test_grid := false
+export var mesh: Mesh
+export var iterations_per_frame := 100
+export var max_index := 1_000_000
+var index := 0
+
+
+func _ready():
+	if test_grid:
+		var library := MeshLibrary.new()
+		library.create_item(0)
+		library.set_item_mesh(0, mesh)
+		$GridMap.mesh_library = library
+	else:
+		pass
+
+
+func _process(delta):
+	if delta > 0.1:
+		set_process(false)
+		$Enabled.text = \"Stopped, as FPS is lower than 10\"
+		return
+	elif max_index <= index:
+		set_process(false)
+		$Enabled.text = \"Stopped, as index >= max_index\"
+		return
+	var final_index = index + iterations_per_frame
+	if test_grid:
+		while index < final_index:
+			var x := index & 0x00ff
+			var y := (index & 0xff00) >> 8
+			var z := (index & ~0xffff) >> 16
+			$GridMap.set_cell_item(x, y, -z, 0, 0)
+			index += 1
+	else:
+		var parent = $MeshInstances
+		while index < final_index:
+			var x := index & 0x00ff
+			var y := (index & 0xff00) >> 8
+			var z := (index & ~0xffff) >> 16
+			var node = MeshInstance.new()
+			node.mesh = mesh
+			node.translation = Vector3(x, y, z) * 0.25
+			parent.add_child(node)
+			index += 1
+	$Index.text = str(index)
+"
+
+[sub_resource type="CubeMesh" id=2]
+size = Vector3( 0.25, 0.25, 0.25 )
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends Label
+
+
+func _process(delta):
+	set_text(\"FPS: \" + str(stepify(1.0 / delta, 0.1)))
+"
+
+[node name="GridVsInstance" type="Node"]
+script = SubResource( 1 )
+test_grid = true
+mesh = SubResource( 2 )
+iterations_per_frame = 1000
+max_index = 100000
+
+[node name="MeshInstances" type="Node" parent="."]
+
+[node name="GridMap" type="GridMap" parent="."]
+cell_size = Vector3( 0.25, 0.25, 0.25 )
+data = {
+"cells": PoolIntArray(  )
+}
+__meta__ = {
+"_editor_clip_": 0
+}
+
+[node name="FPS" type="Label" parent="."]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 15.6638
+margin_top = -72.2957
+margin_right = 69.6638
+margin_bottom = -32.2957
+text = "FPS: 999"
+script = SubResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Enabled" type="Label" parent="."]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 15.6638
+margin_top = -51.1575
+margin_right = 144.664
+margin_bottom = -37.1575
+text = "Creating instances..."
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Index" type="Label" parent="."]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 15.6638
+margin_top = -32.2957
+margin_right = 144.664
+margin_bottom = -18.2957
+text = "00000"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 8, 40 )
+far = 1000.0
+script = ExtResource( 1 )
+speed = 50.0
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 0.812527, 0.182153, -0.553733, 0.180203, 0.824905, 0.535779, 0.554371, -0.535119, 0.637433, 1, 12, -2 )
