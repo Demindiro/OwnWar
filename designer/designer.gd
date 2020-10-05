@@ -7,6 +7,7 @@ const SCALE = 4
 export(bool) var enabled := true
 export(PackedScene) var main_menu
 export(PackedScene) var test_map
+export var material: SpatialMaterial setget set_material
 
 var block: Block
 var blocks := {}
@@ -233,6 +234,14 @@ func get_children_recursive(node = null, array = []):
 	return array
 
 
+func set_material(p_material: SpatialMaterial):
+	material = p_material
+	var ghost_material := material.duplicate() as SpatialMaterial
+	ghost_material.flags_transparent = true
+	ghost_material.albedo_color.a *= 0.6
+	$Floor/Origin/Ghost.material_override = ghost_material
+
+
 # Vector3i in Godot 4...
 # Gib Godot 4 pls (> °-°)>
 func _v2a(v):
@@ -255,3 +264,9 @@ func _on_Test_pressed():
 func _on_LoadVehicle_load_vehicle(path):
 	load_vehicle(path)
 	set_enabled(true)
+
+
+func _on_ColorPicker_pick_color(color):
+	var mat := SpatialMaterial.new()
+	mat.albedo_color = color
+	set_material(mat)
