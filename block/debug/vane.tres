@@ -3,7 +3,6 @@
 [ext_resource path="res://block/block.gd" type="Script" id=1]
 [ext_resource path="res://block/debug/vane.obj" type="ArrayMesh" id=2]
 
-
 [sub_resource type="Shader" id=1]
 code = "shader_type spatial;
 
@@ -21,8 +20,11 @@ shader = SubResource( 1 )
 [resource]
 script = ExtResource( 1 )
 name = "vane"
+human_name = "Vane"
 category = "debugging"
 mesh = ExtResource( 2 )
 material = SubResource( 2 )
 mass = 1
+health = 100
+cost = 1
 size = Vector3( 1, 1, 1 )

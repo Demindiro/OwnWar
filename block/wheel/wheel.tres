@@ -3,12 +3,14 @@
 [ext_resource path="res://block/block.gd" type="Script" id=1]
 [ext_resource path="res://block/wheel/wheel.tscn" type="PackedScene" id=2]
 
-
-
 [resource]
 script = ExtResource( 1 )
 name = "wheel"
+human_name = "Wheel"
 category = "movement"
 scene = ExtResource( 2 )
 mass = 20
+health = 100
+cost = 1
 size = Vector3( 1, 1, 1 )
+mirror_rotation_map = PoolIntArray(  )

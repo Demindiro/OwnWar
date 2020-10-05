@@ -128,6 +128,7 @@ func load_from_file(path: String) -> int:
 	max_cost = 0
 	max_health = 0
 	var data = parse_json(file.get_as_text())
+	data = Compatibility.convert_vehicle_data(data)
 	for key in data["blocks"]:
 		var components = key.split(',')
 		assert(len(components) == 3)

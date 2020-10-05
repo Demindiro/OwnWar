@@ -74,7 +74,7 @@ func _block_container_init(var category):
 		_block_container.remove_child(child)
 	for block_name in categories[category]:
 		var node = _block_button_template.duplicate() as Button
-		node.text = block_name
+		node.text = Global.blocks[block_name].human_name
 		node.connect("mouse_entered", self, "show_block", [block_name])
 		node.connect("pressed", _designer, "select_block", [block_name])
 		node.connect("pressed", _designer, "set_enabled", [true])
