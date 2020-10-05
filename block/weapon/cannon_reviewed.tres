@@ -13,3 +13,4 @@ mass = 30
 health = 100
 cost = 1
 size = Vector3( 1, 1, 1 )
+mirror_rotation_map = PoolIntArray(  )

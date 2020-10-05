@@ -68,12 +68,14 @@ func process_actions():
 			var coordinate = _v2a(_a2v(ray.voxel) + _a2v(ray.get_normal()))
 			place_block(coordinate, _rotation)
 			if mirror:
+				block = block.mirror_block
 				coordinate = [] + coordinate
 				# warning-ignore:integer_division
 				var mirror_x = (GRID_SIZE - 1) / 2
 				var delta = coordinate[0] - mirror_x
 				coordinate[0] = mirror_x - delta
-				place_block(coordinate, Block.mirror_rotation(_rotation))
+				place_block(coordinate, block.get_mirror_rotation(_rotation))
+				block = block.mirror_block
 	elif Input.is_action_just_pressed("designer_remove_block"):
 		if not ray.finished:
 			var coordinate = [] + ray.voxel
@@ -104,7 +106,7 @@ func place_block(coordinate, rotation):
 		node.add_child(scene)
 	$Floor/Origin.add_child(node)
 	node.translation = _a2v(coordinate)
-	node.transform.basis = Block.rotation_to_basis(rotation)
+	node.transform.basis = block.get_basis(rotation)
 	node.scale_object_local(Vector3.ONE * SCALE)
 	blocks[coordinate] = [block.name, rotation, node]
 	return true
@@ -172,7 +174,7 @@ func highlight_face():
 					and not place_at in blocks:
 				ray_voxel_valid = true
 				$Floor/Origin/Ghost.translation = _a2v(place_at)
-				$Floor/Origin/Ghost.transform.basis = Block.rotation_to_basis(_rotation)
+				$Floor/Origin/Ghost.transform.basis = block.get_basis(_rotation)
 				$Floor/Origin/Ghost.scale_object_local(Vector3.ONE * SCALE)
 			else:
 				ray_voxel_valid = false
