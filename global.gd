@@ -73,8 +73,6 @@ var blocks_by_id: Array = [null]
 
 var _loader
 
-onready var _blocks_mesh_library: MeshLibrary = MeshLibrary.new()
-
 
 func _ready():
 	for file in recurse_directory(BLOCK_DIR, ".tres"):
@@ -82,9 +80,6 @@ func _ready():
 	var id = 1
 	for name in blocks:
 		var block = blocks[name]
-		_blocks_mesh_library.create_item(id)
-		_blocks_mesh_library.set_item_mesh(id, block.mesh)
-		_blocks_mesh_library.set_item_name(id, block.name)
 		blocks_by_id.append(block)
 		block.id = id
 		id += 1
