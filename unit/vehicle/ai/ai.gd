@@ -6,6 +6,7 @@ extends Reference
 
 var vehicle #: Vehicle
 var waypoint: Vector3
+# warning-ignore:unused_class_variable
 var target #: Vehicle
 
 

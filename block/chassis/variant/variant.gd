@@ -31,7 +31,7 @@ func get_name():
 	return indice_generator.get_name(mesh_generator.name)
 
 
-func get_mesh(data: Array):
+func get_mesh(_data: Array):
 	pass
 
 

@@ -9,7 +9,6 @@ script/source = "extends Control
 
 const SHORTCUT_PREFIX = \"campaign_shortcut_\"
 const SHORTCUT_COUNT = 10
-export(GDScript) var ai
 export var team := 0
 var selected_units = [] setget set_selected_units
 onready var game_master = get_tree().get_current_scene()
@@ -131,7 +130,6 @@ func _notification(notification):
 func set_action_buttons(units):
 	clear_action_button()
 	var action_to_units = {}
-	var action_names = {}
 	for unit in units:
 		for action in unit.get_actions():
 			var key = [action[0], action[1]]

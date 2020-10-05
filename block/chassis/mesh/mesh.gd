@@ -1,6 +1,7 @@
 extends Reference
 
 
+# warning-ignore:unused_class_variable
 var name := "mesh"
 
 

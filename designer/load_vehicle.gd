@@ -6,7 +6,6 @@ signal load_vehicle(path)
 signal cancel()
 
 onready var name_box = find_node("Name")
-onready var path_box = find_node("Path")
 onready var files_box = find_node("Files")
 onready var template
 

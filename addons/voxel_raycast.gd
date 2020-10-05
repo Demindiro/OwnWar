@@ -26,6 +26,7 @@ extends Reference
 var x: int setget _prevent_set
 var y: int setget _prevent_set
 var z: int setget _prevent_set
+# warning-ignore:unused_class_variable
 var voxel: Array setget _prevent_set, _get_voxel
 var finished: bool = true setget _prevent_set
 

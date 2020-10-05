@@ -19,7 +19,9 @@ enum Action {
 
 export var max_health := 10
 export var team := 0
+# warning-ignore:unused_class_variable
 export var unit_name := "unit"
+# warning-ignore:unused_class_variable
 export var cost := 10
 onready var health := max_health
 onready var game_master = get_tree().get_current_scene()

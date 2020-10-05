@@ -3,14 +3,12 @@ class_name Vehicle
 extends Unit
 
 export(GDScript) var ai_script
-export var invulnerable := false
 
 var start_position := Vector3.ONE * INF
 var end_position := Vector3.ONE * -INF
 var ai: AI setget set_ai
 var drive_forward := 0.0
 var drive_yaw := 0.0
-var drive_roll := 0.0
 var brake := 0.0
 var weapons_aim_point := Vector3.ZERO
 var aim_weapons := false
@@ -157,11 +155,11 @@ func get_actions():
 		]
 
 
-func set_waypoint(flags, waypoint):
+func set_waypoint(_flags, waypoint):
 	ai.waypoint = waypoint
 
 
-func set_targets(flags, targets):
+func set_targets(_flags, targets):
 	ai.target = targets[0] if len(targets) > 0 else null
 
 
