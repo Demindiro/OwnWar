@@ -65,5 +65,5 @@ static func _convert_block_data(data, file_version):
 	data = data.duplicate(true)
 	if file_version < Vector3(0, 5, 0):
 		assert(len(data) == 2)
-		data.append(Color.white)
+		data.append("1,1,1,1")
 	return data
