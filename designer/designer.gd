@@ -14,6 +14,8 @@ var blocks := {}
 var _rotation := 0
 var mirror := false
 var ray_voxel_valid := false
+var layer := 0 setget set_layer
+var view_layer := -1 setget set_view_layer
 
 onready var ray := preload("res://addons/voxel_raycast.gd").new()
 
@@ -120,7 +122,7 @@ func place_block(coordinate, rotation):
 	for child in get_children_recursive(node):
 		if child is GeometryInstance and not child is Sprite3D:
 			child.material_override = material
-	blocks[coordinate] = [block.name, rotation, node, material.albedo_color]
+	blocks[coordinate] = [block.name, rotation, node, material.albedo_color, layer]
 	return true
 
 
@@ -270,6 +272,18 @@ func set_material(p_material: SpatialMaterial):
 		if child is GeometryInstance and not child is Sprite3D:
 			child.material_override = material
 
+
+func set_layer(p_layer: int):
+	layer = p_layer
+		
+
+func set_view_layer(p_view_layer: int):
+	view_layer = p_view_layer
+	for coordinate in blocks:
+		var block = blocks[coordinate]
+		block[2].visible = view_layer < 0 or block[4] == view_layer
+
+
 # Vector3i in Godot 4...
 # Gib Godot 4 pls (> °-°)>
 func _v2a(v):
@@ -298,3 +312,18 @@ func _on_ColorPicker_pick_color(color):
 	var mat := SpatialMaterial.new()
 	mat.albedo_color = color
 	set_material(mat)
+
+
+func _on_BlockLayer_item_selected(index):
+	set_layer(index)
+	if view_layer != layer and view_layer >= 0:
+		set_view_layer(index)
+		$HUD/BlockLayerView.select(index + 1)
+
+
+func _on_BlockLayerView_item_selected(index):
+	index -= 1
+	set_view_layer(index)
+	if index >= 0:
+		set_layer(index)
+		$HUD/BlockLayer.select(index)

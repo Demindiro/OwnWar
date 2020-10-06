@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=2]
+[gd_scene load_steps=32 format=2]
 
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
 [ext_resource path="res://designer/designer.gd" type="Script" id=2]
@@ -27,6 +27,23 @@ albedo_color = Color( 1, 0.00784314, 0.00784314, 1 )
 albedo_color = Color( 0.407843, 0.992157, 0.168627, 1 )
 
 [sub_resource type="GDScript" id=16]
+script/source = "extends OptionButton
+
+
+func _ready():
+	add_icon_item(null, \"0\", 1)
+	add_icon_item(null, \"1\", 2)
+	add_icon_item(null, \"2\", 3)
+	add_icon_item(null, \"3\", 4)
+	selected = 0
+
+
+func _input(event):
+	if event.is_action_released(\"designer_release_cursor\"):
+		get_popup().hide()
+"
+
+[sub_resource type="GDScript" id=17]
 script/source = "extends OptionButton
 
 
@@ -168,6 +185,21 @@ focus_mode = 0
 toggle_mode = false
 enabled_focus_mode = 0
 script = SubResource( 16 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BlockLayerView" type="OptionButton" parent="HUD"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -200.0
+margin_top = 76.9209
+margin_right = -15.0
+margin_bottom = 121.921
+focus_mode = 0
+toggle_mode = false
+enabled_focus_mode = 0
+script = SubResource( 17 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -535,6 +567,8 @@ size_flags_vertical = 3
 __meta__ = {
 "_edit_use_anchors_": false
 }
+[connection signal="item_selected" from="HUD/BlockLayer" to="." method="_on_BlockLayer_item_selected"]
+[connection signal="item_selected" from="HUD/BlockLayerView" to="." method="_on_BlockLayerView_item_selected"]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Continue" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Test" to="." method="_on_Test_pressed"]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Save" to="GUI/SaveVehicle" method="set_visible" binds= [ true ]]
