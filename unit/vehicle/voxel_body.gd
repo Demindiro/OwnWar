@@ -1,5 +1,5 @@
 class_name VoxelBody
-extends RigidBody
+extends VehicleBody
 
 
 signal hit(voxel_body)
