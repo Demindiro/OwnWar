@@ -7,6 +7,7 @@ signal built(structure)
 export(PackedScene) var structure
 export(Array) var init_arguments
 export(Vector3) var spawn_offset = Vector3.ZERO
+export(int) var cost = 10
 var build_progress = 0
 
 

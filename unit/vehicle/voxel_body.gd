@@ -12,10 +12,14 @@ var max_cost := 0
 var max_health := 0
 var _debug_hits := []
 var _raycast := preload("res://addons/voxel_raycast.gd").new()
+var _collision_shape: CollisionShape
 
 
-func _ready():
-	$CollisionShape.shape = $CollisionShape.shape.duplicate() # Make shape unique
+func _init():
+	set_as_toplevel(true)
+	_collision_shape = CollisionShape.new()
+	_collision_shape.shape = BoxShape.new()
+	add_child(_collision_shape)
 
 
 func debug_draw(debug_node):
@@ -28,9 +32,11 @@ func debug_draw(debug_node):
 				hit[1], 0.55 * Global.BLOCK_SCALE)
 
 
-func fix_physics():
+func fix_physics(p_transform):
+	cost = max_cost
 	_set_collision_box(start_position, end_position)
-	_correct_center_of_mass()
+	_correct_mass()
+	global_transform = p_transform.translated(center_of_mass)
 
 
 func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
@@ -103,18 +109,18 @@ func _set_collision_box(start: Vector3, end: Vector3) -> void:
 	end += Vector3.ONE
 	var center = (start + end) / 2
 	var extents = (end - start) / 2
-	$CollisionShape.transform.origin = center * Global.BLOCK_SCALE
-	$CollisionShape.shape.extents = extents * Global.BLOCK_SCALE
+	_collision_shape.transform.origin = center * Global.BLOCK_SCALE
+	_collision_shape.shape.extents = extents * Global.BLOCK_SCALE
 
 
-func _correct_center_of_mass() -> void:
+func _correct_mass() -> void:
 	var total_mass = 0
 	center_of_mass = Vector3.ZERO
 	for coordinate in blocks:
 		var block = blocks[coordinate]
-		var mass = Global.blocks_by_id[block[0]].mass
-		center_of_mass += Vector3(coordinate[0], coordinate[1], coordinate[2]) * mass
-		total_mass += mass
+		var block_mass = Global.blocks_by_id[block[0]].mass
+		center_of_mass += Vector3(coordinate[0], coordinate[1], coordinate[2]) * block_mass
+		total_mass += block_mass
 	assert(total_mass > 0)
 	center_of_mass /= total_mass
 	center_of_mass += Vector3.ONE * 0.5
@@ -124,6 +130,7 @@ func _correct_center_of_mass() -> void:
 		if child is VehicleWheel:
 			remove_child(child) # Necessary to force VehicleWheel to move
 			add_child(child)    # See VehicleWheel3D::_notification in vehicle_body_3d.cpp:81
+#	mass = total_mass
 
 
 # REEEEEEE https://github.com/godotengine/godot/issues/16105

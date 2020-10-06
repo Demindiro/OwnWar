@@ -7,13 +7,14 @@ var time_until_block_switch = 0
 
 func process(delta):
 	.process(delta)
+	var linear_velocity = vehicle.get_linear_velocity()
 	var transform = vehicle.transform
 	var position = transform.origin
 	var forward = transform.basis.z
 	var distance = waypoint - position
 	var distance2d = Vector2(distance.x, distance.z)
 	var forward2d = Vector2(forward.x, forward.z).normalized()
-	var velocity = vehicle.linear_velocity.dot(forward)
+	var velocity = linear_velocity.dot(forward)
 	# Correct azimuth
 	var error = distance2d.dot(forward2d)
 	if error < 1e-5:
@@ -38,7 +39,7 @@ func process(delta):
 			vehicle.drive_forward = 0
 	# Slow down if nearby the current waypoint
 	if velocity > 5 and distance2d.length() < 60:
-		if vehicle.linear_velocity.dot(forward) > 10:
+		if linear_velocity.dot(forward) > 10:
 			vehicle.brake = 0.5
 			vehicle.drive_forward = 0
 		else:

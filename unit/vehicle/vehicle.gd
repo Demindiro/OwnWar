@@ -1,6 +1,6 @@
 class_name Vehicle
-
 extends Unit
+
 
 export(GDScript) var ai_script
 var ai: AI setget set_ai
@@ -31,6 +31,7 @@ func _process(_delta):
 
 
 func _physics_process(delta):
+	global_transform = voxel_bodies[0].global_transform
 	if ai != null:
 		assert(ai is AI)
 		ai.process(delta)
@@ -50,8 +51,8 @@ func _physics_process(delta):
 				if _fire_weapons:
 					child.fire()
 	_fire_weapons = false
-	
-	
+
+
 func get_info():
 	var info = .get_info()
 	var remaining_health = 0
@@ -97,10 +98,10 @@ func load_from_file(path: String) -> int:
 			voxel_bodies.resize(layer + 1)
 		if voxel_bodies[layer] == null:
 			voxel_bodies[layer] = VoxelBody.new()
+			add_child(voxel_bodies[layer])
 		voxel_bodies[layer].spawn_block(x, y, z, rotation, Global.blocks[name], color)
-	cost = max_cost
 	for body in voxel_bodies:
-		body.fix_physics()
+		body.fix_physics(global_transform)
 	return OK
 	
 	
@@ -123,7 +124,18 @@ func set_ai(p_ai):
 	if ai != p_ai:
 		ai = p_ai
 		ai.init(self)
-		
+
+
+func get_cost():
+	var cost = 0
+	for body in voxel_bodies:
+		cost += body.cost
+	return cost
+
+
+func get_linear_velocity():
+	return voxel_bodies[0].linear_velocity
+
 
 static func path_to_name(path: String) -> String:
 	assert(path.ends_with(Global.FILE_EXTENSION))
