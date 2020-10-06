@@ -1,7 +1,6 @@
-[gd_resource type="Theme" load_steps=9 format=2]
+[gd_resource type="Theme" load_steps=8 format=2]
 
 [ext_resource path="res://menu/good_times_rg.ttf" type="DynamicFontData" id=1]
-[ext_resource path="res://menu/dialog/dialog.tres" type="StyleBox" id=2]
 [ext_resource path="res://menu/button/button.tres" type="StyleBox" id=3]
 [ext_resource path="res://menu/button/button_hover.tres" type="StyleBox" id=4]
 [ext_resource path="res://menu/button/button_pressed.tres" type="StyleBox" id=5]
@@ -230,7 +229,7 @@ OptionButton/styles/focus = null
 OptionButton/styles/hover = null
 OptionButton/styles/normal = null
 OptionButton/styles/pressed = null
-Panel/styles/panel = ExtResource( 2 )
+Panel/styles/panel = ExtResource( 6 )
 PanelContainer/styles/panel = ExtResource( 6 )
 PopupDialog/styles/panel = null
 PopupMenu/colors/font_color = Color( 0, 0, 0, 1 )
@@ -406,7 +405,7 @@ Tree/styles/selected_focus = null
 Tree/styles/title_button_hover = null
 Tree/styles/title_button_normal = null
 Tree/styles/title_button_pressed = null
-VBoxContainer/constants/separation = 4
+VBoxContainer/constants/separation = 10
 VScrollBar/icons/decrement = null
 VScrollBar/icons/decrement_highlight = null
 VScrollBar/icons/increment = null
