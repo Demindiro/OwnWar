@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=2]
+[gd_scene load_steps=31 format=2]
 
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
 [ext_resource path="res://designer/designer.gd" type="Script" id=2]
@@ -25,6 +25,24 @@ albedo_color = Color( 1, 0.00784314, 0.00784314, 1 )
 
 [sub_resource type="SpatialMaterial" id=4]
 albedo_color = Color( 0.407843, 0.992157, 0.168627, 1 )
+
+[sub_resource type="GDScript" id=16]
+script/source = "extends OptionButton
+
+
+func _ready():
+	add_icon_item(null, \"All\", 0)
+	add_icon_item(null, \"0\", 1)
+	add_icon_item(null, \"1\", 2)
+	add_icon_item(null, \"2\", 3)
+	add_icon_item(null, \"3\", 4)
+	selected = 0
+
+
+func _input(event):
+	if event.is_action_released(\"designer_release_cursor\"):
+		get_popup().hide()
+"
 
 [sub_resource type="InputEventAction" id=5]
 action = "ui_cancel"
@@ -118,12 +136,13 @@ depth = 3.0
 [node name="HUD" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -0.594604
-margin_top = 1.18921
-margin_right = -0.594604
-margin_bottom = 1.18921
+margin_left = -1.22461
+margin_top = 3.07907
+margin_right = -1.22461
+margin_bottom = 3.0791
 theme = ExtResource( 4 )
 __meta__ = {
+"_edit_lock_": true,
 "_edit_use_anchors_": false
 }
 
@@ -138,68 +157,25 @@ margin_right = 32.0
 margin_bottom = 32.0
 texture = ExtResource( 7 )
 
-[node name="BlockLayer" type="Panel" parent="HUD"]
+[node name="BlockLayer" type="OptionButton" parent="HUD"]
 anchor_left = 1.0
-anchor_top = 0.5
 anchor_right = 1.0
-anchor_bottom = 0.5
-margin_left = -73.0
-margin_top = -130.0
-margin_right = 42.0
-margin_bottom = 135.0
-__meta__ = {
-"_edit_group_": true,
-"_edit_use_anchors_": false
-}
-
-[node name="VBoxContainer" type="VBoxContainer" parent="HUD/BlockLayer"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 10.0
-margin_top = 10.0
-margin_right = 91.0
-margin_bottom = -10.0
+margin_left = -200.0
+margin_top = 15.0
+margin_right = -15.0
+margin_bottom = 60.0
+focus_mode = 0
+toggle_mode = false
+enabled_focus_mode = 0
+script = SubResource( 16 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="All" type="Button" parent="HUD/BlockLayer/VBoxContainer"]
-margin_right = 196.0
-margin_bottom = 41.6293
-text = "All"
-align = 0
-
-[node name="0" type="Button" parent="HUD/BlockLayer/VBoxContainer"]
-margin_top = 51.0
-margin_right = 196.0
-margin_bottom = 92.6293
-text = "  0"
-align = 0
-
-[node name="1" type="Button" parent="HUD/BlockLayer/VBoxContainer"]
-margin_top = 102.0
-margin_right = 196.0
-margin_bottom = 143.629
-text = "   1"
-align = 0
-
-[node name="2" type="Button" parent="HUD/BlockLayer/VBoxContainer"]
-margin_top = 153.0
-margin_right = 196.0
-margin_bottom = 194.629
-text = "  2"
-align = 0
-
-[node name="3" type="Button" parent="HUD/BlockLayer/VBoxContainer"]
-margin_top = 204.0
-margin_right = 196.0
-margin_bottom = 245.629
-text = "  3"
-align = 0
 
 [node name="GUI" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
+mouse_filter = 2
 theme = ExtResource( 4 )
 __meta__ = {
 "_edit_lock_": true,

@@ -65,7 +65,7 @@ func process_actions():
 		set_enabled(false)
 		$GUI/Inventory.visible = true
 	elif Input.is_action_just_pressed("designer_place_block"):
-		if ray_voxel_valid:
+		if ray_voxel_valid and not Input.is_action_pressed("designer_release_cursor"):
 			var coordinate = _v2a(_a2v(ray.voxel) + _a2v(ray.get_normal()))
 			place_block(coordinate, _rotation)
 			if mirror:
@@ -78,7 +78,7 @@ func process_actions():
 				place_block(coordinate, block.get_mirror_rotation(_rotation))
 				block = block.mirror_block
 	elif Input.is_action_just_pressed("designer_remove_block"):
-		if not ray.finished:
+		if not ray.finished and not Input.is_action_pressed("designer_release_cursor"):
 			var coordinate = [] + ray.voxel
 			remove_block(coordinate)
 			if mirror:
@@ -94,6 +94,10 @@ func process_actions():
 	elif Input.is_action_just_pressed("designer_open_colorpicker"):
 		set_enabled(false)
 		$GUI/ColorPicker.visible = true
+	elif Input.is_action_just_pressed("designer_release_cursor"):
+		$Camera.enabled = false
+	elif Input.is_action_just_released("designer_release_cursor"):
+		$Camera.enabled = true
 
 
 func place_block(coordinate, rotation):
