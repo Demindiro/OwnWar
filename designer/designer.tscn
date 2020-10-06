@@ -26,7 +26,7 @@ albedo_color = Color( 1, 0.00784314, 0.00784314, 1 )
 [sub_resource type="SpatialMaterial" id=4]
 albedo_color = Color( 0.407843, 0.992157, 0.168627, 1 )
 
-[sub_resource type="GDScript" id=16]
+[sub_resource type="GDScript" id=5]
 script/source = "extends OptionButton
 
 
@@ -43,7 +43,7 @@ func _input(event):
 		get_popup().hide()
 "
 
-[sub_resource type="GDScript" id=17]
+[sub_resource type="GDScript" id=6]
 script/source = "extends OptionButton
 
 
@@ -61,38 +61,38 @@ func _input(event):
 		get_popup().hide()
 "
 
-[sub_resource type="InputEventAction" id=5]
+[sub_resource type="InputEventAction" id=7]
 action = "ui_cancel"
 
-[sub_resource type="ShortCut" id=6]
-shortcut = SubResource( 5 )
+[sub_resource type="ShortCut" id=8]
+shortcut = SubResource( 7 )
 
-[sub_resource type="DynamicFont" id=7]
+[sub_resource type="DynamicFont" id=9]
 font_data = ExtResource( 8 )
 
-[sub_resource type="InputEventAction" id=8]
-action = "ui_cancel"
-
-[sub_resource type="ShortCut" id=9]
-shortcut = SubResource( 8 )
-
 [sub_resource type="InputEventAction" id=10]
-action = "ui_accept"
+action = "ui_cancel"
 
 [sub_resource type="ShortCut" id=11]
 shortcut = SubResource( 10 )
 
 [sub_resource type="InputEventAction" id=12]
-action = "ui_cancel"
+action = "ui_accept"
 
 [sub_resource type="ShortCut" id=13]
 shortcut = SubResource( 12 )
 
 [sub_resource type="InputEventAction" id=14]
-action = "ui_accept"
+action = "ui_cancel"
 
 [sub_resource type="ShortCut" id=15]
 shortcut = SubResource( 14 )
+
+[sub_resource type="InputEventAction" id=16]
+action = "ui_accept"
+
+[sub_resource type="ShortCut" id=17]
+shortcut = SubResource( 16 )
 
 [node name="Designer" type="Node"]
 script = ExtResource( 2 )
@@ -184,7 +184,7 @@ margin_bottom = 60.0
 focus_mode = 0
 toggle_mode = false
 enabled_focus_mode = 0
-script = SubResource( 16 )
+script = SubResource( 5 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -199,7 +199,7 @@ margin_bottom = 121.921
 focus_mode = 0
 toggle_mode = false
 enabled_focus_mode = 0
-script = SubResource( 17 )
+script = SubResource( 6 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -238,7 +238,7 @@ __meta__ = {
 [node name="Continue" type="Button" parent="GUI/Menu/VBoxContainer"]
 margin_right = 265.0
 margin_bottom = 41.6293
-shortcut = SubResource( 6 )
+shortcut = SubResource( 8 )
 text = "Continue"
 
 [node name="Test" type="Button" parent="GUI/Menu/VBoxContainer"]
@@ -400,7 +400,7 @@ caret_blink = true
 margin_top = 46.0
 margin_right = 264.0
 margin_bottom = 66.0
-custom_fonts/font = SubResource( 7 )
+custom_fonts/font = SubResource( 9 )
 autowrap = true
 
 [node name="PanelContainer" type="PanelContainer" parent="GUI/SaveVehicle/VBoxContainer"]
@@ -441,7 +441,7 @@ __meta__ = {
 margin_right = 130.0
 margin_bottom = 41.6293
 size_flags_horizontal = 3
-shortcut = SubResource( 9 )
+shortcut = SubResource( 11 )
 text = "Cancel"
 
 [node name="Save" type="Button" parent="GUI/SaveVehicle/VBoxContainer/HBoxContainer"]
@@ -449,7 +449,7 @@ margin_left = 134.0
 margin_right = 264.0
 margin_bottom = 41.6293
 size_flags_horizontal = 3
-shortcut = SubResource( 11 )
+shortcut = SubResource( 13 )
 text = "Save"
 
 [node name="LoadVehicle" parent="GUI" instance=ExtResource( 13 )]
@@ -518,7 +518,7 @@ __meta__ = {
 margin_right = 130.0
 margin_bottom = 41.6293
 size_flags_horizontal = 3
-shortcut = SubResource( 13 )
+shortcut = SubResource( 15 )
 text = "Cancel"
 
 [node name="Load" type="Button" parent="GUI/LoadVehicle/VBoxContainer/HBoxContainer"]
@@ -526,7 +526,7 @@ margin_left = 134.0
 margin_right = 265.0
 margin_bottom = 41.6293
 size_flags_horizontal = 3
-shortcut = SubResource( 15 )
+shortcut = SubResource( 17 )
 text = "Load"
 
 [node name="ColorPicker" parent="GUI" instance=ExtResource( 13 )]
@@ -571,18 +571,18 @@ __meta__ = {
 [connection signal="item_selected" from="HUD/BlockLayerView" to="." method="_on_BlockLayerView_item_selected"]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Continue" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Test" to="." method="_on_Test_pressed"]
-[connection signal="pressed" from="GUI/Menu/VBoxContainer/Save" to="GUI/SaveVehicle" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Save" to="GUI/Menu" method="set_visible" binds= [ false ]]
-[connection signal="pressed" from="GUI/Menu/VBoxContainer/Load" to="GUI/LoadVehicle" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="GUI/Menu/VBoxContainer/Save" to="GUI/SaveVehicle" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Load" to="GUI/Menu" method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="GUI/Menu/VBoxContainer/Load" to="GUI/LoadVehicle" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Exit" to="." method="_on_Exit_pressed"]
 [connection signal="hide" from="GUI/Inventory" to="." method="set_enabled" binds= [ true ]]
 [connection signal="save_vehicle" from="GUI/SaveVehicle" to="." method="save_vehicle"]
 [connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Cancel" to="." method="set_enabled" binds= [ true ]]
-[connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Save" to="GUI/SaveVehicle" method="_on_Save_pressed"]
 [connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Save" to="." method="set_enabled" binds= [ true ]]
-[connection signal="load_vehicle" from="GUI/LoadVehicle" to="GUI/SaveVehicle" method="set_full_path"]
+[connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Save" to="GUI/SaveVehicle" method="_on_Save_pressed"]
 [connection signal="load_vehicle" from="GUI/LoadVehicle" to="." method="load_vehicle"]
+[connection signal="load_vehicle" from="GUI/LoadVehicle" to="GUI/SaveVehicle" method="set_full_path"]
 [connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Cancel" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Load" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Load" to="GUI/LoadVehicle" method="_on_Load_pressed"]

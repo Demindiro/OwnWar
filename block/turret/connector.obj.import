@@ -1,0 +1,19 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/connector.obj-fac97732e0d9d2b5dc9985773b909a55.mesh"
+
+[deps]
+
+files=[ "res://.import/connector.obj-fac97732e0d9d2b5dc9985773b909a55.mesh" ]
+
+source_file="res://block/turret/connector.obj"
+dest_files=[ "res://.import/connector.obj-fac97732e0d9d2b5dc9985773b909a55.mesh", "res://.import/connector.obj-fac97732e0d9d2b5dc9985773b909a55.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 0.125, 0.125, 0.125 )
+offset_mesh=Vector3( 0, 0, 0 )
+optimize_mesh=true
