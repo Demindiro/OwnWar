@@ -241,7 +241,7 @@ func load_vehicle(path):
 			var color = Color(color_components[0], color_components[1],
 					color_components[2], color_components[3])
 			_on_ColorPicker_pick_color(color)
-			place_block(block, coordinate, data['blocks'][key][1], 0)
+			place_block(block, coordinate, data['blocks'][key][1], data["blocks"][key][3])
 		print("Loaded vehicle from '%s'" % path)
 
 
