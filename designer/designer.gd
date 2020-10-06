@@ -14,7 +14,7 @@ var blocks := {}
 var _rotation := 0
 var mirror := false
 var ray_voxel_valid := false
-var layer := 0 setget set_layer
+var selected_layer := 0 setget set_layer
 var view_layer := -1 setget set_view_layer
 
 onready var ray := preload("res://addons/voxel_raycast.gd").new()
@@ -69,7 +69,7 @@ func process_actions():
 	elif Input.is_action_just_pressed("designer_place_block"):
 		if ray_voxel_valid and not Input.is_action_pressed("designer_release_cursor"):
 			var coordinate = _v2a(_a2v(ray.voxel) + _a2v(ray.get_normal()))
-			place_block(selected_block, coordinate, _rotation)
+			place_block(selected_block, coordinate, _rotation, selected_layer)
 			if mirror:
 				coordinate = [] + coordinate
 				# warning-ignore:integer_division
@@ -77,7 +77,8 @@ func process_actions():
 				var delta = coordinate[0] - mirror_x
 				coordinate[0] = mirror_x - delta
 				place_block(selected_block.mirror_block, coordinate,
-					selected_block.mirror_block.get_mirror_rotation(_rotation))
+					selected_block.mirror_block.get_mirror_rotation(_rotation), 
+					selected_layer)
 	elif Input.is_action_just_pressed("designer_remove_block"):
 		if not ray.finished and not Input.is_action_pressed("designer_release_cursor"):
 			var coordinate = [] + ray.voxel
@@ -101,7 +102,7 @@ func process_actions():
 		$Camera.enabled = true
 
 
-func place_block(block, coordinate, rotation):
+func place_block(block, coordinate, rotation, layer):
 	for c in coordinate:
 		if c < 0 or c >= GRID_SIZE:
 			return false
@@ -240,7 +241,7 @@ func load_vehicle(path):
 			var color = Color(color_components[0], color_components[1],
 					color_components[2], color_components[3])
 			_on_ColorPicker_pick_color(color)
-			place_block(block, coordinate, data['blocks'][key][1])
+			place_block(block, coordinate, data['blocks'][key][1], 0)
 		print("Loaded vehicle from '%s'" % path)
 
 
@@ -273,7 +274,7 @@ func set_material(p_material: SpatialMaterial):
 
 
 func set_layer(p_layer: int):
-	layer = p_layer
+	selected_layer = p_layer
 		
 
 func set_view_layer(p_view_layer: int):
@@ -315,7 +316,7 @@ func _on_ColorPicker_pick_color(color):
 
 func _on_BlockLayer_item_selected(index):
 	set_layer(index)
-	if view_layer != layer and view_layer >= 0:
+	if view_layer != selected_layer and view_layer >= 0:
 		set_view_layer(index)
 		$HUD/BlockLayerView.select(index + 1)
 
