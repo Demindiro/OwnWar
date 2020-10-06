@@ -21,6 +21,7 @@ const INTERACTION_DISTANCE_2 = INTERACTION_DISTANCE * INTERACTION_DISTANCE
 export(Dictionary) var ghosts = {}
 export(PackedScene) var drill_ghost
 export(int) var max_material = 100
+export(int) var cost = 20
 var tasks = []
 var material = 0 setget set_material
 var last_build_frame = 0
@@ -245,6 +246,10 @@ func set_material(p_material):
 	
 func set_loop_tasks(_flags, p_loop_tasks):
 	loop_tasks = p_loop_tasks
+
+
+func get_cost():
+	return cost
 
 
 func draw_debug(debug):
