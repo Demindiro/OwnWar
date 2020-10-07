@@ -77,7 +77,7 @@ func aim_at(position: Vector3, _velocity := Vector3.ZERO):
 	# Apply basises
 	_azimuth_node.transform.basis = basis_azi * basis_azi_offset
 	_elevation_node.transform.basis = basis_elev * basis_elev_offset
-	
+
 
 func fire():
 	if _time_since_last_shot >= reload_time:

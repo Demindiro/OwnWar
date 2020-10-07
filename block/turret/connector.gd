@@ -8,6 +8,7 @@ var body_a
 var body_b
 var other_connector
 var _desired_direction := Vector3(0, 0, 1)
+var _time_since_last_shot = 0.0
 
 
 func init(coordinate, _block_data, _rotation, voxel_body, vehicle):
