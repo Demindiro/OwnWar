@@ -20,6 +20,15 @@ var view_layer := -1 setget set_view_layer
 onready var ray := preload("res://addons/voxel_raycast.gd").new()
 
 
+
+func _enter_tree():
+	get_tree().paused = true
+	
+
+func _exit_tree():
+	get_tree().paused = false
+
+
 func _ready():
 	select_block(Global.blocks_by_id[1].name)
 	set_enabled(true) # Disable UIs
