@@ -59,16 +59,15 @@ func _process(_delta):
 			other_connector.global_transform.origin + other_connector.global_transform.basis.z * 20.0)
 
 
-func _input(event):
-	if event is InputEventKey and event.scancode == KEY_KP_5 and event.pressed:
-		_angle += PI / 4
-		print(_angle)
-		_angle = fposmod(_angle, PI * 2)
-		turn(_angle)
-
-
 func turn(angle):
 	_desired_direction = Vector3.BACK.rotated(Vector3.UP, angle)
+
+
+func aim_at(position: Vector3, _velocity := Vector3.ZERO):
+	var rel_pos = to_local(position)
+	var self_normal = global_transform.basis.x
+	var t = -self_normal.dot(rel_pos) / self_normal.length_squared()
+	_desired_direction = (rel_pos + t * self_normal).normalized()
 
 
 func get_connecting_coordinate(coordinate):
