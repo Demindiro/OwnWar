@@ -33,7 +33,7 @@ var _angle = 0.0
 func _physics_process(delta):
 	if joint == null:
 		return
-	var other_forward = other_connector.global_transform.basis.x # TODO figure out why X is "forward"
+	var other_forward = other_connector.global_transform.basis.z
 	var self_forward = global_transform.basis.z
 	var self_normal = global_transform.basis.y
 	var t = -self_normal.dot(other_forward) / self_normal.length_squared()
@@ -63,7 +63,7 @@ func _process(_delta):
 #	debug.draw_line(other_connector.global_transform.origin, 
 #			other_connector.global_transform.origin + other_connector.global_transform.basis.z * 10.0)
 	debug.draw_line(other_connector.global_transform.origin, 
-			other_connector.global_transform.origin + other_connector.global_transform.basis.x * 20.0)
+			other_connector.global_transform.origin + other_connector.global_transform.basis.z * 20.0)
 #	.draw_point(to_global(rel_pos))
 
 
