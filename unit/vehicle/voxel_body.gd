@@ -141,7 +141,7 @@ func _correct_mass() -> void:
 		if child is VehicleWheel:
 			remove_child(child) # Necessary to force VehicleWheel to move
 			add_child(child)    # See VehicleWheel3D::_notification in vehicle_body_3d.cpp:81
-#	mass = total_mass
+	mass = total_mass
 
 
 # REEEEEEE https://github.com/godotengine/godot/issues/16105
