@@ -45,7 +45,7 @@ func _physics_process(_delta):
 			.dot(self_normal))
 	if abs(direction) < 1e-5:
 		direction = 1.0
-	var turn_rate = 0 if error < 1e-4 else direction
+	var turn_rate = 0 if error < 1e-4 else direction * PI / 2
 	joint.set("angular_motor_x/target_velocity", turn_rate)
 
 
@@ -91,4 +91,4 @@ func _create_joint(p_body_a, p_body_b):
 	joint.set("nodes/node_b", joint.get_path_to(body_b))
 	joint.set("angular_limit_x/enabled", false)
 	joint.set("angular_motor_x/enabled", true)
-	joint.set("angular_motor_x/force_limit", 1000000.0)
+	joint.set("angular_motor_x/force_limit", 1500.0)
