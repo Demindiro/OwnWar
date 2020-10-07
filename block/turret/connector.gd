@@ -3,11 +3,10 @@ extends Spatial
 
 var connected = false
 var joint
-var desired_direction := Vector3(0, 0, 1)
 var body_a
 var body_b
 var other_connector
-var _forward_axis := -1
+var _desired_direction := Vector3(0, 0, 1)
 
 
 func init(coordinate, _block_data, _rotation, voxel_body, vehicle):
@@ -30,15 +29,14 @@ func init(coordinate, _block_data, _rotation, voxel_body, vehicle):
 
 
 var _angle = 0.0
-func _physics_process(delta):
+func _physics_process(_delta):
 	if joint == null:
 		return
 	var other_forward = other_connector.global_transform.basis.z
-	var self_forward = global_transform.basis.z
 	var self_normal = global_transform.basis.y
 	var t = -self_normal.dot(other_forward) / self_normal.length_squared()
 	var projected_other_forward = (other_forward + t * self_normal).normalized()
-	var abs_desired_direction = global_transform.rotated(self_normal, _angle).basis.z
+	var abs_desired_direction = global_transform.basis * _desired_direction
 	var error = 1.0 - projected_other_forward.dot(abs_desired_direction)
 	var direction = -sign(projected_other_forward \
 			.cross(abs_desired_direction) \
@@ -53,7 +51,10 @@ func _process(_delta):
 	if joint == null:
 		return
 	var debug = get_tree().current_scene.find_node("Debug")
-	debug.draw_line(global_transform.origin, global_transform.origin + global_transform.basis.z * 10.0)
+	debug.draw_line(global_transform.origin, \
+			global_transform.origin + global_transform.basis.z * 10.0)
+	debug.draw_line(global_transform.origin, \
+			global_transform.origin + global_transform.basis * _desired_direction * 20.0)
 	debug.draw_line(other_connector.global_transform.origin, 
 			other_connector.global_transform.origin + other_connector.global_transform.basis.z * 20.0)
 
@@ -61,12 +62,13 @@ func _process(_delta):
 func _input(event):
 	if event is InputEventKey and event.scancode == KEY_KP_5 and event.pressed:
 		_angle += PI / 4
+		print(_angle)
 		_angle = fposmod(_angle, PI * 2)
 		turn(_angle)
 
 
 func turn(angle):
-	pass
+	_desired_direction = Vector3.BACK.rotated(Vector3.UP, angle)
 
 
 func get_connecting_coordinate(coordinate):
