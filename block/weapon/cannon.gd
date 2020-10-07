@@ -30,9 +30,11 @@ func init(_coordinate, _block_data, _rotation, voxel_body, _vehicle):
 
 func aim_at(position: Vector3, _velocity := Vector3.ZERO):
 	var rel_pos = to_local(position)
-	var self_normal = global_transform.basis.x
+	var self_normal = Vector3.RIGHT
 	var t = -self_normal.dot(rel_pos) / self_normal.length_squared()
 	_desired_direction = (rel_pos + t * self_normal).normalized()
+	print(_desired_direction)
+#	print(rel_pos, self_normal, _desired_direction)
 
 
 func set_angle(angle):
