@@ -8,7 +8,6 @@ var body_a
 var body_b
 var other_connector
 var _desired_direction := Vector3(0, 0, 1)
-var _time_since_last_shot = 0.0
 
 
 func init(coordinate, _block_data, _rotation, voxel_body, vehicle):
@@ -30,7 +29,6 @@ func init(coordinate, _block_data, _rotation, voxel_body, vehicle):
 				other_connector = null
 
 
-var _angle = 0.0
 func _physics_process(_delta):
 	if joint == null:
 		return
@@ -62,7 +60,7 @@ func _process(_delta):
 			other_connector.global_transform.origin + other_connector.global_transform.basis.z * 20.0)
 
 
-func turn(angle):
+func set_angle(angle):
 	_desired_direction = Vector3.BACK.rotated(Vector3.UP, angle)
 
 
