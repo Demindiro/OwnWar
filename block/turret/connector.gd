@@ -45,26 +45,17 @@ func _physics_process(delta):
 			.dot(self_normal))
 	if abs(direction) < 1e-5:
 		direction = 1.0
-	__e = error
-	__d = direction
-#	__e = other_forward
-#	__d = self_forward
 	var turn_rate = 0 if error < 1e-4 else direction
 	joint.set("angular_motor_x/target_velocity", turn_rate)
 
-var __e
-var __d
+
 func _process(_delta):
 	if joint == null:
 		return
-	print("[", _angle, "] ", __e, "   ", __d)
 	var debug = get_tree().current_scene.find_node("Debug")
 	debug.draw_line(global_transform.origin, global_transform.origin + global_transform.basis.z * 10.0)
-#	debug.draw_line(other_connector.global_transform.origin, 
-#			other_connector.global_transform.origin + other_connector.global_transform.basis.z * 10.0)
 	debug.draw_line(other_connector.global_transform.origin, 
 			other_connector.global_transform.origin + other_connector.global_transform.basis.z * 20.0)
-#	.draw_point(to_global(rel_pos))
 
 
 func _input(event):
@@ -76,7 +67,6 @@ func _input(event):
 
 func turn(angle):
 	pass
-#	desired_direction = Vector3.FORWARD.rotated(Vector3.UP, angle)
 
 
 func get_connecting_coordinate(coordinate):
