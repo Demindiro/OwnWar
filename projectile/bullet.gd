@@ -17,12 +17,11 @@ func _physics_process(_delta):
 	var space = get_world().direct_space_state
 	var result = space.intersect_ray(previous_position, translation)
 	if len(result) > 0:
-		var unit := result.collider as Unit
-		if unit == null:
-			queue_free()
-		else:
-			damage = unit.projectile_hit(previous_position,
+		if result.collider.has_method("projectile_hit"):
+			damage = result.collider.projectile_hit(previous_position,
 					translation - previous_position, damage)
 			if damage == 0:
 				queue_free()
+		else:
+			queue_free()
 	previous_position = translation

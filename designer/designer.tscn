@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=2]
+[gd_scene load_steps=32 format=2]
 
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
 [ext_resource path="res://designer/designer.gd" type="Script" id=2]
@@ -26,40 +26,76 @@ albedo_color = Color( 1, 0.00784314, 0.00784314, 1 )
 [sub_resource type="SpatialMaterial" id=4]
 albedo_color = Color( 0.407843, 0.992157, 0.168627, 1 )
 
-[sub_resource type="InputEventAction" id=5]
+[sub_resource type="GDScript" id=5]
+script/source = "extends OptionButton
+
+
+func _ready():
+	add_icon_item(null, \"0\", 1)
+	add_icon_item(null, \"1\", 2)
+	add_icon_item(null, \"2\", 3)
+	add_icon_item(null, \"3\", 4)
+	selected = 0
+
+
+func _input(event):
+	if event.is_action_released(\"designer_release_cursor\"):
+		get_popup().hide()
+"
+
+[sub_resource type="GDScript" id=6]
+script/source = "extends OptionButton
+
+
+func _ready():
+	add_icon_item(null, \"All\", 0)
+	add_icon_item(null, \"0\", 1)
+	add_icon_item(null, \"1\", 2)
+	add_icon_item(null, \"2\", 3)
+	add_icon_item(null, \"3\", 4)
+	selected = 0
+
+
+func _input(event):
+	if event.is_action_released(\"designer_release_cursor\"):
+		get_popup().hide()
+"
+
+[sub_resource type="InputEventAction" id=7]
 action = "ui_cancel"
 
-[sub_resource type="ShortCut" id=6]
-shortcut = SubResource( 5 )
+[sub_resource type="ShortCut" id=8]
+shortcut = SubResource( 7 )
 
-[sub_resource type="DynamicFont" id=7]
+[sub_resource type="DynamicFont" id=9]
 font_data = ExtResource( 8 )
 
-[sub_resource type="InputEventAction" id=8]
-action = "ui_cancel"
-
-[sub_resource type="ShortCut" id=9]
-shortcut = SubResource( 8 )
-
 [sub_resource type="InputEventAction" id=10]
-action = "ui_accept"
+action = "ui_cancel"
 
 [sub_resource type="ShortCut" id=11]
 shortcut = SubResource( 10 )
 
 [sub_resource type="InputEventAction" id=12]
-action = "ui_cancel"
+action = "ui_accept"
 
 [sub_resource type="ShortCut" id=13]
 shortcut = SubResource( 12 )
 
 [sub_resource type="InputEventAction" id=14]
-action = "ui_accept"
+action = "ui_cancel"
 
 [sub_resource type="ShortCut" id=15]
 shortcut = SubResource( 14 )
 
+[sub_resource type="InputEventAction" id=16]
+action = "ui_accept"
+
+[sub_resource type="ShortCut" id=17]
+shortcut = SubResource( 16 )
+
 [node name="Designer" type="Node"]
+pause_mode = 2
 script = ExtResource( 2 )
 main_menu = ExtResource( 11 )
 test_map = ExtResource( 12 )
@@ -79,9 +115,11 @@ script = ExtResource( 1 )
 always_capture = true
 
 [node name="MeshInstance" type="MeshInstance" parent="Camera"]
+pause_mode = 1
 transform = Transform( 2.98872, -0.0583399, 2.65785, 1.28558, 3.53209, -1.36808, -2.32699, 1.87642, 2.65785, 2, -1, -2 )
 
 [node name="Floor" type="Sprite3D" parent="."]
+pause_mode = 1
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 )
 axis = 1
 script = ExtResource( 3 )
@@ -115,25 +153,67 @@ width = 0.75
 height = 0.75
 depth = 3.0
 
-[node name="HUD" type="CenterContainer" parent="."]
+[node name="HUD" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
+margin_left = -1.22461
+margin_top = 3.07907
+margin_right = -1.22461
+margin_bottom = 3.0791
+theme = ExtResource( 4 )
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="Crosshair" type="TextureRect" parent="HUD"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -32.0
+margin_top = -32.0
+margin_right = 32.0
+margin_bottom = 32.0
+texture = ExtResource( 7 )
+
+[node name="BlockLayer" type="OptionButton" parent="HUD"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -200.0
+margin_top = 15.0
+margin_right = -15.0
+margin_bottom = 60.0
+focus_mode = 0
+toggle_mode = false
+enabled_focus_mode = 0
+script = SubResource( 5 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="TextureRect" type="TextureRect" parent="HUD"]
-margin_left = 928.0
-margin_top = 508.0
-margin_right = 992.0
-margin_bottom = 572.0
-texture = ExtResource( 7 )
+[node name="BlockLayerView" type="OptionButton" parent="HUD"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -200.0
+margin_top = 76.9209
+margin_right = -15.0
+margin_bottom = 121.921
+focus_mode = 0
+toggle_mode = false
+enabled_focus_mode = 0
+script = SubResource( 6 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="GUI" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
+mouse_filter = 2
 theme = ExtResource( 4 )
 __meta__ = {
+"_edit_lock_": true,
 "_edit_use_anchors_": false
 }
 
@@ -161,7 +241,7 @@ __meta__ = {
 [node name="Continue" type="Button" parent="GUI/Menu/VBoxContainer"]
 margin_right = 265.0
 margin_bottom = 41.6293
-shortcut = SubResource( 6 )
+shortcut = SubResource( 8 )
 text = "Continue"
 
 [node name="Test" type="Button" parent="GUI/Menu/VBoxContainer"]
@@ -283,6 +363,7 @@ render_target_update_mode = 0
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 42.9181, 16.5937, 0 )
 
 [node name="MeshInstance" type="MeshInstance" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer2/ViewportContainer/Viewport/Camera"]
+pause_mode = 1
 transform = Transform( 2.71817, 0.145894, 2.93091, 1.28558, 3.53209, -1.36808, -2.63796, 1.87165, 2.35332, 0, 0, -2 )
 
 [node name="SaveVehicle" parent="GUI" instance=ExtResource( 13 )]
@@ -323,7 +404,7 @@ caret_blink = true
 margin_top = 46.0
 margin_right = 264.0
 margin_bottom = 66.0
-custom_fonts/font = SubResource( 7 )
+custom_fonts/font = SubResource( 9 )
 autowrap = true
 
 [node name="PanelContainer" type="PanelContainer" parent="GUI/SaveVehicle/VBoxContainer"]
@@ -364,7 +445,7 @@ __meta__ = {
 margin_right = 130.0
 margin_bottom = 41.6293
 size_flags_horizontal = 3
-shortcut = SubResource( 9 )
+shortcut = SubResource( 11 )
 text = "Cancel"
 
 [node name="Save" type="Button" parent="GUI/SaveVehicle/VBoxContainer/HBoxContainer"]
@@ -372,7 +453,7 @@ margin_left = 134.0
 margin_right = 264.0
 margin_bottom = 41.6293
 size_flags_horizontal = 3
-shortcut = SubResource( 11 )
+shortcut = SubResource( 13 )
 text = "Save"
 
 [node name="LoadVehicle" parent="GUI" instance=ExtResource( 13 )]
@@ -441,7 +522,7 @@ __meta__ = {
 margin_right = 130.0
 margin_bottom = 41.6293
 size_flags_horizontal = 3
-shortcut = SubResource( 13 )
+shortcut = SubResource( 15 )
 text = "Cancel"
 
 [node name="Load" type="Button" parent="GUI/LoadVehicle/VBoxContainer/HBoxContainer"]
@@ -449,10 +530,11 @@ margin_left = 134.0
 margin_right = 265.0
 margin_bottom = 41.6293
 size_flags_horizontal = 3
-shortcut = SubResource( 15 )
+shortcut = SubResource( 17 )
 text = "Load"
 
 [node name="ColorPicker" parent="GUI" instance=ExtResource( 13 )]
+visible = false
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -489,6 +571,8 @@ size_flags_vertical = 3
 __meta__ = {
 "_edit_use_anchors_": false
 }
+[connection signal="item_selected" from="HUD/BlockLayer" to="." method="_on_BlockLayer_item_selected"]
+[connection signal="item_selected" from="HUD/BlockLayerView" to="." method="_on_BlockLayerView_item_selected"]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Continue" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Test" to="." method="_on_Test_pressed"]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Save" to="GUI/Menu" method="set_visible" binds= [ false ]]

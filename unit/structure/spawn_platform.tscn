@@ -93,9 +93,9 @@ func put_material(p_material):
 	if queued_vehicle == null:
 		return p_material
 	self.material += p_material
-	if material >= queued_vehicle.cost:
+	if material >= queued_vehicle.get_cost():
 		game_master.add_unit(team, queued_vehicle)
-		var remainder = material - queued_vehicle.cost
+		var remainder = material - queued_vehicle.get_cost()
 		self.material = 0
 		queued_vehicle = null
 		$IndicatorVehicle.material_override.albedo_color = Color.green
@@ -109,11 +109,11 @@ func set_material(p_material):
 	if queued_vehicle == null:
 		$IndicatorMaterial.scale.z = 0 if material == 0 else 1
 	else:
-		$IndicatorMaterial.scale.z = clamp(float(material) / queued_vehicle.cost, 0, 1)
+		$IndicatorMaterial.scale.z = clamp(float(material) / queued_vehicle.get_cost(), 0, 1)
 
 
 func get_max_material():
-	return 0 if queued_vehicle == null else queued_vehicle.cost
+	return 0 if queued_vehicle == null else queued_vehicle.get_cost()
 "
 
 [sub_resource type="BoxShape" id=2]

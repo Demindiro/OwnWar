@@ -31,6 +31,10 @@ func _ready():
 			game_master.ores.append(child)
 
 
+func _physics_process(_delta):
+	$SpawnPlayer.put_material(1 << 62)
+
+
 func _on_GUI_load_vehicle(path):
 	$SpawnEnemy.spawn_vehicle(0, path)
 	$SpawnEnemy.put_material(1 << 62)
@@ -235,6 +239,7 @@ transform = Transform( 1, 0, 0, 0, -0.0965233, 0.995331, 0, -0.995331, -0.096523
 shape = SubResource( 7 )
 
 [node name="MeshInstance" type="MeshInstance" parent="Map/Pill"]
+transform = Transform( 1, 0, 0, 0, 1, 7.45058e-09, 0, -7.45058e-09, 1, 0, 0, 0 )
 mesh = SubResource( 8 )
 material/0 = SubResource( 9 )
 
@@ -340,16 +345,16 @@ margin_right = 265.0
 margin_bottom = 20.0
 
 [node name="PanelContainer" type="PanelContainer" parent="GUI/LoadVehicle/VBoxContainer"]
-margin_top = 24.0
+margin_top = 30.0
 margin_right = 265.0
-margin_bottom = 262.0
+margin_bottom = 256.0
 size_flags_vertical = 3
 
 [node name="ScrollContainer" type="ScrollContainer" parent="GUI/LoadVehicle/VBoxContainer/PanelContainer"]
 margin_left = 16.0
 margin_top = 11.0
 margin_right = 249.0
-margin_bottom = 227.0
+margin_bottom = 215.0
 size_flags_horizontal = 3
 scroll_horizontal_enabled = false
 

@@ -9,13 +9,24 @@ export(PackedScene) var main_menu
 export(PackedScene) var test_map
 export var material: SpatialMaterial setget set_material
 
-var block: Block
+var selected_block: Block
 var blocks := {}
 var _rotation := 0
 var mirror := false
 var ray_voxel_valid := false
+var selected_layer := 0 setget set_layer
+var view_layer := -1 setget set_view_layer
 
 onready var ray := preload("res://addons/voxel_raycast.gd").new()
+
+
+
+func _enter_tree():
+	get_tree().paused = true
+	
+
+func _exit_tree():
+	get_tree().paused = false
 
 
 func _ready():
@@ -65,20 +76,20 @@ func process_actions():
 		set_enabled(false)
 		$GUI/Inventory.visible = true
 	elif Input.is_action_just_pressed("designer_place_block"):
-		if ray_voxel_valid:
+		if ray_voxel_valid and not Input.is_action_pressed("designer_release_cursor"):
 			var coordinate = _v2a(_a2v(ray.voxel) + _a2v(ray.get_normal()))
-			place_block(coordinate, _rotation)
+			place_block(selected_block, coordinate, _rotation, selected_layer)
 			if mirror:
-				block = block.mirror_block
 				coordinate = [] + coordinate
 				# warning-ignore:integer_division
 				var mirror_x = (GRID_SIZE - 1) / 2
 				var delta = coordinate[0] - mirror_x
 				coordinate[0] = mirror_x - delta
-				place_block(coordinate, block.get_mirror_rotation(_rotation))
-				block = block.mirror_block
+				place_block(selected_block.mirror_block, coordinate,
+					selected_block.mirror_block.get_mirror_rotation(_rotation), 
+					selected_layer)
 	elif Input.is_action_just_pressed("designer_remove_block"):
-		if not ray.finished:
+		if not ray.finished and not Input.is_action_pressed("designer_release_cursor"):
 			var coordinate = [] + ray.voxel
 			remove_block(coordinate)
 			if mirror:
@@ -94,9 +105,13 @@ func process_actions():
 	elif Input.is_action_just_pressed("designer_open_colorpicker"):
 		set_enabled(false)
 		$GUI/ColorPicker.visible = true
+	elif Input.is_action_just_pressed("designer_release_cursor"):
+		$Camera.enabled = false
+	elif Input.is_action_just_released("designer_release_cursor"):
+		$Camera.enabled = true
 
 
-func place_block(coordinate, rotation):
+func place_block(block, coordinate, rotation, layer):
 	for c in coordinate:
 		if c < 0 or c >= GRID_SIZE:
 			return false
@@ -116,7 +131,7 @@ func place_block(coordinate, rotation):
 	for child in get_children_recursive(node):
 		if child is GeometryInstance and not child is Sprite3D:
 			child.material_override = material
-	blocks[coordinate] = [block.name, rotation, node, material.albedo_color]
+	blocks[coordinate] = [block.name, rotation, node, material.albedo_color, layer]
 	return true
 
 
@@ -131,16 +146,16 @@ func remove_block(coordinate):
 
 
 func select_block(name):
-	block = Global.get_block(name)
+	selected_block = Global.get_block(name)
 	for child in $Camera/MeshInstance.get_children():
 		child.queue_free()
 	for child in $Floor/Origin/Ghost.get_children():
 		child.queue_free()
-	$Camera/MeshInstance.mesh = block.mesh
-	$Floor/Origin/Ghost.mesh = block.mesh
-	if block.scene != null:
-		$Camera/MeshInstance.add_child(block.scene.instance())
-		var node = block.scene.instance()
+	$Camera/MeshInstance.mesh = selected_block.mesh
+	$Floor/Origin/Ghost.mesh = selected_block.mesh
+	if selected_block.scene != null:
+		$Camera/MeshInstance.add_child(selected_block.scene.instance())
+		var node = selected_block.scene.instance()
 		$Floor/Origin/Ghost.add_child(node)
 		for child in get_children_recursive(node):
 			if child is MeshInstance:
@@ -186,7 +201,7 @@ func highlight_face():
 					and not place_at in blocks:
 				ray_voxel_valid = true
 				$Floor/Origin/Ghost.translation = _a2v(place_at)
-				$Floor/Origin/Ghost.transform.basis = block.get_basis(_rotation)
+				$Floor/Origin/Ghost.transform.basis = selected_block.get_basis(_rotation)
 				$Floor/Origin/Ghost.scale_object_local(Vector3.ONE * SCALE)
 			else:
 				ray_voxel_valid = false
@@ -230,12 +245,12 @@ func load_vehicle(path):
 			assert(len(key_components) == 3)
 			for i in range(3):
 				coordinate[i] = int(key_components[i])
-			block = Global.get_block(data['blocks'][key][0])
+			var block = Global.get_block(data['blocks'][key][0])
 			var color_components = data["blocks"][key][2].split_floats(",")
 			var color = Color(color_components[0], color_components[1],
 					color_components[2], color_components[3])
 			_on_ColorPicker_pick_color(color)
-			place_block(coordinate, data['blocks'][key][1])
+			place_block(block, coordinate, data['blocks'][key][1], data["blocks"][key][3])
 		print("Loaded vehicle from '%s'" % path)
 
 
@@ -266,6 +281,18 @@ func set_material(p_material: SpatialMaterial):
 		if child is GeometryInstance and not child is Sprite3D:
 			child.material_override = material
 
+
+func set_layer(p_layer: int):
+	selected_layer = p_layer
+		
+
+func set_view_layer(p_view_layer: int):
+	view_layer = p_view_layer
+	for coordinate in blocks:
+		var block = blocks[coordinate]
+		block[2].visible = view_layer < 0 or block[4] == view_layer
+
+
 # Vector3i in Godot 4...
 # Gib Godot 4 pls (> °-°)>
 func _v2a(v):
@@ -294,3 +321,18 @@ func _on_ColorPicker_pick_color(color):
 	var mat := SpatialMaterial.new()
 	mat.albedo_color = color
 	set_material(mat)
+
+
+func _on_BlockLayer_item_selected(index):
+	set_layer(index)
+	if view_layer != selected_layer and view_layer >= 0:
+		set_view_layer(index)
+		$HUD/BlockLayerView.select(index + 1)
+
+
+func _on_BlockLayerView_item_selected(index):
+	index -= 1
+	set_view_layer(index)
+	if index >= 0:
+		set_layer(index)
+		$HUD/BlockLayer.select(index)

@@ -1,25 +1,18 @@
 class_name Vehicle
-
 extends Unit
 
-export(GDScript) var ai_script
 
-var start_position := Vector3.ONE * INF
-var end_position := Vector3.ONE * -INF
+export(GDScript) var ai_script
 var ai: AI setget set_ai
 var drive_forward := 0.0
 var drive_yaw := 0.0
 var brake := 0.0
 var weapons_aim_point := Vector3.ZERO
 var aim_weapons := false
-var blocks := {}
-var center_of_mass := Vector3.ZERO
 var max_cost: int
-
+var voxel_bodies := []
 var _fire_weapons := false
-var _raycast := preload("res://addons/voxel_raycast.gd").new()
-
-var _debug_hits := []
+onready var debug_node = $"../Debug"
 
 
 func _ready():
@@ -28,49 +21,59 @@ func _ready():
 			self.ai = ai_script.new()
 		else:
 			self.ai = load(Global.DEFAULT_AI_SCRIPT).new()
-	$CollisionShape.shape = $CollisionShape.shape.duplicate() # Make shape unique
-		
+
 
 func _process(_delta):
 	if ai != null:
-		ai.debug_draw($"../Debug")
-	for child in get_children():
-		if child is Weapon:
-			child.debug_draw($"../Debug")
-	for hit in _debug_hits:
-		var position = Vector3(hit[0][0], hit[0][1], hit[0][2]) + Vector3.ONE / 2
-		$"../Debug".draw_point(to_global(position * Global.BLOCK_SCALE - center_of_mass),
-				hit[1], 0.55 * Global.BLOCK_SCALE)
+		ai.debug_draw(debug_node)
+	for body in voxel_bodies:
+		body.debug_draw(debug_node)
 
 
 func _physics_process(delta):
+	global_transform = voxel_bodies[0].global_transform
 	if ai != null:
 		assert(ai is AI)
 		ai.process(delta)
 	drive_forward = clamp(drive_forward, -1, 1)
 	drive_yaw = clamp(drive_yaw, -1, 1)
-	for child in get_children():
-		if child is VehicleWheel:
-			var angle = asin(child.translation.dot(Vector3.FORWARD) / child.translation.length())
-			child.steering = angle * drive_yaw
-			child.engine_force = drive_forward * 30
-			child.brake = brake * 0.1
-		elif child is Weapon:
-			if aim_weapons:
-				child.aim_at(weapons_aim_point)
-			if _fire_weapons:
-				child.fire()
+	for body in voxel_bodies:
+		for child in body.get_children():
+			if child is VehicleWheel:
+				var angle = asin(child.translation.dot(Vector3.FORWARD) /
+						child.translation.length())
+				child.steering = angle * drive_yaw
+				child.engine_force = drive_forward * 300.0
+				child.brake = brake * 1.0
+			elif child is Weapon:
+				if aim_weapons:
+					child.aim_at(weapons_aim_point)
+				if _fire_weapons:
+					child.fire()
+			elif child is Cannon:
+				if aim_weapons:
+					child.aim_at(weapons_aim_point)
+				else:
+					child.set_angle(0)
+				if _fire_weapons:
+					child.fire()
+			elif child.get_child_count() > 0 and child.get_child(0) is Connector:
+				if aim_weapons:
+					child.get_child(0).aim_at(weapons_aim_point)
+				else:
+					child.get_child(0).set_angle(0)
 	_fire_weapons = false
-	
-	
+
+
 func get_info():
 	var info = .get_info()
 	var remaining_health = 0
 	var remaining_cost = 0
-	for coordinate in blocks:
-		var block = blocks[coordinate]
-		remaining_health += block[1]
-		remaining_cost += Global.blocks_by_id[block[0]].cost
+	for body in voxel_bodies:
+		for coordinate in body.blocks:
+			var block = body.blocks[coordinate]
+			remaining_health += block[1]
+			remaining_cost += Global.blocks_by_id[block[0]].cost
 	info["Health"] = "%d / %d" % [remaining_health, max_health]
 	info["Cost"] = "%d / %d" % [remaining_cost, max_cost]
 	return info
@@ -78,35 +81,6 @@ func get_info():
 			
 func fire_weapons():
 	_fire_weapons = true
-	
-	
-func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
-	var local_origin = to_local(origin) + center_of_mass
-	local_origin /= Global.BLOCK_SCALE
-	var local_direction = to_local(origin + direction) - to_local(origin)
-	_raycast.start(local_origin, local_direction, 25, 25, 25)
-	_debug_hits = []
-	while not _raycast.finished:
-		var key = [_raycast.x, _raycast.y, _raycast.z]
-		var block = blocks.get(key)
-		if block != null:
-			_debug_hits.append([key, Color.orange])
-			if block[1] < damage:
-				damage -= block[1]
-				block[2].queue_free()
-				# warning-ignore:return_value_discarded
-				blocks.erase(key)
-				cost -= Global.blocks_by_id[block[0]].cost
-				if float(cost) / float(max_cost) < 0.75:
-					destroy()
-			else:
-				block[1] -= damage
-				damage = 0
-				break
-		else:
-			_debug_hits.append([key, Color.yellow])
-		_raycast.step()
-	return damage
 
 
 func load_from_file(path: String) -> int:
@@ -114,11 +88,8 @@ func load_from_file(path: String) -> int:
 	var err = file.open(path, File.READ)
 	if err != OK:
 		return err
-	for coordinate in blocks:
-		var block = blocks[coordinate]
-		if block[2] != null:
-			block[2].queue_free()
-	blocks.clear()
+	for body in voxel_bodies:
+		body.queue_free()
 	max_cost = 0
 	max_health = 0
 	var data = parse_json(file.get_as_text())
@@ -134,17 +105,22 @@ func load_from_file(path: String) -> int:
 		var color_components = data["blocks"][key][2].split_floats(",")
 		var color = Color(color_components[0], color_components[1],
 				color_components[2], color_components[3])
-		_spawn_block(x, y, z, rotation, Global.blocks[name], color)
-	cost = max_cost
-	_set_collision_box(start_position, end_position)
-	_correct_center_of_mass()
+		var layer = data["blocks"][key][3]
+		if len(voxel_bodies) <= layer:
+			voxel_bodies.resize(layer + 1)
+		if voxel_bodies[layer] == null:
+			voxel_bodies[layer] = VoxelBody.new()
+			add_child(voxel_bodies[layer])
+			voxel_bodies[layer].connect("hit", self, "_voxel_body_hit")
+		voxel_bodies[layer].spawn_block(x, y, z, rotation, Global.blocks[name], color)
+	for body in voxel_bodies:
+		body.fix_physics(transform)
+		body.init_blocks(self)
+		max_cost += body.max_cost
+	var center_of_mass_0 = voxel_bodies[0].center_of_mass
+	for body in voxel_bodies:
+		body.translate(-center_of_mass_0)
 	return OK
-	
-
-func coordinate_to_vector(coordinate):
-	var position = Vector3(coordinate[0], coordinate[1], coordinate[2])
-	position *= Global.BLOCK_SCALE
-	return position - center_of_mass
 	
 	
 func get_actions():
@@ -166,7 +142,23 @@ func set_ai(p_ai):
 	if ai != p_ai:
 		ai = p_ai
 		ai.init(self)
-		
+
+
+func get_cost():
+	var cost = 0
+	for body in voxel_bodies:
+		cost += body.cost
+	return cost
+
+
+func get_linear_velocity():
+	return voxel_bodies[0].linear_velocity
+
+
+func _voxel_body_hit(_voxel_body):
+	if get_cost() * 4 / 3 < max_cost:
+		destroy()
+
 
 static func path_to_name(path: String) -> String:
 	assert(path.ends_with(Global.FILE_EXTENSION))
@@ -175,72 +167,3 @@ static func path_to_name(path: String) -> String:
 	
 static func name_to_path(p_name: String) -> String:
 	return p_name.to_lower().replace(' ', '_') + '.json'
-
-
-func _correct_center_of_mass() -> void:
-	var total_mass = 0
-	center_of_mass = Vector3.ZERO
-	for coordinate in blocks:
-		var block = blocks[coordinate]
-		var mass = Global.blocks_by_id[block[0]].mass
-		center_of_mass += Vector3(coordinate[0], coordinate[1], coordinate[2]) * mass
-		total_mass += mass
-	assert(total_mass > 0)
-	center_of_mass /= total_mass
-	center_of_mass += Vector3.ONE * 0.5
-	center_of_mass *= Global.BLOCK_SCALE
-	for child in get_children():
-		child.transform.origin -= center_of_mass
-		if child is VehicleWheel:
-			remove_child(child) # Necessary to force VehicleWheel to move
-			add_child(child)    # See VehicleWheel3D::_notification in vehicle_body_3d.cpp:81
-
-
-
-func _spawn_block(x: int, y: int, z: int, r: int, block: Block, color: Color) -> void:
-	var basis := Block.rotation_to_basis(r)
-	var orthogonal_index := Block.rotation_to_orthogonal_index(r)
-	var node: Spatial
-	var material := SpatialMaterial.new()
-	material.albedo_color = color
-	if block.mesh != null:
-		node = MeshInstance.new()
-		node.mesh = block.mesh
-		if block.scene != null:
-			node.add_child(block.scene.instance())
-	elif block.scene != null:
-		node = block.scene.instance()
-	else:
-		assert(false)
-	var position = Vector3(x, y, z) + Vector3.ONE / 2
-	node.transform = Transform(basis, position * Global.BLOCK_SCALE)
-	for child in get_children_recursive(node) + [node]:
-		if child is GeometryInstance and not child is Sprite3D:
-			child.material_override = material
-	add_child(node)
-	max_cost += block.cost
-	max_health += block.health
-	blocks[[x, y, z]] = [block.id, block.health, node]
-	start_position.x = float(x) if start_position.x > x else start_position.x
-	start_position.y = float(y) if start_position.y > y else start_position.y
-	start_position.z = float(z) if start_position.z > z else start_position.z
-	end_position.x = float(x) if end_position.x < x else end_position.x
-	end_position.y = float(y) if end_position.y < y else end_position.y
-	end_position.z = float(z) if end_position.z < z else end_position.z
-
-
-func _set_collision_box(start: Vector3, end: Vector3) -> void:
-	end += Vector3.ONE
-	var center = (start + end) / 2
-	var extents = (end - start) / 2
-	$CollisionShape.transform.origin = center * Global.BLOCK_SCALE
-	$CollisionShape.shape.extents = extents * Global.BLOCK_SCALE
-
-
-# REEEEEEE https://github.com/godotengine/godot/issues/16105
-func get_children_recursive(node = null, array = []):
-	node = node if node != null else self
-	for child in node.get_children():
-		array.append(child)
-		get_children_recursive(child, array)
-	return array
