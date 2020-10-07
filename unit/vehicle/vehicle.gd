@@ -114,9 +114,12 @@ func load_from_file(path: String) -> int:
 			voxel_bodies[layer].connect("hit", self, "_voxel_body_hit")
 		voxel_bodies[layer].spawn_block(x, y, z, rotation, Global.blocks[name], color)
 	for body in voxel_bodies:
-		body.fix_physics(global_transform)
+		body.fix_physics(transform)
 		body.init_blocks(self)
 		max_cost += body.max_cost
+	var center_of_mass_0 = voxel_bodies[0].center_of_mass
+	for body in voxel_bodies:
+		body.translate(-center_of_mass_0)
 	return OK
 	
 	
@@ -152,7 +155,7 @@ func get_linear_velocity():
 	return voxel_bodies[0].linear_velocity
 
 
-func _voxel_body_hit(voxel_body):
+func _voxel_body_hit(_voxel_body):
 	if get_cost() * 4 / 3 < max_cost:
 		destroy()
 
