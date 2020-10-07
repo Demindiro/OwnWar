@@ -60,8 +60,9 @@ func process(delta):
 		vehicle.aim_weapons = true
 		if target is Vehicle:
 			# Pick a random (alive) block so we don't shoot at air constantly
-			if not random_block_coordinate in target.blocks or time_until_block_switch >= 3:
-				var keys = target.blocks.keys()
+			var blocks = target.get_blocks()
+			if not random_block_coordinate in blocks or time_until_block_switch >= 3:
+				var keys = blocks.keys()
 				random_block_coordinate = keys[randi() % len(keys)]
 				time_until_block_switch = 0
 			time_until_block_switch += delta
@@ -72,8 +73,8 @@ func process(delta):
 		vehicle.fire_weapons()
 	else:
 		vehicle.aim_weapons = false
-	
-	
+		
+
 func debug_draw(debug):
 	.debug_draw(debug)
 	if target != null:

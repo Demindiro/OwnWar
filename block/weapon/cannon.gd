@@ -1,4 +1,5 @@
 extends RigidBody
+class_name Cannon
 
 
 var _voxel_body: VoxelBody

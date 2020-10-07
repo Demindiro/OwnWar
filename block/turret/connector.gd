@@ -1,4 +1,5 @@
 extends Spatial
+class_name Connector
 
 
 var connected = false

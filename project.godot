@@ -19,10 +19,20 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://block/block.gd"
 }, {
+"base": "RigidBody",
+"class": "Cannon",
+"language": "GDScript",
+"path": "res://block/weapon/cannon.gd"
+}, {
 "base": "Resource",
 "class": "Compatibility",
 "language": "GDScript",
 "path": "res://compatibility.gd"
+}, {
+"base": "Spatial",
+"class": "Connector",
+"language": "GDScript",
+"path": "res://block/turret/connector.gd"
 }, {
 "base": "Node",
 "class": "GameMaster",
@@ -62,7 +72,9 @@ _global_script_classes=[ {
 _global_script_class_icons={
 "AI": "",
 "Block": "",
+"Cannon": "",
 "Compatibility": "",
+"Connector": "",
 "GameMaster": "",
 "Ghost": "",
 "Ore": "",

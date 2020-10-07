@@ -50,6 +50,9 @@ func _physics_process(delta):
 					child.aim_at(weapons_aim_point)
 				if _fire_weapons:
 					child.fire()
+			elif child is Cannon or child is Connector:
+				if aim_weapons:
+					child.aim_at(weapons_aim_point)
 	_fire_weapons = false
 
 
@@ -136,6 +139,13 @@ func get_cost():
 
 func get_linear_velocity():
 	return voxel_bodies[0].linear_velocity
+
+
+func get_blocks():
+	var blocks = {}
+	for body in voxel_bodies:
+		blocks += body.blocks
+	return blocks
 
 
 static func path_to_name(path: String) -> String:
