@@ -66,7 +66,7 @@ func turn(angle):
 
 func aim_at(position: Vector3, _velocity := Vector3.ZERO):
 	var rel_pos = to_local(position)
-	var self_normal = global_transform.basis.x
+	var self_normal = global_transform.basis.y
 	var t = -self_normal.dot(rel_pos) / self_normal.length_squared()
 	_desired_direction = (rel_pos + t * self_normal).normalized()
 
