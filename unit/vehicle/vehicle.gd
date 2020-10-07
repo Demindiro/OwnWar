@@ -102,6 +102,7 @@ func load_from_file(path: String) -> int:
 		voxel_bodies[layer].spawn_block(x, y, z, rotation, Global.blocks[name], color)
 	for body in voxel_bodies:
 		body.fix_physics(global_transform)
+		body.init_blocks(self)
 	return OK
 	
 	

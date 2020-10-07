@@ -235,6 +235,7 @@ transform = Transform( 1, 0, 0, 0, -0.0965233, 0.995331, 0, -0.995331, -0.096523
 shape = SubResource( 7 )
 
 [node name="MeshInstance" type="MeshInstance" parent="Map/Pill"]
+transform = Transform( 1, 0, 0, 0, 1, 7.45058e-09, 0, -7.45058e-09, 1, 0, 0, 0 )
 mesh = SubResource( 8 )
 material/0 = SubResource( 9 )
 
