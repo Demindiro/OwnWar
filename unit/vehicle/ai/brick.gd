@@ -60,14 +60,15 @@ func process(delta):
 		vehicle.aim_weapons = true
 		if target is Vehicle:
 			# Pick a random (alive) block so we don't shoot at air constantly
-			var blocks = target.get_blocks()
-			if not random_block_coordinate in blocks or time_until_block_switch >= 3:
-				var keys = blocks.keys()
-				random_block_coordinate = keys[randi() % len(keys)]
-				time_until_block_switch = 0
-			time_until_block_switch += delta
-			var local_position = target.coordinate_to_vector(random_block_coordinate)
-			vehicle.weapons_aim_point = target.to_global(local_position)
+			for body in target.voxel_bodies:
+				if not random_block_coordinate in body.blocks or time_until_block_switch >= 3:
+					var keys = body.blocks.keys()
+					random_block_coordinate = keys[randi() % len(keys)]
+					time_until_block_switch = 0
+				time_until_block_switch += delta
+				var local_position = body.coordinate_to_vector(random_block_coordinate)
+				vehicle.weapons_aim_point = body.to_global(local_position +
+						Vector3.ONE * Global.BLOCK_SCALE / 2)
 		else:
 			vehicle.weapons_aim_point = target.translation
 		vehicle.fire_weapons()

@@ -144,13 +144,6 @@ func get_linear_velocity():
 	return voxel_bodies[0].linear_velocity
 
 
-func get_blocks():
-	var blocks = {}
-	for body in voxel_bodies:
-		blocks += body.blocks
-	return blocks
-
-
 static func path_to_name(path: String) -> String:
 	assert(path.ends_with(Global.FILE_EXTENSION))
 	return path.substr(0, len(path) - len(Global.FILE_EXTENSION)).capitalize()
