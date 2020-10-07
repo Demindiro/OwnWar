@@ -50,9 +50,12 @@ func _physics_process(delta):
 					child.aim_at(weapons_aim_point)
 				if _fire_weapons:
 					child.fire()
-			elif child is Cannon or child is Connector:
+			elif child is Cannon:
 				if aim_weapons:
 					child.aim_at(weapons_aim_point)
+			elif child.get_child_count() > 0 and child.get_child(0) is Connector:
+				if aim_weapons:
+					child.get_child(0).aim_at(weapons_aim_point)
 	_fire_weapons = false
 
 

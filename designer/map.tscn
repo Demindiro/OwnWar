@@ -31,6 +31,10 @@ func _ready():
 			game_master.ores.append(child)
 
 
+func _physics_process(_delta):
+	$SpawnPlayer.put_material(1 << 62)
+
+
 func _on_GUI_load_vehicle(path):
 	$SpawnEnemy.spawn_vehicle(0, path)
 	$SpawnEnemy.put_material(1 << 62)
