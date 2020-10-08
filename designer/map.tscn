@@ -223,6 +223,14 @@ ghosts = {
 "Storage Pod": ExtResource( 13 )
 }
 
+[node name="DroneEnemy" parent="Map" instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 0.999754, -0.022164, 0, 0.022164, 0.999754, 0.936497, 2.85958, 30.7343 )
+team = 1
+ghosts = {
+"Spawn Platform": ExtResource( 12 ),
+"Storage Pod": ExtResource( 13 )
+}
+
 [node name="StoragePod" parent="Map" instance=ExtResource( 7 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -72.3055, 0, 39.8329 )
 material = 5000
