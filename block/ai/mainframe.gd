@@ -21,8 +21,11 @@ func init(_coordinate, _block_data, _rotation, _voxel_body, p_vehicle):
 	ai.init(vehicle)
 
 
-func set_waypoint(_flags, waypoint):
-	ai.waypoint = waypoint
+func set_waypoint(flags, waypoint):
+	if flags & 0x1:
+		ai.waypoints.append(waypoint)
+	else:
+		ai.waypoints = [waypoint]
 
 
 func set_targets(_flags, targets):

@@ -7,6 +7,20 @@ var time_until_block_switch = 0
 
 func process(delta):
 	.process(delta)
+	if len(waypoints) > 0:
+		move_to_waypoint(waypoints[0])
+		if (vehicle.translation - waypoints[0]).length_squared() < 40:
+			waypoints.remove(0)
+	else:
+		vehicle.brake = 1
+	# Fire at target
+	if target != null:
+		fire_at(target, delta)
+	else:
+		vehicle.aim_weapons = false
+
+
+func move_to_waypoint(waypoint):
 	var linear_velocity = vehicle.get_linear_velocity()
 	var transform = vehicle.transform
 	var position = transform.origin
@@ -55,11 +69,6 @@ func process(delta):
 		# Don't slam the brakes if going too fast
 		if velocity > 10:
 			vehicle.brake = 0.4
-	# Fire at target
-	if target != null:
-		fire_at(target, delta)
-	else:
-		vehicle.aim_weapons = false
 
 
 func fire_at(target, delta):
