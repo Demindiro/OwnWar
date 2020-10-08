@@ -65,6 +65,14 @@ func aim_at(position: Vector3, _velocity := Vector3.ZERO):
 	normal_xz.y = 0
 	normal_xz = normal_xz.normalized()
 	
+	var projectile_spawn_y = $ProjectileSpawn.translation.y
+	var projectile_spawn_z = $ProjectileSpawn.translation.z
+	
+	distance_xz -= projectile_spawn_y * _desired_direction.y + \
+			projectile_spawn_z * _desired_direction.z
+	distance_y -= projectile_spawn_y * _desired_direction.z + \
+			projectile_spawn_z * -_desired_direction.y
+	
 	var x = distance_xz
 	var y = distance_y
 	var v2 = projectile_velocity * projectile_velocity
