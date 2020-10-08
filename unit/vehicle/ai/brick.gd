@@ -14,10 +14,13 @@ func process(delta):
 	else:
 		vehicle.brake = 1
 	# Fire at target
-	if target != null:
-		fire_at(target, delta)
-	else:
-		vehicle.aim_weapons = false
+	vehicle.aim_weapons = false
+	while len(targets) > 0:
+		if targets[0] == null:
+			targets.remove(0)
+		else:
+			fire_at(targets[0], delta)
+			break
 
 
 func move_to_waypoint(waypoint):
@@ -91,7 +94,7 @@ func fire_at(target, delta):
 
 func debug_draw(debug):
 	.debug_draw(debug)
-	if target != null:
+	if len(targets) > 0:
 		debug.draw_point(vehicle.weapons_aim_point, Color.red, Global.BLOCK_SCALE)
 		debug.begin(Mesh.PRIMITIVE_LINES)
 		debug.set_color(Color.red)

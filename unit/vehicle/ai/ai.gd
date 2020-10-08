@@ -7,7 +7,7 @@ extends Reference
 var vehicle: Vehicle
 var waypoints := []
 # warning-ignore:unused_class_variable
-var target: Unit
+var targets := []
 
 
 func init(p_vehicle):

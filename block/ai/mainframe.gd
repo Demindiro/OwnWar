@@ -28,8 +28,11 @@ func set_waypoint(flags, waypoint):
 		ai.waypoints = [waypoint]
 
 
-func set_targets(_flags, targets):
-	ai.target = targets[0] if len(targets) > 0 else null
+func set_targets(flags, targets):
+	if flags & 0x1:
+		ai.targets += targets
+	else:
+		ai.targets = targets.duplicate()
 
 
 func debug_draw(debug):
