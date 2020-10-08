@@ -25,6 +25,7 @@ func _init():
 [node name="80mmCannon" type="RigidBody"]
 script = ExtResource( 2 )
 projectile = ExtResource( 3 )
+projectile_velocity = 445.0
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
 transform = Transform( 1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, 0, 0, 0 )
