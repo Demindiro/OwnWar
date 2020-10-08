@@ -15,7 +15,10 @@ func _ready():
 func _on_Timer_timeout():
 	var angle = randf() * PI * 2
 	var distance = rand_range(WAYPOINT_MIN_RADIUS, WAYPOINT_MAX_RADIUS)
-	$"../Vehicle".ai.waypoint = Vector3(distance * cos(angle), 0, distance * sin(angle))
+	var mainframes = $"../Vehicle".get_blocks("mainframe")
+	for mainframe in mainframes:
+		mainframe.ai.waypoint = Vector3(distance * cos(angle), 0, distance * sin(angle))
+		break
 
 
 func _on_Campaign_pressed():
