@@ -53,7 +53,7 @@ azimuth_node_path = NodePath("Cube002/Cube003")
 elevation_node_path = NodePath("Cube002/Cube003/Cube001")
 projectile_spawn_path = NodePath("Cube002/Cube003/Cube001/Cube000/Spatial")
 projectile = ExtResource( 3 )
-projectile_velocity = 1500
+projectile_velocity = 888
 projectile_damage = 100
 reload_time = 3.0
 
