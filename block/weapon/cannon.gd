@@ -79,8 +79,7 @@ func aim_at(position: Vector3, _velocity := Vector3.ZERO):
 	var g = GRAVITY
 	
 	var f = v2 * v2 - g * (g * x * x + 2 * y * v2)
-	if f >= 0:
-		set_angle(atan2(v2 - sqrt(f), g * x) if f >= 0 else 0)
+	set_angle(atan2(v2 - sqrt(f), g * x) if f >= 0 else 0)
 
 
 func fire():
