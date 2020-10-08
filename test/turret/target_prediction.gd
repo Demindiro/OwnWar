@@ -19,6 +19,9 @@ func _process(_delta):
 	var target_position = $Target.translation
 	var distance_xz = Vector2(target_position.x, target_position.z).length()
 	var distance_y = target_position.y
+	var normal_xz = target_position
+	normal_xz.y = 0
+	normal_xz = normal_xz.normalized()
 	
 	var x = distance_xz
 	var y = distance_y
@@ -26,10 +29,9 @@ func _process(_delta):
 	var g = gravity
 	
 	var angle = atan2(v2 - sqrt(v2 * v2 - g * (g * x * x + 2 * y * v2)), g * x)
-	var azimuth = atan2(target_position.z, target_position.x)
 
-	var projectile_velocity = Vector3(cos(angle) * cos(azimuth), sin(angle),
-			cos(angle) * sin(azimuth)) * velocity
+	var projectile_velocity = Vector3(cos(angle) * normal_xz.x, sin(angle),
+			cos(angle) * normal_xz.z) * velocity
 	var projectile_position = Vector3.ZERO
 	
 	begin(Mesh.PRIMITIVE_LINES)
