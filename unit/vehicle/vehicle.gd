@@ -11,6 +11,7 @@ var max_cost: int
 var voxel_bodies := []
 var actions := []
 var _fire_weapons := false
+var _object_to_actions_map := {}
 onready var debug_node = $"../Debug"
 
 
@@ -114,7 +115,13 @@ func get_actions():
 
 
 func add_action(object, human_name, flags, function, arguments):
-	actions.append([human_name, flags, "do_action", [[object, function] + arguments]])
+	var action = [human_name, flags, "do_action", [[object, function] + arguments]]
+	actions.append(action)
+	if object in _object_to_actions_map:
+		_object_to_actions_map[object].append(action)
+	else:
+		object.connect("tree_exited", self, "remove_actions", [object])
+		_object_to_actions_map[object] = [action]
 
 
 func do_action(flags, arg0, arg1 = null):
@@ -130,8 +137,14 @@ func do_action(flags, arg0, arg1 = null):
 		object = arg0[0]
 		function = arg0[1]
 		arguments = arg0.slice(2, len(arg0) - 1)
-	object.callv(function, [flags] + arguments)
+	if is_instance_valid(object):
+		object.callv(function, [flags] + arguments)
 
+
+func remove_actions(object):
+	for action in _object_to_actions_map[object]:
+		actions.erase(action)
+	_object_to_actions_map.erase(object)
 
 
 func get_blocks(block_name):
