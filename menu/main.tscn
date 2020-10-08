@@ -1,9 +1,9 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://addons/tiles/grass/grass_0.png" type="Texture" id=1]
 [ext_resource path="res://unit/vehicle/vehicle.tscn" type="PackedScene" id=2]
 [ext_resource path="res://menu/main.gd" type="Script" id=3]
-[ext_resource path="res://unit/vehicle/ai/brick.gd" type="Script" id=4]
+[ext_resource path="res://campaign/debug.tscn" type="PackedScene" id=4]
 [ext_resource path="res://camera/tracker.gd" type="Script" id=5]
 [ext_resource path="res://menu/theme/theme.tres" type="Theme" id=6]
 [ext_resource path="res://menu/good_times_rg.ttf" type="DynamicFontData" id=7]
@@ -22,19 +22,7 @@ size = Vector2( 1000, 1000 )
 albedo_texture = ExtResource( 1 )
 uv1_scale = Vector3( 66.666, 66.666, 1 )
 
-[sub_resource type="SpatialMaterial" id=4]
-flags_unshaded = true
-vertex_color_use_as_albedo = true
-
-[sub_resource type="GDScript" id=5]
-script/source = "extends ImmediateGeometry
-
-
-func _process(_delta):
-	clear()
-"
-
-[sub_resource type="DynamicFont" id=6]
+[sub_resource type="DynamicFont" id=4]
 size = 10
 font_data = ExtResource( 7 )
 
@@ -60,7 +48,6 @@ __meta__ = {
 
 [node name="Vehicle" parent="." instance=ExtResource( 2 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.93254, 0 )
-ai_script = ExtResource( 4 )
 
 [node name="Timer" type="Timer" parent="."]
 wait_time = 3.0
@@ -73,12 +60,6 @@ script = ExtResource( 5 )
 node_path = NodePath("../Vehicle")
 max_distance = 20.0
 height = 3.0
-
-[node name="Debug" type="ImmediateGeometry" parent="."]
-process_priority = -1
-visible = false
-material_override = SubResource( 4 )
-script = SubResource( 5 )
 
 [node name="GUI" type="Control" parent="."]
 anchor_right = 1.0
@@ -103,7 +84,7 @@ margin_left = 220.401
 margin_top = -12.6697
 margin_right = 311.401
 margin_bottom = 16.3303
-custom_fonts/font = SubResource( 6 )
+custom_fonts/font = SubResource( 4 )
 text = "0.0.0"
 align = 1
 valign = 1
@@ -172,6 +153,9 @@ text = "Tutorial"
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 0.866025, 0.25, -0.433013, 0, 0.866025, 0.5, 0.5, -0.433013, 0.75, 0, 25.7531, 0 )
 light_energy = 0.5
+
+[node name="Debug" parent="." instance=ExtResource( 4 )]
+visible = false
 [connection signal="timeout" from="Timer" to="GUI" method="_on_Timer_timeout"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Campaign" to="GUI" method="_on_Campaign_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Designer" to="GUI" method="_on_Designer_pressed"]
