@@ -17,7 +17,7 @@ func _on_Timer_timeout():
 	var distance = rand_range(WAYPOINT_MIN_RADIUS, WAYPOINT_MAX_RADIUS)
 	var mainframes = $"../Vehicle".get_blocks("mainframe")
 	for mainframe in mainframes:
-		mainframe.ai.waypoint = Vector3(distance * cos(angle), 0, distance * sin(angle))
+		mainframe[2].get_child(0).ai.waypoints = [Vector3(distance * cos(angle), 0, distance * sin(angle))]
 		break
 
 
