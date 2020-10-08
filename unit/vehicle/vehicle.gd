@@ -133,6 +133,22 @@ func do_action(flags, arg0, arg1 = null):
 	object.callv(function, [flags] + arguments)
 
 
+
+func get_blocks(block_name):
+	var id = Global.blocks[block_name].id
+	return get_blocks_by_id(id)
+
+
+
+func get_blocks_by_id(id):
+	var filtered_blocks = []
+	for body in voxel_bodies:
+		for block in body.blocks.values():
+			if block[0] == id:
+				filtered_blocks.append(block.duplicate())
+	return filtered_blocks
+
+
 func get_cost():
 	var cost = 0
 	for body in voxel_bodies:
