@@ -26,7 +26,9 @@ export(int) var cost: int = 1
 export(Vector3) var size: Vector3 = Vector3.ONE
 export(int) var mirror_rotation_offset := 0 setget set_mirror_rotation_offset
 #export(Block) var mirror_block: Block
-export(Resource) var mirror_block
+#export(Resource) var mirror_block
+export var __mirror_block_name: String
+var mirror_block: Resource setget __set_mirror_block, __get_mirror_block
 # warning-ignore:unused_class_variable
 var id: int
 var mirror_rotation_map: PoolIntArray
@@ -134,3 +136,13 @@ static func orthogonal_index_to_rotation(index: int) -> int:
 			return i
 	assert(false)
 	return -1
+
+
+func __set_mirror_block(block: Resource):
+	__mirror_block_name = block.name
+
+
+func __get_mirror_block():
+	var caller = get_stack()[1]
+	if caller["function"] != "__get_mirror_block":
+		return Global.blocks[__mirror_block_name]
