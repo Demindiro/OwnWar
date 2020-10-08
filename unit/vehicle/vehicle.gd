@@ -161,7 +161,7 @@ func get_linear_velocity():
 
 
 func _voxel_body_hit(_voxel_body):
-	if get_cost() * 4 / 3 < max_cost:
+	if get_cost() * 4 < max_cost:
 		destroy()
 
 
