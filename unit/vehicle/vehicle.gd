@@ -155,6 +155,16 @@ func get_linear_velocity():
 	return voxel_bodies[0].linear_velocity
 
 
+func get_cannons():
+	var cannons := []
+	for body in voxel_bodies:
+		for coordinate in body.blocks:
+			var block = voxel_bodies[coordinate]
+			if block is Cannon:
+				cannons.append(block)
+	return cannons
+
+
 func _voxel_body_hit(_voxel_body):
 	if get_cost() * 4 / 3 < max_cost:
 		destroy()
