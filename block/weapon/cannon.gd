@@ -20,12 +20,13 @@ func _physics_process(_delta):
 	var projected_other_forward = (other_forward + t * self_normal).normalized()
 	var abs_desired_direction = global_transform.basis * _desired_direction
 	var error = 1.0 - projected_other_forward.dot(abs_desired_direction)
-	var direction = -sign(projected_other_forward \
+	var direction = -projected_other_forward \
 			.cross(abs_desired_direction) \
-			.dot(self_normal))
+			.dot(self_normal)
 	if abs(direction) < 1e-5:
 		direction = 1.0
-	var turn_rate = 0 if error < 1e-4 else direction
+	var turn_rate = 0 if error < 1e-10 else direction * PI * 10
+	turn_rate = clamp(turn_rate, -PI / 2, PI / 2)
 	$Generic6DOFJoint.set("angular_motor_x/target_velocity", turn_rate)
 
 
