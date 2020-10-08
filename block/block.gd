@@ -145,4 +145,4 @@ func __set_mirror_block(block: Resource):
 func __get_mirror_block():
 	var caller = get_stack()[1]
 	if caller["function"] != "__get_mirror_block":
-		return Global.blocks[__mirror_block_name]
+		return Global.blocks[__mirror_block_name] if __mirror_block_name != "" else self
