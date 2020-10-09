@@ -127,7 +127,6 @@ func get_blocks(block_name):
 	return get_blocks_by_id(id)
 
 
-
 func get_blocks_by_id(id):
 	var filtered_blocks = []
 	for body in voxel_bodies:
