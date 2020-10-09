@@ -2,6 +2,7 @@ extends Spatial
 class_name Connector
 
 
+signal destroyed()
 var connected = false
 var joint
 var body_a
@@ -25,12 +26,19 @@ func init(coordinate, _block_data, _rotation, voxel_body, vehicle):
 					_create_joint(voxel_body, body)
 					connected = true
 					other_connector.connected = true
+					connect("destroyed", other_connector, "_other_connector_destroyed")
+					other_connector.connect("destroyed", self, "_other_connector_destroyed")
 					return
 				other_connector = null
 
 
 func _physics_process(_delta):
 	if joint == null:
+		return
+	if other_connector == null:
+		# Other connector got destroyed, remove the joint
+		joint.queue_free()
+		joint = null
 		return
 	var other_forward = other_connector.global_transform.basis.z
 	var self_normal = global_transform.basis.y
@@ -46,6 +54,14 @@ func _physics_process(_delta):
 	var turn_rate = 0 if error < 1e-10 else direction * PI * 20
 	turn_rate = clamp(turn_rate, -PI / 2, PI / 2)
 	joint.set("angular_motor_x/target_velocity", turn_rate)
+
+
+func _notification(what):
+	match what:
+		NOTIFICATION_PREDELETE:
+			if joint != null:
+				joint.queue_free()
+			emit_signal("destroyed")
 
 
 func _process(_delta):
@@ -91,3 +107,10 @@ func _create_joint(p_body_a, p_body_b):
 	joint.set("angular_limit_x/enabled", false)
 	joint.set("angular_motor_x/enabled", true)
 	joint.set("angular_motor_x/force_limit", 1500.0)
+
+
+func _other_connector_destroyed():
+	if joint != null:
+		joint.queue_free()
+	other_connector = null
+	joint = null
