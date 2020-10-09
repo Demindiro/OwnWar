@@ -4,22 +4,21 @@ extends Reference
 
 # AI Interface
 
-var vehicle: Vehicle
 var waypoints := []
 # warning-ignore:unused_class_variable
 var targets := []
 
 
-func init(p_vehicle):
-	vehicle = p_vehicle
+func init(_mainframe):
+	pass
 
 
-func process(_delta):
+func process(_mainframe, _delta):
 	pass
 		
 	
-func debug_draw(debug):
-	var start_vertex = vehicle.translation + Vector3.UP * 0.1
+func debug_draw(mainframe, debug):
+	var start_vertex = mainframe.vehicle.translation + Vector3.UP * 0.1
 	for waypoint in waypoints:
 		waypoint += Vector3.UP * 0.1
 		debug.draw_line(start_vertex, waypoint, Color.green)

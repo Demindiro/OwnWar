@@ -5,25 +5,25 @@ var random_block_coordinate = [-1, -1, -1]
 var time_until_block_switch = 0
 
 
-func process(delta):
-	.process(delta)
+func process(mainframe, delta):
+	.process(mainframe, delta)
 	if len(waypoints) > 0:
-		move_to_waypoint(waypoints[0])
-		if (vehicle.translation - waypoints[0]).length_squared() < 40:
+		move_to_waypoint(mainframe.vehicle, waypoints[0])
+		if (mainframe.vehicle.translation - waypoints[0]).length_squared() < 40:
 			waypoints.remove(0)
 	else:
-		vehicle.brake = 1
+		mainframe.vehicle.brake = 1
 	# Fire at target
-	vehicle.aim_weapons = false
+	mainframe.vehicle.aim_weapons = false
 	while len(targets) > 0:
 		if targets[0] == null:
 			targets.remove(0)
 		else:
-			fire_at(targets[0], delta)
+			fire_at(mainframe.vehicle, targets[0], delta)
 			break
 
 
-func move_to_waypoint(waypoint):
+func move_to_waypoint(vehicle, waypoint):
 	var linear_velocity = vehicle.get_linear_velocity()
 	var transform = vehicle.transform
 	var position = transform.origin
@@ -74,7 +74,7 @@ func move_to_waypoint(waypoint):
 			vehicle.brake = 0.4
 
 
-func fire_at(target, delta):
+func fire_at(vehicle, target, delta):
 	vehicle.aim_weapons = true
 	if target is Vehicle:
 		# Check if the currently targeted block is present
@@ -99,12 +99,12 @@ func fire_at(target, delta):
 	vehicle.fire_weapons()
 
 
-func debug_draw(debug):
-	.debug_draw(debug)
+func debug_draw(mainframe, debug):
+	.debug_draw(mainframe, debug)
 	if len(targets) > 0:
-		debug.draw_point(vehicle.weapons_aim_point, Color.red, Global.BLOCK_SCALE)
+		debug.draw_point(mainframe.vehicle.weapons_aim_point, Color.red, Global.BLOCK_SCALE)
 		debug.begin(Mesh.PRIMITIVE_LINES)
 		debug.set_color(Color.red)
-		debug.add_vertex(vehicle.translation)
-		debug.add_vertex(vehicle.weapons_aim_point)
+		debug.add_vertex(mainframe.vehicle.translation)
+		debug.add_vertex(mainframe.vehicle.weapons_aim_point)
 		debug.end()

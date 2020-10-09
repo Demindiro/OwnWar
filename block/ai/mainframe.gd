@@ -10,7 +10,7 @@ func _process(_delta):
 
 
 func _physics_process(delta):
-	ai.process(delta)
+	ai.process(self, delta)
 
 
 func init(_coordinate, _block_data, _rotation, _voxel_body, p_vehicle):
@@ -36,4 +36,4 @@ func set_targets(flags, targets):
 
 
 func debug_draw(debug):
-	ai.debug_draw(debug)
+	ai.debug_draw(self, debug)
