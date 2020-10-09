@@ -84,8 +84,13 @@ func fire_at(mainframe, target, delta):
 					block_present = true
 					break
 		if not block_present or time_until_block_switch >= 3:
+			# Only select from bodies with blocks
+			var valid_bodies = []
+			for body in target.voxel_bodies:
+				if len(body.blocks) > 0:
+					valid_bodies.append(body)
 			# Pick a random (alive) block so we don't shoot at air constantly
-			var body = target.voxel_bodies[randi() % len(target.voxel_bodies)]
+			var body = valid_bodies[randi() % len(valid_bodies)]
 			var keys = body.blocks.keys()
 			random_block_coordinate = keys[randi() % len(keys)]
 			time_until_block_switch = 0
