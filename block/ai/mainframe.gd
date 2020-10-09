@@ -26,7 +26,7 @@ func _physics_process(delta):
 					child.aim_at(weapons_aim_point)
 				else:
 					child.set_angle(0)
-				if _fire_weapons:
+				if _fire_weapons and child.get_total_error(weapons_aim_point) < 1e-5:
 					child.fire()
 			elif child.get_child_count() > 0 and child.get_child(0) is Connector:
 				if aim_weapons:
