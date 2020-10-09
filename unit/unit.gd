@@ -45,6 +45,14 @@ func get_info():
 		}
 
 
+func has_function(function_name):
+	return has_method(function_name)
+
+
+func call_function(function_name, arguments := []):
+	return callv(function_name, arguments)
+
+
 func destroy():
 	game_master.remove_unit(team, self)
 	emit_signal("destroyed", self)

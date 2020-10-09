@@ -98,9 +98,9 @@ func _physics_process(delta):
 				tasks.remove(0)
 		Task.TAKE_SHELL:
 			if task[1] != null:
-				if not $Shell.visible and task[1].shells > 0:
+				if not $Shell.visible and task[1].call_function(\"get_shell_count\") > 0:
 					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						$Shell.visible = task[1].take_shell()
+						$Shell.visible = task[1].call_function(\"take_shell\")
 						current_task_completed()
 					else:
 						move_towards(task[1].translation, delta)
@@ -110,9 +110,9 @@ func _physics_process(delta):
 				tasks.remove(0)
 		Task.PUT_SHELL:
 			if task[1] != null:
-				if $Shell.visible and task[1].shells < task[1].max_shells:
+				if $Shell.visible and  task[1].call_function(\"get_shell_space\") > 0:
 					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						$Shell.visible = not task[1].put_shell()
+						$Shell.visible = task[1].call_function(\"put_shell\")
 						current_task_completed()
 					else:
 						move_towards(task[1].translation, delta)
@@ -245,15 +245,15 @@ func put_material_in(flags, units):
 func take_shell_from(flags, units):
 	var force_append = flags & 0x1 > 0
 	for unit in units:
-		if unit.has_method(\"take_shell\"):
+		if unit.has_function(\"take_shell\"):
 			add_task([Task.TAKE_SHELL, unit], force_append)
 			force_append = true
 
 
-func put_shell_from(flags, units):
+func put_shell_in(flags, units):
 	var force_append = flags & 0x1 > 0
 	for unit in units:
-		if unit.has_method(\"put_shell\"):
+		if unit.has_function(\"put_shell\"):
 			add_task([Task.PUT_SHELL, unit], force_append)
 			force_append = true
 
@@ -274,8 +274,8 @@ func take_materials_from_closest_pod(delta, exclude_pod):
 			move_towards(closest_pod.translation, delta)
 		return true
 	return false
-	
-	
+
+
 func current_task_completed():
 	if loop_tasks:
 		tasks.push_back(tasks.pop_front())

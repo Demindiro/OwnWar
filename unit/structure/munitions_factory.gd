@@ -51,6 +51,10 @@ func take_shell():
 	return false
 
 
+func get_shell_count():
+	return shells
+
+
 func _visualize_shells():
 	$MultiMeshInstance.multimesh.instance_count = shells
 	for i in range(shells):
