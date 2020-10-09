@@ -11,6 +11,7 @@ var _voxel_body: VoxelBody
 var _desired_direction := Vector3.FORWARD
 var _time_of_last_shot := 0.0
 var _rel_offset: Vector3
+var _error: float
 
 
 func _physics_process(_delta):
@@ -19,13 +20,13 @@ func _physics_process(_delta):
 	var t = -self_normal.dot(other_forward) / self_normal.length_squared()
 	var projected_other_forward = (other_forward + t * self_normal).normalized()
 	var abs_desired_direction = global_transform.basis * _desired_direction
-	var error = 1.0 - projected_other_forward.dot(abs_desired_direction)
+	_error = 1.0 - projected_other_forward.dot(abs_desired_direction)
 	var direction = -projected_other_forward \
 			.cross(abs_desired_direction) \
 			.dot(self_normal)
-	if error > 1e-2 and abs(direction) < 1e-5:
+	if _error > 1e-2 and abs(direction) < 1e-5:
 		direction = 1.0
-	var turn_rate = 0 if error < 1e-10 else direction * PI * 10
+	var turn_rate = 0 if _error < 1e-10 else direction * PI * 10
 	turn_rate = clamp(turn_rate, -PI / 2, PI / 2)
 	$Generic6DOFJoint.set("angular_motor_x/target_velocity", turn_rate)
 
@@ -97,3 +98,13 @@ func fire():
 
 func set_angle(angle):
 	_desired_direction = Vector3.BACK.rotated(Vector3.RIGHT, angle)
+
+
+func get_error() -> float:
+	return _error
+
+
+func get_total_error(target: Vector3) -> float:
+	var direction_to_target = (target - global_transform.origin).normalized()
+	var cannon_direction = global_transform.basis.z
+	return 1.0 - cannon_direction.dot(direction_to_target)

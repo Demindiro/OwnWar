@@ -2,39 +2,23 @@ class_name Vehicle
 extends Unit
 
 
-export(GDScript) var ai_script
-var ai: AI setget set_ai
 var drive_forward := 0.0
 var drive_yaw := 0.0
 var brake := 0.0
-var weapons_aim_point := Vector3.ZERO
-var aim_weapons := false
 var max_cost: int
 var voxel_bodies := []
-var _fire_weapons := false
+var actions := []
+var _object_to_actions_map := {}
 onready var debug_node = $"../Debug"
 
 
-func _ready():
-	if ai == null:
-		if ai_script != null:
-			self.ai = ai_script.new()
-		else:
-			self.ai = load(Global.DEFAULT_AI_SCRIPT).new()
-
-
 func _process(_delta):
-	if ai != null:
-		ai.debug_draw(debug_node)
 	for body in voxel_bodies:
 		body.debug_draw(debug_node)
 
 
 func _physics_process(delta):
 	global_transform = voxel_bodies[0].global_transform
-	if ai != null:
-		assert(ai is AI)
-		ai.process(delta)
 	drive_forward = clamp(drive_forward, -1, 1)
 	drive_yaw = clamp(drive_yaw, -1, 1)
 	for body in voxel_bodies:
@@ -45,24 +29,6 @@ func _physics_process(delta):
 				child.steering = angle * drive_yaw
 				child.engine_force = drive_forward * 300.0
 				child.brake = brake * 1.0
-			elif child is Weapon:
-				if aim_weapons:
-					child.aim_at(weapons_aim_point)
-				if _fire_weapons:
-					child.fire()
-			elif child is Cannon:
-				if aim_weapons:
-					child.aim_at(weapons_aim_point)
-				else:
-					child.set_angle(0)
-				if _fire_weapons:
-					child.fire()
-			elif child.get_child_count() > 0 and child.get_child(0) is Connector:
-				if aim_weapons:
-					child.get_child(0).aim_at(weapons_aim_point)
-				else:
-					child.get_child(0).set_angle(0)
-	_fire_weapons = false
 
 
 func get_info():
@@ -77,10 +43,6 @@ func get_info():
 	info["Health"] = "%d / %d" % [remaining_health, max_health]
 	info["Cost"] = "%d / %d" % [remaining_cost, max_cost]
 	return info
-	
-			
-func fire_weapons():
-	_fire_weapons = true
 
 
 func load_from_file(path: String) -> int:
@@ -124,24 +86,55 @@ func load_from_file(path: String) -> int:
 	
 	
 func get_actions():
-	return [
-			['Set waypoint', Action.INPUT_COORDINATE, 'set_waypoint', []],
-			['Set targets', Action.INPUT_ENEMY_UNITS, 'set_targets', []],
-		]
+	return actions
 
 
-func set_waypoint(_flags, waypoint):
-	ai.waypoint = waypoint
+func add_action(object, human_name, flags, function, arguments):
+	var action = [human_name, flags, "do_action", [[object, function] + arguments]]
+	actions.append(action)
+	if object in _object_to_actions_map:
+		_object_to_actions_map[object].append(action)
+	else:
+		object.connect("tree_exited", self, "remove_actions", [object])
+		_object_to_actions_map[object] = [action]
 
 
-func set_targets(_flags, targets):
-	ai.target = targets[0] if len(targets) > 0 else null
+func do_action(flags, arg0, arg1 = null):
+	var object
+	var function
+	var arguments
+	if arg1 != null:
+		object = arg1[0]
+		function = arg1[1]
+		arguments = arg1.slice(1, len(arg1) - 1)
+		arguments[0] = arg0
+	else:
+		object = arg0[0]
+		function = arg0[1]
+		arguments = arg0.slice(2, len(arg0) - 1)
+	if is_instance_valid(object):
+		object.callv(function, [flags] + arguments)
 
 
-func set_ai(p_ai):
-	if ai != p_ai:
-		ai = p_ai
-		ai.init(self)
+func remove_actions(object):
+	for action in _object_to_actions_map[object]:
+		actions.erase(action)
+	_object_to_actions_map.erase(object)
+
+
+func get_blocks(block_name):
+	var id = Global.blocks[block_name].id
+	return get_blocks_by_id(id)
+
+
+
+func get_blocks_by_id(id):
+	var filtered_blocks = []
+	for body in voxel_bodies:
+		for block in body.blocks.values():
+			if block[0] == id:
+				filtered_blocks.append(block.duplicate())
+	return filtered_blocks
 
 
 func get_cost():
@@ -156,7 +149,7 @@ func get_linear_velocity():
 
 
 func _voxel_body_hit(_voxel_body):
-	if get_cost() * 4 / 3 < max_cost:
+	if get_cost() * 4 < max_cost:
 		destroy()
 
 

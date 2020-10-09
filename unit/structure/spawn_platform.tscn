@@ -83,7 +83,6 @@ func spawn_vehicle(_flags, path):
 		queued_vehicle.global_transform = global_transform
 		queued_vehicle.translate(Vector3.UP * 5)
 		queued_vehicle.rotate_y(PI)
-		queued_vehicle.ai = load(\"res://unit/vehicle/ai/brick.gd\").new()
 		$IndicatorVehicle.material_override.albedo_color = Color.orange
 		queued_vehicle_name = Vehicle.path_to_name(path.get_file())
 	return queued_vehicle
