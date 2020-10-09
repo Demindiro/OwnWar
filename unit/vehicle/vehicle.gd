@@ -5,12 +5,9 @@ extends Unit
 var drive_forward := 0.0
 var drive_yaw := 0.0
 var brake := 0.0
-var weapons_aim_point := Vector3.ZERO
-var aim_weapons := false
 var max_cost: int
 var voxel_bodies := []
 var actions := []
-var _fire_weapons := false
 var _object_to_actions_map := {}
 onready var debug_node = $"../Debug"
 
@@ -32,24 +29,6 @@ func _physics_process(delta):
 				child.steering = angle * drive_yaw
 				child.engine_force = drive_forward * 300.0
 				child.brake = brake * 1.0
-			elif child is Weapon:
-				if aim_weapons:
-					child.aim_at(weapons_aim_point)
-				if _fire_weapons:
-					child.fire()
-			elif child is Cannon:
-				if aim_weapons:
-					child.aim_at(weapons_aim_point)
-				else:
-					child.set_angle(0)
-				if _fire_weapons:
-					child.fire()
-			elif child.get_child_count() > 0 and child.get_child(0) is Connector:
-				if aim_weapons:
-					child.get_child(0).aim_at(weapons_aim_point)
-				else:
-					child.get_child(0).set_angle(0)
-	_fire_weapons = false
 
 
 func get_info():
@@ -64,10 +43,6 @@ func get_info():
 	info["Health"] = "%d / %d" % [remaining_health, max_health]
 	info["Cost"] = "%d / %d" % [remaining_cost, max_cost]
 	return info
-	
-			
-func fire_weapons():
-	_fire_weapons = true
 
 
 func load_from_file(path: String) -> int:
