@@ -10,6 +10,7 @@ var voxel_bodies := []
 var actions := []
 var _object_to_actions_map := {}
 var _block_functions := {}
+var _info_functions := {}
 onready var debug_node = $"../Debug"
 
 
@@ -43,6 +44,9 @@ func get_info():
 			remaining_cost += Global.blocks_by_id[block[0]].cost
 	info["Health"] = "%d / %d" % [remaining_health, max_health]
 	info["Cost"] = "%d / %d" % [remaining_cost, max_cost]
+	for info_name in _info_functions:
+		var info_function = _info_functions[info_name]
+		info[info_name] = info_function[0].call_func(info_function[1])
 	return info
 
 
@@ -145,7 +149,18 @@ func add_block_function(object, function, function_name):
 
 
 func remove_block_functions(function_name, object):
-	_block_functions[function_name][2].erase(object)
+	_block_functions[function_name][1].erase(object)
+
+
+func add_info_function(object, function, info_name):
+	if not info_name in _info_functions:
+		_info_functions[info_name] = [funcref(object, function), [object]]
+	else:
+		_info_functions[info_name][1].append(object)
+
+
+func remove_info_function(object, info_name):
+	_info_functions[info_name][1].erase(object)
 
 
 func get_blocks(block_name):
