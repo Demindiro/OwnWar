@@ -102,3 +102,9 @@ func set_angle(angle):
 
 func get_error() -> float:
 	return _error
+
+
+func get_total_error(target: Vector3) -> float:
+	var direction_to_target = (target - global_transform.origin).normalized()
+	var cannon_direction = global_transform.basis.z
+	return 1.0 - cannon_direction.dot(direction_to_target)
