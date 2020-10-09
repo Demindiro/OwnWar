@@ -77,16 +77,23 @@ func move_to_waypoint(waypoint):
 func fire_at(target, delta):
 	vehicle.aim_weapons = true
 	if target is Vehicle:
-		# Pick a random (alive) block so we don't shoot at air constantly
-		for body in target.voxel_bodies:
-			if not random_block_coordinate in body.blocks or time_until_block_switch >= 3:
-				var keys = body.blocks.keys()
-				random_block_coordinate = keys[randi() % len(keys)]
-				time_until_block_switch = 0
-			time_until_block_switch += delta
+		# Check if the currently targeted block is present
+		var block_present = false
+		if time_until_block_switch < 3:
+			for body in target.voxel_bodies:
+				if random_block_coordinate in body.blocks:
+					block_present = true
+					break
+		if not block_present or time_until_block_switch >= 3:
+			# Pick a random (alive) block so we don't shoot at air constantly
+			var body = target.voxel_bodies[randi() % len(target.voxel_bodies)]
+			var keys = body.blocks.keys()
+			random_block_coordinate = keys[randi() % len(keys)]
+			time_until_block_switch = 0
 			var local_position = body.coordinate_to_vector(random_block_coordinate)
 			vehicle.weapons_aim_point = body.to_global(local_position +
 					Vector3.ONE * Global.BLOCK_SCALE / 2)
+		time_until_block_switch += delta
 	else:
 		vehicle.weapons_aim_point = target.translation
 	vehicle.fire_weapons()
