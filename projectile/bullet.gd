@@ -1,7 +1,7 @@
 extends RigidBody
 
 
-var damage := 0
+export var damage := 0
 
 onready var mesh = $MeshInstance
 onready var previous_position = translation

@@ -13,6 +13,8 @@ enum Task {
 		PUT_MATERIAL,
 		BUILD_STRUCTURE,
 		GOTO_WAYPOINT,
+		TAKE_MUNITION,
+		PUT_MUNITION,
 	}
 
 const SPEED = 20.0
@@ -26,6 +28,7 @@ var tasks = []
 var material = 0 setget set_material
 var last_build_frame = 0
 var loop_tasks = false
+var munition = null
 onready var rotors = [
 		$ArmLF/Rotor,
 		$ArmRF/Rotor,
@@ -48,12 +51,14 @@ func _physics_process(delta):
 	if len(tasks) == 0:
 		return
 	var task = tasks[0]
-	match task[0]:
-		Task.GOTO_WAYPOINT:
-			if move_towards(task[1], delta):
-				current_task_completed()
-		Task.BUILD_STRUCTURE:
-			if task[1] != null:
+	if task[1] == null:
+		tasks.remove(0)
+	else:
+		match task[0]:
+			Task.GOTO_WAYPOINT:
+				if move_towards(task[1], delta):
+					current_task_completed()
+			Task.BUILD_STRUCTURE:
 				if material > 0:
 					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
 						if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
@@ -65,20 +70,14 @@ func _physics_process(delta):
 						move_towards(task[1].translation, delta)
 				else:
 					take_materials_from_closest_pod(delta, task[1])
-			else:
-				tasks.remove(0)
-		Task.TAKE_MATERIAL:
-			if task[1] != null:
+			Task.TAKE_MATERIAL:
 				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
 					var material_space = max_material - material
 					self.material += task[1].take_material(material_space)
 					current_task_completed()
 				else:
 					move_towards(task[1].translation, delta)
-			else:
-				tasks.remove(0)
-		Task.PUT_MATERIAL:
-			if task[1] != null:
+			Task.PUT_MATERIAL:
 				if task[1].material >= task[1].max_material:
 					current_task_completed()
 				elif material > 0:
@@ -91,8 +90,26 @@ func _physics_process(delta):
 				else:
 					if not take_materials_from_closest_pod(delta, task[1]):
 						current_task_completed()
-			else:
-				tasks.remove(0)
+			Task.TAKE_MUNITION:
+				if munition == null and task[1].call_function(\"get_munition_count\") > 0:
+					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+						munition = task[1].call_function(\"take_munition\")
+						$MunitionMesh.mesh = munition.mesh
+						current_task_completed()
+					else:
+						move_towards(task[1].translation, delta)
+				else:
+					current_task_completed()
+			Task.PUT_MUNITION:
+				if munition != null and task[1].call_function(\"get_munition_space\") > 0:
+					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+						munition = task[1].call_function(\"put_munition\", [munition])
+						$MunitionMesh.mesh = null
+						current_task_completed()
+					else:
+						move_towards(task[1].translation, delta)
+				else:
+					current_task_completed()
 
 
 func get_actions():
@@ -100,6 +117,8 @@ func get_actions():
 			[\"Set waypoint\", Action.INPUT_COORDINATE, \"set_waypoint\", []],
 			[\"Take material\", Action.INPUT_OWN_UNITS, \"take_material_from\", []],
 			[\"Put material\", Action.INPUT_OWN_UNITS, \"put_material_in\", []],
+			[\"Take munition\", Action.INPUT_OWN_UNITS, \"take_munition_from\", []],
+			[\"Put munition\", Action.INPUT_OWN_UNITS, \"put_munition_in\", []],
 			[\"Build\", Action.INPUT_OWN_UNITS, \"build\", []],
 			[\"Loop tasks\", Action.INPUT_TOGGLE, \"set_loop_tasks\", [], loop_tasks],
 			[\"Build drill\", Action.INPUT_COORDINATE, \"build_drill\", []],
@@ -123,6 +142,10 @@ func get_info():
 				task_string = \"Take\"
 			Task.PUT_MATERIAL:
 				task_string = \"Put\"
+			Task.TAKE_MUNITION:
+				task_string = \"Take munition\"
+			Task.PUT_MUNITION:
+				task_string = \"Put munition\"
 			_:
 				task_string = \"Unknown (BUG)\"
 	else:
@@ -211,7 +234,23 @@ func put_material_in(flags, units):
 			add_task([Task.PUT_MATERIAL, unit],
 					force_append)
 			force_append = true
-			
+
+
+func take_munition_from(flags, units):
+	var force_append = flags & 0x1 > 0
+	for unit in units:
+		if unit.has_function(\"take_munition\"):
+			add_task([Task.TAKE_MUNITION, unit], force_append)
+			force_append = true
+
+
+func put_munition_in(flags, units):
+	var force_append = flags & 0x1 > 0
+	for unit in units:
+		if unit.has_function(\"put_munition\"):
+			add_task([Task.PUT_MUNITION, unit], force_append)
+			force_append = true
+
 
 func take_materials_from_closest_pod(delta, exclude_pod):
 	var closest_pod = null
@@ -229,8 +268,8 @@ func take_materials_from_closest_pod(delta, exclude_pod):
 			move_towards(closest_pod.translation, delta)
 		return true
 	return false
-	
-	
+
+
 func current_task_completed():
 	if loop_tasks:
 		tasks.push_back(tasks.pop_front())
@@ -255,6 +294,8 @@ func get_cost():
 func draw_debug(debug):
 	var start = translation
 	for task in tasks:
+		if task[1] == null:
+			continue
 		var color
 		var position
 		match task[0]:
@@ -262,17 +303,20 @@ func draw_debug(debug):
 				color = Color.green
 				position = task[1] + Vector3.UP * Global.BLOCK_SCALE
 			Task.BUILD_STRUCTURE:
-				if task[1] != null:
-					color = Color.orange
-					position = task[1].translation
+				color = Color.orange
+				position = task[1].translation
 			Task.TAKE_MATERIAL:
-				if task[1] != null:
-					color = Color.purple
-					position = task[1].translation
+				color = Color.purple
+				position = task[1].translation
 			Task.PUT_MATERIAL:
-				if task[1] != null:
-					color = Color.cyan
-					position = task[1].translation
+				color = Color.cyan
+				position = task[1].translation
+			Task.TAKE_MUNITION:
+				color = Color.red
+				position = task[1].translation
+			Task.PUT_MUNITION:
+				color = Color.yellow
+				position = task[1].translation
 		if color != null:
 			debug.draw_circle(position, color)
 			debug.draw_line(start, position, color)
@@ -382,3 +426,6 @@ shape = SubResource( 7 )
 [node name="RayCast" type="RayCast" parent="."]
 enabled = true
 cast_to = Vector3( 0, -5, 0 )
+
+[node name="MunitionMesh" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.119316, 0.0750224 )

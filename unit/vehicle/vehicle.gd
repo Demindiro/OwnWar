@@ -9,6 +9,8 @@ var max_cost: int
 var voxel_bodies := []
 var actions := []
 var _object_to_actions_map := {}
+var _block_functions := {}
+var _info_functions := {}
 onready var debug_node = $"../Debug"
 
 
@@ -42,7 +44,23 @@ func get_info():
 			remaining_cost += Global.blocks_by_id[block[0]].cost
 	info["Health"] = "%d / %d" % [remaining_health, max_health]
 	info["Cost"] = "%d / %d" % [remaining_cost, max_cost]
+	for info_name in _info_functions:
+		var info_function = _info_functions[info_name]
+		info[info_name] = info_function[0].call_func(info_function[1])
 	return info
+
+
+func has_function(function_name):
+	if function_name in _block_functions:
+		return true
+	return .has_function(function_name)
+
+
+func call_function(function_name, arguments := []):
+	var block_function = _block_functions.get(function_name)
+	if block_function != null:
+		return block_function[0].call_func(block_function[1], arguments)
+	return .call_function(function_name, arguments)
 
 
 func load_from_file(path: String) -> int:
@@ -122,10 +140,32 @@ func remove_actions(object):
 	_object_to_actions_map.erase(object)
 
 
+func add_block_function(object, function, function_name):
+	if function_name in _block_functions:
+		_block_functions[function_name][1].append(object)
+	else:
+		_block_functions[function_name] = [funcref(object, function), [object]]
+		object.connect("tree_exited", self, "remove_block_functions", [function_name, object])
+
+
+func remove_block_functions(function_name, object):
+	_block_functions[function_name][1].erase(object)
+
+
+func add_info_function(object, function, info_name):
+	if not info_name in _info_functions:
+		_info_functions[info_name] = [funcref(object, function), [object]]
+	else:
+		_info_functions[info_name][1].append(object)
+
+
+func remove_info_function(object, info_name):
+	_info_functions[info_name][1].erase(object)
+
+
 func get_blocks(block_name):
 	var id = Global.blocks[block_name].id
 	return get_blocks_by_id(id)
-
 
 
 func get_blocks_by_id(id):

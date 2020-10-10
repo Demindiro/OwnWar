@@ -1,10 +1,10 @@
 [gd_scene load_steps=3 format=2]
 
-[sub_resource type="SpatialMaterial" id=2]
+[sub_resource type="SpatialMaterial" id=1]
 flags_unshaded = true
 vertex_color_use_as_albedo = true
 
-[sub_resource type="GDScript" id=1]
+[sub_resource type="GDScript" id=2]
 script/source = "extends ImmediateGeometry
 
 
@@ -50,5 +50,5 @@ func set_count(p_count: int) -> void:
 "
 
 [node name="Tracer" type="ImmediateGeometry"]
-material_override = SubResource( 2 )
-script = SubResource( 1 )
+material_override = SubResource( 1 )
+script = SubResource( 2 )
