@@ -15,6 +15,8 @@ enum Task {
 		GOTO_WAYPOINT,
 		TAKE_MUNITION,
 		PUT_MUNITION,
+		TAKE_FUEL,
+		PUT_FUEL,
 	}
 
 const SPEED = 20.0
@@ -29,6 +31,8 @@ var material = 0 setget set_material
 var last_build_frame = 0
 var loop_tasks = false
 var munition = null
+var max_fuel = 20
+var fuel = 0
 onready var rotors = [
 		$ArmLF/Rotor,
 		$ArmRF/Rotor,
@@ -110,6 +114,25 @@ func _physics_process(delta):
 						move_towards(task[1].translation, delta)
 				else:
 					current_task_completed()
+			Task.TAKE_FUEL:
+				if fuel < max_fuel and task[1].call_function(\"get_fuel_count\") > 0:
+					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+						var fuel_space = max_fuel - fuel
+						fuel += task[1].call_function(\"take_fuel\", [fuel_space])
+						current_task_completed()
+					else:
+						move_towards(task[1].translation, delta)
+				else:
+					current_task_completed()
+			Task.PUT_FUEL:
+				if fuel > 0 and task[1].call_function(\"get_fuel_space\") > 0:
+					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+						fuel = task[1].call_function(\"put_fuel\", [fuel])
+						current_task_completed()
+					else:
+						move_towards(task[1].translation, delta)
+				else:
+					current_task_completed()
 
 
 func get_actions():
@@ -119,6 +142,8 @@ func get_actions():
 			[\"Put material\", Action.INPUT_OWN_UNITS, \"put_material_in\", []],
 			[\"Take munition\", Action.INPUT_OWN_UNITS, \"take_munition_from\", []],
 			[\"Put munition\", Action.INPUT_OWN_UNITS, \"put_munition_in\", []],
+			[\"Take fuel\", Action.INPUT_OWN_UNITS, \"take_fuel_from\", []],
+			[\"Put fuel\", Action.INPUT_OWN_UNITS, \"put_fuel_in\", []],
 			[\"Build\", Action.INPUT_OWN_UNITS, \"build\", []],
 			[\"Loop tasks\", Action.INPUT_TOGGLE, \"set_loop_tasks\", [], loop_tasks],
 			[\"Build drill\", Action.INPUT_COORDINATE, \"build_drill\", []],
@@ -146,6 +171,10 @@ func get_info():
 				task_string = \"Take munition\"
 			Task.PUT_MUNITION:
 				task_string = \"Put munition\"
+			Task.TAKE_FUEL:
+				task_string = \"Take fuel\"
+			Task.PUT_FUEL:
+				task_string = \"Put fuel\"
 			_:
 				task_string = \"Unknown (BUG)\"
 	else:
@@ -153,6 +182,7 @@ func get_info():
 	info[\"Current task\"] = task_string
 	info[\"Total tasks\"] = str(len(tasks))
 	info[\"Material\"] = \"%d / %d\" % [material, max_material]
+	info[\"Fuel\"] = \"%d / %d\" % [fuel, max_fuel]
 	return info
 
 
@@ -252,6 +282,22 @@ func put_munition_in(flags, units):
 			force_append = true
 
 
+func take_fuel_from(flags, units):
+	var force_append = flags & 0x1 > 0
+	for unit in units:
+		if unit.has_function(\"take_fuel\"):
+			add_task([Task.TAKE_FUEL, unit], force_append)
+			force_append = true
+
+
+func put_fuel_in(flags, units):
+	var force_append = flags & 0x1 > 0
+	for unit in units:
+		if unit.has_function(\"put_fuel\"):
+			add_task([Task.PUT_FUEL, unit], force_append)
+			force_append = true
+
+
 func take_materials_from_closest_pod(delta, exclude_pod):
 	var closest_pod = null
 	for pod in game_master.get_units(team, \"storage_pod\"):
@@ -316,6 +362,12 @@ func draw_debug(debug):
 				position = task[1].translation
 			Task.PUT_MUNITION:
 				color = Color.yellow
+				position = task[1].translation
+			Task.TAKE_FUEL:
+				color = Color.chartreuse
+				position = task[1].translation
+			Task.PUT_FUEL:
+				color = Color.beige
 				position = task[1].translation
 		if color != null:
 			debug.draw_circle(position, color)

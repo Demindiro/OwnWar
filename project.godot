@@ -73,6 +73,11 @@ _global_script_classes=[ {
 "class": "Weapon",
 "language": "GDScript",
 "path": "res://block/weapon/weapon.gd"
+}, {
+"base": "VehicleWheel",
+"class": "Wheel",
+"language": "GDScript",
+"path": "res://block/wheel/wheel.gd"
 } ]
 _global_script_class_icons={
 "AI": "",
@@ -87,7 +92,8 @@ _global_script_class_icons={
 "Unit": "",
 "Vehicle": "",
 "VoxelBody": "",
-"Weapon": ""
+"Weapon": "",
+"Wheel": ""
 }
 
 [application]

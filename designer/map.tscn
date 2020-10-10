@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=2]
+[gd_scene load_steps=33 format=2]
 
 [ext_resource path="res://unit/worker/drone.tscn" type="PackedScene" id=1]
 [ext_resource path="res://addons/tiles/metal_grid/set3_example_2.png" type="Texture" id=2]
@@ -16,6 +16,7 @@
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=14]
 [ext_resource path="res://designer/load_vehicle.gd" type="Script" id=15]
 [ext_resource path="res://unit/structure/munitions_factory.tscn" type="PackedScene" id=16]
+[ext_resource path="res://unit/structure/refinery.tscn" type="PackedScene" id=17]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node
@@ -238,6 +239,9 @@ material = 5000
 
 [node name="MunitionsFactory" parent="Map" instance=ExtResource( 16 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -54.4685, 1.00068, 17.6888 )
+
+[node name="Refinery" parent="Map" instance=ExtResource( 17 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -54.627, 0.5, 4.70696 )
 
 [node name="Vane" type="MeshInstance" parent="Map"]
 transform = Transform( 12, 0, 0, 0, 12, 0, 0, 0, 12, 0, 1.5, 0 )

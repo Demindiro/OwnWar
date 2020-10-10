@@ -2,8 +2,6 @@ class_name Vehicle
 extends Unit
 
 
-var drive_forward := 0.0
-var drive_yaw := 0.0
 var brake := 0.0
 var max_cost: int
 var voxel_bodies := []
@@ -21,16 +19,6 @@ func _process(_delta):
 
 func _physics_process(delta):
 	global_transform = voxel_bodies[0].global_transform
-	drive_forward = clamp(drive_forward, -1, 1)
-	drive_yaw = clamp(drive_yaw, -1, 1)
-	for body in voxel_bodies:
-		for child in body.get_children():
-			if child is VehicleWheel:
-				var angle = asin(child.translation.dot(Vector3.FORWARD) /
-						child.translation.length())
-				child.steering = angle * drive_yaw
-				child.engine_force = drive_forward * 300.0
-				child.brake = brake * 1.0
 
 
 func get_info():
