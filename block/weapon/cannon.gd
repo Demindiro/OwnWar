@@ -94,7 +94,7 @@ func fire():
 	var current_time := float(Engine.get_physics_frames()) / Engine.iterations_per_second
 	if current_time >= _time_of_last_shot + reload_time:
 		for ammo_rack in _ammo_racks:
-			if ammo_rack.take_shell():
+			if ammo_rack.take_munition():
 				var node = projectile.instance()
 				node.global_transform = $ProjectileSpawn.global_transform
 				node.linear_velocity = $ProjectileSpawn.global_transform.basis.z

@@ -1,70 +1,70 @@
 extends Node
 
 
-export var max_shells := 4
-var shells := []
+export var max_munitions := 4
+var munitions := []
 
 
 func _enter_tree():
-	shells
+	munitions
 
 
 func init(_coordinate, _block_data, _rotation, _voxel_body, vehicle):
-	vehicle.add_block_function(self, "_static_put_shell", "put_shell")
-	vehicle.add_block_function(self, "_static_take_shell", "take_shell")
-	vehicle.add_block_function(self, "_static_get_shell_space", "get_shell_space")
-	vehicle.add_block_function(self, "_static_get_shell_count", "get_shell_count")
-	vehicle.add_info_function(self, "_static_get_info_shells", "Shells")
+	vehicle.add_block_function(self, "_static_put_munition", "put_munition")
+	vehicle.add_block_function(self, "_static_take_munition", "take_munition")
+	vehicle.add_block_function(self, "_static_get_munition_space", "get_munition_space")
+	vehicle.add_block_function(self, "_static_get_munition_count", "get_munition_count")
+	vehicle.add_info_function(self, "_static_get_info_munition", "Shells")
 
 
-func put_shell(shell):
-	if len(shells) < max_shells:
-		shells.append(shell)
+func put_munition(munition):
+	if len(munitions) < max_munitions:
+		munitions.append(munition)
 		return null
-	return shell
+	return munition
 
 
-func take_shell():
-	if len(shells) > 0:
-		return shells.pop_back()
+func take_munition():
+	if len(munitions) > 0:
+		return munitions.pop_back()
 	return null
 
 
-static func _static_put_shell(blocks, arguments):
-	var shell = arguments[0]
+static func _static_put_munition(blocks, arguments):
+	var munition = arguments[0]
 	for block in blocks:
-		shell = block.put_shell(shell)
-		if shell == null:
+		munition = block.put_munition(munition)
+		if munition == null:
 			break
-	return shell
+	return munition
 
 
-static func _static_take_shell(blocks, _arguments):
+static func _static_take_munition(blocks, _arguments):
 	for block in blocks:
-		var shell = block.take_shell()
-		if shell != null:
-			return shell
+		var munition = block.take_munition()
+		if munition != null:
+			return munition
 	return null
 
 
-static func _static_get_shell_space(blocks, _arguments):
-	var shell_space = 0
+static func _static_get_munition_space(blocks, _arguments):
+	var munition_space = 0
 	for block in blocks:
-		shell_space += block.max_shells - len(block.shells)
-	return shell_space
+		munition_space += block.max_munitions - len(block.munitions)
+	return munition_space
 
 
-static func _static_get_shell_count(blocks, _arguments):
-	var shell_count = 0
+static func _static_get_munition_count(blocks, _arguments):
+	var munition_count = 0
 	for block in blocks:
-		shell_count += len(block.shells)
-	return shell_count
+		munition_count += len(block.munitions)
+	return munition_count
 
 
-static func _static_get_info_shells(blocks):
-	var max_total_shells = 0
-	var total_shells = 0
+static func _static_get_info_munition(blocks):
+	var max_total_munitions = 0
+	var total_munitions = 0
 	for block in blocks:
-		max_total_shells += block.max_shells
-		total_shells += len(block.shells)
-	return "%d / %d" % [total_shells, max_total_shells]
+		max_total_munitions += block.max_munitions
+		total_munitions += len(block.munitions)
+	return "%d / %d" % [total_munitions, max_total_munitions]

@@ -14,8 +14,8 @@ enum Task {
 		PUT_MATERIAL,
 		BUILD_STRUCTURE,
 		GOTO_WAYPOINT,
-		TAKE_SHELL,
-		PUT_SHELL,
+		TAKE_MUNITION,
+		PUT_MUNITION,
 	}
 
 const SPEED = 20.0
@@ -90,19 +90,19 @@ func _physics_process(delta):
 				else:
 					if not take_materials_from_closest_pod(delta, task[1]):
 						current_task_completed()
-			Task.TAKE_SHELL:
-				if not $Shell.visible and task[1].call_function(\"get_shell_count\") > 0:
+			Task.TAKE_MUNITION:
+				if not $Shell.visible and task[1].call_function(\"get_munition_count\") > 0:
 					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						$Shell.visible = not not task[1].call_function(\"take_shell\")
+						$Shell.visible = not not task[1].call_function(\"take_munition\")
 						current_task_completed()
 					else:
 						move_towards(task[1].translation, delta)
 				else:
 					current_task_completed()
-			Task.PUT_SHELL:
-				if $Shell.visible and  task[1].call_function(\"get_shell_space\") > 0:
+			Task.PUT_MUNITION:
+				if $Shell.visible and  task[1].call_function(\"get_munition_space\") > 0:
 					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						$Shell.visible = not not task[1].call_function(\"put_shell\", [true])
+						$Shell.visible = not not task[1].call_function(\"put_munition\", [true])
 						current_task_completed()
 					else:
 						move_towards(task[1].translation, delta)
@@ -115,8 +115,8 @@ func get_actions():
 			[\"Set waypoint\", Action.INPUT_COORDINATE, \"set_waypoint\", []],
 			[\"Take material\", Action.INPUT_OWN_UNITS, \"take_material_from\", []],
 			[\"Put material\", Action.INPUT_OWN_UNITS, \"put_material_in\", []],
-			[\"Take shell\", Action.INPUT_OWN_UNITS, \"take_shell_from\", []],
-			[\"Put shell\", Action.INPUT_OWN_UNITS, \"put_shell_in\", []],
+			[\"Take munition\", Action.INPUT_OWN_UNITS, \"take_munition_from\", []],
+			[\"Put munition\", Action.INPUT_OWN_UNITS, \"put_munition_in\", []],
 			[\"Build\", Action.INPUT_OWN_UNITS, \"build\", []],
 			[\"Loop tasks\", Action.INPUT_TOGGLE, \"set_loop_tasks\", [], loop_tasks],
 			[\"Build drill\", Action.INPUT_COORDINATE, \"build_drill\", []],
@@ -140,10 +140,10 @@ func get_info():
 				task_string = \"Take\"
 			Task.PUT_MATERIAL:
 				task_string = \"Put\"
-			Task.TAKE_SHELL:
-				task_string = \"Take shell\"
-			Task.PUT_SHELL:
-				task_string = \"Put shell\"
+			Task.TAKE_MUNITION:
+				task_string = \"Take munition\"
+			Task.PUT_MUNITION:
+				task_string = \"Put munition\"
 			_:
 				task_string = \"Unknown (BUG)\"
 	else:
@@ -234,19 +234,19 @@ func put_material_in(flags, units):
 			force_append = true
 
 
-func take_shell_from(flags, units):
+func take_munition_from(flags, units):
 	var force_append = flags & 0x1 > 0
 	for unit in units:
-		if unit.has_function(\"take_shell\"):
-			add_task([Task.TAKE_SHELL, unit], force_append)
+		if unit.has_function(\"take_munition\"):
+			add_task([Task.TAKE_MUNITION, unit], force_append)
 			force_append = true
 
 
-func put_shell_in(flags, units):
+func put_munition_in(flags, units):
 	var force_append = flags & 0x1 > 0
 	for unit in units:
-		if unit.has_function(\"put_shell\"):
-			add_task([Task.PUT_SHELL, unit], force_append)
+		if unit.has_function(\"put_munition\"):
+			add_task([Task.PUT_MUNITION, unit], force_append)
 			force_append = true
 
 
@@ -309,10 +309,10 @@ func draw_debug(debug):
 			Task.PUT_MATERIAL:
 				color = Color.cyan
 				position = task[1].translation
-			Task.TAKE_SHELL:
+			Task.TAKE_MUNITION:
 				color = Color.red
 				position = task[1].translation
-			Task.PUT_SHELL:
+			Task.PUT_MUNITION:
 				color = Color.yellow
 				position = task[1].translation
 		if color != null:
