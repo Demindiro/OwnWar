@@ -44,14 +44,14 @@ static func _static_take_shell(blocks, _arguments):
 static func _static_get_shell_space(blocks, _arguments):
 	var shell_space = 0
 	for block in blocks:
-		shell_space = block.max_shells - block.shells
+		shell_space += block.max_shells - block.shells
 	return shell_space
 
 
 static func _static_get_shell_count(blocks, _arguments):
 	var shell_count = 0
 	for block in blocks:
-		shell_count = block.shells
+		shell_count += block.shells
 	return shell_count
 
 
