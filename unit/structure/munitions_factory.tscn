@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://projectile/shell.obj" type="ArrayMesh" id=1]
 [ext_resource path="res://unit/structure/munitions_factory.gd" type="Script" id=2]
+[ext_resource path="res://projectile/shell.tres" type="Resource" id=3]
 
 [sub_resource type="MultiMesh" id=1]
 mesh = ExtResource( 1 )
@@ -12,6 +13,7 @@ extents = Vector3( 2, 1, 1 )
 [node name="MunitionsFactory" type="StaticBody"]
 script = ExtResource( 2 )
 max_health = 800
+munition_types = [ ExtResource( 3 ) ]
 
 [node name="CSGBox" type="CSGBox" parent="."]
 width = 4.0
