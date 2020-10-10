@@ -44,6 +44,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://unit/structure/ghost.gd"
 }, {
+"base": "Reference",
+"class": "Munition",
+"language": "GDScript",
+"path": "res://projectile/munition.gd"
+}, {
 "base": "Spatial",
 "class": "Ore",
 "language": "GDScript",
@@ -77,6 +82,7 @@ _global_script_class_icons={
 "Connector": "",
 "GameMaster": "",
 "Ghost": "",
+"Munition": "",
 "Ore": "",
 "Unit": "",
 "Vehicle": "",
