@@ -8,7 +8,7 @@ var time_until_block_switch = 0
 func process(mainframe, delta):
 	.process(mainframe, delta)
 	if len(waypoints) > 0:
-		move_to_waypoint(mainframe.vehicle, waypoints[0])
+		move_to_waypoint(mainframe, waypoints[0])
 		if (mainframe.vehicle.translation - waypoints[0]).length_squared() < 40:
 			waypoints.remove(0)
 	else:
@@ -23,9 +23,9 @@ func process(mainframe, delta):
 			break
 
 
-func move_to_waypoint(vehicle, waypoint):
-	var linear_velocity = vehicle.get_linear_velocity()
-	var transform = vehicle.transform
+func move_to_waypoint(mainframe, waypoint):
+	var linear_velocity = mainframe.vehicle.get_linear_velocity()
+	var transform = mainframe.vehicle.transform
 	var position = transform.origin
 	var forward = transform.basis.z
 	var distance = waypoint - position
@@ -39,39 +39,39 @@ func move_to_waypoint(vehicle, waypoint):
 	else:
 		error = 1 - error / distance2d.length()
 	var right2d = Vector2(transform.basis.x.x, transform.basis.x.z).normalized()
-	vehicle.drive_yaw = -clamp(right2d.dot(distance2d) * 0.1, -1, 1) * 0.3
+	mainframe.drive_yaw = -clamp(right2d.dot(distance2d) * 0.1, -1, 1) * 0.3
 	# Prevent turning too hard when going fast
-	vehicle.drive_yaw /= clamp(abs(velocity) * 0.15, 1, 1000)
+	mainframe.drive_yaw /= clamp(abs(velocity) * 0.15, 1, 1000)
 	# Correct distance
-	vehicle.drive_forward = 1 if distance2d.length() > 10 else 0
+	mainframe.drive_forward = 1 if distance2d.length() > 10 else 0
 	if velocity > 20:
 		# Just prevent going too damn fast for now, driving is hard
-		vehicle.drive_forward = 0
+		mainframe.drive_forward = 0
 	elif velocity > 10:
 		# Prevent going too fast when trying to make a sharp turn
-		vehicle.drive_forward *= 1.0 if forward2d.dot(distance2d.normalized()) > 0.5 else 0.5
+		mainframe.drive_forward *= 1.0 if forward2d.dot(distance2d.normalized()) > 0.5 else 0.5
 		# Slow down if trying to turn
 		if forward2d.dot(distance2d.normalized()) > 1:
-			vehicle.brake = 0.5
-			vehicle.drive_forward = 0
+			mainframe.brake = 0.5
+			mainframe.drive_forward = 0
 	# Slow down if nearby the current waypoint
 	if velocity > 5 and distance2d.length() < 60:
 		if linear_velocity.dot(forward) > 10:
-			vehicle.brake = 0.5
-			vehicle.drive_forward = 0
+			mainframe.brake = 0.5
+			mainframe.drive_forward = 0
 		else:
-			vehicle.brake = 0
-			vehicle.drive_forward *= 0.5
+			mainframe.brake = 0
+			mainframe.drive_forward *= 0.5
 	else:
-		vehicle.brake = 0
+		mainframe.brake = 0
 	# Stop and brake if the drive is low
-	if vehicle.drive_forward < 0.01:
-		vehicle.drive_yaw = 0.0
-		vehicle.drive_forward = 0.0
-		vehicle.brake = 1.0
+	if mainframe.drive_forward < 0.01:
+		mainframe.drive_yaw = 0.0
+		mainframe.drive_forward = 0.0
+		mainframe.brake = 1.0
 		# Don't slam the brakes if going too fast
 		if velocity > 10:
-			vehicle.brake = 0.4
+			mainframe.brake = 0.4
 
 
 func fire_at(mainframe, target, delta):

@@ -5,6 +5,9 @@ var ai: AI
 var vehicle
 var aim_weapons := false
 var weapons_aim_point := Vector3.ZERO
+var drive_forward := 0.0
+var drive_yaw := 0.0
+var brake := 0.0
 var _fire_weapons := false
 
 
@@ -33,6 +36,9 @@ func _physics_process(delta):
 					child.get_child(0).aim_at(weapons_aim_point)
 				else:
 					child.get_child(0).set_angle(0)
+	vehicle.call_function("set_drive_forward", [drive_forward])
+	vehicle.call_function("set_drive_yaw", [drive_yaw])
+	vehicle.call_function("set_brake", [brake])
 	_fire_weapons = false
 
 

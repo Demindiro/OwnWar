@@ -1,20 +1,23 @@
 extends Node
 
-export var max_power := 16000
+export var max_power := 16000.0
 var _power_requesters := {}
 onready var _remaining_power := max_power
 
 
 func _physics_process(_delta: float) -> void:
 	_remaining_power = max_power
-	var requested_power := 0
+	var requested_power := 0.0
 	for power in _power_requesters.values():
 		requested_power += power
-	var used_power := max_power if requested_power > max_power else requested_power
-	for requester in _power_requesters:
-		var supplied_power = requested_power * used_power / requested_power
-		requester.supply_power(_power_requesters[requester])
-		_remaining_power -= supplied_power
+	if requested_power > 0.0:
+		var used_power := max_power if requested_power > max_power else requested_power
+		for requester in _power_requesters:
+			var supplied_power = requested_power * used_power / requested_power \
+					/ len(_power_requesters)
+			requester.supply_power(_power_requesters[requester])
+			_remaining_power -= supplied_power
+		assert(_remaining_power >= 0.0)
 
 
 func init(_coordinate, _block_data, _rotation, _voxel_body, vehicle):
