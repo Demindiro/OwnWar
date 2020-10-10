@@ -51,12 +51,14 @@ func _physics_process(delta):
 	if len(tasks) == 0:
 		return
 	var task = tasks[0]
-	match task[0]:
-		Task.GOTO_WAYPOINT:
-			if move_towards(task[1], delta):
-				current_task_completed()
-		Task.BUILD_STRUCTURE:
-			if task[1] != null:
+	if task[1] == null:
+		tasks.remove(0)
+	else:
+		match task[0]:
+			Task.GOTO_WAYPOINT:
+				if move_towards(task[1], delta):
+					current_task_completed()
+			Task.BUILD_STRUCTURE:
 				if material > 0:
 					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
 						if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
@@ -68,20 +70,14 @@ func _physics_process(delta):
 						move_towards(task[1].translation, delta)
 				else:
 					take_materials_from_closest_pod(delta, task[1])
-			else:
-				tasks.remove(0)
-		Task.TAKE_MATERIAL:
-			if task[1] != null:
+			Task.TAKE_MATERIAL:
 				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
 					var material_space = max_material - material
 					self.material += task[1].take_material(material_space)
 					current_task_completed()
 				else:
 					move_towards(task[1].translation, delta)
-			else:
-				tasks.remove(0)
-		Task.PUT_MATERIAL:
-			if task[1] != null:
+			Task.PUT_MATERIAL:
 				if task[1].material >= task[1].max_material:
 					current_task_completed()
 				elif material > 0:
@@ -94,10 +90,7 @@ func _physics_process(delta):
 				else:
 					if not take_materials_from_closest_pod(delta, task[1]):
 						current_task_completed()
-			else:
-				tasks.remove(0)
-		Task.TAKE_SHELL:
-			if task[1] != null:
+			Task.TAKE_SHELL:
 				if not $Shell.visible and task[1].call_function(\"get_shell_count\") > 0:
 					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
 						$Shell.visible = task[1].call_function(\"take_shell\")
@@ -106,10 +99,7 @@ func _physics_process(delta):
 						move_towards(task[1].translation, delta)
 				else:
 					current_task_completed()
-			else:
-				tasks.remove(0)
-		Task.PUT_SHELL:
-			if task[1] != null:
+			Task.PUT_SHELL:
 				if $Shell.visible and  task[1].call_function(\"get_shell_space\") > 0:
 					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
 						$Shell.visible = task[1].call_function(\"put_shell\")
@@ -118,8 +108,6 @@ func _physics_process(delta):
 						move_towards(task[1].translation, delta)
 				else:
 					current_task_completed()
-			else:
-				tasks.remove(0)
 
 
 func get_actions():
