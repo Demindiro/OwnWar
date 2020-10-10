@@ -12,4 +12,3 @@ mesh = ExtResource( 1 )
 material/0 = null
 
 [node name="Tracer" parent="." instance=ExtResource( 3 )]
-material_override = null
