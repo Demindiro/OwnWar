@@ -52,3 +52,7 @@ func take_fuel(amount):
 		amount += fuel
 		fuel = 0
 	return amount
+
+
+func get_fuel_count():
+	return fuel

@@ -8,6 +8,7 @@ var fuel = 1000
 func init(_coordinate, _block_data, _rotation, _voxel_body, vehicle):
 	vehicle.add_block_function(self, "_static_take_fuel", "take_fuel")
 	vehicle.add_block_function(self, "_static_put_fuel", "put_fuel")
+	vehicle.add_block_function(self, "_static_get_fuel_space", "get_fuel_space")
 	vehicle.add_info_function(self, "_static_get_info_fuel", "Fuel")
 
 
@@ -38,6 +39,13 @@ static func _static_put_fuel(blocks, arguments):
 			block.fuel = block.max_fuel
 			amount -= space
 	return amount
+
+
+static func _static_get_fuel_space(blocks, arguments):
+	var space := 0
+	for block in blocks:
+		space += block.max_fuel - block.fuel
+	return space
 
 
 static func _static_get_info_fuel(blocks):
