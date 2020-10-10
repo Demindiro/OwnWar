@@ -6,6 +6,7 @@
 
 [node name="Shell" type="RigidBody"]
 script = ExtResource( 2 )
+damage = 400
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
 mesh = ExtResource( 1 )
