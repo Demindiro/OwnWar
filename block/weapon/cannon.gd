@@ -3,7 +3,6 @@ class_name Cannon
 
 
 const GRAVITY = 9.8
-export var projectile: PackedScene
 export var reload_time := 5.0
 export var projectile_velocity := 1000.0
 export var projectile_damage := 400
@@ -94,8 +93,9 @@ func fire():
 	var current_time := float(Engine.get_physics_frames()) / Engine.iterations_per_second
 	if current_time >= _time_of_last_shot + reload_time:
 		for ammo_rack in _ammo_racks:
-			if ammo_rack.take_munition():
-				var node = projectile.instance()
+			var munition = ammo_rack.take_munition()
+			if munition != null:
+				var node = munition.shell.instance()
 				node.global_transform = $ProjectileSpawn.global_transform
 				node.linear_velocity = $ProjectileSpawn.global_transform.basis.z
 				node.linear_velocity *= projectile_velocity
