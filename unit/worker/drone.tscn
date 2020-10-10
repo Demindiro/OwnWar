@@ -93,7 +93,7 @@ func _physics_process(delta):
 			Task.TAKE_SHELL:
 				if not $Shell.visible and task[1].call_function(\"get_shell_count\") > 0:
 					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						$Shell.visible = task[1].call_function(\"take_shell\")
+						$Shell.visible = not not task[1].call_function(\"take_shell\")
 						current_task_completed()
 					else:
 						move_towards(task[1].translation, delta)
@@ -102,7 +102,7 @@ func _physics_process(delta):
 			Task.PUT_SHELL:
 				if $Shell.visible and  task[1].call_function(\"get_shell_space\") > 0:
 					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						$Shell.visible = task[1].call_function(\"put_shell\")
+						$Shell.visible = not not task[1].call_function(\"put_shell\", [true])
 						current_task_completed()
 					else:
 						move_towards(task[1].translation, delta)
