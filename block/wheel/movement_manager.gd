@@ -35,6 +35,7 @@ func add_wheel(wheel):
 
 func _wheel_destroyed(wheel):
 	_wheels.erase(wheel)
+	_power_manager.unreserve_power(wheel)
 
 
 func _wheel_readded(wheel):
