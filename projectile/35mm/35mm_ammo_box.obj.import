@@ -1,0 +1,19 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/35mm_ammo_box.obj-9e4b7755d9654d6ee7c1817863e862d5.mesh"
+
+[deps]
+
+files=[ "res://.import/35mm_ammo_box.obj-9e4b7755d9654d6ee7c1817863e862d5.mesh" ]
+
+source_file="res://projectile/35mm/35mm_ammo_box.obj"
+dest_files=[ "res://.import/35mm_ammo_box.obj-9e4b7755d9654d6ee7c1817863e862d5.mesh", "res://.import/35mm_ammo_box.obj-9e4b7755d9654d6ee7c1817863e862d5.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+offset_mesh=Vector3( 0, 0, 0 )
+optimize_mesh=true
