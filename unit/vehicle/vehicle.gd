@@ -10,6 +10,7 @@ var managers := {}
 var _object_to_actions_map := {}
 var _block_functions := {}
 var _info_functions := {}
+var _functions := {}
 onready var debug_node = $"../Debug"
 
 
@@ -156,6 +157,11 @@ func add_manager(p_name, object):
 	assert(not p_name in managers)
 	managers[p_name] = object
 	object.init(self)
+
+
+func add_function(object, p_name):
+	assert(not p_name in _functions)
+	_functions[p_name] = funcref(object, p_name)
 
 
 func get_blocks(block_name):
