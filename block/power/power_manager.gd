@@ -6,7 +6,6 @@ var _engines := []
 var _fuel_tanks := []
 var _max_power := 0
 var _max_fuel := 0
-var _power := 0
 var _fuel := 0
 var _reserved_power := {}
 var _remaining_power := 0
@@ -25,7 +24,7 @@ func init(vehicle: Vehicle) -> void:
 	vehicle.add_info(self, "get_info")
 
 
-func process(delta: float) -> void:
+func process(_delta: float) -> void:
 	var requested_power := 0
 	var needed_energy := 0
 	var power_fraction_up := 1
@@ -41,10 +40,12 @@ func process(delta: float) -> void:
 		power_fraction_down = requested_power
 
 	if requested_power > 0:
+# warning-ignore:integer_division
 		needed_energy = requested_power / Engine.iterations_per_second
 		used_energy = needed_energy
 		if needed_energy > _energy:
 			# Round up (https://stackoverflow.com/a/503201/7327379)
+# warning-ignore:integer_division
 			var needed_fuel = (needed_energy - _energy - 1) / _ENERGY_PER_FUEL + 1
 			var fuel = take_fuel(needed_fuel)
 			_energy += fuel * _ENERGY_PER_FUEL
@@ -92,7 +93,8 @@ func reserve_power(object, amount):
 	_reserved_power[object] = amount
 
 
-func unreserve_power(object, amount):
+func unreserve_power(object):
+# warning-ignore:return_value_discarded
 	 _reserved_power.erase(object)
 
 
