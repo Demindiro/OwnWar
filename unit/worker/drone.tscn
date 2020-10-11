@@ -140,7 +140,7 @@ func get_actions():
 			[\"Set waypoint\", Action.INPUT_COORDINATE, \"set_waypoint\", []],
 			[\"Take\", Action.SUBACTION, \"get_take_actions\", []],
 			[\"Put\", Action.SUBACTION, \"get_put_actions\", []],
-			[\"Build\", Action.INPUT_OWN_UNITS, \"build\", []],
+			[\"Build\", Action.SUBACTION, \"get_build_actions\", []],
 			[\"Loop tasks\", Action.INPUT_TOGGLE, \"set_loop_tasks\", [], loop_tasks],
 		]
 
