@@ -55,10 +55,6 @@ func init(_coordinate, _block_data, _rotation, voxel_body, vehicle):
 
 func aim_at(position: Vector3, _velocity := Vector3.ZERO):
 	var rel_pos = _voxel_body.to_local(position) - _rel_offset
-#	var self_normal = Vector3.RIGHT
-#	var t = -self_normal.dot(rel_pos) / self_normal.length_squared()
-#	_desired_direction = (rel_pos + t * self_normal).normalized()
-#	_desired_direction.y = -_desired_direction.y
 
 	var distance_xz = Vector2(rel_pos.x, rel_pos.z).length()
 	var distance_y = rel_pos.y
