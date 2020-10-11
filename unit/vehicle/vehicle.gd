@@ -6,6 +6,7 @@ var brake := 0.0
 var max_cost: int
 var voxel_bodies := []
 var actions := []
+var managers := {}
 var _object_to_actions_map := {}
 var _block_functions := {}
 var _info_functions := {}
@@ -149,6 +150,12 @@ func add_info_function(object, function, info_name):
 
 func remove_info_function(object, info_name):
 	_info_functions[info_name][1].erase(object)
+
+
+func add_manager(p_name, object):
+	assert(not p_name in managers)
+	managers[p_name] = object
+	object.init(self)
 
 
 func get_blocks(block_name):
