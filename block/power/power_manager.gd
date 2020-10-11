@@ -30,6 +30,7 @@ func process(delta: float) -> void:
 	var needed_energy := 0
 	var power_fraction_up := 1
 	var power_fraction_down := 1
+	var used_energy := 0
 	_remaining_power = _max_power
 
 	for power in _reserved_power.values():
@@ -50,6 +51,9 @@ func process(delta: float) -> void:
 				assert(fuel < needed_fuel)
 				power_fraction_up *= int(_energy)
 				power_fraction_down *= int(needed_energy)
+				used_energy = _energy
+			else:
+				used_energy = needed_energy
 
 	for requester in _reserved_power:
 		var power = _reserved_power[requester] * power_fraction_up / power_fraction_down
@@ -57,7 +61,7 @@ func process(delta: float) -> void:
 		_remaining_power -= power
 
 	assert(_remaining_power >= 0)
-	_energy -= needed_energy
+	_energy -= used_energy
 
 
 func get_fuel_count():
