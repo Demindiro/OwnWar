@@ -4,11 +4,13 @@
 [ext_resource path="res://projectile/bullet.gd" type="Script" id=2]
 [ext_resource path="res://projectile/tracer.tscn" type="PackedScene" id=3]
 
-[node name="Shell" type="RigidBody"]
+[node name="Shell35mm" type="RigidBody"]
 script = ExtResource( 2 )
-damage = 400
+damage = 4
 
-[node name="MeshInstance" type="MeshInstance" parent="."]
+[node name="MeshInstance" type="Spatial" parent="."]
+
+[node name="MeshInstance" type="MeshInstance" parent="MeshInstance"]
 transform = Transform( 0.2188, 0, 0, 0, 0.2188, 0, 0, 0, 0.2188, 0, 0, 0 )
 mesh = ExtResource( 1 )
 material/0 = null
