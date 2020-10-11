@@ -29,7 +29,6 @@ export(int) var cost = 20
 var tasks = []
 var material = 0 setget set_material
 var last_build_frame = 0
-var loop_tasks = false
 var munition = null
 var max_fuel = 20
 var fuel = 0
@@ -141,7 +140,7 @@ func get_actions():
 			[\"Take\", Action.SUBACTION, \"get_take_actions\", []],
 			[\"Put\", Action.SUBACTION, \"get_put_actions\", []],
 			[\"Build\", Action.SUBACTION, \"get_build_actions\", []],
-			[\"Loop tasks\", Action.INPUT_TOGGLE, \"set_loop_tasks\", [], loop_tasks],
+			[\"Clear tasks\", Action.INPUT_NONE, \"clear_tasks\", []],
 		]
 
 
@@ -315,6 +314,10 @@ func put_fuel_in(flags, units):
 			force_append = true
 
 
+func clear_tasks(flags):
+	tasks = []
+
+
 func take_materials_from_closest_pod(delta, exclude_pod):
 	var closest_pod = null
 	for pod in game_master.get_units(team, \"storage_pod\"):
@@ -334,20 +337,13 @@ func take_materials_from_closest_pod(delta, exclude_pod):
 
 
 func current_task_completed():
-	if loop_tasks:
-		tasks.push_back(tasks.pop_front())
-	else:
-		tasks.remove(0)
+	tasks.push_back(tasks.pop_front())
 
 
 func set_material(p_material):
 	assert(0 <= p_material and p_material <= max_material)
 	material = p_material
 	$Indicator.scale.z = float(material) / max_material
-	
-	
-func set_loop_tasks(_flags, p_loop_tasks):
-	loop_tasks = p_loop_tasks
 
 
 func get_cost():
