@@ -24,13 +24,13 @@ func set_drive_forward(drive):
 func set_drive_yaw(drive):
 	drive = clamp(drive, -1, 1)
 	for wheel in _wheels:
-		wheel.drive_yaw = wheel.max_angle * drive
+		wheel.steering = wheel.max_angle * drive
 
 
 func set_brake(brake):
 	brake = clamp(brake, 0, 1)
 	for wheel in _wheels:
-		wheel.drive_brake = brake
+		wheel.brake = brake
 
 
 func add_wheel(wheel):
