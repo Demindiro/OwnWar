@@ -8,7 +8,8 @@ var _weapons := []
 var _turrets := []
 
 
-func init(vehicle: Vehicle) -> void:
+#func init(vehicle: Vehicle) -> void:
+func init(vehicle) -> void:
 	vehicle.add_function(self, "get_munition_count")
 	vehicle.add_function(self, "get_munition_space")
 	vehicle.add_function(self, "put_munition")
