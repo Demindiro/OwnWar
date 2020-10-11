@@ -10,11 +10,9 @@ var _fuel := 0
 var _reserved_power := {}
 var _remaining_power := 0
 var _energy := 0
-var _vehicle: Vehicle
 
 
 func init(vehicle: Vehicle) -> void:
-	_vehicle = vehicle
 	vehicle.add_function(self, "get_fuel_count")
 	vehicle.add_function(self, "get_fuel_space")
 	vehicle.add_function(self, "take_fuel")
