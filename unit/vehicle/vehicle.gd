@@ -47,6 +47,9 @@ func has_function(function_name):
 
 
 func call_function(function_name, arguments := []):
+	var function = _functions.get(function_name)
+	if function != null:
+		return function.call_funcv(arguments)
 	var block_function = _block_functions.get(function_name)
 	if block_function != null:
 		return block_function[0].call_func(block_function[1], arguments)
