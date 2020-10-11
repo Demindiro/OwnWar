@@ -111,11 +111,7 @@ func _create_joint(p_body_a, p_body_b):
 
 
 func _add_self_to_weapon_manager(vehicle):
-	var manager = vehicle.managers.get("weapon")
-	if manager == null:
-		manager = preload("res://block/weapon/weapon_manager.gd").new()
-		vehicle.add_manager("weapon", manager)
-	manager.add_turret(self)
+	var manager = vehicle.get_manager("weapon", preload("res://block/weapon/weapon_manager.gd"))
 
 
 func _other_connector_destroyed():

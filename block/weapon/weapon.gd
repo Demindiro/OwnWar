@@ -38,10 +38,7 @@ func _physics_process(delta):
 
 
 func init(_coordinate, _block_data, _rotation, _voxel_body, vehicle):
-	var manager = vehicle.managers.get("weapon")
-	if manager == null:
-		manager = preload("res://block/weapon/weapon_manager.gd").new()
-		vehicle.add_manager("weapon", manager)
+	var manager = vehicle.get_manager("weapon", preload("res://block/weapon/weapon_manager.gd"))
 	manager.add_weapon(self)
 
 

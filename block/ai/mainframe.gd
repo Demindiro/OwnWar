@@ -36,24 +36,13 @@ func init(_coordinate, _block_data, _rotation, _voxel_body, p_vehicle):
 	ai = load("res://unit/vehicle/ai/brick.gd").new()
 	ai.init(vehicle)
 
-	var manager = vehicle.managers.get("mainframe")
-	if manager == null:
-		manager = preload("res://block/ai/mainframe_manager.gd").new()
-		vehicle.add_manager("mainframe", manager)
+	var manager = vehicle.get_manager("mainframe", preload("res://block/ai/mainframe_manager.gd"))
 	manager.add_mainframe(self)
-	manager = vehicle.managers.get("mainframe")
 	manager.add_action(self, "Set waypoint", Unit.Action.INPUT_COORDINATE, "set_waypoint", [])
 	manager.add_action(self, "Set targets", Unit.Action.INPUT_ENEMY_UNITS, "set_targets", [])
 
-	_weapon_manager = vehicle.managers.get("weapon")
-	if _weapon_manager == null:
-		_weapon_manager = preload("res://block/weapon/weapon_manager.gd").new()
-		vehicle.add_manager("weapon", _weapon_manager)
-
-	_movement_manager = vehicle.managers.get("movement")
-	if _movement_manager == null:
-		_movement_manager = preload("res://block/wheel/movement_manager.gd").new()
-		vehicle.add_manager("movement", _movement_manager)
+	_weapon_manager = vehicle.get_manager("weapon", preload("res://block/weapon/weapon_manager.gd"))
+	_movement_manager = vehicle.get_manager("movement", preload("res://block/wheel/movement_manager.gd"))
 
 
 func set_waypoint(flags, waypoint):

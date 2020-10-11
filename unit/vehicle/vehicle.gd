@@ -124,10 +124,13 @@ func do_action(flags, arg0, arg1 = null):
 		object.callv(function, [flags] + arguments)
 
 
-func add_manager(p_name, object):
-	assert(not p_name in managers)
-	managers[p_name] = object
-	object.init(self)
+func get_manager(p_name, script):
+	var manager = managers.get(p_name)
+	if manager == null:
+		manager = script.new()
+		managers[p_name] = manager
+		manager.init(self)
+	return manager
 
 
 func add_function(object, p_name):

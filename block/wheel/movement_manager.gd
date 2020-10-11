@@ -9,10 +9,7 @@ func init(vehicle: Vehicle) -> void:
 	vehicle.add_function(self, "set_drive_forward")
 	vehicle.add_function(self, "set_drive_yaw")
 	vehicle.add_function(self, "set_brake")
-	_power_manager = vehicle.managers.get("power")
-	if _power_manager == null:
-		_power_manager = preload("res://block/power/power_manager.gd").new()
-		vehicle.add_manager("power", _power_manager)
+	_power_manager = vehicle.get_manager("power", preload("res://block/power/power_manager.gd"))
 
 
 func set_drive_forward(drive):
