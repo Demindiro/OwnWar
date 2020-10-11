@@ -9,15 +9,20 @@ export var time_between_munitions := 1.0
 export(Array, Resource) var munition_types := []
 var material := 0
 var munition := []
+var _current_munition_type: Munition
 var _producing_munition := false
 var _time_until_munition_produced := 0.0
+
+
+func _ready():
+	_current_munition_type = munition_types[0]
 
 
 func _physics_process(delta):
 	if _producing_munition:
 		if _time_until_munition_produced >= time_between_munitions:
 			if len(munition) < max_munition:
-				var new_munition = munition_types[0].duplicate()
+				var new_munition = _current_munition_type.duplicate()
 				munition.append(new_munition)
 				_visualize_munitions()
 				_producing_munition = false
@@ -30,10 +35,23 @@ func _physics_process(delta):
 			_producing_munition = true
 
 
+func get_actions():
+	var actions = []
+	for munition_type in munition_types:
+		actions.append([
+				"Produce %s" % str(munition_type),
+				Action.INPUT_NONE,
+				"set_munition_type",
+				[munition_type],
+			])
+	return actions
+
+
 func get_info():
 	var info = .get_info()
 	info["Material"] = "%d / %d" % [material, max_material]
 	info["Munition"] = "%d / %d" % [len(munition), max_munition]
+	info["Producing"] = str(_current_munition_type)
 	return info
 
 
@@ -58,7 +76,12 @@ func get_munition_count():
 	return len(munition)
 
 
+func set_munition_type(flags, munition_type):
+	_current_munition_type = munition_type
+
+
 func _visualize_munitions():
+	$MultiMeshInstance.multimesh.mesh = _current_munition_type.mesh
 	$MultiMeshInstance.multimesh.instance_count = len(munition)
 	for i in range(len(munition)):
 		var munition_transform := Transform2D(Vector2.UP, Vector2.RIGHT,
