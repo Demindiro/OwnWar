@@ -6,9 +6,10 @@ var brake := 0.0
 var max_cost: int
 var voxel_bodies := []
 var actions := []
+var managers := {}
 var _object_to_actions_map := {}
-var _block_functions := {}
-var _info_functions := {}
+var _functions := {}
+var _info := []
 onready var debug_node = $"../Debug"
 
 
@@ -19,6 +20,9 @@ func _process(_delta):
 
 func _physics_process(delta):
 	global_transform = voxel_bodies[0].global_transform
+	for manager_name in managers:
+		if managers[manager_name].has_method("process"):
+			managers[manager_name].process(delta)
 
 
 func get_info():
@@ -32,22 +36,21 @@ func get_info():
 			remaining_cost += Global.blocks_by_id[block[0]].cost
 	info["Health"] = "%d / %d" % [remaining_health, max_health]
 	info["Cost"] = "%d / %d" % [remaining_cost, max_cost]
-	for info_name in _info_functions:
-		var info_function = _info_functions[info_name]
-		info[info_name] = info_function[0].call_func(info_function[1])
+	for info_function in _info:
+		info_function.call_func(info)
 	return info
 
 
 func has_function(function_name):
-	if function_name in _block_functions:
+	if function_name in _functions:
 		return true
 	return .has_function(function_name)
 
 
 func call_function(function_name, arguments := []):
-	var block_function = _block_functions.get(function_name)
-	if block_function != null:
-		return block_function[0].call_func(block_function[1], arguments)
+	var function = _functions.get(function_name)
+	if function != null:
+		return function.call_funcv(arguments)
 	return .call_function(function_name, arguments)
 
 
@@ -101,7 +104,6 @@ func add_action(object, human_name, flags, function, arguments):
 	if object in _object_to_actions_map:
 		_object_to_actions_map[object].append(action)
 	else:
-		object.connect("tree_exited", self, "remove_actions", [object])
 		_object_to_actions_map[object] = [action]
 
 
@@ -122,33 +124,22 @@ func do_action(flags, arg0, arg1 = null):
 		object.callv(function, [flags] + arguments)
 
 
-func remove_actions(object):
-	for action in _object_to_actions_map[object]:
-		actions.erase(action)
-	_object_to_actions_map.erase(object)
+func get_manager(p_name, script):
+	var manager = managers.get(p_name)
+	if manager == null:
+		manager = script.new()
+		managers[p_name] = manager
+		manager.init(self)
+	return manager
 
 
-func add_block_function(object, function, function_name):
-	if function_name in _block_functions:
-		_block_functions[function_name][1].append(object)
-	else:
-		_block_functions[function_name] = [funcref(object, function), [object]]
-		object.connect("tree_exited", self, "remove_block_functions", [function_name, object])
+func add_function(object, p_name):
+	assert(not p_name in _functions)
+	_functions[p_name] = funcref(object, p_name)
 
 
-func remove_block_functions(function_name, object):
-	_block_functions[function_name][1].erase(object)
-
-
-func add_info_function(object, function, info_name):
-	if not info_name in _info_functions:
-		_info_functions[info_name] = [funcref(object, function), [object]]
-	else:
-		_info_functions[info_name][1].append(object)
-
-
-func remove_info_function(object, info_name):
-	_info_functions[info_name][1].erase(object)
+func add_info(object, p_name):
+	_info.append(funcref(object, p_name))
 
 
 func get_blocks(block_name):

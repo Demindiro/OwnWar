@@ -28,6 +28,7 @@ func init(coordinate, _block_data, _rotation, voxel_body, vehicle):
 					other_connector.connected = true
 					connect("destroyed", other_connector, "_other_connector_destroyed")
 					other_connector.connect("destroyed", self, "_other_connector_destroyed")
+					_add_self_to_weapon_manager(vehicle)
 					return
 				other_connector = null
 
@@ -107,6 +108,11 @@ func _create_joint(p_body_a, p_body_b):
 	joint.set("angular_limit_x/enabled", false)
 	joint.set("angular_motor_x/enabled", true)
 	joint.set("angular_motor_x/force_limit", 1500.0)
+
+
+func _add_self_to_weapon_manager(vehicle):
+	var manager = vehicle.get_manager("weapon", preload("res://block/weapon/weapon_manager.gd"))
+	manager.add_turret(self)
 
 
 func _other_connector_destroyed():

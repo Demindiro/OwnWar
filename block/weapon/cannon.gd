@@ -10,7 +10,7 @@ var _desired_direction := Vector3.FORWARD
 var _time_of_last_shot := 0.0
 var _rel_offset: Vector3
 var _error: float
-var _ammo_racks := []
+var _manager: Reference
 
 
 func _physics_process(_delta):
@@ -46,15 +46,11 @@ func _process(delta):
 
 func init(_coordinate, _block_data, _rotation, voxel_body, vehicle):
 	_rel_offset = translation
-	print(_rel_offset)
 	set_as_toplevel(true)
 	$Generic6DOFJoint.set("nodes/node_b", $Generic6DOFJoint.get_path_to(voxel_body))
 	_voxel_body = voxel_body
-	var ammo_blocks = vehicle.get_blocks("ammo_rack")
-	for block in ammo_blocks:
-		var ammo_rack = block[2].get_child(0)
-		_ammo_racks.append(ammo_rack)
-		ammo_rack.connect("tree_exited", self, "_remove_ammo_rack", [ammo_rack])
+	_manager = vehicle.get_manager("weapon", preload("res://block/weapon/weapon_manager.gd"))
+	_manager.add_cannon(self)
 
 
 func aim_at(position: Vector3, _velocity := Vector3.ZERO):
@@ -91,16 +87,14 @@ func aim_at(position: Vector3, _velocity := Vector3.ZERO):
 func fire():
 	var current_time := float(Engine.get_physics_frames()) / Engine.iterations_per_second
 	if current_time >= _time_of_last_shot + reload_time:
-		for ammo_rack in _ammo_racks:
-			var munition = ammo_rack.take_munition()
-			if munition != null:
-				var node = munition.shell.instance()
-				node.global_transform = $ProjectileSpawn.global_transform
-				node.linear_velocity = $ProjectileSpawn.global_transform.basis.z
-				node.linear_velocity *= projectile_velocity
-				get_tree().root.get_child(1).add_child(node) # TODO ugly
-				_time_of_last_shot = current_time
-				break
+		var munition = _manager.take_munition()
+		if munition != null:
+			var node = munition.shell.instance()
+			node.global_transform = $ProjectileSpawn.global_transform
+			node.linear_velocity = $ProjectileSpawn.global_transform.basis.z
+			node.linear_velocity *= projectile_velocity
+			get_tree().root.get_child(1).add_child(node) # TODO ugly
+			_time_of_last_shot = current_time
 
 
 func set_angle(angle):
@@ -116,7 +110,3 @@ func get_total_error(target: Vector3) -> float:
 #	var cannon_direction = global_transform.basis.z
 #	return 1.0 - cannon_direction.dot(direction_to_target)
 	return _error
-
-
-func _remove_ammo_rack(ammo_rack):
-	_ammo_racks.erase(ammo_rack)
