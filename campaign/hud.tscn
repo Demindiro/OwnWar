@@ -34,7 +34,7 @@ func _ready():
 func _process(_delta):
 	if len(selected_units) > 0 or _selecting_units:
 		update()
-	$FPS.text = \"FPS: \" + str(round(1.0 / _delta))
+	$FPS.text = \"FPS: \" + str(round(1.0 / _delta)) if _delta > 0 else \"Impossibly much\"
 	set_unit_info()
 
 
