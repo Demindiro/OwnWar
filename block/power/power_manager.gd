@@ -41,7 +41,7 @@ func process(delta: float) -> void:
 		power_fraction_down = requested_power
 
 	if requested_power > 0:
-		needed_energy = requested_power * delta
+		needed_energy = requested_power / Engine.iterations_per_second
 		used_energy = needed_energy
 		if needed_energy > _energy:
 			# Round up (https://stackoverflow.com/a/503201/7327379)
