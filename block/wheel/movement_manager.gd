@@ -35,8 +35,14 @@ func set_brake(brake):
 
 func add_wheel(wheel):
 	_wheels.append(wheel)
-#	wheel.connect("tree_exited", self, "_wheel_destroyed", [wheel])
+	wheel.connect("tree_exited", self, "_wheel_destroyed", [wheel])
+	wheel.connect("tree_entered", self, "_wheel_readded", [wheel])
 
 
 func _wheel_destroyed(wheel):
 	_wheels.erase(wheel)
+
+
+func _wheel_readded(wheel):
+	if not wheel in _wheels:
+		_wheels.append(wheel)
