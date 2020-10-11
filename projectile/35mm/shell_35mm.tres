@@ -1,14 +1,14 @@
 [gd_resource type="Resource" load_steps=4 format=2]
 
 [ext_resource path="res://projectile/munition.gd" type="Script" id=1]
-[ext_resource path="res://projectile/shell.obj" type="ArrayMesh" id=2]
-[ext_resource path="res://projectile/shell.tscn" type="PackedScene" id=3]
+[ext_resource path="res://projectile/35mm/35mm_ammo_box.obj" type="ArrayMesh" id=2]
+[ext_resource path="res://projectile/35mm/shell_35mm.tscn" type="PackedScene" id=3]
 
 [resource]
 script = ExtResource( 1 )
-human_name = "160mm AP"
+human_name = "35mm AP"
 shell = ExtResource( 3 )
-count = 1
-max_shells = 1
+count = 50
+max_shells = 50
 mesh = ExtResource( 2 )
 cost = 3
