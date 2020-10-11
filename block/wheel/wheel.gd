@@ -10,7 +10,6 @@ var _vehicle: Vehicle
 
 
 func _physics_process(_delta):
-	engine_force = 0
 	if is_in_contact() and _vehicle.has_function("reserve_power"):
 		_vehicle.call_function("reserve_power", [self, abs(_drive_forward * max_power)])
 
