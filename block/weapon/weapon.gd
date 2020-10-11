@@ -37,6 +37,14 @@ func _physics_process(delta):
 	_time_since_last_shot += delta
 
 
+func init(_coordinate, _block_data, _rotation, _voxel_body, vehicle):
+	var manager = vehicle.managers.get("weapon")
+	if manager == null:
+		manager = preload("res://block/weapon/weapon_manager.gd").new()
+		vehicle.add_manager("weapon", manager)
+	manager.add_weapon(self)
+
+
 # TODO: reduce the amount of variables
 # I lost countless hours trying to debug this due to the sheer amount of
 # variables
