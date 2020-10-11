@@ -10,6 +10,7 @@ var drive_yaw := 0.0
 var brake := 0.0
 var _fire_weapons := false
 var _weapon_manager: Reference
+var _movement_manager: Reference
 
 
 func _process(_delta):
@@ -18,9 +19,9 @@ func _process(_delta):
 
 func _physics_process(delta):
 	ai.process(self, delta)
-	vehicle.call_function("set_drive_forward", [drive_forward])
-	vehicle.call_function("set_drive_yaw", [drive_yaw])
-	vehicle.call_function("set_brake", [brake])
+	_movement_manager.set_drive_forward(drive_forward)
+	_movement_manager.set_drive_yaw(drive_yaw)
+	_movement_manager.set_brake(brake)
 	if aim_weapons:
 		_weapon_manager.aim_at(weapons_aim_point)
 	else:
@@ -40,6 +41,10 @@ func init(_coordinate, _block_data, _rotation, _voxel_body, p_vehicle):
 	if _weapon_manager == null:
 		_weapon_manager = preload("res://block/weapon/weapon_manager.gd").new()
 		vehicle.add_manager("weapon", _weapon_manager)
+	_movement_manager = vehicle.managers.get("movement")
+	if _movement_manager == null:
+		_movement_manager = preload("res://block/wheel/movement_manager.gd").new()
+		vehicle.add_manager("movement", _movement_manager)
 
 
 func set_waypoint(flags, waypoint):
