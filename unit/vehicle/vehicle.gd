@@ -22,6 +22,8 @@ func _process(_delta):
 
 func _physics_process(delta):
 	global_transform = voxel_bodies[0].global_transform
+	for manager_name in managers:
+		managers[manager_name].process(delta)
 
 
 func get_info():
