@@ -48,6 +48,13 @@ func aim_at(position: Vector3, velocity := Vector3.ZERO) -> void:
 		turret.aim_at(position, velocity)
 
 
+func rest_aim():
+	for cannon in _cannons:
+		cannon.set_angle(0.0)
+	for turret in _turrets:
+		turret.set_angle(0.0)
+
+
 func fire_weapons(max_error := 1e10) -> void:
 	for weapon in _weapons:
 		weapon.fire()

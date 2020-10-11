@@ -23,6 +23,8 @@ func _physics_process(delta):
 	vehicle.call_function("set_brake", [brake])
 	if aim_weapons:
 		_weapon_manager.aim_at(weapons_aim_point)
+	else:
+		_weapon_manager.rest_aim()
 	if _fire_weapons:
 		_weapon_manager.fire_weapons()
 		_fire_weapons = false
