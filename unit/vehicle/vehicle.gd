@@ -46,6 +46,8 @@ func get_info():
 
 
 func has_function(function_name):
+	if function_name in _functions:
+		return true
 	if function_name in _block_functions:
 		return true
 	return .has_function(function_name)
