@@ -2,8 +2,6 @@ extends Reference
 
 
 const _ENERGY_PER_FUEL := 1000
-var _engines := []
-var _fuel_tanks := []
 var _max_power := 0
 var _max_fuel := 0
 var _fuel := 0
@@ -97,13 +95,15 @@ func unreserve_power(object):
 
 
 func add_engine(engine: Node) -> void:
-	_engines.append(engine)
 	_max_power += engine.max_power
+# warning-ignore:return_value_discarded
+	engine.connect("tree_exited", self, "_engine_destroyed", [engine])
 
 
 func add_fuel_tank(fuel_tank: Node) -> void:
-	_fuel_tanks.append(fuel_tank)
 	_max_fuel += fuel_tank.max_fuel
+# warning-ignore:return_value_discarded
+	fuel_tank.connect("tree_exited", self, "_fuel_tank_destroyed", [fuel_tank])
 
 
 func get_info(info):
@@ -112,10 +112,8 @@ func get_info(info):
 
 
 func _engine_destroyed(engine: Node) -> void:
-	_engines.erase(engine)
 	_max_power -= engine.max_power
 
 
 func _fuel_tank_destroyed(fuel_tank: Node) -> void:
-	_fuel_tanks.erase(fuel_tank)
 	_max_fuel -= fuel_tank.max_fuel
