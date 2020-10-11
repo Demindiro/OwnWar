@@ -5,6 +5,7 @@ class_name Cannon
 const GRAVITY = 9.8
 export var reload_time := 5.0
 export var projectile_velocity := 1000.0
+export var inaccuracy := 0.01
 var _voxel_body: VoxelBody
 var _desired_direction := Vector3.FORWARD
 var _time_of_last_shot := 0.0
@@ -87,12 +88,14 @@ func fire():
 		if _munition == null:
 			_munition = _manager.take_munition()
 		if _munition != null:
+			var y = $ProjectileSpawn.global_transform.basis.y
+			var z = $ProjectileSpawn.global_transform.basis.z
+			var direction = (y.rotated(z, randf() * PI * 2) * inaccuracy + z).normalized()
 			var node = _munition.shell.instance()
 			_munition.count -= 1
 			node.global_transform = $ProjectileSpawn.global_transform
-			node.linear_velocity = $ProjectileSpawn.global_transform.basis.z
-			node.linear_velocity *= projectile_velocity
-			get_tree().root.get_child(1).add_child(node) # TODO ugly
+			node.linear_velocity = direction * projectile_velocity
+			get_tree().current_scene.add_child(node)
 			_time_of_last_shot = current_time
 			if _munition.count <= 0:
 				_munition = null
