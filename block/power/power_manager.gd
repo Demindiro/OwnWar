@@ -7,7 +7,7 @@ var _fuel_tanks := []
 var _max_power := 0
 var _max_fuel := 0
 var _power := 0
-var _fuel := 0
+var _fuel := 1000
 var _reserved_power := {}
 var _remaining_power := 0
 var _energy := 0
@@ -42,6 +42,7 @@ func process(delta: float) -> void:
 
 	if requested_power > 0:
 		needed_energy = requested_power * delta
+		used_energy = needed_energy
 		if needed_energy > _energy:
 			# Round up (https://stackoverflow.com/a/503201/7327379)
 			var needed_fuel = (needed_energy - _energy - 1) / _ENERGY_PER_FUEL + 1
@@ -52,8 +53,6 @@ func process(delta: float) -> void:
 				power_fraction_up *= int(_energy)
 				power_fraction_down *= int(needed_energy)
 				used_energy = _energy
-			else:
-				used_energy = needed_energy
 
 	for requester in _reserved_power:
 		var power = _reserved_power[requester] * power_fraction_up / power_fraction_down
