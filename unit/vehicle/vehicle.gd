@@ -124,12 +124,6 @@ func do_action(flags, arg0, arg1 = null):
 		object.callv(function, [flags] + arguments)
 
 
-func remove_actions(object):
-	for action in _object_to_actions_map[object]:
-		actions.erase(action)
-	_object_to_actions_map.erase(object)
-
-
 func add_manager(p_name, object):
 	assert(not p_name in managers)
 	managers[p_name] = object
