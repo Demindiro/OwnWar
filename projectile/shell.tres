@@ -6,6 +6,7 @@
 
 [resource]
 script = ExtResource( 1 )
+human_name = "160mm AP"
 shell = ExtResource( 3 )
 count = 1
 max_shells = 1

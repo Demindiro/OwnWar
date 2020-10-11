@@ -3,7 +3,7 @@
 [ext_resource path="res://block/weapon/35mm_cannon.obj" type="ArrayMesh" id=1]
 [ext_resource path="res://block/weapon/cannon.gd" type="Script" id=2]
 
-[sub_resource type="CylinderShape" id=3]
+[sub_resource type="CylinderShape" id=1]
 radius = 0.0350555
 height = 2.86174
 
@@ -20,7 +20,7 @@ material/1 = null
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 9.55343e-15, -2.18557e-07, 1, -1, -4.37114e-08, 0, 4.37114e-08, -1, -2.18557e-07, 0, 0, 1.63107 )
-shape = SubResource( 3 )
+shape = SubResource( 1 )
 
 [node name="Generic6DOFJoint" type="Generic6DOFJoint" parent="."]
 nodes/node_a = NodePath("..")
