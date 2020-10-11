@@ -1,27 +1,13 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://block/weapon/35mm_cannon.obj" type="ArrayMesh" id=1]
 [ext_resource path="res://block/weapon/cannon.gd" type="Script" id=2]
 
-[sub_resource type="CylinderShape" id=1]
+[sub_resource type="CylinderShape" id=3]
 radius = 0.0350555
 height = 2.86174
 
-[sub_resource type="GDScript" id=2]
-script/source = "# REEEEEEEEEEEEEEEEEEEEEe
-# https://github.com/godotengine/godot/issues/18251
-# Godot, come on, really? What is this trash UX?
-
-
-extends CollisionShape
-
-
-
-func _init():
-	shape.radius = 0.115
-"
-
-[node name="80mmCannon" type="RigidBody"]
+[node name="35mmCannon" type="RigidBody"]
 script = ExtResource( 2 )
 reload_time = 0.1091
 projectile_velocity = 325.0
@@ -34,8 +20,7 @@ material/1 = null
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 9.55343e-15, -2.18557e-07, 1, -1, -4.37114e-08, 0, 4.37114e-08, -1, -2.18557e-07, 0, 0, 1.63107 )
-shape = SubResource( 1 )
-script = SubResource( 2 )
+shape = SubResource( 3 )
 
 [node name="Generic6DOFJoint" type="Generic6DOFJoint" parent="."]
 nodes/node_a = NodePath("..")
