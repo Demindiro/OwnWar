@@ -336,7 +336,7 @@ func set_unit_info():
 
 
 func clear_units():
-	selected_units = []
+	set_selected_units([])
 	filter_units()
 	update()
 
