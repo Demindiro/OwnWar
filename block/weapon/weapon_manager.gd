@@ -14,7 +14,6 @@ func init(vehicle) -> void:
 	vehicle.add_function(self, "get_munition_space")
 	vehicle.add_function(self, "put_munition")
 	vehicle.add_function(self, "take_munition")
-	vehicle.add_function(self, "aim_at")
 	vehicle.add_info(self, "get_info")
 
 

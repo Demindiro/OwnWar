@@ -6,9 +6,6 @@ var _power_manager: Reference
 
 
 func init(vehicle: Vehicle) -> void:
-	vehicle.add_function(self, "set_drive_forward")
-	vehicle.add_function(self, "set_drive_yaw")
-	vehicle.add_function(self, "set_brake")
 	_power_manager = vehicle.get_manager("power", preload("res://block/power/power_manager.gd"))
 
 

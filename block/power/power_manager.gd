@@ -15,8 +15,6 @@ func init(vehicle: Vehicle) -> void:
 	vehicle.add_function(self, "get_fuel_space")
 	vehicle.add_function(self, "take_fuel")
 	vehicle.add_function(self, "put_fuel")
-	vehicle.add_function(self, "reserve_power")
-	vehicle.add_function(self, "unreserve_power")
 	vehicle.add_info(self, "get_info")
 
 
