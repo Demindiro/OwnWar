@@ -11,6 +11,7 @@ var _object_to_actions_map := {}
 var _block_functions := {}
 var _info_functions := {}
 var _functions := {}
+var _info := []
 onready var debug_node = $"../Debug"
 
 
@@ -34,6 +35,8 @@ func get_info():
 			remaining_cost += Global.blocks_by_id[block[0]].cost
 	info["Health"] = "%d / %d" % [remaining_health, max_health]
 	info["Cost"] = "%d / %d" % [remaining_cost, max_cost]
+	for info_function in _info:
+		info_function.call_func(info)
 	for info_name in _info_functions:
 		var info_function = _info_functions[info_name]
 		info[info_name] = info_function[0].call_func(info_function[1])
@@ -165,6 +168,10 @@ func add_manager(p_name, object):
 func add_function(object, p_name):
 	assert(not p_name in _functions)
 	_functions[p_name] = funcref(object, p_name)
+
+
+func add_info(object, p_name):
+	_info.append(funcref(object, p_name))
 
 
 func get_blocks(block_name):
