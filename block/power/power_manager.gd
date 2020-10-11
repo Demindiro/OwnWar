@@ -22,6 +22,7 @@ func init(vehicle: Vehicle) -> void:
 	vehicle.add_function(self, "put_fuel")
 	vehicle.add_function(self, "reserve_power")
 	vehicle.add_function(self, "unreserve_power")
+	vehicle.add_info(self, "get_info")
 
 
 func process(delta: float) -> void:
@@ -100,6 +101,11 @@ func add_engine(engine: Node) -> void:
 func add_fuel_tank(fuel_tank: Node) -> void:
 	_fuel_tanks.append(fuel_tank)
 	_max_fuel += fuel_tank.max_fuel
+
+
+func get_info(info):
+	info["Power"] = "%d / %d" % [_remaining_power, _max_power]
+	info["Fuel"] = "%d / %d" % [_fuel, _max_fuel]
 
 
 func _engine_destroyed(engine: Node) -> void:
