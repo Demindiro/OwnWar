@@ -9,6 +9,7 @@ var drive_forward := 0.0
 var drive_yaw := 0.0
 var brake := 0.0
 var _fire_weapons := false
+var _weapon_manager: Reference
 
 
 func _process(_delta):
@@ -17,29 +18,14 @@ func _process(_delta):
 
 func _physics_process(delta):
 	ai.process(self, delta)
-	for body in vehicle.voxel_bodies:
-		for child in body.get_children():
-			if child is Weapon:
-				if aim_weapons:
-					child.aim_at(weapons_aim_point)
-				if _fire_weapons:
-					child.fire()
-			elif child is Cannon:
-				if aim_weapons:
-					child.aim_at(weapons_aim_point)
-				else:
-					child.set_angle(0)
-				if _fire_weapons and child.get_total_error(weapons_aim_point) < 1e-5:
-					child.fire()
-			elif child.get_child_count() > 0 and child.get_child(0) is Connector:
-				if aim_weapons:
-					child.get_child(0).aim_at(weapons_aim_point)
-				else:
-					child.get_child(0).set_angle(0)
 	vehicle.call_function("set_drive_forward", [drive_forward])
 	vehicle.call_function("set_drive_yaw", [drive_yaw])
 	vehicle.call_function("set_brake", [brake])
-	_fire_weapons = false
+	if aim_weapons:
+		_weapon_manager.aim_at(weapons_aim_point)
+	if _fire_weapons:
+		_weapon_manager.fire_weapons()
+		_fire_weapons = false
 
 
 func init(_coordinate, _block_data, _rotation, _voxel_body, p_vehicle):
@@ -48,6 +34,10 @@ func init(_coordinate, _block_data, _rotation, _voxel_body, p_vehicle):
 	vehicle.add_action(self, "Set targets", Unit.Action.INPUT_ENEMY_UNITS, "set_targets", [])
 	ai = load("res://unit/vehicle/ai/brick.gd").new()
 	ai.init(vehicle)
+	_weapon_manager = vehicle.managers.get("weapon")
+	if _weapon_manager == null:
+		_weapon_manager = preload("res://block/weapon/weapon_manager.gd").new()
+		vehicle.add_manager("weapon", _weapon_manager)
 
 
 func set_waypoint(flags, waypoint):
