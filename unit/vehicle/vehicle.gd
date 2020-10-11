@@ -104,7 +104,6 @@ func add_action(object, human_name, flags, function, arguments):
 	if object in _object_to_actions_map:
 		_object_to_actions_map[object].append(action)
 	else:
-		object.connect("tree_exited", self, "remove_actions", [object])
 		_object_to_actions_map[object] = [action]
 
 
