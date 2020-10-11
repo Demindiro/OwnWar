@@ -4,7 +4,7 @@ extends Reference
 const _ENERGY_PER_FUEL := 1000
 var _max_power := 0
 var _max_fuel := 0
-var _fuel := 100
+var _fuel := 0
 var _reserved_power := {}
 var _remaining_power := 0
 var _energy := 0
