@@ -136,16 +136,33 @@ func _physics_process(delta):
 
 
 func get_actions():
-	var actions = [
+	return [
 			[\"Set waypoint\", Action.INPUT_COORDINATE, \"set_waypoint\", []],
-			[\"Take material\", Action.INPUT_OWN_UNITS, \"take_material_from\", []],
-			[\"Put material\", Action.INPUT_OWN_UNITS, \"put_material_in\", []],
-			[\"Take munition\", Action.INPUT_OWN_UNITS, \"take_munition_from\", []],
-			[\"Put munition\", Action.INPUT_OWN_UNITS, \"put_munition_in\", []],
-			[\"Take fuel\", Action.INPUT_OWN_UNITS, \"take_fuel_from\", []],
-			[\"Put fuel\", Action.INPUT_OWN_UNITS, \"put_fuel_in\", []],
+			[\"Take\", Action.SUBACTION, \"get_take_actions\", []],
+			[\"Put\", Action.SUBACTION, \"get_put_actions\", []],
 			[\"Build\", Action.INPUT_OWN_UNITS, \"build\", []],
 			[\"Loop tasks\", Action.INPUT_TOGGLE, \"set_loop_tasks\", [], loop_tasks],
+		]
+
+
+func get_take_actions(flags):
+	return [
+			[\"Take material\", Action.INPUT_OWN_UNITS, \"take_material_from\", []],
+			[\"Take munition\", Action.INPUT_OWN_UNITS, \"take_munition_from\", []],
+			[\"Take fuel\", Action.INPUT_OWN_UNITS, \"take_fuel_from\", []],
+		]
+
+
+func get_put_actions(flags):
+	return [
+			[\"Put material\", Action.INPUT_OWN_UNITS, \"put_material_in\", []],
+			[\"Put munition\", Action.INPUT_OWN_UNITS, \"put_munition_in\", []],
+			[\"Put fuel\", Action.INPUT_OWN_UNITS, \"put_fuel_in\", []],
+		]
+
+
+func get_build_actions(flags):
+	var actions = [
 			[\"Build drill\", Action.INPUT_COORDINATE, \"build_drill\", []],
 		]
 	for ghost_name in ghosts:
