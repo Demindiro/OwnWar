@@ -64,6 +64,7 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
 				damage -= block[1]
 				if block[2] != null:
 					block[2].queue_free()
+				_voxel_mesh.remove_block(_raycast.voxel)
 				# warning-ignore:return_value_discarded
 				blocks.erase(key)
 				cost -= Global.blocks_by_id[block[0]].cost
