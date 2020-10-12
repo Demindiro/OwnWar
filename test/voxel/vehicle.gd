@@ -14,6 +14,8 @@ func _process(delta):
 		vehicle.pause_mode = Node.PAUSE_MODE_STOP
 		vehicle.load_from_file(file)
 		vehicle.translation = Vector3(index & 0xff, (index >> 8) & 0xff, (index >> 16) & 0xff) * 2
+		for body in vehicle.voxel_bodies:
+			body._process(delta) # Update meshes
 		add_child(vehicle)
 		index += 1
 		if OS.get_ticks_msec() - start > 100:
