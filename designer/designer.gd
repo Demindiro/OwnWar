@@ -11,6 +11,7 @@ export var material: SpatialMaterial setget set_material
 
 var selected_block: Block
 var blocks := {}
+var meta := {}
 var _rotation := 0
 var mirror := false
 var ray_voxel_valid := false
@@ -218,6 +219,11 @@ func save_vehicle(var path):
 		var block_data = blocks[coordinate].duplicate()
 		block_data.remove(2)
 		data['blocks']["%d,%d,%d" % coordinate] = block_data
+
+	data["meta"] = {}
+	for coordinate in meta:
+		data["meta"]["%d,%d,%d" % coordinate] = meta[coordinate]
+
 	var file := File.new()
 	var err = file.open(path, File.WRITE)
 	if err != OK:
@@ -251,6 +257,9 @@ func load_vehicle(path):
 					color_components[2], color_components[3])
 			_on_ColorPicker_pick_color(color)
 			place_block(block, coordinate, data['blocks'][key][1], data["blocks"][key][3])
+
+		meta = data["meta"]
+
 		print("Loaded vehicle from '%s'" % path)
 
 
