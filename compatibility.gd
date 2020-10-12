@@ -59,8 +59,7 @@ static func convert_vehicle_data(data):
 		converted_blocks[key] = block_data
 	converted_data["blocks"] = converted_blocks
 
-	if not "meta" in converted_data:
-		converted_data["meta"] = {}
+	converted_data["meta"] = data.get("meta", {})
 
 	return converted_data
 	
