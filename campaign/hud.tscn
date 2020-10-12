@@ -144,6 +144,7 @@ func filter_units():
 	var shortcut_index = 0
 	for unit_name in unique_units:
 		var button = _action_button_template.duplicate()
+		button.text = unit_name
 		button.connect(\"pressed\", self, \"set_action_buttons\", [unit_name])
 		if shortcut_index < SHORTCUT_COUNT:
 			var input_event = InputEventAction.new()
