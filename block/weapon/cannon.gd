@@ -6,6 +6,7 @@ const GRAVITY = 9.8
 export var reload_time := 5.0
 export var projectile_velocity := 1000.0
 export var inaccuracy := 0.01
+export var gauge := -1
 var _voxel_body: VoxelBody
 var _desired_direction := Vector3.FORWARD
 var _time_of_last_shot := 0.0
@@ -86,7 +87,7 @@ func fire():
 	var current_time := float(Engine.get_physics_frames()) / Engine.iterations_per_second
 	if current_time >= _time_of_last_shot + reload_time:
 		if _munition == null:
-			_munition = _manager.take_munition()
+			_munition = _manager.take_munition(gauge)
 		if _munition != null:
 			var y = $ProjectileSpawn.global_transform.basis.y
 			var z = $ProjectileSpawn.global_transform.basis.z
