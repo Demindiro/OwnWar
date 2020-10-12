@@ -46,6 +46,9 @@ static func _get_mesh_arrays(mesh: Mesh, index: int, offset: int) -> Array:
 		var length = len(mesh_array[Mesh.ARRAY_VERTEX])
 		var indice_array = range(offset, length + offset, 1)
 		mesh_array[Mesh.ARRAY_INDEX] = PoolIntArray(indice_array)
+	else:
+		for i in len(mesh_array[Mesh.ARRAY_INDEX]):
+			mesh_array[Mesh.ARRAY_INDEX][i] += offset
 	return mesh_array
 
 
