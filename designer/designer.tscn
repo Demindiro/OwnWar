@@ -571,6 +571,31 @@ size_flags_vertical = 3
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="MetaEditor" parent="GUI" instance=ExtResource( 13 )]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -160.0
+margin_top = -190.0
+margin_right = 160.0
+margin_bottom = 190.0
+title = "Meta Data"
+
+[node name="GridContainer" type="GridContainer" parent="GUI/MetaEditor"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 40.0
+margin_top = 40.0
+margin_right = -15.0
+margin_bottom = -15.0
+columns = 2
+
+[node name="Name" type="Label" parent="GUI/MetaEditor/GridContainer"]
+margin_right = 67.0
+margin_bottom = 20.0
+text = "Block"
 [connection signal="item_selected" from="HUD/BlockLayer" to="." method="_on_BlockLayer_item_selected"]
 [connection signal="item_selected" from="HUD/BlockLayerView" to="." method="_on_BlockLayerView_item_selected"]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Continue" to="." method="set_enabled" binds= [ true ]]
