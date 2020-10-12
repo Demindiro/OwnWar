@@ -113,6 +113,7 @@ config/icon="res://icon.png"
 Global="*res://global.gd"
 GenerateBlocks="*res://block/chassis/generate_blocks.gd"
 MaterialCache="*res://material_cache.gd"
+ObjectCache="*res://object_cache.gd"
 
 [debug]
 
