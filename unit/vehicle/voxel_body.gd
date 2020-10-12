@@ -27,6 +27,11 @@ func _init():
 	add_child(mesh_instance)
 
 
+func _process(_delta):
+	if _voxel_mesh.dirty:
+		_voxel_mesh.generate()
+
+
 func debug_draw(debug_node):
 	for child in get_children():
 		if child is Weapon:

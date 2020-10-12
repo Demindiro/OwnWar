@@ -2,6 +2,11 @@ class_name VoxelMesh
 extends ArrayMesh
 
 
+var dirty := false
+var _material_to_meshes_map := {}
+var _remove_list_positions := []
+
+
 func add_block(block: Block, color: Color, coordinate: Array, rotation: int) -> void:
 	var mesh := block.mesh
 	if mesh == null:
@@ -9,25 +14,52 @@ func add_block(block: Block, color: Color, coordinate: Array, rotation: int) -> 
 	for i in range(mesh.get_surface_count()):
 #		var material := mesh.surface_get_material(i)
 		var material := MaterialCache.get_material(color)
-		var index := _get_compatible_surface_index(material)
-		var own_array
-		if index < 0:
-			own_array = _get_mesh_arrays(mesh, i, 0)
-			_transform_array(own_array, coordinate, rotation)
+		var array = _get_mesh_arrays(mesh, i)
+		_transform_array(array, coordinate, rotation)
+		if material in _material_to_meshes_map:
+			_material_to_meshes_map[material].append([array, coordinate])
 		else:
-			own_array = surface_get_arrays(index)
-			var offset := len(own_array[Mesh.ARRAY_VERTEX])
-			var array := _get_mesh_arrays(mesh, i, offset)
-			_transform_array(array, coordinate, rotation)
-			for j in range(Mesh.ARRAY_MAX):
-				if array[j] != null:
-					own_array[j] += array[j]
-				else:
-					assert(own_array[j] == null)
-			surface_remove(index)
-		var new_index := get_surface_count()
-		add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, own_array)
-		surface_set_material(new_index, material)
+			_material_to_meshes_map[material] = [[array, coordinate]]
+		dirty = true
+
+
+func remove_block(coordinate: Array) -> void:
+	_remove_list_positions.append(coordinate)
+	dirty = true
+
+
+func generate() -> void:
+	var remove_materials := []
+	for material in _material_to_meshes_map:
+		var list := _material_to_meshes_map[material] as Array
+		var array := []
+		array.resize(ARRAY_MAX)
+		array[ARRAY_VERTEX] = PoolVector3Array()
+		array[ARRAY_NORMAL] = PoolVector3Array()
+		array[ARRAY_INDEX] = PoolIntArray()
+		for i in range(len(list)):
+			var coordinate := list[i][1] as Array
+			if coordinate in _remove_list_positions:
+				list.remove(i)
+				continue
+			var block_array := list[i][0] as Array
+			var offset = len(array[ARRAY_VERTEX])
+			var index_array = block_array[ARRAY_INDEX]
+			for j in range(len(index_array)):
+				index_array[j] += offset
+			array[ARRAY_VERTEX] += block_array[ARRAY_VERTEX]
+			array[ARRAY_NORMAL] += block_array[ARRAY_NORMAL]
+			array[ARRAY_INDEX] += index_array
+		if len(array[ARRAY_VERTEX]) > 0:
+			var index := get_surface_count()
+			add_surface_from_arrays(PRIMITIVE_TRIANGLES, array)
+			surface_set_material(index, material)
+		else:
+			remove_materials.append(material)
+	for material in remove_materials:
+		_material_to_meshes_map.erase(material)
+	_remove_list_positions = []
+	dirty = false
 
 
 func _get_compatible_surface_index(p_material: Material) -> int:
@@ -40,21 +72,17 @@ func _get_compatible_surface_index(p_material: Material) -> int:
 	return -1
 
 
-static func _get_mesh_arrays(mesh: Mesh, index: int, offset: int) -> Array:
+static func _get_mesh_arrays(mesh: Mesh, index: int) -> Array:
 	var mesh_array = mesh.surface_get_arrays(index)
 	if mesh_array[Mesh.ARRAY_INDEX] == null:
 		var length = len(mesh_array[Mesh.ARRAY_VERTEX])
-		var indice_array = range(offset, length + offset, 1)
-		mesh_array[Mesh.ARRAY_INDEX] = PoolIntArray(indice_array)
-	else:
-		for i in len(mesh_array[Mesh.ARRAY_INDEX]):
-			mesh_array[Mesh.ARRAY_INDEX][i] += offset
+		mesh_array[Mesh.ARRAY_INDEX] = PoolIntArray(range(length))
 	return mesh_array
 
 
 static func _transform_array(array: Array, coordinate: Array, rotation: int) -> void:
 	var basis := Block.rotation_to_basis(rotation)
-	var position = Vector3(coordinate[0], coordinate[1], coordinate[2]) + Vector3.ONE / 2
+	var position := Vector3(coordinate[0], coordinate[1], coordinate[2]) + Vector3.ONE / 2
 	var transform := Transform(basis, position * Global.BLOCK_SCALE)
 	for i in range(len(array[Mesh.ARRAY_VERTEX])):
 		array[Mesh.ARRAY_VERTEX][i] = transform * array[Mesh.ARRAY_VERTEX][i]
