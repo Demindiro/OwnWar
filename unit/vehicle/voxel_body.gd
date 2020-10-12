@@ -71,8 +71,7 @@ func spawn_block(x: int, y: int, z: int, r: int, block: Block, color: Color) -> 
 	var basis := Block.rotation_to_basis(r)
 	var orthogonal_index := Block.rotation_to_orthogonal_index(r)
 	var node: Spatial
-	var material := SpatialMaterial.new()
-	material.albedo_color = color
+	var material := MaterialCache.get_material(color)
 	if block.mesh != null:
 		node = MeshInstance.new()
 		node.mesh = block.mesh
