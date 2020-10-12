@@ -42,10 +42,10 @@ func _get_compatible_surface_index(p_material: Material) -> int:
 
 static func _get_mesh_arrays(mesh: Mesh, index: int, offset: int) -> Array:
 	var mesh_array = mesh.surface_get_arrays(index)
-	if mesh_array[Mesh.ARRAY_VERTEX] == null:
+	if mesh_array[Mesh.ARRAY_INDEX] == null:
 		var length = len(mesh_array[Mesh.ARRAY_VERTEX])
 		var indice_array = range(offset, length + offset, 1)
-		mesh_array[Mesh.ARRAY_VERTEX] = PoolIntArray(indice_array)
+		mesh_array[Mesh.ARRAY_INDEX] = PoolIntArray(indice_array)
 	return mesh_array
 
 
