@@ -2,9 +2,20 @@ extends Node
 
 
 export(String, FILE) var file := "user://vehicles/fancy_box.json"
+export var count := 1000
+var index := 0
 
 
-func _ready():
-	$Vehicle.set_physics_process(false)
-	$Vehicle.set_process(false)
-	$Vehicle.load_from_file(file)
+func _process(delta):
+	get_tree().paused = true
+	var start := OS.get_ticks_msec()
+	while index < count:
+		var vehicle = Vehicle.new()
+		vehicle.pause_mode = Node.PAUSE_MODE_STOP
+		vehicle.load_from_file(file)
+		vehicle.translation = Vector3(index & 0xff, (index >> 8) & 0xff, (index >> 16) & 0xff) * 2
+		add_child(vehicle)
+		index += 1
+		if OS.get_ticks_msec() - start > 100:
+			break
+	$Label3.text = "%d / %d" % [index, count]
