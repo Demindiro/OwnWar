@@ -11,7 +11,7 @@ var other_connector
 var _desired_direction := Vector3(0, 0, 1)
 
 
-func init(coordinate, _block_data, _rotation, voxel_body, vehicle):
+func init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
 	if connected:
 		return
 	var connecting_coordinate = get_connecting_coordinate(coordinate)

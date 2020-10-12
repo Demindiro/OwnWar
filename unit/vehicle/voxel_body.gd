@@ -105,15 +105,16 @@ func coordinate_to_vector(coordinate):
 	return position - center_of_mass
 
 
-func init_blocks(vehicle):
+func init_blocks(vehicle, meta):
 	for coordinate in blocks:
+		var meta_data = meta.get(coordinate)
 		var block_data = blocks[coordinate]
 		if block_data[2].has_method("init"):
-			block_data[2].init(coordinate, block_data, -1, self, vehicle)
+			block_data[2].init(coordinate, block_data, -1, self, vehicle, meta_data)
 		else:
 			for child in block_data[2].get_children():
 				if child.has_method("init"):
-					child.init(coordinate, block_data, -1, self, vehicle)
+					child.init(coordinate, block_data, -1, self, vehicle, meta_data)
 
 
 func _set_collision_box(start: Vector3, end: Vector3) -> void:

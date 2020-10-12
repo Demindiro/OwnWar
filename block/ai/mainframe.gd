@@ -31,7 +31,7 @@ func process(delta):
 		_fire_weapons = false
 
 
-func init(_coordinate, _block_data, _rotation, _voxel_body, p_vehicle):
+func init(_coordinate, _block_data, _rotation, _voxel_body, p_vehicle, _meta):
 	vehicle = p_vehicle
 	ai = load("res://unit/vehicle/ai/brick.gd").new()
 	ai.init(vehicle)

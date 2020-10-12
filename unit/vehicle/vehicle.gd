@@ -84,9 +84,19 @@ func load_from_file(path: String) -> int:
 			add_child(voxel_bodies[layer])
 			voxel_bodies[layer].connect("hit", self, "_voxel_body_hit")
 		voxel_bodies[layer].spawn_block(x, y, z, rotation, Global.blocks[name], color)
+
+	var meta = {}
+	for key in data["meta"]:
+		var components = key.split(',')
+		assert(len(components) == 3)
+		var x = int(components[0])
+		var y = int(components[1])
+		var z = int(components[2])
+		meta[[x, y, z]] = data["meta"][key]
+
 	for body in voxel_bodies:
 		body.fix_physics(transform)
-		body.init_blocks(self)
+		body.init_blocks(self, meta)
 		max_cost += body.max_cost
 	var center_of_mass_0 = voxel_bodies[0].center_of_mass
 	for body in voxel_bodies:

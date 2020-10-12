@@ -46,7 +46,7 @@ func _process(delta):
 	debug.end()
 
 
-func init(_coordinate, _block_data, _rotation, voxel_body, vehicle):
+func init(_coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
 	_rel_offset = translation
 	set_as_toplevel(true)
 	$Generic6DOFJoint.set("nodes/node_b", $Generic6DOFJoint.get_path_to(voxel_body))
