@@ -14,4 +14,5 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0 )
 mesh = SubResource( 1 )
 material/0 = SubResource( 2 )
 script = ExtResource( 1 )
+unit_name = "drill_ghost"
 structure = ExtResource( 2 )

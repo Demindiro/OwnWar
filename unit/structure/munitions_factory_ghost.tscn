@@ -15,6 +15,7 @@ extents = Vector3( 2, 1, 1 )
 
 [node name="MunitionsFactoryGhost" type="StaticBody"]
 script = ExtResource( 2 )
+unit_name = "munitions_factory_ghost"
 structure = ExtResource( 1 )
 spawn_offset = Vector3( 0, 1, 0 )
 

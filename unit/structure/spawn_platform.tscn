@@ -132,6 +132,7 @@ albedo_color = Color( 0, 0, 0, 0.392157 )
 [node name="SpawnPlatform" type="StaticBody"]
 script = SubResource( 1 )
 max_health = 2000
+unit_name = "spawn_platform"
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
 mesh = ExtResource( 1 )

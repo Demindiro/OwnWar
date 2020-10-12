@@ -5,3 +5,4 @@
 [node name="Vehicle" type="Spatial"]
 process_priority = 100
 script = ExtResource( 1 )
+unit_name = "vehicle"

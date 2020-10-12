@@ -39,6 +39,7 @@ extents = Vector3( 0.125, 0.28, 0.5 )
 
 [node name="RefineryGhost" type="StaticBody"]
 script = ExtResource( 2 )
+unit_name = "refinery_ghost"
 structure = ExtResource( 1 )
 spawn_offset = Vector3( 0, 0.5, 0 )
 

@@ -14,6 +14,7 @@ extents = Vector3( 2, 1, 1 )
 [node name="MunitionsFactory" type="StaticBody"]
 script = ExtResource( 2 )
 max_health = 800
+unit_name = "munitions_factory"
 munition_types = [ ExtResource( 3 ), ExtResource( 4 ) ]
 
 [node name="CSGBox" type="CSGBox" parent="."]

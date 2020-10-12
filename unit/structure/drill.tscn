@@ -48,6 +48,7 @@ func init(p_ore):
 [node name="Drill" type="StaticBody"]
 script = SubResource( 1 )
 max_health = 500
+unit_name = "drill"
 
 [node name="CSGCylinder" type="CSGCylinder" parent="."]
 transform = Transform( 1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 0, 0, 0 )
