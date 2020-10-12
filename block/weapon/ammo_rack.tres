@@ -16,4 +16,7 @@ health = 50
 cost = 5
 size = Vector3( 1, 1, 1 )
 mirror_rotation_offset = 0
+meta = {
+"gauge_filter": 0
+}
 __mirror_block_name = ""
