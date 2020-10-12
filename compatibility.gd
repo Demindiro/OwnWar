@@ -58,6 +58,9 @@ static func convert_vehicle_data(data):
 			block_data[0] = mapping[block_data[0]]
 		converted_blocks[key] = block_data
 	converted_data["blocks"] = converted_blocks
+
+	converted_data["meta"] = data.get("meta", {})
+
 	return converted_data
 	
 	

@@ -1,8 +1,8 @@
 extends Reference
 
 
-var _max_munitions := 0
-var _munitions := []
+var _max_munitions := {0: 0}
+var _munitions := {0: []}
 var _cannons := []
 var _weapons := []
 var _turrets := []
@@ -17,24 +17,33 @@ func init(vehicle) -> void:
 	vehicle.add_info(self, "get_info")
 
 
-func get_munition_count() -> int:
-	return len(_munitions)
+func get_munition_count(gauge := 0) -> int:
+	return len(_munitions[gauge]) if gauge in _munitions else 0
 
 
-func get_munition_space() -> int:
-	return _max_munitions - len(_munitions)
+func get_munition_space(gauge := 0) -> int:
+	if gauge in _munitions:
+		return _max_munitions[gauge] - len(_munitions[gauge])
+	else:
+		return 0
 
 
 func put_munition(munition: Munition) -> Munition:
-	if len(_munitions) < _max_munitions:
-		_munitions.append(munition)
+	var gauge = munition.gauge
+	if gauge in _munitions and len(_munitions[gauge]) < _max_munitions[gauge]:
+		_munitions[gauge].append(munition)
+		if gauge != 0:
+			_munitions[0].append(munition)
 		return null
 	return munition
 
 
-func take_munition() -> Munition:
-	if len(_munitions) > 0:
-		return _munitions.pop_back()
+func take_munition(gauge := 0) -> Munition:
+	if gauge in _munitions and len(_munitions[gauge]) > 0:
+		var munition = _munitions[gauge].pop_back()
+		if gauge != 0:
+			_munitions[0].erase(munition)
+		return munition
 	return null
 
 
@@ -62,7 +71,13 @@ func fire_weapons(max_error := 1e10) -> void:
 
 
 func add_ammo_rack(ammo_rack: Node) -> void:
-	_max_munitions += ammo_rack.max_munitions
+	var gauge = ammo_rack.gauge
+	if not gauge in _max_munitions:
+		_max_munitions[gauge] = 0
+		_munitions[gauge] = []
+	_max_munitions[gauge] += ammo_rack.max_munitions
+	if gauge != 0:
+		_max_munitions[0] += ammo_rack.max_munitions
 	ammo_rack.connect("tree_exited", self, "_ammo_rack_destroyed", [ammo_rack])
 
 
@@ -82,7 +97,10 @@ func add_turret(turret: Node) -> void:
 
 
 func _ammo_rack_destroyed(ammo_rack: Node) -> void:
-	_max_munitions -= ammo_rack.max_munitions
+	var gauge = ammo_rack.gauge
+	_max_munitions[gauge] -= ammo_rack.max_munitions
+	if gauge != 0:
+		_max_munitions[0] -= ammo_rack.max_munitions
 
 
 func _cannon_destroyed(cannon: Node) -> void:
@@ -98,4 +116,6 @@ func _turret_destroyed(turret: Node) -> void:
 
 
 func get_info(info: Dictionary) -> void:
-	info["Munition"] = "%d / %d" % [len(_munitions), _max_munitions]
+	for gauge in _munitions:
+		var info_name = "Munition (" + ("all" if gauge == 0 else str(gauge) + "mm") + ")"
+		info[info_name] = "%d / %d" % [len(_munitions[gauge]), _max_munitions[gauge]]

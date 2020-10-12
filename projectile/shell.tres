@@ -12,3 +12,4 @@ count = 1
 max_shells = 1
 mesh = ExtResource( 2 )
 cost = 3
+gauge = 160

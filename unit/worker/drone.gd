@@ -97,7 +97,7 @@ func _physics_process(delta):
 				else:
 					current_task_completed()
 			Task.PUT_MUNITION:
-				if munition != null and task[1].call_function("get_munition_space") > 0:
+				if munition != null and task[1].call_function("get_munition_space", [munition.gauge]) > 0:
 					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
 						munition = task[1].call_function("put_munition", [munition])
 						$MunitionMesh.mesh = null

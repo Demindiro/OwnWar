@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=2]
+[gd_scene load_steps=33 format=2]
 
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=1]
 [ext_resource path="res://designer/designer.gd" type="Script" id=2]
@@ -14,6 +14,7 @@
 [ext_resource path="res://designer/map.tscn" type="PackedScene" id=12]
 [ext_resource path="res://menu/dialog/independent_panel.tscn" type="PackedScene" id=13]
 [ext_resource path="res://designer/load_vehicle.gd" type="Script" id=14]
+[ext_resource path="res://designer/meta_editor.gd" type="Script" id=15]
 
 [sub_resource type="SpatialMaterial" id=1]
 
@@ -571,24 +572,50 @@ size_flags_vertical = 3
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="MetaEditor" parent="GUI" instance=ExtResource( 13 )]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -160.0
+margin_top = -190.0
+margin_right = 160.0
+margin_bottom = 190.0
+script = ExtResource( 15 )
+title = "Meta Data"
+
+[node name="GridContainer" type="GridContainer" parent="GUI/MetaEditor"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 40.0
+margin_top = 40.0
+margin_right = -15.0
+margin_bottom = -15.0
+columns = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
 [connection signal="item_selected" from="HUD/BlockLayer" to="." method="_on_BlockLayer_item_selected"]
 [connection signal="item_selected" from="HUD/BlockLayerView" to="." method="_on_BlockLayerView_item_selected"]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Continue" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Test" to="." method="_on_Test_pressed"]
-[connection signal="pressed" from="GUI/Menu/VBoxContainer/Save" to="GUI/Menu" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Save" to="GUI/SaveVehicle" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="GUI/Menu/VBoxContainer/Save" to="GUI/Menu" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Load" to="GUI/Menu" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Load" to="GUI/LoadVehicle" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Exit" to="." method="_on_Exit_pressed"]
 [connection signal="hide" from="GUI/Inventory" to="." method="set_enabled" binds= [ true ]]
 [connection signal="save_vehicle" from="GUI/SaveVehicle" to="." method="save_vehicle"]
 [connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Cancel" to="." method="set_enabled" binds= [ true ]]
-[connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Save" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Save" to="GUI/SaveVehicle" method="_on_Save_pressed"]
-[connection signal="load_vehicle" from="GUI/LoadVehicle" to="." method="load_vehicle"]
+[connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Save" to="." method="set_enabled" binds= [ true ]]
 [connection signal="load_vehicle" from="GUI/LoadVehicle" to="GUI/SaveVehicle" method="set_full_path"]
+[connection signal="load_vehicle" from="GUI/LoadVehicle" to="." method="load_vehicle"]
 [connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Cancel" to="." method="set_enabled" binds= [ true ]]
-[connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Load" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Load" to="GUI/LoadVehicle" method="_on_Load_pressed"]
+[connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Load" to="." method="set_enabled" binds= [ true ]]
 [connection signal="hide" from="GUI/ColorPicker" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pick_color" from="GUI/ColorPicker" to="." method="_on_ColorPicker_pick_color"]
+[connection signal="hide" from="GUI/MetaEditor" to="." method="set_enabled" binds= [ true ]]
+[connection signal="meta_changed" from="GUI/MetaEditor" to="." method="_on_MetaEditor_meta_changed"]
