@@ -34,8 +34,9 @@ func _ready():
 func _process(_delta):
 	if len(selected_units) > 0 or _selecting_units:
 		update()
-	call_deferred(\"_show_render_info\")
 	$FPS.text = \"FPS: \" + str(round(1.0 / _delta)) if _delta > 0 else \"Impossibly much\"
+	var draw_calls = get_tree().root.get_render_info(Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME)
+	$DrawCalls.text = \"Draw calls: \" + str(draw_calls)
 	set_unit_info()
 
 
@@ -347,11 +348,6 @@ func _unit_destroyed(unit):
 	selected_units.erase(unit)
 	set_action_buttons(selected_units)
 	update()
-
-
-func _show_render_info():
-	var draw_calls = get_tree().root.get_render_info(Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME)
-	$DrawCalls.text = \"Draw calls: \" + str(draw_calls)
 "
 
 [node name="HUD" type="Control"]
