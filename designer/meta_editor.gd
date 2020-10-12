@@ -4,9 +4,21 @@ extends "res://menu/dialog/independent_panel.gd"
 var _meta_types := {}
 var _meta_data := {}
 var _meta_fields := {}
+var _escape_pressed := false
 
 
 signal meta_changed(meta_data)
+
+
+func _unhandled_input(event):
+	if not visible:
+		return
+	if event.is_action("ui_cancel") or event.is_action("designer_configure"):
+		if event.pressed:
+			_escape_pressed = true
+		elif _escape_pressed:
+			visible = false
+			_escape_pressed = false
 
 
 func set_meta_items(block, meta_data):

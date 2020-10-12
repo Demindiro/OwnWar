@@ -111,7 +111,7 @@ func process_actions():
 		$Camera.enabled = false
 	elif Input.is_action_just_released("designer_release_cursor"):
 		$Camera.enabled = true
-	elif Input.is_action_just_released("designer_configure"):
+	elif Input.is_action_just_pressed("designer_configure"):
 		if ray_voxel_valid and ray.voxel in blocks:
 			var block = Global.blocks[blocks[ray.voxel][0]]
 			if len(block.meta) > 0:

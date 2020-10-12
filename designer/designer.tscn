@@ -583,6 +583,7 @@ margin_top = -190.0
 margin_right = 160.0
 margin_bottom = 190.0
 script = ExtResource( 15 )
+title = "Meta Data"
 
 [node name="GridContainer" type="GridContainer" parent="GUI/MetaEditor"]
 anchor_right = 1.0
@@ -616,4 +617,5 @@ __meta__ = {
 [connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Load" to="." method="set_enabled" binds= [ true ]]
 [connection signal="hide" from="GUI/ColorPicker" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pick_color" from="GUI/ColorPicker" to="." method="_on_ColorPicker_pick_color"]
+[connection signal="hide" from="GUI/MetaEditor" to="." method="set_enabled" binds= [ true ]]
 [connection signal="meta_changed" from="GUI/MetaEditor" to="." method="_on_MetaEditor_meta_changed"]
