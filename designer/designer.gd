@@ -63,6 +63,7 @@ func set_enabled(var p_enabled):
 		$GUI/SaveVehicle.visible = false
 		$GUI/LoadVehicle.visible = false
 		$GUI/ColorPicker.visible = false
+		$GUI/MetaEditor.visible = false
 	$Camera.enabled = enabled
 	set_process(enabled)
 	set_process_input(enabled)
@@ -110,6 +111,14 @@ func process_actions():
 		$Camera.enabled = false
 	elif Input.is_action_just_released("designer_release_cursor"):
 		$Camera.enabled = true
+	elif Input.is_action_just_released("designer_configure"):
+		if ray_voxel_valid and ray.voxel in blocks:
+			var block = Global.blocks[blocks[ray.voxel][0]]
+			if len(block.meta) > 0:
+				var meta_data = meta[ray.voxel] if ray.voxel in meta else block.meta
+				set_enabled(false)
+				$GUI/MetaEditor.set_meta_items(block, meta_data)
+				$GUI/MetaEditor.visible = true
 
 
 func place_block(block, coordinate, rotation, layer):
@@ -345,3 +354,7 @@ func _on_BlockLayerView_item_selected(index):
 	if index >= 0:
 		set_layer(index)
 		$HUD/BlockLayer.select(index)
+
+
+func _on_MetaEditor_meta_changed(meta_data):
+	meta[ray.voxel] = meta_data.duplicate()

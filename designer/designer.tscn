@@ -616,3 +616,4 @@ __meta__ = {
 [connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Load" to="." method="set_enabled" binds= [ true ]]
 [connection signal="hide" from="GUI/ColorPicker" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pick_color" from="GUI/ColorPicker" to="." method="_on_ColorPicker_pick_color"]
+[connection signal="meta_changed" from="GUI/MetaEditor" to="." method="_on_MetaEditor_meta_changed"]
