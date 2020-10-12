@@ -57,7 +57,8 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
 			_debug_hits.append([key, Color.orange])
 			if block[1] < damage:
 				damage -= block[1]
-				block[2].queue_free()
+				if block[2] != null:
+					block[2].queue_free()
 				# warning-ignore:return_value_discarded
 				blocks.erase(key)
 				cost -= Global.blocks_by_id[block[0]].cost
