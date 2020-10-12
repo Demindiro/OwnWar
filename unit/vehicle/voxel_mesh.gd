@@ -38,10 +38,12 @@ func generate() -> void:
 		array[ARRAY_VERTEX] = PoolVector3Array()
 		array[ARRAY_NORMAL] = PoolVector3Array()
 		array[ARRAY_INDEX] = PoolIntArray()
-		for i in range(len(list)):
+		var i := 0
+		while i < len(list):
 			var coordinate := list[i][1] as Array
 			if coordinate in _remove_list_positions:
 				list.remove(i)
+				i -= 1
 				continue
 			var block_array := list[i][0] as Array
 			var offset = len(array[ARRAY_VERTEX])
@@ -51,6 +53,7 @@ func generate() -> void:
 			array[ARRAY_VERTEX] += block_array[ARRAY_VERTEX]
 			array[ARRAY_NORMAL] += block_array[ARRAY_NORMAL]
 			array[ARRAY_INDEX] += index_array
+			i += 1
 		if len(array[ARRAY_VERTEX]) > 0:
 			var index := get_surface_count()
 			add_surface_from_arrays(PRIMITIVE_TRIANGLES, array)
