@@ -16,6 +16,7 @@ func add_block(block: Block, color: Color, coordinate: Array, rotation: int) -> 
 		var material := MaterialCache.get_material(color)
 		var array = _get_mesh_arrays(mesh, i)
 		_transform_array(array, coordinate, rotation)
+		_dedup_array(array)
 		if material in _material_to_meshes_map:
 			_material_to_meshes_map[material].append([array, coordinate])
 		else:
@@ -87,3 +88,9 @@ static func _transform_array(array: Array, coordinate: Array, rotation: int) -> 
 	for i in range(len(array[Mesh.ARRAY_VERTEX])):
 		array[Mesh.ARRAY_VERTEX][i] = transform * array[Mesh.ARRAY_VERTEX][i]
 		array[Mesh.ARRAY_NORMAL][i] = basis * array[Mesh.ARRAY_NORMAL][i]
+
+
+static func _dedup_array(array: Array):
+	array[Mesh.ARRAY_VERTEX] = ObjectCache.dedup_immutable(array[Mesh.ARRAY_VERTEX])
+	array[Mesh.ARRAY_NORMAL] = ObjectCache.dedup_immutable(array[Mesh.ARRAY_NORMAL])
+	array[Mesh.ARRAY_INDEX] = ObjectCache.dedup_immutable(array[Mesh.ARRAY_INDEX])
