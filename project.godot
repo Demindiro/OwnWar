@@ -324,7 +324,7 @@ designer_configure={
 
 [physics]
 
-common/physics_fps=300
+common/physics_fps=150
 3d/physics_engine="Bullet"
 
 [rendering]
