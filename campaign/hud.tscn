@@ -34,6 +34,7 @@ func _ready():
 func _process(_delta):
 	if len(selected_units) > 0 or _selecting_units:
 		update()
+	call_deferred(\"_show_render_info\")
 	$FPS.text = \"FPS: \" + str(round(1.0 / _delta)) if _delta > 0 else \"Impossibly much\"
 	set_unit_info()
 
@@ -346,6 +347,11 @@ func _unit_destroyed(unit):
 	selected_units.erase(unit)
 	set_action_buttons(selected_units)
 	update()
+
+
+func _show_render_info():
+	var draw_calls = get_tree().root.get_render_info(Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME)
+	$DrawCalls.text = \"Draw calls: \" + str(draw_calls)
 "
 
 [node name="HUD" type="Control"]
@@ -362,6 +368,17 @@ anchor_right = 1.0
 margin_left = -150.0
 margin_bottom = 25.0
 text = "FPS: 999"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DrawCalls" type="Label" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -150.0
+margin_top = 25.0
+margin_bottom = 50.0
+text = "Draw calls: 999"
 __meta__ = {
 "_edit_use_anchors_": false
 }
