@@ -53,6 +53,7 @@ func _field_changed(new_text, meta_name):
 				converted_data = int(new_text)
 			else:
 				_revert_field_change(meta_name)
+				return
 		_:
 			push_error("Invalid meta type")
 			assert(false)
