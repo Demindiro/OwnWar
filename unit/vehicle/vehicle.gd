@@ -91,6 +91,8 @@ func load_from_file(path: String) -> int:
 	var center_of_mass_0 = voxel_bodies[0].center_of_mass
 	for body in voxel_bodies:
 		body.translate(-center_of_mass_0)
+	var new_name = path.get_file()
+	unit_name = "vehicle_" + new_name.substr(0, len(new_name) - 5)
 	return OK
 	
 	

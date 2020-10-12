@@ -15,6 +15,8 @@ enum Action {
 	INPUT_UNITS = 0x2 | 0x4 | 0x8,
 	INPUT_TOGGLE = 0x10,
 	INPUT_SCROLL = 0x20,
+
+	SUBACTION = 0x100,
 }
 
 export var max_health := 10

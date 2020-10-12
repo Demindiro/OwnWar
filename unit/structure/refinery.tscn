@@ -23,6 +23,7 @@ extents = Vector3( 0.125, 0.28, 0.5 )
 
 [node name="Refinery" type="StaticBody"]
 script = ExtResource( 1 )
+unit_name = "refinery"
 
 [node name="CSGCylinder" type="CSGCylinder" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.375 )
