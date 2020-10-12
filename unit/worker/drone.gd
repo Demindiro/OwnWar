@@ -155,6 +155,7 @@ func get_put_actions(flags):
 
 func get_build_actions(flags):
 	var actions = [
+			["Build", Action.INPUT_OWN_UNITS, "build", []],
 			["Build drill", Action.INPUT_COORDINATE, "build_drill", []],
 		]
 	for ghost_name in ghosts:
