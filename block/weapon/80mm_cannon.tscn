@@ -24,6 +24,7 @@ func _init():
 [node name="80mmCannon" type="RigidBody"]
 script = ExtResource( 2 )
 projectile_velocity = 445.0
+inaccuracy = 0.001
 gauge = 160
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
