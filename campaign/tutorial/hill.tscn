@@ -99,7 +99,9 @@ extents = Vector3( 517.132, 90.183, 246.495 )
 script/source = "extends Node
 
 
+export(PackedScene) var drone_scene
 onready var game_master = $\"..\"
+var _drone_spawn_transform
 
 
 func _ready():
@@ -111,6 +113,14 @@ func _ready():
 				game_master.units[child.team].append(child)
 			elif child is Ore:
 				game_master.ores.append(child)
+	_drone_spawn_transform = $Player/Drone.transform
+
+
+func _physics_process(delta):
+	if len(game_master.get_units(0, \"worker\")) == 0:
+		var drone = drone_scene.instance()
+		drone.transform = _drone_spawn_transform
+		game_master.add_unit(0, drone)
 "
 
 [sub_resource type="GDScript" id=4]
@@ -148,6 +158,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 790.979, 0.481917, 778.691 )
 
 [node name="Map" type="Node" parent="."]
 script = SubResource( 3 )
+drone_scene = ExtResource( 11 )
 
 [node name="HTerrain" type="Spatial" parent="Map"]
 script = ExtResource( 6 )
