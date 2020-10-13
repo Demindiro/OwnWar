@@ -7,6 +7,7 @@
 script/source = "extends Unit
 
 
+signal spawned(unit)
 # Thank cyclic PackedScene errors for this
 export(PackedScene) var worker = load(\"res://unit/worker/drone.tscn\")
 var material = 0 setget set_material
@@ -94,6 +95,7 @@ func put_material(p_material):
 	self.material += p_material
 	if material >= queued_vehicle.get_cost():
 		game_master.add_unit(team, queued_vehicle)
+		emit_signal(\"spawned\", queued_vehicle)
 		var remainder = material - queued_vehicle.get_cost()
 		self.material = 0
 		queued_vehicle = null
