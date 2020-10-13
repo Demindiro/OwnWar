@@ -13,6 +13,7 @@ var max_health := 0
 var _debug_hits := []
 var _raycast := preload("res://addons/voxel_raycast.gd").new()
 var _collision_shape: CollisionShape
+var _voxel_mesh: VoxelMesh
 
 
 func _init():
@@ -20,6 +21,15 @@ func _init():
 	_collision_shape = CollisionShape.new()
 	_collision_shape.shape = BoxShape.new()
 	add_child(_collision_shape)
+	_voxel_mesh = VoxelMesh.new()
+	var mesh_instance = MeshInstance.new()
+	mesh_instance.mesh = _voxel_mesh
+	add_child(mesh_instance)
+
+
+func _process(_delta):
+	if _voxel_mesh.dirty:
+		_voxel_mesh.generate()
 
 
 func debug_draw(debug_node):
@@ -52,7 +62,9 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
 			_debug_hits.append([key, Color.orange])
 			if block[1] < damage:
 				damage -= block[1]
-				block[2].queue_free()
+				if block[2] != null:
+					block[2].queue_free()
+				_voxel_mesh.remove_block(_raycast.voxel)
 				# warning-ignore:return_value_discarded
 				blocks.erase(key)
 				cost -= Global.blocks_by_id[block[0]].cost
@@ -70,24 +82,17 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
 func spawn_block(x: int, y: int, z: int, r: int, block: Block, color: Color) -> void:
 	var basis := Block.rotation_to_basis(r)
 	var orthogonal_index := Block.rotation_to_orthogonal_index(r)
-	var node: Spatial
-	var material := SpatialMaterial.new()
-	material.albedo_color = color
-	if block.mesh != null:
-		node = MeshInstance.new()
-		node.mesh = block.mesh
-		if block.scene != null:
-			node.add_child(block.scene.instance())
-	elif block.scene != null:
-		node = block.scene.instance()
-	else:
-		assert(false)
+	var node: Spatial = null
 	var position = Vector3(x, y, z) + Vector3.ONE / 2
-	node.transform = Transform(basis, position * Global.BLOCK_SCALE)
-	for child in get_children_recursive(node) + [node]:
-		if child is GeometryInstance and not child is Sprite3D:
-			child.material_override = material
-	add_child(node)
+	_voxel_mesh.add_block(block, color, [x, y, z], r)
+	if block.scene != null:
+		node = block.scene.instance()
+		node.transform = Transform(basis, position * Global.BLOCK_SCALE)
+		add_child(node)
+		var material = MaterialCache.get_material(color)
+		for child in get_children_recursive(node) + [node]:
+			if child is GeometryInstance and not child is Sprite3D:
+				child.material_override = material
 	max_cost += block.cost
 	max_health += block.health
 	blocks[[x, y, z]] = [block.id, block.health, node]
@@ -107,8 +112,10 @@ func coordinate_to_vector(coordinate):
 
 func init_blocks(vehicle, meta):
 	for coordinate in blocks:
-		var meta_data = meta.get(coordinate)
 		var block_data = blocks[coordinate]
+		if block_data[2] == null:
+			continue
+		var meta_data = meta.get(coordinate)
 		if block_data[2].has_method("init"):
 			block_data[2].init(coordinate, block_data, -1, self, vehicle, meta_data)
 		else:

@@ -20,9 +20,8 @@ func init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
 		if body != voxel_body:
 			var other_block = body.blocks.get(connecting_coordinate)
 			if other_block != null and other_block[0] == id:
-				other_connector = other_block[2].get_child(0)
-				if other_connector.get_connecting_coordinate(connecting_coordinate) \
-						== coordinate:
+				other_connector = other_block[2]
+				if other_connector.get_connecting_coordinate(connecting_coordinate) == coordinate:
 					_create_joint(voxel_body, body)
 					connected = true
 					other_connector.connected = true
@@ -30,6 +29,8 @@ func init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
 					other_connector.connect("destroyed", self, "_other_connector_destroyed")
 					_add_self_to_weapon_manager(vehicle)
 					return
+				if other_connector != null:
+					print(other_connector)
 				other_connector = null
 
 
@@ -89,7 +90,7 @@ func aim_at(position: Vector3, _velocity := Vector3.ZERO):
 
 
 func get_connecting_coordinate(coordinate):
-	var up = get_parent().transform.basis.y.round()
+	var up = transform.basis.y.round()
 	var x = int(up.x)
 	var y = int(up.y)
 	var z = int(up.z)

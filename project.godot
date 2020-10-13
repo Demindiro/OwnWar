@@ -69,6 +69,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://unit/vehicle/voxel_body.gd"
 }, {
+"base": "ArrayMesh",
+"class": "VoxelMesh",
+"language": "GDScript",
+"path": "res://unit/vehicle/voxel_mesh.gd"
+}, {
 "base": "Spatial",
 "class": "Weapon",
 "language": "GDScript",
@@ -92,6 +97,7 @@ _global_script_class_icons={
 "Unit": "",
 "Vehicle": "",
 "VoxelBody": "",
+"VoxelMesh": "",
 "Weapon": "",
 "Wheel": ""
 }
@@ -106,6 +112,8 @@ config/icon="res://icon.png"
 
 Global="*res://global.gd"
 GenerateBlocks="*res://block/chassis/generate_blocks.gd"
+MaterialCache="*res://material_cache.gd"
+ObjectCache="*res://object_cache.gd"
 
 [debug]
 
@@ -316,7 +324,7 @@ designer_configure={
 
 [physics]
 
-common/physics_fps=300
+common/physics_fps=150
 3d/physics_engine="Bullet"
 
 [rendering]

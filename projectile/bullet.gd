@@ -2,7 +2,8 @@ extends RigidBody
 
 
 export var damage := 0
-
+export var despawn_time := 5.0
+var life_time := 0.0
 onready var mesh = $MeshInstance
 onready var previous_position = translation
 
@@ -13,7 +14,7 @@ func _process(_delta):
 	mesh.global_transform.basis.x = transform.basis.x
 
 
-func _physics_process(_delta):
+func _physics_process(delta):
 	var space = get_world().direct_space_state
 	var result = space.intersect_ray(previous_position, translation)
 	if len(result) > 0:
@@ -24,4 +25,7 @@ func _physics_process(_delta):
 				queue_free()
 		else:
 			queue_free()
+	life_time += delta
+	if life_time > despawn_time:
+		queue_free()
 	previous_position = translation
