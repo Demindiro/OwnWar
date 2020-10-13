@@ -37,10 +37,10 @@ func _physics_process(_delta):
 			if _target == null and len(_enemies_in_territory) > 0:
 				_target = _enemies_in_territory[0]
 			if _target != null:
-				mainframes[0][2].get_child(0).ai.targets = [_target]
-				mainframes[0][2].get_child(0).ai.waypoints = [_target.translation]
+				mainframes[0][2].ai.targets = [_target]
+				mainframes[0][2].ai.waypoints = [_target.translation]
 			else:
-				mainframes[0][2].get_child(0).ai.waypoints = [$IdlePoint.translation]
+				mainframes[0][2].ai.waypoints = [$IdlePoint.translation]
 
 
 func _on_Area_body_entered(body):
@@ -64,7 +64,6 @@ func _spawn_vehicle():
 		var platform = units[0]
 		_spawned_vehicle = platform.spawn_vehicle(0, vehicle)
 		for worker in game_master.get_units(team, \"worker\"):
-			worker.loop_tasks = true
 			worker.put_material_in(0, [platform])
 "
 
