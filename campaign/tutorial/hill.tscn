@@ -131,7 +131,7 @@ victory_screen = NodePath("Victory")
 [node name="EvilAI" type="Node" parent="."]
 process_priority = 1000
 script = SubResource( 1 )
-vehicle = "user://vehicles/apc.json"
+vehicle = "res://campaign/tutorial/vehicles/tank.json"
 
 [node name="Area" type="Area" parent="EvilAI"]
 transform = Transform( 0.659251, 0, 0.751923, 0, 1, 0, -0.751923, 0, 0.659251, 719.094, 74.0377, 728.636 )
@@ -197,7 +197,7 @@ team = 1
 [node name="StoragePod" parent="Map/Enemy" instance=ExtResource( 4 )]
 transform = Transform( 0.841218, 0, 0.540696, 0, 1, 0, -0.540696, 0, 0.841218, 813.285, 1.38872, 863.752 )
 team = 1
-material = 600
+material = 1000
 
 [node name="Drone" parent="Map/Enemy" instance=ExtResource( 11 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 810.656, 2.9553, 820.223 )
