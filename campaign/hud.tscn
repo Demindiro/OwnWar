@@ -159,9 +159,11 @@ func filter_units():
 
 
 func set_action_buttons(unit_name, sub_action = null, arguments = null):
-	for i in range(len(selected_units) - 1, -1, -1):
-		if selected_units[i].unit_name != unit_name:
-			selected_units.remove(i)
+	var filtered_units = []
+	for unit in selected_units:
+		if unit.unit_name == unit_name:
+			filtered_units.append(unit)
+	set_selected_units(filtered_units)
 
 	clear_action_button()
 	for child in $Actions.get_children():
