@@ -23,4 +23,7 @@ assets:
     author: Tech Knight
     source: https://opengameart.org/content/4-minerals
     license: cc0
-
+  - assert: addons/tiles/water/water_*.jpg
+    author: Catalin Pavel
+    source: https://opengameart.org/content/water-texture-pack
+    license: cc0
