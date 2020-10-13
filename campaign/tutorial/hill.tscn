@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://unit/ore/ore.tscn" type="PackedScene" id=1]
 [ext_resource path="res://campaign/hud.tscn" type="PackedScene" id=2]
@@ -16,6 +16,8 @@
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=14]
 [ext_resource path="res://campaign/tutorial/hill_data/data.hterrain" type="Resource" id=15]
 [ext_resource path="res://addons/tiles/grass/grass_0.png" type="Texture" id=16]
+[ext_resource path="res://unit/structure/munitions_factory_ghost.tscn" type="PackedScene" id=17]
+[ext_resource path="res://unit/structure/refinery_ghost.tscn" type="PackedScene" id=18]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node
@@ -28,6 +30,10 @@ onready var game_master = get_tree().get_current_scene()
 var _spawned_vehicle
 var _target
 var _enemies_in_territory = []
+
+
+func _ready():
+	call_deferred(\"_assign_tasks\")
 
 
 func _physics_process(_delta):
@@ -58,13 +64,22 @@ func _on_Area_body_exited(body):
 	_enemies_in_territory.erase(body)
 
 
+func _assign_tasks():
+	var workers = game_master.get_units(team, \"worker\")
+	var worker = workers[0]
+	var floor_pos = worker.translation
+	floor_pos.y = 0
+	worker.build_ghost(1, floor_pos + Vector3.FORWARD * 3, 0, \"Refinery\")
+	worker.build_ghost(1, floor_pos + Vector3.BACK * 3, 0, \"Munition Factory\")
+
+
 func _spawn_vehicle():
 	var units = game_master.get_units(team, \"spawn_platform\")
 	if len(units) > 0:
 		var platform = units[0]
 		_spawned_vehicle = platform.spawn_vehicle(0, vehicle)
 		for worker in game_master.get_units(team, \"worker\"):
-			worker.put_material_in(0, [platform])
+			worker.put_material_in(1, [platform])
 "
 
 [sub_resource type="BoxShape" id=2]
@@ -105,6 +120,7 @@ script = ExtResource( 10 )
 victory_screen = NodePath("Victory")
 
 [node name="EvilAI" type="Node" parent="."]
+process_priority = 1000
 script = SubResource( 1 )
 vehicle = "user://vehicles/apc.json"
 
@@ -157,6 +173,8 @@ material = 250
 [node name="Drone" parent="Map/Player" instance=ExtResource( 11 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 215.335, 4.11692, 356.776 )
 ghosts = {
+"Munition Factory": ExtResource( 17 ),
+"Refinery": ExtResource( 18 ),
 "Spawn Platform": ExtResource( 13 ),
 "Storage Pod": ExtResource( 12 )
 }
@@ -176,6 +194,8 @@ material = 600
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 810.656, 2.9553, 820.223 )
 team = 1
 ghosts = {
+"Munition Factory": ExtResource( 17 ),
+"Refinery": ExtResource( 18 ),
 "Spawn Platform": ExtResource( 13 ),
 "Storage Pod": ExtResource( 12 )
 }
