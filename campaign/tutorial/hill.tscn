@@ -27,6 +27,7 @@ export(String, FILE, \"*.json\") var vehicle
 export(int) var team = 1
 onready var game_master = get_tree().get_current_scene()
 
+var _worker
 var _spawned_vehicle
 var _target
 var _enemies_in_territory = []
@@ -65,12 +66,15 @@ func _on_Area_body_exited(body):
 
 
 func _assign_tasks():
-	var workers = game_master.get_units(team, \"worker\")
-	var worker = workers[0]
-	var floor_pos = worker.translation
+	_worker = game_master.get_units(team, \"worker\")[0]
+	var floor_pos = _worker.translation
 	floor_pos.y = 0
-	worker.build_ghost(1, floor_pos + Vector3.FORWARD * 3, 0, \"Refinery\")
-	worker.build_ghost(1, floor_pos + Vector3.BACK * 3, 0, \"Munition Factory\")
+	_worker.connect(\"task_completed\", self, \"_worker_task_completed\")
+	_worker.build_ghost(1, floor_pos + Vector3.FORWARD * 3, 0, \"Refinery\")
+	_worker.build_ghost(1, floor_pos + Vector3.BACK * 3, 0, \"Munition Factory\")
+	var platform = game_master.get_units(team, \"spawn_platform\")[0]
+	_worker.put_material_in(1, [platform])
+	platform.connect(\"spawned\", self, \"_vehicle_spawned\")
 
 
 func _spawn_vehicle():
@@ -78,8 +82,23 @@ func _spawn_vehicle():
 	if len(units) > 0:
 		var platform = units[0]
 		_spawned_vehicle = platform.spawn_vehicle(0, vehicle)
-		for worker in game_master.get_units(team, \"worker\"):
-			worker.put_material_in(1, [platform])
+
+
+func _worker_task_completed(task, target):
+	if task == _worker.Task.BUILD_STRUCTURE:
+		if target.unit_name == \"refinery\":
+			yield(get_tree(), \"idle_frame\")
+			_worker.put_material_in(1, [target])
+			_worker.take_fuel_from(1, [target])
+		elif target.unit_name == \"munitions_factory\":
+			yield(get_tree(), \"idle_frame\")
+			_worker.put_material_in(1, [target])
+			_worker.take_munition_from(1, [target])
+
+
+func _vehicle_spawned(vehicle):
+	_worker.put_fuel_in(1, [vehicle])
+	_worker.put_munition_in(1, [vehicle])
 "
 
 [sub_resource type="BoxShape" id=2]
