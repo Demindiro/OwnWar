@@ -170,7 +170,7 @@ team = 1
 [node name="StoragePod" parent="Map/Enemy" instance=ExtResource( 4 )]
 transform = Transform( 0.841218, 0, 0.540696, 0, 1, 0, -0.540696, 0, 0.841218, 813.285, 1.38872, 863.752 )
 team = 1
-material = 300
+material = 600
 
 [node name="Drone" parent="Map/Enemy" instance=ExtResource( 11 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 810.656, 2.9553, 820.223 )
