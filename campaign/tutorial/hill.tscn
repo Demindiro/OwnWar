@@ -125,7 +125,7 @@ func _on_Exit_pressed():
 size = 200
 font_data = ExtResource( 3 )
 
-[node name="Hill" type="Spatial"]
+[node name="Hill" type="Node"]
 script = ExtResource( 10 )
 victory_screen = NodePath("Victory")
 

@@ -59,7 +59,7 @@ func _gui_input(event):
 				if not event.pressed:
 					var origin = $Camera.project_ray_origin(event.position)
 					var normal = $Camera.project_ray_normal(event.position)
-					var space_state = game_master.get_world().direct_space_state
+					var space_state = $Camera.get_world().direct_space_state
 					var result = space_state.intersect_ray(origin, origin + normal * 1000)
 					if len(result) > 0:
 						send_coordinate(result.position)
