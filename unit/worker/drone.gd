@@ -233,6 +233,7 @@ func build(flags, units):
 	for ghost in units:
 		if ghost is Ghost:
 			add_task([Task.BUILD_STRUCTURE, ghost], force_append)
+			ghost.connect("built", self, "_ghost_built")
 			force_append = true
 			
 			
@@ -241,6 +242,7 @@ func build_ghost(flags, position, scroll, ghost_name):
 	ghost.transform = Transform(Basis.IDENTITY.rotated(Vector3.UP, scroll * PI / 8), position)
 	game_master.add_unit(team, ghost)
 	add_task([Task.BUILD_STRUCTURE, ghost], flags & 0x1 > 0)
+	ghost.connect("built", self, "_ghost_built")
 
 
 func build_drill(flags, coordinate):
@@ -257,6 +259,7 @@ func build_drill(flags, coordinate):
 		ghost.init_arguments = [closest_ore]
 		game_master.add_unit(team, ghost)
 		add_task([Task.BUILD_STRUCTURE, ghost], flags & 0x1 > 0)
+		ghost.connect("built", self, "_ghost_built")
 
 
 func take_material_from(flags, units):
@@ -309,6 +312,9 @@ func put_fuel_in(flags, units):
 
 
 func clear_tasks(flags):
+	for task in tasks:
+		if task[0] == Task.BUILD_STRUCTURE and task[1] != null:
+			task[1].disconnect("built", self, "emit_signal")
 	tasks = []
 
 
@@ -382,3 +388,7 @@ func draw_debug(debug):
 			debug.draw_circle(position, color)
 			debug.draw_line(start, position, color)
 			start = position
+
+
+func _ghost_built(unit):
+	emit_signal("task_completed", Task.BUILD_STRUCTURE, unit)
