@@ -162,12 +162,15 @@ func set_action_buttons(unit_name, sub_action = null, arguments = null):
 	for i in range(len(selected_units) - 1, -1, -1):
 		if selected_units[i].unit_name != unit_name:
 			selected_units.remove(i)
-	var unit = selected_units[0]
 
 	clear_action_button()
 	for child in $Actions.get_children():
 		child.queue_free()
 
+	if len(selected_units) == 0:
+		return
+
+	var unit = selected_units[0]
 	var shortcut_index = 0
 	for action in unit.get_actions() if sub_action == null else \\
 			unit.callv(sub_action, [get_modifier_flags()] + arguments):
