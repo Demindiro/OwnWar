@@ -230,6 +230,7 @@ visible = false
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( -0.838714, -0.15169, 0.523019, 0, 0.960422, 0.278549, -0.544572, 0.233623, -0.80552, 0, 66.5759, 0 )
 light_energy = 1.2
+shadow_enabled = true
 
 [node name="HUD" parent="." instance=ExtResource( 2 )]
 
