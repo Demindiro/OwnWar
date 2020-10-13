@@ -44,6 +44,16 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://unit/structure/ghost.gd"
 }, {
+"base": "ResourceFormatLoader",
+"class": "HTerrainDataLoader",
+"language": "GDScript",
+"path": "res://addons/zylann.hterrain/hterrain_resource_loader.gd"
+}, {
+"base": "ResourceFormatSaver",
+"class": "HTerrainDataSaver",
+"language": "GDScript",
+"path": "res://addons/zylann.hterrain/hterrain_resource_saver.gd"
+}, {
 "base": "Resource",
 "class": "Munition",
 "language": "GDScript",
@@ -92,6 +102,8 @@ _global_script_class_icons={
 "Connector": "",
 "GameMaster": "",
 "Ghost": "",
+"HTerrainDataLoader": "",
+"HTerrainDataSaver": "",
 "Munition": "",
 "Ore": "",
 "Unit": "",
@@ -128,7 +140,7 @@ window/size/test_height=810
 
 [editor_plugins]
 
-enabled=PoolStringArray(  )
+enabled=PoolStringArray( "zylann.hterrain" )
 
 [gdnative]
 
