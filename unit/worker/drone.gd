@@ -1,6 +1,7 @@
 extends Unit
 
 
+signal task_completed(task, target)
 enum Task {
 		TAKE_MATERIAL,
 		PUT_MATERIAL,
@@ -11,7 +12,6 @@ enum Task {
 		TAKE_FUEL,
 		PUT_FUEL,
 	}
-
 const SPEED = 20.0
 const INTERACTION_DISTANCE = 6.0
 const INTERACTION_DISTANCE_2 = INTERACTION_DISTANCE * INTERACTION_DISTANCE
@@ -331,7 +331,9 @@ func take_materials_from_closest_pod(delta, exclude_pod):
 
 
 func current_task_completed():
-	tasks.push_back(tasks.pop_front())
+	var task = tasks.pop_front()
+	emit_signal("task_completed", task[0], task[1])
+	tasks.push_back(task)
 
 
 func set_material(p_material):
