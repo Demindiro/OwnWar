@@ -53,12 +53,8 @@ func _physics_process(_delta):
 func _on_Area_body_entered(body):
 	if body is Unit and body.team != team:
 		_enemies_in_territory.append(body)
-		if _spawned_vehicle == null:
-			_spawn_vehicle()
 	elif body is VoxelBody and body.get_parent().team != team:
 		_enemies_in_territory.append(body.get_parent())
-		if _spawned_vehicle == null:
-			_spawn_vehicle()
 
 
 func _on_Area_body_exited(body):
@@ -75,13 +71,7 @@ func _assign_tasks():
 	var platform = game_master.get_units(team, \"spawn_platform\")[0]
 	_worker.put_material_in(1, [platform])
 	platform.connect(\"spawned\", self, \"_vehicle_spawned\")
-
-
-func _spawn_vehicle():
-	var units = game_master.get_units(team, \"spawn_platform\")
-	if len(units) > 0:
-		var platform = units[0]
-		_spawned_vehicle = platform.spawn_vehicle(0, vehicle)
+	_spawned_vehicle = platform.spawn_vehicle(0, vehicle)
 
 
 func _worker_task_completed(task, target):
