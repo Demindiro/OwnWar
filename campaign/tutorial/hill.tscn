@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=2]
+[gd_scene load_steps=37 format=2]
 
 [ext_resource path="res://unit/ore/ore.tscn" type="PackedScene" id=1]
 [ext_resource path="res://campaign/hud.tscn" type="PackedScene" id=2]
@@ -135,6 +135,19 @@ size = Vector2( 5000, 5000 )
 subdivide_width = 50
 subdivide_depth = 50
 
+[sub_resource type="BoxShape" id=9]
+extents = Vector3( 2500, 10, 2500 )
+
+[sub_resource type="PlaneMesh" id=10]
+size = Vector2( 5000, 5000 )
+
+[sub_resource type="SpatialMaterial" id=11]
+albedo_texture = ExtResource( 21 )
+normal_enabled = true
+normal_scale = 1.0
+normal_texture = ExtResource( 20 )
+uv1_scale = Vector3( 200, 200, 1 )
+
 [sub_resource type="ProceduralSky" id=7]
 sky_curve = 0.245887
 ground_bottom_color = Color( 0.0509804, 0.141176, 0.211765, 1 )
@@ -201,7 +214,7 @@ custom_shader = null
 shader_params/u_ground_uv_scale = 20
 shader_params/u_depth_blending = false
 shader_params/u_triplanar = false
-shader_params/u_tile_reduction = Plane( 0, 0, 0, 0 )
+shader_params/u_tile_reduction = Plane( 0, 1, 0, 0 )
 ground/albedo_bump_0 = ExtResource( 16 )
 ground/normal_roughness_0 = null
 ground/albedo_bump_1 = ExtResource( 21 )
@@ -233,6 +246,16 @@ mesh = SubResource( 6 )
 material/0 = ExtResource( 19 )
 
 [node name="OceanFloor" type="StaticBody" parent="Map"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 500, -10, 500 )
+
+[node name="CollisionShape" type="CollisionShape" parent="Map/OceanFloor"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -10, 0 )
+shape = SubResource( 9 )
+
+[node name="MeshInstance" type="MeshInstance" parent="Map/OceanFloor"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0 )
+mesh = SubResource( 10 )
+material/0 = SubResource( 11 )
 
 [node name="Player" type="Node" parent="Map"]
 
