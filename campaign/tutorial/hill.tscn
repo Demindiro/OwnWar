@@ -276,7 +276,7 @@ shadow_enabled = true
 
 [node name="Camera" type="Camera" parent="HUD"]
 transform = Transform( -0.792089, 0.157984, -0.589607, 0, 0.965926, 0.258819, 0.610406, 0.205008, -0.765099, 139.997, 28.8481, 167.643 )
-far = 1000.0
+far = 2000.0
 script = ExtResource( 14 )
 speed = 50.0
 
