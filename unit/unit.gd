@@ -35,7 +35,7 @@ func projectile_hit(_origin: Vector3, _direction: Vector3, damage: int):
 	return 0
 
 
-func get_actions():
+func get_actions() -> Array:
 	# Return format: [human_name, flags, function_name, [args...]]
 	# If INPUT_TOGGLE is specified, append a bool to indicate on/off
 	return []
