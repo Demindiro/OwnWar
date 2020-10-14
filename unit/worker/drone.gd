@@ -47,84 +47,81 @@ func _physics_process(delta):
 	if len(tasks) == 0:
 		return
 	var task = tasks[0]
-	if task[1] == null:
-		tasks.remove(0)
-	else:
-		match task[0]:
-			Task.GOTO_WAYPOINT:
-				if move_towards(task[1], delta):
-					current_task_completed()
-			Task.BUILD_STRUCTURE:
-				if material > 0:
-					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
-							material -= 1
-							material += task[1].add_build_progress(1)
-							set_material(material)
-							last_build_frame = Engine.get_physics_frames()
-					else:
-						move_towards(task[1].translation, delta)
-				else:
-					take_materials_from_closest_pod(delta, task[1])
-			Task.TAKE_MATERIAL:
+	match task[0]:
+		Task.GOTO_WAYPOINT:
+			if move_towards(task[1], delta):
+				current_task_completed()
+		Task.BUILD_STRUCTURE:
+			if material > 0:
 				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-					var material_space = max_material - material
-					self.material += task[1].take_material(material_space)
+					if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
+						material -= 1
+						material += task[1].add_build_progress(1)
+						set_material(material)
+						last_build_frame = Engine.get_physics_frames()
+				else:
+					move_towards(task[1].translation, delta)
+			else:
+				take_materials_from_closest_pod(delta, task[1])
+		Task.TAKE_MATERIAL:
+			if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+				var material_space = max_material - material
+				self.material += task[1].take_material(material_space)
+				current_task_completed()
+			else:
+				move_towards(task[1].translation, delta)
+		Task.PUT_MATERIAL:
+			if task[1].material >= task[1].max_material:
+				current_task_completed()
+			elif material > 0:
+				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+					self.material = task[1].put_material(material)
+					if task[1].material == task[1].max_material:
+						current_task_completed()
+				else:
+					move_towards(task[1].translation, delta)
+			else:
+				if not take_materials_from_closest_pod(delta, task[1]):
+					current_task_completed()
+		Task.TAKE_MUNITION:
+			if munition == null and task[1].call_function("get_munition_count") > 0:
+				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+					munition = task[1].call_function("take_munition")
+					$MunitionMesh.mesh = munition.mesh
 					current_task_completed()
 				else:
 					move_towards(task[1].translation, delta)
-			Task.PUT_MATERIAL:
-				if task[1].material >= task[1].max_material:
+			else:
+				current_task_completed()
+		Task.PUT_MUNITION:
+			if munition != null and task[1].call_function("get_munition_space", [munition.gauge]) > 0:
+				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+					munition = task[1].call_function("put_munition", [munition])
+					$MunitionMesh.mesh = null
 					current_task_completed()
-				elif material > 0:
-					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						self.material = task[1].put_material(material)
-						if task[1].material == task[1].max_material:
-							current_task_completed()
-					else:
-						move_towards(task[1].translation, delta)
 				else:
-					if not take_materials_from_closest_pod(delta, task[1]):
-						current_task_completed()
-			Task.TAKE_MUNITION:
-				if munition == null and task[1].call_function("get_munition_count") > 0:
-					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						munition = task[1].call_function("take_munition")
-						$MunitionMesh.mesh = munition.mesh
-						current_task_completed()
-					else:
-						move_towards(task[1].translation, delta)
-				else:
+					move_towards(task[1].translation, delta)
+			else:
+				current_task_completed()
+		Task.TAKE_FUEL:
+			if fuel < max_fuel and task[1].call_function("get_fuel_count") > 0:
+				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+					var fuel_space = max_fuel - fuel
+					fuel += task[1].call_function("take_fuel", [fuel_space])
 					current_task_completed()
-			Task.PUT_MUNITION:
-				if munition != null and task[1].call_function("get_munition_space", [munition.gauge]) > 0:
-					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						munition = task[1].call_function("put_munition", [munition])
-						$MunitionMesh.mesh = null
-						current_task_completed()
-					else:
-						move_towards(task[1].translation, delta)
 				else:
+					move_towards(task[1].translation, delta)
+			else:
+				current_task_completed()
+		Task.PUT_FUEL:
+			if fuel > 0 and task[1].call_function("get_fuel_space") > 0:
+				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+					fuel = task[1].call_function("put_fuel", [fuel])
 					current_task_completed()
-			Task.TAKE_FUEL:
-				if fuel < max_fuel and task[1].call_function("get_fuel_count") > 0:
-					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						var fuel_space = max_fuel - fuel
-						fuel += task[1].call_function("take_fuel", [fuel_space])
-						current_task_completed()
-					else:
-						move_towards(task[1].translation, delta)
 				else:
-					current_task_completed()
-			Task.PUT_FUEL:
-				if fuel > 0 and task[1].call_function("get_fuel_space") > 0:
-					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						fuel = task[1].call_function("put_fuel", [fuel])
-						current_task_completed()
-					else:
-						move_towards(task[1].translation, delta)
-				else:
-					current_task_completed()
+					move_towards(task[1].translation, delta)
+			else:
+				current_task_completed()
 
 
 func get_actions():
@@ -197,10 +194,11 @@ func get_info():
 
 
 func add_task(task, force_append):
-	if force_append:
-		tasks.append(task)
-	else:
-		tasks = [task]
+	if not force_append:
+		clear_tasks(0)
+	if task[1] is Unit and not task[1].is_connected("destroyed", self, "_unit_destroyed"):
+		task[1].connect("destroyed", self, "_unit_destroyed", [task])
+	tasks.append(task)
 
 
 func set_waypoint(flags, coordinate):
@@ -313,6 +311,8 @@ func put_fuel_in(flags, units):
 
 func clear_tasks(flags):
 	for task in tasks:
+		if task[1] is Unit:
+			task[1].disconnect("destroyed", self, "_unit_destroyed")
 		if task[0] == Task.BUILD_STRUCTURE and task[1] != null:
 			task[1].disconnect("built", self, "emit_signal")
 	tasks = []
@@ -355,8 +355,6 @@ func get_cost():
 func draw_debug(debug):
 	var start = translation
 	for task in tasks:
-		if task[1] == null:
-			continue
 		var color
 		var position
 		match task[0]:
@@ -392,3 +390,11 @@ func draw_debug(debug):
 
 func _ghost_built(unit):
 	emit_signal("task_completed", Task.BUILD_STRUCTURE, unit)
+
+
+func _unit_destroyed(_unit, task):
+	while true:
+		var index = tasks.find_last(task)
+		if index < 0:
+			break
+		tasks.remove(index)
