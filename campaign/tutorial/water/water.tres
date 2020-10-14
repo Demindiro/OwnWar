@@ -8,7 +8,7 @@
 shader = ExtResource( 1 )
 shader_param/amplitude = Vector2( 2, 0.5 )
 shader_param/frequency = Vector2( 2, 2.5 )
-shader_param/time_factor = Vector2( 0.03, 0.01 )
+shader_param/time_factor = Vector2( 0.009, 0.002 )
 shader_param/uv_offset = Vector2( 0, 0 )
 shader_param/uv_scale = Vector2( 15, 15 )
 shader_param/uv_time_offset = Vector2( 0.02, 0.05 )
