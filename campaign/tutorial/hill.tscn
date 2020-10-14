@@ -149,7 +149,8 @@ normal_texture = ExtResource( 20 )
 uv1_scale = Vector3( 200, 200, 1 )
 
 [sub_resource type="ProceduralSky" id=7]
-sky_curve = 0.245887
+sky_horizon_color = Color( 0.501961, 0.6, 0.701961, 1 )
+sky_curve = 0.0756807
 ground_bottom_color = Color( 0.501961, 0.6, 0.701961, 1 )
 ground_horizon_color = Color( 0.501961, 0.6, 0.701961, 1 )
 ground_curve = 0.0313833
