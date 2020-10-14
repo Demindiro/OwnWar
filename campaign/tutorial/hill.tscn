@@ -125,7 +125,7 @@ func _physics_process(delta):
 "
 
 [sub_resource type="PlaneMesh" id=6]
-size = Vector2( 2500, 2500 )
+size = Vector2( 5000, 5000 )
 subdivide_width = 50
 subdivide_depth = 50
 
@@ -134,12 +134,15 @@ sky_curve = 0.245887
 ground_bottom_color = Color( 0.0509804, 0.141176, 0.211765, 1 )
 ground_horizon_color = Color( 0.431373, 0.505882, 0.556863, 1 )
 ground_curve = 0.0273208
-sun_color = Color( 1, 0.94902, 0.682353, 1 )
+sun_color = Color( 1, 0.976471, 0.858824, 1 )
 
 [sub_resource type="Environment" id=8]
 background_mode = 2
 background_sky = SubResource( 7 )
 ambient_light_energy = 0.05
+fog_enabled = true
+fog_depth_end = 2000.0
+fog_depth_curve = 6.27665
 dof_blur_far_distance = 1756.36
 
 [sub_resource type="GDScript" id=4]
