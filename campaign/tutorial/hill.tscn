@@ -150,6 +150,9 @@ fog_enabled = true
 fog_depth_end = 2000.0
 fog_depth_curve = 6.27665
 dof_blur_far_distance = 1756.36
+adjustment_enabled = true
+adjustment_contrast = 1.25
+adjustment_saturation = 0.8
 
 [sub_resource type="GDScript" id=4]
 script/source = "extends ColorRect
@@ -227,6 +230,8 @@ shader_params/u_instance_scale = Vector3( 0.05, 0.05, 0.05 )
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 500, -6.37859, 500 )
 mesh = SubResource( 6 )
 material/0 = ExtResource( 19 )
+
+[node name="OceanFloor" type="StaticBody" parent="Map"]
 
 [node name="Player" type="Node" parent="Map"]
 
