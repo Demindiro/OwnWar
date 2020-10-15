@@ -41,6 +41,14 @@ func get_actions() -> Array:
 	return []
 
 
+func show_action_feedback(function: String, viewport: Viewport, arguments: Array) -> void:
+	pass
+
+
+func hide_action_feedback() -> void:
+	pass
+
+
 func get_info():
 	return {
 			"Health": str(health) + " / " + str(max_health)
