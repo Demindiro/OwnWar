@@ -16,6 +16,7 @@ onready var _spawn_timer := get_tree().create_timer(1.0, false)
 
 func _ready():
 	_set_radius2(_radius2)
+	game_master.connect("unit_added", self, "_unit_added")
 
 
 func _process(_delta):
@@ -131,21 +132,7 @@ func _set_radius2(radius2: float) -> void:
 	_units = []
 	for unit in game_master.get_units(team):
 		if translation.distance_squared_to(unit.translation) < radius2:
-			_units.append(unit)
-			unit.connect("message", self, "_get_message", [unit])
-			unit.connect("destroyed", self, "_unit_destroyed")
-			var needs = unit.request_info("need_material")
-			if needs != null and needs > 0:
-				_needs_material[unit] = null
-			var provides = unit.request_info("provide_material")
-			if provides != null and provides > 0:
-				_provides_material.append(unit)
-			var takes = unit.request_info("take_material")
-			if takes != null and takes > 0:
-				_takes_material.append(unit)
-			var dumps = unit.request_info("dump_material")
-			if dumps != null and dumps > 0:
-				_dumps_material[unit] = null
+			_add_unit(unit)
 
 
 func _get_message(message, data, unit):
@@ -225,6 +212,29 @@ func _get_nearest(unit, unit_list) -> Unit:
 			provider = prov
 			shortest_distance = dist
 	return provider
+
+
+func _unit_added(unit: Unit) -> void:
+	if unit.team == team and unit.translation.distance_squared_to(translation) < _radius2:
+		_add_unit(unit)
+
+
+func _add_unit(unit: Unit) -> void:
+	_units.append(unit)
+	unit.connect("message", self, "_get_message", [unit])
+	unit.connect("destroyed", self, "_unit_destroyed")
+	var needs = unit.request_info("need_material")
+	if needs != null and needs > 0:
+		_needs_material[unit] = null
+	var provides = unit.request_info("provide_material")
+	if provides != null and provides > 0:
+		_provides_material.append(unit)
+	var takes = unit.request_info("take_material")
+	if takes != null and takes > 0:
+		_takes_material.append(unit)
+	var dumps = unit.request_info("dump_material")
+	if dumps != null and dumps > 0:
+		_dumps_material[unit] = null
 
 
 func draw_debug(debug):
