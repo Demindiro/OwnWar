@@ -59,12 +59,16 @@ func _move_towards(target: Unit) -> void:
 	if error > 1.9:
 		turn = transform.basis.y
 	else:
-		turn = transform.basis.z.cross(proj_pos)
+		turn = transform.basis.z.cross(direction)
 		if error > 1.0:
 			turn = turn.normalized()
-	var force := clamp(proj_pos.length_squared(), 0.0, 1.0)
+	var force: float
+	if not $FrontSensor.is_colliding():
+		force = clamp(proj_pos.length_squared(), 0.0, 1.0)
+	else:
+		force = 0.0
 	if $RayCast.is_colliding():
-		$".".add_torque(turn * 1.1)
+		$".".add_torque(turn * 1.3)
 		$".".add_central_force(transform.basis.z * force * 55.0)
 
 

@@ -21,3 +21,23 @@ transform = Transform( 1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, 0, 0.0159
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.138186, 0 )
 enabled = true
 cast_to = Vector3( 0, -0.1, 0 )
+
+[node name="LeftSensor" type="RayCast" parent="."]
+transform = Transform( 0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 0, 0, 0 )
+enabled = true
+cast_to = Vector3( 0, 0, 1 )
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="FrontSensor" type="RayCast" parent="."]
+enabled = true
+cast_to = Vector3( 0, 0, 1 )
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="RightSensor" type="RayCast" parent="."]
+transform = Transform( 0.866025, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866025, 0, 0, 0 )
+enabled = true
+cast_to = Vector3( 0, 0, 1 )
