@@ -64,8 +64,11 @@ func get_actions() -> Array:
 
 func get_info() -> Dictionary:
 	var info = .get_info()
-	info["Requesters"] = len(_needs_material)
-	info["Providers"] = len(_provides_material)
+	info["Drones"] = "%d / %d" % [len(_drones), drone_limit]
+	info["Requesters"] = str(len(_needs_material))
+	info["Providers"] = str(len(_provides_material))
+	info["Takers"] = str(len(_takes_material))
+	info["Dumpers"] = str(len(_dumps_material))
 	return info
 
 
