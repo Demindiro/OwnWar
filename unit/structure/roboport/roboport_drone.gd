@@ -10,9 +10,15 @@ enum Task {
 var task: int
 var task_data
 var material: int
+var _turn: Vector3
+var _forward: float
+onready var _left_sensor := $LeftSensor as RayCast
+onready var _right_sensor := $RightSensor as RayCast
 
 
 func _physics_process(_delta: float) -> void:
+	_turn = Vector3.ZERO
+	_forward = 0.0
 	match task:
 		Task.TRANSPORT:
 			var target: Unit
@@ -33,6 +39,12 @@ func _physics_process(_delta: float) -> void:
 				_move_towards(target)
 
 
+func _integrate_forces(state: PhysicsDirectBodyState):
+	if $RayCast.is_colliding():
+		state.linear_velocity = transform.basis.z * _forward * 2
+		state.angular_velocity = _turn * 2
+
+
 func get_info() -> Dictionary:
 	var info := .get_info() as Dictionary
 	info["Material"] = "%d / %d" % [material, MAX_MATERIAL]
@@ -51,25 +63,32 @@ func get_info() -> Dictionary:
 
 
 func _move_towards(target: Unit) -> void:
+	$".".sleeping = false
+	var sensor_mask = 0
+	if _right_sensor.is_colliding():
+		sensor_mask |= 0b01
+	if _left_sensor.is_colliding():
+		sensor_mask |= 0b10
+	
 	var rel_pos := target.translation - translation
 	var proj_pos := Plane(transform.basis.y, 0.0).project(rel_pos)
 	var direction := proj_pos.normalized()
 	var error := 1.0 - transform.basis.z.dot(proj_pos)
-	var turn: Vector3
-	if error > 1.9:
-		turn = transform.basis.y
+	if sensor_mask == 0b01:
+		_turn = transform.basis.y
+	elif sensor_mask == 0b10:
+		_turn = -transform.basis.y
+	elif error > 1.99:
+		_turn = transform.basis.y
 	else:
-		turn = transform.basis.z.cross(direction)
+		_turn = transform.basis.z.cross(direction)
 		if error > 1.0:
-			turn = turn.normalized()
-	var force: float
-	if not $FrontSensor.is_colliding():
-		force = clamp(proj_pos.length_squared(), 0.0, 1.0)
+			_turn = _turn.normalized()
+
+	if sensor_mask != 0b11:
+		_forward = clamp(proj_pos.length_squared(), 0.0, 1.0) if error < 0.5 else 0.0
 	else:
-		force = 0.0
-	if $RayCast.is_colliding():
-		$".".add_torque(turn * 1.3)
-		$".".add_central_force(transform.basis.z * force * 55.0)
+		_forward = -1.0
 
 
 func _task_completed() -> void:

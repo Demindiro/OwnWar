@@ -67,7 +67,7 @@ material = 5000
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 16.0721, 0.5, 2.32542 )
 
 [node name="MunitionsFactory" parent="." instance=ExtResource( 9 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 40.1166, 1.01616, 37.307 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 511.926, 1.01616, 37.307 )
 
 [node name="HUD" parent="." instance=ExtResource( 5 )]
 
