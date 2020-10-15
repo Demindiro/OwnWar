@@ -16,9 +16,10 @@
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=14]
 [ext_resource path="res://designer/load_vehicle.gd" type="Script" id=15]
 [ext_resource path="res://unit/structure/munitions_factory/munitions_factory.tscn" type="PackedScene" id=16]
-[ext_resource path="res://unit/structure/refinery.tscn" type="PackedScene" id=17]
+[ext_resource path="res://unit/structure/refinery/refinery.tscn" type="PackedScene" id=17]
 [ext_resource path="res://unit/structure/munitions_factory/munitions_factory_ghost.tscn" type="PackedScene" id=18]
-[ext_resource path="res://unit/structure/refinery_ghost.tscn" type="PackedScene" id=19]
+[ext_resource path="res://unit/structure/refinery/refinery_ghost.tscn" type="PackedScene" id=19]
+
 
 
 

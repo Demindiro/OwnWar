@@ -3,7 +3,7 @@
 [ext_resource path="res://addons/tiles/metal_grid/set3_example_3.png" type="Texture" id=1]
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=2]
 [ext_resource path="res://unit/structure/roboport/roboport.tscn" type="PackedScene" id=3]
-[ext_resource path="res://unit/structure/refinery.tscn" type="PackedScene" id=4]
+[ext_resource path="res://unit/structure/refinery/refinery.tscn" type="PackedScene" id=4]
 [ext_resource path="res://campaign/hud.tscn" type="PackedScene" id=5]
 [ext_resource path="res://campaign/game_master.gd" type="Script" id=6]
 [ext_resource path="res://unit/structure/storage_pod/storage_pod.tscn" type="PackedScene" id=7]
@@ -11,6 +11,7 @@
 [ext_resource path="res://unit/structure/munitions_factory/munitions_factory.tscn" type="PackedScene" id=9]
 [ext_resource path="res://unit/structure/drill/drill.tscn" type="PackedScene" id=10]
 [ext_resource path="res://unit/ore/ore.tscn" type="PackedScene" id=11]
+
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node
