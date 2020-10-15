@@ -1,12 +1,24 @@
 extends Unit
 
 
+export var drone_scene: PackedScene
+export var drone_limit := 10
 var _radius2 := 100.0 * 100.0
 var _immediate_geometry: ImmediateGeometry
+var _drones := []
 
 
-func _physics_process(_delta):
-	pass
+func _ready():
+	for _i in range(drone_limit):
+		_drones.append(drone_scene.instance())
+
+
+func _notification(what: int) -> void:
+	match what:
+		NOTIFICATION_PREDELETE:
+			for drone in _drones:
+				if not drone.is_inside_tree():
+					drone.queue_free()
 
 
 func get_actions() -> Array:
@@ -43,7 +55,7 @@ func show_action_feedback(function: String, viewport: Viewport, arguments: Array
 			.show_action_feedback(function, viewport, arguments)
 
 
-func set_coverage_radius(flags: int, position: Vector3) -> void:
+func set_coverage_radius(_flags: int, position: Vector3) -> void:
 	_radius2 = translation.distance_squared_to(position)
 
 
@@ -62,3 +74,8 @@ func _draw_circle(radius: float) -> void:
 			v = result.position + Vector3.UP * 0.025
 		_immediate_geometry.add_vertex(to_local(v))
 	_immediate_geometry.end()
+
+
+func _drone_destroyed(drone):
+	_drones.erase(drone)
+	_drones.append(drone_scene.instance())
