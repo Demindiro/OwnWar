@@ -185,9 +185,11 @@ func _get_idle_drone() -> Unit:
 
 func _task_completed(unit: Unit, drone: Unit) -> void:
 	if drone.task == 1:
-		if unit in _needs_material:
+		var value = _needs_material.get(unit)
+		if value == drone:
 			_needs_material[unit] = null
 	else:
-		if unit in _dumps_material:
+		var value = _dumps_material.get(unit)
+		if value == drone:
 			_dumps_material[unit] = null
 	drone.disconnect("task_completed", self, "_task_completed")
