@@ -20,10 +20,10 @@ func _ready():
 
 func _physics_process(_delta: float) -> void:
 	if len(_provides_material) > 0:
-		var provider := _provides_material[0] as Unit
 		for unit in _needs_material:
-			var amount := unit.request_info("need_material") as int
-			var drone := _needs_material[unit] as Unit
+			var amount: int = unit.request_info("need_material")
+			var drone: Unit = _needs_material[unit]
+			var provider := _get_nearest(unit, _provides_material)
 			if amount > 0:
 				if drone == null:
 					drone = _get_idle_drone()
@@ -34,10 +34,10 @@ func _physics_process(_delta: float) -> void:
 					drone.connect("task_completed", self, "_task_completed", [unit, drone])
 					_needs_material[unit] = drone
 	if len(_takes_material) > 0:
-		var taker := _takes_material[0] as Unit
 		for unit in _dumps_material:
 			var amount := unit.request_info("dump_material") as int
 			var drone := _dumps_material[unit] as Unit
+			var taker := _get_nearest(unit, _takes_material)
 			if amount > 0:
 				if drone == null:
 					drone = _get_idle_drone()
@@ -193,3 +193,14 @@ func _task_completed(unit: Unit, drone: Unit) -> void:
 		if value == drone:
 			_dumps_material[unit] = null
 	drone.disconnect("task_completed", self, "_task_completed")
+
+
+func _get_nearest(unit, unit_list) -> Unit:
+	var provider: Unit
+	var shortest_distance := INF
+	for prov in unit_list:
+		var dist: float = prov.translation.distance_squared_to(unit.translation)
+		if dist < shortest_distance:
+			provider = prov
+			shortest_distance = dist
+	return provider
