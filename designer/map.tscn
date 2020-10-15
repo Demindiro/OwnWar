@@ -162,6 +162,8 @@ script = SubResource( 1 )
 [node name="FilthyHack" type="Node" parent="Map"]
 
 [node name="Floor" type="StaticBody" parent="Map"]
+collision_layer = 129
+collision_mask = 2147483777
 __meta__ = {
 "_edit_lock_": true
 }
