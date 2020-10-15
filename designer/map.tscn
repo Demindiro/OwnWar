@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=2]
+[gd_scene load_steps=37 format=2]
 
 [ext_resource path="res://unit/worker/drone.tscn" type="PackedScene" id=1]
 [ext_resource path="res://addons/tiles/metal_grid/set3_example_2.png" type="Texture" id=2]
@@ -19,24 +19,14 @@
 [ext_resource path="res://unit/structure/refinery/refinery.tscn" type="PackedScene" id=17]
 [ext_resource path="res://unit/structure/munitions_factory/munitions_factory_ghost.tscn" type="PackedScene" id=18]
 [ext_resource path="res://unit/structure/refinery/refinery_ghost.tscn" type="PackedScene" id=19]
-
-
-
-
+[ext_resource path="res://unit/structure/roboport/roboport_ghost.tscn" type="PackedScene" id=20]
+[ext_resource path="res://unit/structure/roboport/roboport.tscn" type="PackedScene" id=21]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node
 
 
-onready var game_master = get_tree().get_current_scene()
-
-
-func _ready():
-	for child in get_children():
-		if child is Unit:
-			game_master.units[child.team].append(child)
-		elif child is Ore:
-			game_master.ores.append(child)
+var game_master
 
 
 func _physics_process(_delta):
@@ -46,6 +36,17 @@ func _physics_process(_delta):
 func _on_GUI_load_vehicle(path):
 	$SpawnEnemy.spawn_vehicle(0, path)
 	$SpawnEnemy.put_material(1 << 62)
+
+
+func _on_FilthyHack_ready():
+	# I need something that is called after _enter_tree but just right before
+	# _ready. This works I guess...
+	game_master = get_tree().current_scene
+	for child in get_children():
+		if child is Unit:
+			game_master.units[child.team].append(child)
+		elif child is Ore:
+			game_master.ores.append(child)
 "
 
 [sub_resource type="PlaneMesh" id=2]
@@ -158,6 +159,8 @@ script = ExtResource( 10 )
 [node name="Map" type="Node" parent="."]
 script = SubResource( 1 )
 
+[node name="FilthyHack" type="Node" parent="Map"]
+
 [node name="Floor" type="StaticBody" parent="Map"]
 __meta__ = {
 "_edit_lock_": true
@@ -229,6 +232,7 @@ transform = Transform( 1, 0, 0, 0, 0.999754, -0.022164, 0, 0.022164, 0.999754, -
 ghosts = {
 "Munition Factory": ExtResource( 18 ),
 "Refinery": ExtResource( 19 ),
+"Roboport": ExtResource( 20 ),
 "Spawn Platform": ExtResource( 12 ),
 "Storage Pod": ExtResource( 13 )
 }
@@ -239,6 +243,7 @@ team = 1
 ghosts = {
 "Munition Factory": ExtResource( 18 ),
 "Refinery": ExtResource( 19 ),
+"Roboport": ExtResource( 20 ),
 "Spawn Platform": ExtResource( 12 ),
 "Storage Pod": ExtResource( 13 )
 }
@@ -252,6 +257,9 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -54.4685, 1.00068, 17.6888 )
 
 [node name="Refinery" parent="Map" instance=ExtResource( 17 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -54.627, 0.5, 4.70696 )
+
+[node name="Roboport" parent="Map" instance=ExtResource( 21 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -47.2105, 0.5, 35.2623 )
 
 [node name="Vane" type="MeshInstance" parent="Map"]
 transform = Transform( 12, 0, 0, 0, 12, 0, 0, 0, 12, 0, 1.5, 0 )
@@ -421,6 +429,7 @@ shortcut = SubResource( 15 )
 text = "Load"
 
 [node name="Debug" parent="." instance=ExtResource( 9 )]
+[connection signal="ready" from="Map/FilthyHack" to="Map" method="_on_FilthyHack_ready"]
 [connection signal="load_vehicle" from="GUI" to="Map" method="_on_GUI_load_vehicle"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Continue" to="GUI/Main" method="_on_Continue_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Restart" to="GUI/Main" method="_on_Restart_pressed"]
