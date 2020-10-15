@@ -1,6 +1,7 @@
 extends Unit
 
 
+const Drone = preload("roboport_drone.gd")
 export var drone_scene: PackedScene
 export var drone_limit := 10
 var _drones := []
@@ -38,7 +39,6 @@ func _physics_process(_delta: float) -> void:
 						break
 					drone.task = 1
 					drone.task_data = [provider, unit]
-					drone.connect("task_completed", self, "_task_completed", [unit, drone])
 					_needs_material[unit] = drone
 	if len(_takes_material) > 0:
 		for unit in _dumps_material:
@@ -52,7 +52,6 @@ func _physics_process(_delta: float) -> void:
 						break
 					drone.task = 2
 					drone.task_data = [unit, taker]
-					drone.connect("task_completed", self, "_task_completed", [unit, drone])
 					_dumps_material[unit] = drone
 
 
@@ -184,6 +183,7 @@ func _get_idle_drone(near_points := PoolVector3Array()) -> Unit:
 	if _spawn_timer.time_left < 1e-4 and len(_drones) < drone_limit:
 		var drone = drone_scene.instance()
 		drone.transform = $SpawnPoint.global_transform
+		drone.connect("task_completed", self, "_task_completed", [drone])
 		_drones.append(drone)
 		game_master.add_unit(team, drone)
 		_spawn_timer = get_tree().create_timer(1.0)
@@ -191,16 +191,22 @@ func _get_idle_drone(near_points := PoolVector3Array()) -> Unit:
 	return null
 
 
-func _task_completed(unit: Unit, drone: Unit) -> void:
-	if drone.task == 1:
-		var value = _needs_material.get(unit)
-		if value == drone:
-			_needs_material[unit] = null
-	else:
-		var value = _dumps_material.get(unit)
-		if value == drone:
-			_dumps_material[unit] = null
-	drone.disconnect("task_completed", self, "_task_completed")
+func _task_completed(drone: Drone) -> void:
+	match drone.task:
+		Drone.Task.FILL:
+			var unit: Unit = drone.task_data[1]
+			var value: Drone = _needs_material.get(unit)
+			if value == drone:
+				_needs_material[unit] = null
+		Drone.Task.EMPTY:
+			var unit: Unit = drone.task_data[1]
+			var value: Drone = _dumps_material.get(unit)
+			if value == drone:
+				_dumps_material[unit] = null
+		Drone.Task.DESPAWN:
+			drone.queue_free()
+		_:
+			assert(false)
 
 
 func _get_nearest(unit, unit_list) -> Unit:
