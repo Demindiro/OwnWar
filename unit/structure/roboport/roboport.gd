@@ -2,7 +2,7 @@ extends Unit
 
 
 export var drone_scene: PackedScene
-export var drone_limit := 3
+export var drone_limit := 10
 var _drones := []
 var _radius2 := 100.0 * 100.0
 var _immediate_geometry: ImmediateGeometry
