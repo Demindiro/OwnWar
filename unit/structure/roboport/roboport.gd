@@ -26,7 +26,7 @@ func _physics_process(_delta: float) -> void:
 			var provider := _get_nearest(unit, _provides_material)
 			if amount > 0:
 				if drone == null:
-					drone = _get_idle_drone()
+					drone = _get_idle_drone(PoolVector3Array([provider, unit]))
 					if drone == null:
 						break
 					drone.task = 1
@@ -40,7 +40,7 @@ func _physics_process(_delta: float) -> void:
 			var taker := _get_nearest(unit, _takes_material)
 			if amount > 0:
 				if drone == null:
-					drone = _get_idle_drone()
+					drone = _get_idle_drone(PoolVector3Array([taker, unit]))
 					if drone == null:
 						break
 					drone.task = 2
@@ -169,10 +169,22 @@ func _unit_destroyed(unit):
 	_units.erase(unit)
 
 
-func _get_idle_drone() -> Unit:
+func _get_idle_drone(near_points := PoolVector3Array()) -> Unit:
+	var shortest_distance := INF
+	var candidate: Unit = null
 	for drone in _drones:
 		if drone.task == drone.Task.NONE:
-			return drone
+			var nearest_distance := INF
+			for point in near_points:
+				var distance: float = drone.translation.distance_squared_to(point)
+				if distance < nearest_distance:
+					nearest_distance = distance
+			if nearest_distance < shortest_distance:
+				shortest_distance = nearest_distance
+				candidate = drone
+	if candidate != null:
+		return candidate
+
 	if _spawn_timer.time_left < 1e-4 and len(_drones) < drone_limit:
 		var drone = drone_scene.instance()
 		drone.transform = $SpawnPoint.global_transform

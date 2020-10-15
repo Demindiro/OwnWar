@@ -76,7 +76,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.375, 16.125 )
 material = 5000
 
 [node name="StoragePod3" parent="." instance=ExtResource( 7 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 32.1853, 1.375, 26.6544 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 24.8947, 1.375, 10.4983 )
 material = 5000
 
 [node name="Refinery" parent="." instance=ExtResource( 4 )]

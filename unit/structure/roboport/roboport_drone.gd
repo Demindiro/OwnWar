@@ -40,12 +40,16 @@ func _physics_process(_delta: float) -> void:
 					_task_completed()
 			if target != null:
 				_move_towards(target)
-		Task.DESPAWN, Task.NONE:
+		Task.DESPAWN:
 			var proj_pos = Plane(transform.basis.y, 0).project(_spawn_point - translation)
 			if proj_pos.length_squared() < 9:
 				_task_completed()
 			else:
 				_move_towards(_spawn_point)
+		Task.NONE:
+			pass
+		_:
+			assert(false)
 
 
 
