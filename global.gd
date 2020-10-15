@@ -65,6 +65,7 @@ const ERROR_TO_STRING = [
 		"Bug",
 		"Printer on fire",
 	]
+const COLLISION_MASK_TERRAIN = 1 << (8 - 1) # Christ's sake, Godot pls
 
 
 export var blocks: Dictionary = {}
