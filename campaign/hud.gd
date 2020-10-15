@@ -32,6 +32,8 @@ func _process(_delta):
 	var draw_calls = get_tree().root.get_render_info(Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME)
 	$DrawCalls.text = "Draw calls: " + str(draw_calls)
 	set_unit_info()
+	show_feedback()
+	show_action_feedback()
 
 
 func _unhandled_input(event):
@@ -302,6 +304,7 @@ func get_selected_units(teams_mask):
 func set_selected_units(units):
 	for unit in selected_units:
 		unit.disconnect("destroyed", self, "_unit_destroyed")
+		unit.hide_feedback()
 	for unit in units:
 		unit.connect("destroyed", self, "_unit_destroyed")
 	selected_units = units
@@ -341,6 +344,40 @@ func clear_units():
 	set_selected_units([])
 	filter_units()
 	update()
+
+
+func show_feedback():
+	for unit in selected_units:
+		unit.show_feedback()
+
+
+func show_action_feedback():
+	match _action_input_name:
+		"coordinate":
+			var origin = $Camera.project_ray_origin(_last_mouse_position)
+			var normal = $Camera.project_ray_normal(_last_mouse_position)
+			var space_state = $Camera.get_world().direct_space_state
+			var result = space_state.intersect_ray(origin, origin + normal * 1000)
+			if len(result) > 0:
+				for unit in selected_units:
+					var arguments = [get_modifier_flags(), result.position]
+					if _action[1] & Unit.Action.INPUT_SCROLL:
+						arguments += [_scroll]
+					arguments += _action[3]
+					unit.show_action_feedback(_action[2], $Camera.get_viewport(), arguments)
+		"units":
+			for unit in selected_units:
+				unit.hide_action_feedback()
+#			if event.pressed:
+#				_selecting_units = true
+#				_mouse_position_start = _last_mouse_position
+#			else:
+#				_selecting_units = false
+#				var units = get_selected_units(_units_teams_mask)
+#				send_units(units)
+		_:
+			for unit in selected_units:
+				unit.hide_action_feedback()
 
 
 func _unit_destroyed(unit):
