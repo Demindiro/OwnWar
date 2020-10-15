@@ -252,13 +252,15 @@ func send_coordinate(coordinate):
 			arguments += [_scroll]
 		arguments += _action[3]
 		unit.callv(_action[2], arguments)
+	clear_action_button()
 	
 	
 func send_units(units):
 	for unit in selected_units:
 		var arguments = [get_modifier_flags(), units] + _action[3]
 		unit.callv(_action[2], arguments)
-		
+	clear_action_button()
+
 
 func send_toggle(button, action):
 	for unit in selected_units:
