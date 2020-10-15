@@ -7,7 +7,7 @@
 [ext_resource path="res://campaign/debug.tscn" type="PackedScene" id=5]
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=6]
 [ext_resource path="res://unit/structure/spawn_platform.tscn" type="PackedScene" id=7]
-[ext_resource path="res://unit/structure/drill.tscn" type="PackedScene" id=8]
+[ext_resource path="res://unit/structure/drill/drill.tscn" type="PackedScene" id=8]
 [ext_resource path="res://menu/theme/theme.tres" type="Theme" id=9]
 [ext_resource path="res://campaign/game_master.gd" type="Script" id=10]
 [ext_resource path="res://unit/worker/drone.tscn" type="PackedScene" id=11]
@@ -25,6 +25,7 @@
 [ext_resource path="res://addons/map_detail/grass/grass_02/diffus.tga" type="Texture" id=23]
 [ext_resource path="res://addons/map_detail/grass/grass.obj" type="ArrayMesh" id=24]
 [ext_resource path="res://addons/zylann.hterrain/tools/icons/icon_detail_layer_node.svg" type="Texture" id=25]
+
 
 
 [sub_resource type="GDScript" id=1]
