@@ -22,27 +22,31 @@ func _physics_process(_delta: float) -> void:
 	if len(_provides_material) > 0:
 		var provider := _provides_material[0] as Unit
 		for unit in _needs_material:
+			var amount := unit.request_info("need_material") as int
 			var drone := _needs_material[unit] as Unit
-			if drone == null:
-				drone = _get_idle_drone()
+			if amount > 0:
 				if drone == null:
-					break
-				drone.task = 1
-				drone.task_data = [provider, unit]
-				drone.connect("task_completed", self, "_task_completed", [unit, drone])
-				_needs_material[unit] = drone
+					drone = _get_idle_drone()
+					if drone == null:
+						break
+					drone.task = 1
+					drone.task_data = [provider, unit]
+					drone.connect("task_completed", self, "_task_completed", [unit, drone])
+					_needs_material[unit] = drone
 	if len(_takes_material) > 0:
 		var taker := _takes_material[0] as Unit
 		for unit in _dumps_material:
+			var amount := unit.request_info("dump_material") as int
 			var drone := _dumps_material[unit] as Unit
-			if drone == null:
-				drone = _get_idle_drone()
+			if amount > 0:
 				if drone == null:
-					break
-				drone.task = 2
-				drone.task_data = [unit, taker]
-				drone.connect("task_completed", self, "_task_completed", [unit, drone])
-				_dumps_material[unit] = drone
+					drone = _get_idle_drone()
+					if drone == null:
+						break
+					drone.task = 2
+					drone.task_data = [unit, taker]
+					drone.connect("task_completed", self, "_task_completed", [unit, drone])
+					_dumps_material[unit] = drone
 
 
 func get_actions() -> Array:

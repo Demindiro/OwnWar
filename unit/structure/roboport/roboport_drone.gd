@@ -15,6 +15,7 @@ var _turn: Vector3
 var _forward: float
 onready var _left_sensor := $LeftSensor as RayCast
 onready var _right_sensor := $RightSensor as RayCast
+onready var _spawn_point := translation
 
 
 func _physics_process(_delta: float) -> void:
@@ -38,6 +39,8 @@ func _physics_process(_delta: float) -> void:
 					_task_completed()
 			if target != null:
 				_move_towards(target)
+		Task.NONE:
+			_move_towards(_spawn_point)
 
 
 func _integrate_forces(state: PhysicsDirectBodyState):
@@ -63,7 +66,11 @@ func get_info() -> Dictionary:
 	return info
 
 
-func _move_towards(target: Unit) -> void:
+func _move_towards(target) -> void:
+	
+	if target is Spatial:
+		target = target.translation
+	
 	$".".sleeping = false
 	var sensor_mask = 0
 	if _right_sensor.is_colliding():
@@ -71,7 +78,7 @@ func _move_towards(target: Unit) -> void:
 	if _left_sensor.is_colliding():
 		sensor_mask |= 0b10
 	
-	var rel_pos := target.translation - translation
+	var rel_pos := target as Vector3 - translation
 	var proj_pos := Plane(transform.basis.y, 0.0).project(rel_pos)
 	var direction := proj_pos.normalized()
 	var error := 1.0 - transform.basis.z.dot(direction)
