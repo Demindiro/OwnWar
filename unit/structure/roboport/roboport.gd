@@ -2,13 +2,15 @@ extends Unit
 
 
 export var drone_scene: PackedScene
-export var drone_limit := 10
+export var drone_limit := 3
 var _drones := []
 var _radius2 := 100.0 * 100.0
 var _immediate_geometry: ImmediateGeometry
 var _units := []
 var _needs_material := {}
 var _provides_material := []
+var _takes_material := []
+var _dumps_material := {}
 onready var _spawn_timer := get_tree().create_timer(1.0, false)
 
 
@@ -29,8 +31,18 @@ func _physics_process(_delta: float) -> void:
 				drone.task_data = [provider, unit]
 				drone.connect("task_completed", self, "_task_completed", [unit, drone])
 				_needs_material[unit] = drone
-	for drone in _drones:
-		pass
+	if len(_takes_material) > 0:
+		var taker := _takes_material[0] as Unit
+		for unit in _dumps_material:
+			var drone := _dumps_material[unit] as Unit
+			if drone == null:
+				drone = _get_idle_drone()
+				if drone == null:
+					break
+				drone.task = 2
+				drone.task_data = [unit, taker]
+				drone.connect("task_completed", self, "_task_completed", [unit, drone])
+				_dumps_material[unit] = drone
 
 
 func get_actions() -> Array:
@@ -101,6 +113,9 @@ func _set_radius2(radius2: float) -> void:
 		unit.disconnect("destroyed", self, "_unit_destroyed")
 	_needs_material = {}
 	_provides_material = []
+	_takes_material = []
+	_needs_material = {}
+	_units = []
 	for unit in game_master.get_units(team):
 		if translation.distance_squared_to(unit.translation) < radius2:
 			_units.append(unit)
@@ -112,17 +127,20 @@ func _set_radius2(radius2: float) -> void:
 			var provides = unit.request_info("provide_material")
 			if provides != null and provides > 0:
 				_provides_material.append(unit)
+			var takes = unit.request_info("take_material")
+			if takes != null and takes > 0:
+				_takes_material.append(unit)
+			var dumps = unit.request_info("dump_material")
+			if dumps != null and dumps > 0:
+				_dumps_material[unit] = null
 
 
 func _get_message(message, data, unit):
 	match message:
 		"need_material":
 			var amount = data as int
-			if amount == 0:
-				_needs_material.erase(unit)
-			else:
-				if not unit in _needs_material:
-					_needs_material[unit] = null
+			if not unit in _needs_material:
+				_needs_material[unit] = null
 		"provide_material":
 			var amount = data as int
 			if amount == 0:
@@ -130,6 +148,17 @@ func _get_message(message, data, unit):
 			else:
 				if not unit in _provides_material:
 					_provides_material.append(unit)
+		"take_material":
+			var amount = data as int
+			if amount == 0:
+				_takes_material.erase(unit)
+			else:
+				if not unit in _takes_material:
+					_takes_material.append(unit)
+		"dump_material":
+			var amount = data as int
+			if not unit in _dumps_material:
+				_dumps_material[unit] = null
 
 
 func _unit_destroyed(unit):
@@ -151,5 +180,10 @@ func _get_idle_drone() -> Unit:
 
 
 func _task_completed(unit: Unit, drone: Unit) -> void:
-	_needs_material[unit] = null
+	if drone.task == 1:
+		if unit in _needs_material:
+			_needs_material[unit] = null
+	else:
+		if unit in _dumps_material:
+			_dumps_material[unit] = null
 	drone.disconnect("task_completed", self, "_task_completed")

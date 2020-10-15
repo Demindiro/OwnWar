@@ -12,6 +12,8 @@ func _physics_process(_delta):
 	if _ticks_until_next >= Engine.iterations_per_second:
 		if material < max_material:
 			material += ore.take_material(1)
+			send_message("dump_material", material)
+			send_message("provide_material", material)
 			_ticks_until_next = 0
 			if ore.material == 0:
 				set_process(false)
@@ -25,13 +27,23 @@ func get_info():
 	return info
 
 
+func request_info(info: String):
+	if info == "dump_material" or info == "provide_material":
+		return material
+	return .request_info(info)
+
+
 func take_material(p_material):
 	if p_material < material:
 		material -= p_material
+		send_message("dump_material", material)
+		send_message("provide_material", material)
 		return p_material
 	else:
 		var remainder = material
 		material = 0
+		send_message("dump_material", material)
+		send_message("provide_material", material)
 		return remainder
 
 

@@ -5,7 +5,8 @@ signal task_completed()
 const MAX_MATERIAL := 30
 enum Task {
 	NONE,
-	TRANSPORT,
+	FILL,
+	EMPTY,
 }
 var task: int
 var task_data
@@ -20,18 +21,18 @@ func _physics_process(_delta: float) -> void:
 	_turn = Vector3.ZERO
 	_forward = 0.0
 	match task:
-		Task.TRANSPORT:
+		Task.FILL, Task.EMPTY:
 			var target: Unit
-			if material == 0:
+			if material == 0 if task == Task.FILL else material < MAX_MATERIAL:
 				target = task_data[0]
 				var proj_pos = Plane(transform.basis.y, 0).project(target.translation - translation)
-				if proj_pos.length_squared() < 1:
+				if proj_pos.length_squared() < 9:
 					material += target.take_material(MAX_MATERIAL - material)
 					target = task_data[1]
 			else:
 				target = task_data[1]
 				var proj_pos = Plane(transform.basis.y, 0).project(target.translation - translation)
-				if proj_pos.length_squared() < 1:
+				if proj_pos.length_squared() < 9:
 					material = target.put_material(material)
 					target = null
 					_task_completed()
@@ -51,12 +52,12 @@ func get_info() -> Dictionary:
 	match task:
 		Task.NONE:
 			info["Task"] = "None"
-		Task.TRANSPORT:
+		Task.FILL, Task.EMPTY:
 			info["Task"] = "Transport"
-			if material == 0:
-				info["Taking"] = "Material"
+			if material == 0 if task == Task.FILL else material < MAX_MATERIAL:
+				info["Empty"] = "Material"
 			else:
-				info["Putting"] = "Material"
+				info["Fill"] = "Material"
 		_:
 			info["Task"] = "???"
 	return info
@@ -73,7 +74,7 @@ func _move_towards(target: Unit) -> void:
 	var rel_pos := target.translation - translation
 	var proj_pos := Plane(transform.basis.y, 0.0).project(rel_pos)
 	var direction := proj_pos.normalized()
-	var error := 1.0 - transform.basis.z.dot(proj_pos)
+	var error := 1.0 - transform.basis.z.dot(direction)
 	if sensor_mask == 0b01:
 		_turn = transform.basis.y
 	elif sensor_mask == 0b10:
