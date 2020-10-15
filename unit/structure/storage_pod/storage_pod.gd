@@ -15,6 +15,12 @@ func get_info():
 	return info
 
 
+func request_info(info: String):
+	if info == "provide_material":
+		return material
+	return .request_info(info)
+
+
 func put_material(p_material):
 	var max_put = max_material - material
 	if max_put > p_material:
@@ -40,4 +46,5 @@ func take_material(p_material, exact = false):
 func set_material(p_material):
 	assert(0 <= p_material and p_material <= max_material)
 	material = p_material
+	send_message("provide_material", material)
 	$Indicator.scale.y = float(material) / max_material

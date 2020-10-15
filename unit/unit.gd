@@ -41,6 +41,14 @@ func get_actions() -> Array:
 	return []
 
 
+func show_feedback():
+	pass
+
+
+func hide_feedback():
+	pass
+
+
 func show_action_feedback(function: String, viewport: Viewport, arguments: Array) -> void:
 	pass
 
@@ -65,6 +73,10 @@ func call_function(function_name, arguments := []):
 
 func send_message(message, data) -> void:
 	emit_signal("message", message, data)
+
+
+func request_info(info: String):
+	return null
 
 
 func destroy():

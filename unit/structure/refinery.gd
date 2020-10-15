@@ -20,6 +20,8 @@ func _physics_process(delta):
 		if material >= 2:
 			material -= 2
 			_producing = true
+		if material < max_material:
+			send_message("need_material", max_material - material)
 
 
 func get_info():
@@ -27,6 +29,12 @@ func get_info():
 	info["Material"] = "%d / %d" % [material, max_material]
 	info["Fuel"] = "%d / %d" % [fuel, max_fuel]
 	return info
+
+
+func request_info(info: String):
+	if info == "need_material":
+		return max_material - material
+	return .request_info(info)
 
 
 func put_material(amount):

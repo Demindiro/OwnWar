@@ -3,22 +3,33 @@ extends Unit
 
 export var drone_scene: PackedScene
 export var drone_limit := 10
+var _drones := []
 var _radius2 := 100.0 * 100.0
 var _immediate_geometry: ImmediateGeometry
-var _drones := []
+var _units := []
+var _needs_material := {}
+var _provides_material := []
 
 
 func _ready():
-	for _i in range(drone_limit):
-		_drones.append(drone_scene.instance())
+	_set_radius2(_radius2)
 
 
-func _notification(what: int) -> void:
-	match what:
-		NOTIFICATION_PREDELETE:
-			for drone in _drones:
-				if not drone.is_inside_tree():
-					drone.queue_free()
+func _physics_process(_delta: float) -> void:
+	if len(_provides_material) > 0:
+		var provider := _provides_material[0] as Unit
+		for unit in _needs_material:
+			var drone := _needs_material[unit] as Unit
+			if drone == null:
+				drone = _get_idle_drone()
+				if drone == null:
+					break
+				drone.task = 1
+				drone.task_data = [provider, unit]
+				drone.connect("task_completed", self, "_task_completed", [unit, drone])
+				_needs_material[unit] = drone
+	for drone in _drones:
+		pass
 
 
 func get_actions() -> Array:
@@ -27,6 +38,12 @@ func get_actions() -> Array:
 			["Set Coverage", Action.INPUT_COORDINATE, "set_coverage_radius", []]
 		]
 	return actions
+
+func get_info() -> Dictionary:
+	var info = .get_info()
+	info["Requesters"] = len(_needs_material)
+	info["Providers"] = len(_provides_material)
+	return info
 
 
 func show_feedback():
@@ -56,7 +73,7 @@ func show_action_feedback(function: String, viewport: Viewport, arguments: Array
 
 
 func set_coverage_radius(_flags: int, position: Vector3) -> void:
-	_radius2 = translation.distance_squared_to(position)
+	_set_radius2(translation.distance_squared_to(position))
 
 
 func _draw_circle(radius: float) -> void:
@@ -76,6 +93,61 @@ func _draw_circle(radius: float) -> void:
 	_immediate_geometry.end()
 
 
-func _drone_destroyed(drone):
-	_drones.erase(drone)
-	_drones.append(drone_scene.instance())
+func _set_radius2(radius2: float) -> void:
+	_radius2 = radius2
+	for unit in _units:
+		unit.disconnect("message", self, "_get_message")
+		unit.disconnect("destroyed", self, "_unit_destroyed")
+	_needs_material = {}
+	_provides_material = []
+	for unit in game_master.get_units(team):
+		if translation.distance_squared_to(unit.translation) < radius2:
+			_units.append(unit)
+			unit.connect("message", self, "_get_message", [unit])
+			unit.connect("destroyed", self, "_unit_destroyed")
+			var needs = unit.request_info("need_material")
+			if needs != null and needs > 0:
+				_needs_material[unit] = null
+			var provides = unit.request_info("provide_material")
+			if provides != null and provides > 0:
+				_provides_material.append(unit)
+
+
+func _get_message(message, data, unit):
+	match message:
+		"need_material":
+			var amount = data as int
+			if amount == 0:
+				_needs_material.erase(unit)
+			else:
+				if not unit in _needs_material:
+					_needs_material[unit] = null
+		"provide_material":
+			var amount = data as int
+			if amount == 0:
+				_provides_material.erase(unit)
+			else:
+				if not unit in _provides_material:
+					_provides_material.append(unit)
+
+
+func _unit_destroyed(unit):
+	_units.erase(unit)
+
+
+func _get_idle_drone() -> Unit:
+	for drone in _drones:
+		if drone.task == drone.Task.NONE:
+			return drone
+	if len(_drones) < drone_limit:
+		var drone = drone_scene.instance()
+		drone.transform = $SpawnPoint.global_transform
+		_drones.append(drone)
+		game_master.add_unit(team, drone)
+		return drone
+	return null
+
+
+func _task_completed(unit: Unit, drone: Unit) -> void:
+	_needs_material[unit] = null
+	drone.disconnect("task_completed", self, "_task_completed")
