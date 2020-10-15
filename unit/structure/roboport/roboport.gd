@@ -18,6 +18,12 @@ func _ready():
 	_set_radius2(_radius2)
 
 
+func _process(_delta):
+	var debug := get_tree().current_scene.find_node("Debug")
+	if debug != null:
+		draw_debug(debug)
+
+
 func _physics_process(_delta: float) -> void:
 	if len(_provides_material) > 0:
 		for unit in _needs_material:
@@ -216,3 +222,9 @@ func _get_nearest(unit, unit_list) -> Unit:
 			provider = prov
 			shortest_distance = dist
 	return provider
+
+
+func draw_debug(debug):
+	for drone in _drones:
+		debug.draw_line(translation, drone.translation, Color.orange)
+		drone.draw_debug(debug)

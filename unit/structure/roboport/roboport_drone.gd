@@ -76,6 +76,20 @@ func get_info() -> Dictionary:
 	return info
 
 
+func draw_debug(debug):
+	match task:
+		Task.FILL, Task.EMPTY:
+			debug.draw_line(translation, task_data[0].translation, Color.greenyellow)
+			debug.draw_line(translation, task_data[1].translation, Color.cyan)
+		Task.NONE:
+			debug.draw_line(translation + Vector3(0.5, 0, 0.5),
+					translation + Vector3(-0.5, 0, -0.5), Color.red)
+			debug.draw_line(translation + Vector3(0.5, 0, -0.5),
+					translation + Vector3(-0.5, 0, 0.5), Color.red)
+		_:
+			assert(false)
+
+
 func _move_towards(target) -> void:
 	
 	if target is Spatial:
