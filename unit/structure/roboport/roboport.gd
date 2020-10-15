@@ -9,6 +9,7 @@ var _immediate_geometry: ImmediateGeometry
 var _units := []
 var _needs_material := {}
 var _provides_material := []
+onready var _spawn_timer := get_tree().create_timer(1.0, false)
 
 
 func _ready():
@@ -139,11 +140,12 @@ func _get_idle_drone() -> Unit:
 	for drone in _drones:
 		if drone.task == drone.Task.NONE:
 			return drone
-	if len(_drones) < drone_limit:
+	if _spawn_timer.time_left < 1e-4 and len(_drones) < drone_limit:
 		var drone = drone_scene.instance()
 		drone.transform = $SpawnPoint.global_transform
 		_drones.append(drone)
 		game_master.add_unit(team, drone)
+		_spawn_timer = get_tree().create_timer(1.0)
 		return drone
 	return null
 
