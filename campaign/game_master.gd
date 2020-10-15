@@ -1,11 +1,10 @@
 class_name GameMaster
-
 extends Node
 
 
+signal unit_added(unit)
 export(NodePath) var victory_screen
 export var team_count := 2
-
 # warning-ignore:unused_class_variable
 var teams := ["Player", "Evil AI"]
 var teams_alive := team_count
@@ -23,6 +22,7 @@ func add_unit(team, unit):
 	units[team].append(unit)
 	unit.team = team
 	add_child(unit)
+	emit_signal("unit_added", unit)
 
 
 func remove_unit(team, unit):
