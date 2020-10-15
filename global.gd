@@ -96,8 +96,9 @@ func _process(_delta):
 func _notification(notification):
 	match notification:
 		MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
-			get_tree().root.print_stray_nodes()
-		
+#			get_tree().root.print_stray_nodes()
+			pass
+
 
 func recurse_directory(path: String, ends_with: String = "", _arr := []) -> Array:
 	var directory = Directory.new()
