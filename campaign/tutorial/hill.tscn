@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=2]
+[gd_scene load_steps=38 format=2]
 
 [ext_resource path="res://unit/ore/ore.tscn" type="PackedScene" id=1]
 [ext_resource path="res://campaign/hud.tscn" type="PackedScene" id=2]
@@ -25,11 +25,7 @@
 [ext_resource path="res://addons/map_detail/grass/grass_02/diffus.tga" type="Texture" id=23]
 [ext_resource path="res://addons/map_detail/grass/grass.obj" type="ArrayMesh" id=24]
 [ext_resource path="res://addons/zylann.hterrain/tools/icons/icon_detail_layer_node.svg" type="Texture" id=25]
-
-
-
-
-
+[ext_resource path="res://unit/structure/roboport/roboport_ghost.tscn" type="PackedScene" id=26]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node
@@ -135,25 +131,25 @@ func _physics_process(delta):
 		game_master.add_unit(0, drone)
 "
 
-[sub_resource type="PlaneMesh" id=6]
+[sub_resource type="PlaneMesh" id=4]
 size = Vector2( 5000, 5000 )
 subdivide_width = 50
 subdivide_depth = 50
 
-[sub_resource type="BoxShape" id=9]
+[sub_resource type="BoxShape" id=5]
 extents = Vector3( 2500, 10, 2500 )
 
-[sub_resource type="PlaneMesh" id=10]
+[sub_resource type="PlaneMesh" id=6]
 size = Vector2( 5000, 5000 )
 
-[sub_resource type="SpatialMaterial" id=11]
+[sub_resource type="SpatialMaterial" id=7]
 albedo_texture = ExtResource( 21 )
 normal_enabled = true
 normal_scale = 1.0
 normal_texture = ExtResource( 20 )
 uv1_scale = Vector3( 200, 200, 1 )
 
-[sub_resource type="ProceduralSky" id=7]
+[sub_resource type="ProceduralSky" id=8]
 sky_horizon_color = Color( 0.501961, 0.6, 0.701961, 1 )
 sky_curve = 0.0756807
 ground_bottom_color = Color( 0.501961, 0.6, 0.701961, 1 )
@@ -161,9 +157,9 @@ ground_horizon_color = Color( 0.501961, 0.6, 0.701961, 1 )
 ground_curve = 0.0313833
 sun_color = Color( 1, 0.976471, 0.858824, 1 )
 
-[sub_resource type="Environment" id=8]
+[sub_resource type="Environment" id=9]
 background_mode = 2
-background_sky = SubResource( 7 )
+background_sky = SubResource( 8 )
 ambient_light_energy = 0.05
 fog_enabled = true
 fog_color = Color( 0.501961, 0.6, 0.701961, 1 )
@@ -175,7 +171,7 @@ adjustment_enabled = true
 adjustment_contrast = 1.25
 adjustment_saturation = 0.8
 
-[sub_resource type="GDScript" id=4]
+[sub_resource type="GDScript" id=10]
 script/source = "extends ColorRect
 
 
@@ -183,7 +179,7 @@ func _on_Exit_pressed():
 	Global.goto_scene(Global.SCENE_MENU_MAIN)
 "
 
-[sub_resource type="DynamicFont" id=5]
+[sub_resource type="DynamicFont" id=11]
 size = 200
 font_data = ExtResource( 3 )
 
@@ -214,6 +210,11 @@ drone_scene = ExtResource( 11 )
 
 [node name="HTerrain" type="Spatial" parent="Map"]
 script = ExtResource( 6 )
+collision_enabled = true
+ambient_wind = 0.0
+lod_scale = 2.0
+custom_globalmap_shader = null
+map_scale = Vector3( 1, 1, 1 )
 _terrain_data = ExtResource( 15 )
 chunk_size = 32
 shader_type = "Classic4Lite"
@@ -249,7 +250,7 @@ shader_params/u_instance_scale = Vector3( 0.05, 0.05, 0.05 )
 
 [node name="Water" type="MeshInstance" parent="Map"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 500, -6.37859, 500 )
-mesh = SubResource( 6 )
+mesh = SubResource( 4 )
 material/0 = ExtResource( 19 )
 
 [node name="OceanFloor" type="StaticBody" parent="Map"]
@@ -257,12 +258,12 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 500, -10, 500 )
 
 [node name="CollisionShape" type="CollisionShape" parent="Map/OceanFloor"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -10, 0 )
-shape = SubResource( 9 )
+shape = SubResource( 5 )
 
 [node name="MeshInstance" type="MeshInstance" parent="Map/OceanFloor"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0 )
-mesh = SubResource( 10 )
-material/0 = SubResource( 11 )
+mesh = SubResource( 6 )
+material/0 = SubResource( 7 )
 
 [node name="Player" type="Node" parent="Map"]
 
@@ -281,6 +282,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 215.335, 4.11692, 356.776 )
 ghosts = {
 "Munition Factory": ExtResource( 17 ),
 "Refinery": ExtResource( 18 ),
+"Roboport": ExtResource( 26 ),
 "Spawn Platform": ExtResource( 13 ),
 "Storage Pod": ExtResource( 12 )
 }
@@ -302,6 +304,7 @@ team = 1
 ghosts = {
 "Munition Factory": ExtResource( 17 ),
 "Refinery": ExtResource( 18 ),
+"Roboport": ExtResource( 26 ),
 "Spawn Platform": ExtResource( 13 ),
 "Storage Pod": ExtResource( 12 )
 }
@@ -321,7 +324,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 312.708, 30.1831, 566.548 )
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 438.814, 30.591, 547.43 )
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource( 8 )
+environment = SubResource( 9 )
 
 [node name="Debug" parent="." instance=ExtResource( 5 )]
 visible = false
@@ -344,7 +347,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 9 )
 color = Color( 0, 0, 0, 0.392157 )
-script = SubResource( 4 )
+script = SubResource( 10 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -352,7 +355,7 @@ __meta__ = {
 [node name="Label" type="Label" parent="Victory"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-custom_fonts/font = SubResource( 5 )
+custom_fonts/font = SubResource( 11 )
 text = "Victory"
 align = 1
 valign = 1
