@@ -16,7 +16,7 @@
 [ext_resource path="res://camera/free_camera.gd" type="Script" id=14]
 [ext_resource path="res://campaign/tutorial/hill_data/data.hterrain" type="Resource" id=15]
 [ext_resource path="res://addons/tiles/grass/grass_0.png" type="Texture" id=16]
-[ext_resource path="res://unit/structure/munitions_factory_ghost.tscn" type="PackedScene" id=17]
+[ext_resource path="res://unit/structure/munitions_factory/munitions_factory_ghost.tscn" type="PackedScene" id=17]
 [ext_resource path="res://unit/structure/refinery_ghost.tscn" type="PackedScene" id=18]
 [ext_resource path="res://campaign/tutorial/water/water.tres" type="Material" id=19]
 [ext_resource path="res://addons/tiles/sand/IMG_8938 Seamless Normal.jpg" type="Texture" id=20]
@@ -25,6 +25,7 @@
 [ext_resource path="res://addons/map_detail/grass/grass_02/diffus.tga" type="Texture" id=23]
 [ext_resource path="res://addons/map_detail/grass/grass.obj" type="ArrayMesh" id=24]
 [ext_resource path="res://addons/zylann.hterrain/tools/icons/icon_detail_layer_node.svg" type="Texture" id=25]
+
 
 
 
