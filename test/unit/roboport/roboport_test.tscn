@@ -20,6 +20,8 @@ func _ready():
 	var game_master = get_tree().current_scene
 	game_master.units[0].append($\"../Roboport\")
 	game_master.units[0].append($\"../StoragePod\")
+	game_master.units[0].append($\"../StoragePod2\")
+	game_master.units[0].append($\"../StoragePod3\")
 	game_master.units[0].append($\"../Refinery\")
 	game_master.units[0].append($\"../MunitionsFactory\")
 	game_master.units[0].append($\"../Drill\")
@@ -66,7 +68,15 @@ transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, -
 drone_scene = ExtResource( 8 )
 
 [node name="StoragePod" parent="." instance=ExtResource( 7 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -22.4322, 1.375, 0.0908432 )
+material = 5000
+
+[node name="StoragePod2" parent="." instance=ExtResource( 7 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.375, 16.125 )
+material = 5000
+
+[node name="StoragePod3" parent="." instance=ExtResource( 7 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 32.1853, 1.375, 26.6544 )
 material = 5000
 
 [node name="Refinery" parent="." instance=ExtResource( 4 )]

@@ -100,7 +100,12 @@ func _move_towards(target) -> void:
 			_turn = _turn.normalized()
 
 	if sensor_mask != 0b11:
-		_forward = clamp(proj_pos.length_squared(), 0.0, 1.0) if error < 0.5 else 0.0
+		if sensor_mask == 0b00:
+			_forward = 1.0 if error < 0.5 else 0.0
+		else:
+			# Move forward in case of conflict
+			var side := transform.basis.x.dot(direction)
+			_forward = 1.0 if (side < 0.5) == (sensor_mask == 0b01) else 0.0
 	else:
 		_forward = -1.0
 
