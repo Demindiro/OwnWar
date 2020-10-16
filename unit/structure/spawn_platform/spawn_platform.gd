@@ -52,6 +52,12 @@ func get_actions():
 	return actions
 
 
+func request_info(info: String):
+	if info == "need_material":
+		return get_material_space()
+	return .request_info(info)
+
+
 func spawn_worker(_flags):
 	if queued_vehicle != null:
 		queued_vehicle.free()
