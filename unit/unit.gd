@@ -24,7 +24,7 @@ export var team := 0
 # warning-ignore:unused_class_variable
 export var unit_name := "unit"
 onready var health := max_health
-onready var game_master = get_tree().get_current_scene()
+onready var game_master = GameMaster.get_game_master(self)
 
 
 func projectile_hit(_origin: Vector3, _direction: Vector3, damage: int):

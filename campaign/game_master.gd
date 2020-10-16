@@ -54,3 +54,13 @@ func game_end():
 	get_node(victory_screen).visible = true
 	get_node(victory_screen).pause_mode = PAUSE_MODE_PROCESS
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
+
+static func get_game_master(node: Node) -> Node:# -> GameMaster:
+#	while not node is GameMaster:
+	# REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+	while not node.has_method("get_game_master"): # Don't judge me
+		assert(node.get_parent() != null)
+		node = node.get_parent()
+	return node
+#	return node as GameMaster

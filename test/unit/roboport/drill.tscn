@@ -17,7 +17,7 @@ const SCALE = 2
 
 
 func _ready():
-	var game_master = get_tree().current_scene
+	var game_master = GameMaster.get_game_master(self)
 	game_master.units[0].append($\"../StoragePod\")
 	game_master.units[0].append($\"../Roboport\")
 	for i in range(6):

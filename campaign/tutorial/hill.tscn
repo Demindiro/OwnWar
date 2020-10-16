@@ -33,7 +33,7 @@ script/source = "extends Node
 
 export(String, FILE, \"*.json\") var vehicle
 export(int) var team = 1
-onready var game_master = get_tree().get_current_scene()
+onready var game_master = GameMaster.get_game_master(self)
 
 var _worker
 var _spawned_vehicle

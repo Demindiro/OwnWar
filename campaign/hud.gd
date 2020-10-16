@@ -5,7 +5,7 @@ const SHORTCUT_PREFIX = "campaign_shortcut_"
 const SHORTCUT_COUNT = 10
 export var team := 0
 var selected_units = [] setget set_selected_units
-onready var game_master = get_tree().get_current_scene()
+onready var game_master = GameMaster.get_game_master(self)
 
 var _selecting_units = false
 var _mouse_position_start
