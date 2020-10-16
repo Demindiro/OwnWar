@@ -45,6 +45,10 @@ func take_material(p_material, exact = false):
 		return remainder
 
 
+func get_material_space() -> int:
+	return max_material - material
+
+
 func set_material(p_material):
 	assert(0 <= p_material and p_material <= max_material)
 	material = p_material
