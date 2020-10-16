@@ -3,7 +3,6 @@
 [ext_resource path="res://unit/structure/spawn_platform/platform.obj" type="ArrayMesh" id=1]
 [ext_resource path="res://addons/arrow.png" type="Texture" id=2]
 
-
 [sub_resource type="GDScript" id=1]
 script/source = "extends Unit
 
@@ -116,6 +115,10 @@ func set_material(p_material):
 
 func get_max_material():
 	return 0 if queued_vehicle == null else queued_vehicle.get_cost()
+
+
+func get_material_space():
+	return 0 if queued_vehicle == null else queued_vehicle.get_cost() - material
 "
 
 [sub_resource type="BoxShape" id=2]

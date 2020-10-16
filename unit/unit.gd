@@ -68,6 +68,7 @@ func has_function(function_name):
 
 
 func call_function(function_name, arguments := []):
+	assert(has_method(function_name))
 	return callv(function_name, arguments)
 
 

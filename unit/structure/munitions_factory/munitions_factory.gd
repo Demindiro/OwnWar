@@ -84,6 +84,14 @@ func get_munition_count():
 	return len(munition)
 
 
+func get_munition_space():
+	return max_munition - len(munition)
+
+
+func get_material_space():
+	return max_material - material
+
+
 func set_munition_type(flags, munition_type):
 	_current_munition_type = munition_type
 

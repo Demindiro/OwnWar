@@ -66,3 +66,7 @@ func take_fuel(amount):
 
 func get_fuel_count():
 	return fuel
+
+
+func get_material_space():
+	return MAX_MATERIAL - material

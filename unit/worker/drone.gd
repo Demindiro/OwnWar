@@ -71,12 +71,12 @@ func _physics_process(delta):
 			else:
 				move_towards(task[1].translation, delta)
 		Task.PUT_MATERIAL:
-			if task[1].material >= task[1].max_material:
+			if task[1].call_function("get_material_space") == 0:
 				current_task_completed()
 			elif material > 0:
 				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
 					self.material = task[1].put_material(material)
-					if task[1].material == task[1].max_material:
+					if task[1].call_function("get_material_space") == 0:
 						current_task_completed()
 				else:
 					move_towards(task[1].translation, delta)
