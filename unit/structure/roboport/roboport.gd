@@ -8,10 +8,8 @@ var _drones := []
 var _radius2 := 100.0 * 100.0
 var _immediate_geometry: ImmediateGeometry
 var _units := []
-var _needs_material := {}
 var _provides_material := []
 var _takes_material := []
-var _dumps_material := {}
 var _queued_tasks := []
 onready var _spawn_timer := get_tree().create_timer(1.0, false)
 
@@ -28,32 +26,21 @@ func _process(_delta):
 
 
 func _physics_process(_delta: float) -> void:
-	if len(_provides_material) > 0:
-		for unit in _needs_material:
-			var amount: int = unit.request_info("need_material")
-			var drone: Unit = _needs_material[unit]
-			var provider := _get_nearest(unit, _provides_material)
-			if amount > 0:
-				if drone == null:
-					drone = _get_idle_drone(PoolVector3Array([provider, unit]))
-					if drone == null:
-						break
-					drone.task = 1
-					drone.task_data = [provider, unit]
-					_needs_material[unit] = drone
-	if len(_takes_material) > 0:
-		for unit in _dumps_material:
-			var amount := unit.request_info("dump_material") as int
-			var drone := _dumps_material[unit] as Unit
-			var taker := _get_nearest(unit, _takes_material)
-			if amount > 0:
-				if drone == null:
-					drone = _get_idle_drone(PoolVector3Array([taker, unit]))
-					if drone == null:
-						break
-					drone.task = 2
-					drone.task_data = [unit, taker]
-					_dumps_material[unit] = drone
+	while len(_queued_tasks) > 0:
+		var queued_task: Array = _queued_tasks[0]
+		var task: int = queued_task[0]
+		var task_data = queued_task[1]
+		var drone: Drone
+		if task == Drone.Task.EMPTY or task == Drone.Task.FILL:
+			drone = _get_idle_drone(PoolVector3Array(
+				[task_data[0].translation, task_data[1].translation]))
+		else:
+			drone = _get_idle_drone()
+		if drone == null:
+			break
+		_queued_tasks.remove(0)
+		drone.task = task
+		drone.task_data = task_data
 
 
 func get_actions() -> Array:
@@ -66,10 +53,9 @@ func get_actions() -> Array:
 func get_info() -> Dictionary:
 	var info = .get_info()
 	info["Drones"] = "%d / %d" % [len(_drones), drone_limit]
-	info["Requesters"] = str(len(_needs_material))
+	info["Queued Tasks"] = str(len(_queued_tasks))
 	info["Providers"] = str(len(_provides_material))
 	info["Takers"] = str(len(_takes_material))
-	info["Dumpers"] = str(len(_dumps_material))
 	return info
 
 
@@ -125,10 +111,8 @@ func _set_radius2(radius2: float) -> void:
 	for unit in _units:
 		unit.disconnect("message", self, "_get_message")
 		unit.disconnect("destroyed", self, "_unit_destroyed")
-	_needs_material = {}
 	_provides_material = []
 	_takes_material = []
-	_needs_material = {}
 	_units = []
 	for unit in game_master.get_units(team):
 		if translation.distance_squared_to(unit.translation) < radius2:
@@ -139,35 +123,37 @@ func _get_message(message, data, unit):
 	match message:
 		"need_material":
 			var amount = data as int
-			if not unit in _needs_material:
-				_needs_material[unit] = null
+			if amount > 0:
+				var provider := _get_nearest(unit, _provides_material)
+				_add_task(Drone.Task.FILL, [provider, unit])
 		"provide_material":
-			var amount = data as int
+			var amount: int = data
 			if amount == 0:
 				_provides_material.erase(unit)
 			else:
 				if not unit in _provides_material:
 					_provides_material.append(unit)
 		"take_material":
-			var amount = data as int
+			var amount: int = data
 			if amount == 0:
 				_takes_material.erase(unit)
 			else:
 				if not unit in _takes_material:
 					_takes_material.append(unit)
 		"dump_material":
-			var amount = data as int
-			if not unit in _dumps_material:
-				_dumps_material[unit] = null
+			var amount: int = data
+			if amount > 0:
+				var taker := _get_nearest(unit, _takes_material)
+				_add_task(Drone.Task.EMPTY, [unit, taker])
 
 
 func _unit_destroyed(unit):
 	_units.erase(unit)
 
 
-func _get_idle_drone(near_points := PoolVector3Array()) -> Unit:
+func _get_idle_drone(near_points := PoolVector3Array()) -> Drone:
 	var shortest_distance := INF
-	var candidate: Unit = null
+	var candidate: Drone = null
 	for drone in _drones:
 		if drone.task == drone.Task.NONE:
 			var nearest_distance := INF
@@ -195,15 +181,9 @@ func _get_idle_drone(near_points := PoolVector3Array()) -> Unit:
 func _task_completed(drone: Drone) -> void:
 	match drone.task:
 		Drone.Task.FILL:
-			var unit: Unit = drone.task_data[1]
-			var value: Drone = _needs_material.get(unit)
-			if value == drone:
-				_needs_material[unit] = null
+			pass
 		Drone.Task.EMPTY:
-			var unit: Unit = drone.task_data[0]
-			var value: Drone = _dumps_material.get(unit)
-			if value == drone:
-				_dumps_material[unit] = null
+			pass
 		Drone.Task.DESPAWN:
 			drone.queue_free()
 		_:
@@ -232,7 +212,8 @@ func _add_unit(unit: Unit) -> void:
 	unit.connect("destroyed", self, "_unit_destroyed")
 	var needs = unit.request_info("need_material")
 	if needs != null and needs > 0:
-		_needs_material[unit] = null
+		var provider := _get_nearest(unit, _provides_material)
+		_add_task(Drone.Task.FILL, [provider, unit])
 	var provides = unit.request_info("provide_material")
 	if provides != null and provides > 0:
 		_provides_material.append(unit)
@@ -241,7 +222,25 @@ func _add_unit(unit: Unit) -> void:
 		_takes_material.append(unit)
 	var dumps = unit.request_info("dump_material")
 	if dumps != null and dumps > 0:
-		_dumps_material[unit] = null
+		var taker := _get_nearest(unit, _takes_material)
+		_add_task(Drone.Task.EMPTY, [unit, taker])
+
+
+func _remove_unit(unit: Unit) -> void:
+	unit.disconnect("message", self, "_get_message")
+	unit.disconnect("destroyed", self, "_unit_destroyed")
+	_provides_material.erase(unit)
+	_takes_material.erase(unit)
+	_units.erase(unit)
+
+
+func _add_task(task: int, data: Array) -> void:
+	for drone in _drones:
+		if drone.task == task and drone.task_data == data:
+			return
+	var array := [task, data]
+	if not array in _queued_tasks:
+		_queued_tasks.push_back(array)
 
 
 func draw_debug(debug):
