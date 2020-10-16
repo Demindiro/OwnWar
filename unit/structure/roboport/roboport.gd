@@ -10,7 +10,10 @@ var _immediate_geometry: ImmediateGeometry
 var _units := []
 var _provides_material := []
 var _takes_material := []
+var _needs_material_provider := []
+var _needs_material_taker := []
 var _queued_tasks := []
+var _dirty := false
 onready var _spawn_timer := get_tree().create_timer(1.0, false)
 
 
@@ -26,21 +29,7 @@ func _process(_delta):
 
 
 func _physics_process(_delta: float) -> void:
-	while len(_queued_tasks) > 0:
-		var queued_task: Array = _queued_tasks[0]
-		var task: int = queued_task[0]
-		var task_data = queued_task[1]
-		var drone: Drone
-		if task == Drone.Task.EMPTY or task == Drone.Task.FILL:
-			drone = _get_idle_drone(PoolVector3Array(
-				[task_data[0].translation, task_data[1].translation]))
-		else:
-			drone = _get_idle_drone()
-		if drone == null:
-			break
-		_queued_tasks.remove(0)
-		drone.task = task
-		drone.task_data = task_data
+	_assign_tasks()
 
 
 func get_actions() -> Array:
@@ -87,6 +76,31 @@ func show_action_feedback(function: String, viewport: Viewport, arguments: Array
 
 func set_coverage_radius(_flags: int, position: Vector3) -> void:
 	_set_radius2(translation.distance_squared_to(position))
+
+
+func assign_tasks() -> void:
+	if not _dirty:
+		call_deferred("_assign_tasks")
+		_dirty = true
+
+
+func _assign_tasks() -> void:
+	while len(_queued_tasks) > 0:
+		var queued_task: Array = _queued_tasks[0]
+		var task: int = queued_task[0]
+		var task_data = queued_task[1]
+		var drone: Drone
+		if task == Drone.Task.EMPTY or task == Drone.Task.FILL:
+			drone = _get_idle_drone(PoolVector3Array(
+				[task_data[0].translation, task_data[1].translation]))
+		else:
+			drone = _get_idle_drone()
+		if drone == null:
+			break
+		_queued_tasks.remove(0)
+		drone.task = task
+		drone.task_data = task_data
+	_dirty = false
 
 
 func _draw_circle(radius: float) -> void:
@@ -188,6 +202,7 @@ func _task_completed(drone: Drone) -> void:
 			drone.queue_free()
 		_:
 			assert(false)
+	assign_tasks()
 
 
 func _get_nearest(unit, unit_list) -> Unit:
@@ -213,17 +228,29 @@ func _add_unit(unit: Unit) -> void:
 	var needs = unit.request_info("need_material")
 	if needs != null and needs > 0:
 		var provider := _get_nearest(unit, _provides_material)
-		_add_task(Drone.Task.FILL, [provider, unit])
+		if provider != null:
+			_add_task(Drone.Task.FILL, [provider, unit])
+		else:
+			_needs_material_provider.append(unit)
 	var provides = unit.request_info("provide_material")
 	if provides != null and provides > 0:
 		_provides_material.append(unit)
+		for needer in _needs_material_provider:
+			_add_task(Drone.Task.FILL, [unit, needer])
+		_needs_material_provider = []
 	var takes = unit.request_info("take_material")
 	if takes != null and takes > 0:
 		_takes_material.append(unit)
+		for needer in _needs_material_taker:
+			_add_task(Drone.Task.EMPTY, [needer, unit])
+		_needs_material_taker = []
 	var dumps = unit.request_info("dump_material")
 	if dumps != null and dumps > 0:
 		var taker := _get_nearest(unit, _takes_material)
-		_add_task(Drone.Task.EMPTY, [unit, taker])
+		if taker != null:
+			_add_task(Drone.Task.EMPTY, [unit, taker])
+		else:
+			_needs_material_taker.append(unit)
 
 
 func _remove_unit(unit: Unit) -> void:
@@ -241,6 +268,7 @@ func _add_task(task: int, data: Array) -> void:
 	var array := [task, data]
 	if not array in _queued_tasks:
 		_queued_tasks.push_back(array)
+		assign_tasks()
 
 
 func draw_debug(debug):
