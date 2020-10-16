@@ -12,7 +12,7 @@ var _provides_material := []
 var _takes_material := []
 var _needs_material_provider := []
 var _needs_material_taker := []
-var _queued_tasks := []
+var _tasks := []
 var _dirty := false
 onready var _spawn_timer := get_tree().create_timer(1.0, false)
 
@@ -42,7 +42,8 @@ func get_actions() -> Array:
 func get_info() -> Dictionary:
 	var info = .get_info()
 	info["Drones"] = "%d / %d" % [len(_drones), drone_limit]
-	info["Queued Tasks"] = str(len(_queued_tasks))
+	info["Units"] = str(len(_units))
+	info["Tasks"] = str(len(_tasks))
 	info["Providers"] = str(len(_provides_material))
 	info["Takers"] = str(len(_takes_material))
 	return info
@@ -85,10 +86,20 @@ func assign_tasks() -> void:
 
 
 func _assign_tasks() -> void:
-	while len(_queued_tasks) > 0:
-		var queued_task: Array = _queued_tasks[0]
-		var task: int = queued_task[0]
-		var task_data = queued_task[1]
+	while len(_tasks) > 0:
+		var task: int = _tasks[0][0]
+		var task_data = _tasks[0][1]
+		match task:
+			Drone.Task.EMPTY, Drone.Task.FILL:
+				if not task_data[0] in _units or not task_data[1] in _units:
+					_tasks.remove(0)
+					task = -1
+			Drone.Task.DESPAWN, Drone.Task.NONE:
+				pass
+			_:
+				assert(false)
+		if task == -1:
+			continue
 		var drone: Drone
 		if task == Drone.Task.EMPTY or task == Drone.Task.FILL:
 			drone = _get_idle_drone(PoolVector3Array(
@@ -97,7 +108,7 @@ func _assign_tasks() -> void:
 			drone = _get_idle_drone()
 		if drone == null:
 			break
-		_queued_tasks.remove(0)
+		_tasks.push_back(_tasks.pop_front())
 		drone.task = task
 		drone.task_data = task_data
 	_dirty = false
@@ -131,6 +142,7 @@ func _set_radius2(radius2: float) -> void:
 	for unit in game_master.get_units(team):
 		if translation.distance_squared_to(unit.translation) < radius2:
 			_add_unit(unit)
+	_assign_tasks()
 
 
 func _get_message(message, data, unit):
@@ -262,12 +274,9 @@ func _remove_unit(unit: Unit) -> void:
 
 
 func _add_task(task: int, data: Array) -> void:
-	for drone in _drones:
-		if drone.task == task and drone.task_data == data:
-			return
 	var array := [task, data]
-	if not array in _queued_tasks:
-		_queued_tasks.push_back(array)
+	if not array in _tasks:
+		_tasks.push_back(array)
 		assign_tasks()
 
 
