@@ -31,6 +31,7 @@ cast_to = Vector3( 0, -0.1, 0 )
 transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0.25, 0, 0.095 )
 enabled = true
 cast_to = Vector3( 0, 0, 1 )
+collision_mask = 513
 __meta__ = {
 "_editor_description_": ""
 }
@@ -39,6 +40,7 @@ __meta__ = {
 transform = Transform( 0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, 0.125, 0, 0.22 )
 enabled = true
 cast_to = Vector3( 0, 0, 1 )
+collision_mask = 513
 __meta__ = {
 "_editor_description_": ""
 }
@@ -47,8 +49,10 @@ __meta__ = {
 transform = Transform( 0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -0.125, 0, 0.22 )
 enabled = true
 cast_to = Vector3( 0, 0, 1 )
+collision_mask = 513
 
 [node name="RRSensor" type="RayCast" parent="."]
 transform = Transform( 0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -0.25, 0, 0.095 )
 enabled = true
 cast_to = Vector3( 0, 0, 1 )
+collision_mask = 513

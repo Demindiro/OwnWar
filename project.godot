@@ -337,6 +337,7 @@ designer_configure={
 [layer_names]
 
 3d_physics/layer_8="Terrain"
+3d_physics/layer_10="Drone sensors"
 
 [physics]
 
