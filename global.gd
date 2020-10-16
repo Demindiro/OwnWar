@@ -1,6 +1,6 @@
 extends Node
 
-const LOADER_MAX_TIME = 1000 / 30
+const LOADER_MAX_TIME = 1000 / 60
 const VERSION = "0.11.1"
 # Because Godot does not allow cyclic references and is apparently not capable
 # of updating file paths automatically, this shall be the solution
@@ -151,13 +151,13 @@ func _goto_scene(path):
 		var err = get_tree().change_scene(SCENE_LOADING)
 		if err != OK:
 			error("Failed to change scene '%s'" % path, err)
-		_load_scene()
+		call_deferred("_load_scene")
 	get_tree().paused = false
 
 
 func _load_scene():
 	var t = OS.get_ticks_msec()
-	while OS.get_ticks_msec() < t + LOADER_MAX_TIME or true:
+	while OS.get_ticks_msec() < t + LOADER_MAX_TIME:
 		var err = _loader.poll()
 		if err == ERR_FILE_EOF:
 			var scene = _loader.get_resource()
@@ -170,7 +170,7 @@ func _load_scene():
 			_loader = null
 			return
 		elif err == OK:
-			pass
+			_show_loading_progress()
 		else:
 			error("Error loading scene", err)
 			get_tree().current_scene.get_node("ColorRect").color = Color.red
