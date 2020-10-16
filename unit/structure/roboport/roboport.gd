@@ -99,10 +99,16 @@ func _assign_tasks() -> void:
 				assert(false)
 
 	while len(_tasks) > 0:
-		var task: int = _tasks[0][0]
-		var task_data = _tasks[0][1]
-		if task == -1:
-			continue
+		var task: int
+		var task_data: Array
+		var assignees: int = 1 << 62
+		var _task: Array
+		for t in _tasks:
+			if t[2] < assignees:
+				task = t[0]
+				task_data = t[1]
+				assignees = t[2]
+				_task = t
 		var drone: Drone
 		if task == Drone.Task.EMPTY or task == Drone.Task.FILL:
 			drone = _get_idle_drone(PoolVector3Array(
@@ -111,6 +117,7 @@ func _assign_tasks() -> void:
 			drone = _get_idle_drone()
 		if drone == null:
 			break
+		_task[2] += 1
 		_tasks.push_back(_tasks.pop_front())
 		drone.task = task
 		drone.task_data = task_data
@@ -217,6 +224,10 @@ func _task_completed(drone: Drone) -> void:
 			drone.queue_free()
 		_:
 			assert(false)
+	for t in _tasks:
+		if t[0] == drone.task and t[1] == drone.task_data:
+			t[2] -= 1
+			break
 	assign_tasks()
 
 
@@ -277,10 +288,11 @@ func _remove_unit(unit: Unit) -> void:
 
 
 func _add_task(task: int, data: Array) -> void:
-	var array := [task, data]
-	if not array in _tasks:
-		_tasks.push_back(array)
-		assign_tasks()
+	for t in _tasks:
+		if t[0] == task and t[1] == data:
+			return
+	_tasks.push_back([task, data, 0])
+	assign_tasks()
 
 
 func draw_debug(debug):
