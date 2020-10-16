@@ -167,7 +167,7 @@ sun_color = Color( 1, 0.976471, 0.858824, 1 )
 [sub_resource type="Environment" id=9]
 background_mode = 2
 background_sky = SubResource( 8 )
-ambient_light_energy = 0.05
+ambient_light_energy = 0.06
 fog_enabled = true
 fog_color = Color( 0.501961, 0.6, 0.701961, 1 )
 fog_depth_end = 2000.0
