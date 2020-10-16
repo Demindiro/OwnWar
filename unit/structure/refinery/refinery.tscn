@@ -2,7 +2,6 @@
 
 [ext_resource path="res://unit/structure/refinery/refinery.gd" type="Script" id=1]
 
-
 [sub_resource type="CylinderMesh" id=1]
 top_radius = 0.1
 bottom_radius = 0.1
