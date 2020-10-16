@@ -81,8 +81,8 @@ func get_info() -> Dictionary:
 func draw_debug(debug):
 	match task:
 		Task.FILL, Task.EMPTY:
-			debug.draw_line(translation, task_data[0].translation, Color.greenyellow)
-			debug.draw_line(translation, task_data[1].translation, Color.cyan)
+			debug.draw_line(translation, task_data[0].get_interaction_port(), Color.greenyellow)
+			debug.draw_line(translation, task_data[1].get_interaction_port(), Color.cyan)
 		Task.NONE:
 			debug.draw_line(translation + Vector3(0.5, 0, 0.5),
 					translation + Vector3(-0.5, 0, -0.5), Color.red)
@@ -123,8 +123,8 @@ func _move_towards(target) -> void:
 
 	if sensor_mask != 0b11:
 		if sensor_mask == 0b00:
-			_forward = 1.0 if error < 0.5 else 0.0
-		elif error > 0.5:
+			_forward = 1.0 if error < 0.1 else 0.0
+		elif error > 0.1:
 			# Move forward in case of conflict
 			var side := transform.basis.x.dot(direction)
 			_forward = 1.0 if (side < 0) == (sensor_mask == 0b01) else 0.0
