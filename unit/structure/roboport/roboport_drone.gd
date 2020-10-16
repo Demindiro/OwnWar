@@ -15,10 +15,12 @@ var material: int
 var _turn: Vector3
 var _forward: float
 var _task_step := 0
-onready var _left_sensor := $LeftSensor as RayCast
-onready var _left_sensor2 := $LeftSensor2 as RayCast
-onready var _right_sensor := $RightSensor as RayCast
-onready var _right_sensor2 := $RightSensor2 as RayCast
+onready var _ll_sensor: RayCast = $LLSensor
+onready var _lf_sensor: RayCast = $LFSensor
+onready var _rf_sensor: RayCast = $RFSensor
+onready var _rr_sensor: RayCast = $RRSensor
+onready var _track_l: RayCast = $TrackL
+onready var _track_r: RayCast = $TrackR
 onready var _spawn_point := translation
 
 
@@ -58,7 +60,7 @@ func _physics_process(_delta: float) -> void:
 
 
 func _integrate_forces(state: PhysicsDirectBodyState):
-	if $RayCast.is_colliding():
+	if _track_l.is_colliding() or _track_r.is_colliding():
 		state.linear_velocity = transform.basis.z * _forward * 2
 		state.angular_velocity = _turn * 2
 
@@ -95,45 +97,54 @@ func draw_debug(debug):
 
 
 func _move_towards(target) -> void:
-	
 	if target is Unit:
 		target = target.get_interaction_port()
 	elif target is Spatial:
 		target = target.translation
-	
+
 	$".".sleeping = false
 	var sensor_mask = 0
-	if _right_sensor.is_colliding() or _right_sensor2.is_colliding():
-		sensor_mask |= 0b01
-	if _left_sensor.is_colliding() or _left_sensor2.is_colliding():
-		sensor_mask |= 0b10
-	
-	var rel_pos := target as Vector3 - translation
-	var proj_pos := Plane(transform.basis.y, 0.0).project(rel_pos)
-	var direction := proj_pos.normalized()
-	var error := 1.0 - transform.basis.z.dot(direction)
-	if sensor_mask == 0b01:
-		_turn = transform.basis.y
-	elif sensor_mask == 0b10:
-		_turn = -transform.basis.y
-	elif error > 1.99:
-		_turn = transform.basis.y
-	else:
-		_turn = transform.basis.z.cross(direction)
-		if error > 1.0:
-			_turn = _turn.normalized()
+	if _ll_sensor.is_colliding():
+		sensor_mask |= 0b0001
+	if _lf_sensor.is_colliding():
+		sensor_mask |= 0b0010
+	if _rf_sensor.is_colliding():
+		sensor_mask |= 0b0100
+	if _rr_sensor.is_colliding():
+		sensor_mask |= 0b1000
 
-	if sensor_mask != 0b11:
-		if sensor_mask == 0b00:
-			_forward = 1.0 if error < 0.1 else 0.0
-		elif error > 0.1:
-			# Move forward in case of conflict
-			var side := transform.basis.x.dot(direction)
-			_forward = 1.0 if (side < 0) == (sensor_mask == 0b01) else 0.0
-		else:
-			_forward = 0.0
-	else:
-		_forward = -1.0
+	# Set forward drive
+	match sensor_mask:
+		0b0000, 0b0001, 0b1000: _forward = 1.0
+		0b0111, 0b1011, 0b1101, 0b1110, 0b1111: _forward = -1.0
+		_: _forward = 0.0
+
+	# Set turning angle
+	match sensor_mask:
+		0b0000:
+			var rel_pos := target as Vector3 - translation
+			var proj_pos := Plane(transform.basis.y, 0.0).project(rel_pos)
+			var direction := proj_pos.normalized()
+			var error := 1.0 - transform.basis.z.dot(direction)
+			_turn = transform.basis.z.cross(direction)
+			if error > 1.0:
+				_turn = _turn.normalized()
+		0b1001: _turn = Vector3.ZERO
+		0b0011, 0b0101, 0b0111, 0b1011, 0b0010: _turn = -transform.basis.y
+		0b0100, 0b1010, 0b1100, 0b1101, 0b1110: _turn = transform.basis.y
+		0b0110, 0b1111: _turn = transform.basis.y
+		0b0001:
+			if _ll_sensor.to_local(_ll_sensor.get_collision_point()).length_squared() < 0.25:
+				_turn = -transform.basis.y / 4.0
+			else:
+				_turn = Vector3.ZERO
+		0b1000:
+			if _rr_sensor.to_local(_rr_sensor.get_collision_point()).length_squared() < 0.25:
+				_turn = transform.basis.y / 4.0
+			else:
+				_turn = Vector3.ZERO
+
+
 
 
 func _task_completed() -> void:

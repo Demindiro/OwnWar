@@ -17,33 +17,38 @@ shape = SubResource( 1 )
 [node name="ugly" parent="." instance=ExtResource( 1 )]
 transform = Transform( 1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, 0, 0.0159968, 0 )
 
-[node name="RayCast" type="RayCast" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.138186, 0 )
+[node name="TrackR" type="RayCast" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, -0.138186, 0 )
 enabled = true
 cast_to = Vector3( 0, -0.1, 0 )
 
-[node name="LeftSensor" type="RayCast" parent="."]
-transform = Transform( 0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, 0.1875, 0, 0.22 )
+[node name="TrackL" type="RayCast" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, -0.138186, 0 )
+enabled = true
+cast_to = Vector3( 0, -0.1, 0 )
+
+[node name="LLSensor" type="RayCast" parent="."]
+transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0.25, 0, 0.095 )
 enabled = true
 cast_to = Vector3( 0, 0, 1 )
 __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="LeftSensor2" type="RayCast" parent="."]
-transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0.25, 0, 0.1575 )
+[node name="LFSensor" type="RayCast" parent="."]
+transform = Transform( 0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, 0.125, 0, 0.22 )
 enabled = true
 cast_to = Vector3( 0, 0, 1 )
 __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="RightSensor" type="RayCast" parent="."]
-transform = Transform( 0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -0.1875, 0, 0.22 )
+[node name="RFSensor" type="RayCast" parent="."]
+transform = Transform( 0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -0.125, 0, 0.22 )
 enabled = true
 cast_to = Vector3( 0, 0, 1 )
 
-[node name="RightSensor2" type="RayCast" parent="."]
-transform = Transform( 0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -0.25, 0, 0.1575 )
+[node name="RRSensor" type="RayCast" parent="."]
+transform = Transform( 0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -0.25, 0, 0.095 )
 enabled = true
 cast_to = Vector3( 0, 0, 1 )
