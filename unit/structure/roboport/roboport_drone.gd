@@ -120,10 +120,12 @@ func _move_towards(target) -> void:
 	if sensor_mask != 0b11:
 		if sensor_mask == 0b00:
 			_forward = 1.0 if error < 0.5 else 0.0
-		else:
+		elif error > 0.5:
 			# Move forward in case of conflict
 			var side := transform.basis.x.dot(direction)
 			_forward = 1.0 if (side < 0) == (sensor_mask == 0b01) else 0.0
+		else:
+			_forward = 0.0
 	else:
 		_forward = -1.0
 
