@@ -1,52 +1,11 @@
 [gd_scene load_steps=3 format=2]
 
-[sub_resource type="GDScript" id=1]
-script/source = "extends Unit
+[ext_resource path="res://unit/structure/drill/drill.gd" type="Script" id=1]
 
-
-export var max_material := 1000
-var ore: Ore
-var _ticks_until_next := 0
-var material := 0
-
-
-func _physics_process(_delta):
-	_ticks_until_next += 1
-	if _ticks_until_next >= Engine.iterations_per_second:
-		if material < max_material:
-			material += ore.take_material(1)
-			_ticks_until_next = 0
-			if ore.material == 0:
-				set_process(false)
-				set_physics_process(false)
-				
-
-func get_info():
-	var info = .get_info()
-	info[\"Ore\"] = ore.material
-	info[\"Material\"] = \"%d / %d\" % [material, max_material]
-	return info
-
-
-func take_material(p_material):
-	if p_material < material:
-		material -= p_material
-		return p_material
-	else:
-		var remainder = material
-		material = 0
-		return remainder
-
-
-func init(p_ore):
-	ore = p_ore
-	ore.drill = self
-"
-
-[sub_resource type="CylinderShape" id=2]
+[sub_resource type="CylinderShape" id=1]
 
 [node name="Drill" type="StaticBody"]
-script = SubResource( 1 )
+script = ExtResource( 1 )
 max_health = 500
 unit_name = "drill"
 
@@ -93,4 +52,4 @@ depth = 1.8
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 0, 0, 0 )
-shape = SubResource( 2 )
+shape = SubResource( 1 )

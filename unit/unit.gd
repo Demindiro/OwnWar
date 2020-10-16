@@ -4,7 +4,7 @@ extends Spatial
 
 
 signal destroyed(unit)
-
+signal message(message, data)
 enum Action {
 	INPUT_NONE = 0x0,
 	INPUT_COORDINATE = 0x1,
@@ -35,10 +35,26 @@ func projectile_hit(_origin: Vector3, _direction: Vector3, damage: int):
 	return 0
 
 
-func get_actions():
+func get_actions() -> Array:
 	# Return format: [human_name, flags, function_name, [args...]]
 	# If INPUT_TOGGLE is specified, append a bool to indicate on/off
 	return []
+
+
+func show_feedback():
+	pass
+
+
+func hide_feedback():
+	pass
+
+
+func show_action_feedback(function: String, viewport: Viewport, arguments: Array) -> void:
+	pass
+
+
+func hide_action_feedback() -> void:
+	pass
 
 
 func get_info():
@@ -53,6 +69,14 @@ func has_function(function_name):
 
 func call_function(function_name, arguments := []):
 	return callv(function_name, arguments)
+
+
+func send_message(message, data) -> void:
+	emit_signal("message", message, data)
+
+
+func request_info(info: String):
+	return null
 
 
 func destroy():

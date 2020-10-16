@@ -334,6 +334,10 @@ designer_configure={
  ]
 }
 
+[layer_names]
+
+3d_physics/layer_8="Terrain"
+
 [physics]
 
 common/physics_fps=150

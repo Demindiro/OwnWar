@@ -65,6 +65,7 @@ const ERROR_TO_STRING = [
 		"Bug",
 		"Printer on fire",
 	]
+const COLLISION_MASK_TERRAIN = 1 << (8 - 1) # Christ's sake, Godot pls
 
 
 export var blocks: Dictionary = {}
@@ -95,8 +96,9 @@ func _process(_delta):
 func _notification(notification):
 	match notification:
 		MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
-			get_tree().root.print_stray_nodes()
-		
+#			get_tree().root.print_stray_nodes()
+			pass
+
 
 func recurse_directory(path: String, ends_with: String = "", _arr := []) -> Array:
 	var directory = Directory.new()

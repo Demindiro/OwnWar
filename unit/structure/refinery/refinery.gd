@@ -1,7 +1,7 @@
 extends Unit
 
 
-export var max_material := 10
+const MAX_MATERIAL := 50
 export var max_fuel := 1000
 export var material := 0
 export var fuel := 0
@@ -19,22 +19,31 @@ func _physics_process(delta):
 	if not _producing:
 		if material >= 2:
 			material -= 2
+			send_message("need_material", MAX_MATERIAL - material)
 			_producing = true
 
 
 func get_info():
 	var info = .get_info()
-	info["Material"] = "%d / %d" % [material, max_material]
+	info["Material"] = "%d / %d" % [material, MAX_MATERIAL]
 	info["Fuel"] = "%d / %d" % [fuel, max_fuel]
 	return info
 
 
+func request_info(info: String):
+	if info == "need_material":
+		return MAX_MATERIAL - material
+	return .request_info(info)
+
+
 func put_material(amount):
 	material += amount
-	if material > max_material:
-		var remainder = material - max_material
-		material = max_material
+	if material > MAX_MATERIAL:
+		var remainder = material - MAX_MATERIAL
+		material = MAX_MATERIAL
+		send_message("need_material", MAX_MATERIAL - material)
 		return remainder
+	send_message("need_material", MAX_MATERIAL - material)
 	return 0
 
 
@@ -43,6 +52,7 @@ func take_material(amount):
 	if material < 0:
 		amount += material
 		material = 0
+		send_message("need_material", MAX_MATERIAL - material)
 	return amount
 
 

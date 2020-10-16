@@ -1,8 +1,9 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://unit/structure/platform.obj" type="ArrayMesh" id=1]
+[ext_resource path="res://unit/structure/spawn_platform/platform.obj" type="ArrayMesh" id=1]
 [ext_resource path="res://unit/structure/ghost.gd" type="Script" id=2]
-[ext_resource path="res://unit/structure/spawn_platform.tscn" type="PackedScene" id=3]
+[ext_resource path="res://unit/structure/spawn_platform/spawn_platform.tscn" type="PackedScene" id=3]
+
 
 [sub_resource type="SpatialMaterial" id=1]
 flags_transparent = true

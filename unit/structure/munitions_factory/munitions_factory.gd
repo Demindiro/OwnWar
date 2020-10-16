@@ -32,6 +32,7 @@ func _physics_process(delta):
 	else:
 		if material_per_munition <= material:
 			material -= material_per_munition
+			send_message("need_material", max_material - material)
 			_producing_munition = true
 
 
@@ -55,12 +56,19 @@ func get_info():
 	return info
 
 
+func request_info(info: String):
+	if info == "need_material":
+		return max_material - material
+	return .request_info(info)
+
+
 func put_material(p_material: int) -> int:
 	var remainder = 0
 	material += p_material
 	if material > max_material:
 		remainder = material - max_material
 		material = max_material
+	send_message("need_material", max_material - material)
 	return remainder
 
 
