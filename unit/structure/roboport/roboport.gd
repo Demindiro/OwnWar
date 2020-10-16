@@ -162,6 +162,8 @@ func _get_message(message, data, unit):
 			if amount > 0:
 				var provider := _get_nearest(unit, _provides_material)
 				_add_task(Drone.Task.FILL, [provider, unit])
+			else:
+				_remove_task(Drone.Task.FILL, unit)
 		"provide_material":
 			var amount: int = data
 			if amount == 0:
@@ -181,6 +183,8 @@ func _get_message(message, data, unit):
 			if amount > 0:
 				var taker := _get_nearest(unit, _takes_material)
 				_add_task(Drone.Task.EMPTY, [unit, taker])
+			else:
+				_remove_task(Drone.Task.FILL, unit)
 
 
 func _unit_destroyed(unit):
@@ -293,6 +297,14 @@ func _add_task(task: int, data: Array) -> void:
 			return
 	_tasks.push_back([task, data, 0])
 	assign_tasks()
+
+
+func _remove_task(task: int, unit: Unit) -> void:
+	for i in range(len(_tasks)):
+		var t = _tasks[i]
+		if t[0] == task and unit in t[1]:
+			_tasks.remove(i)
+			break
 
 
 func draw_debug(debug):
