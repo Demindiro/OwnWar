@@ -12,6 +12,7 @@ var _needs_material := {}
 var _provides_material := []
 var _takes_material := []
 var _dumps_material := {}
+var _queued_tasks := []
 onready var _spawn_timer := get_tree().create_timer(1.0, false)
 
 
@@ -199,7 +200,7 @@ func _task_completed(drone: Drone) -> void:
 			if value == drone:
 				_needs_material[unit] = null
 		Drone.Task.EMPTY:
-			var unit: Unit = drone.task_data[1]
+			var unit: Unit = drone.task_data[0]
 			var value: Drone = _dumps_material.get(unit)
 			if value == drone:
 				_dumps_material[unit] = null
