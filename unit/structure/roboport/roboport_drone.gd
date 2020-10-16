@@ -14,6 +14,7 @@ var task_data
 var material: int
 var _turn: Vector3
 var _forward: float
+var _task_step := 0
 onready var _left_sensor := $LeftSensor as RayCast
 onready var _right_sensor := $RightSensor as RayCast
 onready var _spawn_point := translation
@@ -25,12 +26,13 @@ func _physics_process(_delta: float) -> void:
 	match task:
 		Task.FILL, Task.EMPTY:
 			var target: Unit
-			if material == 0 if task == Task.FILL else material < MAX_MATERIAL:
+			if _task_step == 0 and (material == 0 if task == Task.FILL else material < MAX_MATERIAL):
 				target = task_data[0]
 				var proj_pos = Plane(transform.basis.y, 0).project(target.translation - translation)
 				if proj_pos.length_squared() < 9:
 					material += target.take_material(MAX_MATERIAL - material)
 					target = task_data[1]
+					_task_step = 1
 			else:
 				target = task_data[1]
 				var proj_pos = Plane(transform.basis.y, 0).project(target.translation - translation)
@@ -134,3 +136,4 @@ func _task_completed() -> void:
 	emit_signal("task_completed")
 	task = Task.NONE
 	task_data = null
+	_task_step = 0
