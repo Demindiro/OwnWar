@@ -86,18 +86,21 @@ func assign_tasks() -> void:
 
 
 func _assign_tasks() -> void:
-	while len(_tasks) > 0:
-		var task: int = _tasks[0][0]
-		var task_data = _tasks[0][1]
+	for i in range(len(_tasks) - 1, -1, -1):
+		var task: int = _tasks[i][0]
+		var task_data = _tasks[i][1]
 		match task:
 			Drone.Task.EMPTY, Drone.Task.FILL:
 				if not task_data[0] in _units or not task_data[1] in _units:
-					_tasks.remove(0)
-					task = -1
+					_tasks.remove(i)
 			Drone.Task.DESPAWN, Drone.Task.NONE:
 				pass
 			_:
 				assert(false)
+
+	while len(_tasks) > 0:
+		var task: int = _tasks[0][0]
+		var task_data = _tasks[0][1]
 		if task == -1:
 			continue
 		var drone: Drone
