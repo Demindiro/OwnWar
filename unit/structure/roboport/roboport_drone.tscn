@@ -23,7 +23,15 @@ enabled = true
 cast_to = Vector3( 0, -0.1, 0 )
 
 [node name="LeftSensor" type="RayCast" parent="."]
-transform = Transform( 0.866026, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866026, 0.1875, 0, 0.22 )
+transform = Transform( 0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, 0.1875, 0, 0.22 )
+enabled = true
+cast_to = Vector3( 0, 0, 1 )
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="LeftSensor2" type="RayCast" parent="."]
+transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0.25, 0, 0.1575 )
 enabled = true
 cast_to = Vector3( 0, 0, 1 )
 __meta__ = {
@@ -31,6 +39,11 @@ __meta__ = {
 }
 
 [node name="RightSensor" type="RayCast" parent="."]
-transform = Transform( 0.866026, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866026, -0.1875, 0, 0.22 )
+transform = Transform( 0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -0.1875, 0, 0.22 )
+enabled = true
+cast_to = Vector3( 0, 0, 1 )
+
+[node name="RightSensor2" type="RayCast" parent="."]
+transform = Transform( 0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -0.25, 0, 0.1575 )
 enabled = true
 cast_to = Vector3( 0, 0, 1 )

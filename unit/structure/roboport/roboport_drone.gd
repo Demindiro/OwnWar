@@ -16,7 +16,9 @@ var _turn: Vector3
 var _forward: float
 var _task_step := 0
 onready var _left_sensor := $LeftSensor as RayCast
+onready var _left_sensor2 := $LeftSensor2 as RayCast
 onready var _right_sensor := $RightSensor as RayCast
+onready var _right_sensor2 := $RightSensor2 as RayCast
 onready var _spawn_point := translation
 
 
@@ -101,9 +103,9 @@ func _move_towards(target) -> void:
 	
 	$".".sleeping = false
 	var sensor_mask = 0
-	if _right_sensor.is_colliding():
+	if _right_sensor.is_colliding() or _right_sensor2.is_colliding():
 		sensor_mask |= 0b01
-	if _left_sensor.is_colliding():
+	if _left_sensor.is_colliding() or _left_sensor2.is_colliding():
 		sensor_mask |= 0b10
 	
 	var rel_pos := target as Vector3 - translation
