@@ -103,8 +103,8 @@ func put_material(p_material):
 		game_master.add_unit(team, queued_vehicle)
 		emit_signal("spawned", queued_vehicle)
 		var remainder = material - queued_vehicle.get_cost()
-		self.material = 0
 		queued_vehicle = null
+		self.material = 0
 		$IndicatorVehicle.material_override.albedo_color = Color.green
 		return remainder
 	return 0
