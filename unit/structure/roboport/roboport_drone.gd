@@ -28,14 +28,14 @@ func _physics_process(_delta: float) -> void:
 			var target: Unit
 			if _task_step == 0 and (material == 0 if task == Task.FILL else material < MAX_MATERIAL):
 				target = task_data[0]
-				var proj_pos = Plane(transform.basis.y, 0).project(target.translation - translation)
+				var proj_pos = Plane(transform.basis.y, 0).project(target.get_interaction_port() - translation)
 				if proj_pos.length_squared() < 9:
 					material += target.take_material(MAX_MATERIAL - material)
 					target = task_data[1]
 					_task_step = 1
 			else:
 				target = task_data[1]
-				var proj_pos = Plane(transform.basis.y, 0).project(target.translation - translation)
+				var proj_pos = Plane(transform.basis.y, 0).project(target.get_interaction_port() - translation)
 				if proj_pos.length_squared() < 9:
 					material = target.put_material(material)
 					target = null
@@ -94,7 +94,9 @@ func draw_debug(debug):
 
 func _move_towards(target) -> void:
 	
-	if target is Spatial:
+	if target is Unit:
+		target = target.get_interaction_port()
+	elif target is Spatial:
 		target = target.translation
 	
 	$".".sleeping = false

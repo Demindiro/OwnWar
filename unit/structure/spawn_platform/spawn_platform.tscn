@@ -51,3 +51,6 @@ transform = Transform( -4.37114e-08, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, 4.37
 material_override = SubResource( 6 )
 mesh = SubResource( 4 )
 material/0 = null
+
+[node name="InteractionPort" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8 )

@@ -58,6 +58,10 @@ func request_info(info: String):
 	return .request_info(info)
 
 
+func get_interaction_port() -> Vector3:
+	return $InteractionPort.global_transform.origin
+
+
 func spawn_worker(_flags):
 	if queued_vehicle != null:
 		queued_vehicle.free()
@@ -67,6 +71,7 @@ func spawn_worker(_flags):
 	queued_vehicle.translate(Vector3.UP * 5)
 	queued_vehicle.rotate_y(PI)
 	queued_vehicle_name = "Worker Drone"
+	send_message("need_material", get_material_space())
 	return queued_vehicle
 
 
@@ -86,6 +91,7 @@ func spawn_vehicle(_flags, path):
 		queued_vehicle.rotate_y(PI)
 		$IndicatorVehicle.material_override.albedo_color = Color.orange
 		queued_vehicle_name = Vehicle.path_to_name(path.get_file())
+	send_message("need_material", get_material_space())
 	return queued_vehicle
 
 
@@ -107,6 +113,7 @@ func put_material(p_material):
 func set_material(p_material):
 	assert(0 <= p_material)
 	material = p_material
+	send_message("need_material", get_material_space())
 	if queued_vehicle == null:
 		$IndicatorMaterial.scale.z = 0 if material == 0 else 1
 	else:

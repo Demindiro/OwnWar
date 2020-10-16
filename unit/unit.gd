@@ -80,6 +80,10 @@ func request_info(info: String):
 	return null
 
 
+func get_interaction_port() -> Vector3:
+	return translation
+
+
 func destroy():
 	game_master.remove_unit(team, self)
 	emit_signal("destroyed", self)
