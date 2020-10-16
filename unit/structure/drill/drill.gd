@@ -1,7 +1,7 @@
 extends Unit
 
 
-export var max_material := 1000
+const MAX_MATERIAL := 100
 var ore: Ore
 var _ticks_until_next := 0
 var material := 0
@@ -10,7 +10,7 @@ var material := 0
 func _physics_process(_delta):
 	_ticks_until_next += 1
 	if _ticks_until_next >= Engine.iterations_per_second:
-		if material < max_material:
+		if material < MAX_MATERIAL:
 			material += ore.take_material(1)
 			send_message("dump_material", material)
 			send_message("provide_material", material)
@@ -23,7 +23,7 @@ func _physics_process(_delta):
 func get_info():
 	var info = .get_info()
 	info["Ore"] = ore.material
-	info["Material"] = "%d / %d" % [material, max_material]
+	info["Material"] = "%d / %d" % [material, MAX_MATERIAL]
 	return info
 
 
