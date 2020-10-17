@@ -90,19 +90,3 @@ func take_matter(id: int, amount: int) -> int:
 			fuel = 0
 		return amount
 	return 0
-
-
-func put_material(amount):
-	return put_matter(_material_id, amount)
-
-
-func take_material(amount):
-	return take_matter(_material_id, amount)
-
-
-func take_fuel(amount):
-	return take_matter(_fuel_id, amount)
-
-
-func get_material_space():
-	return get_matter_space(_material_id)

@@ -115,34 +115,6 @@ func take_matter(id: int, amount: int) -> int:
 	return 0
 
 
-func put_material(p_material: int) -> int:
-	return put_matter(_material_id, p_material)
-
-
-func take_munition():
-	for id in _munition:
-		var amount = take_matter(id, 1)
-		if amount > 0:
-			_visualize_munitions()
-			return RegisterMunition.id_to_munitions[id].duplicate()
-	return null
-
-
-func get_munition_count():
-	var count := 0
-	for c in _munition.values():
-		count += c
-	return count
-
-
-#func get_munition_space():
-#	return max_munition - len(munition)
-
-
-func get_material_space():
-	return get_matter_space(_material_id)
-
-
 func set_munition_type(flags, munition_type):
 	_current_munition_type = munition_type
 

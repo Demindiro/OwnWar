@@ -445,3 +445,10 @@ func _take_matter_from_any(id: int, exclude: Array, delta: float) -> int:
 			return 1
 		return 0
 	return -1
+
+
+func _set_cached_unit(unit: Unit) -> void:
+	if _task_cached_unit != null:
+		_task_cached_unit.disconnect("destroyed", self, "_set_cached_unit")
+	unit.connect("destroyed", self, "_set_cached_unit", [null])
+	_task_cached_unit = unit

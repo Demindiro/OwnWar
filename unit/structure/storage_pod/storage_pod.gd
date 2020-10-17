@@ -68,23 +68,5 @@ func take_matter(id: int, amount: int) -> int:
 		return remainder
 
 
-func put_material(p_material):
-	var r := put_matter(Matter.name_to_id["material"], p_material)
-	send_message("provide_material", get_matter_count(Matter.name_to_id["material"]))
-	send_message("take_material", get_material_space())
-	return r
-
-
-func take_material(p_material):
-	var r := take_matter(Matter.name_to_id["material"], p_material)
-	send_message("provide_material", get_matter_count(Matter.name_to_id["material"]))
-	send_message("take_material", get_material_space())
-	return r
-
-
-func get_material_space() -> int:
-	return get_matter_space(Matter.name_to_id["material"])
-
-
 func _update_indicator() -> void:
 	$Indicator.scale.y = float(_volume) / MAX_VOLUME
