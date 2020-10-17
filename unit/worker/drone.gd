@@ -321,7 +321,7 @@ func clear_tasks(flags):
 func take_materials_from_closest_pod(delta, exclude_pod):
 	var closest_pod = null
 	for pod in game_master.get_units(team, "storage_pod"):
-		if pod != exclude_pod and pod.material > 0 and \
+		if pod != exclude_pod and pod.get_matter_count(Matter.name_to_id["material"]) > 0 and \
 				(closest_pod == null or \
 				translation.distance_to(closest_pod.translation) > \
 				translation.distance_to(pod.translation)):
