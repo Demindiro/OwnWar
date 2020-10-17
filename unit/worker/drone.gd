@@ -73,51 +73,13 @@ func _physics_process(delta):
 			if _matter_id == id or _matter_count == 0:
 				_matter_id = id
 				if _matter_count > 0:
-					# Put matter
-					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						_matter_count = task[1].put_matter(id, _matter_count)
+					if _put_matter(id, task[1], delta):
 						current_task_completed()
-					else:
-						move_towards(task[1].translation, delta)
 				else:
-					# Take matter
-					assert(_matter_count == 0) # Just to be sure
-					var matter_space := _MAX_VOLUME / Matter.matter_volume[id]
-					assert(matter_space > 0)
-					if _task_cached_unit == null:
-						var closest_distance2 := INF
-						for unit in game_master.get_units(team):
-							if unit != task[1] and unit.get_matter_count(id) > 0:
-								var d := translation.distance_squared_to(unit.translation)
-								if d < closest_distance2:
-									_task_cached_unit = unit
-									closest_distance2 = d
-					if _task_cached_unit != null:
-						if translation.distance_squared_to(_task_cached_unit.translation) <= INTERACTION_DISTANCE_2:
-							_matter_count = _task_cached_unit.take_matter(id, matter_space)
-							_matter_id = id
-							_task_cached_unit = null
-						else:
-							move_towards(_task_cached_unit.translation, delta)
-					else:
+					if _take_matter_from_any(id, [task[1]], delta) < 0:
 						current_task_completed()
 			else:
-				# Dump current matter
-				if _task_cached_unit == null:
-					var closest_distance2 := INF
-					for unit in game_master.get_units(team):
-						if unit != task[1] and unit.get_matter_space(id) > 0:
-							var d := translation.distance_squared_to(unit.translation)
-							if d < closest_distance2:
-								_task_cached_unit = unit
-								closest_distance2 = d
-				if _task_cached_unit != null:
-					if translation.distance_squared_to(_task_cached_unit.translation) <= INTERACTION_DISTANCE_2:
-						_matter_count = _task_cached_unit.put_matter(id, _matter_count)
-						_task_cached_unit = null
-					else:
-						move_towards(_task_cached_unit.translation, delta)
-				else:
+				if _put_matter_in_any(id, [task[1]], delta) < 0:
 					current_task_completed()
 		Task.TAKE_MATERIAL:
 			if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
@@ -473,3 +435,61 @@ func _unit_destroyed(_unit, task):
 		tasks.remove(index)
 		if index == 0:
 			_task_cached_unit = null
+
+
+func _put_matter(id: int, unit: Unit, delta: float) -> bool:
+	if translation.distance_squared_to(unit.translation) <= INTERACTION_DISTANCE_2:
+		_matter_count = unit.put_matter(id, _matter_count)
+		return true
+	else:
+		move_towards(unit.translation, delta)
+		return false
+
+
+func _take_matter(id: int, unit: Unit, delta: float) -> bool:
+	assert(id == _matter_id or _matter_count == 0)
+	var matter_space := _MAX_VOLUME / Matter.matter_volume[id] - _matter_count
+	assert(matter_space > 0)
+	if translation.distance_squared_to(unit.translation) <= INTERACTION_DISTANCE_2:
+		_matter_count += unit.take_matter(id, matter_space)
+		_matter_id = id
+		return true
+	else:
+		move_towards(_task_cached_unit.translation, delta)
+		return false
+
+
+func _put_matter_in_any(id: int, exclude: Array, delta: float) -> int:
+	assert(_matter_count > 0)
+	if _task_cached_unit == null:
+		var closest_distance2 := INF
+		for unit in game_master.get_units(team):
+			if not unit in exclude and unit.get_matter_space(id) > 0:
+				var d := translation.distance_squared_to(unit.translation)
+				if d < closest_distance2:
+					_task_cached_unit = unit
+					closest_distance2 = d
+	if _task_cached_unit != null:
+		if _put_matter(id, _task_cached_unit, delta):
+			_task_cached_unit = null
+			return 1
+		return 0
+	return -1
+
+
+func _take_matter_from_any(id: int, exclude: Array, delta: float) -> int:
+	assert(_matter_count == 0)
+	if _task_cached_unit == null:
+		var closest_distance2 := INF
+		for unit in game_master.get_units(team):
+			if not unit in exclude and unit.get_matter_count(id) > 0:
+				var d := translation.distance_squared_to(unit.translation)
+				if d < closest_distance2:
+					_task_cached_unit = unit
+					closest_distance2 = d
+	if _task_cached_unit != null:
+		if _take_matter(id, _task_cached_unit, delta):
+			_task_cached_unit = null
+			return 1
+		return 0
+	return -1
