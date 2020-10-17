@@ -3,6 +3,7 @@ extends Unit
 
 signal task_completed(task, target)
 enum Task {
+		PUT,
 		TAKE_MATERIAL,
 		PUT_MATERIAL,
 		BUILD_STRUCTURE,
@@ -31,6 +32,10 @@ onready var rotors = [
 		$ArmLB/Rotor,
 		$ArmRB/Rotor,
 	]
+const _MAX_VOLUME := 100_00
+var _task_cached_unit: Unit
+var _matter_id := -1
+var _matter_count := 0
 	
 	
 func _ready():
@@ -63,6 +68,57 @@ func _physics_process(delta):
 					move_towards(task[1].translation, delta)
 			else:
 				take_materials_from_closest_pod(delta, task[1])
+		Task.PUT:
+			var id: int = task[2]
+			if _matter_id == id or _matter_count == 0:
+				_matter_id = id
+				if _matter_count > 0:
+					# Put matter
+					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
+						_matter_count = task[1].put_matter(id, _matter_count)
+						current_task_completed()
+					else:
+						move_towards(task[1].translation, delta)
+				else:
+					# Take matter
+					assert(_matter_count == 0) # Just to be sure
+					var matter_space := _MAX_VOLUME / Matter.matter_volume[id]
+					assert(matter_space > 0)
+					if _task_cached_unit == null:
+						var closest_distance2 := INF
+						for unit in game_master.get_units(team):
+							if unit != task[1] and unit.get_matter_count(id) > 0:
+								var d := translation.distance_squared_to(unit.translation)
+								if d < closest_distance2:
+									_task_cached_unit = unit
+									closest_distance2 = d
+					if _task_cached_unit != null:
+						if translation.distance_squared_to(_task_cached_unit.translation) <= INTERACTION_DISTANCE_2:
+							_matter_count = _task_cached_unit.take_matter(id, matter_space)
+							_matter_id = id
+							_task_cached_unit = null
+						else:
+							move_towards(_task_cached_unit.translation, delta)
+					else:
+						current_task_completed()
+			else:
+				# Dump current matter
+				if _task_cached_unit == null:
+					var closest_distance2 := INF
+					for unit in game_master.get_units(team):
+						if unit != task[1] and unit.get_matter_space(id) > 0:
+							var d := translation.distance_squared_to(unit.translation)
+							if d < closest_distance2:
+								_task_cached_unit = unit
+								closest_distance2 = d
+				if _task_cached_unit != null:
+					if translation.distance_squared_to(_task_cached_unit.translation) <= INTERACTION_DISTANCE_2:
+						_matter_count = _task_cached_unit.put_matter(id, _matter_count)
+						_task_cached_unit = null
+					else:
+						move_towards(_task_cached_unit.translation, delta)
+				else:
+					current_task_completed()
 		Task.TAKE_MATERIAL:
 			if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
 				var material_space = max_material - material
@@ -144,6 +200,7 @@ func get_take_actions(flags):
 
 func get_put_actions(flags):
 	return [
+			["Put", Action.INPUT_OWN_UNITS, "put_matter_in", []],
 			["Put material", Action.INPUT_OWN_UNITS, "put_material_in", []],
 			["Put munition", Action.INPUT_OWN_UNITS, "put_munition_in", []],
 			["Put fuel", Action.INPUT_OWN_UNITS, "put_fuel_in", []],
@@ -170,10 +227,12 @@ func get_info():
 				task_string = "Goto"
 			Task.BUILD_STRUCTURE:
 				task_string = "Build"
-			Task.TAKE_MATERIAL:
-				task_string = "Take"
-			Task.PUT_MATERIAL:
+			Task.PUT:
 				task_string = "Put"
+			Task.TAKE_MATERIAL:
+				task_string = "Take material"
+			Task.PUT_MATERIAL:
+				task_string = "Put material"
 			Task.TAKE_MUNITION:
 				task_string = "Take munition"
 			Task.PUT_MUNITION:
@@ -188,6 +247,10 @@ func get_info():
 		task_string = "None"
 	info["Current task"] = task_string
 	info["Total tasks"] = str(len(tasks))
+	if _matter_count > 0:
+		info["Matter type"] = Matter.matter_name[_matter_id]
+		info["Matter count"] = "%d / %d" % [_matter_count,
+				_MAX_VOLUME / Matter.matter_volume[_matter_id]]
 	info["Material"] = "%d / %d" % [material, max_material]
 	info["Fuel"] = "%d / %d" % [fuel, max_fuel]
 	return info
@@ -258,6 +321,15 @@ func build_drill(flags, coordinate):
 		game_master.add_unit(team, ghost)
 		add_task([Task.BUILD_STRUCTURE, ghost], flags & 0x1 > 0)
 		ghost.connect("built", self, "_ghost_built")
+
+
+func put_matter_in(flags, units):
+	var force_append = flags & 0x1 > 0
+	for unit in units:
+		var matter_ids = unit.get_put_matter_list()
+		for id in matter_ids:
+			add_task([Task.PUT, unit, id], force_append)
+			force_append = true
 
 
 func take_material_from(flags, units):
@@ -340,6 +412,7 @@ func current_task_completed():
 	var task = tasks.pop_front()
 	emit_signal("task_completed", task[0], task[1])
 	tasks.push_back(task)
+	_task_cached_unit = null
 
 
 func set_material(p_material):
@@ -398,3 +471,5 @@ func _unit_destroyed(_unit, task):
 		if index < 0:
 			break
 		tasks.remove(index)
+		if index == 0:
+			_task_cached_unit = null
