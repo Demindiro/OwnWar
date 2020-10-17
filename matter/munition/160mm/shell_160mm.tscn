@@ -1,17 +1,15 @@
 [gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://matter/munition/shell.obj" type="ArrayMesh" id=1]
-[ext_resource path="res://matter/munition/bullet.gd" type="Script" id=2]
+[ext_resource path="res://matter/munition/bullet.gd" type="Script" id=1]
+[ext_resource path="res://matter/munition/shell.obj" type="ArrayMesh" id=2]
 [ext_resource path="res://matter/munition/tracer.tscn" type="PackedScene" id=3]
 
-
-
 [node name="Shell" type="RigidBody"]
-script = ExtResource( 2 )
+script = ExtResource( 1 )
 damage = 400
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
-mesh = ExtResource( 1 )
+mesh = ExtResource( 2 )
 material/0 = null
 
 [node name="Tracer" parent="." instance=ExtResource( 3 )]

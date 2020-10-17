@@ -59,7 +59,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://matter/matter.gd"
 }, {
-"base": "Reference",
+"base": "Resource",
 "class": "Munition",
 "language": "GDScript",
 "path": "res://matter/munition/munition.gd"
