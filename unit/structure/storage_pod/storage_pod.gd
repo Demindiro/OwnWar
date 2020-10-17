@@ -1,7 +1,7 @@
 extends Unit
 
 
-const MAX_VOLUME := 10000_00
+const _MAX_VOLUME := 10000_00
 var _volume := 0
 var _matter := {}
 
@@ -12,7 +12,7 @@ func _ready():
 
 func get_info():
 	var info = .get_info()
-	info["Volume"] = "%d / %d" % [_volume / 100, MAX_VOLUME / 100]
+	info["Volume"] = "%d / %d" % [_volume / 100, _MAX_VOLUME / 100]
 	for m in _matter:
 		info[Matter.matter_name[m]] = str(_matter[m])
 	return info
@@ -20,8 +20,14 @@ func get_info():
 
 func request_info(info: String):
 	if info == "provide_matter":
-		return get_put_matter_list()
+		var dict := {}
+		for id in range(len(Matter.matter_name)):
+			dict[id] = _matter.get(id, 0)
+		return dict
 	if info == "take_matter":
+		var dict := {}
+		for id in range(len(Matter.matter_name)):
+			dict[id] = (_MAX_VOLUME - _volume) / Matter.matter_volume[id]
 		return get_take_matter_list()
 	return .request_info(info)
 
@@ -31,7 +37,7 @@ func get_matter_count(id: int) -> int:
 
 
 func get_matter_space(id: int) -> int:
-	return (MAX_VOLUME - _volume) / Matter.matter_volume[id]
+	return (_MAX_VOLUME - _volume) / Matter.matter_volume[id]
 
 
 func get_put_matter_list() -> PoolIntArray:
@@ -69,4 +75,4 @@ func take_matter(id: int, amount: int) -> int:
 
 
 func _update_indicator() -> void:
-	$Indicator.scale.y = float(_volume) / MAX_VOLUME
+	$Indicator.scale.y = float(_volume) / _MAX_VOLUME
