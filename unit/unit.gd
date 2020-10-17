@@ -93,7 +93,7 @@ func get_matter_space(id: int) -> int:
 
 
 func put_matter(id: int, amount: int) -> int:
-	return 0
+	return amount
 
 
 func take_matter(id: int, amount: int) -> int:
