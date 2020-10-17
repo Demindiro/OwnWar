@@ -64,11 +64,6 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://unit/ore/ore.gd"
 }, {
-"base": "Node",
-"class": "RegisterMunition",
-"language": "GDScript",
-"path": "res://matter/munition/register_munition.gd"
-}, {
 "base": "Spatial",
 "class": "Unit",
 "language": "GDScript",
@@ -111,7 +106,6 @@ _global_script_class_icons={
 "HTerrainDataSaver": "",
 "Munition": "",
 "Ore": "",
-"RegisterMunition": "",
 "Unit": "",
 "Vehicle": "",
 "VoxelBody": "",
@@ -133,6 +127,7 @@ GenerateBlocks="*res://block/chassis/generate_blocks.gd"
 MaterialCache="*res://material_cache.gd"
 ObjectCache="*res://object_cache.gd"
 Matter="*res://matter/matter.gd"
+RegisterMunition="*res://matter/munition/register_munition.gd"
 
 [debug]
 
