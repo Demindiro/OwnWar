@@ -34,11 +34,11 @@ func get_matter_space(id: int) -> int:
 	return (MAX_VOLUME - _volume) / Matter.matter_volume[id]
 
 
-func get_put_matter_list(id: int) -> PoolIntArray:
+func get_put_matter_list() -> PoolIntArray:
 	return PoolIntArray(range(len(Matter.matter_name)))
 
 
-func get_take_matter_list(id: int) -> PoolIntArray:
+func get_take_matter_list() -> PoolIntArray:
 	return PoolIntArray(_matter.keys())
 
 
