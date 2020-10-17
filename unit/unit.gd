@@ -84,6 +84,22 @@ func get_interaction_port() -> Vector3:
 	return translation
 
 
+func get_matter_count(id: int) -> int:
+	return 0
+
+
+func get_matter_space(id: int) -> int:
+	return 0
+
+
+func put_matter(id: int, amount: int) -> int:
+	return 0
+
+
+func take_matter(id: int, amount: int) -> int:
+	return 0
+
+
 func destroy():
 	game_master.remove_unit(team, self)
 	emit_signal("destroyed", self)
