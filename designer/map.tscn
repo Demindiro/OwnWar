@@ -47,6 +47,7 @@ func _on_FilthyHack_ready():
 			game_master.units[child.team].append(child)
 		elif child is Ore:
 			game_master.ores.append(child)
+	$StoragePod.put_matter(Matter.name_to_id[\"material\"], 5000)
 "
 
 [sub_resource type="PlaneMesh" id=2]
@@ -252,7 +253,6 @@ ghosts = {
 
 [node name="StoragePod" parent="Map" instance=ExtResource( 7 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -72.3055, 0, 39.8329 )
-material = 5000
 
 [node name="MunitionsFactory" parent="Map" instance=ExtResource( 16 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -54.4685, 1.00068, 17.6888 )
