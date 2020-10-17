@@ -1,8 +1,10 @@
 [gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://projectile/shell.obj" type="ArrayMesh" id=1]
-[ext_resource path="res://projectile/bullet.gd" type="Script" id=2]
-[ext_resource path="res://projectile/tracer.tscn" type="PackedScene" id=3]
+[ext_resource path="res://matter/munition/shell.obj" type="ArrayMesh" id=1]
+[ext_resource path="res://matter/munition/bullet.gd" type="Script" id=2]
+[ext_resource path="res://matter/munition/tracer.tscn" type="PackedScene" id=3]
+
+
 
 [node name="Shell" type="RigidBody"]
 script = ExtResource( 2 )

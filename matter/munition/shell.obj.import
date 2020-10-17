@@ -1,0 +1,19 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/shell.obj-27b3255df5f4d2cfeceff7eb82c9ad65.mesh"
+
+[deps]
+
+files=[ "res://.import/shell.obj-27b3255df5f4d2cfeceff7eb82c9ad65.mesh" ]
+
+source_file="res://matter/munition/shell.obj"
+dest_files=[ "res://.import/shell.obj-27b3255df5f4d2cfeceff7eb82c9ad65.mesh", "res://.import/shell.obj-27b3255df5f4d2cfeceff7eb82c9ad65.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 0.08, 0.08, 0.08 )
+offset_mesh=Vector3( 0, 0, 0 )
+optimize_mesh=true
