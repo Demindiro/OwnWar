@@ -19,9 +19,9 @@ func get_info():
 
 
 func request_info(info: String):
-	if info == "provide_material":
+	if info == "provide_matter":
 		return get_put_matter_list()
-	if info == "take_material":
+	if info == "take_matter":
 		return get_take_matter_list()
 	return .request_info(info)
 
