@@ -54,6 +54,14 @@ func get_matter_space(id: int) -> int:
 	return 0
 
 
+func get_put_matter_list(id: int) -> PoolIntArray:
+	return PoolIntArray([_material_id])
+
+
+func get_take_matter_list(id: int) -> PoolIntArray:
+	return PoolIntArray([_fuel_id])
+
+
 func put_matter(id: int, amount: int) -> int:
 	if id == _material_id:
 		material += amount
