@@ -4,7 +4,6 @@ extends Spatial
 
 
 signal destroyed(unit)
-signal message(message, data)
 enum Action {
 	INPUT_NONE = 0x0,
 	INPUT_COORDINATE = 0x1,
@@ -70,10 +69,6 @@ func has_function(function_name):
 func call_function(function_name, arguments := []):
 	assert(has_method(function_name))
 	return callv(function_name, arguments)
-
-
-func send_message(message, data) -> void:
-	emit_signal("message", message, data)
 
 
 func request_info(info: String):

@@ -15,6 +15,7 @@ func _ready():
 	set_material(material)
 	$IndicatorVehicle.material_override = $IndicatorVehicle.material_override.duplicate()
 	$IndicatorVehicle.material_override.albedo_color = Color.green
+	add_user_signal("dump_matter", [{"name": "amounts", "type": TYPE_DICTIONARY}])
 
 
 func _notification(notification):
@@ -70,7 +71,7 @@ func spawn_worker(_flags):
 	queued_vehicle.translate(Vector3.UP * 5)
 	queued_vehicle.rotate_y(PI)
 	queued_vehicle_name = "Worker Drone"
-	send_message("need", {_material_id: _get_needed_material()})
+	emit_signal("need", {_material_id: _get_needed_material()})
 	return queued_vehicle
 
 
@@ -90,14 +91,14 @@ func spawn_vehicle(_flags, path):
 		queued_vehicle.rotate_y(PI)
 		$IndicatorVehicle.material_override.albedo_color = Color.orange
 		queued_vehicle_name = Vehicle.path_to_name(path.get_file())
-	send_message("need", {_material_id: _get_needed_material()})
+	emit_signal("need", {_material_id: _get_needed_material()})
 	return queued_vehicle
 
 
 func set_material(p_material):
 	assert(0 <= p_material)
 	material = p_material
-	send_message("need", {_material_id: _get_needed_material()})
+	emit_signal("need", {_material_id: _get_needed_material()})
 	if queued_vehicle == null:
 		$IndicatorMaterial.scale.z = 0 if material == 0 else 1
 	else:

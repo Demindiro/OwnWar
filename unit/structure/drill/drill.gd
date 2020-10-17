@@ -8,13 +8,16 @@ var material := 0
 onready var _material_id: int = Matter.name_to_id["material"]
 
 
+func _ready():
+	add_user_signal("dump_matter", [{"name": "amounts", "type": TYPE_DICTIONARY}])
+
+
 func _physics_process(_delta):
 	_ticks_until_next += 1
 	if _ticks_until_next >= Engine.iterations_per_second:
 		if material < MAX_MATERIAL:
 			material += ore.take_material(1)
-			send_message("dump_material", material)
-			send_message("provide_material", material)
+			emit_signal("dump_matter", {_material_id: material})
 			_ticks_until_next = 0
 			if ore.material == 0:
 				set_process(false)
@@ -29,8 +32,8 @@ func get_info():
 
 
 func request_info(info: String):
-	if info == "dump_material" or info == "provide_material":
-		return material
+	if info == "dump_matter" or info == "provide_matter":
+		return {_material_id: material}
 	return .request_info(info)
 
 
@@ -57,8 +60,7 @@ func take_matter(id: int, amount: int) -> int:
 		else:
 			amount = material
 			material = 0
-	send_message("dump_material", material)
-	send_message("provide_material", material)
+	emit_signal("dump_matter", {_material_id: material})
 	return amount
 
 

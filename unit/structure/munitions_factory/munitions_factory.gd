@@ -17,6 +17,7 @@ onready var _material_id = Matter.name_to_id["material"]
 
 func _ready():
 	_current_munition_type = munition_types[0]
+	add_user_signal("dump_matter", [{"name": "amounts", "type": TYPE_DICTIONARY}])
 
 
 func _physics_process(delta):
@@ -35,7 +36,7 @@ func _physics_process(delta):
 	else:
 		if _current_munition_type.cost <= _material:
 			_material -= _current_munition_type.cost
-			send_message("need", {_material_id: _MAX_MATERIAL - material})
+			emit_signal("need", {_material_id: _MAX_MATERIAL - _material})
 			_producing_munition = true
 
 
@@ -97,7 +98,7 @@ func put_matter(id: int, amount: int) -> int:
 		if _material > _MAX_MATERIAL:
 			remainder = _material - _MAX_MATERIAL
 			_material = _MAX_MATERIAL
-		send_message("need", {_material_id: _MAX_MATERIAL - material})
+		emit_signal("need", {_material_id: _MAX_MATERIAL - _material})
 		return remainder
 	return amount
 
