@@ -5,6 +5,7 @@ const MAX_MATERIAL := 100
 var ore: Ore
 var _ticks_until_next := 0
 var material := 0
+onready var _material_id: int = Matter.name_to_id["material"]
 
 
 func _physics_process(_delta):
@@ -33,18 +34,32 @@ func request_info(info: String):
 	return .request_info(info)
 
 
+func get_matter_count(id: int) -> int:
+	if id == _material_id:
+		return material
+	return 0
+
+
+func get_matter_space(id: int) -> int:
+	if id == _material_id:
+		return MAX_MATERIAL - material
+	return 0
+
+
+func take_matter(id: int, amount: int) -> int:
+	if id == _material_id:
+		if amount < material:
+			material -= amount
+		else:
+			amount = material
+			material = 0
+	send_message("dump_material", material)
+	send_message("provide_material", material)
+	return amount
+
+
 func take_material(p_material):
-	if p_material < material:
-		material -= p_material
-		send_message("dump_material", material)
-		send_message("provide_material", material)
-		return p_material
-	else:
-		var remainder = material
-		material = 0
-		send_message("dump_material", material)
-		send_message("provide_material", material)
-		return remainder
+	return take_matter(_material_id, p_material)
 
 
 func init(p_ore):
