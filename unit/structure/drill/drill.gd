@@ -46,6 +46,10 @@ func get_matter_space(id: int) -> int:
 	return 0
 
 
+func get_take_matter_list() -> PoolIntArray:
+	return PoolIntArray([_material_id])
+
+
 func take_matter(id: int, amount: int) -> int:
 	if id == _material_id:
 		if amount < material:
