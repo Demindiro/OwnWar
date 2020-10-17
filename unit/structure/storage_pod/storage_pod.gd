@@ -20,9 +20,9 @@ func get_info():
 
 func request_info(info: String):
 	if info == "provide_material":
-		return get_matter_count(Matter.name_to_id["material"])
+		return get_put_matter_list()
 	if info == "take_material":
-		return get_matter_space(Matter.name_to_id["material"])
+		return get_take_matter_list()
 	return .request_info(info)
 
 
