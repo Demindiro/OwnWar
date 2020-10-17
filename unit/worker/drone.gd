@@ -4,6 +4,7 @@ extends Unit
 signal task_completed(task, target)
 enum Task {
 		PUT,
+		TAKE,
 		TAKE_MATERIAL,
 		PUT_MATERIAL,
 		BUILD_STRUCTURE,
@@ -79,7 +80,20 @@ func _physics_process(delta):
 					if _take_matter_from_any(id, [task[1]], delta) < 0:
 						current_task_completed()
 			else:
-				if _put_matter_in_any(id, [task[1]], delta) < 0:
+				if _put_matter_in_any(_matter_id, [task[1]], delta) < 0:
+					current_task_completed()
+		Task.TAKE:
+			var id: int = task[2]
+			if _matter_id == id or _matter_count == 0:
+				_matter_id = id
+				if _matter_count < _MAX_VOLUME / Matter.matter_volume[id]:
+					if _take_matter(id, task[1], delta):
+						current_task_completed()
+				else:
+					if _put_matter_in_any(id, [task[1]], delta) < 0:
+						current_task_completed()
+			else:
+				if _put_matter_in_any(_matter_id, [task[1]], delta) < 0:
 					current_task_completed()
 		Task.TAKE_MATERIAL:
 			if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
@@ -154,6 +168,7 @@ func get_actions():
 
 func get_take_actions(flags):
 	return [
+			["Take", Action.INPUT_OWN_UNITS, "take_matter_from", []],
 			["Take material", Action.INPUT_OWN_UNITS, "take_material_from", []],
 			["Take munition", Action.INPUT_OWN_UNITS, "take_munition_from", []],
 			["Take fuel", Action.INPUT_OWN_UNITS, "take_fuel_from", []],
@@ -191,6 +206,8 @@ func get_info():
 				task_string = "Build"
 			Task.PUT:
 				task_string = "Put"
+			Task.TAKE:
+				task_string = "Take"
 			Task.TAKE_MATERIAL:
 				task_string = "Take material"
 			Task.PUT_MATERIAL:
@@ -291,6 +308,15 @@ func put_matter_in(flags, units):
 		var matter_ids = unit.get_put_matter_list()
 		for id in matter_ids:
 			add_task([Task.PUT, unit, id], force_append)
+			force_append = true
+
+
+func take_matter_from(flags, units):
+	var force_append = flags & 0x1 > 0
+	for unit in units:
+		var matter_ids = unit.get_take_matter_list()
+		for id in matter_ids:
+			add_task([Task.TAKE, unit, id], force_append)
 			force_append = true
 
 
@@ -455,7 +481,7 @@ func _take_matter(id: int, unit: Unit, delta: float) -> bool:
 		_matter_id = id
 		return true
 	else:
-		move_towards(_task_cached_unit.translation, delta)
+		move_towards(unit.translation, delta)
 		return false
 
 
