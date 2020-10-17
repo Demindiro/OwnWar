@@ -84,6 +84,7 @@ func _ready():
 		blocks_by_id.append(block)
 		block.id = id
 		id += 1
+	Matter.add_matter("material", 100)
 
 
 func _process(_delta):
