@@ -7,6 +7,8 @@ export var material := 0
 export var fuel := 0
 var _time_until_fuel_produced := 0.0
 var _producing := false
+onready var _material_id: int = Matter.name_to_id["material"]
+onready var _fuel_id: int = Matter.name_to_id["fuel"]
 
 
 func _physics_process(delta):
