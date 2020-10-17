@@ -11,5 +11,5 @@ shell = ExtResource( 1 )
 count = 50
 max_shells = 50
 mesh = ExtResource( 2 )
-cost = 3
+cost = null
 gauge = 35
