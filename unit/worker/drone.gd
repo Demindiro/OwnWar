@@ -497,7 +497,6 @@ func _put_matter(id: int, unit: Unit, delta: float) -> bool:
 func _take_matter(id: int, unit: Unit, delta: float) -> bool:
 	assert(id == _matter_id or _matter_count == 0)
 	var matter_space := _MAX_VOLUME / Matter.matter_volume[id] - _matter_count
-	assert(matter_space > 0)
 	if translation.distance_squared_to(unit.translation) <= INTERACTION_DISTANCE_2:
 		_matter_count += unit.take_matter(id, matter_space)
 		_matter_id = id
