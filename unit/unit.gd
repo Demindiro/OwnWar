@@ -92,6 +92,14 @@ func get_matter_space(id: int) -> int:
 	return 0
 
 
+func get_put_matter_list(id: int) -> PoolIntArray:
+	return PoolIntArray()
+
+
+func get_take_matter_list(id: int) -> PoolIntArray:
+	return PoolIntArray()
+
+
 func put_matter(id: int, amount: int) -> int:
 	return amount
 
