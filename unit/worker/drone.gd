@@ -5,6 +5,8 @@ signal task_completed(task, target)
 enum Task {
 		PUT,
 		TAKE,
+		PUT_ONLY,
+		TAKE_ONLY,
 		TAKE_MATERIAL,
 		PUT_MATERIAL,
 		BUILD_STRUCTURE,
@@ -95,6 +97,20 @@ func _physics_process(delta):
 			else:
 				if _put_matter_in_any(_matter_id, [task[1]], delta) < 0:
 					current_task_completed()
+		Task.PUT_ONLY:
+			var id: int = task[2]
+			if _matter_id == id and _matter_count > 0:
+				if _put_matter(id, task[1], delta):
+					current_task_completed()
+			else:
+				current_task_completed()
+		Task.TAKE_ONLY:
+			var id: int = task[2]
+			if _matter_id == id or _matter_count == 0:
+				if _take_matter(id, task[1], delta):
+					current_task_completed()
+			else:
+				current_task_completed()
 		Task.TAKE_MATERIAL:
 			if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
 				var material_space = max_material - material
@@ -168,7 +184,8 @@ func get_actions():
 
 func get_take_actions(flags):
 	return [
-			["Take", Action.INPUT_OWN_UNITS, "take_matter_from", []],
+			["Take", Action.INPUT_OWN_UNITS, "take_matter_from", [false]],
+			["Take only", Action.INPUT_OWN_UNITS, "take_matter_from", [true]],
 			["Take material", Action.INPUT_OWN_UNITS, "take_material_from", []],
 			["Take munition", Action.INPUT_OWN_UNITS, "take_munition_from", []],
 			["Take fuel", Action.INPUT_OWN_UNITS, "take_fuel_from", []],
@@ -177,7 +194,8 @@ func get_take_actions(flags):
 
 func get_put_actions(flags):
 	return [
-			["Put", Action.INPUT_OWN_UNITS, "put_matter_in", []],
+			["Put", Action.INPUT_OWN_UNITS, "put_matter_in", [false]],
+			["Put only", Action.INPUT_OWN_UNITS, "put_matter_in", [true]],
 			["Put material", Action.INPUT_OWN_UNITS, "put_material_in", []],
 			["Put munition", Action.INPUT_OWN_UNITS, "put_munition_in", []],
 			["Put fuel", Action.INPUT_OWN_UNITS, "put_fuel_in", []],
@@ -208,6 +226,10 @@ func get_info():
 				task_string = "Put"
 			Task.TAKE:
 				task_string = "Take"
+			Task.PUT_ONLY:
+				task_string = "Put only"
+			Task.TAKE_ONLY:
+				task_string = "Take only"
 			Task.TAKE_MATERIAL:
 				task_string = "Take material"
 			Task.PUT_MATERIAL:
@@ -302,21 +324,21 @@ func build_drill(flags, coordinate):
 		ghost.connect("built", self, "_ghost_built")
 
 
-func put_matter_in(flags, units):
+func put_matter_in(flags, units, only):
 	var force_append = flags & 0x1 > 0
 	for unit in units:
 		var matter_ids = unit.get_put_matter_list()
 		for id in matter_ids:
-			add_task([Task.PUT, unit, id], force_append)
+			add_task([Task.PUT_ONLY if only else Task.PUT, unit, id], force_append)
 			force_append = true
 
 
-func take_matter_from(flags, units):
+func take_matter_from(flags, units, only):
 	var force_append = flags & 0x1 > 0
 	for unit in units:
 		var matter_ids = unit.get_take_matter_list()
 		for id in matter_ids:
-			add_task([Task.TAKE, unit, id], force_append)
+			add_task([Task.TAKE_ONLY if only else Task.TAKE, unit, id], force_append)
 			force_append = true
 
 
