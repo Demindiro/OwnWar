@@ -17,7 +17,7 @@ var name_to_id := {}
 func add_matter(p_name: String, volume: int) -> int:
 	assert(not p_name in name_to_id)
 	assert(len(matter_name) == len(matter_volume))
+	name_to_id[p_name] = len(matter_name)
 	matter_name.append(p_name)
 	matter_volume.append(volume)
-	name_to_id[p_name] = len(matter_name)
 	return len(matter_name)
