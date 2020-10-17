@@ -21,4 +21,3 @@ func _ready(deferred := false):
 		var volume: float = m.gauge * m.gauge * (m.gauge * 3.0)
 		var id := Matter.add_matter(m.human_name, m.gauge)
 		id_to_munitions[id] = m
-		Matter.add_conversion(id, material_id, m.cost)
