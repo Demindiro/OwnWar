@@ -35,7 +35,7 @@ func _physics_process(delta):
 	else:
 		if _current_munition_type.cost <= _material:
 			_material -= _current_munition_type.cost
-			send_message("need_material", _MAX_MATERIAL - _material)
+			send_message("need", {_material_id: _MAX_MATERIAL - material})
 			_producing_munition = true
 
 
@@ -97,7 +97,7 @@ func put_matter(id: int, amount: int) -> int:
 		if _material > _MAX_MATERIAL:
 			remainder = _material - _MAX_MATERIAL
 			_material = _MAX_MATERIAL
-		send_message("need_material", _MAX_MATERIAL - _material)
+		send_message("need", {_material_id: _MAX_MATERIAL - material})
 		return remainder
 	return amount
 

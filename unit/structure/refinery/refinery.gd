@@ -21,7 +21,7 @@ func _physics_process(delta):
 	if not _producing:
 		if material >= 2:
 			material -= 2
-			send_message("need_material", MAX_MATERIAL - material)
+			send_message("need", {_material_id: MAX_MATERIAL - material})
 			_producing = true
 
 
@@ -68,9 +68,9 @@ func put_matter(id: int, amount: int) -> int:
 		if material > MAX_MATERIAL:
 			var remainder = material - MAX_MATERIAL
 			material = MAX_MATERIAL
-			send_message("need_material", MAX_MATERIAL - material)
+			send_message("need", {_material_id: MAX_MATERIAL - material})
 			return remainder
-		send_message("need_material", MAX_MATERIAL - material)
+		send_message("need", {_material_id: MAX_MATERIAL - material})
 		return 0
 	return amount
 
@@ -81,7 +81,7 @@ func take_matter(id: int, amount: int) -> int:
 		if material < 0:
 			amount += material
 			material = 0
-			send_message("need_material", MAX_MATERIAL - material)
+			send_message("need", {_material_id: MAX_MATERIAL - material})
 		return amount
 	elif id == _fuel_id:
 		fuel -= amount
