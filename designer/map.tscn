@@ -27,27 +27,29 @@ script/source = "extends Node
 
 
 var game_master
+var material_id
 
 
 func _physics_process(_delta):
-	$SpawnPlayer.put_material(1 << 62)
+	$SpawnPlayer.put_matter(material_id, 1 << 62)
+	$SpawnEnemy.put_matter(material_id, 1 << 62)
 
 
 func _on_GUI_load_vehicle(path):
 	$SpawnEnemy.spawn_vehicle(0, path)
-	$SpawnEnemy.put_material(1 << 62)
 
 
 func _on_FilthyHack_ready():
 	# I need something that is called after _enter_tree but just right before
 	# _ready. This works I guess...
 	game_master = GameMaster.get_game_master(self)
+	material_id = Matter.name_to_id[\"material\"]
 	for child in get_children():
 		if child is Unit:
 			game_master.units[child.team].append(child)
 		elif child is Ore:
 			game_master.ores.append(child)
-	$StoragePod.put_matter(Matter.name_to_id[\"material\"], 5000)
+	$StoragePod.put_matter(material_id, 5000)
 "
 
 [sub_resource type="PlaneMesh" id=2]
