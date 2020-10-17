@@ -8,8 +8,5 @@
 script = ExtResource( 3 )
 human_name = "160mm AP"
 shell = ExtResource( 2 )
-count = null
-max_shells = null
 mesh = ExtResource( 1 )
-cost = null
 gauge = 160

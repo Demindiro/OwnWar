@@ -1,11 +1,13 @@
 extends Node
 # Singleton to track all types of "matter" (AKA Resources, but that name is
 # already taken)
+# It also contains a table of conversions possible for each matter
 
 
 var matter_name := PoolStringArray()
 var matter_volume := PoolIntArray()
 var name_to_id := {}
+var conversion := {}
 
 
 # Add matter. 1 unit of volume is considered to be 1 mm^3, so 1 dm^3 (liters) is
@@ -21,3 +23,8 @@ func add_matter(p_name: String, volume: int) -> int:
 	matter_volume.append(volume)
 	name_to_id[p_name] = len(matter_name)
 	return len(matter_name)
+
+
+# Add a conversion
+func add_conversion(from: int, to: int, count: int) -> void:
+	conversion[from] = [to, count]
