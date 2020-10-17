@@ -8,18 +8,22 @@ var _drones := []
 var _radius2 := 100.0 * 100.0
 var _immediate_geometry: ImmediateGeometry
 var _units := []
-var _provides_material := []
-var _takes_material := []
-var _needs_material_provider := []
-var _needs_material_taker := []
+var _providers := []
+var _takers := []
+var _needs_provider := []
+var _needs_taker := []
 var _tasks := []
 var _dirty := false
 onready var _spawn_timer := get_tree().create_timer(1.0, false)
 
 
 func _ready():
-	_set_radius2(_radius2)
 	game_master.connect("unit_added", self, "_unit_added")
+	_providers.resize(len(Matter.matter_name))
+	_takers.resize(len(Matter.matter_name))
+	_needs_provider.resize(len(Matter.matter_name))
+	_needs_taker.resize(len(Matter.matter_name))
+	_set_radius2(_radius2)
 
 
 func _process(_delta):
@@ -44,8 +48,6 @@ func get_info() -> Dictionary:
 	info["Drones"] = "%d / %d" % [len(_drones), drone_limit]
 	info["Units"] = str(len(_units))
 	info["Tasks"] = str(len(_tasks))
-	info["Providers"] = str(len(_provides_material))
-	info["Takers"] = str(len(_takes_material))
 	return info
 
 
@@ -146,45 +148,52 @@ func _set_radius2(radius2: float) -> void:
 	for unit in _units:
 		unit.disconnect("message", self, "_get_message")
 		unit.disconnect("destroyed", self, "_unit_destroyed")
-	_provides_material = []
-	_takes_material = []
 	_units = []
+	for i in range(len(Matter.matter_name)):
+		_providers[i] = []
+		_takers[i] = []
+		_needs_provider[i] = []
+		_needs_provider[i] = []
 	for unit in game_master.get_units(team):
 		if translation.distance_squared_to(unit.translation) < radius2:
 			_add_unit(unit)
 	_assign_tasks()
 
 
-func _get_message(message, data, unit):
-	match message:
-		"need_material":
-			var amount = data as int
-			if amount > 0:
-				var provider := _get_nearest(unit, _provides_material)
-				_add_task(Drone.Task.FILL, [provider, unit])
-			else:
-				_remove_task(Drone.Task.FILL, unit)
-		"provide_material":
-			var amount: int = data
-			if amount == 0:
-				_provides_material.erase(unit)
-			else:
-				if not unit in _provides_material:
-					_provides_material.append(unit)
-		"take_material":
-			var amount: int = data
-			if amount == 0:
-				_takes_material.erase(unit)
-			else:
-				if not unit in _takes_material:
-					_takes_material.append(unit)
-		"dump_material":
-			var amount: int = data
-			if amount > 0:
-				var taker := _get_nearest(unit, _takes_material)
-				_add_task(Drone.Task.EMPTY, [unit, taker])
-			else:
-				_remove_task(Drone.Task.FILL, unit)
+func _on_need_matter(id: int, amount: int, unit: Unit):
+	if amount > 0:
+		var provider := _get_nearest(unit, _providers[id])
+		_add_task(Drone.Task.FILL, [provider, unit])
+	else:
+		_remove_task(Drone.Task.FILL, unit)
+	assign_tasks()
+
+
+func _on_provide_matter(id: int, amount: int, unit: Unit):
+	if amount > 0:
+		if not unit in _providers[id]:
+			_providers[id].append(unit)
+	else:
+		_providers[id].erase(unit)
+	assign_tasks()
+
+
+func _on_take_matter(id: int, amount: int, unit: Unit):
+	if amount > 0:
+		if not unit in _takers[id]:
+			_takers[id].append(unit)
+	else:
+		_takers[id].erase(unit)
+	assign_tasks()
+
+
+func _on_dump_matter(id: int, amount: int, unit: Unit):
+	if amount > 0:
+		var taker := _get_nearest(unit, _takers[id])
+		_add_task(Drone.Task.EMPTY, [unit, taker])
+	else:
+		_remove_task(Drone.Task.FILL, unit)
+	assign_tasks()
 
 
 func _unit_destroyed(unit):
@@ -253,41 +262,71 @@ func _unit_added(unit: Unit) -> void:
 
 func _add_unit(unit: Unit) -> void:
 	_units.append(unit)
-	unit.connect("message", self, "_get_message", [unit])
 	unit.connect("destroyed", self, "_unit_destroyed")
-	var needs = unit.request_info("need_material")
-	if needs != null and needs > 0:
-		var provider := _get_nearest(unit, _provides_material)
-		if provider != null:
-			_add_task(Drone.Task.FILL, [provider, unit])
-		else:
-			_needs_material_provider.append(unit)
-	var provides = unit.request_info("provide_material")
-	if provides != null and provides > 0:
-		_provides_material.append(unit)
-		for needer in _needs_material_provider:
-			_add_task(Drone.Task.FILL, [unit, needer])
-		_needs_material_provider = []
-	var takes = unit.request_info("take_material")
-	if takes != null and takes > 0:
-		_takes_material.append(unit)
-		for needer in _needs_material_taker:
-			_add_task(Drone.Task.EMPTY, [needer, unit])
-		_needs_material_taker = []
-	var dumps = unit.request_info("dump_material")
-	if dumps != null and dumps > 0:
-		var taker := _get_nearest(unit, _takes_material)
-		if taker != null:
-			_add_task(Drone.Task.EMPTY, [unit, taker])
-		else:
-			_needs_material_taker.append(unit)
+
+	if has_signal("need_matter"):
+		unit.connect("need_matter", self, "_on_need_matter", [unit])
+	if has_signal("dump_matter"):
+		unit.connect("dump_matter", self, "_on_dump_matter", [unit])
+
+	var needs = unit.request_info("need_matter")
+	if needs != null:
+		for id in needs:
+			if needs[id] > 0:
+				var provider := _get_nearest(unit, _providers[id])
+				if provider != null:
+					_add_task(Drone.Task.FILL, [provider, unit])
+				else:
+					_needs_provider[id].append(unit)
+
+	var provides = unit.request_info("provide_matter")
+	if provides != null:
+		for id in provides:
+			if provides[id] > 0:
+				_providers[id].append(unit)
+				for needer in _needs_provider[id]:
+					_add_task(Drone.Task.FILL, [unit, needer])
+				_needs_provider[id] = []
+
+	var takes = unit.request_info("take_matter")
+	if takes != null:
+		for id in takes:
+			if takes[id] > 0:
+				_takers[id].append(unit)
+				for needer in _needs_taker:
+					_add_task(Drone.Task.EMPTY, [needer, unit])
+				_needs_taker = []
+
+	var dumps = unit.request_info("dump_matter")
+	if dumps != null:
+		for id in dumps:
+			if dumps[id] > 0:
+				var taker := _get_nearest(unit, _takers)
+				if taker != null:
+					_add_task(Drone.Task.EMPTY, [unit, taker])
+				else:
+					_needs_taker.append(unit)
+
+
+func _add_matter_provider(unit: Unit, ids: Array) -> void:
+	for id in ids:
+		_providers[id].append(unit)
+
+
+func _add_matter_taker(unit: Unit, ids: Array) -> void:
+	for id in ids:
+		_takers[id].append(unit)
 
 
 func _remove_unit(unit: Unit) -> void:
 	unit.disconnect("message", self, "_get_message")
 	unit.disconnect("destroyed", self, "_unit_destroyed")
-	_provides_material.erase(unit)
-	_takes_material.erase(unit)
+	for id in unit.get_take_matter_list():
+		_providers[id].erase(unit)
+		_needs_provider[id].erase(unit)
+	for id in unit.get_put_matter_list():
+		_takers[id].erase(unit)
+		_needs_taker[id].erase(unit)
 	_units.erase(unit)
 
 
