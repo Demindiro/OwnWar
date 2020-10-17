@@ -7,14 +7,8 @@ enum Task {
 		TAKE,
 		PUT_ONLY,
 		TAKE_ONLY,
-		TAKE_MATERIAL,
-		PUT_MATERIAL,
 		BUILD_STRUCTURE,
 		GOTO_WAYPOINT,
-		TAKE_MUNITION,
-		PUT_MUNITION,
-		TAKE_FUEL,
-		PUT_FUEL,
 	}
 const SPEED = 20.0
 const INTERACTION_DISTANCE = 6.0
@@ -175,30 +169,12 @@ func _physics_process(delta):
 func get_actions():
 	return [
 			["Set waypoint", Action.INPUT_COORDINATE, "set_waypoint", []],
-			["Take", Action.SUBACTION, "get_take_actions", []],
-			["Put", Action.SUBACTION, "get_put_actions", []],
+			["Take", Action.INPUT_OWN_UNITS, "take_matter_from", [false]],
+			["Put", Action.INPUT_OWN_UNITS, "put_matter_in", [false]],
+			["Take only", Action.INPUT_OWN_UNITS, "take_matter_from", [true]],
+			["Put only", Action.INPUT_OWN_UNITS, "put_matter_in", [true]],
 			["Build", Action.SUBACTION, "get_build_actions", []],
 			["Clear tasks", Action.INPUT_NONE, "clear_tasks", []],
-		]
-
-
-func get_take_actions(flags):
-	return [
-			["Take", Action.INPUT_OWN_UNITS, "take_matter_from", [false]],
-			["Take only", Action.INPUT_OWN_UNITS, "take_matter_from", [true]],
-			["Take material", Action.INPUT_OWN_UNITS, "take_material_from", []],
-			["Take munition", Action.INPUT_OWN_UNITS, "take_munition_from", []],
-			["Take fuel", Action.INPUT_OWN_UNITS, "take_fuel_from", []],
-		]
-
-
-func get_put_actions(flags):
-	return [
-			["Put", Action.INPUT_OWN_UNITS, "put_matter_in", [false]],
-			["Put only", Action.INPUT_OWN_UNITS, "put_matter_in", [true]],
-			["Put material", Action.INPUT_OWN_UNITS, "put_material_in", []],
-			["Put munition", Action.INPUT_OWN_UNITS, "put_munition_in", []],
-			["Put fuel", Action.INPUT_OWN_UNITS, "put_fuel_in", []],
 		]
 
 
@@ -230,18 +206,6 @@ func get_info():
 				task_string = "Put only"
 			Task.TAKE_ONLY:
 				task_string = "Take only"
-			Task.TAKE_MATERIAL:
-				task_string = "Take material"
-			Task.PUT_MATERIAL:
-				task_string = "Put material"
-			Task.TAKE_MUNITION:
-				task_string = "Take munition"
-			Task.PUT_MUNITION:
-				task_string = "Put munition"
-			Task.TAKE_FUEL:
-				task_string = "Take fuel"
-			Task.PUT_FUEL:
-				task_string = "Put fuel"
 			_:
 				task_string = "Unknown (BUG)"
 	else:
@@ -342,55 +306,6 @@ func take_matter_from(flags, units, only):
 			force_append = true
 
 
-func take_material_from(flags, units):
-	var force_append = flags & 0x1 > 0
-	for unit in units:
-		if unit.has_method("take_material"):
-			add_task([Task.TAKE_MATERIAL, unit], force_append)
-			force_append = true
-
-
-func put_material_in(flags, units):
-	var force_append = flags & 0x1 > 0
-	for unit in units:
-		if unit.has_method("put_material"):
-			add_task([Task.PUT_MATERIAL, unit],
-					force_append)
-			force_append = true
-
-
-func take_munition_from(flags, units):
-	var force_append = flags & 0x1 > 0
-	for unit in units:
-		if unit.has_function("take_munition"):
-			add_task([Task.TAKE_MUNITION, unit], force_append)
-			force_append = true
-
-
-func put_munition_in(flags, units):
-	var force_append = flags & 0x1 > 0
-	for unit in units:
-		if unit.has_function("put_munition"):
-			add_task([Task.PUT_MUNITION, unit], force_append)
-			force_append = true
-
-
-func take_fuel_from(flags, units):
-	var force_append = flags & 0x1 > 0
-	for unit in units:
-		if unit.has_function("take_fuel"):
-			add_task([Task.TAKE_FUEL, unit], force_append)
-			force_append = true
-
-
-func put_fuel_in(flags, units):
-	var force_append = flags & 0x1 > 0
-	for unit in units:
-		if unit.has_function("put_fuel"):
-			add_task([Task.PUT_FUEL, unit], force_append)
-			force_append = true
-
-
 func clear_tasks(flags):
 	for task in tasks:
 		if task[1] is Unit:
@@ -447,28 +362,18 @@ func draw_debug(debug):
 			Task.BUILD_STRUCTURE:
 				color = Color.orange
 				position = task[1].translation
-			Task.TAKE_MATERIAL:
-				color = Color.purple
-				position = task[1].translation
-			Task.PUT_MATERIAL:
+			Task.PUT, Task.PUT_ONLY:
 				color = Color.cyan
 				position = task[1].translation
-			Task.TAKE_MUNITION:
-				color = Color.red
-				position = task[1].translation
-			Task.PUT_MUNITION:
-				color = Color.yellow
-				position = task[1].translation
-			Task.TAKE_FUEL:
-				color = Color.chartreuse
-				position = task[1].translation
-			Task.PUT_FUEL:
-				color = Color.beige
+			Task.TAKE, Task.TAKE_ONLY:
+				color = Color.purple
 				position = task[1].translation
 		if color != null:
 			debug.draw_circle(position, color)
 			debug.draw_line(start, position, color)
 			start = position
+	if _task_cached_unit != null:
+		debug.draw_line(translation, _task_cached_unit.translation, Color.yellow)
 
 
 func _ghost_built(unit):
