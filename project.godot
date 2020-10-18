@@ -57,7 +57,7 @@ _global_script_classes=[ {
 "base": "Resource",
 "class": "Munition",
 "language": "GDScript",
-"path": "res://projectile/munition.gd"
+"path": "res://matter/munition/munition.gd"
 }, {
 "base": "Spatial",
 "class": "Ore",
@@ -126,6 +126,8 @@ Global="*res://global.gd"
 GenerateBlocks="*res://block/chassis/generate_blocks.gd"
 MaterialCache="*res://material_cache.gd"
 ObjectCache="*res://object_cache.gd"
+Matter="*res://matter/matter.gd"
+RegisterMunition="*res://matter/munition/register_munition.gd"
 
 [debug]
 

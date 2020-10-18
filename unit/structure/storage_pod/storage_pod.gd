@@ -1,57 +1,72 @@
 extends Unit
 
 
-export var max_material := 10000
-export var material := 0 setget set_material
+const _MAX_VOLUME := 10000_00
+var _volume := 0
+var _matter := {}
 
 
 func _ready():
-	set_material(material)
+	_update_indicator()
 
 
 func get_info():
 	var info = .get_info()
-	info["Material"] = str(material) + " / " + str(max_material)
+	info["Volume"] = "%d / %d" % [_volume / 100, _MAX_VOLUME / 100]
+	for m in _matter:
+		info[Matter.matter_name[m]] = str(_matter[m])
 	return info
 
 
-func request_info(info: String):
-	if info == "provide_material":
-		return material
-	if info == "take_material":
-		return max_material - material
-	return .request_info(info)
+func get_matter_count(id: int) -> int:
+	return _matter.get(id, 0)
 
 
-func put_material(p_material):
-	var max_put = max_material - material
-	if max_put > p_material:
-		self.material += p_material
+func get_matter_space(id: int) -> int:
+	return (_MAX_VOLUME - _volume) / Matter.matter_volume[id]
+
+
+func get_put_matter_list() -> PoolIntArray:
+	return PoolIntArray(range(len(Matter.matter_name)))
+
+
+func get_take_matter_list() -> PoolIntArray:
+	return PoolIntArray(_matter.keys())
+
+
+func provides_matter(id: int) -> int:
+	return _matter.get(id, 0)
+
+
+func takes_matter(id: int) -> int:
+	return (_MAX_VOLUME - _volume) / Matter.matter_volume[id]
+
+
+func put_matter(id: int, amount: int) -> int:
+	var max_put = get_matter_space(id)
+	if max_put >= amount:
+		_matter[id] = _matter.get(id, 0) + amount
+		_volume += amount * Matter.matter_volume[id]
+		_update_indicator()
 		return 0
 	else:
-		self.material = max_material
-		return p_material - max_put
+		_matter[id] = _matter.get(id, 0) + max_put
+		_volume += max_put * Matter.matter_volume[id]
+		_update_indicator()
+		return amount - max_put
 
 
-func take_material(p_material, exact = false):
-	if material > p_material:
-		self.material -= p_material
-		return p_material
-	elif exact:
-		return 0
+func take_matter(id: int, amount: int) -> int:
+	if _matter.get(id, 0) > amount:
+		_matter[id] -= amount
+		_volume -= amount * Matter.matter_volume[id]
+		_update_indicator()
+		return amount
 	else:
-		var remainder = material
-		self.material = 0
+		var remainder: int = _matter.get(id, 0)
+		_matter.erase(id)
 		return remainder
 
 
-func get_material_space() -> int:
-	return max_material - material
-
-
-func set_material(p_material):
-	assert(0 <= p_material and p_material <= max_material)
-	material = p_material
-	send_message("provide_material", material)
-	send_message("take_material", max_material - material)
-	$Indicator.scale.y = float(material) / max_material
+func _update_indicator() -> void:
+	$Indicator.scale.y = float(_volume) / _MAX_VOLUME

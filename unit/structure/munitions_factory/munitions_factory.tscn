@@ -1,9 +1,15 @@
 [gd_scene load_steps=7 format=2]
 
-[ext_resource path="res://projectile/shell.obj" type="ArrayMesh" id=1]
+[ext_resource path="res://matter/munition/shell.obj" type="ArrayMesh" id=1]
 [ext_resource path="res://unit/structure/munitions_factory/munitions_factory.gd" type="Script" id=2]
-[ext_resource path="res://projectile/shell.tres" type="Resource" id=3]
-[ext_resource path="res://projectile/35mm/shell_35mm.tres" type="Resource" id=4]
+[ext_resource path="res://matter/munition/160mm/shell_160mm.tres" type="Resource" id=3]
+[ext_resource path="res://matter/munition/35mm/shell_35mm.tres" type="Resource" id=4]
+
+
+
+
+
+
 
 
 [sub_resource type="MultiMesh" id=1]

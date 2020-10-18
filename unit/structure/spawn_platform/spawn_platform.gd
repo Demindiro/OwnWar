@@ -5,10 +5,9 @@ signal spawned(unit)
 # Thank cyclic PackedScene errors for this
 export(PackedScene) var worker = load("res://unit/worker/drone.tscn")
 var material = 0 setget set_material
-# warning-ignore:unused_class_variable
-var max_material setget , get_max_material
 var queued_vehicle = null
 var queued_vehicle_name
+onready var _material_id = Matter.name_to_id["material"]
 
 
 func _ready():
@@ -16,7 +15,7 @@ func _ready():
 	set_material(material)
 	$IndicatorVehicle.material_override = $IndicatorVehicle.material_override.duplicate()
 	$IndicatorVehicle.material_override.albedo_color = Color.green
-	
+
 
 func _notification(notification):
 	match notification:
@@ -27,7 +26,7 @@ func _notification(notification):
 
 func get_info():
 	var info = .get_info()
-	info["Material"] = str(material) + " / " + str(get_max_material())
+	info["Material"] = "%d / %d" % [material, _get_needed_material()]
 	if queued_vehicle != null:
 		info["Queued"] = queued_vehicle_name
 	return info
@@ -52,12 +51,6 @@ func get_actions():
 	return actions
 
 
-func request_info(info: String):
-	if info == "need_material":
-		return get_material_space()
-	return .request_info(info)
-
-
 func get_interaction_port() -> Vector3:
 	return $InteractionPort.global_transform.origin
 
@@ -71,7 +64,7 @@ func spawn_worker(_flags):
 	queued_vehicle.translate(Vector3.UP * 5)
 	queued_vehicle.rotate_y(PI)
 	queued_vehicle_name = "Worker Drone"
-	send_message("need_material", get_material_space())
+	emit_signal("need_matter", _material_id, _get_needed_material())
 	return queued_vehicle
 
 
@@ -91,38 +84,68 @@ func spawn_vehicle(_flags, path):
 		queued_vehicle.rotate_y(PI)
 		$IndicatorVehicle.material_override.albedo_color = Color.orange
 		queued_vehicle_name = Vehicle.path_to_name(path.get_file())
-	send_message("need_material", get_material_space())
+	emit_signal("need_matter", _material_id, _get_needed_material())
 	return queued_vehicle
-
-
-func put_material(p_material):
-	if queued_vehicle == null:
-		return p_material
-	self.material += p_material
-	if material >= queued_vehicle.get_cost():
-		game_master.add_unit(team, queued_vehicle)
-		emit_signal("spawned", queued_vehicle)
-		var remainder = material - queued_vehicle.get_cost()
-		queued_vehicle = null
-		self.material = 0
-		$IndicatorVehicle.material_override.albedo_color = Color.green
-		return remainder
-	return 0
 
 
 func set_material(p_material):
 	assert(0 <= p_material)
 	material = p_material
-	send_message("need_material", get_material_space())
+	emit_signal("need_matter", _material_id, _get_needed_material())
 	if queued_vehicle == null:
 		$IndicatorMaterial.scale.z = 0 if material == 0 else 1
 	else:
 		$IndicatorMaterial.scale.z = clamp(float(material) / queued_vehicle.get_cost(), 0, 1)
 
 
-func get_max_material():
-	return 0 if queued_vehicle == null else queued_vehicle.get_cost()
+func get_matter_count(id: int) -> int:
+	if id == _material_id and queued_vehicle != null:
+		return queued_vehicle.get_cost()
+	return 0
 
 
-func get_material_space():
+func get_matter_space(id: int) -> int:
+	if id == _material_id and queued_vehicle != null:
+		return queued_vehicle.get_cost() - material
+	return 0
+
+
+func get_put_matter_list() -> PoolIntArray:
+	return PoolIntArray([_material_id])
+
+
+func get_take_matter_list() -> PoolIntArray:
+	return PoolIntArray([_material_id])
+
+
+func needs_matter(id: int) -> int:
+	if id == _material_id:
+		return _get_needed_material()
+	return 0
+
+
+func dumps_matter(id: int) -> int:
+	if id == _material_id and queued_vehicle == null:
+		return material
+	return 0
+
+
+func put_matter(id: int, amount: int) -> int:
+	if id == _material_id:
+		if queued_vehicle == null:
+			return amount
+		self.material += amount
+		if material >= queued_vehicle.get_cost():
+			game_master.add_unit(team, queued_vehicle)
+			emit_signal("spawned", queued_vehicle)
+			var remainder = material - queued_vehicle.get_cost()
+			queued_vehicle = null
+			self.material = 0
+			$IndicatorVehicle.material_override.albedo_color = Color.green
+			return remainder
+		return 0
+	return amount
+
+
+func _get_needed_material():
 	return 0 if queued_vehicle == null else queued_vehicle.get_cost() - material
