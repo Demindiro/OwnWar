@@ -24,7 +24,7 @@ onready var rotors = [
 		$ArmLB/Rotor,
 		$ArmRB/Rotor,
 	]
-const _MAX_VOLUME := 10_000_000
+const _MAX_VOLUME := 20_000_000
 var _task_cached_unit: Unit
 var _matter_id := -1
 var _matter_count := 0
@@ -323,6 +323,7 @@ func _take_matter(id: int, unit: Unit, delta: float) -> bool:
 	assert(id == _matter_id or _matter_count == 0)
 # warning-ignore:integer_division
 	var matter_space := _MAX_VOLUME / Matter.matter_volume[id] - _matter_count
+	assert(matter_space != 0 or _matter_count != 0)
 	if translation.distance_squared_to(unit.translation) <= INTERACTION_DISTANCE_2:
 		_matter_count += unit.take_matter(id, matter_space)
 		_matter_id = id
