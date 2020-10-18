@@ -18,20 +18,6 @@ func get_info():
 	return info
 
 
-func request_info(info: String):
-	if info == "provide_matter":
-		var dict := {}
-		for id in range(len(Matter.matter_name)):
-			dict[id] = _matter.get(id, 0)
-		return dict
-	if info == "take_matter":
-		var dict := {}
-		for id in range(len(Matter.matter_name)):
-			dict[id] = (_MAX_VOLUME - _volume) / Matter.matter_volume[id]
-		return get_take_matter_list()
-	return .request_info(info)
-
-
 func get_matter_count(id: int) -> int:
 	return _matter.get(id, 0)
 
@@ -46,6 +32,14 @@ func get_put_matter_list() -> PoolIntArray:
 
 func get_take_matter_list() -> PoolIntArray:
 	return PoolIntArray(_matter.keys())
+
+
+func provides_matter(id: int) -> int:
+	return _matter.get(id, 0)
+
+
+func takes_matter(id: int) -> int:
+	return (_MAX_VOLUME - _volume) / Matter.matter_volume[id]
 
 
 func put_matter(id: int, amount: int) -> int:
