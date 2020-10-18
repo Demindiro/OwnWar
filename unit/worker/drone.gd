@@ -24,7 +24,7 @@ onready var rotors = [
 		$ArmLB/Rotor,
 		$ArmRB/Rotor,
 	]
-const _MAX_VOLUME := 100_00
+const _MAX_VOLUME := 10_000_000
 var _task_cached_unit: Unit
 var _matter_id := -1
 var _matter_count := 0

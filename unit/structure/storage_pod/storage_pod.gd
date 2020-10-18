@@ -1,7 +1,7 @@
 extends Unit
 
 
-const _MAX_VOLUME := 10000_00
+const _MAX_VOLUME := 1000_000_000
 var _volume := 0
 var _matter := {}
 
@@ -14,7 +14,7 @@ func get_info():
 	var info = .get_info()
 # warning-ignore:integer_division
 # warning-ignore:integer_division
-	info["Volume"] = "%d / %d" % [_volume / 100, _MAX_VOLUME / 100]
+	info["Volume"] = "%d / %d" % [_volume / 1_000_000, _MAX_VOLUME / 1_000_000]
 	for m in _matter:
 		info[Matter.matter_name[m]] = str(_matter[m])
 	return info

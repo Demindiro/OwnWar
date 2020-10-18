@@ -15,7 +15,7 @@ var dump_target: Unit
 var task_matter_id: int
 var matter_count := 0
 var matter_id := -1
-const _MAX_VOLUME := 30_00
+const _MAX_VOLUME := 30_000_000
 var _turn: Vector3
 var _forward: float
 var _task_step := 0

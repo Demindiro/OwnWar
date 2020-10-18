@@ -4,7 +4,7 @@ extends Unit
 #export(Array, Munition) var munition_types := []
 export(Array, Resource) var munition_types := []
 const _MAX_MATERIAL := 30
-const _MAX_MUNITION_VOLUME := 3000
+const _MAX_MUNITION_VOLUME := 125_000_000
 var _material := 0
 var _munition := {}
 var _munition_volume := 0
@@ -57,7 +57,7 @@ func get_info():
 	var info = .get_info()
 	info["Material"] = "%d / %d" % [_material, _MAX_MATERIAL]
 	info["Producing"] = str(_current_munition_type)
-	info["Volume"] = "%d / %d" % [_munition_volume, _MAX_MUNITION_VOLUME]
+	info["Volume"] = "%d / %d" % [_munition_volume / 1_000_000, _MAX_MUNITION_VOLUME / 1_000_000]
 	for m in _munition:
 		info[Matter.matter_name[m]] = _munition[m]
 	return info

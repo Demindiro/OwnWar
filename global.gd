@@ -85,9 +85,9 @@ func _ready():
 		block.id = id
 		id += 1
 # warning-ignore:return_value_discarded
-	Matter.add_matter("material", 100)
+	Matter.add_matter("material", 1_000_000)
 # warning-ignore:return_value_discarded
-	Matter.add_matter("fuel", 100)
+	Matter.add_matter("fuel", 1_000_000)
 
 
 func _process(_delta):
