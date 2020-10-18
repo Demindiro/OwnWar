@@ -13,7 +13,6 @@ var _time_of_last_shot := 0.0
 var _rel_offset: Vector3
 var _error: float
 var _manager: Reference
-var _munition: Munition
 
 
 func _physics_process(_delta):
@@ -86,20 +85,19 @@ func aim_at(position: Vector3, _velocity := Vector3.ZERO):
 func fire():
 	var current_time := float(Engine.get_physics_frames()) / Engine.iterations_per_second
 	if current_time >= _time_of_last_shot + reload_time:
-		if _munition == null:
-			_munition = _manager.take_munition(gauge)
-		if _munition != null:
-			var y = $ProjectileSpawn.global_transform.basis.y
-			var z = $ProjectileSpawn.global_transform.basis.z
-			var direction = (y.rotated(z, randf() * PI * 2) * inaccuracy + z).normalized()
-			var node = _munition.shell.instance()
-			_munition.count -= 1
-			node.global_transform = $ProjectileSpawn.global_transform
-			node.linear_velocity = direction * projectile_velocity
-			get_tree().current_scene.add_child(node)
-			_time_of_last_shot = current_time
-			if _munition.count <= 0:
-				_munition = null
+		var munitions: Dictionary = _manager.take_munition(gauge, 1)
+		for id in munitions:
+			if munitions[id] > 0:
+				var munition: Munition = RegisterMunition.id_to_munitions[id]
+				var y = $ProjectileSpawn.global_transform.basis.y
+				var z = $ProjectileSpawn.global_transform.basis.z
+				var direction = (y.rotated(z, randf() * PI * 2) * inaccuracy + z).normalized()
+				var node = munition.shell.instance()
+				node.global_transform = $ProjectileSpawn.global_transform
+				node.linear_velocity = direction * projectile_velocity
+				get_tree().current_scene.add_child(node)
+				_time_of_last_shot = current_time
+				break
 
 
 func set_angle(angle):
