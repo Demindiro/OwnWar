@@ -4,9 +4,13 @@ extends Spatial
 
 
 signal destroyed(unit)
+# warning-ignore:unused_signal
 signal need_matter(id, amount)
+# warning-ignore:unused_signal
 signal provide_matter(id, amount)
+# warning-ignore:unused_signal
 signal take_matter(id, amount)
+# warning-ignore:unused_signal
 signal dump_matter(id, amount)
 enum Action {
 	INPUT_NONE = 0x0,
@@ -52,7 +56,7 @@ func hide_feedback():
 	pass
 
 
-func show_action_feedback(function: String, viewport: Viewport, arguments: Array) -> void:
+func show_action_feedback(_function: String, _viewport: Viewport, _arguments: Array) -> void:
 	pass
 
 
@@ -70,11 +74,11 @@ func get_interaction_port() -> Vector3:
 	return translation
 
 
-func get_matter_count(id: int) -> int:
+func get_matter_count(_id: int) -> int:
 	return 0
 
 
-func get_matter_space(id: int) -> int:
+func get_matter_space(_id: int) -> int:
 	return 0
 
 
@@ -86,27 +90,27 @@ func get_take_matter_list() -> PoolIntArray:
 	return PoolIntArray()
 
 
-func needs_matter(id: int) -> int:
+func needs_matter(_id: int) -> int:
 	return 0
 
 
-func provides_matter(id: int) -> int:
+func provides_matter(_id: int) -> int:
 	return 0
 
 
-func takes_matter(id: int) -> int:
+func takes_matter(_id: int) -> int:
 	return 0
 
 
-func dumps_matter(id: int) -> int:
+func dumps_matter(_id: int) -> int:
 	return 0
 
 
-func put_matter(id: int, amount: int) -> int:
+func put_matter(_id: int, amount: int) -> int:
 	return amount
 
 
-func take_matter(id: int, amount: int) -> int:
+func take_matter(_id: int, _amount: int) -> int:
 	return 0
 
 

@@ -1,6 +1,7 @@
 extends Node
 
 
+# warning-ignore:unused_class_variable
 export var max_power := 16000.0
 
 

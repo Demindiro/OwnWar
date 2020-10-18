@@ -2,6 +2,7 @@ extends VehicleWheel
 class_name Wheel
 
 
+# warning-ignore:unused_class_variable
 export var max_power := 300.0
 var max_angle := 0.0
 

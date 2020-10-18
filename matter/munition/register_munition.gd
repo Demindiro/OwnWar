@@ -18,6 +18,6 @@ func _ready(deferred := false):
 		]:
 		# Ammo containers generally pack munition in a square pattern
 		# Pretend that length = gauge * 3
-		var volume: float = m.gauge * m.gauge * (m.gauge * 3.0)
-		var id := Matter.add_matter(m.human_name, m.gauge)
+		var volume: int = m.gauge * m.gauge * (m.gauge * 3)
+		var id := Matter.add_matter(m.human_name, volume)
 		id_to_munitions[id] = m

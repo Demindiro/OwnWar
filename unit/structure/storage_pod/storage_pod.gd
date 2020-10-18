@@ -12,6 +12,8 @@ func _ready():
 
 func get_info():
 	var info = .get_info()
+# warning-ignore:integer_division
+# warning-ignore:integer_division
 	info["Volume"] = "%d / %d" % [_volume / 100, _MAX_VOLUME / 100]
 	for m in _matter:
 		info[Matter.matter_name[m]] = str(_matter[m])
@@ -23,6 +25,7 @@ func get_matter_count(id: int) -> int:
 
 
 func get_matter_space(id: int) -> int:
+# warning-ignore:integer_division
 	return (_MAX_VOLUME - _volume) / Matter.matter_volume[id]
 
 
@@ -39,6 +42,7 @@ func provides_matter(id: int) -> int:
 
 
 func takes_matter(id: int) -> int:
+# warning-ignore:integer_division
 	return (_MAX_VOLUME - _volume) / Matter.matter_volume[id]
 
 
@@ -64,6 +68,7 @@ func take_matter(id: int, amount: int) -> int:
 		return amount
 	else:
 		var remainder: int = _matter.get(id, 0)
+# warning-ignore:return_value_discarded
 		_matter.erase(id)
 		return remainder
 

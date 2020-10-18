@@ -41,6 +41,7 @@ func _physics_process(_delta: float) -> void:
 					target = null
 					dump_target = null
 			if target == null:
+# warning-ignore:integer_division
 				var matter_space := _MAX_VOLUME / Matter.matter_volume[task_matter_id] - matter_count
 				if _task_step == 0 and (matter_count == 0 if task == Task.FILL else matter_space > 0):
 					target = from_target
@@ -77,6 +78,7 @@ func get_info() -> Dictionary:
 	var info := .get_info() as Dictionary
 	if matter_count > 0:
 		info["Matter type"] = Matter.matter_name[matter_id]
+# warning-ignore:integer_division
 		info["Matter count"] = "%d / %d" % [matter_count, _MAX_VOLUME / Matter.matter_volume[matter_id]]
 	match task:
 		Task.NONE:
@@ -171,6 +173,7 @@ func _task_completed() -> void:
 
 
 func _take_matter(unit: Unit) -> bool:
+# warning-ignore:integer_division
 	var matter_space := _MAX_VOLUME / Matter.matter_volume[task_matter_id] - matter_count
 	var proj_pos = Plane(transform.basis.y, 0).project(unit.get_interaction_port() - translation)
 	if proj_pos.length_squared() < 9:

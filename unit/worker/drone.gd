@@ -15,7 +15,6 @@ const INTERACTION_DISTANCE = 6.0
 const INTERACTION_DISTANCE_2 = INTERACTION_DISTANCE * INTERACTION_DISTANCE
 export(Dictionary) var ghosts = {}
 export(PackedScene) var drill_ghost
-export(int) var max_material = 100
 export(int) var cost = 20
 var tasks = []
 var last_build_frame = 0
@@ -82,6 +81,7 @@ func _physics_process(delta):
 				current_task_completed()
 			elif _matter_id == id or _matter_count == 0:
 				_matter_id = id
+# warning-ignore:integer_division
 				if _matter_count < _MAX_VOLUME / Matter.matter_volume[id]:
 					if _take_matter(id, task[1], delta):
 						current_task_completed()
@@ -123,7 +123,7 @@ func get_actions():
 		]
 
 
-func get_build_actions(flags):
+func get_build_actions(_flags):
 	var actions = [
 			["Build", Action.INPUT_OWN_UNITS, "build", []],
 			["Build drill", Action.INPUT_COORDINATE, "build_drill", []],
@@ -160,6 +160,7 @@ func get_info():
 	if _matter_count > 0:
 		info["Matter type"] = Matter.matter_name[_matter_id]
 		info["Matter count"] = "%d / %d" % [_matter_count,
+# warning-ignore:integer_division
 				_MAX_VOLUME / Matter.matter_volume[_matter_id]]
 	return info
 
@@ -249,7 +250,7 @@ func take_matter_from(flags, units, only):
 			force_append = true
 
 
-func clear_tasks(flags):
+func clear_tasks(_flags):
 	for task in tasks:
 		if task[1] is Unit:
 			task[1].disconnect("destroyed", self, "_unit_destroyed")
@@ -320,6 +321,7 @@ func _put_matter(id: int, unit: Unit, delta: float) -> bool:
 
 func _take_matter(id: int, unit: Unit, delta: float) -> bool:
 	assert(id == _matter_id or _matter_count == 0)
+# warning-ignore:integer_division
 	var matter_space := _MAX_VOLUME / Matter.matter_volume[id] - _matter_count
 	if translation.distance_squared_to(unit.translation) <= INTERACTION_DISTANCE_2:
 		_matter_count += unit.take_matter(id, matter_space)
@@ -370,5 +372,6 @@ func _take_matter_from_any(id: int, exclude: Array, delta: float) -> int:
 func _set_cached_unit(unit: Unit) -> void:
 	if _task_cached_unit != null:
 		_task_cached_unit.disconnect("destroyed", self, "_set_cached_unit")
-	unit.connect("destroyed", self, "_set_cached_unit", [null])
+	var e := unit.connect("destroyed", self, "_set_cached_unit", [null])
+	assert(e == OK)
 	_task_cached_unit = unit

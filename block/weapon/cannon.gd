@@ -32,13 +32,13 @@ func _physics_process(_delta):
 	$Generic6DOFJoint.set("angular_motor_x/target_velocity", turn_rate)
 
 
-func _process(delta):
+func _process(_delta):
 	var debug = get_tree().current_scene.find_node("Debug")
 	var projectile_position = $ProjectileSpawn.global_transform.origin
 	var projectile_velocity_v = $ProjectileSpawn.global_transform.basis.z * projectile_velocity
 	debug.begin(Mesh.PRIMITIVE_LINE_STRIP)
 	debug.set_color(Color.lightgreen)
-	for i in range(int(20.0 / 0.1)):
+	for _i in range(int(20.0 / 0.1)):
 		debug.add_vertex(projectile_position)
 		projectile_velocity_v.y -= GRAVITY * 0.1 / 2
 		projectile_position += projectile_velocity_v * 0.1
@@ -79,7 +79,7 @@ func aim_at(position: Vector3, _velocity := Vector3.ZERO):
 	var g = GRAVITY
 	
 	var f = v2 * v2 - g * (g * x * x + 2 * y * v2)
-	set_angle(atan2(v2 - sqrt(f), g * x) if f >= 0 else 0)
+	set_angle(atan2(v2 - sqrt(f), g * x) if f >= 0.0 else 0.0)
 
 
 func fire():
@@ -108,7 +108,8 @@ func get_error() -> float:
 	return _error
 
 
-func get_total_error(target: Vector3) -> float:
+func get_total_error(_target: Vector3) -> float:
+	assert(false)
 #	var direction_to_target = (target - global_transform.origin).normalized()
 #	var cannon_direction = global_transform.basis.z
 #	return 1.0 - cannon_direction.dot(direction_to_target)

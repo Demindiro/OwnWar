@@ -172,8 +172,8 @@ func set_action_buttons(unit_name, sub_action = null, arguments = null):
 	var shortcut_index = 0
 	for action in unit.get_actions() if sub_action == null else \
 			unit.callv(sub_action, [get_modifier_flags()] + arguments):
-		var action_name = action[0]
-		var action_flags = action[1]
+#		var action_name = action[0]
+#		var action_flags = action[1]
 		var action_function = action[2]
 		var action_arguments = action[3] if len(action) > 3 else []
 		var action_pressed = action[4] if len(action) > 4 else false

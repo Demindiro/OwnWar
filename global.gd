@@ -84,7 +84,9 @@ func _ready():
 		blocks_by_id.append(block)
 		block.id = id
 		id += 1
+# warning-ignore:return_value_discarded
 	Matter.add_matter("material", 100)
+# warning-ignore:return_value_discarded
 	Matter.add_matter("fuel", 100)
 
 

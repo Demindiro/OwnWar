@@ -82,6 +82,7 @@ func get_matter_space(id: int) -> int:
 		return _MAX_MATERIAL - _material
 	elif Munition.is_munition(id):
 		var v := Matter.matter_volume[id]
+# warning-ignore:integer_division
 		return (_MAX_MUNITION_VOLUME - _munition_volume) / v
 	return 0
 
@@ -112,6 +113,7 @@ func take_matter(id: int, amount: int) -> int:
 			_munition[id] -= amount
 		else:
 			amount = _munition[id]
+# warning-ignore:return_value_discarded
 			_munition.erase(id)
 		_munition_volume -= amount * Matter.matter_volume[id]
 		_visualize_munitions()
@@ -120,7 +122,7 @@ func take_matter(id: int, amount: int) -> int:
 	return 0
 
 
-func set_munition_type(flags, munition_type):
+func set_munition_type(_flags, munition_type):
 	_current_munition_type = munition_type
 
 
@@ -130,5 +132,5 @@ func _visualize_munitions():
 	$MultiMeshInstance.multimesh.instance_count = _munition.get(id, 0)
 	for i in range(_munition.get(id, 0)):
 		var munition_transform := Transform2D(Vector2.UP, Vector2.RIGHT,
-			Vector2(i % 5, i / 5) / 3)
+			Vector2(i % 5, i / 5.0) / 3.0)
 		$MultiMeshInstance.multimesh.set_instance_transform_2d(i, munition_transform)

@@ -3,9 +3,13 @@ extends Resource
 
 
 export var human_name := ""
+# warning-ignore:unused_class_variable
 export var shell: PackedScene
+# warning-ignore:unused_class_variable
 export var mesh: Mesh
+# warning-ignore:unused_class_variable
 export var cost := 3
+# warning-ignore:unused_class_variable
 export var gauge := -1
 
 

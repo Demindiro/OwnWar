@@ -17,7 +17,8 @@ func process(delta: float) -> void:
 
 func add_mainframe(mainframe: Node) -> void:
 	_mainframes.append(mainframe)
-	mainframe.connect("tree_exited", self, "_mainframe_destroyed", [mainframe])
+	var e := mainframe.connect("tree_exited", self, "_mainframe_destroyed", [mainframe])
+	assert(e == OK)
 
 
 func add_action(mainframe: Node, name: String, flags: int, function: String,

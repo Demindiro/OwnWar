@@ -119,7 +119,7 @@ func rest_aim():
 		turret.set_angle(0.0)
 
 
-func fire_weapons(max_error := 1e10) -> void:
+func fire_weapons(_max_error := 1e10) -> void:
 	for weapon in _weapons:
 		weapon.fire()
 	for cannon in _cannons:
@@ -137,22 +137,26 @@ func add_ammo_rack(ammo_rack: Node) -> void:
 					_vehicle.add_matter_put(id)
 					_vehicle.add_matter_take(id)
 	_max_munitions_by_gauge[gauge] += ammo_rack.max_munitions
-	ammo_rack.connect("tree_exited", self, "_ammo_rack_destroyed", [ammo_rack])
+	var e := ammo_rack.connect("tree_exited", self, "_ammo_rack_destroyed", [ammo_rack])
+	assert(e == OK)
 
 
 func add_cannon(cannon: Node) -> void:
 	_cannons.append(cannon)
-	cannon.connect("tree_exited", self, "_cannon_destroyed", [cannon])
+	var e := cannon.connect("tree_exited", self, "_cannon_destroyed", [cannon])
+	assert(e == OK)
 
 
 func add_weapon(weapon: Node) -> void:
 	_weapons.append(weapon)
-	weapon.connect("tree_exited", self, "_weapon_destroyed", [weapon])
+	var e := weapon.connect("tree_exited", self, "_weapon_destroyed", [weapon])
+	assert(e == OK)
 
 
 func add_turret(turret: Node) -> void:
 	_turrets.append(turret)
-	turret.connect("tree_exited", self, "_turret_destroyed", [turret])
+	var e := turret.connect("tree_exited", self, "_turret_destroyed", [turret])
+	assert(e == OK)
 
 
 func _ammo_rack_destroyed(ammo_rack: Node) -> void:
