@@ -2,7 +2,6 @@ extends Unit
 
 
 signal task_completed()
-const MAX_MATERIAL := 30
 enum Task {
 	NONE,
 	FILL,
@@ -10,8 +9,13 @@ enum Task {
 	DESPAWN,
 }
 var task: int
-var task_data
-var material: int
+var from_target: Unit
+var to_target: Unit
+var dump_target: Unit
+var task_matter_id: int
+var matter_count := 0
+var matter_id := -1
+const _MAX_VOLUME := 30_00
 var _turn: Vector3
 var _forward: float
 var _task_step := 0
@@ -29,21 +33,26 @@ func _physics_process(_delta: float) -> void:
 	_forward = 0.0
 	match task:
 		Task.FILL, Task.EMPTY:
-			var target: Unit
-			if _task_step == 0 and (material == 0 if task == Task.FILL else material < MAX_MATERIAL):
-				target = task_data[0]
-				var proj_pos = Plane(transform.basis.y, 0).project(target.get_interaction_port() - translation)
-				if proj_pos.length_squared() < 9:
-					material += target.take_material(MAX_MATERIAL - material)
-					target = task_data[1]
-					_task_step = 1
-			else:
-				target = task_data[1]
-				var proj_pos = Plane(transform.basis.y, 0).project(target.get_interaction_port() - translation)
-				if proj_pos.length_squared() < 9:
-					material = target.put_material(material)
+			var target: Unit = null
+			if task_matter_id != matter_id and matter_count != 0:
+				assert(dump_target != null)
+				target = dump_target
+				if _put_matter(target) and matter_count == 0:
+					matter_id = task_matter_id
 					target = null
-					_task_completed()
+					dump_target = null
+			if target == null:
+				var matter_space := _MAX_VOLUME / Matter.matter_volume[task_matter_id] - matter_count
+				if _task_step == 0 and (matter_count == 0 if task == Task.FILL else matter_space > 0):
+					target = from_target
+					if _take_matter(target):
+						target = to_target
+						_task_step = 1
+				else:
+					target = to_target
+					if _put_matter(target):
+						target = null
+						_task_completed()
 			if target != null:
 				_move_towards(target)
 		Task.DESPAWN:
@@ -67,16 +76,21 @@ func _integrate_forces(state: PhysicsDirectBodyState):
 
 func get_info() -> Dictionary:
 	var info := .get_info() as Dictionary
-	info["Material"] = "%d / %d" % [material, MAX_MATERIAL]
+	if matter_count > 0:
+		info["Matter type"] = Matter.matter_name[matter_id]
+		info["Matter count"] = "%d / %d" % [matter_count, _MAX_VOLUME / Matter.matter_volume[matter_id]]
 	match task:
 		Task.NONE:
 			info["Task"] = "None"
 		Task.FILL, Task.EMPTY:
 			info["Task"] = "Transport"
-			if material == 0 if task == Task.FILL else material < MAX_MATERIAL:
-				info["Empty"] = "Material"
+			var matter_space = Matter.matter_volume[task_matter_id] - matter_count
+			if task_matter_id != matter_id and matter_count != 0:
+				info["Dump"] = Matter.matter_name[matter_id]
+			elif matter_count > 0 if task == Task.FILL else matter_space == 0:
+				info["Empty"] = Matter.matter_name[task_matter_id]
 			else:
-				info["Fill"] = "Material"
+				info["Fill"] = Matter.matter_name[task_matter_id]
 		_:
 			info["Task"] = "???"
 	return info
@@ -85,8 +99,10 @@ func get_info() -> Dictionary:
 func draw_debug(debug):
 	match task:
 		Task.FILL, Task.EMPTY:
-			debug.draw_line(translation, task_data[0].get_interaction_port(), Color.greenyellow)
-			debug.draw_line(translation, task_data[1].get_interaction_port(), Color.cyan)
+			debug.draw_line(translation, from_target.get_interaction_port(), Color.greenyellow)
+			debug.draw_line(translation, to_target.get_interaction_port(), Color.cyan)
+			if dump_target != null:
+				debug.draw_line(translation, to_target.get_interaction_port(), Color.red)
 		Task.NONE:
 			debug.draw_line(translation + Vector3(0.5, 0, 0.5),
 					translation + Vector3(-0.5, 0, -0.5), Color.red)
@@ -94,6 +110,15 @@ func draw_debug(debug):
 					translation + Vector3(-0.5, 0, 0.5), Color.red)
 		_:
 			assert(false)
+
+
+func set_task(p_task: int, task_data: Array) -> void:
+	task = p_task
+	from_target = task_data[0]
+	to_target = task_data[1]
+	task_matter_id = task_data[2]
+	if task_matter_id != matter_id and matter_count == 0:
+		matter_id = task_matter_id
 
 
 func _move_towards(target) -> void:
@@ -145,10 +170,27 @@ func _move_towards(target) -> void:
 				_turn = Vector3.ZERO
 
 
-
-
 func _task_completed() -> void:
 	emit_signal("task_completed")
 	task = Task.NONE
-	task_data = null
+	from_target = null
+	to_target = null
+	task_matter_id = -1
 	_task_step = 0
+
+
+func _take_matter(unit: Unit) -> bool:
+	var matter_space := _MAX_VOLUME / Matter.matter_volume[task_matter_id] - matter_count
+	var proj_pos = Plane(transform.basis.y, 0).project(unit.get_interaction_port() - translation)
+	if proj_pos.length_squared() < 9:
+		matter_count += unit.take_matter(matter_id, matter_space)
+		return true
+	return false
+
+
+func _put_matter(unit: Unit) -> bool:
+	var proj_pos = Plane(transform.basis.y, 0).project(unit.get_interaction_port() - translation)
+	if proj_pos.length_squared() < 9:
+		matter_count = unit.put_matter(matter_id, matter_count)
+		return true
+	return false

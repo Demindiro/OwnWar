@@ -14,26 +14,23 @@ var _needs_provider := []
 var _needs_taker := []
 var _tasks := []
 var _dirty := false
+var _assigning_tasks := false
 onready var _spawn_timer := get_tree().create_timer(1.0, false)
 
 
 func _ready():
-	game_master.connect("unit_added", self, "_unit_added")
 	_providers.resize(len(Matter.matter_name))
 	_takers.resize(len(Matter.matter_name))
 	_needs_provider.resize(len(Matter.matter_name))
 	_needs_taker.resize(len(Matter.matter_name))
 	_set_radius2(_radius2)
+	game_master.connect("unit_added", self, "_unit_added")
 
 
 func _process(_delta):
 	var debug := get_tree().current_scene.find_node("Debug")
 	if debug != null:
 		draw_debug(debug)
-
-
-func _physics_process(_delta: float) -> void:
-	_assign_tasks()
 
 
 func get_actions() -> Array:
@@ -88,6 +85,10 @@ func assign_tasks() -> void:
 
 
 func _assign_tasks() -> void:
+	if _assigning_tasks:
+		return
+	_assigning_tasks = true
+
 	for i in range(len(_tasks) - 1, -1, -1):
 		var task: int = _tasks[i][0]
 		var task_data = _tasks[i][1]
@@ -111,19 +112,30 @@ func _assign_tasks() -> void:
 				task_data = t[1]
 				assignees = t[2]
 				_task = t
-		var drone: Drone
+		var drone
 		if task == Drone.Task.EMPTY or task == Drone.Task.FILL:
 			drone = _get_idle_drone(PoolVector3Array(
 				[task_data[0].translation, task_data[1].translation]))
 		else:
 			drone = _get_idle_drone()
+		if drone is GDScriptFunctionState:
+			drone = yield(drone, "completed")
 		if drone == null:
 			break
+		assert(drone is Drone)
+		if task == Drone.Task.EMPTY or task == Drone.Task.FILL:
+			if drone.matter_count != 0 and drone.matter_id != task_data[2]:
+				var taker := _get_nearest(drone, _takers[drone.matter_id],
+						drone.matter_id, drone.matter_count)
+				if taker == null:
+					break
+				drone.dump_target = taker
 		_task[2] += 1
 		_tasks.push_back(_tasks.pop_front())
-		drone.task = task
-		drone.task_data = task_data
+		drone.set_task(task, task_data)
+
 	_dirty = false
+	_assigning_tasks = false
 
 
 func _draw_circle(radius: float) -> void:
@@ -148,22 +160,30 @@ func _set_radius2(radius2: float) -> void:
 	for unit in _units:
 		unit.disconnect("message", self, "_get_message")
 		unit.disconnect("destroyed", self, "_unit_destroyed")
+		unit.disconnect("destroyed", self, "_unit_destroyed")
+		unit.disconnect("need_matter", self, "_on_need_matter")
+		unit.disconnect("provide_matter", self, "_on_provide_matter")
+		unit.disconnect("take_matter", self, "_on_take_matter")
+		unit.disconnect("dump_matter", self, "_on_dump_matter")
 	_units = []
 	for i in range(len(Matter.matter_name)):
 		_providers[i] = []
 		_takers[i] = []
 		_needs_provider[i] = []
-		_needs_provider[i] = []
+		_needs_taker[i] = []
 	for unit in game_master.get_units(team):
 		if translation.distance_squared_to(unit.translation) < radius2:
 			_add_unit(unit)
-	_assign_tasks()
+	assign_tasks()
 
 
 func _on_need_matter(id: int, amount: int, unit: Unit):
 	if amount > 0:
 		var provider := _get_nearest(unit, _providers[id])
-		_add_task(Drone.Task.FILL, [provider, unit])
+		if provider != null:
+			_add_task(Drone.Task.FILL, [provider, unit, id])
+		else:
+			_needs_taker[id].append(unit)
 	else:
 		_remove_task(Drone.Task.FILL, unit)
 	assign_tasks()
@@ -190,10 +210,13 @@ func _on_take_matter(id: int, amount: int, unit: Unit):
 func _on_dump_matter(id: int, amount: int, unit: Unit):
 	if amount > 0:
 		var taker := _get_nearest(unit, _takers[id])
-		_add_task(Drone.Task.EMPTY, [unit, taker])
+		if taker != null:
+			_add_task(Drone.Task.EMPTY, [unit, taker, id])
+		else:
+			_needs_taker[id].append(unit)
 	else:
 		_remove_task(Drone.Task.FILL, unit)
-	assign_tasks()
+	_assign_tasks()
 
 
 func _unit_destroyed(unit):
@@ -216,13 +239,16 @@ func _get_idle_drone(near_points := PoolVector3Array()) -> Drone:
 	if candidate != null:
 		return candidate
 
-	if _spawn_timer.time_left < 1e-4 and len(_drones) < drone_limit:
+	if _spawn_timer.time_left > 0.0:
+		yield(_spawn_timer, "timeout")
+
+	if len(_drones) < drone_limit:
 		var drone = drone_scene.instance()
 		drone.transform = $SpawnPoint.global_transform
 		drone.connect("task_completed", self, "_task_completed", [drone])
 		_drones.append(drone)
 		game_master.add_unit(team, drone)
-		_spawn_timer = get_tree().create_timer(2.5)
+		_spawn_timer = get_tree().create_timer(2.5, false)
 		return drone
 	return null
 
@@ -238,20 +264,28 @@ func _task_completed(drone: Drone) -> void:
 		_:
 			assert(false)
 	for t in _tasks:
-		if t[0] == drone.task and t[1] == drone.task_data:
-			t[2] -= 1
-			break
+		if t[0] == drone.task:
+			match drone.task:
+				Drone.Task.FILL, Drone.Task.EMPTY:
+					if t[1][0] == drone.from_target and t[1][1] == drone.to_target:
+						t[2] -= 1
+						break
+				Drone.DESPAWN, Drone.NONE:
+					pass
+				_:
+					assert(false)
 	assign_tasks()
 
 
-func _get_nearest(unit, unit_list) -> Unit:
+func _get_nearest(unit: Unit, unit_list: Array, matter_id := -1, matter_count := 0) -> Unit:
 	var provider: Unit
 	var shortest_distance := INF
 	for prov in unit_list:
-		var dist: float = prov.translation.distance_squared_to(unit.translation)
-		if dist < shortest_distance:
-			provider = prov
-			shortest_distance = dist
+		if prov.get_matter_space(matter_id) >= matter_count:
+			var dist: float = prov.translation.distance_squared_to(unit.translation)
+			if dist < shortest_distance:
+				provider = prov
+				shortest_distance = dist
 	return provider
 
 
@@ -261,51 +295,43 @@ func _unit_added(unit: Unit) -> void:
 
 
 func _add_unit(unit: Unit) -> void:
+	if unit in _units:
+		return
 	_units.append(unit)
-	unit.connect("destroyed", self, "_unit_destroyed")
 
-	if has_signal("need_matter"):
-		unit.connect("need_matter", self, "_on_need_matter", [unit])
-	if has_signal("dump_matter"):
-		unit.connect("dump_matter", self, "_on_dump_matter", [unit])
+	var err := 0
+	err |= unit.connect("destroyed", self, "_unit_destroyed")
+	err |= unit.connect("need_matter", self, "_on_need_matter", [unit])
+	err |= unit.connect("provide_matter", self, "_on_provide_matter", [unit])
+	err |= unit.connect("take_matter", self, "_on_take_matter", [unit])
+	err |= unit.connect("dump_matter", self, "_on_dump_matter", [unit])
+	assert(err == OK)
 
-	var needs = unit.request_info("need_matter")
-	if needs != null:
-		for id in needs:
-			if needs[id] > 0:
-				var provider := _get_nearest(unit, _providers[id])
-				if provider != null:
-					_add_task(Drone.Task.FILL, [provider, unit])
-				else:
-					_needs_provider[id].append(unit)
+	for id in unit.get_put_matter_list():
+		if unit.needs_matter(id) > 0:
+			var provider := _get_nearest(unit, _providers[id])
+			if provider != null:
+				_add_task(Drone.Task.FILL, [provider, unit, id])
+			else:
+				_needs_provider[id].append(unit)
+		if unit.takes_matter(id) > 0:
+			_takers[id].append(unit)
+			for needer in _needs_taker[id]:
+				_add_task(Drone.Task.EMPTY, [needer, unit, id])
+			_needs_taker[id] = []
 
-	var provides = unit.request_info("provide_matter")
-	if provides != null:
-		for id in provides:
-			if provides[id] > 0:
-				_providers[id].append(unit)
-				for needer in _needs_provider[id]:
-					_add_task(Drone.Task.FILL, [unit, needer])
-				_needs_provider[id] = []
-
-	var takes = unit.request_info("take_matter")
-	if takes != null:
-		for id in takes:
-			if takes[id] > 0:
-				_takers[id].append(unit)
-				for needer in _needs_taker:
-					_add_task(Drone.Task.EMPTY, [needer, unit])
-				_needs_taker = []
-
-	var dumps = unit.request_info("dump_matter")
-	if dumps != null:
-		for id in dumps:
-			if dumps[id] > 0:
-				var taker := _get_nearest(unit, _takers)
-				if taker != null:
-					_add_task(Drone.Task.EMPTY, [unit, taker])
-				else:
-					_needs_taker.append(unit)
+	for id in unit.get_take_matter_list():
+		if unit.dumps_matter(id) > 0:
+			var taker := _get_nearest(unit, _takers[id])
+			if taker != null:
+				_add_task(Drone.Task.EMPTY, [unit, taker, id])
+			else:
+				_needs_taker[id].append(unit)
+		if unit.provides_matter(id) > 0:
+			_providers[id].append(unit)
+			for needer in _needs_provider[id]:
+				_add_task(Drone.Task.FILL, [unit, needer, id])
+			_needs_provider[id] = []
 
 
 func _add_matter_provider(unit: Unit, ids: Array) -> void:
