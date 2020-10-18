@@ -61,9 +61,6 @@ shape = SubResource( 3 )
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 0.707107, -0.353553, 0.612372, 0, 0.866025, 0.5, -0.707107, -0.353553, 0.612372, 1.75, 7.5, -2.75 )
 
-[node name="Roboport" parent="." instance=ExtResource( 3 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -21.0168 )
-
 [node name="Drill0" parent="." instance=ExtResource( 4 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -211.42, 1.375, 215.158 )
 
@@ -102,6 +99,9 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -131.493, 4.76837e-07, 215.158
 
 [node name="StoragePod" parent="." instance=ExtResource( 5 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 72.6497, 1.5, -74.1846 )
+
+[node name="Roboport" parent="." instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -21.0168 )
 
 [node name="HUD" parent="." instance=ExtResource( 7 )]
 
