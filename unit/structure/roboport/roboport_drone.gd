@@ -19,12 +19,11 @@ const _MAX_VOLUME := 30_00
 var _turn: Vector3
 var _forward: float
 var _task_step := 0
-onready var _ll_sensor: RayCast = $LLSensor
-onready var _lf_sensor: RayCast = $LFSensor
-onready var _rf_sensor: RayCast = $RFSensor
-onready var _rr_sensor: RayCast = $RRSensor
-onready var _track_l: RayCast = $TrackL
-onready var _track_r: RayCast = $TrackR
+onready var _l_sensor: RayCast = $LSensor
+onready var _fl_sensor: RayCast = $FRSensor
+onready var _fr_sensor: RayCast = $FLSensor
+onready var _r_sensor: RayCast = $RSensor
+onready var _track: RayCast = $Track
 onready var _spawn_point := translation
 
 
@@ -69,7 +68,7 @@ func _physics_process(_delta: float) -> void:
 
 
 func _integrate_forces(state: PhysicsDirectBodyState):
-	if _track_l.is_colliding() or _track_r.is_colliding():
+	if _track.is_colliding():
 		state.linear_velocity = transform.basis.z * _forward * 2
 		state.angular_velocity = _turn * 2
 
@@ -129,45 +128,37 @@ func _move_towards(target) -> void:
 
 	$".".sleeping = false
 	var sensor_mask = 0
-	if _ll_sensor.is_colliding():
-		sensor_mask |= 0b0001
-	if _lf_sensor.is_colliding():
-		sensor_mask |= 0b0010
-	if _rf_sensor.is_colliding():
-		sensor_mask |= 0b0100
-	if _rr_sensor.is_colliding():
-		sensor_mask |= 0b1000
+	if _l_sensor.is_colliding():
+		sensor_mask |= 0b100
+	if _fl_sensor.is_colliding() or _fr_sensor.is_colliding():
+		sensor_mask |= 0b010
+	if _r_sensor.is_colliding():
+		sensor_mask |= 0b001
 
 	# Set forward drive
 	match sensor_mask:
-		0b0000, 0b0001, 0b1000: _forward = 1.0
-		0b0111, 0b1011, 0b1101, 0b1110, 0b1111: _forward = -1.0
-		_: _forward = 0.0
+		0b000, 0b001, 0b100, 0b101: _forward = 1.0
+		0b010, 0b110: _forward = 0.0
+		0b011, 0b111: _forward = -1.0
+		_: assert(false)
 
 	# Set turning angle
 	match sensor_mask:
-		0b0000:
+		0b000:
 			var rel_pos := target as Vector3 - translation
 			var proj_pos := Plane(transform.basis.y, 0.0).project(rel_pos)
 			var direction := proj_pos.normalized()
 			var error := 1.0 - transform.basis.z.dot(direction)
-			_turn = transform.basis.z.cross(direction)
-			if error > 1.0:
-				_turn = _turn.normalized()
-		0b1001: _turn = Vector3.ZERO
-		0b0011, 0b0101, 0b0111, 0b1011, 0b0010: _turn = -transform.basis.y
-		0b0100, 0b1010, 0b1100, 0b1101, 0b1110: _turn = transform.basis.y
-		0b0110, 0b1111: _turn = transform.basis.y
-		0b0001:
-			if _ll_sensor.to_local(_ll_sensor.get_collision_point()).length_squared() < 0.25:
-				_turn = -transform.basis.y / 4.0
+			if error < 1.5:
+				_turn = transform.basis.z.cross(direction)
+				if error > 1.0:
+					_turn = _turn.normalized()
 			else:
-				_turn = Vector3.ZERO
-		0b1000:
-			if _rr_sensor.to_local(_rr_sensor.get_collision_point()).length_squared() < 0.25:
-				_turn = transform.basis.y / 4.0
-			else:
-				_turn = Vector3.ZERO
+				# Turn right to prevent "hug of death"
+				_turn = -transform.basis.y
+		0b001, 0b101: _turn = Vector3.ZERO
+		0b010, 0b011, 0b100, 0b110, 0b111: _turn = -transform.basis.y
+		_: assert(false)
 
 
 func _task_completed() -> void:
