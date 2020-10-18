@@ -17,7 +17,6 @@ onready var _material_id = Matter.name_to_id["material"]
 
 func _ready():
 	_current_munition_type = munition_types[0]
-	add_user_signal("dump_matter", [{"name": "amounts", "type": TYPE_DICTIONARY}])
 
 
 func _physics_process(delta):
@@ -31,12 +30,14 @@ func _physics_process(delta):
 				_visualize_munitions()
 				_producing_munition = false
 				_time_until_munition_produced -= _time_between_munitions
+				emit_signal("dump_matter", id, _munition[id])
+				emit_signal("provide_matter", id, _munition[id])
 		else:
 			_time_until_munition_produced += delta
 	else:
 		if _current_munition_type.cost <= _material:
 			_material -= _current_munition_type.cost
-			emit_signal("need", {_material_id: _MAX_MATERIAL - _material})
+			emit_signal("need_matter", _material_id, _MAX_MATERIAL - _material)
 			_producing_munition = true
 
 
@@ -62,10 +63,12 @@ func get_info():
 	return info
 
 
-func request_info(info: String):
-	if info == "need_material":
-		return get_matter_space(_material_id)
-	return .request_info(info)
+func needs_matter(id: int) -> int:
+	return _MAX_MATERIAL - _material if _material_id == id else 0
+
+
+func dumps_matter(id: int) -> int:
+	return _munition.get(id, 0)
 
 
 func get_matter_count(id: int) -> int:
@@ -98,7 +101,7 @@ func put_matter(id: int, amount: int) -> int:
 		if _material > _MAX_MATERIAL:
 			remainder = _material - _MAX_MATERIAL
 			_material = _MAX_MATERIAL
-		emit_signal("need", {_material_id: _MAX_MATERIAL - _material})
+			emit_signal("need_matter", _material_id, _MAX_MATERIAL - _material)
 		return remainder
 	return amount
 
@@ -112,6 +115,7 @@ func take_matter(id: int, amount: int) -> int:
 			_munition.erase(id)
 		_munition_volume -= amount * Matter.matter_volume[id]
 		_visualize_munitions()
+		emit_signal("dump_matter", id, _munition.get(id, 0))
 		return amount
 	return 0
 
@@ -123,8 +127,8 @@ func set_munition_type(flags, munition_type):
 func _visualize_munitions():
 	var id = Matter.name_to_id[_current_munition_type.human_name]
 	$MultiMeshInstance.multimesh.mesh = _current_munition_type.mesh
-	$MultiMeshInstance.multimesh.instance_count = _munition[id]
-	for i in range(_munition[id]):
+	$MultiMeshInstance.multimesh.instance_count = _munition.get(id, 0)
+	for i in range(_munition.get(id, 0)):
 		var munition_transform := Transform2D(Vector2.UP, Vector2.RIGHT,
 			Vector2(i % 5, i / 5) / 3)
 		$MultiMeshInstance.multimesh.set_instance_transform_2d(i, munition_transform)
