@@ -18,11 +18,7 @@ export(PackedScene) var drill_ghost
 export(int) var max_material = 100
 export(int) var cost = 20
 var tasks = []
-var material = 0 setget set_material
 var last_build_frame = 0
-var munition = null
-var max_fuel = 20
-var fuel = 0
 onready var rotors = [
 		$ArmLF/Rotor,
 		$ArmRF/Rotor,
@@ -33,10 +29,7 @@ const _MAX_VOLUME := 100_00
 var _task_cached_unit: Unit
 var _matter_id := -1
 var _matter_count := 0
-	
-	
-func _ready():
-	set_material(material)
+onready var _material_id: int = Matter.name_to_id["material"]
 
 
 func _process(delta):
@@ -54,20 +47,25 @@ func _physics_process(delta):
 			if move_towards(task[1], delta):
 				current_task_completed()
 		Task.BUILD_STRUCTURE:
-			if material > 0:
+			if _matter_id == _material_id and _matter_count > 0:
 				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
 					if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
-						material -= 1
-						material += task[1].add_build_progress(1)
-						set_material(material)
+						_matter_count -= 1
+						_matter_count += task[1].add_build_progress(1)
 						last_build_frame = Engine.get_physics_frames()
 				else:
 					move_towards(task[1].translation, delta)
+			elif _matter_count == 0:
+				if _take_matter_from_any(_material_id, [], delta) < 0:
+					current_task_completed()
 			else:
-				take_materials_from_closest_pod(delta, task[1])
+				if _put_matter_in_any(_matter_id, [], delta) < 0:
+					current_task_completed()
 		Task.PUT:
 			var id: int = task[2]
-			if _matter_id == id or _matter_count == 0:
+			if task[1].get_matter_space(id) == 0:
+				current_task_completed()
+			elif _matter_id == id or _matter_count == 0:
 				_matter_id = id
 				if _matter_count > 0:
 					if _put_matter(id, task[1], delta):
@@ -80,7 +78,9 @@ func _physics_process(delta):
 					current_task_completed()
 		Task.TAKE:
 			var id: int = task[2]
-			if _matter_id == id or _matter_count == 0:
+			if task[1].get_matter_count(id) == 0:
+				current_task_completed()
+			elif _matter_id == id or _matter_count == 0:
 				_matter_id = id
 				if _matter_count < _MAX_VOLUME / Matter.matter_volume[id]:
 					if _take_matter(id, task[1], delta):
@@ -93,75 +93,20 @@ func _physics_process(delta):
 					current_task_completed()
 		Task.PUT_ONLY:
 			var id: int = task[2]
-			if _matter_id == id and _matter_count > 0:
+			if task[1].get_matter_space(id) == 0:
+				current_task_completed()
+			elif _matter_id == id and _matter_count > 0:
 				if _put_matter(id, task[1], delta):
 					current_task_completed()
 			else:
 				current_task_completed()
 		Task.TAKE_ONLY:
 			var id: int = task[2]
-			if _matter_id == id or _matter_count == 0:
+			if task[1].get_matter_count(id) == 0:
+				current_task_completed()
+			elif _matter_id == id or _matter_count == 0:
 				if _take_matter(id, task[1], delta):
 					current_task_completed()
-			else:
-				current_task_completed()
-		Task.TAKE_MATERIAL:
-			if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-				var material_space = max_material - material
-				self.material += task[1].take_material(material_space)
-				current_task_completed()
-			else:
-				move_towards(task[1].translation, delta)
-		Task.PUT_MATERIAL:
-			if task[1].call_function("get_material_space") == 0:
-				current_task_completed()
-			elif material > 0:
-				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-					self.material = task[1].put_material(material)
-					if task[1].call_function("get_material_space") == 0:
-						current_task_completed()
-				else:
-					move_towards(task[1].translation, delta)
-			else:
-				if not take_materials_from_closest_pod(delta, task[1]):
-					current_task_completed()
-		Task.TAKE_MUNITION:
-			if munition == null and task[1].call_function("get_munition_count") > 0:
-				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-					munition = task[1].call_function("take_munition")
-					$MunitionMesh.mesh = munition.mesh
-					current_task_completed()
-				else:
-					move_towards(task[1].translation, delta)
-			else:
-				current_task_completed()
-		Task.PUT_MUNITION:
-			if munition != null and task[1].call_function("get_munition_space", [munition.gauge]) > 0:
-				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-					munition = task[1].call_function("put_munition", [munition])
-					$MunitionMesh.mesh = null
-					current_task_completed()
-				else:
-					move_towards(task[1].translation, delta)
-			else:
-				current_task_completed()
-		Task.TAKE_FUEL:
-			if fuel < max_fuel and task[1].call_function("get_fuel_count") > 0:
-				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-					var fuel_space = max_fuel - fuel
-					fuel += task[1].call_function("take_fuel", [fuel_space])
-					current_task_completed()
-				else:
-					move_towards(task[1].translation, delta)
-			else:
-				current_task_completed()
-		Task.PUT_FUEL:
-			if fuel > 0 and task[1].call_function("get_fuel_space") > 0:
-				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-					fuel = task[1].call_function("put_fuel", [fuel])
-					current_task_completed()
-				else:
-					move_towards(task[1].translation, delta)
 			else:
 				current_task_completed()
 
@@ -216,8 +161,6 @@ func get_info():
 		info["Matter type"] = Matter.matter_name[_matter_id]
 		info["Matter count"] = "%d / %d" % [_matter_count,
 				_MAX_VOLUME / Matter.matter_volume[_matter_id]]
-	info["Material"] = "%d / %d" % [material, max_material]
-	info["Fuel"] = "%d / %d" % [fuel, max_fuel]
 	return info
 
 
@@ -315,35 +258,11 @@ func clear_tasks(flags):
 	tasks = []
 
 
-func take_materials_from_closest_pod(delta, exclude_pod):
-	var closest_pod = null
-	for pod in game_master.get_units(team, "storage_pod"):
-		if pod != exclude_pod and pod.get_matter_count(Matter.name_to_id["material"]) > 0 and \
-				(closest_pod == null or \
-				translation.distance_to(closest_pod.translation) > \
-				translation.distance_to(pod.translation)):
-			closest_pod = pod
-	if closest_pod != null:
-		if translation.distance_squared_to(closest_pod.translation) <= INTERACTION_DISTANCE_2:
-			var material_space = max_material - material
-			self.material += closest_pod.take_material(material_space)
-		else:
-			move_towards(closest_pod.translation, delta)
-		return true
-	return false
-
-
 func current_task_completed():
 	var task = tasks.pop_front()
 	emit_signal("task_completed", task[0], task[1])
 	tasks.push_back(task)
 	_task_cached_unit = null
-
-
-func set_material(p_material):
-	assert(0 <= p_material and p_material <= max_material)
-	material = p_material
-	$Indicator.scale.z = float(material) / max_material
 
 
 func get_cost():
@@ -412,15 +331,16 @@ func _take_matter(id: int, unit: Unit, delta: float) -> bool:
 
 
 func _put_matter_in_any(id: int, exclude: Array, delta: float) -> int:
-	assert(_matter_count > 0)
+	assert(_matter_count > 0 and id == _matter_id)
 	if _task_cached_unit == null:
 		var closest_distance2 := INF
 		for unit in game_master.get_units(team):
-			if not unit in exclude and unit.get_matter_space(id) > 0:
-				var d := translation.distance_squared_to(unit.translation)
-				if d < closest_distance2:
-					_task_cached_unit = unit
-					closest_distance2 = d
+			if not unit in exclude:
+				if unit.takes_matter(id) > 0:
+					var d := translation.distance_squared_to(unit.translation)
+					if d < closest_distance2:
+						_task_cached_unit = unit
+						closest_distance2 = d
 	if _task_cached_unit != null:
 		if _put_matter(id, _task_cached_unit, delta):
 			_task_cached_unit = null
@@ -434,7 +354,7 @@ func _take_matter_from_any(id: int, exclude: Array, delta: float) -> int:
 	if _task_cached_unit == null:
 		var closest_distance2 := INF
 		for unit in game_master.get_units(team):
-			if not unit in exclude and unit.get_matter_count(id) > 0:
+			if not unit in exclude and unit.provides_matter(id) > 0:
 				var d := translation.distance_squared_to(unit.translation)
 				if d < closest_distance2:
 					_task_cached_unit = unit

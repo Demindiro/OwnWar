@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://unit/structure/drill/drill_ghost.tscn" type="PackedScene" id=1]
 [ext_resource path="res://unit/structure/spawn_platform/spawn_platform_ghost.tscn" type="PackedScene" id=2]
@@ -17,13 +17,7 @@ size = Vector3( 0.025, 0.025, 0.375 )
 [sub_resource type="CubeMesh" id=3]
 size = Vector3( 0.45, 0.002, 0.012 )
 
-[sub_resource type="QuadMesh" id=4]
-size = Vector2( 0.17, 0.22 )
-
-[sub_resource type="SpatialMaterial" id=5]
-albedo_color = Color( 0, 0.905882, 1, 1 )
-
-[sub_resource type="BoxShape" id=6]
+[sub_resource type="BoxShape" id=4]
 extents = Vector3( 0.406, 0.031, 0.406 )
 
 [node name="Drone" type="KinematicBody"]
@@ -100,16 +94,8 @@ __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="Indicator" type="Spatial" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, -0.11 )
-
-[node name="MeshInstance" type="MeshInstance" parent="Indicator"]
-transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0.110295 )
-mesh = SubResource( 4 )
-material/0 = SubResource( 5 )
-
 [node name="CollisionShape" type="CollisionShape" parent="."]
-shape = SubResource( 6 )
+shape = SubResource( 4 )
 
 [node name="RayCast" type="RayCast" parent="."]
 enabled = true
