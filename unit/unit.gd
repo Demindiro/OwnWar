@@ -4,6 +4,10 @@ extends Spatial
 
 
 signal destroyed(unit)
+signal need_matter(id, amount)
+signal provide_matter(id, amount)
+signal take_matter(id, amount)
+signal dump_matter(id, amount)
 enum Action {
 	INPUT_NONE = 0x0,
 	INPUT_COORDINATE = 0x1,
@@ -62,19 +66,6 @@ func get_info():
 		}
 
 
-func has_function(function_name):
-	return has_method(function_name)
-
-
-func call_function(function_name, arguments := []):
-	assert(has_method(function_name))
-	return callv(function_name, arguments)
-
-
-func request_info(info: String):
-	return null
-
-
 func get_interaction_port() -> Vector3:
 	return translation
 
@@ -93,6 +84,22 @@ func get_put_matter_list() -> PoolIntArray:
 
 func get_take_matter_list() -> PoolIntArray:
 	return PoolIntArray()
+
+
+func needs_matter(id: int) -> int:
+	return 0
+
+
+func provides_matter(id: int) -> int:
+	return 0
+
+
+func takes_matter(id: int) -> int:
+	return 0
+
+
+func dumps_matter(id: int) -> int:
+	return 0
 
 
 func put_matter(id: int, amount: int) -> int:
