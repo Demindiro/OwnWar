@@ -1,5 +1,0 @@
-- There is likely a bug in Zylann's HTerrain plugin causing this error:
-  - E 0:00:48.453   create: Condition "p_aabb.position.y > 1e15 || p_aabb.position.y < -1e15" is true. Returned: 0
-    <C++ Source>  ./core/math/octree.h:798 @ create()
-- Wheels don't have a configurable collision mask (wtf?)
-- Something (very likely wheels) is causing NaN errors
