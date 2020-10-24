@@ -119,6 +119,7 @@ func _ready():
 				game_master.ores.append(child)
 	$Player/StoragePod.put_matter(Matter.name_to_id[\"material\"], 500)
 	$Enemy/StoragePod.put_matter(Matter.name_to_id[\"material\"], 10000)
+	$Enemy/StoragePod2.put_matter(Matter.name_to_id[\"material\"], 10000)
 	_drone_spawn_transform = $Player/Drone.transform
 	call_deferred(\"_set_terrain_collision_bit\")
 
@@ -299,6 +300,10 @@ team = 1
 
 [node name="StoragePod" parent="Map/Enemy" instance=ExtResource( 4 )]
 transform = Transform( 0.841218, 0, 0.540696, 0, 1, 0, -0.540696, 0, 0.841218, 813.285, 1.38872, 863.752 )
+team = 1
+
+[node name="StoragePod2" parent="Map/Enemy" instance=ExtResource( 4 )]
+transform = Transform( 0.212501, 0, 0.977161, 0, 1, 0, -0.977161, 0, 0.212501, 823.285, 1.38872, 855.752 )
 team = 1
 
 [node name="Drone" parent="Map/Enemy" instance=ExtResource( 11 )]
