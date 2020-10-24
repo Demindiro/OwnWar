@@ -122,7 +122,7 @@ func take_matter(id: int, amount: int) -> int:
 		_munition_volume -= amount * Matter.matter_volume[id]
 		_visualize_munitions()
 		emit_signal("dump_matter", id, _munition.get(id, 0))
-		emit_signal("provide_matter", id, _munition[id])
+		emit_signal("provide_matter", id, _munition.get(id, 0))
 		return amount
 	return 0
 
