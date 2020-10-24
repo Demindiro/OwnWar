@@ -71,6 +71,10 @@ func dumps_matter(id: int) -> int:
 	return _munition.get(id, 0)
 
 
+func provides_matter(id: int) -> int:
+	return _munition.get(id, 0)
+
+
 func get_matter_count(id: int) -> int:
 	if id == _material_id:
 		return _material
@@ -118,6 +122,7 @@ func take_matter(id: int, amount: int) -> int:
 		_munition_volume -= amount * Matter.matter_volume[id]
 		_visualize_munitions()
 		emit_signal("dump_matter", id, _munition.get(id, 0))
+		emit_signal("provide_matter", id, _munition[id])
 		return amount
 	return 0
 

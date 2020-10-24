@@ -42,6 +42,10 @@ func dumps_matter(id: int) -> int:
 	return _fuel if _fuel_id == id else 0
 
 
+func provides_matter(id: int) -> int:
+	return _fuel if _fuel_id == id else 0
+
+
 func get_matter_count(id: int):
 	if id == _material_id:
 		return _material
@@ -91,5 +95,6 @@ func take_matter(id: int, amount: int) -> int:
 			amount += _fuel
 			_fuel = 0
 			emit_signal("dump_matter", _fuel_id, _MAX_FUEL - _fuel)
+			emit_signal("provide_matter", _fuel_id, _fuel)
 		return amount
 	return 0
