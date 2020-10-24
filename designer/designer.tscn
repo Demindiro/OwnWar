@@ -123,6 +123,8 @@ transform = Transform( 2.98872, -0.0583399, 2.65785, 1.28558, 3.53209, -1.36808,
 pause_mode = 1
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 )
 axis = 1
+transparent = false
+double_sided = false
 script = ExtResource( 3 )
 
 [node name="Origin" type="Spatial" parent="Floor"]
@@ -131,7 +133,8 @@ script = ExtResource( 3 )
 transform = Transform( 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, -1 )
 
 [node name="Arrow" type="Sprite3D" parent="Floor"]
-transform = Transform( -1.62921e-07, -1, 0, -1.62921e-07, 2.65431e-14, -1, 1, -1.62921e-07, -1.62921e-07, 0, 0.002, 0 )
+transform = Transform( 1.62921e-07, 1, -8.74228e-08, 1.62921e-07, 8.74227e-08, 1, 1, -1.62921e-07, -1.62921e-07, 0, 0.002, 0 )
+double_sided = false
 texture = ExtResource( 10 )
 
 [node name="Mirror" type="MeshInstance" parent="Floor"]
