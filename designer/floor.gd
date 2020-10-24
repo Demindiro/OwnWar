@@ -27,6 +27,8 @@ func _generate_texture():
 	texture = ImageTexture.new()
 	texture.create_from_image(image)
 	texture.flags &= ~Texture.FLAG_FILTER
+	texture.flags &= ~Texture.FLAG_MIPMAPS
+	texture.flags |= Texture.FLAG_ANISOTROPIC_FILTER
 	region_enabled = true
 	region_rect = Rect2(0, 0, size * GRID_SIZE, size * GRID_SIZE)
 	pixel_size = 1.0 / size
