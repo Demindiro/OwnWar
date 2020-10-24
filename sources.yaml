@@ -23,4 +23,15 @@ assets:
     author: Tech Knight
     source: https://opengameart.org/content/4-minerals
     license: cc0
-
+  - asset: addons/tiles/water/water_*.jpg
+    author: Catalin Pavel
+    source: https://opengameart.org/content/water-texture-pack
+    license: cc0
+  - asset: addons/tiles/sand/..
+    author: jordonbc
+    source: https://opengameart.org/content/close-up-sand-grains
+    license: cc-by 4.0
+  - asset: addons/map_detail/grass
+    author: yughues
+    source: https://opengameart.org/content/grass-pack-01
+    license: cc0

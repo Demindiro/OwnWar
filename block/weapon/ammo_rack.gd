@@ -1,6 +1,7 @@
 extends Node
 
 
+# warning-ignore:unused_class_variable
 export var max_munitions := 4
 var gauge := 0
 

@@ -81,7 +81,6 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
 
 func spawn_block(x: int, y: int, z: int, r: int, block: Block, color: Color) -> void:
 	var basis := Block.rotation_to_basis(r)
-	var orthogonal_index := Block.rotation_to_orthogonal_index(r)
 	var node: Spatial = null
 	var position = Vector3(x, y, z) + Vector3.ONE / 2
 	_voxel_mesh.add_block(block, color, [x, y, z], r)

@@ -12,7 +12,7 @@ func process(mainframe, delta):
 		if (mainframe.vehicle.translation - waypoints[0]).length_squared() < 40:
 			waypoints.remove(0)
 	else:
-		mainframe.vehicle.brake = 1
+		mainframe.brake = 1
 	# Fire at target
 	mainframe.aim_weapons = false
 	while len(targets) > 0:

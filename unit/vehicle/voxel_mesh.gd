@@ -94,6 +94,7 @@ func _remove_surface_array(p_material: Material):
 		var material := surface_get_material(i)
 		if material == p_material:
 			surface_remove(i)
+			break
 
 
 static func _get_mesh_arrays(mesh: Mesh, index: int) -> Array:

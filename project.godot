@@ -44,10 +44,20 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://unit/structure/ghost.gd"
 }, {
+"base": "ResourceFormatLoader",
+"class": "HTerrainDataLoader",
+"language": "GDScript",
+"path": "res://addons/zylann.hterrain/hterrain_resource_loader.gd"
+}, {
+"base": "ResourceFormatSaver",
+"class": "HTerrainDataSaver",
+"language": "GDScript",
+"path": "res://addons/zylann.hterrain/hterrain_resource_saver.gd"
+}, {
 "base": "Resource",
 "class": "Munition",
 "language": "GDScript",
-"path": "res://projectile/munition.gd"
+"path": "res://matter/munition/munition.gd"
 }, {
 "base": "Spatial",
 "class": "Ore",
@@ -92,6 +102,8 @@ _global_script_class_icons={
 "Connector": "",
 "GameMaster": "",
 "Ghost": "",
+"HTerrainDataLoader": "",
+"HTerrainDataSaver": "",
 "Munition": "",
 "Ore": "",
 "Unit": "",
@@ -114,6 +126,8 @@ Global="*res://global.gd"
 GenerateBlocks="*res://block/chassis/generate_blocks.gd"
 MaterialCache="*res://material_cache.gd"
 ObjectCache="*res://object_cache.gd"
+Matter="*res://matter/matter.gd"
+RegisterMunition="*res://matter/munition/register_munition.gd"
 
 [debug]
 
@@ -128,7 +142,7 @@ window/size/test_height=810
 
 [editor_plugins]
 
-enabled=PoolStringArray(  )
+enabled=PoolStringArray( "zylann.hterrain" )
 
 [gdnative]
 
@@ -322,6 +336,11 @@ designer_configure={
  ]
 }
 
+[layer_names]
+
+3d_physics/layer_8="Terrain"
+3d_physics/layer_10="Drone sensors"
+
 [physics]
 
 common/physics_fps=150
@@ -330,4 +349,5 @@ common/physics_fps=150
 [rendering]
 
 vram_compression/import_etc2=false
+quality/filters/msaa=2
 environment/default_environment="res://default_env.tres"

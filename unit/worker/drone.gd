@@ -1,40 +1,34 @@
 extends Unit
 
 
+signal task_completed(task, target)
 enum Task {
-		TAKE_MATERIAL,
-		PUT_MATERIAL,
+		PUT,
+		TAKE,
+		PUT_ONLY,
+		TAKE_ONLY,
 		BUILD_STRUCTURE,
 		GOTO_WAYPOINT,
-		TAKE_MUNITION,
-		PUT_MUNITION,
-		TAKE_FUEL,
-		PUT_FUEL,
 	}
-
 const SPEED = 20.0
 const INTERACTION_DISTANCE = 6.0
 const INTERACTION_DISTANCE_2 = INTERACTION_DISTANCE * INTERACTION_DISTANCE
 export(Dictionary) var ghosts = {}
 export(PackedScene) var drill_ghost
-export(int) var max_material = 100
 export(int) var cost = 20
 var tasks = []
-var material = 0 setget set_material
 var last_build_frame = 0
-var munition = null
-var max_fuel = 20
-var fuel = 0
 onready var rotors = [
 		$ArmLF/Rotor,
 		$ArmRF/Rotor,
 		$ArmLB/Rotor,
 		$ArmRB/Rotor,
 	]
-	
-	
-func _ready():
-	set_material(material)
+const _MAX_VOLUME := 20_000_000
+var _task_cached_unit: Unit
+var _matter_id := -1
+var _matter_count := 0
+onready var _material_id: int = Matter.name_to_id["material"]
 
 
 func _process(delta):
@@ -47,113 +41,89 @@ func _physics_process(delta):
 	if len(tasks) == 0:
 		return
 	var task = tasks[0]
-	if task[1] == null:
-		tasks.remove(0)
-	else:
-		match task[0]:
-			Task.GOTO_WAYPOINT:
-				if move_towards(task[1], delta):
-					current_task_completed()
-			Task.BUILD_STRUCTURE:
-				if material > 0:
-					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
-							material -= 1
-							material += task[1].add_build_progress(1)
-							set_material(material)
-							last_build_frame = Engine.get_physics_frames()
-					else:
-						move_towards(task[1].translation, delta)
-				else:
-					take_materials_from_closest_pod(delta, task[1])
-			Task.TAKE_MATERIAL:
+	match task[0]:
+		Task.GOTO_WAYPOINT:
+			if move_towards(task[1], delta):
+				current_task_completed()
+		Task.BUILD_STRUCTURE:
+			if _matter_id == _material_id and _matter_count > 0:
 				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-					var material_space = max_material - material
-					self.material += task[1].take_material(material_space)
-					current_task_completed()
+					if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
+						_matter_count -= 1
+						_matter_count += task[1].add_build_progress(1)
+						last_build_frame = Engine.get_physics_frames()
 				else:
 					move_towards(task[1].translation, delta)
-			Task.PUT_MATERIAL:
-				if task[1].material >= task[1].max_material:
+			elif _matter_count == 0:
+				if _take_matter_from_any(_material_id, [], delta) < 0:
 					current_task_completed()
-				elif material > 0:
-					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						self.material = task[1].put_material(material)
-						if task[1].material == task[1].max_material:
-							current_task_completed()
-					else:
-						move_towards(task[1].translation, delta)
-				else:
-					if not take_materials_from_closest_pod(delta, task[1]):
-						current_task_completed()
-			Task.TAKE_MUNITION:
-				if munition == null and task[1].call_function("get_munition_count") > 0:
-					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						munition = task[1].call_function("take_munition")
-						$MunitionMesh.mesh = munition.mesh
-						current_task_completed()
-					else:
-						move_towards(task[1].translation, delta)
-				else:
+			else:
+				if _put_matter_in_any(_matter_id, [], delta) < 0:
 					current_task_completed()
-			Task.PUT_MUNITION:
-				if munition != null and task[1].call_function("get_munition_space", [munition.gauge]) > 0:
-					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						munition = task[1].call_function("put_munition", [munition])
-						$MunitionMesh.mesh = null
+		Task.PUT:
+			var id: int = task[2]
+			if task[1].get_matter_space(id) == 0:
+				current_task_completed()
+			elif _matter_id == id or _matter_count == 0:
+				_matter_id = id
+				if _matter_count > 0:
+					if _put_matter(id, task[1], delta):
 						current_task_completed()
-					else:
-						move_towards(task[1].translation, delta)
 				else:
-					current_task_completed()
-			Task.TAKE_FUEL:
-				if fuel < max_fuel and task[1].call_function("get_fuel_count") > 0:
-					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						var fuel_space = max_fuel - fuel
-						fuel += task[1].call_function("take_fuel", [fuel_space])
+					if _take_matter_from_any(id, [task[1]], delta) < 0:
 						current_task_completed()
-					else:
-						move_towards(task[1].translation, delta)
-				else:
+			else:
+				if _put_matter_in_any(_matter_id, [task[1]], delta) < 0:
 					current_task_completed()
-			Task.PUT_FUEL:
-				if fuel > 0 and task[1].call_function("get_fuel_space") > 0:
-					if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-						fuel = task[1].call_function("put_fuel", [fuel])
+		Task.TAKE:
+			var id: int = task[2]
+			if task[1].get_matter_count(id) == 0:
+				current_task_completed()
+			elif _matter_id == id or _matter_count == 0:
+				_matter_id = id
+# warning-ignore:integer_division
+				if _matter_count < _MAX_VOLUME / Matter.matter_volume[id]:
+					if _take_matter(id, task[1], delta):
 						current_task_completed()
-					else:
-						move_towards(task[1].translation, delta)
 				else:
+					if _put_matter_in_any(id, [task[1]], delta) < 0:
+						current_task_completed()
+			else:
+				if _put_matter_in_any(_matter_id, [task[1]], delta) < 0:
 					current_task_completed()
+		Task.PUT_ONLY:
+			var id: int = task[2]
+			if task[1].get_matter_space(id) == 0:
+				current_task_completed()
+			elif _matter_id == id and _matter_count > 0:
+				if _put_matter(id, task[1], delta):
+					current_task_completed()
+			else:
+				current_task_completed()
+		Task.TAKE_ONLY:
+			var id: int = task[2]
+			if task[1].get_matter_count(id) == 0:
+				current_task_completed()
+			elif _matter_id == id or _matter_count == 0:
+				if _take_matter(id, task[1], delta):
+					current_task_completed()
+			else:
+				current_task_completed()
 
 
 func get_actions():
 	return [
 			["Set waypoint", Action.INPUT_COORDINATE, "set_waypoint", []],
-			["Take", Action.SUBACTION, "get_take_actions", []],
-			["Put", Action.SUBACTION, "get_put_actions", []],
+			["Take", Action.INPUT_OWN_UNITS, "take_matter_from", [false]],
+			["Put", Action.INPUT_OWN_UNITS, "put_matter_in", [false]],
+			["Take only", Action.INPUT_OWN_UNITS, "take_matter_from", [true]],
+			["Put only", Action.INPUT_OWN_UNITS, "put_matter_in", [true]],
 			["Build", Action.SUBACTION, "get_build_actions", []],
 			["Clear tasks", Action.INPUT_NONE, "clear_tasks", []],
 		]
 
 
-func get_take_actions(flags):
-	return [
-			["Take material", Action.INPUT_OWN_UNITS, "take_material_from", []],
-			["Take munition", Action.INPUT_OWN_UNITS, "take_munition_from", []],
-			["Take fuel", Action.INPUT_OWN_UNITS, "take_fuel_from", []],
-		]
-
-
-func get_put_actions(flags):
-	return [
-			["Put material", Action.INPUT_OWN_UNITS, "put_material_in", []],
-			["Put munition", Action.INPUT_OWN_UNITS, "put_munition_in", []],
-			["Put fuel", Action.INPUT_OWN_UNITS, "put_fuel_in", []],
-		]
-
-
-func get_build_actions(flags):
+func get_build_actions(_flags):
 	var actions = [
 			["Build", Action.INPUT_OWN_UNITS, "build", []],
 			["Build drill", Action.INPUT_COORDINATE, "build_drill", []],
@@ -173,34 +143,34 @@ func get_info():
 				task_string = "Goto"
 			Task.BUILD_STRUCTURE:
 				task_string = "Build"
-			Task.TAKE_MATERIAL:
-				task_string = "Take"
-			Task.PUT_MATERIAL:
+			Task.PUT:
 				task_string = "Put"
-			Task.TAKE_MUNITION:
-				task_string = "Take munition"
-			Task.PUT_MUNITION:
-				task_string = "Put munition"
-			Task.TAKE_FUEL:
-				task_string = "Take fuel"
-			Task.PUT_FUEL:
-				task_string = "Put fuel"
+			Task.TAKE:
+				task_string = "Take"
+			Task.PUT_ONLY:
+				task_string = "Put only"
+			Task.TAKE_ONLY:
+				task_string = "Take only"
 			_:
 				task_string = "Unknown (BUG)"
 	else:
 		task_string = "None"
 	info["Current task"] = task_string
 	info["Total tasks"] = str(len(tasks))
-	info["Material"] = "%d / %d" % [material, max_material]
-	info["Fuel"] = "%d / %d" % [fuel, max_fuel]
+	if _matter_count > 0:
+		info["Matter type"] = Matter.matter_name[_matter_id]
+		info["Matter count"] = "%d / %d" % [_matter_count,
+# warning-ignore:integer_division
+				_MAX_VOLUME / Matter.matter_volume[_matter_id]]
 	return info
 
 
 func add_task(task, force_append):
-	if force_append:
-		tasks.append(task)
-	else:
-		tasks = [task]
+	if not force_append:
+		clear_tasks(0)
+	if task[1] is Unit and not task[1].is_connected("destroyed", self, "_unit_destroyed"):
+		task[1].connect("destroyed", self, "_unit_destroyed", [task])
+	tasks.append(task)
 
 
 func set_waypoint(flags, coordinate):
@@ -233,6 +203,7 @@ func build(flags, units):
 	for ghost in units:
 		if ghost is Ghost:
 			add_task([Task.BUILD_STRUCTURE, ghost], force_append)
+			ghost.connect("built", self, "_ghost_built")
 			force_append = true
 			
 			
@@ -241,6 +212,7 @@ func build_ghost(flags, position, scroll, ghost_name):
 	ghost.transform = Transform(Basis.IDENTITY.rotated(Vector3.UP, scroll * PI / 8), position)
 	game_master.add_unit(team, ghost)
 	add_task([Task.BUILD_STRUCTURE, ghost], flags & 0x1 > 0)
+	ghost.connect("built", self, "_ghost_built")
 
 
 func build_drill(flags, coordinate):
@@ -257,87 +229,41 @@ func build_drill(flags, coordinate):
 		ghost.init_arguments = [closest_ore]
 		game_master.add_unit(team, ghost)
 		add_task([Task.BUILD_STRUCTURE, ghost], flags & 0x1 > 0)
+		ghost.connect("built", self, "_ghost_built")
 
 
-func take_material_from(flags, units):
+func put_matter_in(flags, units, only):
 	var force_append = flags & 0x1 > 0
 	for unit in units:
-		if unit.has_method("take_material"):
-			add_task([Task.TAKE_MATERIAL, unit], force_append)
+		var matter_ids = unit.get_put_matter_list()
+		for id in matter_ids:
+			add_task([Task.PUT_ONLY if only else Task.PUT, unit, id], force_append)
 			force_append = true
 
 
-func put_material_in(flags, units):
+func take_matter_from(flags, units, only):
 	var force_append = flags & 0x1 > 0
 	for unit in units:
-		if unit.has_method("put_material"):
-			add_task([Task.PUT_MATERIAL, unit],
-					force_append)
+		var matter_ids = unit.get_take_matter_list()
+		for id in matter_ids:
+			add_task([Task.TAKE_ONLY if only else Task.TAKE, unit, id], force_append)
 			force_append = true
 
 
-func take_munition_from(flags, units):
-	var force_append = flags & 0x1 > 0
-	for unit in units:
-		if unit.has_function("take_munition"):
-			add_task([Task.TAKE_MUNITION, unit], force_append)
-			force_append = true
-
-
-func put_munition_in(flags, units):
-	var force_append = flags & 0x1 > 0
-	for unit in units:
-		if unit.has_function("put_munition"):
-			add_task([Task.PUT_MUNITION, unit], force_append)
-			force_append = true
-
-
-func take_fuel_from(flags, units):
-	var force_append = flags & 0x1 > 0
-	for unit in units:
-		if unit.has_function("take_fuel"):
-			add_task([Task.TAKE_FUEL, unit], force_append)
-			force_append = true
-
-
-func put_fuel_in(flags, units):
-	var force_append = flags & 0x1 > 0
-	for unit in units:
-		if unit.has_function("put_fuel"):
-			add_task([Task.PUT_FUEL, unit], force_append)
-			force_append = true
-
-
-func clear_tasks(flags):
+func clear_tasks(_flags):
+	for task in tasks:
+		if task[1] is Unit:
+			task[1].disconnect("destroyed", self, "_unit_destroyed")
+		if task[0] == Task.BUILD_STRUCTURE and task[1] != null:
+			task[1].disconnect("built", self, "emit_signal")
 	tasks = []
 
 
-func take_materials_from_closest_pod(delta, exclude_pod):
-	var closest_pod = null
-	for pod in game_master.get_units(team, "storage_pod"):
-		if pod != exclude_pod and pod.material > 0 and \
-				(closest_pod == null or \
-				translation.distance_to(closest_pod.translation) > \
-				translation.distance_to(pod.translation)):
-			closest_pod = pod
-	if closest_pod != null:
-		if translation.distance_squared_to(closest_pod.translation) <= INTERACTION_DISTANCE_2:
-			var material_space = max_material - material
-			self.material += closest_pod.take_material(material_space)
-		else:
-			move_towards(closest_pod.translation, delta)
-		return true
-	return false
-
-
 func current_task_completed():
-	tasks.push_back(tasks.pop_front())
-
-
-func set_material(p_material):
-	assert(0 <= p_material and p_material <= max_material)
-	material = p_material
-	$Indicator.scale.z = float(material) / max_material
+	var task = tasks.pop_front()
+	emit_signal("task_completed", task[0], task[1])
+	tasks.push_back(task)
+	_task_cached_unit = null
 
 
 func get_cost():
@@ -347,8 +273,6 @@ func get_cost():
 func draw_debug(debug):
 	var start = translation
 	for task in tasks:
-		if task[1] == null:
-			continue
 		var color
 		var position
 		match task[0]:
@@ -358,25 +282,97 @@ func draw_debug(debug):
 			Task.BUILD_STRUCTURE:
 				color = Color.orange
 				position = task[1].translation
-			Task.TAKE_MATERIAL:
-				color = Color.purple
-				position = task[1].translation
-			Task.PUT_MATERIAL:
+			Task.PUT, Task.PUT_ONLY:
 				color = Color.cyan
 				position = task[1].translation
-			Task.TAKE_MUNITION:
-				color = Color.red
-				position = task[1].translation
-			Task.PUT_MUNITION:
-				color = Color.yellow
-				position = task[1].translation
-			Task.TAKE_FUEL:
-				color = Color.chartreuse
-				position = task[1].translation
-			Task.PUT_FUEL:
-				color = Color.beige
+			Task.TAKE, Task.TAKE_ONLY:
+				color = Color.purple
 				position = task[1].translation
 		if color != null:
 			debug.draw_circle(position, color)
 			debug.draw_line(start, position, color)
 			start = position
+	if _task_cached_unit != null:
+		debug.draw_line(translation, _task_cached_unit.translation, Color.yellow)
+
+
+func _ghost_built(unit):
+	emit_signal("task_completed", Task.BUILD_STRUCTURE, unit)
+
+
+func _unit_destroyed(_unit, task):
+	while true:
+		var index = tasks.find_last(task)
+		if index < 0:
+			break
+		tasks.remove(index)
+		if index == 0:
+			_task_cached_unit = null
+
+
+func _put_matter(id: int, unit: Unit, delta: float) -> bool:
+	if translation.distance_squared_to(unit.translation) <= INTERACTION_DISTANCE_2:
+		_matter_count = unit.put_matter(id, _matter_count)
+		return true
+	else:
+		move_towards(unit.translation, delta)
+		return false
+
+
+func _take_matter(id: int, unit: Unit, delta: float) -> bool:
+	assert(id == _matter_id or _matter_count == 0)
+# warning-ignore:integer_division
+	var matter_space := _MAX_VOLUME / Matter.matter_volume[id] - _matter_count
+	assert(matter_space != 0 or _matter_count != 0)
+	if translation.distance_squared_to(unit.translation) <= INTERACTION_DISTANCE_2:
+		_matter_count += unit.take_matter(id, matter_space)
+		_matter_id = id
+		return true
+	else:
+		move_towards(unit.translation, delta)
+		return false
+
+
+func _put_matter_in_any(id: int, exclude: Array, delta: float) -> int:
+	assert(_matter_count > 0 and id == _matter_id)
+	if _task_cached_unit == null:
+		var closest_distance2 := INF
+		for unit in game_master.get_units(team):
+			if not unit in exclude:
+				if unit.takes_matter(id) > 0:
+					var d := translation.distance_squared_to(unit.translation)
+					if d < closest_distance2:
+						_task_cached_unit = unit
+						closest_distance2 = d
+	if _task_cached_unit != null:
+		if _put_matter(id, _task_cached_unit, delta):
+			_task_cached_unit = null
+			return 1
+		return 0
+	return -1
+
+
+func _take_matter_from_any(id: int, exclude: Array, delta: float) -> int:
+	assert(_matter_count == 0)
+	if _task_cached_unit == null:
+		var closest_distance2 := INF
+		for unit in game_master.get_units(team):
+			if not unit in exclude and unit.provides_matter(id) > 0:
+				var d := translation.distance_squared_to(unit.translation)
+				if d < closest_distance2:
+					_task_cached_unit = unit
+					closest_distance2 = d
+	if _task_cached_unit != null:
+		if _take_matter(id, _task_cached_unit, delta):
+			_task_cached_unit = null
+			return 1
+		return 0
+	return -1
+
+
+func _set_cached_unit(unit: Unit) -> void:
+	if _task_cached_unit != null:
+		_task_cached_unit.disconnect("destroyed", self, "_set_cached_unit")
+	var e := unit.connect("destroyed", self, "_set_cached_unit", [null])
+	assert(e == OK)
+	_task_cached_unit = unit

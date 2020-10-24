@@ -2,14 +2,18 @@ class_name Vehicle
 extends Unit
 
 
-var brake := 0.0
 var max_cost: int
 var voxel_bodies := []
 var actions := []
 var managers := {}
 var _object_to_actions_map := {}
-var _functions := {}
 var _info := []
+var _matter_handlers_count := []
+var _matter_handlers_space := []
+var _matter_handlers_put := []
+var _matter_handlers_take := []
+var _matter_put_list := PoolIntArray()
+var _matter_take_list := PoolIntArray()
 onready var debug_node = $"../Debug"
 
 
@@ -41,17 +45,45 @@ func get_info():
 	return info
 
 
-func has_function(function_name):
-	if function_name in _functions:
-		return true
-	return .has_function(function_name)
+func get_matter_count(id: int) -> int:
+	var count := 0
+	for f in _matter_handlers_count:
+		count += f.call_func(id)
+	return count
 
 
-func call_function(function_name, arguments := []):
-	var function = _functions.get(function_name)
-	if function != null:
-		return function.call_funcv(arguments)
-	return .call_function(function_name, arguments)
+func get_matter_space(id: int) -> int:
+	var space := 0
+	for f in _matter_handlers_space:
+		space += f.call_func(id)
+	return space
+
+
+func get_put_matter_list() -> PoolIntArray:
+	return _matter_put_list
+
+
+func get_take_matter_list() -> PoolIntArray:
+	return _matter_take_list
+
+
+func put_matter(id: int, amount: int) -> int:
+	for f in _matter_handlers_put:
+		amount = f.call_func(id, amount)
+		assert(amount >= 0)
+		if amount == 0:
+			break
+	return amount
+
+
+func take_matter(id: int, amount: int) -> int:
+	var total := 0
+	for f in _matter_handlers_put:
+		total += f.call_func(id, amount - total)
+		assert(total >= 0 and total <= amount)
+		if total == amount:
+			break
+	return total
 
 
 func load_from_file(path: String) -> int:
@@ -59,10 +91,12 @@ func load_from_file(path: String) -> int:
 	var err = file.open(path, File.READ)
 	if err != OK:
 		return err
+
 	for body in voxel_bodies:
 		body.queue_free()
 	max_cost = 0
 	max_health = 0
+
 	var data = parse_json(file.get_as_text())
 	data = Compatibility.convert_vehicle_data(data)
 	for key in data["blocks"]:
@@ -145,9 +179,30 @@ func get_manager(p_name, script):
 	return manager
 
 
-func add_function(object, p_name):
-	assert(not p_name in _functions)
-	_functions[p_name] = funcref(object, p_name)
+func add_matter_put(id: int) -> void:
+	if not id in _matter_put_list:
+		_matter_put_list.append(id)
+
+
+func add_matter_take(id: int) -> void:
+	if not id in _matter_take_list:
+		_matter_take_list.append(id)
+
+
+func add_matter_count_handler(function: FuncRef) -> void:
+	_matter_handlers_count.append(function)
+
+
+func add_matter_space_handler(function: FuncRef) -> void:
+	_matter_handlers_space.append(function)
+
+
+func add_matter_put_handler(function: FuncRef) -> void:
+	_matter_handlers_put.append(function)
+
+
+func add_matter_take_handler(function: FuncRef) -> void:
+	_matter_handlers_take.append(function)
 
 
 func add_info(object, p_name):

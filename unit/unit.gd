@@ -4,7 +4,14 @@ extends Spatial
 
 
 signal destroyed(unit)
-
+# warning-ignore:unused_signal
+signal need_matter(id, amount)
+# warning-ignore:unused_signal
+signal provide_matter(id, amount)
+# warning-ignore:unused_signal
+signal take_matter(id, amount)
+# warning-ignore:unused_signal
+signal dump_matter(id, amount)
 enum Action {
 	INPUT_NONE = 0x0,
 	INPUT_COORDINATE = 0x1,
@@ -24,7 +31,7 @@ export var team := 0
 # warning-ignore:unused_class_variable
 export var unit_name := "unit"
 onready var health := max_health
-onready var game_master = get_tree().get_current_scene()
+onready var game_master = GameMaster.get_game_master(self)
 
 
 func projectile_hit(_origin: Vector3, _direction: Vector3, damage: int):
@@ -35,10 +42,26 @@ func projectile_hit(_origin: Vector3, _direction: Vector3, damage: int):
 	return 0
 
 
-func get_actions():
+func get_actions() -> Array:
 	# Return format: [human_name, flags, function_name, [args...]]
 	# If INPUT_TOGGLE is specified, append a bool to indicate on/off
 	return []
+
+
+func show_feedback():
+	pass
+
+
+func hide_feedback():
+	pass
+
+
+func show_action_feedback(_function: String, _viewport: Viewport, _arguments: Array) -> void:
+	pass
+
+
+func hide_action_feedback() -> void:
+	pass
 
 
 func get_info():
@@ -47,12 +70,48 @@ func get_info():
 		}
 
 
-func has_function(function_name):
-	return has_method(function_name)
+func get_interaction_port() -> Vector3:
+	return translation
 
 
-func call_function(function_name, arguments := []):
-	return callv(function_name, arguments)
+func get_matter_count(_id: int) -> int:
+	return 0
+
+
+func get_matter_space(_id: int) -> int:
+	return 0
+
+
+func get_put_matter_list() -> PoolIntArray:
+	return PoolIntArray()
+
+
+func get_take_matter_list() -> PoolIntArray:
+	return PoolIntArray()
+
+
+func needs_matter(_id: int) -> int:
+	return 0
+
+
+func provides_matter(_id: int) -> int:
+	return 0
+
+
+func takes_matter(_id: int) -> int:
+	return 0
+
+
+func dumps_matter(_id: int) -> int:
+	return 0
+
+
+func put_matter(_id: int, amount: int) -> int:
+	return amount
+
+
+func take_matter(_id: int, _amount: int) -> int:
+	return 0
 
 
 func destroy():

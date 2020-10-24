@@ -13,38 +13,42 @@ func _process(_delta):
 
 
 func draw_point(origin: Vector3, color := Color.white, radius := 1.0):
-	for axis in [[Vector3.UP, Vector3.RIGHT], [Vector3.FORWARD, Vector3.UP],
-			[Vector3.RIGHT, Vector3.FORWARD]]:
-		begin(Mesh.PRIMITIVE_LINE_LOOP)
-		set_color(color)
-		for i in range(16):
-			add_vertex(radius * axis[0].rotated(axis[1], PI / 8 * i) + origin)
-		end()
+	if visible:
+		for axis in [[Vector3.UP, Vector3.RIGHT], [Vector3.FORWARD, Vector3.UP],
+				[Vector3.RIGHT, Vector3.FORWARD]]:
+			begin(Mesh.PRIMITIVE_LINE_LOOP)
+			set_color(color)
+			for i in range(16):
+				add_vertex(radius * axis[0].rotated(axis[1], PI / 8 * i) + origin)
+			end()
 
 
 func draw_circle(origin: Vector3, color := Color.white, radius := 1.0):
-	begin(Mesh.PRIMITIVE_LINE_LOOP)
-	set_color(color)
-	for i in range(16):
-		var r = i * PI / 8
-		add_vertex(Vector3(cos(r) * radius, 0, sin(r) * radius) + origin)
-	end()
+	if visible:
+		begin(Mesh.PRIMITIVE_LINE_LOOP)
+		set_color(color)
+		for i in range(16):
+			var r = i * PI / 8
+			add_vertex(Vector3(cos(r) * radius, 0, sin(r) * radius) + origin)
+		end()
 
 
 func draw_line(start: Vector3, end: Vector3, color := Color.white):
-	begin(Mesh.PRIMITIVE_LINES)
-	set_color(color)
-	add_vertex(start)
-	add_vertex(end)
-	end()
+	if visible:
+		begin(Mesh.PRIMITIVE_LINES)
+		set_color(color)
+		add_vertex(start)
+		add_vertex(end)
+		end()
 
 
 func draw_normal(origin: Vector3, direction: Vector3, color := Color.white):
-	begin(Mesh.PRIMITIVE_LINES)
-	set_color(color)
-	add_vertex(origin)
-	add_vertex(origin + direction)
-	end()
+	if visible:
+		begin(Mesh.PRIMITIVE_LINES)
+		set_color(color)
+		add_vertex(origin)
+		add_vertex(origin + direction)
+		end()
 "
 
 [node name="Debug" type="ImmediateGeometry"]

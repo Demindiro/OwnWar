@@ -25,7 +25,8 @@ func init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
 					_create_joint(voxel_body, body)
 					connected = true
 					other_connector.connected = true
-					connect("destroyed", other_connector, "_other_connector_destroyed")
+					var e := connect("destroyed", other_connector, "_other_connector_destroyed")
+					assert(e == OK)
 					other_connector.connect("destroyed", self, "_other_connector_destroyed")
 					_add_self_to_weapon_manager(vehicle)
 					return

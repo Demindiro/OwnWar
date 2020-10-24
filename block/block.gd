@@ -25,6 +25,7 @@ export(int) var cost: int = 1
 # warning-ignore:unused_class_variable
 export(Vector3) var size: Vector3 = Vector3.ONE
 export(int) var mirror_rotation_offset := 0 setget set_mirror_rotation_offset
+# warning-ignore:unused_class_variable
 export var meta := {}
 #export(Block) var mirror_block: Block
 #export(Resource) var mirror_block

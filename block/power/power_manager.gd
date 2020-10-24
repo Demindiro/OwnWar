@@ -8,13 +8,17 @@ var _fuel := 0
 var _reserved_power := {}
 var _remaining_power := 0
 var _energy := 0
+var _fuel_id: int
 
 
 func init(vehicle: Vehicle) -> void:
-	vehicle.add_function(self, "get_fuel_count")
-	vehicle.add_function(self, "get_fuel_space")
-	vehicle.add_function(self, "take_fuel")
-	vehicle.add_function(self, "put_fuel")
+	_fuel_id = Matter.name_to_id["fuel"]
+	vehicle.add_matter_count_handler(funcref(self, "get_matter_count"))
+	vehicle.add_matter_space_handler(funcref(self, "get_matter_space"))
+	vehicle.add_matter_take_handler(funcref(self, "take_matter"))
+	vehicle.add_matter_put_handler(funcref(self, "put_matter"))
+	vehicle.add_matter_put(_fuel_id)
+	vehicle.add_matter_take(_fuel_id)
 	vehicle.add_info(self, "get_info")
 
 
@@ -41,7 +45,7 @@ func process(_delta: float) -> void:
 			# Round up (https://stackoverflow.com/a/503201/7327379)
 # warning-ignore:integer_division
 			var needed_fuel = (needed_energy - _energy - 1) / _ENERGY_PER_FUEL + 1
-			var fuel = take_fuel(needed_fuel)
+			var fuel = take_matter(_fuel_id, needed_fuel)
 			_energy += fuel * _ENERGY_PER_FUEL
 			if needed_energy > _energy:
 				assert(fuel < needed_fuel)
@@ -58,29 +62,33 @@ func process(_delta: float) -> void:
 	_energy -= used_energy
 
 
-func get_fuel_count():
-	return _fuel
+func get_matter_count(id: int) -> int:
+	return _fuel if id == _fuel_id else 0
 
 
-func get_fuel_space():
-	return _max_fuel - _fuel
+func get_matter_space(id: int) -> int:
+	return _max_fuel - _fuel if id == _fuel_id else 0
 
 
-func take_fuel(amount):
-	_fuel -= amount
-	if _fuel < 0:
-		amount += _fuel
-		_fuel = 0
-	return amount
-
-
-func put_fuel(amount):
-	_fuel += amount
-	if _fuel > _max_fuel:
-		var remainder = _fuel - _max_fuel
-		_fuel = _max_fuel
-		return remainder
+func take_matter(id: int, amount: int) -> int:
+	if id == _fuel_id:
+		_fuel -= amount
+		if _fuel < 0:
+			amount += _fuel
+			_fuel = 0
+		return amount
 	return 0
+
+
+func put_matter(id: int, amount: int) -> int:
+	if id == _fuel_id:
+		_fuel += amount
+		if _fuel > _max_fuel:
+			var remainder = _fuel - _max_fuel
+			_fuel = _max_fuel
+			return remainder
+		return 0
+	return amount
 
 
 func reserve_power(object, amount):

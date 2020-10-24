@@ -24,7 +24,7 @@ func set_drive_yaw(drive):
 func set_brake(brake):
 	brake = clamp(brake, 0, 1)
 	for wheel in _wheels:
-		wheel.brake = brake
+		wheel.brake = brake * 2.0
 
 
 func add_wheel(wheel):

@@ -1,6 +1,6 @@
 extends Node
 
-const LOADER_MAX_TIME = 1000 / 30
+const LOADER_MAX_TIME := 1000.0 / 60.0
 const VERSION = "0.11.1"
 # Because Godot does not allow cyclic references and is apparently not capable
 # of updating file paths automatically, this shall be the solution
@@ -65,6 +65,7 @@ const ERROR_TO_STRING = [
 		"Bug",
 		"Printer on fire",
 	]
+const COLLISION_MASK_TERRAIN = 1 << (8 - 1) # Christ's sake, Godot pls
 
 
 export var blocks: Dictionary = {}
@@ -83,6 +84,10 @@ func _ready():
 		blocks_by_id.append(block)
 		block.id = id
 		id += 1
+# warning-ignore:return_value_discarded
+	Matter.add_matter("material", 1_000_000)
+# warning-ignore:return_value_discarded
+	Matter.add_matter("fuel", 1_000_000)
 
 
 func _process(_delta):
@@ -95,8 +100,9 @@ func _process(_delta):
 func _notification(notification):
 	match notification:
 		MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
-			get_tree().root.print_stray_nodes()
-		
+#			get_tree().root.print_stray_nodes()
+			pass
+
 
 func recurse_directory(path: String, ends_with: String = "", _arr := []) -> Array:
 	var directory = Directory.new()
@@ -149,29 +155,34 @@ func _goto_scene(path):
 		var err = get_tree().change_scene(SCENE_LOADING)
 		if err != OK:
 			error("Failed to change scene '%s'" % path, err)
-		_load_scene()
+		call_deferred("_load_scene")
 	get_tree().paused = false
 
 
 func _load_scene():
 	var t = OS.get_ticks_msec()
-	while OS.get_ticks_msec() < t + LOADER_MAX_TIME or true:
+	while OS.get_ticks_msec() < t + LOADER_MAX_TIME:
 		var err = _loader.poll()
+		var tree := get_tree()
 		if err == ERR_FILE_EOF:
 			var scene = _loader.get_resource()
+			_loader = null
 			if scene is PackedScene:
-				err = get_tree().change_scene_to(scene)
-				if err != OK:
-					error("Failed to change scene", err)
+				var instance = scene.instance()
+				tree.root.add_child(instance)
+				tree.root.move_child(instance, 0)
+				# Allow any heavy scene stuff to load first (Heightmap terrain)
+				yield(get_tree(), "idle_frame")
+				tree.current_scene.queue_free()
+				tree.current_scene = instance
 			else:
 				error("Loaded resource is not a scene! ('%s')" % str(scene))
-			_loader = null
 			return
 		elif err == OK:
-			pass
+			_show_loading_progress()
 		else:
 			error("Error loading scene", err)
-			get_tree().current_scene.get_node("ColorRect").color = Color.red
+			tree.current_scene.get_node("ColorRect").color = Color.red
 			_show_loading_progress()
 			_loader = null
 			return
