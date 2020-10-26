@@ -287,13 +287,14 @@ shadow_enabled = true
 directional_shadow_blend_splits = true
 directional_shadow_depth_range = 1
 
-[node name="HUD" parent="." instance=ExtResource( 4 )]
-
-[node name="Camera" type="Camera" parent="HUD"]
-transform = Transform( 0.770113, 0.200224, -0.605671, 0, 0.949464, 0.313876, 0.637908, -0.24172, 0.731194, -47.744, 14.2517, 67.2209 )
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 0.770113, 0.200224, -0.60567, 0, 0.949464, 0.313876, 0.637908, -0.24172, 0.731194, -47.744, 14.2517, 67.2209 )
 far = 1000.0
 script = ExtResource( 14 )
 speed = 50.0
+
+[node name="HUD" parent="." instance=ExtResource( 4 )]
+camera = NodePath("../Camera")
 
 [node name="GUI" type="ColorRect" parent="."]
 pause_mode = 2

@@ -342,13 +342,14 @@ transform = Transform( -0.838714, -0.15169, 0.523019, 0, 0.960422, 0.278549, -0.
 shadow_enabled = true
 directional_shadow_blend_splits = true
 
-[node name="HUD" parent="." instance=ExtResource( 2 )]
-
-[node name="Camera" type="Camera" parent="HUD"]
-transform = Transform( -0.792089, 0.157984, -0.589607, 0, 0.965926, 0.258819, 0.610406, 0.205008, -0.765099, 139.997, 28.8481, 167.643 )
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( -0.792089, 0.157985, -0.589607, 0, 0.965926, 0.258819, 0.610406, 0.205008, -0.765099, 139.997, 28.8481, 167.643 )
 far = 2000.0
 script = ExtResource( 14 )
 speed = 50.0
+
+[node name="HUD" parent="." instance=ExtResource( 2 )]
+camera = NodePath("../Camera")
 
 [node name="Victory" type="ColorRect" parent="."]
 visible = false
