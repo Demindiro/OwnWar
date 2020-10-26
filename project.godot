@@ -59,10 +59,10 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/zylann.hterrain/hterrain_resource_saver.gd"
 }, {
-"base": "Resource",
+"base": "Reference",
 "class": "Munition",
 "language": "GDScript",
-"path": "res://matter/munition/munition.gd"
+"path": "res://core/matter/munition/munition.gd"
 }, {
 "base": "Spatial",
 "class": "Ore",
@@ -126,8 +126,8 @@ Global="*res://global.gd"
 GenerateBlocks="*res://block/chassis/generate_blocks.gd"
 MaterialCache="*res://material_cache.gd"
 ObjectCache="*res://object_cache.gd"
-Matter="*res://matter/matter.gd"
-RegisterMunition="*res://matter/munition/register_munition.gd"
+Matter="*res://core/matter/matter.gd"
+RegisterMunition="*res://core/matter/munition/register_munition.gd"
 Plugins="*res://plugins.gd"
 
 [debug]
