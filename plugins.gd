@@ -12,10 +12,18 @@ func _load_plugins():
 	var scripts := _load_plugins_from_dir("res://plugins/") + \
 			_load_plugins_from_dir("user://plugins/")
 
+	var game_version: Vector3 = Compatibility.version_string_to_vector(Global.VERSION)
+
 	for script in scripts:
 		var id: String = script.PLUGIN_ID
+		print("Instantiating %s" % [id])
 		if id in plugins:
-			print("Conflicting plugin id! %s" % [id])
+			print("Conflicting plugin id!")
+			continue
+		if game_version < script.MIN_VERSION:
+			print("Plugin version is more recent than the game version!")
+			print("Plugin version: %s" % ["%d.%d.%d" % \
+					[script.MIN_VERSION.x, script.MIN_VERSION.y, script.MIN_VERSION.z]])
 			continue
 		plugins[id] = script.new()
 
