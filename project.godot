@@ -24,7 +24,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://block/weapon/cannon.gd"
 }, {
-"base": "Reference",
+"base": "Resource",
 "class": "Compatibility",
 "language": "GDScript",
 "path": "res://core/compatibility.gd"
@@ -124,8 +124,8 @@ config/icon="res://icon.png"
 
 Global="*res://core/global.gd"
 GenerateBlocks="*res://block/chassis/generate_blocks.gd"
-MaterialCache="*res://material_cache.gd"
-ObjectCache="*res://object_cache.gd"
+MaterialCache="*res://core/material_cache.gd"
+ObjectCache="*res://core/object_cache.gd"
 Matter="*res://core/matter/matter.gd"
 RegisterMunition="*res://core/matter/munition/register_munition.gd"
 Plugins="*res://core/plugins.gd"
