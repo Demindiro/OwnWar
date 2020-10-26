@@ -33,16 +33,16 @@ func process(delta):
 
 func init(_coordinate, _block_data, _rotation, _voxel_body, p_vehicle, _meta):
 	vehicle = p_vehicle
-	ai = load("res://unit/vehicle/ai/brick.gd").new()
+	ai = preload("ai/brick.gd").new()
 	ai.init(vehicle)
 
-	var manager = vehicle.get_manager("mainframe", preload("res://block/ai/mainframe_manager.gd"))
+	var manager = vehicle.get_manager("mainframe")
 	manager.add_mainframe(self)
 	manager.add_action(self, "Set waypoint", Unit.Action.INPUT_COORDINATE, "set_waypoint", [])
 	manager.add_action(self, "Set targets", Unit.Action.INPUT_ENEMY_UNITS, "set_targets", [])
 
-	_weapon_manager = vehicle.get_manager("weapon", preload("res://block/weapon/weapon_manager.gd"))
-	_movement_manager = vehicle.get_manager("movement", preload("res://block/wheel/movement_manager.gd"))
+	_weapon_manager = vehicle.get_manager("weapon")
+	_movement_manager = vehicle.get_manager("movement")
 
 
 func set_waypoint(flags, waypoint):
