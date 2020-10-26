@@ -4,6 +4,7 @@ extends Control
 const SHORTCUT_PREFIX = "campaign_shortcut_"
 const SHORTCUT_COUNT = 10
 export var team := 0
+export var camera: NodePath
 var selected_units = [] setget set_selected_units
 onready var game_master = GameMaster.get_game_master(self)
 
@@ -17,12 +18,13 @@ var _action
 var _append_action = false
 var _scroll = 0
 var _unit_info_index = 0
-
+onready var _camera := get_node(camera)
 onready var _action_button_template := find_node("Template")
 
 
 func _ready():
 	_action_button_template.get_parent().remove_child(_action_button_template)
+	assert(_camera != null)
 
 
 func _process(_delta):
@@ -53,9 +55,9 @@ func _gui_input(event):
 		match _action_input_name:
 			"coordinate":
 				if not event.pressed:
-					var origin = $Camera.project_ray_origin(event.position)
-					var normal = $Camera.project_ray_normal(event.position)
-					var space_state = $Camera.get_world().direct_space_state
+					var origin = _camera.project_ray_origin(event.position)
+					var normal = _camera.project_ray_normal(event.position)
+					var space_state = _camera.get_world().direct_space_state
 					var result = space_state.intersect_ray(origin, origin + normal * 1000)
 					if len(result) > 0:
 						send_coordinate(result.position)
@@ -92,13 +94,13 @@ func _gui_input(event):
 
 func _draw():
 	for unit in selected_units:
-		if (unit.translation - $Camera.translation).dot(-$Camera.transform.basis.z) > 0:
-			var position = $Camera.unproject_position(unit.translation)
+		if (unit.translation - _camera.translation).dot(-_camera.transform.basis.z) > 0:
+			var position = _camera.unproject_position(unit.translation)
 			var rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
 			draw_rect(rect, Color.orange, false, 2)
 #		if unit is Vehicle and unit.ai.target != null and \
-#				(unit.ai.target.translation - $Camera.translation).dot(-$Camera.transform.basis.z) > 0:
-#			var position = $Camera.unproject_position(unit.ai.target.translation)
+#				(unit.ai.target.translation - _camera.translation).dot(-_camera.transform.basis.z) > 0:
+#			var position = _camera.unproject_position(unit.ai.target.translation)
 #			var rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
 #			draw_rect(rect, Color.red, false, 2)
 	if _selecting_units:
@@ -113,7 +115,7 @@ func _draw():
 			units = get_selected_units(_units_teams_mask)
 			color = Color.red
 		for unit in units:
-			var position = $Camera.unproject_position(unit.translation)
+			var position = _camera.unproject_position(unit.translation)
 			rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
 			draw_rect(rect, color, false, 2)
 
@@ -298,10 +300,10 @@ func get_selected_units(teams_mask):
 	for i in range(len(game_master.teams)):
 		if teams_mask & (1 << i):
 			for child in game_master.units[i]:
-				var screen_pos: Vector2 = $Camera.unproject_position(child.translation)
+				var screen_pos = _camera.unproject_position(child.translation)
 				if rect.has_point(screen_pos):
-					var direction: Vector3 = $Camera.translation - child.translation
-					if $Camera.transform.basis.z.dot(direction) > 0:
+					var direction: Vector3 = _camera.translation - child.translation
+					if _camera.transform.basis.z.dot(direction) > 0:
 						units.append(child)
 	return units
 
@@ -359,9 +361,9 @@ func show_feedback():
 func show_action_feedback():
 	match _action_input_name:
 		"coordinate":
-			var origin = $Camera.project_ray_origin(_last_mouse_position)
-			var normal = $Camera.project_ray_normal(_last_mouse_position)
-			var space_state = $Camera.get_world().direct_space_state
+			var origin = _camera.project_ray_origin(_last_mouse_position)
+			var normal = _camera.project_ray_normal(_last_mouse_position)
+			var space_state = _camera.get_world().direct_space_state
 			var result = space_state.intersect_ray(origin, origin + normal * 1000)
 			if len(result) > 0:
 				for unit in selected_units:
@@ -369,7 +371,7 @@ func show_action_feedback():
 					if _action[1] & Unit.Action.INPUT_SCROLL:
 						arguments += [_scroll]
 					arguments += _action[3]
-					unit.show_action_feedback(_action[2], $Camera.get_viewport(), arguments)
+					unit.show_action_feedback(_action[2], _camera.get_viewport(), arguments)
 		"units":
 			for unit in selected_units:
 				unit.hide_action_feedback()
