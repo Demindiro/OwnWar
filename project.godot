@@ -17,7 +17,7 @@ _global_script_classes=[ {
 "base": "Resource",
 "class": "Block",
 "language": "GDScript",
-"path": "res://block/block.gd"
+"path": "res://core/block/block.gd"
 }, {
 "base": "RigidBody",
 "class": "Cannon",
@@ -72,7 +72,7 @@ _global_script_classes=[ {
 "base": "Spatial",
 "class": "Unit",
 "language": "GDScript",
-"path": "res://unit/unit.gd"
+"path": "res://core/unit/unit.gd"
 }, {
 "base": "Unit",
 "class": "Vehicle",
