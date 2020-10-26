@@ -23,7 +23,6 @@ func _physics_process(delta):
 			if _munition_volume + volume < _MAX_MUNITION_VOLUME:
 				_munition[id] = _munition.get(id, 0) + 1
 				_munition_volume += volume
-				_visualize_munitions()
 				_current_producing_munition = null
 				_time_until_munition_produced -= _time_between_munitions
 				emit_signal("dump_matter", id, _munition[id])
@@ -125,7 +124,6 @@ func take_matter(id: int, amount: int) -> int:
 # warning-ignore:return_value_discarded
 			_munition.erase(id)
 		_munition_volume -= amount * Matter.matter_volume[id]
-		_visualize_munitions()
 		emit_signal("dump_matter", id, _munition.get(id, 0))
 		emit_signal("provide_matter", id, _munition.get(id, 0))
 		return amount
@@ -138,13 +136,3 @@ func set_munition_type(_flags, munition_type):
 		emit_signal("need_matter", _material_id, _MAX_MATERIAL - _material)
 	else:
 		emit_signal("need_matter", _material_id, 0)
-
-
-func _visualize_munitions():
-	var id = Matter.name_to_id[_current_munition_type.human_name]
-	$MultiMeshInstance.multimesh.mesh = _current_munition_type.mesh
-	$MultiMeshInstance.multimesh.instance_count = _munition.get(id, 0)
-	for i in range(_munition.get(id, 0)):
-		var munition_transform := Transform2D(Vector2.UP, Vector2.RIGHT,
-			Vector2(i % 5, i / 5.0) / 3.0)
-		$MultiMeshInstance.multimesh.set_instance_transform_2d(i, munition_transform)
