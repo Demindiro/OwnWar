@@ -9,40 +9,37 @@ var _material := 0
 var _munition := {}
 var _munition_volume := 0
 var _current_munition_type: Munition
-var _producing_munition := false
+var _current_producing_munition: Munition
 var _time_between_munitions := 1.0
 var _time_until_munition_produced := 0.0
 onready var _material_id = Matter.name_to_id["material"]
 
 
-func _ready():
-	_current_munition_type = munition_types[0]
-
-
 func _physics_process(delta):
-	if _producing_munition:
+	if _current_producing_munition != null:
 		if _time_until_munition_produced >= _time_between_munitions:
-			var id = Matter.name_to_id[_current_munition_type.human_name]
+			var id = Matter.name_to_id[_current_producing_munition.human_name]
 			var volume = Matter.matter_volume[id]
 			if _munition_volume + volume < _MAX_MUNITION_VOLUME:
 				_munition[id] = _munition.get(id, 0) + 1
 				_munition_volume += volume
 				_visualize_munitions()
-				_producing_munition = false
+				_current_producing_munition = null
 				_time_until_munition_produced -= _time_between_munitions
 				emit_signal("dump_matter", id, _munition[id])
 				emit_signal("provide_matter", id, _munition[id])
 		else:
 			_time_until_munition_produced += delta
-	else:
-		if _current_munition_type.cost <= _material:
+	elif _current_munition_type != null and _current_munition_type.cost <= _material:
 			_material -= _current_munition_type.cost
 			emit_signal("need_matter", _material_id, _MAX_MATERIAL - _material)
-			_producing_munition = true
+			_current_producing_munition = _current_munition_type
 
 
 func get_actions():
-	var actions = []
+	var actions = [
+			["Turn off", Action.INPUT_NONE, "set_munition_type", [null]]
+		]
 	for munition_type in munition_types:
 		actions.append([
 				"Produce %s" % str(munition_type),
@@ -56,7 +53,10 @@ func get_actions():
 func get_info():
 	var info = .get_info()
 	info["Material"] = "%d / %d" % [_material, _MAX_MATERIAL]
-	info["Producing"] = str(_current_munition_type)
+	if _current_munition_type != null:
+		info["Producing"] = str(_current_munition_type)
+	else:
+		info["Producing"] = "None"
 	info["Volume"] = "%d / %d" % [_munition_volume / 1_000_000, _MAX_MUNITION_VOLUME / 1_000_000]
 	for m in _munition:
 		info[Matter.matter_name[m]] = _munition[m]
@@ -64,7 +64,9 @@ func get_info():
 
 
 func needs_matter(id: int) -> int:
-	return _MAX_MATERIAL - _material if _material_id == id else 0
+	if _current_munition_type != null:
+		return _MAX_MATERIAL - _material if _material_id == id else 0
+	return 0
 
 
 func dumps_matter(id: int) -> int:
@@ -106,7 +108,10 @@ func put_matter(id: int, amount: int) -> int:
 		if _material > _MAX_MATERIAL:
 			remainder = _material - _MAX_MATERIAL
 			_material = _MAX_MATERIAL
-			emit_signal("need_matter", _material_id, _MAX_MATERIAL - _material)
+			if _current_munition_type != null:
+				emit_signal("need_matter", _material_id, _MAX_MATERIAL - _material)
+			else:
+				emit_signal("need_matter", _material_id, 0)
 		return remainder
 	return amount
 
@@ -129,6 +134,10 @@ func take_matter(id: int, amount: int) -> int:
 
 func set_munition_type(_flags, munition_type):
 	_current_munition_type = munition_type
+	if _current_munition_type != null:
+		emit_signal("need_matter", _material_id, _MAX_MATERIAL - _material)
+	else:
+		emit_signal("need_matter", _material_id, 0)
 
 
 func _visualize_munitions():
