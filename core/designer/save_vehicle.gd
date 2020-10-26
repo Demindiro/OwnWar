@@ -1,4 +1,4 @@
-extends "res://designer/vehicle_selector.gd"
+extends "vehicle_selector.gd"
 
 
 signal save_vehicle(path)

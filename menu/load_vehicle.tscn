@@ -1,6 +1,7 @@
 [gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://designer/load_vehicle.gd" type="Script" id=1]
+[ext_resource path="res://core/designer/load_vehicle.gd" type="Script" id=1]
+
 
 [sub_resource type="InputEventAction" id=1]
 action = "ui_cancel"

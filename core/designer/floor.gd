@@ -1,7 +1,7 @@
 extends Sprite3D
 
 
-const GRID_SIZE = preload("res://designer/designer.gd").GRID_SIZE
+const GRID_SIZE = preload("designer.gd").GRID_SIZE
 
 
 func _ready():

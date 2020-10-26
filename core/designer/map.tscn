@@ -14,13 +14,14 @@
 [ext_resource path="res://unit/structure/spawn_platform/spawn_platform_ghost.tscn" type="PackedScene" id=12]
 [ext_resource path="res://unit/structure/storage_pod/storage_pod_ghost.tscn" type="PackedScene" id=13]
 [ext_resource path="res://core/camera/free_camera.gd" type="Script" id=14]
-[ext_resource path="res://designer/load_vehicle.gd" type="Script" id=15]
+[ext_resource path="res://core/designer/load_vehicle.gd" type="Script" id=15]
 [ext_resource path="res://unit/structure/munitions_factory/munitions_factory.tscn" type="PackedScene" id=16]
 [ext_resource path="res://unit/structure/refinery/refinery.tscn" type="PackedScene" id=17]
 [ext_resource path="res://unit/structure/munitions_factory/munitions_factory_ghost.tscn" type="PackedScene" id=18]
 [ext_resource path="res://unit/structure/refinery/refinery_ghost.tscn" type="PackedScene" id=19]
 [ext_resource path="res://unit/structure/roboport/roboport_ghost.tscn" type="PackedScene" id=20]
 [ext_resource path="res://unit/structure/roboport/roboport.tscn" type="PackedScene" id=21]
+
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node

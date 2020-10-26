@@ -5,8 +5,8 @@ const VERSION = "0.12.1"
 # Because Godot does not allow cyclic references and is apparently not capable
 # of updating file paths automatically, this shall be the solution
 const SCENE_MENU_MAIN = "res://menu/main.tscn"
-const SCENE_DESIGNER = "res://designer/designer.tscn"
-const SCENE_DESIGNER_MAP = "res://designer/map.tscn"
+const SCENE_DESIGNER = "res://core/designer/designer.tscn"
+const SCENE_DESIGNER_MAP = "res://core/designer/map.tscn"
 const SCENE_LOADING = "res://menu/loading_screen.tscn"
 const SCENE_VEHICLE = "res://unit/vehicle/vehicle.tscn"
 const BLOCK_DIR = "res://block"
