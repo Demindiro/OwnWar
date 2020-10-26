@@ -11,6 +11,9 @@ const BLOCK_MAPPINGS = [
 				"cube": "cube_b_1_1-1-1-1-1-1-1-1-1-1-1-1",
 				"edge": "edge_b_1_1-1-1-1-1-1-1",
 			}],
+		[Vector3(0, 12, 1), {
+				"railgun": "vane",
+			}],
 	]
 
 
