@@ -28,3 +28,8 @@ mass = 1
 health = 100
 cost = 1
 size = Vector3( 1, 1, 1 )
+mirror_rotation_offset = 0
+meta = {
+
+}
+__mirror_block_name = ""

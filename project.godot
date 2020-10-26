@@ -84,11 +84,6 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://unit/vehicle/voxel_mesh.gd"
 }, {
-"base": "Spatial",
-"class": "Weapon",
-"language": "GDScript",
-"path": "res://block/weapon/weapon.gd"
-}, {
 "base": "VehicleWheel",
 "class": "Wheel",
 "language": "GDScript",
@@ -110,7 +105,6 @@ _global_script_class_icons={
 "Vehicle": "",
 "VoxelBody": "",
 "VoxelMesh": "",
-"Weapon": "",
 "Wheel": ""
 }
 

@@ -33,9 +33,6 @@ func _process(_delta):
 
 
 func debug_draw(debug_node):
-	for child in get_children():
-		if child is Weapon:
-			child.debug_draw(debug_node)
 	for hit in _debug_hits:
 		var position = Vector3(hit[0][0], hit[0][1], hit[0][2]) + Vector3.ONE / 2
 		debug_node.draw_point(to_global(position * Global.BLOCK_SCALE - center_of_mass),
