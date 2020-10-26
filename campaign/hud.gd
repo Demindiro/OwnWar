@@ -298,8 +298,11 @@ func get_selected_units(teams_mask):
 	for i in range(len(game_master.teams)):
 		if teams_mask & (1 << i):
 			for child in game_master.units[i]:
-				if rect.has_point($Camera.unproject_position(child.translation)):
-					units.append(child)
+				var screen_pos: Vector2 = $Camera.unproject_position(child.translation)
+				if rect.has_point(screen_pos):
+					var direction: Vector3 = $Camera.translation - child.translation
+					if $Camera.transform.basis.z.dot(direction) > 0:
+						units.append(child)
 	return units
 
 
