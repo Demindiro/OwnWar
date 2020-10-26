@@ -17,11 +17,11 @@ onready var _material_id = Matter.name_to_id["material"]
 func _physics_process(delta):
 	if _current_producing_munition != null:
 		var id = Matter.name_to_id[_current_producing_munition.human_name]
-		var volume = Matter.matter_volume[id]
+		var volume = Matter.matter_volume[id] * _current_producing_munition.shells_per_batch
 		var time_between_munitions = float(volume) / 10_000_000.0
 		if _time_until_munition_produced >= time_between_munitions:
 			if _munition_volume + volume < _MAX_MUNITION_VOLUME:
-				_munition[id] = _munition.get(id, 0) + 1
+				_munition[id] = _munition.get(id, 0) + _current_producing_munition.shells_per_batch
 				_munition_volume += volume
 				_current_producing_munition = null
 				_time_until_munition_produced -= time_between_munitions
