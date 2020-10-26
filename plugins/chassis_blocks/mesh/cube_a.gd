@@ -1,11 +1,11 @@
-extends "res://block/chassis/mesh/mesh.gd"
+extends "mesh.gd"
 
 
 func _init():
-	name = "edge_b"
+	name = "cube_a"
 
 
-func generate(transform, x, y, z, u, v, flip_faces := false):
+func generate(transform, x, y, z, u, v, w, a, flip_faces := false):
 	var vertices = PoolVector3Array()
 	
 	var o = transform * Vector3.ZERO
@@ -14,23 +14,31 @@ func generate(transform, x, y, z, u, v, flip_faces := false):
 	z = transform * z
 	u = transform * u
 	v = transform * v
+	w = transform * w
+	a = transform * a
 	
-	for vertex in [o, y, z]: # -X
+	for vertex in [o, y, u, o, u, z]: # -X
 		vertices.append(vertex)
-	for vertex in [x, u, v]: # +X
+	for vertex in [o, v, x, o, z, v]: # -Y
 		vertices.append(vertex)
-	for vertex in [o, z, x, x, z, u]: # -Y
+	for vertex in [o, x, w, o, w, y]: # -Z
 		vertices.append(vertex)
-	for vertex in [o, x, y, y, x, v]: # -Z
+	for vertex in [a, x, v]: # +X (L)
 		vertices.append(vertex)
-	for vertex in [z, y, v]: # E (0)
+	for vertex in [a, w, x]: # +X (H)
 		vertices.append(vertex)
-	for vertex in [v, u, z]: # E (1)
+	for vertex in [a, u, y]: # +Y (L)
 		vertices.append(vertex)
-
+	for vertex in [a, y, w]: # +Y (H)
+		vertices.append(vertex)
+	for vertex in [a, z, u]: # +Z (L)
+		vertices.append(vertex)
+	for vertex in [a, v, z]: # +Z (H)
+		vertices.append(vertex)
+		
 	if flip_faces:
 		vertices.invert()
-
+		
 	var array = []
 	array.resize(Mesh.ARRAY_MAX)
 	array[Mesh.ARRAY_VERTEX] = vertices

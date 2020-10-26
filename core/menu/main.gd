@@ -6,6 +6,10 @@ const WAYPOINT_MAX_RADIUS = 200
 
 
 func _ready():
+	call_deferred("_ready_deferred")
+
+
+func _ready_deferred():
 	randomize()
 	$"../Vehicle".load_from_file("user://vehicles/apc.json")
 	call_deferred("_on_Timer_timeout")

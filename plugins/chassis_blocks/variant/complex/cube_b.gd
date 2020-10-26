@@ -1,4 +1,4 @@
-extends "res://block/chassis/variant/complex/cube_a.gd"
+extends "cube_a.gd"
 
 
 func _init():

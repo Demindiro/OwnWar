@@ -1,11 +1,11 @@
-extends "res://block/chassis/mesh/mesh.gd"
+extends "mesh.gd"
 
 
 func _init():
-	name = "inverse_square_corner"
+	name = "edge_b"
 
 
-func generate(transform, x, y, z, u, v, w, flip_faces := false):
+func generate(transform, x, y, z, u, v, flip_faces := false):
 	var vertices = PoolVector3Array()
 	
 	var o = transform * Vector3.ZERO
@@ -14,26 +14,23 @@ func generate(transform, x, y, z, u, v, w, flip_faces := false):
 	z = transform * z
 	u = transform * u
 	v = transform * v
-	w = transform * w
 	
-	for vertex in [o, y, u, o, u, z]: # -X
+	for vertex in [o, y, z]: # -X
 		vertices.append(vertex)
-	for vertex in [o, v, x, o, z, v]: # -Y
+	for vertex in [x, u, v]: # +X
 		vertices.append(vertex)
-	for vertex in [o, x, w, o, w, y]: # -Z
+	for vertex in [o, z, x, x, z, u]: # -Y
 		vertices.append(vertex)
-	for vertex in [x, v, w]: # +X 
+	for vertex in [o, x, y, y, x, v]: # -Z
 		vertices.append(vertex)
-	for vertex in [z, u, v]: # +Z
+	for vertex in [z, y, v]: # E (0)
 		vertices.append(vertex)
-	for vertex in [y, w, v]: # E (X)
+	for vertex in [v, u, z]: # E (1)
 		vertices.append(vertex)
-	for vertex in [y, v, u]: # E (Z)
-		vertices.append(vertex)
-	
+
 	if flip_faces:
 		vertices.invert()
-	
+
 	var array = []
 	array.resize(Mesh.ARRAY_MAX)
 	array[Mesh.ARRAY_VERTEX] = vertices

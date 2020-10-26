@@ -23,10 +23,11 @@ func _process(_delta):
 
 
 func _physics_process(delta):
-	global_transform = voxel_bodies[0].global_transform
-	for manager_name in managers:
-		if managers[manager_name].has_method("process"):
-			managers[manager_name].process(delta)
+	if len(voxel_bodies) > 0:
+		global_transform = voxel_bodies[0].global_transform
+		for manager_name in managers:
+			if managers[manager_name].has_method("process"):
+				managers[manager_name].process(delta)
 
 
 func get_info():

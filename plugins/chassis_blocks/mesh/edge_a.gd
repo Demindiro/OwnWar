@@ -1,4 +1,4 @@
-extends "res://block/chassis/mesh/mesh.gd"
+extends "mesh.gd"
 
 
 func _init():

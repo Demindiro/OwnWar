@@ -80,6 +80,8 @@ static func add_block(block: Block):
 		push_error("Block name is already registered: '%s'" % block.name)
 		return
 	Global.blocks[block.name] = block
+	block.id = len(Global.blocks_by_id)
+	Global.blocks_by_id.append(block)
 
 
 static func rotation_to_basis(rotation: int) -> Basis:

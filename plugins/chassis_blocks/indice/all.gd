@@ -1,4 +1,4 @@
-extends "res://block/chassis/indice/indice.gd"
+extends "indice.gd"
 
 
 func start(p_segments: int, indice_count: int):

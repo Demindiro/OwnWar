@@ -10,8 +10,9 @@ var finished := true
 
 
 func _set_generator():
-	mesh_generator = load("res://block/chassis/mesh/%s.gd" % name).new()
-	indice_generator = load("res://block/chassis/indice/all.gd").new()
+	var dir: String = get_script().get_path().get_base_dir()
+	mesh_generator = load(dir.plus_file("../../mesh/%s.gd") % name).new()
+	indice_generator = load(dir.plus_file("../../indice/all.gd")).new()
 
 
 func start(p_segments: int):

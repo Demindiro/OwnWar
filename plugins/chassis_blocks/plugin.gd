@@ -1,16 +1,18 @@
-extends Node
+const PLUGIN_ID = "chassis_blocks"
+const MIN_VERSION = Vector3(0, 12, 0)
 
 
-func _enter_tree():
+func _init():
+	var dir: String = get_script().get_path().get_base_dir()
 	var file := File.new()
-	var err := file.open("res://block/chassis/shapes.json", File.READ)
+	var err := file.open(dir.plus_file("shapes.json"), File.READ)
 	if err != OK:
-		Global.error("Couldn't read shapes file", err)
+		print("Couldn't read shapes file: %d" % err)
 		return
 	var data = parse_json(file.get_as_text())
 	for generator_name in data:
 		var blocks = data[generator_name]
-		var generator = load("res://block/chassis/variant/complex/%s.gd" % generator_name).new()
+		var generator = load(dir.plus_file("variant/complex/%s.gd") % generator_name).new()
 		for block_name in blocks:
 			var block_data = blocks[block_name]
 			var indices = PoolIntArray(block_data["indices"])

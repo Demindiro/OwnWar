@@ -82,12 +82,6 @@ func _init():
 func _ready():
 	for file in recurse_directory(BLOCK_DIR, ".tres"):
 		Block.add_block(load(file))
-	var id = 1
-	for name in blocks:
-		var block = blocks[name]
-		blocks_by_id.append(block)
-		block.id = id
-		id += 1
 # warning-ignore:return_value_discarded
 	Matter.add_matter("material", 1_000_000)
 # warning-ignore:return_value_discarded

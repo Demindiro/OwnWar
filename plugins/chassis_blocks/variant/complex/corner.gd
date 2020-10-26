@@ -1,4 +1,4 @@
-extends "res://block/chassis/variant/variant.gd"
+extends "../variant.gd"
 
 
 func _init():

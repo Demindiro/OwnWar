@@ -123,7 +123,6 @@ config/icon="res://icon.png"
 [autoload]
 
 Global="*res://core/global.gd"
-GenerateBlocks="*res://block/chassis/generate_blocks.gd"
 MaterialCache="*res://core/material_cache.gd"
 ObjectCache="*res://core/object_cache.gd"
 Matter="*res://core/matter/matter.gd"
