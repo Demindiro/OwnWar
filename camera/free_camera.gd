@@ -1,4 +1,5 @@
 extends Camera
+class_name FreeCamera
 
 export(float) var speed = 10
 export(float) var angular_speed = 0.01
