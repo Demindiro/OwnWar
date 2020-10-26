@@ -14,7 +14,8 @@ func add_block(block: Block, color: Color, coordinate: Array, rotation: int) -> 
 		return
 	for i in range(mesh.get_surface_count()):
 #		var material := mesh.surface_get_material(i)
-		var material := MaterialCache.get_material(color)
+#		var material := MaterialCache.get_material(color)
+		var material = MaterialCache.get_material(color)
 		var array = _get_mesh_arrays(mesh, i)
 		_transform_array(array, coordinate, rotation)
 		_dedup_array(array)
