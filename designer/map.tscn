@@ -156,7 +156,7 @@ action = "ui_accept"
 [sub_resource type="ShortCut" id=15]
 shortcut = SubResource( 14 )
 
-[node name="Designer" type="Spatial"]
+[node name="Designer" type="Node"]
 script = ExtResource( 10 )
 
 [node name="Map" type="Node" parent="."]

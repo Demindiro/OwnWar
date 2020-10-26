@@ -8,7 +8,9 @@ export var shell: PackedScene
 # warning-ignore:unused_class_variable
 export var mesh: Mesh
 # warning-ignore:unused_class_variable
-export var cost := 3
+export var cost := 1
+# warning-ignore:unused_class_variable
+export var shells_per_batch := 1
 # warning-ignore:unused_class_variable
 export var gauge := -1
 

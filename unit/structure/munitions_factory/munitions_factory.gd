@@ -9,40 +9,36 @@ var _material := 0
 var _munition := {}
 var _munition_volume := 0
 var _current_munition_type: Munition
-var _producing_munition := false
-var _time_between_munitions := 1.0
+var _current_producing_munition: Munition
 var _time_until_munition_produced := 0.0
 onready var _material_id = Matter.name_to_id["material"]
 
 
-func _ready():
-	_current_munition_type = munition_types[0]
-
-
 func _physics_process(delta):
-	if _producing_munition:
-		if _time_until_munition_produced >= _time_between_munitions:
-			var id = Matter.name_to_id[_current_munition_type.human_name]
-			var volume = Matter.matter_volume[id]
+	if _current_producing_munition != null:
+		var id = Matter.name_to_id[_current_producing_munition.human_name]
+		var volume = Matter.matter_volume[id] * _current_producing_munition.shells_per_batch
+		var time_between_munitions = float(volume) / 10_000_000.0
+		if _time_until_munition_produced >= time_between_munitions:
 			if _munition_volume + volume < _MAX_MUNITION_VOLUME:
-				_munition[id] = _munition.get(id, 0) + 1
+				_munition[id] = _munition.get(id, 0) + _current_producing_munition.shells_per_batch
 				_munition_volume += volume
-				_visualize_munitions()
-				_producing_munition = false
-				_time_until_munition_produced -= _time_between_munitions
+				_current_producing_munition = null
+				_time_until_munition_produced -= time_between_munitions
 				emit_signal("dump_matter", id, _munition[id])
 				emit_signal("provide_matter", id, _munition[id])
 		else:
 			_time_until_munition_produced += delta
-	else:
-		if _current_munition_type.cost <= _material:
+	elif _current_munition_type != null and _current_munition_type.cost <= _material:
 			_material -= _current_munition_type.cost
 			emit_signal("need_matter", _material_id, _MAX_MATERIAL - _material)
-			_producing_munition = true
+			_current_producing_munition = _current_munition_type
 
 
 func get_actions():
-	var actions = []
+	var actions = [
+			["Turn off", Action.INPUT_NONE, "set_munition_type", [null]]
+		]
 	for munition_type in munition_types:
 		actions.append([
 				"Produce %s" % str(munition_type),
@@ -56,7 +52,10 @@ func get_actions():
 func get_info():
 	var info = .get_info()
 	info["Material"] = "%d / %d" % [_material, _MAX_MATERIAL]
-	info["Producing"] = str(_current_munition_type)
+	if _current_munition_type != null:
+		info["Producing"] = str(_current_munition_type)
+	else:
+		info["Producing"] = "None"
 	info["Volume"] = "%d / %d" % [_munition_volume / 1_000_000, _MAX_MUNITION_VOLUME / 1_000_000]
 	for m in _munition:
 		info[Matter.matter_name[m]] = _munition[m]
@@ -64,7 +63,9 @@ func get_info():
 
 
 func needs_matter(id: int) -> int:
-	return _MAX_MATERIAL - _material if _material_id == id else 0
+	if _current_munition_type != null:
+		return _MAX_MATERIAL - _material if _material_id == id else 0
+	return 0
 
 
 func dumps_matter(id: int) -> int:
@@ -106,7 +107,10 @@ func put_matter(id: int, amount: int) -> int:
 		if _material > _MAX_MATERIAL:
 			remainder = _material - _MAX_MATERIAL
 			_material = _MAX_MATERIAL
-			emit_signal("need_matter", _material_id, _MAX_MATERIAL - _material)
+			if _current_munition_type != null:
+				emit_signal("need_matter", _material_id, _MAX_MATERIAL - _material)
+			else:
+				emit_signal("need_matter", _material_id, 0)
 		return remainder
 	return amount
 
@@ -120,7 +124,6 @@ func take_matter(id: int, amount: int) -> int:
 # warning-ignore:return_value_discarded
 			_munition.erase(id)
 		_munition_volume -= amount * Matter.matter_volume[id]
-		_visualize_munitions()
 		emit_signal("dump_matter", id, _munition.get(id, 0))
 		emit_signal("provide_matter", id, _munition.get(id, 0))
 		return amount
@@ -129,13 +132,7 @@ func take_matter(id: int, amount: int) -> int:
 
 func set_munition_type(_flags, munition_type):
 	_current_munition_type = munition_type
-
-
-func _visualize_munitions():
-	var id = Matter.name_to_id[_current_munition_type.human_name]
-	$MultiMeshInstance.multimesh.mesh = _current_munition_type.mesh
-	$MultiMeshInstance.multimesh.instance_count = _munition.get(id, 0)
-	for i in range(_munition.get(id, 0)):
-		var munition_transform := Transform2D(Vector2.UP, Vector2.RIGHT,
-			Vector2(i % 5, i / 5.0) / 3.0)
-		$MultiMeshInstance.multimesh.set_instance_transform_2d(i, munition_transform)
+	if _current_munition_type != null:
+		emit_signal("need_matter", _material_id, _MAX_MATERIAL - _material)
+	else:
+		emit_signal("need_matter", _material_id, 0)
