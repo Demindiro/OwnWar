@@ -75,6 +75,10 @@ var blocks_by_id: Array = [null]
 var _loader
 
 
+func _init():
+	print("Game version %s" % [VERSION])
+
+
 func _ready():
 	for file in recurse_directory(BLOCK_DIR, ".tres"):
 		Block.add_block(load(file))
