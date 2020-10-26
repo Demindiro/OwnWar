@@ -128,7 +128,7 @@ MaterialCache="*res://material_cache.gd"
 ObjectCache="*res://object_cache.gd"
 Matter="*res://core/matter/matter.gd"
 RegisterMunition="*res://core/matter/munition/register_munition.gd"
-Plugins="*res://plugins.gd"
+Plugins="*res://core/plugins.gd"
 
 [debug]
 
