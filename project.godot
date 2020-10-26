@@ -24,10 +24,10 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://block/weapon/cannon.gd"
 }, {
-"base": "Resource",
+"base": "Reference",
 "class": "Compatibility",
 "language": "GDScript",
-"path": "res://compatibility.gd"
+"path": "res://core/compatibility.gd"
 }, {
 "base": "Spatial",
 "class": "Connector",
