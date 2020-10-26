@@ -79,6 +79,8 @@ func _init():
 	print("Game version %s" % [VERSION])
 	# == TODO
 	Vehicle.add_manager("power", preload("res://block/power/power_manager.gd"))
+	Vehicle.add_manager("weapon", preload("res://block/weapon/weapon_manager.gd"))
+	Vehicle.add_manager("movement", preload("res://block/wheel/movement_manager.gd"))
 	# ==
 
 func _ready():

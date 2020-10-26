@@ -51,7 +51,7 @@ func init(_coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
 	set_as_toplevel(true)
 	$Generic6DOFJoint.set("nodes/node_b", $Generic6DOFJoint.get_path_to(voxel_body))
 	_voxel_body = voxel_body
-	_manager = vehicle.get_manager("weapon", preload("res://block/weapon/weapon_manager.gd"))
+	_manager = vehicle.get_manager("weapon")
 	_manager.add_cannon(self)
 
 

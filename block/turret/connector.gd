@@ -113,7 +113,7 @@ func _create_joint(p_body_a, p_body_b):
 
 
 func _add_self_to_weapon_manager(vehicle):
-	var manager = vehicle.get_manager("weapon", preload("res://block/weapon/weapon_manager.gd"))
+	var manager = vehicle.get_manager("weapon")
 	manager.add_turret(self)
 
 
