@@ -2,6 +2,7 @@ class_name Vehicle
 extends Unit
 
 
+const MANAGERS := {}
 var max_cost: int
 var voxel_bodies := []
 var actions := []
@@ -171,10 +172,10 @@ func do_action(flags, arg0, arg1 = null):
 		object.callv(function, [flags] + arguments)
 
 
-func get_manager(p_name, script):
+func get_manager(p_name: String) -> GDScript:
 	var manager = managers.get(p_name)
 	if manager == null:
-		manager = script.new()
+		manager = MANAGERS[p_name].new()
 		managers[p_name] = manager
 		manager.init(self)
 	return manager
@@ -247,3 +248,8 @@ static func path_to_name(path: String) -> String:
 	
 static func name_to_path(p_name: String) -> String:
 	return p_name.to_lower().replace(' ', '_') + '.json'
+
+
+static func add_manager(p_name: String, script: GDScript):
+	assert(not p_name in MANAGERS)
+	MANAGERS[p_name] = script
