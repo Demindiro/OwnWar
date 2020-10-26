@@ -1,10 +1,11 @@
 [gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://unit/stress/vehicle.gd" type="Script" id=1]
-[ext_resource path="res://camera/free_camera.gd" type="Script" id=2]
+[ext_resource path="res://core/camera/free_camera.gd" type="Script" id=2]
 [ext_resource path="res://campaign/debug.tscn" type="PackedScene" id=3]
 [ext_resource path="res://test/draw_calls.tscn" type="PackedScene" id=4]
 [ext_resource path="res://test/fps.tscn" type="PackedScene" id=5]
+
 
 [sub_resource type="HeightMapShape" id=1]
 map_width = 200

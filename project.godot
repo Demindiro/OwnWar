@@ -37,7 +37,7 @@ _global_script_classes=[ {
 "base": "Camera",
 "class": "FreeCamera",
 "language": "GDScript",
-"path": "res://camera/free_camera.gd"
+"path": "res://core/camera/free_camera.gd"
 }, {
 "base": "Node",
 "class": "GameMaster",
