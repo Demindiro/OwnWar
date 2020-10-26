@@ -77,7 +77,9 @@ var _loader
 
 func _init():
 	print("Game version %s" % [VERSION])
-
+	# == TODO
+	Vehicle.add_manager("power", preload("res://block/power/power_manager.gd"))
+	# ==
 
 func _ready():
 	for file in recurse_directory(BLOCK_DIR, ".tres"):

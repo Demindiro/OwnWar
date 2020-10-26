@@ -6,7 +6,7 @@ var _power_manager: Reference
 
 
 func init(vehicle: Vehicle) -> void:
-	_power_manager = vehicle.get_manager("power", preload("res://block/power/power_manager.gd"))
+	_power_manager = vehicle.get_manager("power")
 
 
 func set_drive_forward(drive):
