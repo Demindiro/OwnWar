@@ -117,7 +117,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Own War"
-run/main_scene="res://menu/main.tscn"
+run/main_scene="res://core/menu/main.tscn"
 config/icon="res://icon.png"
 
 [autoload]

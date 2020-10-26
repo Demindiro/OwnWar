@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/subpanel.png-870b4ad0bb5e861553f8369b2aa25097.stex"
+path="res://.import/subpanel.png-dd3e9a79adb74d8a51158b1a3e797557.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://menu/panel/subpanel.png"
-dest_files=[ "res://.import/subpanel.png-870b4ad0bb5e861553f8369b2aa25097.stex" ]
+source_file="res://core/menu/panel/subpanel.png"
+dest_files=[ "res://.import/subpanel.png-dd3e9a79adb74d8a51158b1a3e797557.stex" ]
 
 [params]
 

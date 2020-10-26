@@ -1,13 +1,13 @@
 [gd_resource type="Theme" load_steps=11 format=2]
 
-[ext_resource path="res://menu/good_times_rg.ttf" type="DynamicFontData" id=1]
-[ext_resource path="res://menu/font.tres" type="DynamicFont" id=2]
-[ext_resource path="res://menu/button/button.tres" type="StyleBox" id=3]
-[ext_resource path="res://menu/button/button_hover.tres" type="StyleBox" id=4]
-[ext_resource path="res://menu/button/button_pressed.tres" type="StyleBox" id=5]
-[ext_resource path="res://menu/panel/subpanel.tres" type="StyleBox" id=6]
-[ext_resource path="res://menu/button/button_focus.tres" type="StyleBox" id=7]
-[ext_resource path="res://menu/button/button_disabled.tres" type="StyleBox" id=8]
+[ext_resource path="res://core/menu/good_times_rg.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://core/menu/font.tres" type="DynamicFont" id=2]
+[ext_resource path="res://core/menu/button/button.tres" type="StyleBox" id=3]
+[ext_resource path="res://core/menu/button/button_hover.tres" type="StyleBox" id=4]
+[ext_resource path="res://core/menu/button/button_pressed.tres" type="StyleBox" id=5]
+[ext_resource path="res://core/menu/panel/subpanel.tres" type="StyleBox" id=6]
+[ext_resource path="res://core/menu/button/button_focus.tres" type="StyleBox" id=7]
+[ext_resource path="res://core/menu/button/button_disabled.tres" type="StyleBox" id=8]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.207843, 0.2, 0.239216, 1 )

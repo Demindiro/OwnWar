@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/panel_edge.png-5371d8e4066b8985ded44346f724e085.stex"
+path="res://.import/button_pressed.png-e40b06426455f704f650f2fadaf241c6.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://menu/menu/panel_edge.png"
-dest_files=[ "res://.import/panel_edge.png-5371d8e4066b8985ded44346f724e085.stex" ]
+source_file="res://core/menu/button/button_pressed.png"
+dest_files=[ "res://.import/button_pressed.png-e40b06426455f704f650f2fadaf241c6.stex" ]
 
 [params]
 

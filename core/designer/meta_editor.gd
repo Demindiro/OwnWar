@@ -1,4 +1,4 @@
-extends "res://menu/dialog/independent_panel.gd"
+extends "res://core/menu/dialog/independent_panel.gd"
 
 
 var _meta_types := {}

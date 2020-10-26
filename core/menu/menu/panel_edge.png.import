@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/button_focus.png-e5de6474cb99b4c19f3cc02e0802c130.stex"
+path="res://.import/panel_edge.png-42e558d41560c629a3b386bc7c2ec4b0.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://menu/button/button_focus.png"
-dest_files=[ "res://.import/button_focus.png-e5de6474cb99b4c19f3cc02e0802c130.stex" ]
+source_file="res://core/menu/menu/panel_edge.png"
+dest_files=[ "res://.import/panel_edge.png-42e558d41560c629a3b386bc7c2ec4b0.stex" ]
 
 [params]
 
