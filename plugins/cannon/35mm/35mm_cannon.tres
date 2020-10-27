@@ -3,11 +3,6 @@
 [ext_resource path="res://core/block/block.gd" type="Script" id=1]
 [ext_resource path="res://plugins/cannon/35mm/35mm_cannon.tscn" type="PackedScene" id=2]
 
-
-
-
-
-
 [resource]
 script = ExtResource( 1 )
 name = "35mm_cannon"
@@ -19,4 +14,7 @@ health = 100
 cost = 1
 size = Vector3( 1, 1, 1 )
 mirror_rotation_offset = 0
+meta = {
+
+}
 __mirror_block_name = ""

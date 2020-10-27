@@ -1,6 +1,8 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://block/weapon/ammo_rack.gd" type="Script" id=1]
+[ext_resource path="res://plugins/weapon_manager/ammo_rack.gd" type="Script" id=1]
+
+
 
 [node name="AmmoRack" type="Spatial"]
 script = ExtResource( 1 )
