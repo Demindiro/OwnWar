@@ -4,8 +4,8 @@ extends Node
 var plugins := {}
 
 
-func _ready():
-	call_deferred("_load_plugins")
+func _enter_tree():
+	_load_plugins()
 
 
 func _load_plugins():
