@@ -64,7 +64,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://unit/ore/ore.gd"
 }, {
-"base": "Reference",
+"base": "Spatial",
 "class": "Unit",
 "language": "GDScript",
 "path": "res://core/unit.gd"

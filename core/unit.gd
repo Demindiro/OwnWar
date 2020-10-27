@@ -25,11 +25,16 @@ enum Action {
 
 	SUBACTION = 0x100,
 }
-
+enum TypeFlags {
+	DEFAULT = 0x0,
+	STRUCTURE = 0x1,
+}
+const UNITS := {}
 export var max_health := 10
 export var team := 0
 # warning-ignore:unused_class_variable
 export var unit_name := "unit"
+export var type_flags := TypeFlags.DEFAULT
 onready var health := max_health
 onready var game_master = GameMaster.get_game_master(self)
 
@@ -117,3 +122,8 @@ func take_matter(_id: int, _amount: int) -> int:
 func destroy():
 	game_master.remove_unit(team, self)
 	emit_signal("destroyed", self)
+
+
+static func add_unit(p_name: String, unit) -> void:
+	assert(not p_name in UNITS)
+	UNITS[p_name] = unit
