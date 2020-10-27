@@ -7,7 +7,6 @@
 [ext_resource path="res://core/menu/button/button_hover.tres" type="StyleBox" id=5]
 [ext_resource path="res://core/menu/button/button_focus.tres" type="StyleBox" id=6]
 
-
 [node name="MenuButton" type="Button"]
 margin_right = 113.454
 margin_bottom = 41.6293

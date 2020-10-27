@@ -59,6 +59,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/zylann.hterrain/hterrain_resource_saver.gd"
 }, {
+"base": "Reference",
+"class": "Maps",
+"language": "GDScript",
+"path": "res://core/maps.gd"
+}, {
 "base": "Spatial",
 "class": "Ore",
 "language": "GDScript",
@@ -100,6 +105,7 @@ _global_script_class_icons={
 "Ghost": "",
 "HTerrainDataLoader": "",
 "HTerrainDataSaver": "",
+"Maps": "",
 "Ore": "",
 "Unit": "",
 "Vehicle": "",

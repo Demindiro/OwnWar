@@ -3,27 +3,14 @@
 [ext_resource path="res://core/menu/menu/panel.tres" type="StyleBox" id=1]
 [ext_resource path="res://core/menu/menu/panel_edge.png" type="Texture" id=2]
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=3]
+[ext_resource path="res://core/menu/dialog/independent_panel.gd" type="Script" id=4]
 [ext_resource path="res://core/menu/font.tres" type="DynamicFont" id=5]
-
-
-[sub_resource type="GDScript" id=1]
-script/source = "tool
-extends Control
-
-
-export var title := \"Title\" setget set_title
-
-
-func set_title(p_title):
-	title = p_title
-	$Title.text = title
-"
 
 [node name="IndependentPanel" type="Control"]
 margin_right = 320.0
 margin_bottom = 380.0
 theme = ExtResource( 3 )
-script = SubResource( 1 )
+script = ExtResource( 4 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
