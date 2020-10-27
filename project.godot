@@ -22,7 +22,7 @@ _global_script_classes=[ {
 "base": "RigidBody",
 "class": "Cannon",
 "language": "GDScript",
-"path": "res://block/weapon/cannon.gd"
+"path": "res://plugins/cannon/cannon.gd"
 }, {
 "base": "Resource",
 "class": "Compatibility",

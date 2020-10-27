@@ -1,8 +1,7 @@
 [gd_resource type="Resource" load_steps=3 format=2]
 
 [ext_resource path="res://core/block/block.gd" type="Script" id=1]
-[ext_resource path="res://block/weapon/80mm_cannon.tscn" type="PackedScene" id=2]
-
+[ext_resource path="res://plugins/cannon/160mm/80mm_cannon.tscn" type="PackedScene" id=2]
 
 [resource]
 script = ExtResource( 1 )
@@ -15,4 +14,7 @@ health = 100
 cost = 1
 size = Vector3( 1, 1, 1 )
 mirror_rotation_offset = 0
+meta = {
+
+}
 __mirror_block_name = ""
