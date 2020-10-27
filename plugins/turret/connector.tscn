@@ -1,7 +1,8 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://block/turret/connector.gd" type="Script" id=1]
+[ext_resource path="res://plugins/turret/connector.gd" type="Script" id=1]
 [ext_resource path="res://addons/arrow.png" type="Texture" id=2]
+
 
 [node name="Connector" type="Spatial"]
 script = ExtResource( 1 )

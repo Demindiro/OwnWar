@@ -32,7 +32,7 @@ _global_script_classes=[ {
 "base": "Spatial",
 "class": "Connector",
 "language": "GDScript",
-"path": "res://block/turret/connector.gd"
+"path": "res://plugins/turret/connector.gd"
 }, {
 "base": "Camera",
 "class": "FreeCamera",
