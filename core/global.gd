@@ -77,9 +77,6 @@ var _loader
 
 func _init():
 	print("Game version %s" % [VERSION])
-	# == TODO
-	Vehicle.add_manager("movement", preload("res://block/wheel/movement_manager.gd"))
-	# ==
 
 func _ready():
 	for file in recurse_directory(BLOCK_DIR, ".tres"):

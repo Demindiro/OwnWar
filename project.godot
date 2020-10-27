@@ -92,7 +92,7 @@ _global_script_classes=[ {
 "base": "VehicleWheel",
 "class": "Wheel",
 "language": "GDScript",
-"path": "res://block/wheel/wheel.gd"
+"path": "res://plugins/wheel/wheel.gd"
 } ]
 _global_script_class_icons={
 "AI": "",
