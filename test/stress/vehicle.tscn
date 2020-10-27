@@ -1,11 +1,10 @@
 [gd_scene load_steps=8 format=2]
 
-[ext_resource path="res://unit/stress/vehicle.gd" type="Script" id=1]
+[ext_resource path="res://campaign/debug.tscn" type="PackedScene" id=1]
 [ext_resource path="res://core/camera/free_camera.gd" type="Script" id=2]
-[ext_resource path="res://campaign/debug.tscn" type="PackedScene" id=3]
-[ext_resource path="res://test/draw_calls.tscn" type="PackedScene" id=4]
-[ext_resource path="res://test/fps.tscn" type="PackedScene" id=5]
-
+[ext_resource path="res://test/stress/vehicle.gd" type="Script" id=3]
+[ext_resource path="res://test/fps.tscn" type="PackedScene" id=4]
+[ext_resource path="res://test/draw_calls.tscn" type="PackedScene" id=5]
 
 [sub_resource type="HeightMapShape" id=1]
 map_width = 200
@@ -16,7 +15,7 @@ map_data = PoolRealArray( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 size = Vector2( 197, 197 )
 
 [node name="StressVehicles" type="Node"]
-script = ExtResource( 1 )
+script = ExtResource( 3 )
 
 [node name="StaticBody" type="StaticBody" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 95, 0, 95 )
@@ -44,9 +43,9 @@ transform = Transform( -0.866025, 0.12941, -0.482963, 0, 0.965926, 0.258819, 0.5
 far = 2000.0
 script = ExtResource( 2 )
 
-[node name="Debug" parent="." instance=ExtResource( 3 )]
+[node name="Debug" parent="." instance=ExtResource( 1 )]
 visible = false
 
-[node name="DrawCalls" parent="." instance=ExtResource( 4 )]
+[node name="DrawCalls" parent="." instance=ExtResource( 5 )]
 
-[node name="FPS" parent="." instance=ExtResource( 5 )]
+[node name="FPS" parent="." instance=ExtResource( 4 )]
