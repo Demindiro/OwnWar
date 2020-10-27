@@ -1,8 +1,7 @@
 [gd_resource type="Resource" load_steps=5 format=2]
 
 [ext_resource path="res://core/block/block.gd" type="Script" id=1]
-[ext_resource path="res://block/debug/vane.obj" type="ArrayMesh" id=2]
-
+[ext_resource path="res://core/block/debug/vane.obj" type="ArrayMesh" id=2]
 
 [sub_resource type="Shader" id=1]
 code = "shader_type spatial;
