@@ -6,6 +6,10 @@ var _volume := 0
 var _matter := {}
 
 
+func _init():
+	type_flags = TypeFlags.STRUCTURE
+
+
 func _ready():
 	_update_indicator()
 

@@ -11,6 +11,10 @@ onready var _material_id: int = Matter.name_to_id["material"]
 onready var _fuel_id: int = Matter.name_to_id["fuel"]
 
 
+func _init():
+	type_flags = TypeFlags.STRUCTURE
+
+
 func _physics_process(delta):
 	if _producing:
 		_time_until_fuel_produced += delta

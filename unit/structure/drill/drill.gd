@@ -8,6 +8,10 @@ var material := 0
 onready var _material_id: int = Matter.name_to_id["material"]
 
 
+func _init():
+	type_flags = TypeFlags.STRUCTURE
+
+
 func _physics_process(_delta):
 	_ticks_until_next += 1
 	if _ticks_until_next >= Engine.iterations_per_second:

@@ -10,6 +10,10 @@ var queued_vehicle_name
 onready var _material_id = Matter.name_to_id["material"]
 
 
+func _init():
+	type_flags = TypeFlags.STRUCTURE
+
+
 func _ready():
 	unit_name = "spawn_platform"
 	set_material(material)

@@ -18,6 +18,10 @@ var _assigning_tasks := false
 onready var _spawn_timer := get_tree().create_timer(1.0, false)
 
 
+func _init():
+	type_flags = TypeFlags.STRUCTURE
+
+
 func _ready():
 	_providers.resize(len(Matter.matter_name))
 	_takers.resize(len(Matter.matter_name))

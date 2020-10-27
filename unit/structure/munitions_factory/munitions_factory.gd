@@ -15,6 +15,10 @@ var Munition = Plugins.plugins["weapon_manager"].Munition
 onready var _material_id = Matter.name_to_id["material"]
 
 
+func _init():
+	type_flags = TypeFlags.STRUCTURE
+
+
 func _physics_process(delta):
 	if _current_producing_munition != null:
 		var id = Matter.name_to_id[_current_producing_munition.human_name]
