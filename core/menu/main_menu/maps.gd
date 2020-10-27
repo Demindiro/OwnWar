@@ -9,4 +9,4 @@ func _ready():
 		var button: Button = button_template.instance()
 		button.text = map
 		button.connect("pressed", Global, "goto_scene", [Maps.MAPS[map]])
-		add_child(button)
+		$VBoxContainer.add_child(button)
