@@ -8,9 +8,10 @@
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=6]
 [ext_resource path="res://core/menu/good_times_rg.ttf" type="DynamicFontData" id=7]
 [ext_resource path="res://core/menu/button/button.tscn" type="PackedScene" id=8]
-[ext_resource path="res://campaign/game_master.gd" type="Script" id=9]
+[ext_resource path="res://core/game_master.gd" type="Script" id=9]
 [ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=10]
 [ext_resource path="res://core/menu/main_menu/maps.gd" type="Script" id=11]
+
 
 [sub_resource type="HeightMapShape" id=1]
 map_width = 1000
