@@ -8,6 +8,7 @@ var _cannons := []
 var _weapons := []
 var _turrets := []
 var _vehicle
+var Munition = Plugins.plugins["weapon_manager"].Munition
 
 
 #func init(vehicle: Vehicle) -> void:
@@ -25,12 +26,12 @@ func get_matter_count(id: int) -> int:
 
 
 func get_matter_space(id: int) -> int:
-	var munition = RegisterMunition.id_to_munitions.get(id)
+	var munition = Munition.id_to_munitions.get(id)
 	return get_munition_space(munition.gauge) if munition != null else 0
 
 
 func put_matter(id: int, amount: int) -> int:
-	if not id in RegisterMunition.id_to_munitions:
+	if not id in Munition.id_to_munitions:
 		return amount
 	return put_munition(id, amount)
 
@@ -59,8 +60,8 @@ func get_munition_space(gauge := 0) -> int:
 
 
 func put_munition(id: int, amount: int) -> int:
-	assert(id in RegisterMunition.id_to_munitions)
-	var gauge: int = RegisterMunition.id_to_munitions[id].gauge
+	assert(id in Munition.id_to_munitions)
+	var gauge: int = Munition.id_to_munitions[id].gauge
 	var space := get_munition_space(gauge)
 	if space >= amount:
 		_munitions_count[id] = _munitions_count.get(id, 0) + amount
@@ -132,8 +133,8 @@ func add_ammo_rack(ammo_rack: Node) -> void:
 		_max_munitions_by_gauge[gauge] = 0
 		_gauge_to_munitions[gauge] = []
 		if gauge != 0:
-			for id in RegisterMunition.id_to_munitions:
-				if RegisterMunition.id_to_munitions[id].gauge == gauge:
+			for id in Munition.id_to_munitions:
+				if Munition.id_to_munitions[id].gauge == gauge:
 					_vehicle.add_matter_put(id)
 					_vehicle.add_matter_take(id)
 	_max_munitions_by_gauge[gauge] += ammo_rack.max_munitions
@@ -178,4 +179,4 @@ func _turret_destroyed(turret: Node) -> void:
 
 func get_info(info: Dictionary) -> void:
 	for id in _munitions_count:
-		info[RegisterMunition.id_to_munitions[id].human_name] = str(_munitions_count[id])
+		info[Munition.id_to_munitions[id].human_name] = str(_munitions_count[id])

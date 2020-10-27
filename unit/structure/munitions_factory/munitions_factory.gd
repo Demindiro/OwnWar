@@ -8,9 +8,10 @@ const _MAX_MUNITION_VOLUME := 125_000_000
 var _material := 0
 var _munition := {}
 var _munition_volume := 0
-var _current_munition_type: Munition
-var _current_producing_munition: Munition
+var _current_munition_type
+var _current_producing_munition
 var _time_until_munition_produced := 0.0
+var Munition = Plugins.plugins["weapon_manager"].Munition
 onready var _material_id = Matter.name_to_id["material"]
 
 
@@ -97,7 +98,7 @@ func get_put_matter_list() -> PoolIntArray:
 
 
 func get_take_matter_list() -> PoolIntArray:
-	return PoolIntArray(RegisterMunition.id_to_munitions.keys())
+	return PoolIntArray(Munition.id_to_munitions.keys())
 
 
 func put_matter(id: int, amount: int) -> int:

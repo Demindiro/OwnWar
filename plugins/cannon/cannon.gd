@@ -83,12 +83,13 @@ func aim_at(position: Vector3, _velocity := Vector3.ZERO):
 
 
 func fire():
+	var Munition = Plugins.plugins["weapon_manager"].Munition
 	var current_time := float(Engine.get_physics_frames()) / Engine.iterations_per_second
 	if current_time >= _time_of_last_shot + reload_time:
 		var munitions: Dictionary = _manager.take_munition(gauge, 1)
 		for id in munitions:
 			if munitions[id] > 0:
-				var munition: Munition = RegisterMunition.id_to_munitions[id]
+				var munition = Munition.id_to_munitions[id]
 				var y = $ProjectileSpawn.global_transform.basis.y
 				var z = $ProjectileSpawn.global_transform.basis.z
 				var direction = (y.rotated(z, randf() * PI * 2) * inaccuracy + z).normalized()

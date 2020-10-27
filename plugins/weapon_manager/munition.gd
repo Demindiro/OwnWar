@@ -1,5 +1,7 @@
-class_name Munition
 extends Resource
+
+
+const id_to_munitions := {}
 
 
 export var human_name := ""
@@ -21,3 +23,12 @@ func _to_string():
 
 static func is_munition(id: int) -> bool:
 	return id in RegisterMunition.id_to_munitions
+
+
+static func add_munition(m) -> int:
+	# Ammo containers generally pack munition in a square pattern
+	# Pretend that length = gauge * 3
+	var volume: int = m.gauge * m.gauge * (m.gauge * 3)
+	var id := Matter.add_matter(m.human_name, volume)
+	id_to_munitions[id] = m
+	return id

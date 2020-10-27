@@ -59,11 +59,6 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/zylann.hterrain/hterrain_resource_saver.gd"
 }, {
-"base": "Reference",
-"class": "Munition",
-"language": "GDScript",
-"path": "res://core/matter/munition/munition.gd"
-}, {
 "base": "Spatial",
 "class": "Ore",
 "language": "GDScript",
@@ -105,7 +100,6 @@ _global_script_class_icons={
 "Ghost": "",
 "HTerrainDataLoader": "",
 "HTerrainDataSaver": "",
-"Munition": "",
 "Ore": "",
 "Unit": "",
 "Vehicle": "",
@@ -126,7 +120,7 @@ Global="*res://core/global.gd"
 MaterialCache="*res://core/material_cache.gd"
 ObjectCache="*res://core/object_cache.gd"
 Matter="*res://core/matter/matter.gd"
-RegisterMunition="*res://core/matter/munition/register_munition.gd"
+RegisterMunition="*res://plugins/weapon_manager/register_munition.gd"
 Plugins="*res://core/plugins.gd"
 
 [debug]

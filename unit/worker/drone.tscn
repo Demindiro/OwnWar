@@ -8,6 +8,8 @@
 [ext_resource path="res://unit/structure/refinery/refinery_ghost.tscn" type="PackedScene" id=6]
 [ext_resource path="res://unit/structure/roboport/roboport_ghost.tscn" type="PackedScene" id=7]
 
+
+
 [sub_resource type="CubeMesh" id=1]
 size = Vector3( 0.2, 0.075, 0.25 )
 
