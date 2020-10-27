@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/detail.png-047f274011f1a095ac8a17de873f3c4f.stex"
+path="res://.import/color.png-e77ffd093a6d976f2913d7586ff091c2.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://campaign/tutorial/hill_data/detail.png"
-dest_files=[ "res://.import/detail.png-047f274011f1a095ac8a17de873f3c4f.stex" ]
+source_file="res://plugins/tutorial_map/hill_data/color.png"
+dest_files=[ "res://.import/color.png-e77ffd093a6d976f2913d7586ff091c2.stex" ]
 
 [params]
 
@@ -23,7 +23,7 @@ flags/repeat=0
 flags/filter=true
 flags/mipmaps=false
 flags/anisotropic=false
-flags/srgb=0
+flags/srgb=1
 process/fix_alpha_border=false
 process/premult_alpha=false
 process/HDR_as_SRGB=false

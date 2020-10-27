@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/splat.png-c81edb06a285d041c2807044e7b53d56.stex"
+path="res://.import/normal.png-9a51f906b8081390e9c82a7957b1aa30.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://campaign/tutorial/hill_data/splat.png"
-dest_files=[ "res://.import/splat.png-c81edb06a285d041c2807044e7b53d56.stex" ]
+source_file="res://plugins/tutorial_map/hill_data/normal.png"
+dest_files=[ "res://.import/normal.png-9a51f906b8081390e9c82a7957b1aa30.stex" ]
 
 [params]
 
