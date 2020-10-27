@@ -80,8 +80,6 @@ func _init():
 
 
 func _ready():
-	for file in recurse_directory(BLOCK_DIR, ".tres"):
-		Block.add_block(load(file))
 	Block.add_block(preload("block/debug/vane.tres"))
 # warning-ignore:return_value_discarded
 	Matter.add_matter("material", 1_000_000)
