@@ -11,8 +11,10 @@ var finished := true
 
 func _set_generator():
 	var dir: String = get_script().get_path().get_base_dir()
-	mesh_generator = load(dir.plus_file("../../mesh/%s.gd") % name).new()
-	indice_generator = load(dir.plus_file("../../indice/all.gd")).new()
+	# https://github.com/godotengine/godot/issues/35832
+	var dir_bb := dir.get_base_dir().get_base_dir()
+	mesh_generator = load(dir_bb.plus_file("mesh/%s.gd") % name).new()
+	indice_generator = load(dir_bb.plus_file("indice/all.gd")).new()
 
 
 func start(p_segments: int):
