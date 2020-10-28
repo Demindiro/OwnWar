@@ -126,7 +126,6 @@ Global="*res://core/global.gd"
 MaterialCache="*res://core/material_cache.gd"
 ObjectCache="*res://core/object_cache.gd"
 Matter="*res://core/matter/matter.gd"
-RegisterMunition="*res://plugins/weapon_manager/register_munition.gd"
 Plugins="*res://core/plugins.gd"
 
 [debug]

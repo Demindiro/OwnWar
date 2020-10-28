@@ -22,7 +22,7 @@ func _to_string():
 
 
 static func is_munition(id: int) -> bool:
-	return id in RegisterMunition.id_to_munitions
+	return id in id_to_munitions
 
 
 static func add_munition(m) -> int:
