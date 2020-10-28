@@ -2,8 +2,7 @@ extends Unit
 
 
 signal spawned(unit)
-# Thank cyclic PackedScene errors for this
-export(PackedScene) var worker = load("res://unit/worker/drone.tscn")
+var worker = load("res://plugins/worker_drone/drone.tscn")
 var material = 0 setget set_material
 var queued_vehicle = null
 var queued_vehicle_name
