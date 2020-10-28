@@ -20,6 +20,7 @@ func _enter_tree():
 
 
 func _load_plugins():
+	_load_pcks()
 	var scripts := _load_plugins_from_dir()
 
 	var game_version: Vector3 = Compatibility.version_string_to_vector(Global.VERSION)
@@ -102,3 +103,41 @@ func _load_plugins_from_dir() -> Array:
 			scripts.append(script)
 
 	return scripts
+
+
+func _load_pcks() -> void:
+	if not OS.has_feature("standalone"):
+		print("Plugins cannot be loaded in the editor due to a bug with Godot")
+		print("Ref: https://github.com/godotengine/godot/issues/16798")
+		return
+
+	print("Loading plugin PCKs")
+
+	for pck in _iterate_dir("user://plugins/", "pck"):
+		if not ProjectSettings.load_resource_pack(pck, true):
+			print("Failed to load %s" % pck)
+
+
+func _iterate_dir(path: String, extension: String) -> Array:
+	var dir := Directory.new()
+	var e := dir.open(path)
+	if e != OK:
+		print("Couldn't open %s : %d" % [path, e])
+		return []
+
+	e = dir.list_dir_begin(true)
+	if e != OK:
+		print("Couldn't iterate %s : %d" % [path, e])
+		return []
+
+	var file_paths := []
+	while true:
+		var file := dir.get_next()
+		if file == "":
+			break
+		if dir.current_is_dir():
+			file_paths += _iterate_dir(path.plus_file(file), extension)
+		elif file.get_extension() == extension:
+			file_paths.append(path.plus_file(file))
+
+	return file_paths
