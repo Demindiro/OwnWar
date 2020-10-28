@@ -1,7 +1,10 @@
 [gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://unit/structure/munitions_factory/munitions_factory.tscn" type="PackedScene" id=1]
-[ext_resource path="res://unit/structure/ghost.gd" type="Script" id=2]
+[ext_resource path="res://plugins/basic_manufacturing/munitions_factory.tscn" type="PackedScene" id=1]
+[ext_resource path="res://plugins/basic_manufacturing/ghost.gd" type="Script" id=2]
+
+
+
 
 
 [sub_resource type="CubeMesh" id=1]

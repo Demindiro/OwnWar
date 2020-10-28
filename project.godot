@@ -47,7 +47,7 @@ _global_script_classes=[ {
 "base": "Unit",
 "class": "Ghost",
 "language": "GDScript",
-"path": "res://unit/structure/ghost.gd"
+"path": "res://plugins/basic_manufacturing/ghost.gd"
 }, {
 "base": "ResourceFormatLoader",
 "class": "HTerrainDataLoader",
@@ -67,7 +67,7 @@ _global_script_classes=[ {
 "base": "Spatial",
 "class": "Ore",
 "language": "GDScript",
-"path": "res://unit/ore/ore.gd"
+"path": "res://plugins/basic_manufacturing/ore.gd"
 }, {
 "base": "Spatial",
 "class": "Unit",

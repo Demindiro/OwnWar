@@ -1,8 +1,12 @@
 [gd_scene load_steps=10 format=2]
 
-[ext_resource path="res://unit/structure/spawn_platform/platform.obj" type="ArrayMesh" id=1]
+[ext_resource path="res://plugins/basic_manufacturing/platform.obj" type="ArrayMesh" id=1]
 [ext_resource path="res://addons/arrow.png" type="Texture" id=2]
-[ext_resource path="res://unit/structure/spawn_platform/spawn_platform.gd" type="Script" id=3]
+[ext_resource path="res://plugins/basic_manufacturing/spawn_platform.gd" type="Script" id=3]
+
+
+
+
 
 [sub_resource type="BoxShape" id=1]
 extents = Vector3( 7, 1, 8 )

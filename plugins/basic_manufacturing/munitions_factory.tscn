@@ -1,8 +1,10 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://unit/structure/munitions_factory/munitions_factory.gd" type="Script" id=2]
+[ext_resource path="res://plugins/basic_manufacturing/munitions_factory.gd" type="Script" id=2]
 [ext_resource path="res://plugins/cannon/160mm/shell_160mm.tres" type="Resource" id=3]
 [ext_resource path="res://plugins/cannon/35mm/shell_35mm.tres" type="Resource" id=4]
+
+
 
 
 

@@ -2,12 +2,12 @@
 
 importer="scene"
 type="PackedScene"
-path="res://.import/ugly.glb-72e5948a7302042afd971da5243e9e74.scn"
+path="res://.import/ugly.glb-d518ccd74ea9cea025519112f89e0ab4.scn"
 
 [deps]
 
-source_file="res://unit/structure/roboport/ugly.glb"
-dest_files=[ "res://.import/ugly.glb-72e5948a7302042afd971da5243e9e74.scn" ]
+source_file="res://plugins/basic_manufacturing/ugly.glb"
+dest_files=[ "res://.import/ugly.glb-d518ccd74ea9cea025519112f89e0ab4.scn" ]
 
 [params]
 
