@@ -75,11 +75,8 @@ var blocks_by_id: Array = [null]
 var _loader
 
 
-func _init():
+func _enter_tree():
 	print("Game version %s" % [VERSION])
-
-
-func _ready():
 	Block.add_block(preload("block/debug/vane.tres"))
 # warning-ignore:return_value_discarded
 	Matter.add_matter("material", 1_000_000)
