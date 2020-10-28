@@ -1,6 +1,17 @@
 extends Node
 
 
+enum DisableReason {
+		MANUAL = 0x1,
+		CONFLICT = 0x2,
+		TOO_RECENT = 0x4,
+		TOO_OLD = 0x8,
+		DEPENDENCY = 0xf0,
+		DEPENDENCY_MISSING = 0x10,
+		DEPENDENCY_TOO_RECENT = 0x20,
+		DEPENDENCY_TOO_OLD = 0x40,
+	}
+var disabled_plugins := {}
 var plugins := {}
 
 
@@ -13,22 +24,49 @@ func _load_plugins():
 
 	var game_version: Vector3 = Compatibility.version_string_to_vector(Global.VERSION)
 
-	print("Checking plugins")
+	print("Checking IDs and versions")
 	for script in scripts:
 		var id: String = script.PLUGIN_ID
-		if id in plugins:
-			print("Conflicting plugin id! %d", id)
+		if id in plugins or disabled_plugins.get(id, -1) == DisableReason.CONFLICT:
+			print("Conflicting plugin id! %s", id)
+			plugins.erase(id)
+			disabled_plugins[id] = DisableReason.CONFLICT
 			continue
 		if game_version < script.MIN_VERSION:
-			print("Plugin version is more recent than the game version! %d", id)
+			print("Plugin version is more recent than the game version! %s", id)
 			print("Plugin version: %s" % ["%d.%d.%d" % \
 					[script.MIN_VERSION.x, script.MIN_VERSION.y, script.MIN_VERSION.z]])
+			disabled_plugins[id] = DisableReason.TOO_RECENT
 			continue
 		plugins[id] = script
 
+	print("Checking dependencies")
+	var dependencies_satisfied := false
+	while not dependencies_satisfied:
+		dependencies_satisfied = true
+		for script in plugins.values():
+			var flags := 0
+			for dep_id in script.PLUGIN_DEPENDENCIES:
+				var dep_req_ver: Vector3 = script.PLUGIN_DEPENDENCIES[dep_id]
+				var dep_ver: Vector3 = plugins[dep_id].PLUGIN_VERSION
+				if not dep_id in plugins:
+					print("%s misses dependency %s" % [script.PLUGIN_ID, dep_id])
+					flags |= DisableReason.DEPENDENCY_MISSING
+					dependencies_satisfied = false
+				elif dep_ver < dep_req_ver:
+					print("%s dependency %s too old %d.%d.%d > %d.%d.%d" % [
+							script.PLUGIN_ID, dep_id,
+							dep_req_ver.x, dep_req_ver.y, dep_req_ver.z,
+							dep_ver.x, dep_ver.y, dep_ver.z,
+						])
+			if not dependencies_satisfied:
+				plugins.erase(script.PLUGIN_ID)
+				disabled_plugins[script.PLUGIN_ID] = flags
+				break
+
 	print("Calling pre_init")
 	for script in plugins.values():
-			script.pre_init(script.resource_path.get_base_dir())
+		script.pre_init(script.resource_path.get_base_dir())
 
 	print("Calling init")
 	for script in plugins.values():

@@ -1,5 +1,7 @@
 const PLUGIN_ID = "chassis_blocks"
+const PLUGIN_VERSION := Vector3(0, 0, 1)
 const MIN_VERSION = Vector3(0, 12, 0)
+const PLUGIN_DEPENDENCIES := {}
 
 
 static func pre_init(plugin_folder: String):
