@@ -27,6 +27,7 @@ func _on_Timer_timeout():
 
 func _on_Campaign_pressed():
 	$Campaign.visible = not $Campaign.visible
+	$Plugins.visible = false
 
 
 func _on_RandomMap_pressed():
@@ -35,10 +36,6 @@ func _on_RandomMap_pressed():
 
 func _on_Designer_pressed():
 	Global.goto_scene(Global.SCENE_DESIGNER)
-
-
-func _on_DesignerMap_pressed():
-	Global.goto_scene(Global.SCENE_DESIGNER_MAP)
 
 
 func _on_Settings_pressed():
@@ -51,3 +48,8 @@ func _on_Exit_pressed():
 
 func _on_Tutorial_pressed():
 	Global.goto_scene("res://campaign/tutorial/hill.tscn")
+
+
+func _on_Plugins_pressed():
+	$Plugins.visible = not $Plugins.visible
+	$Campaign.visible = false

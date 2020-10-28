@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://addons/tiles/grass/grass_0.png" type="Texture" id=1]
 [ext_resource path="res://core/vehicle.gd" type="Script" id=2]
@@ -11,6 +11,7 @@
 [ext_resource path="res://core/game_master.gd" type="Script" id=9]
 [ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=10]
 [ext_resource path="res://core/menu/main_menu/maps.gd" type="Script" id=11]
+[ext_resource path="res://core/menu/main_menu/plugins.gd" type="Script" id=12]
 
 [sub_resource type="HeightMapShape" id=1]
 map_width = 1000
@@ -115,17 +116,17 @@ margin_right = 265.0
 margin_bottom = 92.6293
 text = "Designer"
 
-[node name="DesignerMap" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
+[node name="Settings" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
 margin_top = 102.0
 margin_right = 265.0
 margin_bottom = 143.629
-text = "Designer Map"
+text = "Settings"
 
-[node name="Settings" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
+[node name="Plugins" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
 margin_top = 153.0
 margin_right = 265.0
 margin_bottom = 194.629
-text = "Settings"
+text = "Plugins"
 
 [node name="Exit" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
 margin_top = 204.0
@@ -152,6 +153,38 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="Plugins" parent="GUI" instance=ExtResource( 10 )]
+margin_left = 455.0
+margin_top = 43.0
+margin_right = 960.0
+margin_bottom = 422.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource( 12 )
+title = "Plugins"
+button_template = ExtResource( 8 )
+
+[node name="ScrollContainer" type="ScrollContainer" parent="GUI/Plugins"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 40.0
+margin_top = 40.0
+margin_right = -20.0
+margin_bottom = -20.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GUI/Plugins/ScrollContainer"]
+margin_right = 445.0
+margin_bottom = 319.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 10
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 0.866025, 0.25, -0.433013, 0, 0.866025, 0.5, 0.5, -0.433013, 0.75, 0, 25.7531, 0 )
 light_energy = 0.5
@@ -161,6 +194,6 @@ visible = false
 [connection signal="timeout" from="Timer" to="GUI" method="_on_Timer_timeout"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Maps" to="GUI" method="_on_Campaign_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Designer" to="GUI" method="_on_Designer_pressed"]
-[connection signal="pressed" from="GUI/Main/VBoxContainer/DesignerMap" to="GUI" method="_on_DesignerMap_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Settings" to="GUI" method="_on_Settings_pressed"]
+[connection signal="pressed" from="GUI/Main/VBoxContainer/Plugins" to="GUI" method="_on_Plugins_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Exit" to="GUI" method="_on_Exit_pressed"]
