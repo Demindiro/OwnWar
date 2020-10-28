@@ -9,8 +9,7 @@ func _enter_tree():
 
 
 func _load_plugins():
-	var scripts := _load_plugins_from_dir("res://plugins/") + \
-			_load_plugins_from_dir("user://plugins/")
+	var scripts := _load_plugins_from_dir()
 
 	var game_version: Vector3 = Compatibility.version_string_to_vector(Global.VERSION)
 
@@ -40,19 +39,12 @@ func _load_plugins():
 		script.post_init(script.resource_path.get_base_dir())
 
 
-func _load_plugins_from_dir(path: String) -> Array:
-	print("Loading plugins from %s" % [path])
-
+func _load_plugins_from_dir() -> Array:
 	var dir := Directory.new()
-	var e := dir.open(path)
-	if e != OK:
-		print("Could not load plugins: %d" % [e])
-		return []
-
+	var e := dir.open("res://plugins/")
+	assert(e == OK)
 	e = dir.list_dir_begin(true)
-	if e != OK:
-		print("Could not iterate plugins: %d" % [e])
-		return []
+	assert(e == OK)
 
 	var scripts = []
 
@@ -61,7 +53,7 @@ func _load_plugins_from_dir(path: String) -> Array:
 		if plugin_path == "":
 			break
 		if dir.current_is_dir():
-			var script_path := path.plus_file(plugin_path).plus_file("plugin.gd")
+			var script_path := "res://plugins/".plus_file(plugin_path).plus_file("plugin.gd")
 			print("Loading %s" % [script_path])
 			var script = load(script_path)
 			if script == null:
