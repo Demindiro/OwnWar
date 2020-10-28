@@ -14,28 +14,30 @@ func _load_plugins():
 
 	var game_version: Vector3 = Compatibility.version_string_to_vector(Global.VERSION)
 
+	print("Checking plugins")
 	for script in scripts:
 		var id: String = script.PLUGIN_ID
-		print("Instantiating %s" % [id])
 		if id in plugins:
-			print("Conflicting plugin id!")
+			print("Conflicting plugin id! %d", id)
 			continue
 		if game_version < script.MIN_VERSION:
-			print("Plugin version is more recent than the game version!")
+			print("Plugin version is more recent than the game version! %d", id)
 			print("Plugin version: %s" % ["%d.%d.%d" % \
 					[script.MIN_VERSION.x, script.MIN_VERSION.y, script.MIN_VERSION.z]])
 			continue
-		plugins[id] = script.new()
+		plugins[id] = script
 
+	print("Calling pre_init")
 	for script in plugins.values():
-		if script.has_method("pre_init"):
-			print("Calling %s.pre_init()" % [script.PLUGIN_ID])
-			script.pre_init()
+			script.pre_init(script.resource_path.get_base_dir())
 
+	print("Calling init")
 	for script in plugins.values():
-		if script.has_method("post_init"):
-			print("Calling %s.post_init()" % [script.PLUGIN_ID])
-			script.post_init()
+		script.init(script.resource_path.get_base_dir())
+
+	print("Calling post_init")
+	for script in plugins.values():
+		script.post_init(script.resource_path.get_base_dir())
 
 
 func _load_plugins_from_dir(path: String) -> Array:

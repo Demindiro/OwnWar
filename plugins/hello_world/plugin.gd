@@ -3,13 +3,13 @@ const PLUGIN_VERSION := Vector3(0, 0, 1)
 const MIN_VERSION := Vector3(0, 12, 0)
 
 
-func _init():
+static func pre_init(_plugin_path: String):
 	print("Hello!")
 
 
-func pre_init():
+static func init(_plugin_path: String):
 	print("Hello again!")
 
 
-func post_init():
+static func post_init(_plugin_path: String):
 	print("Hello for the last time!")

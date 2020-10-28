@@ -2,17 +2,16 @@ const PLUGIN_ID = "chassis_blocks"
 const MIN_VERSION = Vector3(0, 12, 0)
 
 
-func _init():
-	var dir: String = get_script().get_path().get_base_dir()
+static func pre_init(plugin_folder: String):
 	var file := File.new()
-	var err := file.open(dir.plus_file("shapes.json"), File.READ)
+	var err := file.open(plugin_folder.plus_file("shapes.json"), File.READ)
 	if err != OK:
 		print("Couldn't read shapes file: %d" % err)
 		return
 	var data = parse_json(file.get_as_text())
 	for generator_name in data:
 		var blocks = data[generator_name]
-		var generator = load(dir.plus_file("variant/complex/%s.gd") % generator_name).new()
+		var generator = load(plugin_folder.plus_file("variant/complex/%s.gd") % generator_name).new()
 		for block_name in blocks:
 			var block_data = blocks[block_name]
 			var indices = PoolIntArray(block_data["indices"])
@@ -43,3 +42,11 @@ func _init():
 				block.mirror_block = mirror_block
 			else:
 				block.set_mirror_rotation_offset(mirror)
+
+
+static func init(_plugin_path: String):
+	pass
+
+
+static func post_init(_plugin_path: String):
+	pass
