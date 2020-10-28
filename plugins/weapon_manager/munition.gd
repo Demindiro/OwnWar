@@ -1,7 +1,7 @@
 extends Resource
 
 
-const id_to_munitions := {}
+const _ID_TO_MUNITION := {}
 
 
 export var human_name := ""
@@ -22,7 +22,15 @@ func _to_string():
 
 
 static func is_munition(id: int) -> bool:
-	return id in id_to_munitions
+	return id in _ID_TO_MUNITION
+
+
+static func get_munition_ids() -> PoolIntArray:
+	return PoolIntArray(_ID_TO_MUNITION.keys())
+
+
+static func get_munition(id: int) -> Resource:
+	return _ID_TO_MUNITION[id]
 
 
 static func add_munition(m) -> int:
@@ -30,5 +38,5 @@ static func add_munition(m) -> int:
 	# Pretend that length = gauge * 3
 	var volume: int = m.gauge * m.gauge * (m.gauge * 3)
 	var id := Matter.add_matter(m.human_name, volume)
-	id_to_munitions[id] = m
+	_ID_TO_MUNITION[id] = m
 	return id

@@ -89,7 +89,7 @@ func fire():
 		var munitions: Dictionary = _manager.take_munition(gauge, 1)
 		for id in munitions:
 			if munitions[id] > 0:
-				var munition = Munition.id_to_munitions[id]
+				var munition = Munition.get_munition(id)
 				var y = $ProjectileSpawn.global_transform.basis.y
 				var z = $ProjectileSpawn.global_transform.basis.z
 				var direction = (y.rotated(z, randf() * PI * 2) * inaccuracy + z).normalized()

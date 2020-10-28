@@ -26,12 +26,12 @@ func get_matter_count(id: int) -> int:
 
 
 func get_matter_space(id: int) -> int:
-	var munition = Munition.id_to_munitions.get(id)
+	var munition = Munition.get_munition(id) if Munition.is_munition(id) else null
 	return get_munition_space(munition.gauge) if munition != null else 0
 
 
 func put_matter(id: int, amount: int) -> int:
-	if not id in Munition.id_to_munitions:
+	if not id in Munition.get_munition_ids():
 		return amount
 	return put_munition(id, amount)
 
@@ -60,8 +60,8 @@ func get_munition_space(gauge := 0) -> int:
 
 
 func put_munition(id: int, amount: int) -> int:
-	assert(id in Munition.id_to_munitions)
-	var gauge: int = Munition.id_to_munitions[id].gauge
+	assert(id in Munition.get_munition_ids())
+	var gauge: int = Munition.get_munition(id).gauge
 	var space := get_munition_space(gauge)
 	if space >= amount:
 		_munitions_count[id] = _munitions_count.get(id, 0) + amount
@@ -133,8 +133,8 @@ func add_ammo_rack(ammo_rack: Node) -> void:
 		_max_munitions_by_gauge[gauge] = 0
 		_gauge_to_munitions[gauge] = []
 		if gauge != 0:
-			for id in Munition.id_to_munitions:
-				if Munition.id_to_munitions[id].gauge == gauge:
+			for id in Munition.get_munition_ids():
+				if Munition.get_munition(id).gauge == gauge:
 					_vehicle.add_matter_put(id)
 					_vehicle.add_matter_take(id)
 	_max_munitions_by_gauge[gauge] += ammo_rack.max_munitions
@@ -179,4 +179,4 @@ func _turret_destroyed(turret: Node) -> void:
 
 func get_info(info: Dictionary) -> void:
 	for id in _munitions_count:
-		info[Munition.id_to_munitions[id].human_name] = str(_munitions_count[id])
+		info[Munition.get_munition(id).human_name] = str(_munitions_count[id])

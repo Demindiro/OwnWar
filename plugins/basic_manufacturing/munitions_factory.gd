@@ -102,7 +102,7 @@ func get_put_matter_list() -> PoolIntArray:
 
 
 func get_take_matter_list() -> PoolIntArray:
-	return PoolIntArray(Munition.id_to_munitions.keys())
+	return PoolIntArray(Munition.get_munition_ids())
 
 
 func put_matter(id: int, amount: int) -> int:
