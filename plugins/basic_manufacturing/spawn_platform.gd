@@ -74,7 +74,7 @@ func spawn_worker(_flags):
 func spawn_vehicle(_flags, path):
 	if queued_vehicle != null:
 		queued_vehicle.free()
-	queued_vehicle = load(Global.SCENE_VEHICLE).instance()
+	queued_vehicle = Vehicle.new()
 	var err = queued_vehicle.load_from_file(path)
 	if err != OK:
 		Global.error("Failed to spawn vehicle from '%s'" % path, err)
