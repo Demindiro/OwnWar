@@ -59,6 +59,8 @@ func _load_plugins():
 							dep_req_ver.x, dep_req_ver.y, dep_req_ver.z,
 							dep_ver.x, dep_ver.y, dep_ver.z,
 						])
+					flags |= DisableReason.DEPENDENCY_TOO_OLD
+					dependencies_satisfied = false
 			if not dependencies_satisfied:
 				plugins.erase(script.PLUGIN_ID)
 				disabled_plugins[script.PLUGIN_ID] = flags
