@@ -11,6 +11,7 @@ enum DisableReason {
 		DEPENDENCY_MISSING = 0x10,
 		DEPENDENCY_TOO_RECENT = 0x20,
 		DEPENDENCY_TOO_OLD = 0x40,
+		DEPENDENCY_DISABLED = 0x80,
 	}
 const _PLUGINS := {}
 
@@ -109,11 +110,22 @@ static func load_plugins():
 					script.MIN_VERSION.y, script.MIN_VERSION.z])
 			_PLUGINS[id][1] |= DisableReason.TOO_RECENT
 
+	print("Checking if enabled")
+	var file := File.new()
+	var e := file.open("user://plugins/disabled.txt", File.READ)
+	var list := PoolStringArray() if e != OK else file.get_as_text().split("\n")
+	for id in _PLUGINS:
+		if id in list:
+			_PLUGINS[id][1] |= DisableReason.MANUAL
+			print("%s is disabled" % id)
+
 	print("Checking dependencies")
 	var dependencies_satisfied := false
 	while not dependencies_satisfied:
 		dependencies_satisfied = true
 		for id in _PLUGINS:
+			if _PLUGINS[id][1] != DisableReason.NONE:
+				continue
 			var script = _PLUGINS[id][0]
 			var flags := 0
 			for dep_id in script.PLUGIN_DEPENDENCIES:
@@ -127,7 +139,7 @@ static func load_plugins():
 				var dep_ver: Vector3 = _PLUGINS[dep_id][0].PLUGIN_VERSION
 				if dep_ver < dep_req_ver:
 					print("%s dependency %s too old %d.%d.%d > %d.%d.%d" % [
-							script.PLUGIN_ID, dep_id,
+							id, dep_id,
 							dep_req_ver.x, dep_req_ver.y, dep_req_ver.z,
 							dep_ver.x, dep_ver.y, dep_ver.z,
 						])
@@ -135,18 +147,15 @@ static func load_plugins():
 					dependencies_satisfied = false
 					continue
 
+				if _PLUGINS[dep_id][1] != DisableReason.NONE:
+					print("%s dependency %s not enabled" % [id, dep_id])
+					flags |= DisableReason.DEPENDENCY_DISABLED
+					dependencies_satisfied = false
+					continue
+
 			if not dependencies_satisfied:
 				_PLUGINS[id][1] |= flags
 				break
-
-	print("Checking if enabled")
-	var file := File.new()
-	var e := file.open("user://plugins/disabled.txt", File.READ)
-	var list := PoolStringArray() if e != OK else file.get_as_text().split("\n")
-	for id in _PLUGINS:
-		if id in list:
-			_PLUGINS[id][1] |= DisableReason.MANUAL
-			print("%s is disabled" % id)
 
 	print("Calling pre_init")
 	for p in _PLUGINS.values():
