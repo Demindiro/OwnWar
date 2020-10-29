@@ -87,10 +87,10 @@ static func write_file_text(path: String, text: String) -> bool:
 
 
 static func version_str_to_vector(version: String) -> Vector3:
-	var a := version.split_floats(".")
+	var a := version.split(".")
 	assert(len(a) == 3)
-	assert(a[0] == floor(a[0]) and a[1] == floor(a[1]) and a[2] == floor(a[2]))
-	return Vector3(a[0], a[1], a[2])
+	assert(a[0].is_valid_integer() and a[1].is_valid_integer() and a[2].is_valid_integer())
+	return Vector3(int(a[0]), int(a[1]), int(a[2]))
 
 
 static func version_vector_to_str(version: Vector3) -> String:
