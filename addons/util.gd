@@ -84,3 +84,17 @@ static func write_file_text(path: String, text: String) -> bool:
 		return true
 	else:
 		return false
+
+
+static func version_str_to_vector(version: String) -> Vector3:
+	var a := version.split_floats(".")
+	assert(len(a) == 3)
+	assert(a[0] == floor(a[0]) and a[1] == floor(a[1]) and a[2] == floor(a[2]))
+	return Vector3(a[0], a[1], a[2])
+
+
+static func version_vector_to_str(version: Vector3) -> String:
+	assert(version.x == floor(version.x) and \
+			version.y == floor(version.y) and \
+			version.z == floor(version.z))
+	return "%d.%d.%d" % [version.x, version.y, version.z]
