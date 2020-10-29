@@ -11,8 +11,14 @@ func _ready():
 
 func _ready_deferred():
 	randomize()
+	for p in ["chassis_blocks", "power_manager", "engine", "movement_manager",
+			"wheel"]:
+		if not p in Plugins.plugins:
+			print("Missing plugin %s" % p)
+			return
 	$"../Vehicle".load_from_file("user://vehicles/apc.json")
 	call_deferred("_on_Timer_timeout")
+	$"../Timer".start()
 	$Main/Version.text = str(Global.VERSION)
 
 
