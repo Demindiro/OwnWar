@@ -98,3 +98,31 @@ static func version_vector_to_str(version: Vector3) -> String:
 			version.y == floor(version.y) and \
 			version.z == floor(version.z))
 	return "%d.%d.%d" % [version.x, version.y, version.z]
+
+
+static func iterate_dir_recursive(path: String, extension = null) -> Array:
+	assert(extension == null or extension is String)
+	var file_paths: Array
+
+	var dir := Directory.new()
+	var e := dir.open(path)
+	if e != OK:
+		return file_paths
+
+	e = dir.list_dir_begin(true)
+	if e != OK:
+		return file_paths
+
+	file_paths = []
+	while true:
+		var file := dir.get_next()
+		if file == "":
+			break
+		if dir.current_is_dir():
+			var r := iterate_dir_recursive(path.plus_file(file), extension)
+			if r != null:
+				file_paths += r
+		elif extension == null or file.get_extension() == extension:
+			file_paths.append(path.plus_file(file))
+
+	return file_paths
