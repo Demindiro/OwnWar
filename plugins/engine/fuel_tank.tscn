@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://plugins/engine/fuel_tank.gd" type="Script" id=1]
+
+
+[node name="FuelTank" type="Spatial"]
+script = ExtResource( 1 )

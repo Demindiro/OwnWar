@@ -1,0 +1,39 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://plugins/basic_manufacturing/munitions_factory.gd" type="Script" id=2]
+[ext_resource path="res://plugins/cannon/160mm/shell_160mm.tres" type="Resource" id=3]
+[ext_resource path="res://plugins/cannon/35mm/shell_35mm.tres" type="Resource" id=4]
+
+
+
+
+
+
+[sub_resource type="BoxShape" id=1]
+extents = Vector3( 2, 1, 1 )
+
+[node name="MunitionsFactory" type="StaticBody"]
+script = ExtResource( 2 )
+max_health = 800
+unit_name = "munitions_factory"
+munition_types = [ ExtResource( 3 ), ExtResource( 4 ) ]
+
+[node name="CSGBox" type="CSGBox" parent="."]
+width = 4.0
+
+[node name="CSGBox2" type="CSGBox" parent="CSGBox"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0865233, 0, 0 )
+operation = 2
+width = 4.0
+height = 1.8
+depth = 1.8
+
+[node name="CSGBox3" type="CSGBox" parent="CSGBox"]
+transform = Transform( 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0, 1, -1.50459, 1.50147, 0 )
+operation = 2
+width = 4.0
+height = 0.529022
+depth = 1.10372
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+shape = SubResource( 1 )

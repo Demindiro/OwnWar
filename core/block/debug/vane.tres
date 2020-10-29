@@ -1,0 +1,35 @@
+[gd_resource type="Resource" load_steps=5 format=2]
+
+[ext_resource path="res://core/block/block.gd" type="Script" id=1]
+[ext_resource path="res://core/block/debug/vane.obj" type="ArrayMesh" id=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type spatial;
+
+void vertex() {
+	COLOR.rgb = VERTEX.xyz;
+}
+
+void fragment() {
+	ALBEDO.rgb = vec3(1f, vec2(COLOR.r > 0f ? 0f : 1f));
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+
+[resource]
+script = ExtResource( 1 )
+name = "vane"
+human_name = "Vane"
+category = "debugging"
+mesh = ExtResource( 2 )
+material = SubResource( 2 )
+mass = 1
+health = 100
+cost = 1
+size = Vector3( 1, 1, 1 )
+mirror_rotation_offset = 0
+meta = {
+
+}
+__mirror_block_name = ""

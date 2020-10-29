@@ -12,42 +12,42 @@ _global_script_classes=[ {
 "base": "Reference",
 "class": "AI",
 "language": "GDScript",
-"path": "res://unit/vehicle/ai/ai.gd"
+"path": "res://plugins/mainframe/ai/ai.gd"
 }, {
 "base": "Resource",
 "class": "Block",
 "language": "GDScript",
-"path": "res://block/block.gd"
+"path": "res://core/block/block.gd"
 }, {
 "base": "RigidBody",
 "class": "Cannon",
 "language": "GDScript",
-"path": "res://block/weapon/cannon.gd"
+"path": "res://plugins/cannon/cannon.gd"
 }, {
 "base": "Resource",
 "class": "Compatibility",
 "language": "GDScript",
-"path": "res://compatibility.gd"
+"path": "res://core/compatibility.gd"
 }, {
 "base": "Spatial",
 "class": "Connector",
 "language": "GDScript",
-"path": "res://block/turret/connector.gd"
+"path": "res://plugins/turret/connector.gd"
 }, {
 "base": "Camera",
 "class": "FreeCamera",
 "language": "GDScript",
-"path": "res://camera/free_camera.gd"
+"path": "res://core/camera/free_camera.gd"
 }, {
 "base": "Node",
 "class": "GameMaster",
 "language": "GDScript",
-"path": "res://campaign/game_master.gd"
+"path": "res://core/game_master.gd"
 }, {
 "base": "Unit",
 "class": "Ghost",
 "language": "GDScript",
-"path": "res://unit/structure/ghost.gd"
+"path": "res://plugins/basic_manufacturing/ghost.gd"
 }, {
 "base": "ResourceFormatLoader",
 "class": "HTerrainDataLoader",
@@ -59,40 +59,45 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/zylann.hterrain/hterrain_resource_saver.gd"
 }, {
-"base": "Resource",
-"class": "Munition",
+"base": "Reference",
+"class": "Maps",
 "language": "GDScript",
-"path": "res://matter/munition/munition.gd"
+"path": "res://core/maps.gd"
 }, {
 "base": "Spatial",
 "class": "Ore",
 "language": "GDScript",
-"path": "res://unit/ore/ore.gd"
+"path": "res://plugins/basic_manufacturing/ore.gd"
+}, {
+"base": "Reference",
+"class": "Plugin",
+"language": "GDScript",
+"path": "res://core/plugin.gd"
 }, {
 "base": "Spatial",
 "class": "Unit",
 "language": "GDScript",
-"path": "res://unit/unit.gd"
+"path": "res://core/unit.gd"
 }, {
 "base": "Unit",
 "class": "Vehicle",
 "language": "GDScript",
-"path": "res://unit/vehicle/vehicle.gd"
+"path": "res://core/vehicle.gd"
 }, {
 "base": "VehicleBody",
 "class": "VoxelBody",
 "language": "GDScript",
-"path": "res://unit/vehicle/voxel_body.gd"
+"path": "res://core/voxel_body.gd"
 }, {
 "base": "ArrayMesh",
 "class": "VoxelMesh",
 "language": "GDScript",
-"path": "res://unit/vehicle/voxel_mesh.gd"
+"path": "res://core/voxel_mesh.gd"
 }, {
 "base": "VehicleWheel",
 "class": "Wheel",
 "language": "GDScript",
-"path": "res://block/wheel/wheel.gd"
+"path": "res://plugins/wheel/wheel.gd"
 } ]
 _global_script_class_icons={
 "AI": "",
@@ -105,8 +110,9 @@ _global_script_class_icons={
 "Ghost": "",
 "HTerrainDataLoader": "",
 "HTerrainDataSaver": "",
-"Munition": "",
+"Maps": "",
 "Ore": "",
+"Plugin": "",
 "Unit": "",
 "Vehicle": "",
 "VoxelBody": "",
@@ -117,17 +123,15 @@ _global_script_class_icons={
 [application]
 
 config/name="Own War"
-run/main_scene="res://menu/main.tscn"
+run/main_scene="res://core/menu/main.tscn"
 config/icon="res://icon.png"
 
 [autoload]
 
-Global="*res://global.gd"
-GenerateBlocks="*res://block/chassis/generate_blocks.gd"
-MaterialCache="*res://material_cache.gd"
-ObjectCache="*res://object_cache.gd"
-Matter="*res://matter/matter.gd"
-RegisterMunition="*res://matter/munition/register_munition.gd"
+Global="*res://core/global.gd"
+MaterialCache="*res://core/material_cache.gd"
+ObjectCache="*res://core/object_cache.gd"
+Matter="*res://core/matter.gd"
 
 [debug]
 
