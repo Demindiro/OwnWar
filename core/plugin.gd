@@ -66,8 +66,6 @@ static func load_plugins():
 	_load_pcks()
 	var scripts := _load_plugins_from_dir()
 
-	var game_version: Vector3 = Compatibility.version_string_to_vector(Global.VERSION)
-
 	print("Checking IDs and versions")
 	for script in scripts:
 		var id: String = script.PLUGIN_ID
@@ -77,7 +75,7 @@ static func load_plugins():
 		else:
 			_PLUGINS[id] = [script, DisableReason.NONE]
 
-		if game_version < script.MIN_VERSION:
+		if Global.VERSION < script.MIN_VERSION:
 			print("Plugin version is more recent than the game version! %s", id)
 			print("Plugin version: %d.%d.%d" % [script.MIN_VERSION.x,
 					script.MIN_VERSION.y, script.MIN_VERSION.z])

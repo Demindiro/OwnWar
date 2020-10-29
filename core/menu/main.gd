@@ -19,7 +19,7 @@ func _ready_deferred():
 	$"../Vehicle".load_from_file("user://vehicles/apc.json")
 	call_deferred("_on_Timer_timeout")
 	$"../Timer".start()
-	$Main/Version.text = str(Global.VERSION)
+	$Main/Version.text = Util.version_vector_to_str(Global.VERSION)
 
 
 func _on_Timer_timeout():

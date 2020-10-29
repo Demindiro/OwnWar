@@ -1,7 +1,7 @@
 extends Node
 
 const LOADER_MAX_TIME := 1000.0 / 60.0
-const VERSION = "0.13.0"
+const VERSION := Vector3(0, 13, 0)
 # Because Godot does not allow cyclic references and is apparently not capable
 # of updating file paths automatically, this shall be the solution
 const SCENE_MENU_MAIN = "res://core/menu/main.tscn"
