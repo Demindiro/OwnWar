@@ -138,7 +138,7 @@ func place_block(block, coordinate, rotation, layer):
 	node.transform.basis = block.get_basis(rotation)
 	node.scale_object_local(Vector3.ONE * SCALE)
 	node.material_override = material
-	for child in get_children_recursive(node):
+	for child in Util.get_children_recursive(node):
 		if child is GeometryInstance and not child is Sprite3D:
 			child.material_override = material
 	blocks[coordinate] = [block.name, rotation, node, material.albedo_color, layer]
@@ -167,7 +167,7 @@ func select_block(name):
 		$Camera/MeshInstance.add_child(selected_block.scene.instance())
 		var node = selected_block.scene.instance()
 		$Floor/Origin/Ghost.add_child(node)
-		for child in get_children_recursive(node):
+		for child in Util.get_children_recursive(node):
 			if child is MeshInstance:
 				if child.material_override != null:
 					child.material_override = child.material_override.duplicate()
@@ -178,7 +178,7 @@ func select_block(name):
 			elif child is Sprite3D:
 				child.opacity *= 0.2
 	$Camera/MeshInstance.material_override = material
-	for child in get_children_recursive($Camera/MeshInstance):
+	for child in Util.get_children_recursive($Camera/MeshInstance):
 		if child is GeometryInstance and not child is Sprite3D:
 			child.material_override = material
 
@@ -272,15 +272,6 @@ func load_vehicle(path):
 		print("Loaded vehicle from '%s'" % path)
 
 
-# REEEEEEE https://github.com/godotengine/godot/issues/16105
-func get_children_recursive(node = null, array = []):
-	node = node if node != null else self
-	for child in node.get_children():
-		array.append(child)
-		get_children_recursive(child, array)
-	return array
-
-
 func set_material(p_material: SpatialMaterial):
 	# Damn exports...
 	if not has_node("Floor/Origin/Ghost"):
@@ -292,10 +283,10 @@ func set_material(p_material: SpatialMaterial):
 	ghost_material.albedo_color.a *= 0.6
 	$Floor/Origin/Ghost.material_override = ghost_material
 	$Camera/MeshInstance.material_override = material
-	for child in get_children_recursive($Floor/Origin/Ghost):
+	for child in Util.get_children_recursive($Floor/Origin/Ghost):
 		if child is GeometryInstance and not child is Sprite3D:
 			child.material_override = ghost_material
-	for child in get_children_recursive($Camera/MeshInstance):
+	for child in Util.get_children_recursive($Camera/MeshInstance):
 		if child is GeometryInstance and not child is Sprite3D:
 			child.material_override = material
 
