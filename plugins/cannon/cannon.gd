@@ -83,7 +83,7 @@ func aim_at(position: Vector3, _velocity := Vector3.ZERO):
 
 
 func fire():
-	var Munition = Plugins.plugins["weapon_manager"].Munition
+	var Munition = Plugin.get_plugin("weapon_manager").Munition
 	var current_time := float(Engine.get_physics_frames()) / Engine.iterations_per_second
 	if current_time >= _time_of_last_shot + reload_time:
 		var munitions: Dictionary = _manager.take_munition(gauge, 1)

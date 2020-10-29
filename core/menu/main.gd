@@ -13,7 +13,7 @@ func _ready_deferred():
 	randomize()
 	for p in ["chassis_blocks", "power_manager", "engine", "movement_manager",
 			"wheel"]:
-		if not p in Plugins.plugins:
+		if not Plugin.is_plugin_enabled(p):
 			print("Missing plugin %s" % p)
 			return
 	$"../Vehicle".load_from_file("user://vehicles/apc.json")

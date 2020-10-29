@@ -5,44 +5,47 @@ export var button_template: PackedScene
 
 
 func _ready():
-	for plugin in Plugins.plugins.values():
+	for plugin in Plugin.get_all_plugins():
 		var button: Button = button_template.instance()
 		button.text = "%s (%d.%d.%d)" % [plugin.PLUGIN_ID,
 				plugin.PLUGIN_VERSION.x, plugin.PLUGIN_VERSION.y, plugin.PLUGIN_VERSION.z
 			]
 		button.connect("pressed", self, "_show_info", [plugin.PLUGIN_ID])
-		$ScrollContainer/VBoxContainer.add_child(button)
-	var reverse_map := {}
-	for key in Plugins.DisableReason.keys():
-		reverse_map[Plugins.DisableReason[key]] = key
-	for id in Plugins.disabled_plugins:
-		var button: Button = button_template.instance()
-		button.text = "%s (%s)" % [id, reverse_map[Plugins.disabled_plugins[id]]]
-		button.modulate = Color.red;
-		button.connect("pressed", self, "_show_info", [id])
+		match Plugin.get_disable_reason(plugin.PLUGIN_ID):
+			Plugin.DisableReason.NONE:
+				pass
+			Plugin.DisableReason.MANUAL:
+				button.modulate = Color.orange
+			_:
+				button.modulate = Color.red
 		$ScrollContainer/VBoxContainer.add_child(button)
 
 
-func _show_info(plugin_id: String) -> void:
+func _show_info(id: String) -> void:
+	var plugin := Plugin.get_plugin(id)
+
 	$Info.visible = true
-	$Info/VBoxContainer/ID.text = "ID: " + plugin_id
-	if plugin_id in Plugins.plugins:
-		var plugin = Plugins.plugins[plugin_id]
-		$Info/VBoxContainer/Version.visible = true
-		$Info/VBoxContainer/Version.text = "Version: %d.%d.%d" % [plugin.PLUGIN_VERSION.x,
-				plugin.PLUGIN_VERSION.y, plugin.PLUGIN_VERSION.z]
-		$Info/VBoxContainer/Dependencies.visible = true
-		$Info/VBoxContainer/Dependencies.text = "Dependencies: " + \
-				PoolStringArray(plugin.PLUGIN_DEPENDENCIES.keys()).join(", ")
-		$Info/VBoxContainer/Enabled.pressed = true
-		$Info/VBoxContainer/Errors.visible = false
-	else:
-		var reverse_map := {}
-		for key in Plugins.DisableReason.keys():
-			reverse_map[Plugins.DisableReason[key]] = key
-		var reason: int = Plugins.disabled_plugins[plugin_id]
-		$Info/VBoxContainer/Version.visible = false
-		$Info/VBoxContainer/Dependencies.visible = false
-		$Info/VBoxContainer/Enabled.pressed = false
-		$Info/VBoxContainer/Errors.visible = true
-		$Info/VBoxContainer/Errors.text = "Error: " + reverse_map[reason]
+	$Info/VBoxContainer/ID.text = "ID: " + id
+	$Info/VBoxContainer/Version.text = "Version: %d.%d.%d" % [plugin.PLUGIN_VERSION.x,
+			plugin.PLUGIN_VERSION.y, plugin.PLUGIN_VERSION.z]
+	$Info/VBoxContainer/Dependencies.text = "Dependencies: " + \
+			PoolStringArray(plugin.PLUGIN_DEPENDENCIES.keys()).join(", ")
+
+	var disable_reason = Plugin.get_disable_reason(id)
+	match disable_reason:
+		Plugin.DisableReason.NONE:
+			$Info/VBoxContainer/Enabled.visible = true
+			$Info/VBoxContainer/Enabled.pressed = true
+			$Info/VBoxContainer/Errors.visible = false
+		Plugin.DisableReason.MANUAL:
+			$Info/VBoxContainer/Enabled.visible = true
+			$Info/VBoxContainer/Enabled.pressed = false
+			$Info/VBoxContainer/Errors.visible = false
+		_:
+			$Info/VBoxContainer/Enabled.visible = false
+			$Info/VBoxContainer/Errors.visible = true
+			var reverse_map := {}
+			for key in Plugin.DisableReason.keys():
+				reverse_map[Plugin.DisableReason[key]] = key
+			var reason: int = Plugin.get_disable_reason(id)
+			$Info/VBoxContainer/Errors.text = "Error: " + reverse_map[reason]

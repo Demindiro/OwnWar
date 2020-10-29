@@ -8,7 +8,7 @@ var _cannons := []
 var _weapons := []
 var _turrets := []
 var _vehicle
-var Munition = Plugins.plugins["weapon_manager"].Munition
+var Munition = Plugin.get_plugin("weapon_manager").Munition
 
 
 #func init(vehicle: Vehicle) -> void:

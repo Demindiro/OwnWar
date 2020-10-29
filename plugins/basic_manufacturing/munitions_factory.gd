@@ -11,7 +11,7 @@ var _munition_volume := 0
 var _current_munition_type
 var _current_producing_munition
 var _time_until_munition_produced := 0.0
-var Munition = Plugins.plugins["weapon_manager"].Munition
+var Munition = Plugin.get_plugin("weapon_manager").Munition
 onready var _material_id = Matter.name_to_id["material"]
 
 

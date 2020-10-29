@@ -78,6 +78,7 @@ func _enter_tree():
 	Matter.add_matter("material", 1_000_000)
 # warning-ignore:return_value_discarded
 	Matter.add_matter("fuel", 1_000_000)
+	Plugin.load_plugins()
 
 
 func _process(_delta):
