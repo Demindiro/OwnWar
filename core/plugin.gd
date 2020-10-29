@@ -198,7 +198,7 @@ static func _load_pcks() -> void:
 	print("Loading plugin PCKs")
 
 	for pck in _iterate_dir("user://plugins/", "pck"):
-		if not ProjectSettings.load_resource_pack(pck, true):
+		if not ProjectSettings.load_resource_pack(pck):
 			print("Failed to load %s" % pck)
 
 
