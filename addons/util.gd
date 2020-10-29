@@ -65,3 +65,22 @@ static func get_children_recursive(node: Node) -> Array:
 	for child in children[0]:
 		children.append(get_children_recursive(child))
 	return join_arrays(children)
+
+
+static func read_file_text(path: String) -> String:
+	var file := File.new()
+	var e := file.open(path, File.READ)
+	var text: String
+	if e == OK:
+		text = file.get_as_text()
+	return text
+
+
+static func write_file_text(path: String, text: String) -> bool:
+	var file := File.new()
+	var e := file.open(path, File.WRITE)
+	if e == OK:
+		file.store_string(text)
+		return true
+	else:
+		return false
