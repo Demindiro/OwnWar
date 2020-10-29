@@ -30,16 +30,17 @@ func _show_info(id: String) -> void:
 			plugin.PLUGIN_VERSION.y, plugin.PLUGIN_VERSION.z]
 	$Info/VBoxContainer/Dependencies.text = "Dependencies: " + \
 			PoolStringArray(plugin.PLUGIN_DEPENDENCIES.keys()).join(", ")
+	$Info/VBoxContainer/Enabled.disconnect("toggled", self, "_enable_plugin")
+	$Info/VBoxContainer/Enabled.pressed = Plugin.is_plugin_enabled(id)
+	$Info/VBoxContainer/Enabled.connect("toggled", self, "_enable_plugin", [id])
 
 	var disable_reason = Plugin.get_disable_reason(id)
 	match disable_reason:
 		Plugin.DisableReason.NONE:
 			$Info/VBoxContainer/Enabled.visible = true
-			$Info/VBoxContainer/Enabled.pressed = true
 			$Info/VBoxContainer/Errors.visible = false
 		Plugin.DisableReason.MANUAL:
 			$Info/VBoxContainer/Enabled.visible = true
-			$Info/VBoxContainer/Enabled.pressed = false
 			$Info/VBoxContainer/Errors.visible = false
 		_:
 			$Info/VBoxContainer/Enabled.visible = false
@@ -49,3 +50,7 @@ func _show_info(id: String) -> void:
 				reverse_map[Plugin.DisableReason[key]] = key
 			var reason: int = Plugin.get_disable_reason(id)
 			$Info/VBoxContainer/Errors.text = "Error: " + reverse_map[reason]
+
+
+func _enable_plugin(enable: bool, id: String):
+	Plugin.enable_plugin(id, enable)

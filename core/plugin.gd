@@ -15,21 +15,42 @@ enum DisableReason {
 const _PLUGINS := {}
 
 
-static func enable_plugin(name: String, enabled: bool) -> bool:
-	var p = _PLUGINS.get(name)
+static func enable_plugin(id: String, enable: bool) -> bool:
+	var p = _PLUGINS.get(id)
 	if p != null:
 		if p[1] == DisableReason.NONE or p[1] == DisableReason.MANUAL:
-			p[1] = DisableReason.NONE if enabled else DisableReason.MANUAL
-			return true
+			var file := File.new()
+			var e := file.open("user://plugins/disabled.txt", File.READ)
+			var list: Array
+			if e == OK:
+				list = Array(file.get_as_text().split("\n"))
+			elif e == ERR_FILE_NOT_FOUND:
+				list = []
+			else:
+				print("Failed to read user://plugins/disabled.txt %d" % e)
+				return false
+
+			if enable and id in list:
+				list.erase(id)
+			elif not enable and not id in list:
+				list.append(id)
+
+			e = file.open("user://plugins/disabled.txt", File.WRITE)
+			if e == OK:
+				file.store_string(PoolStringArray(list).join("\n"))
+				return true
+			else:
+				print("Failed to write user://plugins/disabled.txt %d" % e)
+				return false
 		else:
 			var s = PoolStringArray()
 			for k in DisableReason:
 				if DisableReason[k] & p[1]:
 					s.append(k)
-			print("Can't enable plugin %s : %s" % [name, s.join(", ")])
+			print("Can't enable plugin %s : %s" % [id, s.join(", ")])
 			return false
 	else:
-		print("Plugin %s not found" % name)
+		print("Plugin %s not found" % id)
 		return false
 
 
@@ -52,8 +73,19 @@ static func get_disable_reason(name: String) -> int:
 	return _PLUGINS[name][1]
 
 
-static func is_plugin_enabled(name: String) -> int:
-	return name in _PLUGINS and _PLUGINS[name][1] == DisableReason.NONE
+static func is_plugin_enabled(name: String) -> bool:
+	if name in _PLUGINS and _PLUGINS[name][1] == DisableReason.NONE:
+		var file := File.new()
+		var e := file.open("user://plugins/disabled.txt", File.READ)
+		if e == ERR_FILE_NOT_FOUND:
+			return true
+		elif e == OK:
+			return not name in file.get_as_text().split("\n")
+		else:
+			print("Failed to open user://plugins/disabled.txt %d" % e)
+			return true
+	else:
+		return false
 
 
 static func load_plugins():
@@ -107,17 +139,29 @@ static func load_plugins():
 				_PLUGINS[id][1] |= flags
 				break
 
+	print("Checking if enabled")
+	var file := File.new()
+	var e := file.open("user://plugins/disabled.txt", File.READ)
+	var list := PoolStringArray() if e != OK else file.get_as_text().split("\n")
+	for id in _PLUGINS:
+		if id in list:
+			_PLUGINS[id][1] |= DisableReason.MANUAL
+			print("%s is disabled" % id)
+
 	print("Calling pre_init")
 	for p in _PLUGINS.values():
-		p[0].pre_init(p[0].resource_path.get_base_dir())
+		if p[1] == DisableReason.NONE:
+			p[0].pre_init(p[0].resource_path.get_base_dir())
 
 	print("Calling init")
 	for p in _PLUGINS.values():
-		p[0].init(p[0].resource_path.get_base_dir())
+		if p[1] == DisableReason.NONE:
+			p[0].init(p[0].resource_path.get_base_dir())
 
 	print("Calling post_init")
 	for p in _PLUGINS.values():
-		p[0].post_init(p[0].resource_path.get_base_dir())
+		if p[1] == DisableReason.NONE:
+			p[0].post_init(p[0].resource_path.get_base_dir())
 
 
 static func _load_plugins_from_dir() -> Array:
