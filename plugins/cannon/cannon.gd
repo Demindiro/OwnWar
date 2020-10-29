@@ -1,5 +1,4 @@
-extends RigidBody
-class_name Cannon
+extends "../weapon_manager/weapon.gd"
 
 
 const GRAVITY = 9.8
@@ -12,7 +11,6 @@ var _desired_direction := Vector3.FORWARD
 var _time_of_last_shot := 0.0
 var _rel_offset: Vector3
 var _error: float
-var _manager: Reference
 
 
 func _physics_process(_delta):
@@ -47,12 +45,11 @@ func _process(_delta):
 
 
 func init(_coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
+	.init(_coordinate, _block_data, _rotation, voxel_body, vehicle, _meta)
 	_rel_offset = translation
 	set_as_toplevel(true)
 	$Generic6DOFJoint.set("nodes/node_b", $Generic6DOFJoint.get_path_to(voxel_body))
 	_voxel_body = voxel_body
-	_manager = vehicle.get_manager("weapon")
-	_manager.add_cannon(self)
 
 
 func aim_at(position: Vector3, _velocity := Vector3.ZERO):
@@ -83,10 +80,9 @@ func aim_at(position: Vector3, _velocity := Vector3.ZERO):
 
 
 func fire():
-	var Munition = Plugin.get_plugin("weapon_manager").Munition
 	var current_time := float(Engine.get_physics_frames()) / Engine.iterations_per_second
 	if current_time >= _time_of_last_shot + reload_time:
-		var munitions: Dictionary = _manager.take_munition(gauge, 1)
+		var munitions: Dictionary = weapon_manager.take_munition(gauge, 1)
 		for id in munitions:
 			if munitions[id] > 0:
 				var munition = Munition.get_munition(id)

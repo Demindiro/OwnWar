@@ -1,5 +1,4 @@
-extends Spatial
-class_name Connector
+extends "../weapon_manager/weapon.gd"
 
 
 signal destroyed()
@@ -28,7 +27,7 @@ func init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
 					var e := connect("destroyed", other_connector, "_other_connector_destroyed")
 					assert(e == OK)
 					other_connector.connect("destroyed", self, "_other_connector_destroyed")
-					_add_self_to_weapon_manager(vehicle)
+					.init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta)
 					return
 				if other_connector != null:
 					print(other_connector)
@@ -110,11 +109,6 @@ func _create_joint(p_body_a, p_body_b):
 	joint.set("angular_limit_x/enabled", false)
 	joint.set("angular_motor_x/enabled", true)
 	joint.set("angular_motor_x/force_limit", 1500.0)
-
-
-func _add_self_to_weapon_manager(vehicle):
-	var manager = vehicle.get_manager("weapon")
-	manager.add_turret(self)
 
 
 func _other_connector_destroyed():
