@@ -5,6 +5,7 @@ const PLUGIN_DEPENDENCIES := {}
 
 
 const Munition := preload("munition.gd")
+const Weapon := preload("weapon.gd")
 
 
 static func pre_init(_plugin_path: String):

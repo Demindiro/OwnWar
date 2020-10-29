@@ -4,9 +4,7 @@ extends Reference
 var _max_munitions_by_gauge := {}
 var _munitions_count := {}
 var _gauge_to_munitions := {}
-var _cannons := []
 var _weapons := []
-var _turrets := []
 var _vehicle
 var Munition = Plugin.get_plugin("weapon_manager").Munition
 
@@ -107,24 +105,16 @@ func take_munition(gauge: int, amount: int) -> Dictionary:
 func aim_at(position: Vector3, velocity := Vector3.ZERO) -> void:
 	for weapon in _weapons:
 		weapon.aim_at(position, velocity)
-	for cannon in _cannons:
-		cannon.aim_at(position, velocity)
-	for turret in _turrets:
-		turret.aim_at(position, velocity)
 
 
 func rest_aim():
-	for cannon in _cannons:
-		cannon.set_angle(0.0)
-	for turret in _turrets:
-		turret.set_angle(0.0)
+	for weapon in _weapons:
+		weapon.set_angle(0.0)
 
 
 func fire_weapons(_max_error := 1e10) -> void:
 	for weapon in _weapons:
 		weapon.fire()
-	for cannon in _cannons:
-		cannon.fire()
 
 
 func add_ammo_rack(ammo_rack: Node) -> void:
@@ -142,21 +132,9 @@ func add_ammo_rack(ammo_rack: Node) -> void:
 	assert(e == OK)
 
 
-func add_cannon(cannon: Node) -> void:
-	_cannons.append(cannon)
-	var e := cannon.connect("tree_exited", self, "_cannon_destroyed", [cannon])
-	assert(e == OK)
-
-
 func add_weapon(weapon: Node) -> void:
 	_weapons.append(weapon)
 	var e := weapon.connect("tree_exited", self, "_weapon_destroyed", [weapon])
-	assert(e == OK)
-
-
-func add_turret(turret: Node) -> void:
-	_turrets.append(turret)
-	var e := turret.connect("tree_exited", self, "_turret_destroyed", [turret])
 	assert(e == OK)
 
 
@@ -165,16 +143,8 @@ func _ammo_rack_destroyed(ammo_rack: Node) -> void:
 	_max_munitions_by_gauge[gauge] -= ammo_rack.max_munitions
 
 
-func _cannon_destroyed(cannon: Node) -> void:
-	_cannons.erase(cannon)
-
-
 func _weapon_destroyed(weapon: Node) -> void:
 	_weapons.erase(weapon)
-
-
-func _turret_destroyed(turret: Node) -> void:
-	_turrets.erase(turret)
 
 
 func get_info(info: Dictionary) -> void:

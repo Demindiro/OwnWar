@@ -19,20 +19,10 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/block/block.gd"
 }, {
-"base": "RigidBody",
-"class": "Cannon",
-"language": "GDScript",
-"path": "res://plugins/cannon/cannon.gd"
-}, {
 "base": "Resource",
 "class": "Compatibility",
 "language": "GDScript",
 "path": "res://core/compatibility.gd"
-}, {
-"base": "Spatial",
-"class": "Connector",
-"language": "GDScript",
-"path": "res://plugins/turret/connector.gd"
 }, {
 "base": "Camera",
 "class": "FreeCamera",
@@ -107,9 +97,7 @@ _global_script_classes=[ {
 _global_script_class_icons={
 "AI": "",
 "Block": "",
-"Cannon": "",
 "Compatibility": "",
-"Connector": "",
 "FreeCamera": "",
 "GameMaster": "",
 "Ghost": "",
