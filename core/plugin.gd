@@ -7,7 +7,6 @@ enum DisableReason {
 		CONFLICT = 0x2,
 		TOO_RECENT = 0x4,
 		TOO_OLD = 0x8,
-		DEPENDENCY = 0xf0,
 		DEPENDENCY_MISSING = 0x10,
 		DEPENDENCY_TOO_RECENT = 0x20,
 		DEPENDENCY_TOO_OLD = 0x40,
@@ -20,35 +19,19 @@ static func enable_plugin(id: String, enable: bool) -> bool:
 	var p = _PLUGINS.get(id)
 	if p != null:
 		if p[1] == DisableReason.NONE or p[1] == DisableReason.MANUAL:
-			var file := File.new()
-			var e := file.open("user://plugins/disabled.txt", File.READ)
-			var list: Array
-			if e == OK:
-				list = Array(file.get_as_text().split("\n"))
-			elif e == ERR_FILE_NOT_FOUND:
-				list = []
-			else:
-				print("Failed to read user://plugins/disabled.txt %d" % e)
-				return false
+			var text := Util.read_file_text("user://plugins/disabled.txt")
+			var list := Array(text.split("\n")) if text != null else []
 
 			if enable and id in list:
 				list.erase(id)
 			elif not enable and not id in list:
 				list.append(id)
 
-			e = file.open("user://plugins/disabled.txt", File.WRITE)
-			if e == OK:
-				file.store_string(PoolStringArray(list).join("\n"))
-				return true
-			else:
-				print("Failed to write user://plugins/disabled.txt %d" % e)
-				return false
+			return Util.write_file_text("user://plugins/disabled.txt",
+					PoolStringArray(list).join("\n"))
 		else:
-			var s = PoolStringArray()
-			for k in DisableReason:
-				if DisableReason[k] & p[1]:
-					s.append(k)
-			print("Can't enable plugin %s : %s" % [id, s.join(", ")])
+			print("Can't enable plugin %s : %s" % [id,
+					Util.enum_mask_to_str(DisableReason, p[1])])
 			return false
 	else:
 		print("Plugin %s not found" % id)
@@ -75,18 +58,8 @@ static func get_disable_reason(name: String) -> int:
 
 
 static func is_plugin_enabled(name: String) -> bool:
-	if name in _PLUGINS and _PLUGINS[name][1] == DisableReason.NONE:
-		var file := File.new()
-		var e := file.open("user://plugins/disabled.txt", File.READ)
-		if e == ERR_FILE_NOT_FOUND:
-			return true
-		elif e == OK:
-			return not name in file.get_as_text().split("\n")
-		else:
-			print("Failed to open user://plugins/disabled.txt %d" % e)
-			return true
-	else:
-		return false
+	var text := Util.read_file_text("user://plugins/disabled.txt")
+	return text == null or not name in text.split("\n")
 
 
 static func load_plugins():
@@ -138,10 +111,9 @@ static func load_plugins():
 
 				var dep_ver: Vector3 = _PLUGINS[dep_id][0].PLUGIN_VERSION
 				if dep_ver < dep_req_ver:
-					print("%s dependency %s too old %d.%d.%d > %d.%d.%d" % [
-							id, dep_id,
-							dep_req_ver.x, dep_req_ver.y, dep_req_ver.z,
-							dep_ver.x, dep_ver.y, dep_ver.z,
+					print("%s dependency %s too old %s > %s" % [id, dep_id,
+							Util.version_vector_to_str(dep_req_ver),
+							Util.version_vector_to_str(dep_ver)
 						])
 					flags |= DisableReason.DEPENDENCY_TOO_OLD
 					dependencies_satisfied = false
@@ -203,34 +175,7 @@ static func _load_pcks() -> void:
 		print("Plugins cannot be loaded in the editor due to a bug with Godot")
 		print("Ref: https://github.com/godotengine/godot/issues/16798")
 		return
-
 	print("Loading plugin PCKs")
-
-	for pck in _iterate_dir("user://plugins/", "pck"):
+	for pck in Util.iterate_dir_recursive("user://plugins/", "pck"):
 		if not ProjectSettings.load_resource_pack(pck):
 			print("Failed to load %s" % pck)
-
-
-static func _iterate_dir(path: String, extension: String) -> Array:
-	var dir := Directory.new()
-	var e := dir.open(path)
-	if e != OK:
-		print("Couldn't open %s : %d" % [path, e])
-		return []
-
-	e = dir.list_dir_begin(true)
-	if e != OK:
-		print("Couldn't iterate %s : %d" % [path, e])
-		return []
-
-	var file_paths := []
-	while true:
-		var file := dir.get_next()
-		if file == "":
-			break
-		if dir.current_is_dir():
-			file_paths += _iterate_dir(path.plus_file(file), extension)
-		elif file.get_extension() == extension:
-			file_paths.append(path.plus_file(file))
-
-	return file_paths
