@@ -17,12 +17,6 @@ const BLOCK_MAPPINGS = [
 	]
 
 
-static func version_string_to_vector(version: String):
-	var numbers = version.split(".")
-	assert(len(numbers) == 3)
-	return Vector3(int(numbers[0]), int(numbers[1]), int(numbers[2]))
-
-
 static func get_block_name_mapping(from_version: Vector3, to_version: Vector3):
 	var index = 0
 	var mappings = []
@@ -44,16 +38,15 @@ static func get_block_name_mapping(from_version: Vector3, to_version: Vector3):
 
 
 static func convert_vehicle_data(data):
-	var file_version = version_string_to_vector(data["game_version"])
-	var game_version = version_string_to_vector(Global.VERSION)
-	if file_version > game_version:
+	var file_version = Util.version_str_to_vector(data["game_version"])
+	if file_version > Global.VERSION:
 		Global.error("Can't load vehicle data: the data was created in a more " +
 			"recent version of the game")
 		return null
-	var mapping = get_block_name_mapping(file_version, game_version)
+	var mapping = get_block_name_mapping(file_version, Global.VERSION)
 	var converted_data = {}
 	var converted_blocks = {}
-	converted_data["game_version"] = Global.VERSION
+	converted_data["game_version"] = Util.version_vector_to_str(Global.VERSION)
 	var old_blocks = data["blocks"]
 	for key in old_blocks:
 		var block_data = _convert_block_data(data["blocks"][key], file_version)
