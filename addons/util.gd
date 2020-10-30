@@ -76,11 +76,15 @@ static func read_file_text(path: String) -> String:
 	return text
 
 
-static func write_file_text(path: String, text: String) -> bool:
+static func write_file_text(path: String, text: String, write_to_backup := false) -> bool:
+	var bk_path := path if not write_to_backup else path + "~"
 	var file := File.new()
-	var e := file.open(path, File.WRITE)
+	var e := file.open(bk_path, File.WRITE)
 	if e == OK:
 		file.store_string(text)
+		file.close()
+		if write_to_backup:
+			e = rename_file(bk_path, path)
 		return true
 	else:
 		return false
