@@ -3,12 +3,12 @@
 [ext_resource path="res://plugins/basic_manufacturing/roboport.gd" type="Script" id=1]
 [ext_resource path="res://plugins/basic_manufacturing/roboport_drone.tscn" type="PackedScene" id=2]
 
-
 [sub_resource type="CylinderShape" id=1]
 height = 1.5
 
 [node name="Roboport" type="StaticBody"]
 script = ExtResource( 1 )
+unit_name = "roboport"
 drone_scene = ExtResource( 2 )
 
 [node name="CSGCylinder" type="CSGCylinder" parent="."]
