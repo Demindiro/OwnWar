@@ -9,6 +9,10 @@ var drill : Unit
 onready var material := max_material
 
 
+func _init():
+	add_to_group("ores")
+
+
 func take_material(amount):
 	material -= amount
 	if material < 0:

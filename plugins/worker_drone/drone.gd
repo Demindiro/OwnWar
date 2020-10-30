@@ -218,7 +218,7 @@ func build_ghost(flags, position, scroll, ghost_name):
 func build_drill(flags, coordinate):
 	var closest_ore = null
 	var max_distance = 3.0
-	for ore in game_master.ores:
+	for ore in game_master.get_tree().get_nodes_in_group("ores"):
 		var distance = (ore.translation - coordinate).length()
 		if ore.drill == null and distance < max_distance:
 			closest_ore = ore

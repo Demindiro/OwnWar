@@ -47,8 +47,6 @@ func _on_FilthyHack_ready():
 	for child in get_children():
 		if child is Unit:
 			game_master.units[child.team].append(child)
-		elif child is Ore:
-			game_master.ores.append(child)
 	$StoragePod.put_matter(material_id, 500)
 "
 

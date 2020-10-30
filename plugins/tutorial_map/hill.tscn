@@ -115,8 +115,6 @@ func _ready():
 		for child in parent.get_children():
 			if child is Unit:
 				game_master.units[child.team].append(child)
-			elif child is Ore:
-				game_master.ores.append(child)
 	$Player/StoragePod.put_matter(Matter.name_to_id[\"material\"], 500)
 	$Enemy/StoragePod.put_matter(Matter.name_to_id[\"material\"], 10000)
 	$Enemy/StoragePod2.put_matter(Matter.name_to_id[\"material\"], 10000)
