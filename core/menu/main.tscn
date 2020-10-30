@@ -31,6 +31,7 @@ font_data = ExtResource( 7 )
 
 [node name="Main" type="Node"]
 script = ExtResource( 9 )
+map_name = "__main_menu"
 
 [node name="Floor" type="StaticBody" parent="."]
 __meta__ = {

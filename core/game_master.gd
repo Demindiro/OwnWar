@@ -5,6 +5,7 @@ extends Node
 signal unit_added(unit)
 export(NodePath) var victory_screen
 export var team_count := 2
+export var map_name: String
 # warning-ignore:unused_class_variable
 var teams := ["Player", "Evil AI"]
 var teams_alive := team_count
@@ -14,6 +15,7 @@ var ores := []
 
 
 func _enter_tree():
+	assert(map_name != "")
 	for i in team_count:
 		units.append([])
 

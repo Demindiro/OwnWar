@@ -14,7 +14,7 @@ const PLUGIN_DEPENDENCIES := {
 
 
 static func pre_init(_plugin_path: String):
-	Maps.add_map("tutorial", _plugin_path.plus_file("hill.tscn"))
+	Maps.add_map("tutorial_hill", _plugin_path.plus_file("hill.tscn"))
 
 
 static func init(_plugin_path: String):

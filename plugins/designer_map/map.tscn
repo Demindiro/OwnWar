@@ -22,19 +22,6 @@
 [ext_resource path="res://plugins/basic_manufacturing/roboport_ghost.tscn" type="PackedScene" id=20]
 [ext_resource path="res://plugins/basic_manufacturing/roboport.tscn" type="PackedScene" id=21]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node
 
@@ -171,6 +158,7 @@ shortcut = SubResource( 14 )
 
 [node name="Designer" type="Node"]
 script = ExtResource( 10 )
+map_name = "designer"
 
 [node name="Map" type="Node" parent="."]
 script = SubResource( 1 )
