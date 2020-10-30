@@ -135,3 +135,8 @@ static func iterate_dir_recursive(path: String, extension = null) -> Array:
 static func rename_file(from: String, to: String) -> int:
 	var dir := Directory.new()
 	return dir.rename_file(from, to)
+
+
+static func create_dirs(path: String) -> int:
+	var dir := Directory.new()
+	return dir.make_dir_recursive(path)
