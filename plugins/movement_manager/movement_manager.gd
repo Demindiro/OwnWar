@@ -33,6 +33,14 @@ func add_wheel(wheel):
 	wheel.connect("tree_entered", self, "_wheel_readded", [wheel])
 
 
+func serialize_json() -> Dictionary:
+	return {}
+
+
+func deserialize_json(data: Dictionary) -> void:
+	pass
+
+
 func _wheel_destroyed(wheel):
 	_wheels.erase(wheel)
 	_power_manager.unreserve_power(wheel)
