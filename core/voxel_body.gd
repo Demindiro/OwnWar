@@ -91,7 +91,7 @@ func spawn_block(x: int, y: int, z: int, r: int, block: Block, color: Color) -> 
 				child.material_override = material
 	max_cost += block.cost
 	max_health += block.health
-	blocks[[x, y, z]] = [block.id, block.health, node]
+	blocks[[x, y, z]] = [block.id, block.health, node, r, color]
 	start_position.x = float(x) if start_position.x > x else start_position.x
 	start_position.y = float(y) if start_position.y > y else start_position.y
 	start_position.z = float(z) if start_position.z > z else start_position.z
