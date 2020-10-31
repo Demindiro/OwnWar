@@ -70,6 +70,28 @@ func take_material(p_material):
 	return take_matter(_material_id, p_material)
 
 
+func serialize_json() -> Dictionary:
+	var data := {
+			"material": material,
+			"ticks_until_next": _ticks_until_next,
+		}
+	if ore != null:
+		data["ore_translation"] = ore.translation
+	return data
+
+
+func deserialize_json(data: Dictionary) -> void:
+	material = data["material"]
+	_ticks_until_next = data["ticks_until_next"]
+	var ore_translation = data.get("ore_translation")
+	if ore_translation != null:
+		for o in get_tree().get_nodes_in_group("ores"):
+			if o.translation == ore_translation:
+				ore = o
+				break
+		assert(ore != null)
+
+
 func init(p_ore):
 	ore = p_ore
 	ore.drill = self
