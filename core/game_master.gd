@@ -12,6 +12,7 @@ var teams_alive := team_count
 var units := []
 # warning-ignore:unused_class_variable
 var ores := []
+var uid_counter := 0
 
 
 func _enter_tree():
@@ -23,6 +24,8 @@ func _enter_tree():
 func add_unit(team, unit):
 	units[team].append(unit)
 	unit.team = team
+	unit.uid = uid_counter
+	uid_counter += 241
 	add_child(unit)
 	emit_signal("unit_added", unit)
 
@@ -49,8 +52,17 @@ func get_units(team, unit_name = null):
 			if unit.unit_name == unit_name:
 				units_by_name.append(unit)
 		return units_by_name
-	
-	
+
+
+func get_unit_by_uid(uid: int):# -> Unit:
+	for l in units:
+		for u in l:
+			if u.uid == uid:
+				return u
+	assert(false)
+	return null
+
+
 func game_end():
 	get_tree().paused = true
 	get_node(victory_screen).visible = true

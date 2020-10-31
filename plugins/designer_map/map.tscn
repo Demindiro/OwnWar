@@ -47,6 +47,8 @@ func _on_FilthyHack_ready():
 	for child in get_children():
 		if child is Unit:
 			game_master.units[child.team].append(child)
+			child.uid = game_master.uid_counter
+			game_master.uid_counter += 241
 	$StoragePod.put_matter(material_id, 500)
 "
 
