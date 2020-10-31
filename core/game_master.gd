@@ -70,6 +70,48 @@ func game_end():
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 
+func save_game(p_name: String) -> int:
+	print("Saving game as %s" % p_name)
+	var start_time := OS.get_ticks_msec()
+	var s_units := {}
+	for i in range(len(teams)):
+		var list := []
+		for u in units[i]:
+			list.append({
+					"name": u.unit_name,
+					"transform": var2str(u.transform),
+					"health": u.health,
+					"uid": u.uid,
+					"data": u.serialize_json(),
+				})
+		s_units[teams[i]] = list
+
+	var s_plugins := {}
+	for plugin in Plugin.get_all_plugins():
+		if Plugin.get_disable_reason(plugin.PLUGIN_ID) == Plugin.DisableReason.NONE:
+			s_plugins[plugin.PLUGIN_ID] = plugin.save_game(self)
+			assert(s_plugins[plugin.PLUGIN_ID] is Dictionary)
+	print("Serializing time %d msec" % (OS.get_ticks_msec() - start_time))
+
+	start_time = OS.get_ticks_msec()
+	var json := to_json({
+			"map_name": map_name,
+			"units": s_units,
+			"plugin_data": s_plugins,
+			"uid_counter": uid_counter,
+		})
+	print("to_json time %d msec" % (OS.get_ticks_msec() - start_time))
+
+	Util.create_dirs("user://game_saves")
+	var e := OK if Util.write_file_text("user://game_saves".plus_file(p_name) + \
+			".json", json, true) else FAILED
+	if e == OK:
+		print("Saved game")
+	else:
+		print("Error saving game %d" % e)
+	return e
+
+
 static func get_game_master(node: Node) -> Node:# -> GameMaster:
 #	while not node is GameMaster:
 	# REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
