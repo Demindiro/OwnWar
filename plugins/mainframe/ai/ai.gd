@@ -24,3 +24,25 @@ func debug_draw(mainframe, debug):
 		debug.draw_line(start_vertex, waypoint, Color.green)
 		debug.draw_circle(waypoint, Color.green)
 		start_vertex = waypoint
+
+
+func serialize_json(_game_master) -> Dictionary:
+	var w_list := []
+	for w in waypoints:
+		w_list.append(var2str(w))
+	var t_list := []
+	for t in targets:
+		t_list.append(t.uid)
+	return {
+			"waypoints": w_list,
+			"targets": t_list,
+		}
+
+
+func deserialize_json(mainframe, data: Dictionary) -> void:
+	waypoints = []
+	targets = []
+	for w in data["waypoints"]:
+		waypoints.append(str2var(w))
+	for t in data["targets"]:
+		targets.append(mainframe.game_master.get_unit_by_uid(t))
