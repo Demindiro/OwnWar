@@ -141,3 +141,30 @@ func set_munition_type(_flags, munition_type):
 		emit_signal("need_matter", _material_id, _MAX_MATERIAL - _material)
 	else:
 		emit_signal("need_matter", _material_id, 0)
+
+
+func serialize_json() -> Dictionary:
+	var m_list := {}
+	for id in _munition:
+		m_list[Matter.matter_name[id]] = _munition[id]
+	return {
+			"material": _material,
+			"munition": m_list,
+			"current_munition": _current_munition_type,
+			"current_producing": _current_producing_munition,
+			"time_until_produced": _time_until_munition_produced,
+		}
+
+
+func deserialize_json(data: Dictionary) -> void:
+	_material = data["material"]
+	_current_munition_type = data["current_munition"]
+	_current_producing_munition = data["current_producing"]
+	_time_until_munition_produced = data["time_until_produced"]
+	_munition = {}
+	_munition_volume = 0
+	for n in data["munition"]:
+		var c: int = data["munition"][n]
+		var id: int = Matter.name_to_id[n]
+		_munition[id] = c
+		_munition_volume += c * Matter.matter_volume[id]
