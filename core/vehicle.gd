@@ -236,6 +236,68 @@ func get_linear_velocity():
 	return voxel_bodies[0].linear_velocity
 
 
+func serialize_json() -> Dictionary:
+	var b_list := []
+	b_list.resize(len(voxel_bodies))
+	for i in range(len(voxel_bodies)):
+		b_list[i] = {}
+		for crd in voxel_bodies[i].blocks:
+			var b: Array = voxel_bodies[i].blocks[crd]
+			var d := {
+					"name": Global.blocks_by_id[b[0]].name,
+					"health": b[1],
+					"rotation": b[3],
+					"color": var2str(b[4]),
+				}
+			if b[2] != null and b[2].has_method("serialize_json"):
+				d["meta"] = b[2].serialize_json()
+			b_list[i]["%d,%d,%d" % crd] = d
+	var m_list := {}
+	for m in managers:
+		m_list[m] = managers[m].serialize_json()
+	return {
+			"blocks": b_list,
+			"managers": m_list,
+		}
+
+
+func deserialize_json(data: Dictionary) -> void:
+	max_cost = 0
+	voxel_bodies = []
+	
+	for vb_data in data["blocks"]:
+		var vb := VoxelBody.new()
+		for k in vb_data:
+			var crd := Array(k.split(","))
+			assert(len(crd) == 3 and crd[0].is_valid_integer() and \
+					crd[1].is_valid_integer() and crd[2].is_valid_integer())
+			var b_data: Dictionary = vb_data[crd]
+			var x := int(crd[0])
+			var y := int(crd[1])
+			var z := int(crd[2])
+			vb.spawn_block(x, y, z, b_data["rotation"],
+					Global.blocks[b_data["name"]],
+					str2var(b_data["color"]))
+		voxel_bodies.append(vb)
+
+	for body in voxel_bodies:
+		body.fix_physics(transform)
+		body.init_blocks(self, null)
+		max_cost += body.max_cost
+	var center_of_mass_0 = voxel_bodies[0].center_of_mass
+	for body in voxel_bodies:
+		body.translate(-center_of_mass_0)
+	for i in range(len(voxel_bodies)):
+		for crd in voxel_bodies[i]:
+			var meta = data["blocks"]["%d,%d,%d" % crd].get("meta")
+			if meta != null:
+				voxel_bodies[crd].deserialize_json(meta)
+
+	for m in data["managers"]:
+		assert(m in managers)
+		managers[m] = data["managers"][m]
+
+
 func _voxel_body_hit(_voxel_body):
 	if get_cost() * 4 < max_cost:
 		destroy()
