@@ -150,5 +150,28 @@ func put_matter(id: int, amount: int) -> int:
 	return amount
 
 
+func serialize_json() -> Dictionary:
+	var data := {
+		"material": material,
+	}
+	if queued_vehicle != null:
+		if queued_vehicle.unit_name == "worker":
+			data["queued"] = "worker"
+		else:
+			data["queued"] = "vehicle"
+		data["queued_data"] = queued_vehicle.serialize_json()
+	return data
+
+
+func deserialize_json(data: Dictionary) -> void:
+	material = data["material"]
+	var queued_type: String = data.get("queued")
+	if queued_type == "worker":
+		queued_vehicle = worker.instance()
+	elif queued_type == "vehicle":
+		queued_vehicle = Vehicle.new()
+	queued_vehicle.deserialize_json(data["queued_data"])
+
+
 func _get_needed_material():
 	return 0 if queued_vehicle == null else queued_vehicle.get_cost() - material
