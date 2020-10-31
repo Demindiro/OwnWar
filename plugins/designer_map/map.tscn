@@ -157,6 +157,7 @@ action = "ui_accept"
 shortcut = SubResource( 14 )
 
 [node name="Designer" type="Node"]
+process_priority = 1
 script = ExtResource( 10 )
 map_name = "designer"
 
@@ -309,7 +310,6 @@ __meta__ = {
 }
 
 [node name="Main" parent="GUI" instance=ExtResource( 11 )]
-visible = false
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -336,31 +336,38 @@ margin_right = 265.0
 margin_bottom = 41.6293
 text = "Continue"
 
-[node name="Restart" type="Button" parent="GUI/Main/VBoxContainer"]
+[node name="Save" type="Button" parent="GUI/Main/VBoxContainer"]
 margin_top = 51.0
 margin_right = 265.0
 margin_bottom = 92.6293
-text = "Restart"
+text = "Save"
 
-[node name="Load" type="Button" parent="GUI/Main/VBoxContainer"]
+[node name="Restart" type="Button" parent="GUI/Main/VBoxContainer"]
 margin_top = 102.0
 margin_right = 265.0
 margin_bottom = 143.629
-text = "Load Vehicle"
+text = "Restart"
 
-[node name="Designer" type="Button" parent="GUI/Main/VBoxContainer"]
+[node name="Load" type="Button" parent="GUI/Main/VBoxContainer"]
 margin_top = 153.0
 margin_right = 265.0
 margin_bottom = 194.629
-text = "Designer"
+text = "Load Vehicle"
 
-[node name="Exit" type="Button" parent="GUI/Main/VBoxContainer"]
+[node name="Designer" type="Button" parent="GUI/Main/VBoxContainer"]
 margin_top = 204.0
 margin_right = 265.0
 margin_bottom = 245.629
+text = "Designer"
+
+[node name="Exit" type="Button" parent="GUI/Main/VBoxContainer"]
+margin_top = 255.0
+margin_right = 265.0
+margin_bottom = 296.629
 text = "Exit"
 
 [node name="LoadVehicle" parent="GUI" instance=ExtResource( 11 )]
+visible = false
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -438,6 +445,7 @@ text = "Load"
 [connection signal="ready" from="Map/FilthyHack" to="Map" method="_on_FilthyHack_ready"]
 [connection signal="load_vehicle" from="GUI" to="Map" method="_on_GUI_load_vehicle"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Continue" to="GUI/Main" method="_on_Continue_pressed"]
+[connection signal="pressed" from="GUI/Main/VBoxContainer/Save" to="." method="save_game" binds= [ "_designer" ]]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Restart" to="GUI/Main" method="_on_Restart_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Load" to="GUI/Main" method="_on_Load_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Designer" to="GUI/Main" method="_on_Designer_pressed"]
