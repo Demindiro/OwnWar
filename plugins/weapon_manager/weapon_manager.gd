@@ -138,6 +138,23 @@ func add_weapon(weapon: Node) -> void:
 	assert(e == OK)
 
 
+func serialize_json() -> Dictionary:
+	var m_list := {}
+	for id in _munitions_count:
+		m_list[Matter.matter_name[id]] = _munitions_count[id]
+	return {
+			"munition": m_list
+		}
+
+
+func deserialize_json(data: Dictionary) -> void:
+	_max_munitions_by_gauge = {}
+	_munitions_count = {}
+	_gauge_to_munitions = {}
+	for name in data["munition"]:
+		put_munition(Matter.name_to_id[name], data["munition"][name])
+
+
 func _ammo_rack_destroyed(ammo_rack: Node) -> void:
 	var gauge = ammo_rack.gauge
 	_max_munitions_by_gauge[gauge] -= ammo_rack.max_munitions
