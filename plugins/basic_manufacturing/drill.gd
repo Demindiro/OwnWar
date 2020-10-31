@@ -2,7 +2,7 @@ extends Unit
 
 
 const MAX_MATERIAL := 100
-var ore: Ore
+var ore
 var _ticks_until_next := 0
 var material := 0
 onready var _material_id: int = Matter.name_to_id["material"]

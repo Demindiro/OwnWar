@@ -1,5 +1,3 @@
-class_name Ore
-
 extends Spatial
 
 

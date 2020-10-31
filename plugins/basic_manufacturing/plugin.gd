@@ -35,7 +35,7 @@ static func save_game(game_master: GameMaster) -> Dictionary:
 
 static func load_game(game_master: GameMaster, data: Dictionary) -> void:
 	for s in data["ores"]:
-		var ore := Ore.new()
+		var ore := preload("ore.tscn").instance()
 		ore.transform = str2var(s[0])
 		ore.material = s[1]
 		game_master.add_child(ore)

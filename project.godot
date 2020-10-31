@@ -54,11 +54,6 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/maps.gd"
 }, {
-"base": "Spatial",
-"class": "Ore",
-"language": "GDScript",
-"path": "res://plugins/basic_manufacturing/ore.gd"
-}, {
 "base": "Reference",
 "class": "Plugin",
 "language": "GDScript",
@@ -104,7 +99,6 @@ _global_script_class_icons={
 "HTerrainDataLoader": "",
 "HTerrainDataSaver": "",
 "Maps": "",
-"Ore": "",
 "Plugin": "",
 "Unit": "",
 "Util": "",
