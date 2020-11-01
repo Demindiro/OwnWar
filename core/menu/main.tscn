@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://addons/tiles/grass/grass_0.png" type="Texture" id=1]
 [ext_resource path="res://core/vehicle.gd" type="Script" id=2]
@@ -12,6 +12,7 @@
 [ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=10]
 [ext_resource path="res://core/menu/main_menu/maps.gd" type="Script" id=11]
 [ext_resource path="res://core/menu/main_menu/plugins.gd" type="Script" id=12]
+[ext_resource path="res://core/menu/main_menu/saves.gd" type="Script" id=13]
 
 [sub_resource type="HeightMapShape" id=1]
 map_width = 1000
@@ -152,7 +153,24 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="Saves" parent="GUI" instance=ExtResource( 10 )]
+margin_left = 456.0
+margin_top = 44.0
+margin_right = 1016.0
+script = ExtResource( 13 )
+title = "Saves"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GUI/Saves"]
+margin_left = 40.0
+margin_top = 40.0
+margin_right = 305.0
+custom_constants/separation = 10
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="Plugins" parent="GUI" instance=ExtResource( 10 )]
+visible = false
 margin_left = 456.0
 margin_top = 44.0
 margin_right = 987.0
