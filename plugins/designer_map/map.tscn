@@ -442,6 +442,8 @@ shortcut = SubResource( 15 )
 text = "Load"
 
 [node name="Debug" parent="." instance=ExtResource( 9 )]
+[connection signal="load_game" from="." to="HUD" method="_on_Designer_load_game"]
+[connection signal="save_game" from="." to="HUD" method="_on_Designer_save_game"]
 [connection signal="ready" from="Map/FilthyHack" to="Map" method="_on_FilthyHack_ready"]
 [connection signal="load_vehicle" from="GUI" to="Map" method="_on_GUI_load_vehicle"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Continue" to="GUI/Main" method="_on_Continue_pressed"]
