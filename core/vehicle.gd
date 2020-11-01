@@ -278,6 +278,7 @@ func deserialize_json(data: Dictionary) -> void:
 			vb.spawn_block(x, y, z, b_data["rotation"],
 					Global.blocks[b_data["name"]],
 					str2var(b_data["color"]))
+		add_child(vb)
 		voxel_bodies.append(vb)
 
 	for body in voxel_bodies:
