@@ -79,13 +79,17 @@ func save_game(p_name: String) -> int:
 	for i in range(len(teams)):
 		var list := []
 		for u in units[i]:
-			list.append({
+			var u_data := {
 					"name": u.unit_name,
 					"transform": var2str(u.transform),
 					"health": u.health,
 					"uid": u.uid,
 					"data": u.serialize_json(),
-				})
+				}
+			if u is RigidBody:
+				u_data["linear_velocity"] = var2str(u.linear_velocity)
+				u_data["angular_velocity"] = var2str(u.angular_velocity)
+			list.append(u_data)
 		s_units[teams[i]] = list
 
 	var s_plugins := {}
@@ -146,6 +150,9 @@ static func _load_game(game_master: GameMaster, data: Dictionary) -> void:
 			u.transform = str2var(u_d["transform"])
 			u.uid = u_d["uid"]
 			u.health = u_d["health"]
+			if u is RigidBody:
+				u.linear_velocity = str2var(u_d["linear_velocity"])
+				u.angular_velocity = str2var(u_d["angular_velocity"])
 			game_master.add_child(u)
 			u_list.append(u)
 		game_master.teams.push_front(team)

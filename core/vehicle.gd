@@ -258,13 +258,19 @@ func serialize_json() -> Dictionary:
 		m_list[m] = managers[m].serialize_json()
 
 	var vb_transform_list := []
+	var vb_linear_vel_list := []
+	var vb_angular_vel_list := []
 	for vb in voxel_bodies:
 		vb_transform_list.append(var2str(vb.global_transform))
+		vb_linear_vel_list.append(var2str(vb.linear_velocity))
+		vb_angular_vel_list.append(var2str(vb.angular_velocity))
 
 	return {
 			"blocks": b_list,
 			"managers": m_list,
 			"voxel_body_transforms": vb_transform_list,
+			"voxel_body_linear_velocities": vb_linear_vel_list,
+			"voxel_body_angular_velocities": vb_angular_vel_list,
 		}
 
 
@@ -297,8 +303,10 @@ func deserialize_json(data: Dictionary) -> void:
 	for body in voxel_bodies:
 		body.init_blocks(self, {})
 
-	for i in range(len(data["voxel_body_transforms"])):
+	for i in range(len(voxel_bodies)):
 		voxel_bodies[i].global_transform = str2var(data["voxel_body_transforms"][i])
+		voxel_bodies[i].linear_velocity = str2var(data["voxel_body_linear_velocities"][i])
+		voxel_bodies[i].angular_velocity = str2var(data["voxel_body_angular_velocities"][i])
 
 	for i in range(len(voxel_bodies)):
 		for crd in voxel_bodies[i].blocks:
