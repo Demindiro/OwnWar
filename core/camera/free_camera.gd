@@ -11,9 +11,7 @@ var enabled = true setget set_enabled
 
 
 func _ready():
-	var euler = transform.basis.get_euler()
-	_rot_x = euler.y
-	_rot_y = euler.x
+	set_transform(transform)
 
 
 func _input(event):
@@ -43,6 +41,13 @@ func _process(delta):
 		if Input.is_action_pressed(actions[i]):
 			direction += directions[i]
 	translate_object_local(direction * speed * delta)
+
+
+func set_transform(p_transform: Transform) -> void:
+	transform = p_transform
+	var euler = transform.basis.get_euler()
+	_rot_x = euler.y
+	_rot_y = euler.x
 
 
 func set_enabled(var p_enabled):
