@@ -289,10 +289,10 @@ func deserialize_json(data: Dictionary) -> void:
 	for body in voxel_bodies:
 		body.translate(-center_of_mass_0)
 	for i in range(len(voxel_bodies)):
-		for crd in voxel_bodies[i]:
-			var meta = data["blocks"]["%d,%d,%d" % crd].get("meta")
+		for crd in voxel_bodies[i].blocks:
+			var meta = data["blocks"][i]["%d,%d,%d" % crd].get("meta")
 			if meta != null:
-				voxel_bodies[crd].deserialize_json(meta)
+				voxel_bodies[i].blocks[crd][2].deserialize_json(meta)
 
 	for m in data["managers"]:
 		assert(m in managers)
