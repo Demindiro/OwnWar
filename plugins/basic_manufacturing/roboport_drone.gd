@@ -133,7 +133,7 @@ func serialize_json() -> Dictionary:
 			d["task_from"] = from_target.uid
 			d["task_to"] = to_target.uid
 			if dump_target != null:
-				d["task_dump"] = dump_target
+				d["task_dump"] = dump_target.uid
 			d["task_matter_id"] = task_matter_id
 			d["task_step"] = _task_step
 		Task.NONE:
