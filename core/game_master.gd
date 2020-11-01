@@ -141,7 +141,7 @@ static func _load_game(game_master: GameMaster, data: Dictionary) -> void:
 					u_name.begins_with("vehicle_") else \
 					_Unit.get_unit(u_d["name"]).instance()
 			if u_name.begins_with("vehicle_"):
-				u.name = u_name
+				u.unit_name = u_name
 			u.game_master = game_master
 			u.transform = str2var(u_d["transform"])
 			u.uid = u_d["uid"]
