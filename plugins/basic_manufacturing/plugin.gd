@@ -35,7 +35,11 @@ static func save_game(game_master: GameMaster) -> Dictionary:
 
 static func load_game(game_master: GameMaster, data: Dictionary) -> void:
 	for s in data["ores"]:
-		var ore := preload("ore.tscn").instance()
-		ore.transform = str2var(s[0])
-		ore.material = s[1]
-		game_master.add_child(ore)
+		var found := false
+		var transform: Transform = str2var(s[0])
+		for ore in game_master.get_tree().get_nodes_in_group("ores"):
+			if ore.transform == transform:
+				ore.material = s[1]
+				found = true
+				break
+		assert(found)
