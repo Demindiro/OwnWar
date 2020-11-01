@@ -147,14 +147,14 @@ func deserialize_json(data: Dictionary) -> void:
 	matter_id = data["matter_id"]
 	matter_count = data["matter_count"]
 	task = Task[data["task"]]
-	from_target = game_master.get_unit_by_uid(data["task_from"])
-	to_target = game_master.get_unit_by_uid(data["task_to"])
 	if "task_dump" in data:
 		dump_target = game_master.get_unit_by_uid(data["task_dump"])
 	match task:
 		Task.FILL, Task.EMPTY:
 			task_matter_id = data["task_matter_id"]
 			_task_step = data["task_step"]
+			from_target = game_master.get_unit_by_uid(data["task_from"])
+			to_target = game_master.get_unit_by_uid(data["task_to"])
 		Task.NONE:
 			pass
 		_:
