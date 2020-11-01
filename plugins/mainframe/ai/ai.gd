@@ -39,10 +39,10 @@ func serialize_json(_game_master) -> Dictionary:
 		}
 
 
-func deserialize_json(mainframe, data: Dictionary) -> void:
+func deserialize_json(game_master, data: Dictionary) -> void:
 	waypoints = []
 	targets = []
 	for w in data["waypoints"]:
 		waypoints.append(str2var(w))
 	for t in data["targets"]:
-		targets.append(mainframe.game_master.get_unit_by_uid(t))
+		targets.append(game_master.get_unit_by_uid(t))
