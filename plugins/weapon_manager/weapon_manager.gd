@@ -148,7 +148,6 @@ func serialize_json() -> Dictionary:
 
 
 func deserialize_json(data: Dictionary) -> void:
-	_max_munitions_by_gauge = {}
 	_munitions_count = {}
 	_gauge_to_munitions = {}
 	for name in data["munition"]:
