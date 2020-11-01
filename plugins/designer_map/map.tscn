@@ -31,12 +31,12 @@ var material_id
 
 
 func _physics_process(_delta):
-	$SpawnPlayer.put_matter(material_id, 1 << 62)
-	$SpawnEnemy.put_matter(material_id, 1 << 62)
+	game_master.get_unit_by_uid(0).put_matter(material_id, 1 << 62)
+	game_master.get_unit_by_uid(241).put_matter(material_id, 1 << 62)
 
 
 func _on_GUI_load_vehicle(path):
-	$SpawnEnemy.spawn_vehicle(0, path)
+	game_master.get_unit_by_uid(241).spawn_vehicle(0, path)
 
 
 func _on_FilthyHack_ready():
@@ -49,7 +49,7 @@ func _on_FilthyHack_ready():
 			game_master.units[child.team].append(child)
 			child.uid = game_master.uid_counter
 			game_master.uid_counter += 241
-	$StoragePod.put_matter(material_id, 500)
+	game_master.get_unit_by_uid(964).put_matter(material_id, 500)
 "
 
 [sub_resource type="PlaneMesh" id=2]
