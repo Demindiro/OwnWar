@@ -129,3 +129,8 @@ func destroy():
 static func add_unit(p_name: String, unit) -> void:
 	assert(not p_name in UNITS)
 	UNITS[p_name] = unit
+
+
+static func get_unit(p_name: String):# -> Unit:
+	assert(p_name in UNITS)
+	return UNITS[p_name]
