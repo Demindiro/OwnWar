@@ -271,7 +271,7 @@ func deserialize_json(data: Dictionary) -> void:
 			var crd := Array(k.split(","))
 			assert(len(crd) == 3 and crd[0].is_valid_integer() and \
 					crd[1].is_valid_integer() and crd[2].is_valid_integer())
-			var b_data: Dictionary = vb_data[crd]
+			var b_data: Dictionary = vb_data[k]
 			var x := int(crd[0])
 			var y := int(crd[1])
 			var z := int(crd[2])
