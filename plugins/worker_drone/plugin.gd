@@ -5,7 +5,7 @@ const PLUGIN_DEPENDENCIES := {"basic_manufacturing": Vector3(0, 0, 1)}
 
 
 static func pre_init(_plugin_path: String):
-	Unit.add_unit("drone", preload("drone.tscn"))
+	Unit.add_unit("worker", preload("drone.tscn"))
 
 
 static func init(_plugin_path: String):
