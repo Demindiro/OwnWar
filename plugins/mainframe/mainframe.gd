@@ -74,4 +74,4 @@ func serialize_json() -> Dictionary:
 
 
 func deserialize_json(data: Dictionary) -> void:
-	ai.deserialize_json(GameMaster.get_game_master(self), data)
+	ai.deserialize_json(GameMaster.get_game_master(self), data["ai_state"])
