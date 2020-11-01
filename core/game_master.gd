@@ -3,6 +3,8 @@ extends Node
 
 
 signal unit_added(unit)
+signal load_game(data)
+signal save_game(data)
 export(NodePath) var victory_screen
 export var team_count := 2
 export var map_name: String
@@ -91,15 +93,18 @@ func save_game(p_name: String) -> int:
 		if Plugin.get_disable_reason(plugin.PLUGIN_ID) == Plugin.DisableReason.NONE:
 			s_plugins[plugin.PLUGIN_ID] = plugin.save_game(self)
 			assert(s_plugins[plugin.PLUGIN_ID] is Dictionary)
-	print("Serializing time %d msec" % (OS.get_ticks_msec() - start_time))
 
-	start_time = OS.get_ticks_msec()
-	var json := to_json({
+	var data := {
 			"map_name": map_name,
 			"units": s_units,
 			"plugin_data": s_plugins,
 			"uid_counter": uid_counter,
-		})
+		}
+	emit_signal("save_game", data)
+	print("Serializing time %d msec" % (OS.get_ticks_msec() - start_time))
+
+	start_time = OS.get_ticks_msec()
+	var json := to_json(data)
 	print("to_json time %d msec" % (OS.get_ticks_msec() - start_time))
 
 	Util.create_dirs("user://game_saves")
@@ -155,6 +160,8 @@ static func _load_game(game_master: GameMaster, data: Dictionary) -> void:
 	for team in data["units"]:
 		for u_d in data["units"][team]:
 			game_master.get_unit_by_uid(u_d["uid"]).deserialize_json(u_d["data"])
+
+	game_master.emit_signal("load_game", data)
 
 	print("Deserialize time %d msec" % (OS.get_ticks_msec() - start_time))
 
