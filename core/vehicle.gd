@@ -283,11 +283,12 @@ func deserialize_json(data: Dictionary) -> void:
 
 	for body in voxel_bodies:
 		body.fix_physics(transform)
-		body.init_blocks(self, null)
 		max_cost += body.max_cost
 	var center_of_mass_0 = voxel_bodies[0].center_of_mass
 	for body in voxel_bodies:
 		body.translate(-center_of_mass_0)
+	for body in voxel_bodies:
+		body.init_blocks(self, {})
 	for i in range(len(voxel_bodies)):
 		for crd in voxel_bodies[i].blocks:
 			var meta = data["blocks"][i]["%d,%d,%d" % crd].get("meta")
