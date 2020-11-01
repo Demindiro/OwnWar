@@ -321,16 +321,16 @@ func serialize_json() -> Dictionary:
 func deserialize_json(data: Dictionary) -> void:
 	tasks = []
 	for t_d in data["tasks"]:
-		var t := [t_d["task"]]
+		var t := [Task[t_d["task"]]]
 		match t[0]:
 			Task.GOTO_WAYPOINT:
 				t.append(str2var(t_d["waypoint"]))
 			Task.BUILD_STRUCTURE:
-				var u: Unit = game_master.get_unit_by_uid(t[1]["target"])
+				var u: Unit = game_master.get_unit_by_uid(t_d["target"])
 				t.append(u)
 			Task.PUT, Task.PUT_ONLY, \
 			Task.TAKE, Task.TAKE_ONLY:
-				var u: Unit = game_master.get_unit_by_uid(t[1]["target"])
+				var u: Unit = game_master.get_unit_by_uid(t_d["target"])
 				t.append(u)
 				t.append(Matter.name_to_id[t_d["matter"]])
 			_:
