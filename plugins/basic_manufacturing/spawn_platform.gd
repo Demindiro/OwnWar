@@ -165,12 +165,13 @@ func serialize_json() -> Dictionary:
 
 func deserialize_json(data: Dictionary) -> void:
 	material = data["material"]
-	var queued_type: String = data.get("queued")
-	if queued_type == "worker":
-		queued_vehicle = worker.instance()
-	elif queued_type == "vehicle":
-		queued_vehicle = Vehicle.new()
-	queued_vehicle.deserialize_json(data["queued_data"])
+	var queued_type: String = data.get("queued", "")
+	if queued_type != "":
+		if queued_type == "worker":
+			queued_vehicle = worker.instance()
+		elif queued_type == "vehicle":
+			queued_vehicle = Vehicle.new()
+		queued_vehicle.deserialize_json(data["queued_data"])
 
 
 func _get_needed_material():
