@@ -252,12 +252,19 @@ func serialize_json() -> Dictionary:
 			if b[2] != null and b[2].has_method("serialize_json"):
 				d["meta"] = b[2].serialize_json()
 			b_list[i]["%d,%d,%d" % crd] = d
+
 	var m_list := {}
 	for m in managers:
 		m_list[m] = managers[m].serialize_json()
+
+	var vb_transform_list := []
+	for vb in voxel_bodies:
+		vb_transform_list.append(var2str(vb.global_transform))
+
 	return {
 			"blocks": b_list,
 			"managers": m_list,
+			"voxel_body_transforms": vb_transform_list,
 		}
 
 
@@ -289,6 +296,10 @@ func deserialize_json(data: Dictionary) -> void:
 		body.translate(-center_of_mass_0)
 	for body in voxel_bodies:
 		body.init_blocks(self, {})
+
+	for i in range(len(data["voxel_body_transforms"])):
+		voxel_bodies[i].global_transform = str2var(data["voxel_body_transforms"][i])
+
 	for i in range(len(voxel_bodies)):
 		for crd in voxel_bodies[i].blocks:
 			var meta = data["blocks"][i]["%d,%d,%d" % crd].get("meta")
