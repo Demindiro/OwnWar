@@ -295,7 +295,7 @@ func deserialize_json(data: Dictionary) -> void:
 
 	for m in data["managers"]:
 		assert(m in managers)
-		managers[m] = data["managers"][m]
+		managers[m].deserialize_json(data["managers"][m])
 
 
 func _voxel_body_hit(_voxel_body):
