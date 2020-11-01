@@ -111,3 +111,11 @@ func get_total_error(_target: Vector3) -> float:
 #	var cannon_direction = global_transform.basis.z
 #	return 1.0 - cannon_direction.dot(direction_to_target)
 	return _error
+
+
+func serialize_json() -> Dictionary:
+	return { "transform": var2str(global_transform) }
+
+
+func deserialize_json(data: Dictionary) -> void:
+	global_transform = str2var(data["transform"])
