@@ -69,6 +69,8 @@ export var blocks: Dictionary = {}
 var blocks_by_id: Array = [null]
 
 var _loader
+var _loader_callback: FuncRef
+var _loader_callback_arguments: Array
 
 
 func _enter_tree():
@@ -121,7 +123,10 @@ func get_block(name: String): #-> Block:
 	return blocks[name]
 
 
-func goto_scene(path):
+func goto_scene(path, callback: FuncRef = null, arguments := []) -> void:
+	assert(path is String or path is PackedScene)
+	_loader_callback = callback
+	_loader_callback_arguments = arguments.duplicate()
 	call_deferred("_goto_scene", path)
 	
 
@@ -132,11 +137,16 @@ func error(string, code := -1):
 		push_error(string)
 
 
-func _goto_scene(path):
+func _goto_scene(path) -> void:
+	assert(path is String or path is PackedScene)
 	if path is PackedScene:
 		var err = get_tree().change_scene_to(path)
 		if err != OK:
 			error("Failed to change scene '%s'" % path, err)
+			return
+		if _loader_callback != null:
+			_loader_callback_arguments.push_front(get_tree().current_scene)
+			_loader_callback.call_funcv(_loader_callback_arguments)
 	else:
 		_loader = ResourceLoader.load_interactive(path)
 		if _loader == null:
@@ -166,6 +176,9 @@ func _load_scene():
 				yield(get_tree(), "idle_frame")
 				tree.current_scene.queue_free()
 				tree.current_scene = instance
+				if _loader_callback != null:
+					_loader_callback_arguments.push_front(tree.current_scene)
+					_loader_callback.call_funcv(_loader_callback_arguments)
 			else:
 				error("Loaded resource is not a scene! ('%s')" % str(scene))
 			return
