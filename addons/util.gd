@@ -140,3 +140,12 @@ static func rename_file(from: String, to: String) -> int:
 static func create_dirs(path: String) -> int:
 	var dir := Directory.new()
 	return dir.make_dir_recursive(path)
+
+
+static func free_children(node: Node, queue := false) -> void:
+	if queue:
+		for child in node.get_children():
+			child.queue_free()
+	else:
+		for child in node.get_children():
+			child.free()
