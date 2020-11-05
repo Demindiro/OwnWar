@@ -1,7 +1,9 @@
 [gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://plugins/basic_manufacturing/ghost.gd" type="Script" id=1]
-[ext_resource path="res://plugins/basic_manufacturing/drill.tscn" type="PackedScene" id=2]
+[ext_resource path="res://plugins/basic_manufacturing/drill/drill.tscn" type="PackedScene" id=2]
+
+
 
 
 
