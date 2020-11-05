@@ -6,11 +6,12 @@
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery_ghost.tscn" type="PackedScene" id=4]
 [ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory_ghost.tscn" type="PackedScene" id=5]
 [ext_resource path="res://plugins/basic_manufacturing/storage_pod_ghost.tscn" type="PackedScene" id=6]
-[ext_resource path="res://plugins/basic_manufacturing/roboport_ghost.tscn" type="PackedScene" id=7]
+[ext_resource path="res://plugins/basic_manufacturing/roboport/roboport_ghost.tscn" type="PackedScene" id=7]
 [ext_resource path="res://plugins/basic_manufacturing/storage_pod.tscn" type="PackedScene" id=8]
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform_ghost.tscn" type="PackedScene" id=9]
 [ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=10]
 [ext_resource path="res://core/camera/free_camera.gd" type="Script" id=11]
+
 
 
 

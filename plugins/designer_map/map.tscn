@@ -18,8 +18,9 @@
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery.tscn" type="PackedScene" id=17]
 [ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory_ghost.tscn" type="PackedScene" id=18]
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery_ghost.tscn" type="PackedScene" id=19]
-[ext_resource path="res://plugins/basic_manufacturing/roboport_ghost.tscn" type="PackedScene" id=20]
-[ext_resource path="res://plugins/basic_manufacturing/roboport.tscn" type="PackedScene" id=21]
+[ext_resource path="res://plugins/basic_manufacturing/roboport/roboport_ghost.tscn" type="PackedScene" id=20]
+[ext_resource path="res://plugins/basic_manufacturing/roboport/roboport.tscn" type="PackedScene" id=21]
+
 
 
 
