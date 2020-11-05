@@ -12,3 +12,4 @@ mesh = ExtResource( 2 )
 cost = 5
 shells_per_batch = 1
 gauge = 160
+id = -1
