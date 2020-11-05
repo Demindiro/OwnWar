@@ -1,106 +1,34 @@
-[gd_scene load_steps=33 format=2]
+[gd_scene load_steps=23 format=2]
 
-[ext_resource path="res://core/camera/free_camera.gd" type="Script" id=1]
-[ext_resource path="res://core/designer/designer.gd" type="Script" id=2]
-[ext_resource path="res://core/designer/floor.gd" type="Script" id=3]
-[ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=4]
-[ext_resource path="res://core/designer/inventory.gd" type="Script" id=5]
-[ext_resource path="res://core/designer/save_vehicle.gd" type="Script" id=6]
+[ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=1]
+[ext_resource path="res://core/designer/meta_editor.gd" type="Script" id=2]
+[ext_resource path="res://core/camera/free_camera.gd" type="Script" id=3]
+[ext_resource path="res://core/designer/block_layer.gd" type="Script" id=4]
+[ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=5]
+[ext_resource path="res://core/designer/mirror_line_material.tres" type="Material" id=6]
 [ext_resource path="res://addons/crosshairs/image0018.png" type="Texture" id=7]
-[ext_resource path="res://core/menu/good_times_rg.ttf" type="DynamicFontData" id=8]
-[ext_resource path="res://core/designer/color_picker.gd" type="Script" id=9]
+[ext_resource path="res://core/designer/load_vehicle.gd" type="Script" id=8]
+[ext_resource path="res://core/designer/inventory.gd" type="Script" id=9]
 [ext_resource path="res://addons/arrow.png" type="Texture" id=10]
-[ext_resource path="res://core/menu/main.tscn" type="PackedScene" id=11]
+[ext_resource path="res://core/designer/mirror_line_mesh.tres" type="QuadMesh" id=11]
 [ext_resource path="res://plugins/designer_map/map.tscn" type="PackedScene" id=12]
-[ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=13]
-[ext_resource path="res://core/designer/load_vehicle.gd" type="Script" id=14]
-[ext_resource path="res://core/designer/meta_editor.gd" type="Script" id=15]
-
-[sub_resource type="SpatialMaterial" id=1]
-
-[sub_resource type="QuadMesh" id=2]
-
-[sub_resource type="SpatialMaterial" id=3]
-flags_unshaded = true
-albedo_color = Color( 1, 0.00784314, 0.00784314, 1 )
-
-[sub_resource type="SpatialMaterial" id=4]
-albedo_color = Color( 0.407843, 0.992157, 0.168627, 1 )
-
-[sub_resource type="GDScript" id=5]
-script/source = "extends OptionButton
-
-
-func _ready():
-	add_icon_item(null, \"0\", 1)
-	add_icon_item(null, \"1\", 2)
-	add_icon_item(null, \"2\", 3)
-	add_icon_item(null, \"3\", 4)
-	selected = 0
-
-
-func _input(event):
-	if event.is_action_released(\"designer_release_cursor\"):
-		get_popup().hide()
-"
-
-[sub_resource type="GDScript" id=6]
-script/source = "extends OptionButton
-
-
-func _ready():
-	add_icon_item(null, \"All\", 0)
-	add_icon_item(null, \"0\", 1)
-	add_icon_item(null, \"1\", 2)
-	add_icon_item(null, \"2\", 3)
-	add_icon_item(null, \"3\", 4)
-	selected = 0
-
-
-func _input(event):
-	if event.is_action_released(\"designer_release_cursor\"):
-		get_popup().hide()
-"
-
-[sub_resource type="InputEventAction" id=7]
-action = "ui_cancel"
-
-[sub_resource type="ShortCut" id=8]
-shortcut = SubResource( 7 )
-
-[sub_resource type="DynamicFont" id=9]
-font_data = ExtResource( 8 )
-
-[sub_resource type="InputEventAction" id=10]
-action = "ui_cancel"
-
-[sub_resource type="ShortCut" id=11]
-shortcut = SubResource( 10 )
-
-[sub_resource type="InputEventAction" id=12]
-action = "ui_accept"
-
-[sub_resource type="ShortCut" id=13]
-shortcut = SubResource( 12 )
-
-[sub_resource type="InputEventAction" id=14]
-action = "ui_cancel"
-
-[sub_resource type="ShortCut" id=15]
-shortcut = SubResource( 14 )
-
-[sub_resource type="InputEventAction" id=16]
-action = "ui_accept"
-
-[sub_resource type="ShortCut" id=17]
-shortcut = SubResource( 16 )
+[ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=13]
+[ext_resource path="res://core/menu/main.tscn" type="PackedScene" id=14]
+[ext_resource path="res://core/designer/blockface_highlighter_material.tres" type="Material" id=15]
+[ext_resource path="res://core/designer/floor.gd" type="Script" id=16]
+[ext_resource path="res://core/designer/save_vehicle.gd" type="Script" id=17]
+[ext_resource path="res://core/shortcut/ui_accept.tres" type="ShortCut" id=18]
+[ext_resource path="res://core/designer/block_layer_view.gd" type="Script" id=19]
+[ext_resource path="res://core/designer/color_picker.gd" type="Script" id=20]
+[ext_resource path="res://core/designer/designer.gd" type="Script" id=21]
+[ext_resource path="res://core/designer/block_base_material.tres" type="Material" id=22]
 
 [node name="Designer" type="Node"]
 pause_mode = 2
-script = ExtResource( 2 )
-main_menu = ExtResource( 11 )
+script = ExtResource( 21 )
+main_menu = ExtResource( 14 )
 test_map = ExtResource( 12 )
-material = SubResource( 1 )
+material = ExtResource( 22 )
 
 [node name="Lights" type="Node" parent="."]
 
@@ -112,7 +40,7 @@ transform = Transform( 0.707107, -0.353553, 0.612373, 0, 0.866025, 0.5, -0.70710
 
 [node name="Camera" type="Camera" parent="."]
 transform = Transform( -1, 0, -3.25841e-07, -1.62921e-07, 0.866025, 0.5, 2.82187e-07, 0.5, -0.866025, -0.112284, 5.09171, -11.6802 )
-script = ExtResource( 1 )
+script = ExtResource( 3 )
 always_capture = true
 
 [node name="MeshInstance" type="MeshInstance" parent="Camera"]
@@ -125,7 +53,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 )
 axis = 1
 transparent = false
 double_sided = false
-script = ExtResource( 3 )
+script = ExtResource( 16 )
 
 [node name="Origin" type="Spatial" parent="Floor"]
 
@@ -139,8 +67,8 @@ texture = ExtResource( 10 )
 
 [node name="Mirror" type="MeshInstance" parent="Floor"]
 transform = Transform( 0.5, 0, 0, 0, -3.25841e-07, 1, 0, -2, -1.62921e-07, 0, 0.001, 0 )
-mesh = SubResource( 2 )
-material/0 = SubResource( 3 )
+mesh = ExtResource( 11 )
+material/0 = ExtResource( 6 )
 
 [node name="BlockFaceHighlighter" type="Spatial" parent="."]
 
@@ -149,7 +77,7 @@ transform = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 0, 0, 0
 width = 1.01
 height = 1.01
 depth = 0.1
-material = SubResource( 4 )
+material = ExtResource( 15 )
 
 [node name="CSGBox" type="CSGBox" parent="BlockFaceHighlighter/CSGBox"]
 operation = 2
@@ -164,7 +92,7 @@ margin_left = -1.22461
 margin_top = 3.07907
 margin_right = -1.22461
 margin_bottom = 3.0791
-theme = ExtResource( 4 )
+theme = ExtResource( 1 )
 __meta__ = {
 "_edit_lock_": true,
 "_edit_use_anchors_": false
@@ -191,7 +119,7 @@ margin_bottom = 60.0
 focus_mode = 0
 toggle_mode = false
 enabled_focus_mode = 0
-script = SubResource( 5 )
+script = ExtResource( 4 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -206,7 +134,7 @@ margin_bottom = 121.921
 focus_mode = 0
 toggle_mode = false
 enabled_focus_mode = 0
-script = SubResource( 6 )
+script = ExtResource( 19 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -215,13 +143,13 @@ __meta__ = {
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
-theme = ExtResource( 4 )
+theme = ExtResource( 1 )
 __meta__ = {
 "_edit_lock_": true,
 "_edit_use_anchors_": false
 }
 
-[node name="Menu" parent="GUI" instance=ExtResource( 13 )]
+[node name="Menu" parent="GUI" instance=ExtResource( 5 )]
 visible = false
 anchor_left = 0.5
 anchor_top = 0.5
@@ -245,7 +173,7 @@ __meta__ = {
 [node name="Continue" type="Button" parent="GUI/Menu/VBoxContainer"]
 margin_right = 265.0
 margin_bottom = 41.6293
-shortcut = SubResource( 8 )
+shortcut = ExtResource( 13 )
 text = "Continue"
 
 [node name="Save" type="Button" parent="GUI/Menu/VBoxContainer"]
@@ -272,7 +200,7 @@ margin_right = 265.0
 margin_bottom = 296.629
 text = "Exit"
 
-[node name="Inventory" parent="GUI" instance=ExtResource( 13 )]
+[node name="Inventory" parent="GUI" instance=ExtResource( 5 )]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -289,7 +217,7 @@ margin_left = 40.0
 margin_top = 40.0
 margin_right = -40.0
 margin_bottom = -40.0
-script = ExtResource( 5 )
+script = ExtResource( 9 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -364,7 +292,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 42.9181, 16.5937, 0 )
 pause_mode = 1
 transform = Transform( 2.71817, 0.145894, 2.93091, 1.28558, 3.53209, -1.36808, -2.63796, 1.87165, 2.35332, 0, 0, -2 )
 
-[node name="SaveVehicle" parent="GUI" instance=ExtResource( 13 )]
+[node name="SaveVehicle" parent="GUI" instance=ExtResource( 5 )]
 visible = false
 anchor_left = 0.5
 anchor_top = 0.5
@@ -375,7 +303,7 @@ margin_top = -190.0
 margin_right = 160.0
 margin_bottom = 190.0
 size_flags_vertical = 3
-script = ExtResource( 6 )
+script = ExtResource( 17 )
 title = "Save"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="GUI/SaveVehicle"]
@@ -402,7 +330,6 @@ caret_blink = true
 margin_top = 46.0
 margin_right = 264.0
 margin_bottom = 66.0
-custom_fonts/font = SubResource( 9 )
 autowrap = true
 
 [node name="PanelContainer" type="PanelContainer" parent="GUI/SaveVehicle/VBoxContainer"]
@@ -443,7 +370,7 @@ __meta__ = {
 margin_right = 130.0
 margin_bottom = 41.6293
 size_flags_horizontal = 3
-shortcut = SubResource( 11 )
+shortcut = ExtResource( 13 )
 text = "Cancel"
 
 [node name="Save" type="Button" parent="GUI/SaveVehicle/VBoxContainer/HBoxContainer"]
@@ -451,10 +378,10 @@ margin_left = 134.0
 margin_right = 264.0
 margin_bottom = 41.6293
 size_flags_horizontal = 3
-shortcut = SubResource( 13 )
+shortcut = ExtResource( 18 )
 text = "Save"
 
-[node name="LoadVehicle" parent="GUI" instance=ExtResource( 13 )]
+[node name="LoadVehicle" parent="GUI" instance=ExtResource( 5 )]
 visible = false
 anchor_left = 0.5
 anchor_top = 0.5
@@ -464,7 +391,7 @@ margin_left = -160.0
 margin_top = -190.0
 margin_right = 160.0
 margin_bottom = 190.0
-script = ExtResource( 14 )
+script = ExtResource( 8 )
 title = "Load"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="GUI/LoadVehicle"]
@@ -520,7 +447,7 @@ __meta__ = {
 margin_right = 130.0
 margin_bottom = 41.6293
 size_flags_horizontal = 3
-shortcut = SubResource( 15 )
+shortcut = ExtResource( 13 )
 text = "Cancel"
 
 [node name="Load" type="Button" parent="GUI/LoadVehicle/VBoxContainer/HBoxContainer"]
@@ -528,10 +455,10 @@ margin_left = 134.0
 margin_right = 265.0
 margin_bottom = 41.6293
 size_flags_horizontal = 3
-shortcut = SubResource( 17 )
+shortcut = ExtResource( 18 )
 text = "Load"
 
-[node name="ColorPicker" parent="GUI" instance=ExtResource( 13 )]
+[node name="ColorPicker" parent="GUI" instance=ExtResource( 5 )]
 visible = false
 anchor_left = 0.5
 anchor_top = 0.5
@@ -541,7 +468,7 @@ margin_left = -160.0
 margin_top = -190.0
 margin_right = 160.0
 margin_bottom = 190.0
-script = ExtResource( 9 )
+script = ExtResource( 20 )
 
 [node name="GridContainer" type="GridContainer" parent="GUI/ColorPicker"]
 margin_left = 40.0
@@ -570,7 +497,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="MetaEditor" parent="GUI" instance=ExtResource( 13 )]
+[node name="MetaEditor" parent="GUI" instance=ExtResource( 5 )]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -579,7 +506,7 @@ margin_left = -160.0
 margin_top = -190.0
 margin_right = 160.0
 margin_bottom = 190.0
-script = ExtResource( 15 )
+script = ExtResource( 2 )
 title = "Meta Data"
 
 [node name="GridContainer" type="GridContainer" parent="GUI/MetaEditor"]
@@ -596,21 +523,18 @@ __meta__ = {
 [connection signal="item_selected" from="HUD/BlockLayer" to="." method="_on_BlockLayer_item_selected"]
 [connection signal="item_selected" from="HUD/BlockLayerView" to="." method="_on_BlockLayerView_item_selected"]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Continue" to="." method="set_enabled" binds= [ true ]]
-[connection signal="pressed" from="GUI/Menu/VBoxContainer/Save" to="GUI/SaveVehicle" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Save" to="GUI/Menu" method="set_visible" binds= [ false ]]
-[connection signal="pressed" from="GUI/Menu/VBoxContainer/Load" to="GUI/LoadVehicle" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="GUI/Menu/VBoxContainer/Save" to="GUI/SaveVehicle" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Load" to="GUI/Menu" method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="GUI/Menu/VBoxContainer/Load" to="GUI/LoadVehicle" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Exit" to="." method="_on_Exit_pressed"]
 [connection signal="hide" from="GUI/Inventory" to="." method="set_enabled" binds= [ true ]]
-[connection signal="save_vehicle" from="GUI/SaveVehicle" to="." method="save_vehicle"]
 [connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Cancel" to="." method="set_enabled" binds= [ true ]]
-[connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Save" to="GUI/SaveVehicle" method="_on_Save_pressed"]
 [connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Save" to="." method="set_enabled" binds= [ true ]]
-[connection signal="load_vehicle" from="GUI/LoadVehicle" to="GUI/SaveVehicle" method="set_full_path"]
-[connection signal="load_vehicle" from="GUI/LoadVehicle" to="." method="load_vehicle"]
+[connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Save" to="GUI/SaveVehicle" method="_on_Save_pressed"]
 [connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Cancel" to="." method="set_enabled" binds= [ true ]]
-[connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Load" to="GUI/LoadVehicle" method="_on_Load_pressed"]
 [connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Load" to="." method="set_enabled" binds= [ true ]]
+[connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Load" to="GUI/LoadVehicle" method="_on_Load_pressed"]
 [connection signal="hide" from="GUI/ColorPicker" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pick_color" from="GUI/ColorPicker" to="." method="_on_ColorPicker_pick_color"]
 [connection signal="hide" from="GUI/MetaEditor" to="." method="set_enabled" binds= [ true ]]
