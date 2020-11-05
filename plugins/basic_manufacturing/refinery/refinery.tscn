@@ -1,7 +1,6 @@
 [gd_scene load_steps=8 format=2]
 
-[ext_resource path="res://plugins/basic_manufacturing/refinery.gd" type="Script" id=1]
-
+[ext_resource path="res://plugins/basic_manufacturing/refinery/refinery.gd" type="Script" id=1]
 
 [sub_resource type="CylinderMesh" id=1]
 top_radius = 0.1
