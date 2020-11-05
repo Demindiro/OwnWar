@@ -2,23 +2,13 @@
 
 [ext_resource path="res://plugins/basic_manufacturing/ghost.gd" type="Script" id=1]
 [ext_resource path="res://plugins/basic_manufacturing/drill/drill.tscn" type="PackedScene" id=2]
-
-
-
-
-
-
-
-[sub_resource type="CylinderMesh" id=1]
-
-[sub_resource type="SpatialMaterial" id=2]
-flags_transparent = true
-albedo_color = Color( 1, 1, 1, 0.2 )
+[ext_resource path="res://plugins/basic_manufacturing/ghost_material.tres" type="Material" id=3]
+[ext_resource path="res://plugins/basic_manufacturing/drill/ghost_mesh.tres" type="CylinderMesh" id=4]
 
 [node name="DrillGhost" type="MeshInstance"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0 )
-mesh = SubResource( 1 )
-material/0 = SubResource( 2 )
+mesh = ExtResource( 4 )
+material/0 = ExtResource( 3 )
 script = ExtResource( 1 )
 unit_name = "drill_ghost"
 structure = ExtResource( 2 )

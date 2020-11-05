@@ -1,12 +1,9 @@
 [gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://plugins/basic_manufacturing/drill/drill.gd" type="Script" id=1]
+[ext_resource path="res://plugins/basic_manufacturing/drill/drill_collision_shape.tres" type="Shape" id=2]
 
 
-
-
-
-[sub_resource type="CylinderShape" id=1]
 
 [node name="Drill" type="StaticBody"]
 script = ExtResource( 1 )
@@ -56,4 +53,4 @@ depth = 1.8
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 0, 0, 0 )
-shape = SubResource( 1 )
+shape = ExtResource( 2 )
