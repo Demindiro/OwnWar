@@ -1,20 +1,11 @@
 [gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod.gd" type="Script" id=1]
-
-[sub_resource type="CubeMesh" id=1]
-size = Vector3( 2, 2, 5 )
-
-[sub_resource type="CubeMesh" id=2]
-size = Vector3( 0.2, 2, 0.2 )
-
-[sub_resource type="QuadMesh" id=3]
-
-[sub_resource type="SpatialMaterial" id=4]
-albedo_color = Color( 0, 0.905882, 1, 1 )
-
-[sub_resource type="BoxShape" id=5]
-extents = Vector3( 1, 1, 2.5 )
+[ext_resource path="res://plugins/basic_manufacturing/storage_pod/indicator_mesh.tres" type="QuadMesh" id=2]
+[ext_resource path="res://plugins/basic_manufacturing/storage_pod/collision_shape.tres" type="Shape" id=3]
+[ext_resource path="res://plugins/basic_manufacturing/storage_pod/feet_mesh.tres" type="CubeMesh" id=4]
+[ext_resource path="res://plugins/basic_manufacturing/storage_pod/body_mesh.tres" type="CubeMesh" id=5]
+[ext_resource path="res://plugins/basic_manufacturing/indicator_matter_material.tres" type="Material" id=6]
 
 [node name="StoragePod" type="StaticBody"]
 script = ExtResource( 1 )
@@ -23,27 +14,27 @@ unit_name = "storage_pod"
 
 [node name="Body" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.199853, 0 )
-mesh = SubResource( 1 )
+mesh = ExtResource( 5 )
 material/0 = null
 
 [node name="FeetFL" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1, -1.30015, 2 )
-mesh = SubResource( 2 )
+mesh = ExtResource( 4 )
 material/0 = null
 
 [node name="FeetFR" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1, -1.30015, 2 )
-mesh = SubResource( 2 )
+mesh = ExtResource( 4 )
 material/0 = null
 
 [node name="FeetBL" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1, -1.30015, -2 )
-mesh = SubResource( 2 )
+mesh = ExtResource( 4 )
 material/0 = null
 
 [node name="FeetBR" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1, -1.30015, -2 )
-mesh = SubResource( 2 )
+mesh = ExtResource( 4 )
 material/0 = null
 
 [node name="Indicator" type="Spatial" parent="."]
@@ -54,9 +45,9 @@ __meta__ = {
 
 [node name="MeshInstance" type="MeshInstance" parent="Indicator"]
 transform = Transform( 1.8, 0, 0, 0, 4.8, 0, 0, 0, 1, 0, -2.4, 0 )
-mesh = SubResource( 3 )
-material/0 = SubResource( 4 )
+mesh = ExtResource( 2 )
+material/0 = ExtResource( 6 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.199853, 0 )
-shape = SubResource( 5 )
+shape = ExtResource( 3 )
