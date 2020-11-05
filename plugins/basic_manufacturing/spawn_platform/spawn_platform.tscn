@@ -7,8 +7,9 @@
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/collision_slope_shape.tres" type="Shape" id=5]
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/indicator_mesh.tres" type="QuadMesh" id=6]
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/indicator_vehicle_material.tres" type="Material" id=7]
-[ext_resource path="res://plugins/basic_manufacturing/spawn_platform/indicator_matter_material.tres" type="Material" id=8]
+[ext_resource path="res://plugins/basic_manufacturing/indicator_matter_material.tres" type="Material" id=8]
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/drones_margin_shape.tres" type="Shape" id=9]
+
 
 [node name="SpawnPlatform" type="StaticBody"]
 script = ExtResource( 1 )
