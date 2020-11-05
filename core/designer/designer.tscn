@@ -13,7 +13,7 @@
 [ext_resource path="res://core/designer/mirror_line_mesh.tres" type="QuadMesh" id=11]
 [ext_resource path="res://plugins/designer_map/map.tscn" type="PackedScene" id=12]
 [ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=13]
-[ext_resource path="res://core/menu/main.tscn" type="PackedScene" id=14]
+[ext_resource path="res://core/menu/main_menu/main.tscn" type="PackedScene" id=14]
 [ext_resource path="res://core/designer/blockface_highlighter_material.tres" type="Material" id=15]
 [ext_resource path="res://core/designer/floor.gd" type="Script" id=16]
 [ext_resource path="res://core/designer/save_vehicle.gd" type="Script" id=17]
@@ -22,6 +22,7 @@
 [ext_resource path="res://core/designer/color_picker.gd" type="Script" id=20]
 [ext_resource path="res://core/designer/designer.gd" type="Script" id=21]
 [ext_resource path="res://core/designer/block_base_material.tres" type="Material" id=22]
+
 
 [node name="Designer" type="Node"]
 pause_mode = 2
