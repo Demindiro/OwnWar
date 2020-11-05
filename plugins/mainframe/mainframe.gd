@@ -14,7 +14,7 @@ var _movement_manager: Reference
 
 
 func _process(_delta):
-	debug_draw(get_tree().current_scene.find_node("Debug"))
+	debug_draw()
 
 
 func process(delta):
@@ -63,8 +63,8 @@ func fire_weapons():
 	_fire_weapons = true
 
 
-func debug_draw(debug):
-	ai.debug_draw(self, debug)
+func debug_draw():
+	ai.debug_draw(self)
 
 
 func serialize_json() -> Dictionary:

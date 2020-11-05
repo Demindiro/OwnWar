@@ -104,12 +104,12 @@ func fire_at(mainframe, target, delta):
 	mainframe.fire_weapons()
 
 
-func debug_draw(mainframe, debug):
-	.debug_draw(mainframe, debug)
+func debug_draw(mainframe):
+	.debug_draw(mainframe)
 	if len(targets) > 0:
-		debug.draw_point(mainframe.weapons_aim_point, Color.red, Global.BLOCK_SCALE)
-		debug.begin(Mesh.PRIMITIVE_LINES)
-		debug.set_color(Color.red)
-		debug.add_vertex(mainframe.vehicle.translation)
-		debug.add_vertex(mainframe.weapons_aim_point)
-		debug.end()
+		Debug.draw_point(mainframe.weapons_aim_point, Color.red, Global.BLOCK_SCALE)
+		Debug.begin(Mesh.PRIMITIVE_LINES)
+		Debug.set_color(Color.red)
+		Debug.add_vertex(mainframe.vehicle.translation)
+		Debug.add_vertex(mainframe.weapons_aim_point)
+		Debug.end()

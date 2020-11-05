@@ -32,10 +32,10 @@ func _process(_delta):
 		_voxel_mesh.generate()
 
 
-func debug_draw(debug_node):
+func debug_draw():
 	for hit in _debug_hits:
 		var position = Vector3(hit[0][0], hit[0][1], hit[0][2]) + Vector3.ONE / 2
-		debug_node.draw_point(to_global(position * Global.BLOCK_SCALE - center_of_mass),
+		Debug.draw_point(to_global(position * Global.BLOCK_SCALE - center_of_mass),
 				hit[1], 0.55 * Global.BLOCK_SCALE)
 
 

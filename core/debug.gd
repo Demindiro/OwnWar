@@ -1,11 +1,10 @@
-[gd_scene load_steps=3 format=2]
+extends ImmediateGeometry
 
-[sub_resource type="SpatialMaterial" id=1]
-flags_unshaded = true
-vertex_color_use_as_albedo = true
 
-[sub_resource type="GDScript" id=2]
-script/source = "extends ImmediateGeometry
+func _init():
+	material_override = SpatialMaterial.new()
+	material_override.flags_unshaded = true
+	material_override.vertex_color_use_as_albedo = true
 
 
 func _process(_delta):
@@ -49,9 +48,3 @@ func draw_normal(origin: Vector3, direction: Vector3, color := Color.white):
 		add_vertex(origin)
 		add_vertex(origin + direction)
 		end()
-"
-
-[node name="Debug" type="ImmediateGeometry"]
-process_priority = -1
-material_override = SubResource( 1 )
-script = SubResource( 2 )

@@ -32,9 +32,7 @@ func _ready():
 
 
 func _process(_delta):
-	var debug := get_tree().current_scene.find_node("Debug")
-	if debug != null:
-		draw_debug(debug)
+	draw_debug()
 
 
 func get_actions() -> Array:
@@ -395,7 +393,7 @@ func _remove_task(task: int, unit: Unit) -> void:
 			break
 
 
-func draw_debug(debug):
+func draw_debug():
 	for drone in _drones:
-		debug.draw_line(translation, drone.translation, Color.orange)
-		drone.draw_debug(debug)
+		Debug.draw_line(translation, drone.translation, Color.orange)
+		drone.draw_debug()

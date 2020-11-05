@@ -31,17 +31,16 @@ func _physics_process(_delta):
 
 
 func _process(_delta):
-	var debug = get_tree().current_scene.find_node("Debug")
 	var projectile_position = $ProjectileSpawn.global_transform.origin
 	var projectile_velocity_v = $ProjectileSpawn.global_transform.basis.z * projectile_velocity
-	debug.begin(Mesh.PRIMITIVE_LINE_STRIP)
-	debug.set_color(Color.lightgreen)
+	Debug.begin(Mesh.PRIMITIVE_LINE_STRIP)
+	Debug.set_color(Color.lightgreen)
 	for _i in range(int(20.0 / 0.1)):
-		debug.add_vertex(projectile_position)
+		Debug.add_vertex(projectile_position)
 		projectile_velocity_v.y -= GRAVITY * 0.1 / 2
 		projectile_position += projectile_velocity_v * 0.1
 		projectile_velocity_v.y -= GRAVITY * 0.1 / 2
-	debug.end()
+	Debug.end()
 
 
 func init(_coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):

@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://addons/tiles/metal_grid/set3_example_3.png" type="Texture" id=1]
 [ext_resource path="res://core/camera/free_camera.gd" type="Script" id=2]
@@ -11,21 +11,6 @@
 [ext_resource path="res://plugins/basic_manufacturing/munitions_factory.tscn" type="PackedScene" id=9]
 [ext_resource path="res://plugins/basic_manufacturing/drill.tscn" type="PackedScene" id=10]
 [ext_resource path="res://plugins/basic_manufacturing/ore.tscn" type="PackedScene" id=11]
-[ext_resource path="res://core/debug.tscn" type="PackedScene" id=12]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node
@@ -119,6 +104,3 @@ transform = Transform( -1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, -1.1513
 
 [node name="Roboport" parent="." instance=ExtResource( 3 )]
 transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, -4.25, 0.5, -3.75 )
-
-[node name="Debug" parent="." instance=ExtResource( 12 )]
-visible = false

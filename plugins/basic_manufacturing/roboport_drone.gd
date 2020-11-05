@@ -97,17 +97,17 @@ func get_info() -> Dictionary:
 	return info
 
 
-func draw_debug(debug):
+func draw_debug():
 	match task:
 		Task.FILL, Task.EMPTY:
-			debug.draw_line(translation, from_target.get_interaction_port(), Color.greenyellow)
-			debug.draw_line(translation, to_target.get_interaction_port(), Color.cyan)
+			Debug.draw_line(translation, from_target.get_interaction_port(), Color.greenyellow)
+			Debug.draw_line(translation, to_target.get_interaction_port(), Color.cyan)
 			if dump_target != null:
-				debug.draw_line(translation, to_target.get_interaction_port(), Color.red)
+				Debug.draw_line(translation, to_target.get_interaction_port(), Color.red)
 		Task.NONE:
-			debug.draw_line(translation + Vector3(0.5, 0, 0.5),
+			Debug.draw_line(translation + Vector3(0.5, 0, 0.5),
 					translation + Vector3(-0.5, 0, -0.5), Color.red)
-			debug.draw_line(translation + Vector3(0.5, 0, -0.5),
+			Debug.draw_line(translation + Vector3(0.5, 0, -0.5),
 					translation + Vector3(-0.5, 0, 0.5), Color.red)
 		_:
 			assert(false)
