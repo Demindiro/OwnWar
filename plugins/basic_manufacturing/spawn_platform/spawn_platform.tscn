@@ -1,12 +1,8 @@
 [gd_scene load_steps=10 format=2]
 
-[ext_resource path="res://plugins/basic_manufacturing/platform.obj" type="ArrayMesh" id=1]
-[ext_resource path="res://addons/arrow.png" type="Texture" id=2]
-[ext_resource path="res://plugins/basic_manufacturing/spawn_platform.gd" type="Script" id=3]
-
-
-
-
+[ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform.gd" type="Script" id=1]
+[ext_resource path="res://plugins/basic_manufacturing/platform.obj" type="ArrayMesh" id=2]
+[ext_resource path="res://addons/arrow.png" type="Texture" id=3]
 
 [sub_resource type="BoxShape" id=1]
 extents = Vector3( 7, 1, 8 )
@@ -26,17 +22,17 @@ albedo_color = Color( 0, 0, 0, 0.392157 )
 extents = Vector3( 7, 1, 10.5 )
 
 [node name="SpawnPlatform" type="StaticBody"]
-script = ExtResource( 3 )
+script = ExtResource( 1 )
 max_health = 2000
 unit_name = "spawn_platform"
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
-mesh = ExtResource( 1 )
+mesh = ExtResource( 2 )
 material/0 = null
 
 [node name="Sprite3D" type="Sprite3D" parent="."]
 transform = Transform( 1.91069e-15, 1, -4.37114e-08, 4.37114e-08, -4.37114e-08, -1, -1, 0, -4.37114e-08, 0, 1.01, 0 )
-texture = ExtResource( 2 )
+texture = ExtResource( 3 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 shape = SubResource( 1 )
