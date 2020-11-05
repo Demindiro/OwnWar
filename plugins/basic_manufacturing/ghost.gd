@@ -35,3 +35,11 @@ func add_build_progress(material):
 		emit_signal("built", unit)
 		return cost - build_progress
 	return 0
+
+
+func serialize_json() -> Dictionary:
+	return { "progress": build_progress }
+
+
+func deserialize_json(data: Dictionary) -> void:
+	build_progress = data["progress"]

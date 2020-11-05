@@ -102,3 +102,15 @@ func take_matter(id: int, amount: int) -> int:
 			emit_signal("provide_matter", _fuel_id, _fuel)
 		return amount
 	return 0
+
+
+func serialize_json() -> Dictionary:
+	return {
+			"material": _material,
+			"fuel": _fuel,
+		}
+
+
+func deserialize_json(data: Dictionary) -> void:
+	_material = data["material"]
+	_fuel = data["fuel"]

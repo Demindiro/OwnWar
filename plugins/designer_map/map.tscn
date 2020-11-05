@@ -22,19 +22,6 @@
 [ext_resource path="res://plugins/basic_manufacturing/roboport_ghost.tscn" type="PackedScene" id=20]
 [ext_resource path="res://plugins/basic_manufacturing/roboport.tscn" type="PackedScene" id=21]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node
 
@@ -44,12 +31,12 @@ var material_id
 
 
 func _physics_process(_delta):
-	$SpawnPlayer.put_matter(material_id, 1 << 62)
-	$SpawnEnemy.put_matter(material_id, 1 << 62)
+	game_master.get_unit_by_uid(0).put_matter(material_id, 1 << 62)
+	game_master.get_unit_by_uid(241).put_matter(material_id, 1 << 62)
 
 
 func _on_GUI_load_vehicle(path):
-	$SpawnEnemy.spawn_vehicle(0, path)
+	game_master.get_unit_by_uid(241).spawn_vehicle(0, path)
 
 
 func _on_FilthyHack_ready():
@@ -60,9 +47,9 @@ func _on_FilthyHack_ready():
 	for child in get_children():
 		if child is Unit:
 			game_master.units[child.team].append(child)
-		elif child is Ore:
-			game_master.ores.append(child)
-	$StoragePod.put_matter(material_id, 500)
+			child.uid = game_master.uid_counter
+			game_master.uid_counter += 241
+	game_master.get_unit_by_uid(964).put_matter(material_id, 500)
 "
 
 [sub_resource type="PlaneMesh" id=2]
@@ -170,7 +157,9 @@ action = "ui_accept"
 shortcut = SubResource( 14 )
 
 [node name="Designer" type="Node"]
+process_priority = 1
 script = ExtResource( 10 )
+map_name = "designer"
 
 [node name="Map" type="Node" parent="."]
 script = SubResource( 1 )
@@ -321,7 +310,6 @@ __meta__ = {
 }
 
 [node name="Main" parent="GUI" instance=ExtResource( 11 )]
-visible = false
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -348,31 +336,38 @@ margin_right = 265.0
 margin_bottom = 41.6293
 text = "Continue"
 
-[node name="Restart" type="Button" parent="GUI/Main/VBoxContainer"]
+[node name="Save" type="Button" parent="GUI/Main/VBoxContainer"]
 margin_top = 51.0
 margin_right = 265.0
 margin_bottom = 92.6293
-text = "Restart"
+text = "Save"
 
-[node name="Load" type="Button" parent="GUI/Main/VBoxContainer"]
+[node name="Restart" type="Button" parent="GUI/Main/VBoxContainer"]
 margin_top = 102.0
 margin_right = 265.0
 margin_bottom = 143.629
-text = "Load Vehicle"
+text = "Restart"
 
-[node name="Designer" type="Button" parent="GUI/Main/VBoxContainer"]
+[node name="Load" type="Button" parent="GUI/Main/VBoxContainer"]
 margin_top = 153.0
 margin_right = 265.0
 margin_bottom = 194.629
-text = "Designer"
+text = "Load Vehicle"
 
-[node name="Exit" type="Button" parent="GUI/Main/VBoxContainer"]
+[node name="Designer" type="Button" parent="GUI/Main/VBoxContainer"]
 margin_top = 204.0
 margin_right = 265.0
 margin_bottom = 245.629
+text = "Designer"
+
+[node name="Exit" type="Button" parent="GUI/Main/VBoxContainer"]
+margin_top = 255.0
+margin_right = 265.0
+margin_bottom = 296.629
 text = "Exit"
 
 [node name="LoadVehicle" parent="GUI" instance=ExtResource( 11 )]
+visible = false
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -447,9 +442,12 @@ shortcut = SubResource( 15 )
 text = "Load"
 
 [node name="Debug" parent="." instance=ExtResource( 9 )]
+[connection signal="load_game" from="." to="HUD" method="_on_Designer_load_game"]
+[connection signal="save_game" from="." to="HUD" method="_on_Designer_save_game"]
 [connection signal="ready" from="Map/FilthyHack" to="Map" method="_on_FilthyHack_ready"]
 [connection signal="load_vehicle" from="GUI" to="Map" method="_on_GUI_load_vehicle"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Continue" to="GUI/Main" method="_on_Continue_pressed"]
+[connection signal="pressed" from="GUI/Main/VBoxContainer/Save" to="." method="save_game" binds= [ "_designer" ]]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Restart" to="GUI/Main" method="_on_Restart_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Load" to="GUI/Main" method="_on_Load_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Designer" to="GUI/Main" method="_on_Designer_pressed"]

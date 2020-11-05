@@ -78,5 +78,24 @@ func take_matter(id: int, amount: int) -> int:
 		return remainder
 
 
+func serialize_json() -> Dictionary:
+	var m_list := {}
+	for id in _matter:
+		m_list[Matter.matter_name[id]] = _matter[id]
+	return {
+			"matter": m_list
+		}
+
+
+func deserialize_json(data: Dictionary) -> void:
+	_matter = {}
+	_volume = 0
+	for n in data["matter"]:
+		var c: int = data["matter"][n]
+		var id: int = Matter.name_to_id[n]
+		_matter[id] = c
+		_volume += data["matter"][n] * Matter.matter_volume[id]
+
+
 func _update_indicator() -> void:
 	$Indicator.scale.y = float(_volume) / _MAX_VOLUME

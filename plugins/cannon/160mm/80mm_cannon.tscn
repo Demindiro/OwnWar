@@ -3,10 +3,6 @@
 [ext_resource path="res://plugins/cannon/160mm/80mm_cannon.obj" type="ArrayMesh" id=1]
 [ext_resource path="res://plugins/cannon/cannon.gd" type="Script" id=2]
 
-
-
-
-
 [sub_resource type="CylinderShape" id=1]
 radius = 0.113979
 height = 2.5

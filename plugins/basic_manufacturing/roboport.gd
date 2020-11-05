@@ -88,6 +88,25 @@ func assign_tasks() -> void:
 		_dirty = true
 
 
+func serialize_json() -> Dictionary:
+	var d_list := []
+	for d in _drones:
+		d_list.append(d.uid)
+	return {
+			"drones": d_list,
+			"radius2": _radius2,
+			"spawn_timer": _spawn_timer.time_left
+		}
+
+
+func deserialize_json(data: Dictionary) -> void:
+	_drones = []
+	for d_uid in data["drones"]:
+		_drones.append(game_master.get_unit_by_uid(d_uid))
+	_spawn_timer = get_tree().create_timer(data["spawn_timer"], false)
+	_set_radius2(data["radius2"])
+
+
 func _assign_tasks() -> void:
 	if _assigning_tasks:
 		return

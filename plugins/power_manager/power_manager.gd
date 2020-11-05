@@ -117,6 +117,16 @@ func get_info(info):
 	info["Fuel"] = "%d / %d" % [_fuel, _max_fuel]
 
 
+func serialize_json() -> Dictionary:
+	return {
+			"fuel": _fuel
+		}
+
+
+func deserialize_json(data: Dictionary) -> void:
+	_fuel = data["fuel"]
+
+
 func _engine_destroyed(engine: Node) -> void:
 	_max_power -= engine.max_power
 

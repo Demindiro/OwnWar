@@ -1,7 +1,6 @@
-extends RigidBody
+extends "res://plugins/weapon_manager/projectile.gd"
 
 
-export var damage := 0
 export var despawn_time := 5.0
 var life_time := 0.0
 onready var mesh = $MeshInstance

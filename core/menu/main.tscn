@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://addons/tiles/grass/grass_0.png" type="Texture" id=1]
 [ext_resource path="res://core/vehicle.gd" type="Script" id=2]
@@ -12,6 +12,7 @@
 [ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=10]
 [ext_resource path="res://core/menu/main_menu/maps.gd" type="Script" id=11]
 [ext_resource path="res://core/menu/main_menu/plugins.gd" type="Script" id=12]
+[ext_resource path="res://core/menu/main_menu/saves.gd" type="Script" id=13]
 
 [sub_resource type="HeightMapShape" id=1]
 map_width = 1000
@@ -31,6 +32,7 @@ font_data = ExtResource( 7 )
 
 [node name="Main" type="Node"]
 script = ExtResource( 9 )
+map_name = "__main_menu"
 
 [node name="Floor" type="StaticBody" parent="."]
 __meta__ = {
@@ -109,28 +111,34 @@ __meta__ = {
 margin_right = 265.0
 text = "Maps"
 
-[node name="Designer" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
+[node name="Saves" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
 margin_top = 51.0
 margin_right = 265.0
 margin_bottom = 92.6293
-text = "Designer"
+text = "Saves"
 
-[node name="Settings" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
+[node name="Designer" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
 margin_top = 102.0
 margin_right = 265.0
 margin_bottom = 143.629
-text = "Settings"
+text = "Designer"
 
-[node name="Plugins" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
+[node name="Settings" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
 margin_top = 153.0
 margin_right = 265.0
 margin_bottom = 194.629
-text = "Plugins"
+text = "Settings"
 
-[node name="Exit" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
+[node name="Plugins" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
 margin_top = 204.0
 margin_right = 265.0
 margin_bottom = 245.629
+text = "Plugins"
+
+[node name="Exit" parent="GUI/Main/VBoxContainer" instance=ExtResource( 8 )]
+margin_top = 255.0
+margin_right = 265.0
+margin_bottom = 296.629
 text = "Exit"
 
 [node name="Campaign" parent="GUI" instance=ExtResource( 10 )]
@@ -151,7 +159,24 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="Saves" parent="GUI" instance=ExtResource( 10 )]
+margin_left = 456.0
+margin_top = 44.0
+margin_right = 1016.0
+script = ExtResource( 13 )
+title = "Saves"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GUI/Saves"]
+margin_left = 40.0
+margin_top = 40.0
+margin_right = 305.0
+custom_constants/separation = 10
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="Plugins" parent="GUI" instance=ExtResource( 10 )]
+visible = false
 margin_left = 456.0
 margin_top = 44.0
 margin_right = 987.0
@@ -240,6 +265,7 @@ light_energy = 0.5
 visible = false
 [connection signal="timeout" from="Timer" to="GUI" method="_on_Timer_timeout"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Maps" to="GUI" method="_on_Campaign_pressed"]
+[connection signal="pressed" from="GUI/Main/VBoxContainer/Saves" to="GUI" method="_on_Saves_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Designer" to="GUI" method="_on_Designer_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Settings" to="GUI" method="_on_Settings_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Plugins" to="GUI" method="_on_Plugins_pressed"]

@@ -236,6 +236,89 @@ func get_linear_velocity():
 	return voxel_bodies[0].linear_velocity
 
 
+func serialize_json() -> Dictionary:
+	var b_list := []
+	b_list.resize(len(voxel_bodies))
+	for i in range(len(voxel_bodies)):
+		b_list[i] = {}
+		for crd in voxel_bodies[i].blocks:
+			var b: Array = voxel_bodies[i].blocks[crd]
+			var d := {
+					"name": Global.blocks_by_id[b[0]].name,
+					"health": b[1],
+					"rotation": b[3],
+					"color": var2str(b[4]),
+				}
+			if b[2] != null and b[2].has_method("serialize_json"):
+				d["meta"] = b[2].serialize_json()
+			b_list[i]["%d,%d,%d" % crd] = d
+
+	var m_list := {}
+	for m in managers:
+		m_list[m] = managers[m].serialize_json()
+
+	var vb_transform_list := []
+	var vb_linear_vel_list := []
+	var vb_angular_vel_list := []
+	for vb in voxel_bodies:
+		vb_transform_list.append(var2str(vb.global_transform))
+		vb_linear_vel_list.append(var2str(vb.linear_velocity))
+		vb_angular_vel_list.append(var2str(vb.angular_velocity))
+
+	return {
+			"blocks": b_list,
+			"managers": m_list,
+			"voxel_body_transforms": vb_transform_list,
+			"voxel_body_linear_velocities": vb_linear_vel_list,
+			"voxel_body_angular_velocities": vb_angular_vel_list,
+		}
+
+
+func deserialize_json(data: Dictionary) -> void:
+	max_cost = 0
+	voxel_bodies = []
+	
+	for vb_data in data["blocks"]:
+		var vb := VoxelBody.new()
+		for k in vb_data:
+			var crd := Array(k.split(","))
+			assert(len(crd) == 3 and crd[0].is_valid_integer() and \
+					crd[1].is_valid_integer() and crd[2].is_valid_integer())
+			var b_data: Dictionary = vb_data[k]
+			var x := int(crd[0])
+			var y := int(crd[1])
+			var z := int(crd[2])
+			vb.spawn_block(x, y, z, b_data["rotation"],
+					Global.blocks[b_data["name"]],
+					str2var(b_data["color"]))
+		add_child(vb)
+		voxel_bodies.append(vb)
+
+	for body in voxel_bodies:
+		body.fix_physics(transform)
+		max_cost += body.max_cost
+	var center_of_mass_0 = voxel_bodies[0].center_of_mass
+	for body in voxel_bodies:
+		body.translate(-center_of_mass_0)
+	for body in voxel_bodies:
+		body.init_blocks(self, {})
+
+	for i in range(len(voxel_bodies)):
+		voxel_bodies[i].global_transform = str2var(data["voxel_body_transforms"][i])
+		voxel_bodies[i].linear_velocity = str2var(data["voxel_body_linear_velocities"][i])
+		voxel_bodies[i].angular_velocity = str2var(data["voxel_body_angular_velocities"][i])
+
+	for i in range(len(voxel_bodies)):
+		for crd in voxel_bodies[i].blocks:
+			var meta = data["blocks"][i]["%d,%d,%d" % crd].get("meta")
+			if meta != null:
+				voxel_bodies[i].blocks[crd][2].deserialize_json(meta)
+
+	for m in data["managers"]:
+		assert(m in managers)
+		managers[m].deserialize_json(data["managers"][m])
+
+
 func _voxel_body_hit(_voxel_body):
 	if get_cost() * 4 < max_cost:
 		destroy()

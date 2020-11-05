@@ -218,7 +218,7 @@ func build_ghost(flags, position, scroll, ghost_name):
 func build_drill(flags, coordinate):
 	var closest_ore = null
 	var max_distance = 3.0
-	for ore in game_master.ores:
+	for ore in game_master.get_tree().get_nodes_in_group("ores"):
 		var distance = (ore.translation - coordinate).length()
 		if ore.drill == null and distance < max_distance:
 			closest_ore = ore
@@ -294,6 +294,51 @@ func draw_debug(debug):
 			start = position
 	if _task_cached_unit != null:
 		debug.draw_line(translation, _task_cached_unit.translation, Color.yellow)
+
+
+func serialize_json() -> Dictionary:
+	var t_list := []
+	for t in tasks:
+		var d := { "task": Util.enum_to_str(Task, t[0]) }
+		match t[0]:
+			Task.GOTO_WAYPOINT:
+				d["waypoint"] = var2str(t[1])
+			Task.BUILD_STRUCTURE:
+				d["target"] = t[1].uid
+			Task.PUT, Task.PUT_ONLY, \
+			Task.TAKE, Task.TAKE_ONLY:
+				d["target"] = t[1].uid
+				d["matter"] = Matter.matter_name[t[2]]
+			_:
+				assert(false)
+		t_list.append(d)
+	var d := { "tasks": t_list }
+	if _task_cached_unit != null:
+		d["cached_unit"] = _task_cached_unit.uid
+	return d
+
+
+func deserialize_json(data: Dictionary) -> void:
+	tasks = []
+	for t_d in data["tasks"]:
+		var t := [Task[t_d["task"]]]
+		match t[0]:
+			Task.GOTO_WAYPOINT:
+				t.append(str2var(t_d["waypoint"]))
+			Task.BUILD_STRUCTURE:
+				var u: Unit = game_master.get_unit_by_uid(t_d["target"])
+				t.append(u)
+			Task.PUT, Task.PUT_ONLY, \
+			Task.TAKE, Task.TAKE_ONLY:
+				var u: Unit = game_master.get_unit_by_uid(t_d["target"])
+				t.append(u)
+				t.append(Matter.name_to_id[t_d["matter"]])
+			_:
+				assert(false)
+		tasks.append(t)
+	var c_uid: int = data.get("cached_unit", -1)
+	if c_uid >= 0:
+		_task_cached_unit = game_master.get_unit_by_uid(c_uid)
 
 
 func _ghost_built(unit):

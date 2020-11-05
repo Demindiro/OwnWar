@@ -391,3 +391,13 @@ func _unit_destroyed(unit):
 	selected_units.erase(unit)
 	set_action_buttons(selected_units)
 	update()
+
+
+func _on_Designer_load_game(data):
+	var transform: String = data.get("camera_transform", "")
+	if transform != "":
+		_camera.set_transform(str2var(transform))
+
+
+func _on_Designer_save_game(data):
+	data["camera_transform"] = var2str(_camera.global_transform)

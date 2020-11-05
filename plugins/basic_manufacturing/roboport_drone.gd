@@ -122,6 +122,45 @@ func set_task(p_task: int, task_data: Array) -> void:
 		matter_id = task_matter_id
 
 
+func serialize_json() -> Dictionary:
+	var d := {
+			"matter_id": matter_id,
+			"matter_count": matter_count,
+			"task": Util.enum_to_str(Task, task),
+		}
+	match task:
+		Task.FILL, Task.EMPTY:
+			d["task_from"] = from_target.uid
+			d["task_to"] = to_target.uid
+			if dump_target != null:
+				d["task_dump"] = dump_target.uid
+			d["task_matter_id"] = task_matter_id
+			d["task_step"] = _task_step
+		Task.NONE:
+			pass
+		_:
+			assert(false)
+	return d
+
+
+func deserialize_json(data: Dictionary) -> void:
+	matter_id = data["matter_id"]
+	matter_count = data["matter_count"]
+	task = Task[data["task"]]
+	if "task_dump" in data:
+		dump_target = game_master.get_unit_by_uid(data["task_dump"])
+	match task:
+		Task.FILL, Task.EMPTY:
+			task_matter_id = data["task_matter_id"]
+			_task_step = data["task_step"]
+			from_target = game_master.get_unit_by_uid(data["task_from"])
+			to_target = game_master.get_unit_by_uid(data["task_to"])
+		Task.NONE:
+			pass
+		_:
+			assert(false)
+
+
 func _move_towards(target) -> void:
 	if target is Unit:
 		target = target.get_interaction_port()

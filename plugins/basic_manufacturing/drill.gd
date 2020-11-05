@@ -2,7 +2,7 @@ extends Unit
 
 
 const MAX_MATERIAL := 100
-var ore: Ore
+var ore
 var _ticks_until_next := 0
 var material := 0
 onready var _material_id: int = Matter.name_to_id["material"]
@@ -68,6 +68,28 @@ func take_matter(id: int, amount: int) -> int:
 
 func take_material(p_material):
 	return take_matter(_material_id, p_material)
+
+
+func serialize_json() -> Dictionary:
+	var data := {
+			"material": material,
+			"ticks_until_next": _ticks_until_next,
+		}
+	if ore != null:
+		data["ore_translation"] = ore.translation
+	return data
+
+
+func deserialize_json(data: Dictionary) -> void:
+	material = data["material"]
+	_ticks_until_next = data["ticks_until_next"]
+	var ore_translation = data.get("ore_translation")
+	if ore_translation != null:
+		for o in get_tree().get_nodes_in_group("ores"):
+			if o.translation == ore_translation:
+				ore = o
+				break
+		assert(ore != null)
 
 
 func init(p_ore):

@@ -24,3 +24,22 @@ static func init(_plugin_path: String):
 
 static func post_init(_plugin_path: String):
 	pass
+
+
+static func save_game(game_master: GameMaster) -> Dictionary:
+	var s_ores := []
+	for ore in game_master.get_tree().get_nodes_in_group("ores"):
+		s_ores.append([var2str(ore.transform), ore.material])
+	return {"ores": s_ores}
+
+
+static func load_game(game_master: GameMaster, data: Dictionary) -> void:
+	for s in data["ores"]:
+		var found := false
+		var transform: Transform = str2var(s[0])
+		for ore in game_master.get_tree().get_nodes_in_group("ores"):
+			if ore.transform == transform:
+				ore.material = s[1]
+				found = true
+				break
+		assert(found)

@@ -90,6 +90,7 @@ func fire():
 				var z = $ProjectileSpawn.global_transform.basis.z
 				var direction = (y.rotated(z, randf() * PI * 2) * inaccuracy + z).normalized()
 				var node = munition.shell.instance()
+				node.munition_id = id
 				node.global_transform = $ProjectileSpawn.global_transform
 				node.linear_velocity = direction * projectile_velocity
 				get_tree().current_scene.add_child(node)
@@ -111,3 +112,11 @@ func get_total_error(_target: Vector3) -> float:
 #	var cannon_direction = global_transform.basis.z
 #	return 1.0 - cannon_direction.dot(direction_to_target)
 	return _error
+
+
+func serialize_json() -> Dictionary:
+	return { "transform": var2str(global_transform) }
+
+
+func deserialize_json(data: Dictionary) -> void:
+	global_transform = str2var(data["transform"])

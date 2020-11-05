@@ -76,11 +76,15 @@ static func read_file_text(path: String) -> String:
 	return text
 
 
-static func write_file_text(path: String, text: String) -> bool:
+static func write_file_text(path: String, text: String, write_to_backup := false) -> bool:
+	var bk_path := path if not write_to_backup else path + "~"
 	var file := File.new()
-	var e := file.open(path, File.WRITE)
+	var e := file.open(bk_path, File.WRITE)
 	if e == OK:
 		file.store_string(text)
+		file.close()
+		if write_to_backup:
+			e = rename_file(bk_path, path)
 		return true
 	else:
 		return false
@@ -126,3 +130,22 @@ static func iterate_dir_recursive(path: String, extension = null) -> Array:
 			file_paths.append(path.plus_file(file))
 
 	return file_paths
+
+
+static func rename_file(from: String, to: String) -> int:
+	var dir := Directory.new()
+	return dir.rename(from, to)
+
+
+static func create_dirs(path: String) -> int:
+	var dir := Directory.new()
+	return dir.make_dir_recursive(path)
+
+
+static func free_children(node: Node, queue := false) -> void:
+	if queue:
+		for child in node.get_children():
+			child.queue_free()
+	else:
+		for child in node.get_children():
+			child.free()

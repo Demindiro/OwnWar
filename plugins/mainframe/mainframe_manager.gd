@@ -31,6 +31,14 @@ func add_action(mainframe: Node, name: String, flags: int, function: String,
 		_vehicle.add_action(self, name, flags, callback, [name, arguments])
 
 
+func serialize_json() -> Dictionary:
+	return {}
+
+
+func deserialize_json(data: Dictionary) -> void:
+	pass
+
+
 func _do_action(flags, name, arguments) -> void:
 	arguments = [flags] + arguments
 	for function in _actions[name]:

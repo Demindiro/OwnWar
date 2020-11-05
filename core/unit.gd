@@ -36,6 +36,7 @@ export var team := 0
 # warning-ignore:unused_class_variable
 export var unit_name := "unit"
 export var type_flags := TypeFlags.DEFAULT
+var uid := -1
 onready var health := max_health
 onready var game_master = GameMaster.get_game_master(self)
 
@@ -128,3 +129,8 @@ func destroy():
 static func add_unit(p_name: String, unit) -> void:
 	assert(not p_name in UNITS)
 	UNITS[p_name] = unit
+
+
+static func get_unit(p_name: String):# -> Unit:
+	assert(p_name in UNITS)
+	return UNITS[p_name]

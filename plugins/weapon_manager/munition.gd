@@ -15,6 +15,8 @@ export var cost := 1
 export var shells_per_batch := 1
 # warning-ignore:unused_class_variable
 export var gauge := -1
+# warning-ignore:unused_class_variable
+export var id := -1
 
 
 func _to_string():
@@ -39,4 +41,5 @@ static func add_munition(m) -> int:
 	var volume: int = m.gauge * m.gauge * (m.gauge * 3)
 	var id := Matter.add_matter(m.human_name, volume)
 	_ID_TO_MUNITION[id] = m
+	m.id = id
 	return id

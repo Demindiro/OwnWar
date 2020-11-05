@@ -65,3 +65,13 @@ func fire_weapons():
 
 func debug_draw(debug):
 	ai.debug_draw(self, debug)
+
+
+func serialize_json() -> Dictionary:
+	return {
+			"ai_state": ai.serialize_json(GameMaster.get_game_master(self))
+		}
+
+
+func deserialize_json(data: Dictionary) -> void:
+	ai.deserialize_json(GameMaster.get_game_master(self), data["ai_state"])

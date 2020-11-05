@@ -34,6 +34,7 @@ func _on_Timer_timeout():
 func _on_Campaign_pressed():
 	$Campaign.visible = not $Campaign.visible
 	$Plugins.visible = false
+	$Saves.visible = false
 
 
 func _on_RandomMap_pressed():
@@ -59,3 +60,10 @@ func _on_Tutorial_pressed():
 func _on_Plugins_pressed():
 	$Plugins.visible = not $Plugins.visible
 	$Campaign.visible = false
+	$Saves.visible = false
+
+
+func _on_Saves_pressed():
+	$Saves.visible = not $Saves.visible
+	$Campaign.visible = false
+	$Plugins.visible = false
