@@ -90,6 +90,7 @@ func fire():
 				var z = $ProjectileSpawn.global_transform.basis.z
 				var direction = (y.rotated(z, randf() * PI * 2) * inaccuracy + z).normalized()
 				var node = munition.shell.instance()
+				node.munition_id = id
 				node.global_transform = $ProjectileSpawn.global_transform
 				node.linear_velocity = direction * projectile_velocity
 				get_tree().current_scene.add_child(node)
