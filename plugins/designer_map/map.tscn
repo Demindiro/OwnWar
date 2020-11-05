@@ -4,7 +4,7 @@
 [ext_resource path="res://addons/tiles/metal_grid/set3_example_2.png" type="Texture" id=2]
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform.tscn" type="PackedScene" id=3]
 [ext_resource path="res://core/hud.tscn" type="PackedScene" id=4]
-[ext_resource path="res://plugins/basic_manufacturing/ore.tscn" type="PackedScene" id=5]
+[ext_resource path="res://plugins/basic_manufacturing/drill/ore.tscn" type="PackedScene" id=5]
 [ext_resource path="res://core/block/debug/vane.obj" type="ArrayMesh" id=6]
 [ext_resource path="res://plugins/basic_manufacturing/storage_pod.tscn" type="PackedScene" id=7]
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=8]
@@ -20,6 +20,7 @@
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery_ghost.tscn" type="PackedScene" id=19]
 [ext_resource path="res://plugins/basic_manufacturing/roboport/roboport_ghost.tscn" type="PackedScene" id=20]
 [ext_resource path="res://plugins/basic_manufacturing/roboport/roboport.tscn" type="PackedScene" id=21]
+
 
 
 

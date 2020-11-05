@@ -1,6 +1,7 @@
 [gd_scene load_steps=14 format=2]
 
-[ext_resource path="res://plugins/basic_manufacturing/ore.gd" type="Script" id=1]
+[ext_resource path="res://plugins/basic_manufacturing/drill/ore.gd" type="Script" id=1]
+
 
 
 [sub_resource type="Shader" id=1]
