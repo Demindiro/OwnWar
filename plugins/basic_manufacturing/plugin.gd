@@ -6,14 +6,14 @@ const PLUGIN_DEPENDENCIES := {"worker_drone": Vector3(0, 0, 1)}
 
 static func pre_init(_plugin_path: String):
 	Unit.add_unit("storage_pod", preload("storage_pod.tscn"))
-	Unit.add_unit("munitions_factory", preload("munitions_factory.tscn"))
+	Unit.add_unit("munitions_factory", preload("munitions_factory/munitions_factory.tscn"))
 	Unit.add_unit("spawn_platform", preload("spawn_platform/spawn_platform.tscn"))
-	Unit.add_unit("refinery", preload("refinery.tscn"))
+	Unit.add_unit("refinery", preload("refinery/refinery.tscn"))
 	Unit.add_unit("roboport", preload("roboport.tscn"))
 	Unit.add_unit("storage_pod_ghost", preload("storage_pod_ghost.tscn"))
-	Unit.add_unit("munitions_factory_ghost", preload("munitions_factory_ghost.tscn"))
+	Unit.add_unit("munitions_factory_ghost", preload("munitions_factory/munitions_factory_ghost.tscn"))
 	Unit.add_unit("spawn_platform_ghost", preload("spawn_platform/spawn_platform_ghost.tscn"))
-	Unit.add_unit("refinery_ghost", preload("refinery_ghost.tscn"))
+	Unit.add_unit("refinery_ghost", preload("refinery/refinery_ghost.tscn"))
 	Unit.add_unit("roboport_ghost", preload("roboport_ghost.tscn"))
 	Unit.add_unit("roboport_drone", preload("roboport_drone.tscn"))
 
