@@ -43,7 +43,7 @@ func _unhandled_input(event):
 		_append_action = event.pressed
 	elif event.is_action("campaign_debug"):
 		if event.pressed:
-			$"../Debug".visible = not $"../Debug".visible
+			Debug.visible = not Debug.visible
 	elif event.is_action("ui_cancel"):
 		if _action_button != null:
 			if event.pressed:

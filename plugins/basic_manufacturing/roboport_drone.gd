@@ -97,7 +97,7 @@ func get_info() -> Dictionary:
 	return info
 
 
-func draw_debug():
+func debug_draw():
 	match task:
 		Task.FILL, Task.EMPTY:
 			Debug.draw_line(translation, from_target.get_interaction_port(), Color.greenyellow)

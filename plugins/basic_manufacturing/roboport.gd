@@ -31,10 +31,6 @@ func _ready():
 	game_master.connect("unit_added", self, "_unit_added")
 
 
-func _process(_delta):
-	draw_debug()
-
-
 func get_actions() -> Array:
 	var actions := .get_actions()
 	actions += [
@@ -393,7 +389,6 @@ func _remove_task(task: int, unit: Unit) -> void:
 			break
 
 
-func draw_debug():
+func debug_draw():
 	for drone in _drones:
 		Debug.draw_line(translation, drone.translation, Color.orange)
-		drone.draw_debug()

@@ -13,10 +13,6 @@ var _weapon_manager: Reference
 var _movement_manager: Reference
 
 
-func _process(_delta):
-	debug_draw()
-
-
 func process(delta):
 	ai.process(self, delta)
 	_movement_manager.set_drive_forward(drive_forward)

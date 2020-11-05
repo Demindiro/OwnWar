@@ -66,7 +66,7 @@ func _notification(what):
 			emit_signal("destroyed")
 
 
-func _process(_delta):
+func debug_draw():
 	if joint == null:
 		return
 	Debug.draw_line(global_transform.origin, \

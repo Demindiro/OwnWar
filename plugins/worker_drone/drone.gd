@@ -34,9 +34,8 @@ onready var _material_id: int = Matter.name_to_id["material"]
 func _process(delta):
 	for rotor in rotors:
 		rotor.rotate_object_local(Vector3.UP, delta * 50)
-	draw_debug()
-		
-		
+
+
 func _physics_process(delta):
 	if len(tasks) == 0:
 		return
@@ -270,7 +269,7 @@ func get_cost():
 	return cost
 
 
-func draw_debug():
+func debug_draw():
 	var start = translation
 	for task in tasks:
 		var color

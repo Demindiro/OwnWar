@@ -30,7 +30,7 @@ func _physics_process(_delta):
 	$Generic6DOFJoint.set("angular_motor_x/target_velocity", turn_rate)
 
 
-func _process(_delta):
+func debug_draw():
 	var projectile_position = $ProjectileSpawn.global_transform.origin
 	var projectile_velocity_v = $ProjectileSpawn.global_transform.basis.z * projectile_velocity
 	Debug.begin(Mesh.PRIMITIVE_LINE_STRIP)
