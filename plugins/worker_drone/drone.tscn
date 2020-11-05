@@ -2,7 +2,7 @@
 
 [ext_resource path="res://plugins/basic_manufacturing/storage_pod_ghost.tscn" type="PackedScene" id=1]
 [ext_resource path="res://plugins/worker_drone/drone.gd" type="Script" id=2]
-[ext_resource path="res://plugins/basic_manufacturing/munitions_factory_ghost.tscn" type="PackedScene" id=3]
+[ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory_ghost.tscn" type="PackedScene" id=3]
 [ext_resource path="res://plugins/basic_manufacturing/refinery_ghost.tscn" type="PackedScene" id=4]
 [ext_resource path="res://plugins/basic_manufacturing/roboport_ghost.tscn" type="PackedScene" id=5]
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform_ghost.tscn" type="PackedScene" id=6]
@@ -11,6 +11,7 @@
 [ext_resource path="res://plugins/worker_drone/worker_drone_arm_mesh.tres" type="CubeMesh" id=9]
 [ext_resource path="res://plugins/worker_drone/worker_drone_body_mesh.tres" type="CubeMesh" id=10]
 [ext_resource path="res://plugins/worker_drone/worker_drone_collision_shape.tres" type="Shape" id=11]
+
 
 
 
