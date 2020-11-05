@@ -1,0 +1,17 @@
+[gd_resource type="Environment" load_steps=2 format=2]
+
+[ext_resource path="res://plugins/tutorial_map/environment_sky.tres" type="ProceduralSky" id=1]
+
+[resource]
+background_mode = 2
+background_sky = ExtResource( 1 )
+ambient_light_energy = 0.06
+fog_enabled = true
+fog_color = Color( 0.501961, 0.6, 0.701961, 1 )
+fog_depth_end = 2000.0
+fog_depth_curve = 2.73207
+tonemap_mode = 3
+dof_blur_far_distance = 1756.36
+adjustment_enabled = true
+adjustment_contrast = 1.25
+adjustment_saturation = 0.8
