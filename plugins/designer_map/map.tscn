@@ -6,12 +6,12 @@
 [ext_resource path="res://core/hud.tscn" type="PackedScene" id=4]
 [ext_resource path="res://plugins/basic_manufacturing/drill/ore.tscn" type="PackedScene" id=5]
 [ext_resource path="res://core/block/debug/vane.obj" type="ArrayMesh" id=6]
-[ext_resource path="res://plugins/basic_manufacturing/storage_pod.tscn" type="PackedScene" id=7]
+[ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod.tscn" type="PackedScene" id=7]
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=8]
 [ext_resource path="res://core/game_master.gd" type="Script" id=10]
 [ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=11]
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform_ghost.tscn" type="PackedScene" id=12]
-[ext_resource path="res://plugins/basic_manufacturing/storage_pod_ghost.tscn" type="PackedScene" id=13]
+[ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod_ghost.tscn" type="PackedScene" id=13]
 [ext_resource path="res://core/camera/free_camera.gd" type="Script" id=14]
 [ext_resource path="res://core/designer/load_vehicle.gd" type="Script" id=15]
 [ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory.tscn" type="PackedScene" id=16]
@@ -20,6 +20,7 @@
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery_ghost.tscn" type="PackedScene" id=19]
 [ext_resource path="res://plugins/basic_manufacturing/roboport/roboport_ghost.tscn" type="PackedScene" id=20]
 [ext_resource path="res://plugins/basic_manufacturing/roboport/roboport.tscn" type="PackedScene" id=21]
+
 
 
 
