@@ -150,16 +150,23 @@ func serialize_json() -> Dictionary:
 	return {
 			"material": _material,
 			"munition": m_list,
-			"current_munition": _current_munition_type,
-			"current_producing": _current_producing_munition,
+			"current_munition": Matter.matter_name[_current_munition_type.id],
+			"current_producing": Matter.matter_name[_current_producing_munition.id],
 			"time_until_produced": _time_until_munition_produced,
 		}
 
 
 func deserialize_json(data: Dictionary) -> void:
 	_material = data["material"]
-	_current_munition_type = data["current_munition"]
-	_current_producing_munition = data["current_producing"]
+
+	var cur_mun_id: int = Matter.name_to_id[data["current_munition"]]
+	_current_munition_type = Munition.get_munition(cur_mun_id)
+	assert(Munition.is_munition(cur_mun_id))
+
+	var cur_prod_id: int = Matter.name_to_id[data["current_producing"]]
+	assert(Munition.is_munition(cur_prod_id))
+	_current_producing_munition = Munition.get_munition(cur_prod_id)
+
 	_time_until_munition_produced = data["time_until_produced"]
 	_munition = {}
 	_munition_volume = 0
