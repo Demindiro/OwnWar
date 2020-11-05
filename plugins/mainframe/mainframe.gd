@@ -13,10 +13,6 @@ var _weapon_manager: Reference
 var _movement_manager: Reference
 
 
-func _process(_delta):
-	debug_draw(get_tree().current_scene.find_node("Debug"))
-
-
 func process(delta):
 	ai.process(self, delta)
 	_movement_manager.set_drive_forward(drive_forward)
@@ -63,8 +59,8 @@ func fire_weapons():
 	_fire_weapons = true
 
 
-func debug_draw(debug):
-	ai.debug_draw(self, debug)
+func debug_draw():
+	ai.debug_draw(self)
 
 
 func serialize_json() -> Dictionary:

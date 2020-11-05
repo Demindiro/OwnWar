@@ -66,15 +66,14 @@ func _notification(what):
 			emit_signal("destroyed")
 
 
-func _process(_delta):
+func debug_draw():
 	if joint == null:
 		return
-	var debug = get_tree().current_scene.find_node("Debug")
-	debug.draw_line(global_transform.origin, \
+	Debug.draw_line(global_transform.origin, \
 			global_transform.origin + global_transform.basis.z * 10.0)
-	debug.draw_line(global_transform.origin, \
+	Debug.draw_line(global_transform.origin, \
 			global_transform.origin + global_transform.basis * _desired_direction * 20.0)
-	debug.draw_line(other_connector.global_transform.origin, 
+	Debug.draw_line(other_connector.global_transform.origin, 
 			other_connector.global_transform.origin + other_connector.global_transform.basis.z * 20.0)
 
 

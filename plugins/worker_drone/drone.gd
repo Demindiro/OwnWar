@@ -34,9 +34,8 @@ onready var _material_id: int = Matter.name_to_id["material"]
 func _process(delta):
 	for rotor in rotors:
 		rotor.rotate_object_local(Vector3.UP, delta * 50)
-	draw_debug(game_master.get_node("Debug"))
-		
-		
+
+
 func _physics_process(delta):
 	if len(tasks) == 0:
 		return
@@ -270,7 +269,7 @@ func get_cost():
 	return cost
 
 
-func draw_debug(debug):
+func debug_draw():
 	var start = translation
 	for task in tasks:
 		var color
@@ -289,11 +288,11 @@ func draw_debug(debug):
 				color = Color.purple
 				position = task[1].translation
 		if color != null:
-			debug.draw_circle(position, color)
-			debug.draw_line(start, position, color)
+			Debug.draw_circle(position, color)
+			Debug.draw_line(start, position, color)
 			start = position
 	if _task_cached_unit != null:
-		debug.draw_line(translation, _task_cached_unit.translation, Color.yellow)
+		Debug.draw_line(translation, _task_cached_unit.translation, Color.yellow)
 
 
 func serialize_json() -> Dictionary:

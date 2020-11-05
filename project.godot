@@ -19,7 +19,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/block/block.gd"
 }, {
-"base": "Resource",
+"base": "Reference",
 "class": "Compatibility",
 "language": "GDScript",
 "path": "res://core/compatibility.gd"
@@ -59,7 +59,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/plugin.gd"
 }, {
-"base": "Spatial",
+"base": "Reference",
 "class": "Unit",
 "language": "GDScript",
 "path": "res://core/unit.gd"
@@ -79,7 +79,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/voxel_body.gd"
 }, {
-"base": "ArrayMesh",
+"base": "Reference",
 "class": "VoxelMesh",
 "language": "GDScript",
 "path": "res://core/voxel_mesh.gd"
@@ -111,7 +111,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Own War"
-run/main_scene="res://core/menu/main.tscn"
+run/main_scene="res://core/menu/main_menu/main.tscn"
 config/icon="res://icon.png"
 
 [autoload]
@@ -120,6 +120,7 @@ Global="*res://core/global.gd"
 MaterialCache="*res://core/material_cache.gd"
 ObjectCache="*res://core/object_cache.gd"
 Matter="*res://core/matter.gd"
+Debug="*res://core/debug.gd"
 
 [debug]
 

@@ -15,12 +15,11 @@ var _matter_handlers_put := []
 var _matter_handlers_take := []
 var _matter_put_list := PoolIntArray()
 var _matter_take_list := PoolIntArray()
-onready var debug_node = $"../Debug"
 
 
 func _process(_delta):
 	for body in voxel_bodies:
-		body.debug_draw(debug_node)
+		body.debug_draw()
 
 
 func _physics_process(delta):

@@ -1,0 +1,61 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://plugins/basic_manufacturing/roboport/roboport.gd" type="Script" id=1]
+[ext_resource path="res://plugins/basic_manufacturing/roboport/roboport_drone.tscn" type="PackedScene" id=2]
+[ext_resource path="res://plugins/basic_manufacturing/roboport/collision_shape.tres" type="Shape" id=3]
+
+[node name="Roboport" type="StaticBody"]
+script = ExtResource( 1 )
+unit_name = "roboport"
+drone_scene = ExtResource( 2 )
+
+[node name="CSGCylinder" type="CSGCylinder" parent="."]
+sides = 16
+
+[node name="CSGSphere" type="CSGSphere" parent="CSGCylinder"]
+transform = Transform( 1, 0, 0, 0, 0.6, 0, 0, 0, 1, 0, 0.5, 0 )
+radial_segments = 16
+
+[node name="CSGBox" type="CSGBox" parent="CSGCylinder"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.230468, 0.46917 )
+operation = 2
+width = 0.6
+height = 0.5
+depth = 1.58094
+
+[node name="CSGCylinder2" type="CSGCylinder" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.522331, 1.83225, -0.487482 )
+radius = 0.0605611
+height = 2.09574
+
+[node name="CSGCylinder3" type="CSGCylinder" parent="."]
+transform = Transform( -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0.439846, 2.83927, -0.487482 )
+radius = 0.0223268
+height = 0.137173
+
+[node name="CSGCylinder4" type="CSGCylinder" parent="."]
+transform = Transform( -4.37114e-08, 4.37114e-08, -1, 1, -4.37114e-08, -4.37114e-08, -4.37114e-08, -1, -4.37114e-08, 0.522331, 2.83927, -0.553716 )
+radius = 0.0223268
+height = 0.14884
+
+[node name="CSGCylinder5" type="CSGCylinder" parent="."]
+transform = Transform( -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0.602414, 2.83927, -0.487482 )
+radius = 0.0223268
+height = 0.133383
+
+[node name="CSGCylinder6" type="CSGCylinder" parent="."]
+transform = Transform( -4.37114e-08, 4.37114e-08, -1, 1, -4.37114e-08, -4.37114e-08, -4.37114e-08, -1, -4.37114e-08, 0.522331, 2.83927, -0.414066 )
+radius = 0.0223268
+height = 0.143744
+
+[node name="CSGTorus" type="CSGTorus" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.522331, 2.84576, -0.487482 )
+inner_radius = 0.11513
+outer_radius = 0.176126
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0 )
+shape = ExtResource( 3 )
+
+[node name="SpawnPoint" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.230468, 1.8021 )

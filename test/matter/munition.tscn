@@ -1,17 +1,21 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://core/hud.tscn" type="PackedScene" id=1]
 [ext_resource path="res://core/game_master.gd" type="Script" id=2]
 [ext_resource path="res://test/matter/munition.gd" type="Script" id=3]
-[ext_resource path="res://plugins/basic_manufacturing/refinery_ghost.tscn" type="PackedScene" id=4]
-[ext_resource path="res://plugins/basic_manufacturing/munitions_factory_ghost.tscn" type="PackedScene" id=5]
-[ext_resource path="res://plugins/basic_manufacturing/storage_pod_ghost.tscn" type="PackedScene" id=6]
-[ext_resource path="res://plugins/basic_manufacturing/roboport_ghost.tscn" type="PackedScene" id=7]
-[ext_resource path="res://plugins/basic_manufacturing/storage_pod.tscn" type="PackedScene" id=8]
-[ext_resource path="res://plugins/basic_manufacturing/spawn_platform_ghost.tscn" type="PackedScene" id=9]
+[ext_resource path="res://plugins/basic_manufacturing/refinery/refinery_ghost.tscn" type="PackedScene" id=4]
+[ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory_ghost.tscn" type="PackedScene" id=5]
+[ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod_ghost.tscn" type="PackedScene" id=6]
+[ext_resource path="res://plugins/basic_manufacturing/roboport/roboport_ghost.tscn" type="PackedScene" id=7]
+[ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod.tscn" type="PackedScene" id=8]
+[ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform_ghost.tscn" type="PackedScene" id=9]
 [ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=10]
 [ext_resource path="res://core/camera/free_camera.gd" type="Script" id=11]
-[ext_resource path="res://core/debug.tscn" type="PackedScene" id=12]
+
+
+
+
+
 
 [sub_resource type="PlaneShape" id=1]
 
@@ -52,8 +56,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8.07428, 1.80456, 0 )
 [node name="Target" parent="Node" instance=ExtResource( 8 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11, 29 )
 max_health = 50000000
-
-[node name="Debug" parent="." instance=ExtResource( 12 )]
 
 [node name="HUD" parent="." instance=ExtResource( 1 )]
 camera = NodePath("../FreeCamera")

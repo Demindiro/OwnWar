@@ -1,0 +1,55 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://plugins/basic_manufacturing/roboport/roboport_drone.gd" type="Script" id=1]
+[ext_resource path="res://plugins/basic_manufacturing/roboport/ugly.glb" type="PackedScene" id=2]
+[ext_resource path="res://plugins/basic_manufacturing/roboport/drone_collision_shape.tres" type="Shape" id=3]
+
+[node name="Robot" type="RigidBody"]
+mass = 10.0
+script = ExtResource( 1 )
+unit_name = "roboport_drone"
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+transform = Transform( 1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, 0, -8.2083e-05, 0 )
+shape = ExtResource( 3 )
+
+[node name="ugly" parent="." instance=ExtResource( 2 )]
+transform = Transform( 1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, 0, 0.0159968, 0 )
+
+[node name="Track" type="RayCast" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1382, 0 )
+enabled = true
+cast_to = Vector3( 0, -0.1, 0 )
+
+[node name="LSensor" type="RayCast" parent="."]
+transform = Transform( 0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, 0.3125, 0, -0.28 )
+enabled = true
+cast_to = Vector3( 0, 0, 1 )
+collision_mask = 513
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="FLSensor" type="RayCast" parent="."]
+transform = Transform( 0.939693, 0, 0.34202, 0, 1, 0, -0.34202, 0, 0.939693, 0, 0, 0.213487 )
+enabled = true
+cast_to = Vector3( 0, 0, 1 )
+collision_mask = 513
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="FRSensor" type="RayCast" parent="."]
+transform = Transform( 0.939693, 0, -0.34202, 0, 1, 0, 0.34202, 0, 0.939693, 0, 0, 0.213487 )
+enabled = true
+cast_to = Vector3( 0, 0, 1 )
+collision_mask = 513
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="RSensor" type="RayCast" parent="."]
+transform = Transform( 0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -0.3125, 0, -0.28 )
+enabled = true
+cast_to = Vector3( 0, 0, 1 )
+collision_mask = 513

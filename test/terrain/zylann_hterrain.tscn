@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
 [ext_resource path="res://test/terrain/data/data.hterrain" type="Resource" id=2]
@@ -11,11 +11,8 @@
 [ext_resource path="res://addons/zylann.hterrain/tools/icons/icon_detail_layer_node.svg" type="Texture" id=9]
 [ext_resource path="res://addons/zylann.hterrain/models/grass_quad.obj" type="ArrayMesh" id=10]
 [ext_resource path="res://icon.png" type="Texture" id=11]
-[ext_resource path="res://core/debug.tscn" type="PackedScene" id=13]
 
-
-
-[sub_resource type="GDScript" id=2]
+[sub_resource type="GDScript" id=1]
 script/source = "extends Node
 
 func _ready():
@@ -25,7 +22,7 @@ func _ready():
 	add_child(vehicle)
 "
 
-[sub_resource type="GDScript" id=1]
+[sub_resource type="GDScript" id=2]
 script/source = "extends DirectionalLight
 
 
@@ -41,11 +38,15 @@ func _process(delta):
 "
 
 [node name="ZylannHTerrain" type="Node"]
-script = SubResource( 2 )
+script = SubResource( 1 )
 
 [node name="HTerrain" type="Spatial" parent="."]
 script = ExtResource( 1 )
+collision_enabled = true
 ambient_wind = 0.1475
+lod_scale = 2.0
+custom_globalmap_shader = null
+map_scale = Vector3( 1, 1, 1 )
 _terrain_data = ExtResource( 2 )
 chunk_size = 32
 shader_type = "Classic4"
@@ -89,7 +90,7 @@ shadow_bias = 16.0
 directional_shadow_blend_splits = true
 directional_shadow_normal_bias = 1.84
 directional_shadow_max_distance = 2000.0
-script = SubResource( 1 )
+script = SubResource( 2 )
 
 [node name="Camera" type="Camera" parent="."]
 transform = Transform( -0.683013, 0.258819, -0.683013, -0.00623603, 0.933013, 0.359789, 0.73038, 0.25, -0.635646, 0, 55, 0 )
@@ -97,9 +98,6 @@ environment = ExtResource( 7 )
 far = 2000.0
 script = ExtResource( 5 )
 speed = 100.0
-
-[node name="Debug" parent="." instance=ExtResource( 13 )]
-visible = false
 
 [node name="Spawn" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 103.154, 6.41262, 370.338 )
