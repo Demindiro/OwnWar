@@ -2,9 +2,7 @@
 
 [ext_resource path="res://plugins/basic_manufacturing/roboport/roboport.gd" type="Script" id=1]
 [ext_resource path="res://plugins/basic_manufacturing/roboport/roboport_drone.tscn" type="PackedScene" id=2]
-
-[sub_resource type="CylinderShape" id=1]
-height = 1.5
+[ext_resource path="res://plugins/basic_manufacturing/roboport/collision_shape.tres" type="Shape" id=3]
 
 [node name="Roboport" type="StaticBody"]
 script = ExtResource( 1 )
@@ -57,7 +55,7 @@ outer_radius = 0.176126
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0 )
-shape = SubResource( 1 )
+shape = ExtResource( 3 )
 
 [node name="SpawnPoint" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.230468, 1.8021 )

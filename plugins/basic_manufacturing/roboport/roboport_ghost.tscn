@@ -2,13 +2,8 @@
 
 [ext_resource path="res://plugins/basic_manufacturing/ghost.gd" type="Script" id=1]
 [ext_resource path="res://plugins/basic_manufacturing/roboport/roboport.tscn" type="PackedScene" id=2]
-
-[sub_resource type="SpatialMaterial" id=1]
-flags_transparent = true
-albedo_color = Color( 1, 1, 1, 0.4 )
-
-[sub_resource type="CylinderShape" id=2]
-height = 1.5
+[ext_resource path="res://plugins/basic_manufacturing/roboport/collision_shape.tres" type="Shape" id=3]
+[ext_resource path="res://plugins/basic_manufacturing/ghost_material.tres" type="Material" id=4]
 
 [node name="RoboportGhost" type="StaticBody"]
 script = ExtResource( 1 )
@@ -19,12 +14,12 @@ spawn_offset = Vector3( 0, 0.5, 0 )
 [node name="CSGCylinder" type="CSGCylinder" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0 )
 sides = 16
-material = SubResource( 1 )
+material = ExtResource( 4 )
 
 [node name="CSGSphere" type="CSGSphere" parent="CSGCylinder"]
 transform = Transform( 1, 0, 0, 0, 0.6, 0, 0, 0, 1, 0, 0.5, 0 )
 radial_segments = 16
-material = SubResource( 1 )
+material = ExtResource( 4 )
 
 [node name="CSGBox" type="CSGBox" parent="CSGCylinder"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.230468, 0.46917 )
@@ -32,8 +27,8 @@ operation = 2
 width = 0.6
 height = 0.5
 depth = 1.58094
-material = SubResource( 1 )
+material = ExtResource( 4 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0 )
-shape = SubResource( 2 )
+shape = ExtResource( 3 )

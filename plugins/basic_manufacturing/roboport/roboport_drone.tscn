@@ -2,10 +2,7 @@
 
 [ext_resource path="res://plugins/basic_manufacturing/roboport/roboport_drone.gd" type="Script" id=1]
 [ext_resource path="res://plugins/basic_manufacturing/roboport/ugly.glb" type="PackedScene" id=2]
-
-
-[sub_resource type="BoxShape" id=1]
-extents = Vector3( 0.233928, 0.166091, 0.273788 )
+[ext_resource path="res://plugins/basic_manufacturing/roboport/drone_collision_shape.tres" type="Shape" id=3]
 
 [node name="Robot" type="RigidBody"]
 mass = 10.0
@@ -14,7 +11,7 @@ unit_name = "roboport_drone"
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, 0, -8.2083e-05, 0 )
-shape = SubResource( 1 )
+shape = ExtResource( 3 )
 
 [node name="ugly" parent="." instance=ExtResource( 2 )]
 transform = Transform( 1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, 0, 0.0159968, 0 )
