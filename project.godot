@@ -54,6 +54,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/maps.gd"
 }, {
+"base": "OptionButton",
+"class": "OptionButtonPreset",
+"language": "GDScript",
+"path": "res://addons/option_button_preset.gd"
+}, {
 "base": "Reference",
 "class": "Plugin",
 "language": "GDScript",
@@ -99,6 +104,7 @@ _global_script_class_icons={
 "HTerrainDataLoader": "",
 "HTerrainDataSaver": "",
 "Maps": "",
+"OptionButtonPreset": "",
 "Plugin": "",
 "Unit": "",
 "Util": "",
