@@ -1,6 +1,7 @@
 extends "../weapon_manager/weapon.gd"
 
 
+signal fired()
 const GRAVITY = 9.8
 export var reload_time := 5.0
 export var projectile_velocity := 1000.0
@@ -94,6 +95,7 @@ func fire():
 				node.linear_velocity = direction * projectile_velocity
 				get_tree().current_scene.add_child(node)
 				_time_of_last_shot = current_time
+				emit_signal("fired")
 				break
 
 
