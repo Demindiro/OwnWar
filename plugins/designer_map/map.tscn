@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=2]
+[gd_scene load_steps=33 format=2]
 
 [ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=1]
 [ext_resource path="res://plugins/designer_map/floor_mesh.tres" type="PlaneMesh" id=2]
@@ -31,6 +31,7 @@
 [ext_resource path="res://plugins/designer_map/wall_shape.tres" type="Shape" id=29]
 [ext_resource path="res://plugins/designer_map/floor_material.tres" type="Material" id=30]
 [ext_resource path="res://plugins/designer_map/floor_shape.tres" type="Shape" id=31]
+[ext_resource path="res://plugins/designer_map/change_team.gd" type="Script" id=32]
 
 [node name="Designer" type="Node"]
 process_priority = 1
@@ -174,8 +175,24 @@ speed = 50.0
 [node name="HUD" parent="." instance=ExtResource( 4 )]
 camera = NodePath("../Camera")
 
+[node name="ChangeTeam" type="OptionButton" parent="HUD"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -162.842
+margin_top = 56.0561
+margin_right = -15.842
+margin_bottom = 98.0561
+focus_mode = 0
+theme = ExtResource( 8 )
+text = "Player"
+items = [ "Player", null, false, 1, null, "Enemy", null, false, 2, null ]
+selected = 0
+script = ExtResource( 32 )
+options = PoolStringArray( "Player", "Enemy" )
+
 [node name="GUI" type="ColorRect" parent="."]
 pause_mode = 2
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 8 )
@@ -319,6 +336,7 @@ text = "Load"
 [connection signal="load_game" from="." to="HUD" method="_on_Designer_load_game"]
 [connection signal="save_game" from="." to="HUD" method="_on_Designer_save_game"]
 [connection signal="ready" from="Map/FilthyHack" to="Map" method="_on_FilthyHack_ready"]
+[connection signal="item_selected" from="HUD/ChangeTeam" to="HUD/ChangeTeam" method="_on_ChangeTeam_item_selected"]
 [connection signal="load_vehicle" from="GUI" to="Map" method="_on_GUI_load_vehicle"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Continue" to="GUI/Main" method="_on_Continue_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Save" to="." method="save_game" binds= [ "_designer" ]]
