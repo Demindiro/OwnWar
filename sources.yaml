@@ -35,3 +35,6 @@ assets:
     author: yughues
     source: https://opengameart.org/content/grass-pack-01
     license: cc0
+  - asset: addons/weapons/muzzle_flashes
+    source: http://www.jeanmoreno.com/unity/warfx/
+    license: null
