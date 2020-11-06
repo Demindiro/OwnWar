@@ -14,9 +14,10 @@ func _ready():
 				game_master.units[child.team].append(child)
 				child.uid = game_master.uid_counter
 				game_master.uid_counter += 241
-	$Player/StoragePod.put_matter(Matter.name_to_id["material"], 500)
-	$Enemy/StoragePod.put_matter(Matter.name_to_id["material"], 10000)
-	$Enemy/StoragePod2.put_matter(Matter.name_to_id["material"], 10000)
+	var material_id := Matter.get_matter_id("material")
+	$Player/StoragePod.put_matter(material_id, 500)
+	$Enemy/StoragePod.put_matter(material_id, 10000)
+	$Enemy/StoragePod2.put_matter(material_id, 10000)
 	_drone_spawn_transform = $Player/Drone.transform
 	call_deferred("_set_terrain_collision_bit")
 

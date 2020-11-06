@@ -28,7 +28,7 @@ const _MAX_VOLUME := 20_000_000
 var _task_cached_unit: Unit
 var _matter_id := -1
 var _matter_count := 0
-onready var _material_id: int = Matter.name_to_id["material"]
+onready var _material_id: int = Matter.get_matter_id("material")
 
 
 func _process(delta):
@@ -81,7 +81,7 @@ func _physics_process(delta):
 			elif _matter_id == id or _matter_count == 0:
 				_matter_id = id
 # warning-ignore:integer_division
-				if _matter_count < _MAX_VOLUME / Matter.matter_volume[id]:
+				if _matter_count < _MAX_VOLUME / Matter.get_matter_volume(id):
 					if _take_matter(id, task[1], delta):
 						current_task_completed()
 				else:
@@ -157,10 +157,10 @@ func get_info():
 	info["Current task"] = task_string
 	info["Total tasks"] = str(len(tasks))
 	if _matter_count > 0:
-		info["Matter type"] = Matter.matter_name[_matter_id]
+		info["Matter type"] = Matter.get_matter_name(_matter_id)
 		info["Matter count"] = "%d / %d" % [_matter_count,
 # warning-ignore:integer_division
-				_MAX_VOLUME / Matter.matter_volume[_matter_id]]
+				_MAX_VOLUME / Matter.get_matter_volume(_matter_id)]
 	return info
 
 
@@ -307,7 +307,7 @@ func serialize_json() -> Dictionary:
 			Task.PUT, Task.PUT_ONLY, \
 			Task.TAKE, Task.TAKE_ONLY:
 				d["target"] = t[1].uid
-				d["matter"] = Matter.matter_name[t[2]]
+				d["matter"] = Matter.get_matter_name(t[2])
 			_:
 				assert(false)
 		t_list.append(d)
@@ -331,7 +331,7 @@ func deserialize_json(data: Dictionary) -> void:
 			Task.TAKE, Task.TAKE_ONLY:
 				var u: Unit = game_master.get_unit_by_uid(t_d["target"])
 				t.append(u)
-				t.append(Matter.name_to_id[t_d["matter"]])
+				t.append(Matter.get_matter_id(t_d["matter"]))
 			_:
 				assert(false)
 		tasks.append(t)
@@ -366,7 +366,7 @@ func _put_matter(id: int, unit: Unit, delta: float) -> bool:
 func _take_matter(id: int, unit: Unit, delta: float) -> bool:
 	assert(id == _matter_id or _matter_count == 0)
 # warning-ignore:integer_division
-	var matter_space := _MAX_VOLUME / Matter.matter_volume[id] - _matter_count
+	var matter_space := _MAX_VOLUME / Matter.get_matter_volume(id) - _matter_count
 	assert(matter_space != 0 or _matter_count != 0)
 	if translation.distance_squared_to(unit.translation) <= INTERACTION_DISTANCE_2:
 		_matter_count += unit.take_matter(id, matter_space)

@@ -26,7 +26,7 @@ static func save_game(game_master: GameMaster) -> Dictionary:
 	for p in game_master.get_tree().get_nodes_in_group("projectiles"):
 		assert(Munition.is_munition(p.munition_id))
 		var d := {
-				"name": Matter.matter_name[p.munition_id],
+				"name": Matter.get_matter_name(p.munition_id),
 				"transform": var2str(p.transform),
 				"velocity": var2str(p.linear_velocity),
 				"damage": p.damage,
@@ -39,7 +39,7 @@ static func save_game(game_master: GameMaster) -> Dictionary:
 
 static func load_game(game_master: GameMaster, data: Dictionary) -> void:
 	for s in data["projectiles"]:
-		var id = Matter.name_to_id[s["name"]]
+		var id = Matter.get_matter_id(s["name"])
 		var shell = Munition.get_munition(id).shell.instance()
 		shell.transform = str2var(s["transform"])
 		shell.linear_velocity = str2var(s["velocity"])

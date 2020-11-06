@@ -14,7 +14,7 @@ func _on_FilthyHack_ready():
 	# I need something that is called after _enter_tree but just right before
 	# _ready. This works I guess...
 	game_master = GameMaster.get_game_master(self)
-	material_id = Matter.name_to_id["material"]
+	material_id = Matter.get_matter_id("material")
 	for child in get_children():
 		if child is Unit:
 			game_master.units[child.team].append(child)

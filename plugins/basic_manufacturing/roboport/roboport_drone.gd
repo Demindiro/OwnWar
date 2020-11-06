@@ -42,7 +42,7 @@ func _physics_process(_delta: float) -> void:
 					dump_target = null
 			if target == null:
 # warning-ignore:integer_division
-				var matter_space := _MAX_VOLUME / Matter.matter_volume[task_matter_id] - matter_count
+				var matter_space := _MAX_VOLUME / Matter.get_matter_volume(task_matter_id) - matter_count
 				if _task_step == 0 and (matter_count == 0 if task == Task.FILL else matter_space > 0):
 					target = from_target
 					if _take_matter(target):
@@ -77,21 +77,22 @@ func _integrate_forces(state: PhysicsDirectBodyState):
 func get_info() -> Dictionary:
 	var info := .get_info() as Dictionary
 	if matter_count > 0:
-		info["Matter type"] = Matter.matter_name[matter_id]
+		info["Matter type"] = Matter.get_matter_name(matter_id)
 # warning-ignore:integer_division
-		info["Matter count"] = "%d / %d" % [matter_count, _MAX_VOLUME / Matter.matter_volume[matter_id]]
+		var m_vol := Matter.get_matter_volume(matter_id)
+		info["Matter count"] = "%d / %d" % [matter_count, _MAX_VOLUME / m_vol]
 	match task:
 		Task.NONE:
 			info["Task"] = "None"
 		Task.FILL, Task.EMPTY:
 			info["Task"] = "Transport"
-			var matter_space = Matter.matter_volume[task_matter_id] - matter_count
+			var matter_space = Matter.get_matter_volume(task_matter_id) - matter_count
 			if task_matter_id != matter_id and matter_count != 0:
-				info["Dump"] = Matter.matter_name[matter_id]
+				info["Dump"] = Matter.get_matter_name(matter_id)
 			elif matter_count > 0 if task == Task.FILL else matter_space == 0:
-				info["Empty"] = Matter.matter_name[task_matter_id]
+				info["Empty"] = Matter.get_matter_name(task_matter_id)
 			else:
-				info["Fill"] = Matter.matter_name[task_matter_id]
+				info["Fill"] = Matter.get_matter_name(task_matter_id)
 		_:
 			info["Task"] = "???"
 	return info
@@ -212,8 +213,9 @@ func _task_completed() -> void:
 
 
 func _take_matter(unit: Unit) -> bool:
+	var m_vol := Matter.get_matter_volume(task_matter_id)
 # warning-ignore:integer_division
-	var matter_space := _MAX_VOLUME / Matter.matter_volume[task_matter_id] - matter_count
+	var matter_space := _MAX_VOLUME / m_vol - matter_count
 	var proj_pos = Plane(transform.basis.y, 0).project(unit.get_interaction_port() - translation)
 	if proj_pos.length_squared() < 9:
 		matter_count += unit.take_matter(matter_id, matter_space)

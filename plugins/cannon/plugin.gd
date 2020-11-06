@@ -11,10 +11,7 @@ static func pre_init(_plugin_path: String):
 
 static func init(_plugin_path: String):
 	var Munition = Plugin.get_plugin("weapon_manager").Munition
-	var material_id: int = Matter.name_to_id.get("material", -1)
-	if material_id < 0:
-		print("Matter 'material' not found!")
-		return
+	var material_id := Matter.get_matter_id("material")
 	Munition.add_munition(preload("160mm/shell_160mm.tres"))
 	Munition.add_munition(preload("35mm/shell_35mm.tres"))
 

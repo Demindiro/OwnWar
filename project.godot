@@ -54,6 +54,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/maps.gd"
 }, {
+"base": "Reference",
+"class": "Matter",
+"language": "GDScript",
+"path": "res://core/matter.gd"
+}, {
 "base": "OptionButton",
 "class": "OptionButtonPreset",
 "language": "GDScript",
@@ -104,6 +109,7 @@ _global_script_class_icons={
 "HTerrainDataLoader": "",
 "HTerrainDataSaver": "",
 "Maps": "",
+"Matter": "",
 "OptionButtonPreset": "",
 "Plugin": "",
 "Unit": "",
@@ -125,7 +131,6 @@ config/icon="res://icon.png"
 Global="*res://core/global.gd"
 MaterialCache="*res://core/material_cache.gd"
 ObjectCache="*res://core/object_cache.gd"
-Matter="*res://core/matter.gd"
 Debug="*res://core/debug.gd"
 
 [debug]
