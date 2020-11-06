@@ -23,10 +23,11 @@ func _init():
 
 
 func _ready():
-	_providers.resize(len(Matter.matter_name))
-	_takers.resize(len(Matter.matter_name))
-	_needs_provider.resize(len(Matter.matter_name))
-	_needs_taker.resize(len(Matter.matter_name))
+	var types_count := Matter.get_matter_types_count()
+	_providers.resize(types_count)
+	_takers.resize(types_count)
+	_needs_provider.resize(types_count)
+	_needs_taker.resize(types_count)
 	_set_radius2(_radius2)
 	game_master.connect("unit_added", self, "_unit_added")
 
@@ -183,7 +184,7 @@ func _set_radius2(radius2: float) -> void:
 		unit.disconnect("take_matter", self, "_on_take_matter")
 		unit.disconnect("dump_matter", self, "_on_dump_matter")
 	_units = []
-	for i in range(len(Matter.matter_name)):
+	for i in range(Matter.get_matter_types_count()):
 		_providers[i] = []
 		_takers[i] = []
 		_needs_provider[i] = []

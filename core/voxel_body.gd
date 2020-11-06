@@ -35,8 +35,8 @@ func _process(_delta):
 func debug_draw():
 	for hit in _debug_hits:
 		var position = Vector3(hit[0][0], hit[0][1], hit[0][2]) + Vector3.ONE / 2
-		Debug.draw_point(to_global(position * Global.BLOCK_SCALE - center_of_mass),
-				hit[1], 0.55 * Global.BLOCK_SCALE)
+		Debug.draw_point(to_global(position * Block.BLOCK_SCALE - center_of_mass),
+				hit[1], 0.55 * Block.BLOCK_SCALE)
 
 
 func fix_physics(p_transform):
@@ -48,7 +48,7 @@ func fix_physics(p_transform):
 
 func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
 	var local_origin = to_local(origin) + center_of_mass
-	local_origin /= Global.BLOCK_SCALE
+	local_origin /= Block.BLOCK_SCALE
 	var local_direction = to_local(origin + direction) - to_local(origin)
 	_raycast.start(local_origin, local_direction, 25, 25, 25)
 	_debug_hits = []
@@ -64,7 +64,7 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
 				_voxel_mesh.remove_block(_raycast.voxel)
 				# warning-ignore:return_value_discarded
 				blocks.erase(key)
-				cost -= Global.blocks_by_id[block[0]].cost
+				cost -= Block.get_block_by_id(block[0]).cost
 			else:
 				block[1] -= damage
 				damage = 0
@@ -83,7 +83,7 @@ func spawn_block(x: int, y: int, z: int, r: int, block: Block, color: Color) -> 
 	_voxel_mesh.add_block(block, color, [x, y, z], r)
 	if block.scene != null:
 		node = block.scene.instance()
-		node.transform = Transform(basis, position * Global.BLOCK_SCALE)
+		node.transform = Transform(basis, position * Block.BLOCK_SCALE)
 		add_child(node)
 		var material = MaterialCache.get_material(color)
 		for child in get_children_recursive(node) + [node]:
@@ -102,7 +102,7 @@ func spawn_block(x: int, y: int, z: int, r: int, block: Block, color: Color) -> 
 
 func coordinate_to_vector(coordinate):
 	var position = Vector3(coordinate[0], coordinate[1], coordinate[2])
-	position *= Global.BLOCK_SCALE
+	position *= Block.BLOCK_SCALE
 	return position - center_of_mass
 
 
@@ -124,8 +124,8 @@ func _set_collision_box(start: Vector3, end: Vector3) -> void:
 	end += Vector3.ONE
 	var center = (start + end) / 2
 	var extents = (end - start) / 2
-	_collision_shape.transform.origin = center * Global.BLOCK_SCALE
-	_collision_shape.shape.extents = extents * Global.BLOCK_SCALE
+	_collision_shape.transform.origin = center * Block.BLOCK_SCALE
+	_collision_shape.shape.extents = extents * Block.BLOCK_SCALE
 
 
 func _correct_mass() -> void:
@@ -133,13 +133,13 @@ func _correct_mass() -> void:
 	center_of_mass = Vector3.ZERO
 	for coordinate in blocks:
 		var block = blocks[coordinate]
-		var block_mass = Global.blocks_by_id[block[0]].mass
+		var block_mass = Block.get_block_by_id(block[0]).mass
 		center_of_mass += Vector3(coordinate[0], coordinate[1], coordinate[2]) * block_mass
 		total_mass += block_mass
 	assert(total_mass > 0)
 	center_of_mass /= total_mass
 	center_of_mass += Vector3.ONE * 0.5
-	center_of_mass *= Global.BLOCK_SCALE
+	center_of_mass *= Block.BLOCK_SCALE
 	for child in get_children():
 		child.transform.origin -= center_of_mass
 		if child is VehicleWheel:

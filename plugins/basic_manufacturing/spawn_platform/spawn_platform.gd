@@ -6,7 +6,7 @@ var worker = load("res://plugins/worker_drone/drone.tscn")
 var material = 0 setget set_material
 var queued_vehicle = null
 var queued_vehicle_name
-onready var _material_id = Matter.name_to_id["material"]
+onready var _material_id = Matter.get_matter_id("material")
 
 
 func _init():

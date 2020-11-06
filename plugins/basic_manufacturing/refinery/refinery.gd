@@ -7,8 +7,8 @@ var _time_until_fuel_produced := 0.0
 var _producing := false
 var _material := 0
 var _fuel := 0
-onready var _material_id: int = Matter.name_to_id["material"]
-onready var _fuel_id: int = Matter.name_to_id["fuel"]
+onready var _material_id: int = Matter.get_matter_id("material")
+onready var _fuel_id: int = Matter.get_matter_id("fuel")
 
 
 func _init():

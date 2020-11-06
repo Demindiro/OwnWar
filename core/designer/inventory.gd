@@ -41,7 +41,7 @@ func show_category(var category):
 	
 	
 func show_block(var block_name):
-	var block = Global.blocks[block_name]
+	var block = Block.get_block(block_name)
 	_preview_mesh.mesh = block.mesh
 	_preview_mesh.material_override = block.material
 	for child in _preview_mesh.get_children():
@@ -74,7 +74,7 @@ func _block_container_init(var category):
 		_block_container.remove_child(child)
 	for block_name in categories[category]:
 		var node = _block_button_template.duplicate() as Button
-		node.text = Global.blocks[block_name].human_name
+		node.text = Block.get_block(block_name).human_name
 		node.connect("mouse_entered", self, "show_block", [block_name])
 		node.connect("pressed", _designer, "select_block", [block_name])
 		node.connect("pressed", _designer, "set_enabled", [true])
@@ -82,8 +82,7 @@ func _block_container_init(var category):
 
 	
 func _get_categories():
-	for block_name in Global.blocks:
-		var block = Global.blocks[block_name] as Block
+	for block in Block.get_all_blocks():
 		if not block.category in categories:
 			categories[block.category] = []
 		categories[block.category].append(block.name)

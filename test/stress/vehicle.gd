@@ -1,4 +1,4 @@
-extends Node
+extends GameMaster
 
 
 var _time_until_next := 0.0

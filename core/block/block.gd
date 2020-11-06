@@ -5,6 +5,9 @@ extends Resource
 
 const ROTATION_TO_ORTHOGONAL_INDEX = [0, 16, 10, 22, 2, 18, 8, 20, 3, 19, 9, 21,
 		1, 17, 11, 23, 4, 5, 6, 7, 14, 13, 12, 15]
+const BLOCK_SCALE := 0.25
+const _NAME_TO_BLOCK = {}
+const _ID_TO_BLOCK = []
 export(String) var name: String
 # warning-ignore:unused_class_variable
 export(String) var human_name: String
@@ -76,12 +79,28 @@ func get_mirror_rotation(rotation: int) -> int:
 
 
 static func add_block(block: Block):
-	if block.name in Global.blocks:
+	if block.name in _NAME_TO_BLOCK:
+		assert(false)
 		push_error("Block name is already registered: '%s'" % block.name)
 		return
-	Global.blocks[block.name] = block
-	block.id = len(Global.blocks_by_id)
-	Global.blocks_by_id.append(block)
+	_NAME_TO_BLOCK[block.name] = block
+	block.id = len(_ID_TO_BLOCK)
+	_ID_TO_BLOCK.append(block)
+
+
+static func get_block(name: String):# -> Block:
+	assert(name in _NAME_TO_BLOCK)
+	return _NAME_TO_BLOCK[name]
+
+
+static func get_block_by_id(id: int):# -> Block:
+	assert(id < len(_ID_TO_BLOCK))
+	return _ID_TO_BLOCK[id]
+
+
+static func get_all_blocks() -> Array:
+	assert(_ID_TO_BLOCK is Array)
+	return _ID_TO_BLOCK
 
 
 static func rotation_to_basis(rotation: int) -> Basis:
@@ -149,4 +168,4 @@ func __set_mirror_block(block: Resource):
 func __get_mirror_block():
 	var caller = get_stack()[1]
 	if caller["function"] != "__get_mirror_block":
-		return Global.blocks[__mirror_block_name] if __mirror_block_name != "" else self
+		return get_block(__mirror_block_name) if __mirror_block_name != "" else self

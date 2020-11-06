@@ -12,7 +12,7 @@ var _fuel_id: int
 
 
 func init(vehicle: Vehicle) -> void:
-	_fuel_id = Matter.name_to_id["fuel"]
+	_fuel_id = Matter.get_matter_id("fuel")
 	vehicle.add_matter_count_handler(funcref(self, "get_matter_count"))
 	vehicle.add_matter_space_handler(funcref(self, "get_matter_space"))
 	vehicle.add_matter_take_handler(funcref(self, "take_matter"))
