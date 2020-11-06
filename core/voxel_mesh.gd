@@ -109,7 +109,7 @@ static func _get_mesh_arrays(mesh: Mesh, index: int) -> Array:
 static func _transform_array(array: Array, coordinate: Array, rotation: int) -> void:
 	var basis := Block.rotation_to_basis(rotation)
 	var position := Vector3(coordinate[0], coordinate[1], coordinate[2]) + Vector3.ONE / 2
-	var transform := Transform(basis, position * Global.BLOCK_SCALE)
+	var transform := Transform(basis, position * Block.BLOCK_SCALE)
 	for i in range(len(array[Mesh.ARRAY_VERTEX])):
 		array[Mesh.ARRAY_VERTEX][i] = transform * array[Mesh.ARRAY_VERTEX][i]
 		array[Mesh.ARRAY_NORMAL][i] = basis * array[Mesh.ARRAY_NORMAL][i]

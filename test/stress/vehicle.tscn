@@ -15,6 +15,7 @@ size = Vector2( 197, 197 )
 
 [node name="StressVehicles" type="Node"]
 script = ExtResource( 3 )
+map_name = "_vehicle_stress_test"
 
 [node name="StaticBody" type="StaticBody" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 95, 0, 95 )

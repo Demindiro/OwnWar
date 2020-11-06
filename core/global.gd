@@ -1,7 +1,6 @@
 extends Node
 
 const LOADER_MAX_TIME := 1000.0 / 60.0
-const VERSION := Vector3(0, 14, 0)
 # Because Godot does not allow cyclic references and is apparently not capable
 # of updating file paths automatically, this shall be the solution
 const SCENE_MENU_MAIN = "res://core/menu/main.tscn"
@@ -9,7 +8,6 @@ const SCENE_DESIGNER = "res://core/designer/designer.tscn"
 const SCENE_LOADING = "res://core/menu/loading_screen.tscn"
 const DIRECTORY_USER_VEHICLES = "user://vehicles"
 const FILE_EXTENSION = ".json"
-const BLOCK_SCALE = 0.25
 const ERROR_TO_STRING = [
 		"No errors",
 		"Generic",
@@ -69,7 +67,7 @@ var _loader_callback_arguments: Array
 
 
 func _enter_tree():
-	print("Game version %s" % [VERSION])
+	print("Game version %s" % [Game.VERSION])
 	Block.add_block(preload("block/debug/vane.tres"))
 # warning-ignore:return_value_discarded
 	Matter.add_matter("material", 1_000_000)

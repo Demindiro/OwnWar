@@ -277,7 +277,7 @@ func debug_draw():
 		match task[0]:
 			Task.GOTO_WAYPOINT:
 				color = Color.green
-				position = task[1] + Vector3.UP * Global.BLOCK_SCALE
+				position = task[1] + Vector3.UP * Block.BLOCK_SCALE
 			Task.BUILD_STRUCTURE:
 				color = Color.orange
 				position = task[1].translation

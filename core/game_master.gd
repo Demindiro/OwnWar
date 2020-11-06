@@ -103,7 +103,7 @@ func save_game(p_name: String) -> int:
 			"units": s_units,
 			"plugin_data": s_plugins,
 			"uid_counter": uid_counter,
-			"game_version": Util.version_vector_to_str(Global.VERSION),
+			"game_version": Util.version_vector_to_str(Game.VERSION),
 		}
 	emit_signal("save_game", data)
 	print("Serializing time %d msec" % (OS.get_ticks_msec() - start_time))
@@ -193,10 +193,6 @@ static func load_game(path: String) -> int:
 
 
 static func get_game_master(node: Node) -> Node:# -> GameMaster:
-#	while not node is GameMaster:
-	# REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-	while not node.has_method("get_game_master"): # Don't judge me
-		assert(node.get_parent() != null)
-		node = node.get_parent()
-	return node
-#	return node as GameMaster
+	var gm: Node = node.get_tree().current_scene
+	assert(gm.has_method("get_game_master"))
+	return gm# as GameMaster

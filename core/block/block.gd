@@ -5,6 +5,7 @@ extends Resource
 
 const ROTATION_TO_ORTHOGONAL_INDEX = [0, 16, 10, 22, 2, 18, 8, 20, 3, 19, 9, 21,
 		1, 17, 11, 23, 4, 5, 6, 7, 14, 13, 12, 15]
+const BLOCK_SCALE := 0.25
 const _NAME_TO_BLOCK = {}
 const _ID_TO_BLOCK = []
 export(String) var name: String

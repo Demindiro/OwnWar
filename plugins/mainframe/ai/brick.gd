@@ -96,7 +96,7 @@ func fire_at(mainframe, target, delta):
 			time_until_block_switch = 0
 			var local_position = body.coordinate_to_vector(random_block_coordinate)
 			mainframe.weapons_aim_point = body.to_global(local_position +
-					Vector3.ONE * Global.BLOCK_SCALE / 2)
+					Vector3.ONE * Block.BLOCK_SCALE / 2)
 		time_until_block_switch += delta
 	else:
 		mainframe.weapons_aim_point = target.translation
@@ -107,7 +107,7 @@ func fire_at(mainframe, target, delta):
 func debug_draw(mainframe):
 	.debug_draw(mainframe)
 	if len(targets) > 0:
-		Debug.draw_point(mainframe.weapons_aim_point, Color.red, Global.BLOCK_SCALE)
+		Debug.draw_point(mainframe.weapons_aim_point, Color.red, Block.BLOCK_SCALE)
 		Debug.begin(Mesh.PRIMITIVE_LINES)
 		Debug.set_color(Color.red)
 		Debug.add_vertex(mainframe.vehicle.translation)
