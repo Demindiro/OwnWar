@@ -241,12 +241,6 @@ margin_right = 265.0
 margin_bottom = 143.629
 text = "Restart"
 
-[node name="Load" type="Button" parent="GUI/Main/VBoxContainer"]
-margin_top = 153.0
-margin_right = 265.0
-margin_bottom = 194.629
-text = "Load Vehicle"
-
 [node name="Designer" type="Button" parent="GUI/Main/VBoxContainer"]
 margin_top = 204.0
 margin_right = 265.0
@@ -337,11 +331,9 @@ text = "Load"
 [connection signal="save_game" from="." to="HUD" method="_on_Designer_save_game"]
 [connection signal="ready" from="Map/FilthyHack" to="Map" method="_on_FilthyHack_ready"]
 [connection signal="item_selected" from="HUD/ChangeTeam" to="HUD/ChangeTeam" method="_on_ChangeTeam_item_selected"]
-[connection signal="load_vehicle" from="GUI" to="Map" method="_on_GUI_load_vehicle"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Continue" to="GUI/Main" method="_on_Continue_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Save" to="." method="save_game" binds= [ "_designer" ]]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Restart" to="GUI/Main" method="_on_Restart_pressed"]
-[connection signal="pressed" from="GUI/Main/VBoxContainer/Load" to="GUI/Main" method="_on_Load_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Designer" to="GUI/Main" method="_on_Designer_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Exit" to="GUI/Main" method="_on_Exit_pressed"]
 [connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Cancel" to="GUI" method="set_enabled" binds= [ false ]]

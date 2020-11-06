@@ -21,11 +21,6 @@ func _on_Restart_pressed():
 		Global.error("Failed to reload scene", err)
 
 
-func _on_Load_pressed():
-	$"../LoadVehicle".visible = true
-	visible = false
-
-
 func _on_Designer_pressed():
 	Global.goto_scene(Global.SCENE_DESIGNER)
 

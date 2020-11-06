@@ -10,10 +10,6 @@ func _physics_process(_delta):
 	game_master.get_unit_by_uid(241).put_matter(material_id, 1 << 62)
 
 
-func _on_GUI_load_vehicle(path):
-	game_master.get_unit_by_uid(241).spawn_vehicle(0, path)
-
-
 func _on_FilthyHack_ready():
 	# I need something that is called after _enter_tree but just right before
 	# _ready. This works I guess...
