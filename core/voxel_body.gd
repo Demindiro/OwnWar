@@ -88,7 +88,14 @@ func spawn_block(x: int, y: int, z: int, r: int, block: Block, color: Color) -> 
 		var material = MaterialCache.get_material(color)
 		for child in get_children_recursive(node) + [node]:
 			if child is GeometryInstance and not child is Sprite3D:
-				child.material_override = material
+				var set_override := true
+				if child is MeshInstance:
+					for i in range(child.get_surface_material_count()):
+						if child.get_surface_material(i) != null:
+							set_override = false
+							break
+				if set_override:
+					child.material_override = material
 	max_cost += block.cost
 	max_health += block.health
 	blocks[[x, y, z]] = [block.id, block.health, node, r, color]
