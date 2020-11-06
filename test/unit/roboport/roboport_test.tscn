@@ -28,6 +28,7 @@ uv1_offset = Vector3( 0.5, 0.5, 0 )
 
 [node name="RoboportTest" type="Node"]
 script = ExtResource( 6 )
+map_name = "_roboport_test"
 
 [node name="Map" type="Node" parent="."]
 script = ExtResource( 12 )
@@ -61,13 +62,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 20.6742, 0.5, -6.3113 )
 [node name="MunitionsFactory" parent="." instance=ExtResource( 9 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 28.0578, 1.01616, 29.3892 )
 
-[node name="HUD" parent="." instance=ExtResource( 5 )]
-
-[node name="Camera" type="Camera" parent="HUD"]
-pause_mode = 2
-transform = Transform( 0.866025, -0.25, 0.433013, 0, 0.866025, 0.5, -0.5, -0.433013, 0.75, 1.25, 2.4958, 0.75 )
-script = ExtResource( 2 )
-
 [node name="Drill" parent="." instance=ExtResource( 10 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -17, 1.5, 0 )
 
@@ -79,3 +73,11 @@ transform = Transform( -1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, -1.1513
 
 [node name="Roboport" parent="." instance=ExtResource( 3 )]
 transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, -4.25, 0.5, -3.75 )
+
+[node name="HUD" parent="." instance=ExtResource( 5 )]
+camera = NodePath("../Camera")
+
+[node name="Camera" type="Camera" parent="."]
+pause_mode = 2
+transform = Transform( 0.866025, -0.25, 0.433013, 0, 0.866025, 0.5, -0.5, -0.433013, 0.75, 1.25, 2.4958, 0.75 )
+script = ExtResource( 2 )
