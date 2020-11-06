@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://plugins/cannon/160mm/80mm_cannon.obj" type="ArrayMesh" id=1]
 [ext_resource path="res://plugins/cannon/cannon.gd" type="Script" id=2]
 [ext_resource path="res://plugins/cannon/160mm/collision_shape.tres" type="Shape" id=3]
 [ext_resource path="res://plugins/cannon/160mm/collision_shape_accuracy_fix.gd" type="Script" id=4]
+[ext_resource path="res://plugins/cannon/muzzle_flash.tscn" type="PackedScene" id=5]
 
 [node name="80mmCannon" type="RigidBody"]
 script = ExtResource( 2 )
@@ -31,3 +32,6 @@ angular_motor_x/enabled = true
 
 [node name="ProjectileSpawn" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.65624 )
+
+[node name="Flash" parent="." instance=ExtResource( 5 )]
+[connection signal="fired" from="." to="Flash" method="_on_fired"]

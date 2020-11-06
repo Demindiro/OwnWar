@@ -193,6 +193,8 @@ static func load_game(path: String) -> int:
 
 
 static func get_game_master(node: Node) -> Node:# -> GameMaster:
-	var gm: Node = node.get_tree().current_scene
-	assert(gm.has_method("get_game_master"))
-	return gm# as GameMaster
+	for child in node.get_tree().root.get_children():
+		if child.has_method("get_game_master"):
+			return child
+	assert(false)
+	return null

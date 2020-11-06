@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://plugins/cannon/35mm/35mm_cannon.obj" type="ArrayMesh" id=1]
 [ext_resource path="res://plugins/cannon/cannon.gd" type="Script" id=2]
 [ext_resource path="res://plugins/cannon/35mm/collision_shape.tres" type="Shape" id=3]
+[ext_resource path="res://plugins/cannon/muzzle_flash.tscn" type="PackedScene" id=4]
 
 [node name="35mmCannon" type="RigidBody"]
 script = ExtResource( 2 )
@@ -29,3 +30,8 @@ angular_motor_x/enabled = true
 
 [node name="ProjectileSpawn" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.0917 )
+
+[node name="Flash" parent="." instance=ExtResource( 4 )]
+transform = Transform( 0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 3.10785 )
+brightness = 0.1
+[connection signal="fired" from="." to="Flash" method="_on_fired"]
