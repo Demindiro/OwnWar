@@ -31,7 +31,7 @@ func _exit_tree():
 
 
 func _ready():
-	select_block(Global.blocks_by_id[1].name)
+	select_block(Block.get_block_by_id(1).name)
 	set_enabled(true) # Disable UIs
 	$Floor/Mirror.visible = mirror
 
@@ -113,7 +113,7 @@ func process_actions():
 		$Camera.enabled = true
 	elif Input.is_action_just_pressed("designer_configure"):
 		if ray_voxel_valid and ray.voxel in blocks:
-			var block = Global.blocks[blocks[ray.voxel][0]]
+			var block = Block.get_block(blocks[ray.voxel][0])
 			if len(block.meta) > 0:
 				var meta_data = meta[ray.voxel] if ray.voxel in meta else block.meta
 				set_enabled(false)
@@ -156,7 +156,7 @@ func remove_block(coordinate):
 
 
 func select_block(name):
-	selected_block = Global.get_block(name)
+	selected_block = Block.get_block(name)
 	for child in $Camera/MeshInstance.get_children():
 		child.queue_free()
 	for child in $Floor/Origin/Ghost.get_children():
@@ -260,7 +260,7 @@ func load_vehicle(path):
 			assert(len(key_components) == 3)
 			for i in range(3):
 				coordinate[i] = int(key_components[i])
-			var block = Global.get_block(data['blocks'][key][0])
+			var block = Block.get_block(data['blocks'][key][0])
 			var color_components = data["blocks"][key][2].split_floats(",")
 			var color = Color(color_components[0], color_components[1],
 					color_components[2], color_components[3])

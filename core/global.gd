@@ -63,11 +63,6 @@ const ERROR_TO_STRING = [
 	]
 const COLLISION_MASK_TERRAIN = 1 << (8 - 1) # Christ's sake, Godot pls
 
-
-export var blocks: Dictionary = {}
-
-var blocks_by_id: Array = [null]
-
 var _loader
 var _loader_callback: FuncRef
 var _loader_callback_arguments: Array
@@ -117,10 +112,6 @@ func recurse_directory(path: String, ends_with: String = "", _arr := []) -> Arra
 		file = directory.get_next()
 	directory.list_dir_end()
 	return _arr
-
-
-func get_block(name: String): #-> Block:
-	return blocks[name]
 
 
 func goto_scene(path, callback: FuncRef = null, arguments := []) -> void:

@@ -64,7 +64,7 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
 				_voxel_mesh.remove_block(_raycast.voxel)
 				# warning-ignore:return_value_discarded
 				blocks.erase(key)
-				cost -= Global.blocks_by_id[block[0]].cost
+				cost -= Block.get_block_by_id(block[0]).cost
 			else:
 				block[1] -= damage
 				damage = 0
@@ -133,7 +133,7 @@ func _correct_mass() -> void:
 	center_of_mass = Vector3.ZERO
 	for coordinate in blocks:
 		var block = blocks[coordinate]
-		var block_mass = Global.blocks_by_id[block[0]].mass
+		var block_mass = Block.get_block_by_id(block[0]).mass
 		center_of_mass += Vector3(coordinate[0], coordinate[1], coordinate[2]) * block_mass
 		total_mass += block_mass
 	assert(total_mass > 0)

@@ -14,7 +14,7 @@ func init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
 	if connected:
 		return
 	var connecting_coordinate = get_connecting_coordinate(coordinate)
-	var id = Global.blocks["turret_connector"].id
+	var id = Block.get_block("turret_connector").id
 	for body in vehicle.voxel_bodies:
 		if body != voxel_body:
 			var other_block = body.blocks.get(connecting_coordinate)

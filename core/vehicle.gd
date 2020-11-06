@@ -33,7 +33,7 @@ func get_info():
 		for coordinate in body.blocks:
 			var block = body.blocks[coordinate]
 			remaining_health += block[1]
-			remaining_cost += Global.blocks_by_id[block[0]].cost
+			remaining_cost += Block.get_block_by_id(block[0]).cost
 	info["Health"] = "%d / %d" % [remaining_health, max_health]
 	info["Cost"] = "%d / %d" % [remaining_cost, max_cost]
 	for info_function in _info:
@@ -113,7 +113,7 @@ func load_from_file(path: String) -> int:
 			voxel_bodies[layer] = VoxelBody.new()
 			add_child(voxel_bodies[layer])
 			voxel_bodies[layer].connect("hit", self, "_voxel_body_hit")
-		voxel_bodies[layer].spawn_block(x, y, z, rotation, Global.blocks[name], color)
+		voxel_bodies[layer].spawn_block(x, y, z, rotation, Block.get_block(name), color)
 
 	var meta = {}
 	for key in data["meta"]:
@@ -206,7 +206,7 @@ func add_info(object, p_name):
 
 
 func get_blocks(block_name):
-	var id = Global.blocks[block_name].id
+	var id = Block.get_block(block_name).id
 	return get_blocks_by_id(id)
 
 
@@ -238,7 +238,7 @@ func serialize_json() -> Dictionary:
 		for crd in voxel_bodies[i].blocks:
 			var b: Array = voxel_bodies[i].blocks[crd]
 			var d := {
-					"name": Global.blocks_by_id[b[0]].name,
+					"name": Block.get_block_by_id(b[0]).name,
 					"health": b[1],
 					"rotation": b[3],
 					"color": var2str(b[4]),
@@ -283,7 +283,7 @@ func deserialize_json(data: Dictionary) -> void:
 			var y := int(crd[1])
 			var z := int(crd[2])
 			vb.spawn_block(x, y, z, b_data["rotation"],
-					Global.blocks[b_data["name"]],
+					Block.get_block(b_data["name"]),
 					str2var(b_data["color"]))
 		add_child(vb)
 		voxel_bodies.append(vb)
