@@ -66,7 +66,7 @@ var _loader_callback: FuncRef
 var _loader_callback_arguments: Array
 
 
-func _enter_tree():
+func _init():
 	print("Game version %s" % [Game.VERSION])
 	Block.add_block(preload("block/debug/vane.tres"))
 # warning-ignore:return_value_discarded
