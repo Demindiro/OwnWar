@@ -11,6 +11,7 @@ script = ExtResource( 2 )
 projectile_velocity = 445.0
 inaccuracy = 0.001
 gauge = 160
+recoil_impulse = 3580.0
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
 transform = Transform( 1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, 0, 0, 0 )
