@@ -149,3 +149,16 @@ static func free_children(node: Node, queue := false) -> void:
 	else:
 		for child in node.get_children():
 			child.free()
+
+
+# A non-retarded alternative to the default Rigidbody.add_force. This function
+# only takes global vectors instead of the Satanic mix between a local position
+# and a global orientation. The parameter order is also consistent with
+# add_impulse.
+static func add_force(body: RigidBody, position: Vector3, force: Vector3) -> void:
+	body.add_force(force, position - body.global_transform.origin)
+
+
+# Ditto
+static func add_impulse(body: RigidBody, position: Vector3, impulse: Vector3) -> void:
+	body.apply_impulse(position - body.global_transform.origin, impulse)
