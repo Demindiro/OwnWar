@@ -1,11 +1,13 @@
 extends "../weapon_manager/weapon.gd"
 
 
+signal fired()
 const GRAVITY = 9.8
 export var reload_time := 5.0
 export var projectile_velocity := 1000.0
 export var inaccuracy := 0.01
 export var gauge := -1
+export var recoil_impulse := NAN
 var _voxel_body: VoxelBody
 var _desired_direction := Vector3.FORWARD
 var _time_of_last_shot := 0.0
@@ -92,8 +94,17 @@ func fire():
 				node.munition_id = id
 				node.global_transform = $ProjectileSpawn.global_transform
 				node.linear_velocity = direction * projectile_velocity
+				var s = self
+				assert(s is RigidBody)
+				assert(not is_nan(recoil_impulse))
+				Util.add_impulse(
+						s,
+						$ProjectileSpawn.global_transform.origin,
+						-$ProjectileSpawn.global_transform.basis.z * recoil_impulse
+					)
 				get_tree().current_scene.add_child(node)
 				_time_of_last_shot = current_time
+				emit_signal("fired")
 				break
 
 

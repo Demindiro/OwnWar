@@ -12,11 +12,6 @@
 [ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=10]
 [ext_resource path="res://core/camera/free_camera.gd" type="Script" id=11]
 
-
-
-
-
-
 [sub_resource type="PlaneShape" id=1]
 
 [sub_resource type="PlaneMesh" id=2]
@@ -24,6 +19,7 @@ size = Vector2( 20, 20 )
 
 [node name="GameMaster" type="Node"]
 script = ExtResource( 2 )
+map_name = "_matter_munition_test"
 
 [node name="Node" type="Node" parent="."]
 script = ExtResource( 3 )

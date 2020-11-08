@@ -35,3 +35,18 @@ assets:
     author: yughues
     source: https://opengameart.org/content/grass-pack-01
     license: cc0
+  - asset: addons/weapons/muzzle_flashes
+    source: http://www.jeanmoreno.com/unity/warfx/
+    license: null
+  - asset: addons/weapons/firing_sounds/91572__steveygos93__layeredgunshot.wav
+    author: steveygos93
+    source: https://freesound.org/people/steveygos93/sounds/91572/
+    license: cc-by 3.0
+  - asset: addons/weapons/firing_sounds/187767__qubodup__cannon-shot.flac
+    author: qubodup
+    source: https://freesound.org/people/qubodup/sounds/187767/
+    license: cc0 1.0
+  - asset: addons/weapons/firing_sounds/448002__kneeling__cannon.ogg
+    author: Kneeling
+    source: https://freesound.org/people/Kneeling/sounds/448002/
+    license: cc0 1.0

@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/187767__qubodup__cannon-shot_1.ogg-ef0b5b57fdd3a47ad659894721003979.oggstr"
+
+[deps]
+
+source_file="res://addons/weapons/firing_sounds/187767__qubodup__cannon-shot_1.ogg"
+dest_files=[ "res://.import/187767__qubodup__cannon-shot_1.ogg-ef0b5b57fdd3a47ad659894721003979.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0
