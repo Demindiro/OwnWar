@@ -20,12 +20,14 @@ transform = Transform( 1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, 0, 0.0159
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1382, 0 )
 enabled = true
 cast_to = Vector3( 0, -0.1, 0 )
+collide_with_areas = true
 
 [node name="LSensor" type="RayCast" parent="."]
 transform = Transform( 0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, 0.3125, 0, -0.28 )
 enabled = true
 cast_to = Vector3( 0, 0, 1 )
 collision_mask = 513
+collide_with_areas = true
 __meta__ = {
 "_editor_description_": ""
 }
@@ -35,6 +37,7 @@ transform = Transform( 0.939693, 0, 0.34202, 0, 1, 0, -0.34202, 0, 0.939693, 0, 
 enabled = true
 cast_to = Vector3( 0, 0, 1 )
 collision_mask = 513
+collide_with_areas = true
 __meta__ = {
 "_editor_description_": ""
 }
@@ -44,6 +47,7 @@ transform = Transform( 0.939693, 0, -0.34202, 0, 1, 0, 0.34202, 0, 0.939693, 0, 
 enabled = true
 cast_to = Vector3( 0, 0, 1 )
 collision_mask = 513
+collide_with_areas = true
 __meta__ = {
 "_editor_description_": ""
 }
@@ -53,3 +57,4 @@ transform = Transform( 0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -
 enabled = true
 cast_to = Vector3( 0, 0, 1 )
 collision_mask = 513
+collide_with_areas = true

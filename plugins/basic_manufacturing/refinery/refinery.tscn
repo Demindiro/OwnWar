@@ -46,10 +46,10 @@ shape = ExtResource( 5 )
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.00773031, 0.0838771 )
 shape = ExtResource( 6 )
 
-[node name="StaticBody" type="StaticBody" parent="."]
+[node name="Area" type="Area" parent="."]
 collision_layer = 512
 collision_mask = 512
 
-[node name="CollisionShape" type="CollisionShape" parent="StaticBody"]
+[node name="CollisionShape" type="CollisionShape" parent="Area"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.223668, -0.495572 )
 shape = ExtResource( 7 )
