@@ -10,7 +10,6 @@
 [ext_resource path="res://plugins/basic_manufacturing/indicator_matter_material.tres" type="Material" id=8]
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/drones_margin_shape.tres" type="Shape" id=9]
 
-
 [node name="SpawnPlatform" type="StaticBody"]
 script = ExtResource( 1 )
 max_health = 2000
@@ -48,7 +47,7 @@ material/0 = null
 [node name="InteractionPort" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8 )
 
-[node name="AntiDroneBox" type="StaticBody" parent="."]
+[node name="AntiDroneBox" type="Area" parent="."]
 collision_layer = 512
 collision_mask = 512
 
