@@ -37,9 +37,13 @@ static func get_munition(id: int) -> Resource:
 
 static func add_munition(m) -> int:
 	# Ammo containers generally pack munition in a square pattern
-	# Pretend that length = gauge * 3
-	var volume: int = m.gauge * m.gauge * (m.gauge * 3)
+	var volume: int = get_volume_by_gauge(m.gauge)
 	var id := Matter.add_matter(m.human_name, volume)
 	_ID_TO_MUNITION[id] = m
 	m.id = id
 	return id
+
+
+static func get_volume_by_gauge(gauge: int) -> int:
+	# Pretend that length = gauge * 3
+	return gauge * gauge * (gauge * 3)

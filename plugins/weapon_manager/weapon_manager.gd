@@ -1,7 +1,7 @@
 extends Reference
 
 
-var _max_munitions_by_gauge := {}
+var _max_volume_by_gauge := {}
 var _munitions_count := {}
 var _gauge_to_munitions := {}
 var _weapons := []
@@ -47,13 +47,17 @@ func get_munition_count(gauge := 0) -> int:
 
 func get_munition_space(gauge := 0) -> int:
 	assert(gauge >= 0)
-	var count: int = _max_munitions_by_gauge.get(0, 0)
+	var volume: int = _max_volume_by_gauge.get(0, 0)
+	if gauge != 0:
+		volume += _max_volume_by_gauge.get(gauge, 0)
+
+	var count: int = volume / Munition.get_volume_by_gauge(gauge)
 	for id in _gauge_to_munitions.get(0, PoolIntArray()):
 		count -= _munitions_count[id]
 	if gauge != 0:
-		count += _max_munitions_by_gauge.get(gauge, 0)
 		for id in _gauge_to_munitions.get(gauge, PoolIntArray()):
 			count -= _munitions_count[id]
+
 	return count
 
 
@@ -119,15 +123,15 @@ func fire_weapons(_max_error := 1e10) -> void:
 
 func add_ammo_rack(ammo_rack: Node) -> void:
 	var gauge = ammo_rack.gauge
-	if not gauge in _max_munitions_by_gauge:
-		_max_munitions_by_gauge[gauge] = 0
+	if not gauge in _max_volume_by_gauge:
+		_max_volume_by_gauge[gauge] = 0
 		_gauge_to_munitions[gauge] = []
 		if gauge != 0:
 			for id in Munition.get_munition_ids():
 				if Munition.get_munition(id).gauge == gauge:
 					_vehicle.add_matter_put(id)
 					_vehicle.add_matter_take(id)
-	_max_munitions_by_gauge[gauge] += ammo_rack.max_munitions
+	_max_volume_by_gauge[gauge] += ammo_rack.max_volume
 	var e := ammo_rack.connect("tree_exited", self, "_ammo_rack_destroyed", [ammo_rack])
 	assert(e == OK)
 
@@ -156,7 +160,7 @@ func deserialize_json(data: Dictionary) -> void:
 
 func _ammo_rack_destroyed(ammo_rack: Node) -> void:
 	var gauge = ammo_rack.gauge
-	_max_munitions_by_gauge[gauge] -= ammo_rack.max_munitions
+	_max_volume_by_gauge[gauge] -= ammo_rack.max_volume
 
 
 func _weapon_destroyed(weapon: Node) -> void:
@@ -164,5 +168,11 @@ func _weapon_destroyed(weapon: Node) -> void:
 
 
 func get_info(info: Dictionary) -> void:
+	var max_volume: int = Util.sum(_max_volume_by_gauge.values())
+	var total_volume := 0
+	for id in _munitions_count:
+		total_volume += _munitions_count[id] * Matter.get_matter_volume(id)
+	var fraction = 100 * total_volume / max_volume
+	info["Ammo capacity"] = "%d%%" % fraction
 	for id in _munitions_count:
 		info[Munition.get_munition(id).human_name] = str(_munitions_count[id])
