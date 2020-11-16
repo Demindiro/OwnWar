@@ -165,8 +165,6 @@ static func _load_game(game_master: GameMaster, data: Dictionary) -> void:
 		game_master.units.push_front(u_list)
 
 	for plugin_name in data["plugin_data"]:
-		if plugin_name == "hello":
-			continue
 		var plugin = Plugin.get_plugin(plugin_name)
 		plugin.load_game(game_master, data["plugin_data"][plugin_name])
 
