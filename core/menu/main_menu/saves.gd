@@ -18,7 +18,8 @@ func _refresh_save_list() -> void:
 		for path in saves:
 			var button := Button.new()
 			button.text = path.get_file().get_basename()
-			button.connect("pressed", self, "_load_game", [path])
+			var e := button.connect("pressed", self, "_load_game", [path])
+			assert(e == OK)
 			$VBoxContainer.add_child(button)
 		_saves_hash = h
 # warning-ignore:return_value_discarded
@@ -26,4 +27,6 @@ func _refresh_save_list() -> void:
 
 
 func _load_game(path: String) -> void:
-	GameMaster.load_game(path)
+	var e := GameMaster.load_game(path)
+	if e != OK:
+		Global.error("Failed to load game %d", e)

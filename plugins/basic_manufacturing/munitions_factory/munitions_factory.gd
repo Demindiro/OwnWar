@@ -61,6 +61,7 @@ func get_info():
 		info["Producing"] = str(_current_munition_type)
 	else:
 		info["Producing"] = "None"
+	# warning-ignore:integer_division
 	info["Volume"] = "%d / %d" % [_munition_volume / 1_000_000, _MAX_MUNITION_VOLUME / 1_000_000]
 	for m in _munition:
 		info[Matter.get_matter_name(m)] = _munition[m]

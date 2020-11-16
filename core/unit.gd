@@ -35,7 +35,9 @@ export var max_health := 10
 export var team := 0
 # warning-ignore:unused_class_variable
 export var unit_name := "unit"
+# warning-ignore:unused_class_variable
 export var type_flags := TypeFlags.DEFAULT
+# warning-ignore:unused_class_variable
 var uid := -1
 onready var health := max_health
 onready var game_master = GameMaster.get_game_master(self)

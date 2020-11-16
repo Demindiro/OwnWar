@@ -17,9 +17,9 @@ static func post_init(_plugin_path: String):
 	pass
 
 
-static func save_game(game_master: GameMaster) -> Dictionary:
+static func save_game(_game_master: GameMaster) -> Dictionary:
 	return {}
 
 
-static func load_game(game_master: GameMaster, data: Dictionary) -> void:
+static func load_game(_game_master: GameMaster, _data: Dictionary) -> void:
 	pass

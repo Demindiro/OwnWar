@@ -10,7 +10,8 @@ func _ready():
 		button.text = "%s (%d.%d.%d)" % [plugin.PLUGIN_ID,
 				plugin.PLUGIN_VERSION.x, plugin.PLUGIN_VERSION.y, plugin.PLUGIN_VERSION.z
 			]
-		button.connect("pressed", self, "_show_info", [plugin.PLUGIN_ID])
+		var e := button.connect("pressed", self, "_show_info", [plugin.PLUGIN_ID])
+		assert(e == OK)
 		match Plugin.get_disable_reason(plugin.PLUGIN_ID):
 			Plugin.DisableReason.NONE:
 				pass
@@ -32,7 +33,8 @@ func _show_info(id: String) -> void:
 			PoolStringArray(plugin.PLUGIN_DEPENDENCIES.keys()).join(", ")
 	$Info/VBoxContainer/Enabled.disconnect("toggled", self, "_enable_plugin")
 	$Info/VBoxContainer/Enabled.pressed = Plugin.is_plugin_enabled(id)
-	$Info/VBoxContainer/Enabled.connect("toggled", self, "_enable_plugin", [id])
+	var e := $Info/VBoxContainer/Enabled.connect("toggled", self, "_enable_plugin", [id])
+	assert(e == OK)
 
 	var disable_reason = Plugin.get_disable_reason(id)
 	match disable_reason:
@@ -53,4 +55,6 @@ func _show_info(id: String) -> void:
 
 
 func _enable_plugin(enable: bool, id: String):
-	Plugin.enable_plugin(id, enable)
+	var success := Plugin.enable_plugin(id, enable)
+	if not success:
+		Global.error("Failed to toggle plugin")

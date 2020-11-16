@@ -155,7 +155,8 @@ func deserialize_json(data: Dictionary) -> void:
 	_munitions_count = {}
 	_gauge_to_munitions = {}
 	for name in data["munition"]:
-		put_munition(Matter.get_matter_id(name), data["munition"][name])
+		var m = put_munition(Matter.get_matter_id(name), data["munition"][name])
+		assert(m == 0)
 
 
 func _ammo_rack_destroyed(ammo_rack: Node) -> void:
@@ -172,6 +173,7 @@ func get_info(info: Dictionary) -> void:
 	var total_volume := 0
 	for id in _munitions_count:
 		total_volume += _munitions_count[id] * Matter.get_matter_volume(id)
+	# warning-ignore:integer_division
 	var fraction = 100 * total_volume / max_volume
 	info["Ammo capacity"] = "%d%%" % fraction
 	for id in _munitions_count:
