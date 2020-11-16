@@ -3,7 +3,7 @@ extends Node
 const LOADER_MAX_TIME := 1000.0 / 60.0
 # Because Godot does not allow cyclic references and is apparently not capable
 # of updating file paths automatically, this shall be the solution
-const SCENE_MENU_MAIN = "res://core/menu/main.tscn"
+const SCENE_MENU_MAIN = "res://core/menu/main_menu/main.tscn"
 const SCENE_DESIGNER = "res://core/designer/designer.tscn"
 const SCENE_LOADING = "res://core/menu/loading_screen.tscn"
 const DIRECTORY_USER_VEHICLES = "user://vehicles"
