@@ -32,6 +32,11 @@ func _ready():
 	game_master.connect("unit_added", self, "_unit_added")
 
 
+func _exit_tree():
+	# The same as _spawn_timer.free() but without complaints
+	_spawn_timer = null
+
+
 func get_actions() -> Array:
 	var actions := .get_actions()
 	actions += [
