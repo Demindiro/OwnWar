@@ -88,14 +88,14 @@ static func add_block(block: Block):
 	_ID_TO_BLOCK.append(block)
 
 
-static func get_block(name: String):# -> Block:
-	assert(name in _NAME_TO_BLOCK)
-	return _NAME_TO_BLOCK[name]
+static func get_block(p_name: String):# -> Block:
+	assert(p_name in _NAME_TO_BLOCK)
+	return _NAME_TO_BLOCK[p_name]
 
 
-static func get_block_by_id(id: int):# -> Block:
-	assert(id < len(_ID_TO_BLOCK))
-	return _ID_TO_BLOCK[id]
+static func get_block_by_id(p_id: int):# -> Block:
+	assert(p_id < len(_ID_TO_BLOCK))
+	return _ID_TO_BLOCK[p_id]
 
 
 static func get_all_blocks() -> Array:

@@ -11,7 +11,6 @@ static func pre_init(_plugin_path: String):
 
 static func init(_plugin_path: String):
 	var Munition = Plugin.get_plugin("weapon_manager").Munition
-	var material_id := Matter.get_matter_id("material")
 	Munition.add_munition(preload("160mm/shell_160mm.tres"))
 	Munition.add_munition(preload("35mm/shell_35mm.tres"))
 
@@ -20,9 +19,9 @@ static func post_init(_plugin_path: String):
 	pass
 
 
-static func save_game(game_master: GameMaster) -> Dictionary:
+static func save_game(_game_master: GameMaster) -> Dictionary:
 	return {}
 
 
-static func load_game(game_master: GameMaster, data: Dictionary) -> void:
+static func load_game(_game_master: GameMaster, _data: Dictionary) -> void:
 	pass

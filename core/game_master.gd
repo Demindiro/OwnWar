@@ -112,21 +112,24 @@ func save_game(p_name: String) -> int:
 	var json := to_json(data)
 	print("to_json time %d msec" % (OS.get_ticks_msec() - start_time))
 
-	Util.create_dirs("user://game_saves")
-	var e := OK if Util.write_file_text("user://game_saves".plus_file(p_name) + \
-			".json", json, true) else FAILED
+	var e := Util.create_dirs("user://game_saves")
 	if e == OK:
-		print("Saved game")
+		e = OK if Util.write_file_text("user://game_saves".plus_file(p_name) + \
+				".json", json, true) else FAILED
+		if e == OK:
+			print("Saved game")
+		else:
+			print("Error saving game %d" % e)
 	else:
-		print("Error saving game %d" % e)
+		print("Error creating directory %d" %e)
 	return e
 
 
 static func _load_game(game_master: GameMaster, data: Dictionary) -> void:
 	var start_time := OS.get_ticks_msec()
 
-	for units in game_master.units:
-		for u in units:
+	for m_units in game_master.units:
+		for u in m_units:
 			u.free()
 	game_master.teams = []
 	game_master.units = []

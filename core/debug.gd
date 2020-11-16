@@ -12,8 +12,10 @@ func _init():
 
 
 func _enter_tree():
-	get_tree().connect("node_added", self, "_node_added")
-	get_tree().connect("node_removed", self, "_node_removed")
+	var e := get_tree().connect("node_added", self, "_node_added")
+	assert(e == OK)
+	e = get_tree().connect("node_removed", self, "_node_removed")
+	assert(e == OK)
 
 
 func _process(_delta):
@@ -73,4 +75,5 @@ func _node_added(node: Node) -> void:
 func _node_removed(node: Node) -> void:
 	if node.has_method("debug_draw"):
 		assert(node in _funcrefs)
-		_funcrefs.erase(node)
+		var existed := _funcrefs.erase(node)
+		assert(existed)
