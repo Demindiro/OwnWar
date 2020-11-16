@@ -19,7 +19,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/block/block.gd"
 }, {
-"base": "Reference",
+"base": "Resource",
 "class": "Compatibility",
 "language": "GDScript",
 "path": "res://core/compatibility.gd"
@@ -74,7 +74,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/plugin.gd"
 }, {
-"base": "Reference",
+"base": "Spatial",
 "class": "Unit",
 "language": "GDScript",
 "path": "res://core/unit.gd"
@@ -94,7 +94,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/voxel_body.gd"
 }, {
-"base": "Reference",
+"base": "ArrayMesh",
 "class": "VoxelMesh",
 "language": "GDScript",
 "path": "res://core/voxel_mesh.gd"
