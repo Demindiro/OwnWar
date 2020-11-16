@@ -161,13 +161,13 @@ func _load_scene():
 				var instance = scene.instance()
 				tree.root.add_child(instance)
 				tree.root.move_child(instance, 0)
+				if _loader_callback != null:
+					_loader_callback_arguments.push_front(instance)
+					_loader_callback.call_funcv(_loader_callback_arguments)
 				# Allow any heavy scene stuff to load first (Heightmap terrain)
 				yield(get_tree(), "idle_frame")
 				tree.current_scene.queue_free()
 				tree.current_scene = instance
-				if _loader_callback != null:
-					_loader_callback_arguments.push_front(tree.current_scene)
-					_loader_callback.call_funcv(_loader_callback_arguments)
 			else:
 				error("Loaded resource is not a scene! ('%s')" % str(scene))
 			return
