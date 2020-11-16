@@ -1,8 +1,9 @@
 extends Node
 
 
+# Old capacity was tuned for 4 x 160mm shells
 # warning-ignore:unused_class_variable
-export var max_munitions := 4
+export var max_volume := (3 * 160 * 160 * 160) * 4
 var gauge := 0
 
 

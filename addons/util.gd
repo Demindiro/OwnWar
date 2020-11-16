@@ -162,3 +162,10 @@ static func add_force(body: RigidBody, position: Vector3, force: Vector3) -> voi
 # Ditto
 static func add_impulse(body: RigidBody, position: Vector3, impulse: Vector3) -> void:
 	body.apply_impulse(position - body.global_transform.origin, impulse)
+
+
+static func sum(array):
+	var sum = null
+	for e in array:
+		sum = e if sum == null else sum + e
+	return sum
