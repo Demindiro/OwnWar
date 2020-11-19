@@ -1,0 +1,43 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
+[ext_resource path="res://plugins/campaign_abcd/map_data/data.hterrain" type="Resource" id=2]
+[ext_resource path="res://addons/tiles/sand/IMG_8938 Seamless Normal.jpg" type="Texture" id=3]
+[ext_resource path="res://addons/tiles/sand/IMG_8938 Seamless.jpg" type="Texture" id=4]
+[ext_resource path="res://core/camera/free_camera.gd" type="Script" id=5]
+[ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform.tscn" type="PackedScene" id=6]
+[ext_resource path="res://plugins/campaign_abcd/map.gd" type="Script" id=7]
+
+[node name="Map" type="Node"]
+script = ExtResource( 7 )
+
+[node name="Player" type="Node" parent="."]
+
+[node name="HTerrain" type="Spatial" parent="."]
+script = ExtResource( 1 )
+_terrain_data = ExtResource( 2 )
+chunk_size = 32
+shader_type = "Classic4Lite"
+custom_shader = null
+shader_params/u_ground_uv_scale = 20
+shader_params/u_depth_blending = true
+shader_params/u_triplanar = false
+shader_params/u_tile_reduction = Plane( 0, 0, 0, 0 )
+ground/albedo_bump_0 = ExtResource( 4 )
+ground/normal_roughness_0 = ExtResource( 3 )
+ground/albedo_bump_1 = null
+ground/normal_roughness_1 = null
+ground/albedo_bump_2 = null
+ground/normal_roughness_2 = null
+ground/albedo_bump_3 = null
+ground/normal_roughness_3 = null
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 9, 0 )
+
+[node name="FreeCamera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 10, 37 )
+script = ExtResource( 5 )
+
+[node name="SpawnPlatform" parent="." instance=ExtResource( 6 )]
+transform = Transform( -0.866025, 0, -0.5, 0, 1, 0, 0.5, 0, -0.866025, 280.99, 1.00002, 257.58 )
