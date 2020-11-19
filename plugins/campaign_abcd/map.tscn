@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
 [ext_resource path="res://plugins/campaign_abcd/map_data/data.hterrain" type="Resource" id=2]
@@ -7,6 +7,7 @@
 [ext_resource path="res://core/camera/free_camera.gd" type="Script" id=5]
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform.tscn" type="PackedScene" id=6]
 [ext_resource path="res://plugins/campaign_abcd/map.gd" type="Script" id=7]
+[ext_resource path="res://plugins/campaign_abcd/environment.tres" type="Environment" id=8]
 
 [node name="Map" type="Node"]
 script = ExtResource( 7 )
@@ -41,3 +42,6 @@ script = ExtResource( 5 )
 
 [node name="SpawnPlatform" parent="." instance=ExtResource( 6 )]
 transform = Transform( -0.866025, 0, -0.5, 0, 1, 0, 0.5, 0, -0.866025, 280.99, 1.00002, 257.58 )
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource( 8 )
