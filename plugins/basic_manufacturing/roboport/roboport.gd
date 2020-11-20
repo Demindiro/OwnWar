@@ -1,11 +1,12 @@
+tool
 extends Unit
 
 
 const Drone = preload("roboport_drone.gd")
 export var drone_scene: PackedScene
 export var drone_limit := 10
+export var _radius2 := 100.0 * 100.0
 var _drones := []
-var _radius2 := 100.0 * 100.0
 var _immediate_geometry: ImmediateGeometry
 var _units := []
 var _providers := []
@@ -23,18 +24,24 @@ func _init():
 
 
 func _ready():
-	var types_count := Matter.get_matter_types_count()
-	_providers.resize(types_count)
-	_takers.resize(types_count)
-	_needs_provider.resize(types_count)
-	_needs_taker.resize(types_count)
-	_set_radius2(_radius2)
-	game_master.connect("unit_added", self, "_unit_added")
+	if not Engine.editor_hint:
+		var types_count := Matter.get_matter_types_count()
+		_providers.resize(types_count)
+		_takers.resize(types_count)
+		_needs_provider.resize(types_count)
+		_needs_taker.resize(types_count)
+		_set_radius2(_radius2)
+		game_master.connect("unit_added", self, "_unit_added")
 
 
 func _exit_tree():
 	# The same as _spawn_timer.free() but without complaints
 	_spawn_timer = null
+
+
+func _process(_delta: float) -> void:
+	if Engine.editor_hint:
+		show_feedback()
 
 
 func get_actions() -> Array:
@@ -171,7 +178,7 @@ func _draw_circle(radius: float) -> void:
 		# NOTE: raycast tests against large bodies are very inaccurate because
 		# reasons (https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=3524)
 		var result := space_state.intersect_ray(v + Vector3.UP * 1000,
-				v + Vector3.DOWN * 1000, [], Global.COLLISION_MASK_TERRAIN)
+				v + Vector3.DOWN * 1000, [], Constants.COLLISION_MASK_TERRAIN)
 		if len(result) > 0:
 			v = result.position + Vector3.UP * 0.025
 		_immediate_geometry.add_vertex(to_local(v))

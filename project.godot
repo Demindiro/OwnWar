@@ -24,6 +24,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/compatibility.gd"
 }, {
+"base": "Object",
+"class": "Constants",
+"language": "GDScript",
+"path": "res://core/constants.gd"
+}, {
 "base": "Camera",
 "class": "FreeCamera",
 "language": "GDScript",
@@ -108,6 +113,7 @@ _global_script_class_icons={
 "AI": "",
 "Block": "",
 "Compatibility": "",
+"Constants": "",
 "FreeCamera": "",
 "Game": "",
 "GameMaster": "",
