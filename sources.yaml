@@ -50,3 +50,7 @@ assets:
     author: Kneeling
     source: https://freesound.org/people/Kneeling/sounds/448002/
     license: cc0 1.0
+  - asset: addons/tiles/3D_pattern_57
+    author: yughues
+    source: https://opengameart.org/content/free-tiling-textures-pack-57
+    license: cc0
