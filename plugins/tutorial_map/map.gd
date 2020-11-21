@@ -27,9 +27,3 @@ func _physics_process(_delta):
 		var drone = drone_scene.instance()
 		drone.transform = _drone_spawn_transform
 		game_master.add_unit(0, drone)
-
-
-func _set_terrain_collision_bit():
-	var rid = $HTerrain._collider._body_rid
-	PhysicsServer.body_set_collision_layer(rid, 1 | Global.COLLISION_MASK_TERRAIN)
-	PhysicsServer.body_set_collision_mask(rid, 1 | Global.COLLISION_MASK_TERRAIN)
