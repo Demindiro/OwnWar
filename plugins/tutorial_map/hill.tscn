@@ -62,13 +62,15 @@ drone_scene = ExtResource( 11 )
 
 [node name="HTerrain" type="Spatial" parent="Map"]
 script = ExtResource( 6 )
-collision_enabled = true
 ambient_wind = 0.0
 lod_scale = 2.0
 custom_globalmap_shader = null
 map_scale = Vector3( 1, 1, 1 )
 _terrain_data = ExtResource( 15 )
 chunk_size = 32
+collision_enabled = true
+collision_layer = 129
+collision_mask = 129
 shader_type = "Classic4Lite"
 custom_shader = null
 shader_params/u_ground_uv_scale = 20
