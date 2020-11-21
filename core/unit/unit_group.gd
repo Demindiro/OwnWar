@@ -24,16 +24,16 @@ func _process(_delta: float) -> void:
 		move_child(node, get_child_count() - 1)
 		# Check if the node is connected
 		var connected := false
-		for sig in node.get_signal_connection_list("ready"):
+		for sig in node.get_signal_connection_list("tree_entered"):
 			if sig["target"] == self:
 				if not sig["flags"] & CONNECT_PERSIST:
-					node.disconnect("ready", self, "add_units")
+					node.disconnect("tree_entered", self, "add_units")
 				else:
 					connected = true
 				break
 		if not connected:
 			print("[UnitGroup] Connecting helper node")
-			node.connect("ready", self, "add_units", [], CONNECT_PERSIST)
+			node.connect("tree_entered", self, "add_units", [], CONNECT_PERSIST)
 			#NodeDock.update_lists()
 	else:
 		set_process(false)
