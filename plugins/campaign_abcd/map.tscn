@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=2]
+[gd_scene load_steps=27 format=2]
 
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
 [ext_resource path="res://plugins/campaign_abcd/map_data/data.hterrain" type="Resource" id=2]
@@ -25,6 +25,7 @@
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform_ghost.tscn" type="PackedScene" id=23]
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery_ghost.tscn" type="PackedScene" id=24]
 [ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=25]
+[ext_resource path="res://core/vehicle.gd" type="Script" id=26]
 
 [node name="Map" type="Node"]
 script = ExtResource( 7 )
@@ -136,15 +137,21 @@ transform = Transform( -0.00648454, -0.0756745, -0.997112, 0.0851298, 0.993471, 
 type_flags = 1
 
 [node name="Refinery" parent="Arend/X" instance=ExtResource( 19 )]
-transform = Transform( -0.999973, 0.0073846, -8.14907e-05, 0.00738505, 0.999912, -0.0110461, -8.73988e-08, -0.0110464, -0.999939, 2502.5, 1.10666, 641 )
+transform = Transform( -0.999973, 0.0073846, -8.16656e-05, 0.00738505, 0.999912, -0.0110461, 8.74134e-08, -0.0110464, -0.999939, 2502.5, 1.10666, 641 )
 
 [node name="MunitionsFactory" parent="Arend/X" instance=ExtResource( 21 )]
-transform = Transform( -0.99995, -0.0100093, 4.97451e-06, -0.0100093, 0.99995, -0.000488231, -8.74224e-08, -0.000488257, -1, 2521, 0.49173, 607 )
+transform = Transform( -0.99995, -0.0100093, 4.79967e-06, -0.0100093, 0.99995, -0.000488233, 8.74234e-08, -0.000488257, -1, 2521, 0.49173, 607 )
+
+[node name="Vehicle" type="Spatial" parent="Arend/X"]
+transform = Transform( 0.284683, 0, -0.958622, 0, 1, 0, 0.958622, 0, 0.284683, 2483.16, 1.79072, 625.738 )
+script = ExtResource( 26 )
+max_health = 0
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Z" type="Node" parent="Arend"]
 
 [node name="SpawnPlatform" parent="Arend/Z" instance=ExtResource( 6 )]
-transform = Transform( -0.999931, -0.0117174, -0.000114332, -0.0117179, 0.999884, 0.00976382, -8.74425e-08, 0.00976449, -0.999952, 3364.5, 3.5459, 1407.5 )
+transform = Transform( -0.999931, -0.0117174, -0.000114507, -0.0117179, 0.999884, 0.00976382, 8.74134e-08, 0.00976449, -0.999952, 3364.5, 3.5459, 1407.5 )
 
 [node name="StoragePod" parent="Arend/Z" instance=ExtResource( 11 )]
 transform = Transform( -0.00244503, -0.027224, 0.999626, 0.0894167, 0.995619, 0.0273335, -0.995991, 0.0894502, -4.37722e-08, 3364, 5.46797, 1384 )
@@ -196,6 +203,9 @@ __meta__ = {
 
 [node name="HTerrain" type="Spatial" parent="."]
 script = ExtResource( 1 )
+ambient_wind = 0.0
+lod_scale = 2.0
+map_scale = Vector3( 1, 1, 1 )
 _terrain_data = ExtResource( 2 )
 chunk_size = 32
 collision_enabled = true

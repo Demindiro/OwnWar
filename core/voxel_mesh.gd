@@ -12,6 +12,10 @@ func add_block(block: Block, color: Color, coordinate: Array, rotation: int) -> 
 	var mesh := block.mesh
 	if mesh == null:
 		return
+	add_mesh(mesh, color, coordinate, rotation)
+
+
+func add_mesh(mesh: Mesh, color: Color, coordinate: Array, rotation: int) -> void:
 	for i in range(mesh.get_surface_count()):
 #		var material := mesh.surface_get_material(i)
 #		var material := MaterialCache.get_material(color)

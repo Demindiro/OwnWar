@@ -1,3 +1,4 @@
+tool
 class_name Vehicle
 extends Unit
 
@@ -7,6 +8,7 @@ var max_cost: int
 var voxel_bodies := []
 var actions := []
 var managers := {}
+export var _file := "" setget load_from_file
 var _object_to_actions_map := {}
 var _info := []
 var _matter_handlers_count := []
@@ -18,11 +20,12 @@ var _matter_take_list := PoolIntArray()
 
 
 func _physics_process(delta):
-	if len(voxel_bodies) > 0:
-		global_transform = voxel_bodies[0].global_transform
-		for manager_name in managers:
-			if managers[manager_name].has_method("process"):
-				managers[manager_name].process(delta)
+	if not Engine.editor_hint:
+		if len(voxel_bodies) > 0:
+			global_transform = voxel_bodies[0].global_transform
+			for manager_name in managers:
+				if managers[manager_name].has_method("process"):
+					managers[manager_name].process(delta)
 
 
 func get_info():
@@ -95,17 +98,20 @@ func load_from_file(path: String) -> int:
 
 	var data = parse_json(file.get_as_text())
 	data = Compatibility.convert_vehicle_data(data)
+
+	_file = path
+
+	if Engine.editor_hint:
+		return _load_from_file_editor(data)
+
 	for key in data["blocks"]:
-		var components = key.split(',')
-		assert(len(components) == 3)
-		var x = int(components[0])
-		var y = int(components[1])
-		var z = int(components[2])
+		var components = Util.decode_vec3i(key)
+		var x = components[0]
+		var y = components[1]
+		var z = components[2]
 		var name = data["blocks"][key][0]
 		var rotation = data["blocks"][key][1]
-		var color_components = data["blocks"][key][2].split_floats(",")
-		var color = Color(color_components[0], color_components[1],
-				color_components[2], color_components[3])
+		var color := Util.decode_color(data["blocks"][key][2])
 		var layer = data["blocks"][key][3]
 		if len(voxel_bodies) <= layer:
 			voxel_bodies.resize(layer + 1)
@@ -134,8 +140,8 @@ func load_from_file(path: String) -> int:
 	var new_name = path.get_file()
 	unit_name = "vehicle_" + new_name.substr(0, len(new_name) - 5)
 	return OK
-	
-	
+
+
 func get_actions():
 	return actions
 
@@ -330,3 +336,36 @@ static func name_to_path(p_name: String) -> String:
 static func add_manager(p_name: String, script: GDScript):
 	assert(not p_name in MANAGERS)
 	MANAGERS[p_name] = script
+
+
+func _load_from_file_editor(data: Dictionary) -> int:
+	var vm_inst: MeshInstance = null
+	for c in get_children():
+		if c is MeshInstance and c.name == "_Editor_VoxelMesh":
+			vm_inst = c
+			break
+	if vm_inst == null:
+		vm_inst = MeshInstance.new()
+		vm_inst.name = "_Editor_VoxelMesh"
+		add_child(vm_inst)
+	var vm := VoxelMesh.new()
+	vm_inst.mesh = vm
+
+	# TODO center of mass isn't accurate
+	var com := Vector3.ZERO
+	var count := 0.0
+	var cube := CubeMesh.new()
+	cube.size = Vector3.ONE * Block.BLOCK_SCALE
+	for key in data["blocks"]:
+		var components = Util.decode_vec3i(key)
+		var x = components[0]
+		var y = components[1]
+		var z = components[2]
+		var color := Util.decode_color(data["blocks"][key][2])
+		vm.add_mesh(cube, color, [x, y, z], 0)
+		com = (com * count + Vector3(x, y, z)) / (count + 1.0)
+		count += 1.0
+	vm.generate()
+	vm_inst.transform.origin = -com * Block.BLOCK_SCALE
+
+	return OK

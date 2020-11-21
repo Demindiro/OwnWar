@@ -64,10 +64,20 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/maps.gd"
 }, {
+"base": "Object",
+"class": "MaterialCache",
+"language": "GDScript",
+"path": "res://core/material_cache.gd"
+}, {
 "base": "Reference",
 "class": "Matter",
 "language": "GDScript",
 "path": "res://core/matter.gd"
+}, {
+"base": "Object",
+"class": "ObjectCache",
+"language": "GDScript",
+"path": "res://core/object_cache.gd"
 }, {
 "base": "OptionButton",
 "class": "OptionButtonPreset",
@@ -126,7 +136,9 @@ _global_script_class_icons={
 "HTerrainDataLoader": "",
 "HTerrainDataSaver": "",
 "Maps": "",
+"MaterialCache": "",
 "Matter": "",
+"ObjectCache": "",
 "OptionButtonPreset": "",
 "Plugin": "",
 "Structure": "",
@@ -147,8 +159,6 @@ config/icon="res://icon.png"
 [autoload]
 
 Global="*res://core/global.gd"
-MaterialCache="*res://core/material_cache.gd"
-ObjectCache="*res://core/object_cache.gd"
 Debug="*res://core/debug.gd"
 
 [debug]
