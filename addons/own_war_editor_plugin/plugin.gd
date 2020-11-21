@@ -35,8 +35,10 @@ func _process(_delta: float) -> void:
 				var up: Vector3 = res["normal"] if len(res) > 0 else Vector3.UP
 				basis = Util.get_aligned_basis(up)
 				basis = basis.rotated(up, rot)
-				# Apply transform
-				c.global_transform = Transform(basis, org)
+				# Apply transform (unless it's pretty much equal)
+				var n_transform := Transform(basis, org)
+				if not n_transform.is_equal_approx(transform):
+					c.global_transform = n_transform
 
 
 func _exit_tree():
