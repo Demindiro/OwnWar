@@ -1,13 +1,14 @@
-extends Node
+extends Object
+class_name MaterialCache
 
 
-var _cache := {}
+const _CACHE := {}
 
 
-func get_material(color: Color) -> Material:
-	var material := _cache.get(color) as Material
+static func get_material(color: Color) -> Material:
+	var material := _CACHE.get(color) as Material
 	if material == null:
 		material = SpatialMaterial.new()
 		material.albedo_color = color
-		_cache[color] = material
+		_CACHE[color] = material
 	return material
