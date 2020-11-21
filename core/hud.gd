@@ -364,7 +364,8 @@ func show_action_feedback():
 			var origin = _camera.project_ray_origin(_last_mouse_position)
 			var normal = _camera.project_ray_normal(_last_mouse_position)
 			var space_state = _camera.get_world().direct_space_state
-			var result = space_state.intersect_ray(origin, origin + normal * 1000)
+			var result = space_state.intersect_ray(origin, origin + \
+					normal * 1_000_000)
 			if len(result) > 0:
 				for unit in selected_units:
 					var arguments = [get_modifier_flags(), result.position]
