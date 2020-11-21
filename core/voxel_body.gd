@@ -39,11 +39,11 @@ func debug_draw():
 				hit[1], 0.55 * Block.BLOCK_SCALE)
 
 
-func fix_physics(p_transform):
+func fix_physics():
 	cost = max_cost
 	_set_collision_box(start_position, end_position)
 	_correct_mass()
-	global_transform = p_transform.translated(center_of_mass)
+	global_transform = Transform(Basis.IDENTITY, center_of_mass)
 
 
 func projectile_hit(origin: Vector3, direction: Vector3, damage: int):

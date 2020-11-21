@@ -131,7 +131,7 @@ func load_from_file(path: String) -> int:
 		meta[[x, y, z]] = data["meta"][key]
 
 	for body in voxel_bodies:
-		body.fix_physics(transform)
+		body.fix_physics()
 		body.init_blocks(self, meta)
 		max_cost += body.max_cost
 	var center_of_mass_0 = voxel_bodies[0].center_of_mass

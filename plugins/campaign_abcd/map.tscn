@@ -143,7 +143,7 @@ transform = Transform( -0.999973, 0.0073846, -8.16656e-05, 0.00738505, 0.999912,
 transform = Transform( -0.99995, -0.0100093, 4.79967e-06, -0.0100093, 0.99995, -0.000488233, 8.74234e-08, -0.000488257, -1, 2521, 0.49173, 607 )
 
 [node name="Vehicle" type="Spatial" parent="Arend/X"]
-transform = Transform( 0.284683, 0, -0.958622, 0, 1, 0, 0.958622, 0, 0.284683, 2483.16, 1.79072, 625.738 )
+transform = Transform( 0.258819, 0, -0.965926, 0, 1, 0, 0.965926, 0, 0.258819, 2480, 2, 625 )
 script = ExtResource( 26 )
 max_health = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
