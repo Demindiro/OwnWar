@@ -46,4 +46,5 @@ func add_units() -> void:
 	assert(gm != null)
 	for c in Util.get_children_recursive(self):
 		if c is Unit:
+			c.team = team
 			gm.units[team].append(c)
