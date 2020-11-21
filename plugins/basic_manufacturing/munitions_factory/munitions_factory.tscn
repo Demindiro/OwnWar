@@ -9,6 +9,7 @@
 script = ExtResource( 3 )
 max_health = 800
 unit_name = "munitions_factory"
+position_offset = Vector3( 0, 0.5, 0 )
 munition_types = [ ExtResource( 1 ), ExtResource( 2 ) ]
 
 [node name="CSGBox" type="CSGBox" parent="."]

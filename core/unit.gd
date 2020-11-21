@@ -27,7 +27,6 @@ enum Action {
 }
 enum TypeFlags {
 	DEFAULT = 0x0,
-	STRUCTURE = 0x1,
 	GHOST = 0x2,
 }
 const UNITS := {}

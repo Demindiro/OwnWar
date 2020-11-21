@@ -1,4 +1,4 @@
-extends Unit
+extends Structure
 
 
 const MAX_MATERIAL := 100
@@ -6,10 +6,6 @@ var ore
 var _ticks_until_next := 0
 var material := 0
 onready var _material_id: int = Matter.get_matter_id("material")
-
-
-func _init():
-	type_flags = TypeFlags.STRUCTURE
 
 
 func _physics_process(_delta):

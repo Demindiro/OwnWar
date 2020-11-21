@@ -1,4 +1,4 @@
-extends Unit
+extends Structure
 
 
 #export(Array, Munition) var munition_types := []
@@ -13,10 +13,6 @@ var _current_producing_munition
 var _time_until_munition_produced := 0.0
 var Munition = Plugin.get_plugin("weapon_manager").Munition
 onready var _material_id = Matter.get_matter_id("material")
-
-
-func _init():
-	type_flags = TypeFlags.STRUCTURE
 
 
 func _physics_process(delta):

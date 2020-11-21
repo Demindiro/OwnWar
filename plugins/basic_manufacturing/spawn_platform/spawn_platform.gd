@@ -1,4 +1,4 @@
-extends Unit
+extends Structure
 
 
 signal spawned(unit)
@@ -7,10 +7,6 @@ var material = 0 setget set_material
 var queued_vehicle = null
 var queued_vehicle_name
 onready var _material_id = Matter.get_matter_id("material")
-
-
-func _init():
-	type_flags = TypeFlags.STRUCTURE
 
 
 func _ready():

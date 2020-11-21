@@ -1,13 +1,9 @@
-extends Unit
+extends Structure
 
 
 const _MAX_VOLUME := 1000_000_000
 var _volume := 0
 var _matter := {}
-
-
-func _init():
-	type_flags = TypeFlags.STRUCTURE
 
 
 func _ready():
