@@ -169,3 +169,13 @@ static func sum(array):
 	for e in array:
 		sum = e if sum == null else sum + e
 	return sum
+
+
+static func round_res(num: float, resolution: float) -> float:
+	return round(num * resolution) / resolution
+
+
+static func get_aligned_basis(up: Vector3) -> Basis:
+	var right := Vector3(up.y, -up.x, 0).normalized()
+	var forward := right.cross(up)
+	return Basis(right, up, forward)
