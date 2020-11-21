@@ -133,16 +133,17 @@ ghosts = {
 }
 
 [node name="StoragePod" parent="Map" instance=ExtResource( 7 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -72.3055, 0, 39.8329 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -72.5, 1.3, 40 )
 
 [node name="MunitionsFactory" parent="Map" instance=ExtResource( 16 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -54.4685, 1.00068, 17.6888 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -54.5, 0.999969, 17.5 )
 
 [node name="Refinery" parent="Map" instance=ExtResource( 17 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -54.627, 0.5, 4.70696 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -54.5, 0.500031, 4.5 )
+position_offset = Vector3( 0, 0.5, 0 )
 
 [node name="Roboport" parent="Map" instance=ExtResource( 21 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -47.2105, 0.5, 35.2623 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -47, 0.500031, 35.5 )
 
 [node name="Vane" type="MeshInstance" parent="Map"]
 transform = Transform( 12, 0, 0, 0, 12, 0, 0, 0, 12, 0, 1.5, 0 )

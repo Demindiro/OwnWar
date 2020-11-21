@@ -120,13 +120,13 @@ material/0 = ExtResource( 32 )
 [node name="Player" type="Node" parent="Map"]
 
 [node name="Spawn" parent="Map/Player" instance=ExtResource( 7 )]
-transform = Transform( -0.5, 0, -0.866025, 0, 1, 0, 0.866025, 0, -0.5, 128.747, 0.218483, 326.685 )
+transform = Transform( -0.5, 0, -0.866025, 0, 1, 0, 0.866025, 0, -0.5, 128.5, 0, 326.5 )
 
 [node name="Drill" parent="Map/Player" instance=ExtResource( 8 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 207.127, 1.375, 217.938 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 207, 1.5, 218 )
 
 [node name="StoragePod" parent="Map/Player" instance=ExtResource( 4 )]
-transform = Transform( 0.892735, 0, -0.450582, 0, 1, 0, 0.450582, 0, 0.892735, 206.357, 1.38873, 290.088 )
+transform = Transform( 0.866025, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866025, 206.5, 1.3, 290 )
 
 [node name="Drone" parent="Map/Player" instance=ExtResource( 11 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 215.335, 4.11692, 356.776 )
@@ -141,15 +141,15 @@ ghosts = {
 [node name="Enemy" type="Node" parent="Map"]
 
 [node name="Spawn" parent="Map/Enemy" instance=ExtResource( 7 )]
-transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 863.142, 0.077, 850.621 )
+transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 863, 0, 850.5 )
 team = 1
 
 [node name="StoragePod" parent="Map/Enemy" instance=ExtResource( 4 )]
-transform = Transform( 0.841218, 0, 0.540696, 0, 1, 0, -0.540696, 0, 0.841218, 813.285, 1.38872, 863.752 )
+transform = Transform( 0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 813.5, 1.3, 864 )
 team = 1
 
 [node name="StoragePod2" parent="Map/Enemy" instance=ExtResource( 4 )]
-transform = Transform( 0.212501, 0, 0.977161, 0, 1, 0, -0.977161, 0, 0.212501, 823.285, 1.38872, 855.752 )
+transform = Transform( 0.258819, 0, 0.965926, 0, 1, 0, -0.965926, 0, 0.258819, 823.5, 1.3, 856 )
 team = 1
 
 [node name="Drone" parent="Map/Enemy" instance=ExtResource( 11 )]

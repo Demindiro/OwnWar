@@ -164,7 +164,7 @@ window/size/test_height=810
 
 [editor_plugins]
 
-enabled=PoolStringArray( "zylann.hterrain" )
+enabled=PoolStringArray( "own_war_editor_plugin", "zylann.hterrain" )
 
 [gdnative]
 
