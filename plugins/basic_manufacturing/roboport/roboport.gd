@@ -171,7 +171,8 @@ func _draw_circle(radius: float) -> void:
 	_immediate_geometry.begin(Mesh.PRIMITIVE_LINE_LOOP)
 	for i in range(128):
 		var r := i * 2.0 * PI / 128
-		var v := to_global(Vector3(cos(r) * radius, 0.0, sin(r) * radius))
+		var v := Vector3(cos(r) * radius, 0.0, sin(r) * radius) + \
+				global_transform.origin
 		# NOTE: raycast tests against large bodies are very inaccurate because
 		# reasons (https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=3524)
 		var result := space_state.intersect_ray(v + Vector3.UP * 1000,
