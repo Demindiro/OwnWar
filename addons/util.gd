@@ -179,3 +179,26 @@ static func get_aligned_basis(up: Vector3) -> Basis:
 	var right := Vector3(up.y, -up.x, 0).normalized()
 	var forward := right.cross(up)
 	return Basis(right, up, forward)
+
+
+static func split_int(s: String, delim := ",") -> PoolIntArray:
+	var c := s.split(delim)
+	var a := PoolIntArray()
+	a.resize(len(c))
+	var i := 0
+	while i < len(a):
+		a[i] = int(c[i])
+		i += 1
+	return a
+
+
+static func decode_vec3i(s: String, delim := ",") -> PoolIntArray:
+	var a := split_int(s, delim)
+	assert(len(a) == 3)
+	return a
+
+
+static func decode_color(s: String, delim := ",") -> Color:
+	var a := s.split_floats(delim)
+	assert(len(a) == 4)
+	return Color(a[0], a[1], a[2], a[3])
