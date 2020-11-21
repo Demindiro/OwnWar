@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=26 format=2]
 
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
 [ext_resource path="res://plugins/campaign_abcd/map_data/data.hterrain" type="Resource" id=2]
@@ -17,6 +17,14 @@
 [ext_resource path="res://plugins/basic_manufacturing/roboport/roboport.tscn" type="PackedScene" id=15]
 [ext_resource path="res://core/unit/unit_group.tscn" type="PackedScene" id=16]
 [ext_resource path="res://core/hud.tscn" type="PackedScene" id=17]
+[ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod_ghost.tscn" type="PackedScene" id=18]
+[ext_resource path="res://plugins/basic_manufacturing/refinery/refinery.tscn" type="PackedScene" id=19]
+[ext_resource path="res://plugins/basic_manufacturing/roboport/roboport_ghost.tscn" type="PackedScene" id=20]
+[ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory.tscn" type="PackedScene" id=21]
+[ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory_ghost.tscn" type="PackedScene" id=22]
+[ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform_ghost.tscn" type="PackedScene" id=23]
+[ext_resource path="res://plugins/basic_manufacturing/refinery/refinery_ghost.tscn" type="PackedScene" id=24]
+[ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=25]
 
 [node name="Map" type="Node"]
 script = ExtResource( 7 )
@@ -60,12 +68,142 @@ __meta__ = {
 "_editor_description_": "This node is needed so that add_units is called before the _ready of the child nodes but after _enter_tree so the children are already added to the tree."
 }
 
+[node name="Arend" parent="." instance=ExtResource( 16 )]
+team = 1
+
+[node name="HQ" type="Node" parent="Arend"]
+
+[node name="LinkOreDrill" parent="Arend/HQ" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Arend/HQ/LinkOreDrill" instance=ExtResource( 13 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3229, 6.5, 460.5 )
+
+[node name="Ore" parent="Arend/HQ/LinkOreDrill" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3229, 5, 460.5 )
+
+[node name="LinkOreDrill2" parent="Arend/HQ" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Arend/HQ/LinkOreDrill2" instance=ExtResource( 13 )]
+transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 3209.5, 8.5, 431.5 )
+
+[node name="Ore" parent="Arend/HQ/LinkOreDrill2" instance=ExtResource( 12 )]
+transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 3209.5, 7, 431.5 )
+
+[node name="LinkOreDrill3" parent="Arend/HQ" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Arend/HQ/LinkOreDrill3" instance=ExtResource( 13 )]
+transform = Transform( 0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, 3232.5, 7.5, 506 )
+
+[node name="Ore" parent="Arend/HQ/LinkOreDrill3" instance=ExtResource( 12 )]
+transform = Transform( 0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, 3232.5, 6, 506 )
+
+[node name="SpawnPlatform" parent="Arend/HQ" instance=ExtResource( 6 )]
+transform = Transform( -0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, -0.707107, 3333, 1.5, 590 )
+
+[node name="SpawnPlatform2" parent="Arend/HQ" instance=ExtResource( 6 )]
+transform = Transform( -0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, -0.707107, 3349.5, 1.5, 606.5 )
+
+[node name="Roboport" parent="Arend/HQ" instance=ExtResource( 15 )]
+transform = Transform( -0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, -0.866025, 3174.5, 17, 489.5 )
+type_flags = 1
+
+[node name="StoragePod" parent="Arend/HQ" instance=ExtResource( 11 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3308, 5, 548 )
+
+[node name="StoragePod2" parent="Arend/HQ" instance=ExtResource( 11 )]
+transform = Transform( 0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, 0.5, 3194, 11, 448.5 )
+
+[node name="StoragePod3" parent="Arend/HQ" instance=ExtResource( 11 )]
+transform = Transform( 0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 3214, 10, 466.5 )
+
+[node name="StoragePod4" parent="Arend/HQ" instance=ExtResource( 11 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3206, 15.5, 502 )
+
+[node name="Roboport2" parent="Arend/HQ" instance=ExtResource( 15 )]
+transform = Transform( -0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, -0.866025, 3358, 2.5, 579 )
+type_flags = 1
+
+[node name="X" type="Node" parent="Arend"]
+
+[node name="SpawnPlatform" parent="Arend/X" instance=ExtResource( 6 )]
+transform = Transform( 4.37114e-08, 0, 1, 0, 1, 0, -1, 0, 4.37114e-08, 2532, 4, 622.5 )
+
+[node name="StoragePod" parent="Arend/X" instance=ExtResource( 11 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2489.24, 2, 595.263 )
+
+[node name="Roboport" parent="Arend/X" instance=ExtResource( 15 )]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 2547.24, 5, 640.763 )
+type_flags = 1
+
+[node name="Refinery" parent="Arend/X" instance=ExtResource( 19 )]
+transform = Transform( -1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 2502.49, 4.5, 641.237 )
+
+[node name="MunitionsFactory" parent="Arend/X" instance=ExtResource( 21 )]
+transform = Transform( -1, 0, 5.96046e-08, 0, 1, 0, -5.96046e-08, 0, -1, 2521.24, 4.5, 606.763 )
+
+[node name="Z" type="Node" parent="Arend"]
+
+[node name="SpawnPlatform" parent="Arend/Z" instance=ExtResource( 6 )]
+transform = Transform( -1, 0, 1.06581e-14, 0, 1, 0, -1.06581e-14, 0, -1, 3364.5, 4, 1407.5 )
+
+[node name="StoragePod" parent="Arend/Z" instance=ExtResource( 11 )]
+transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 3364, 6, 1384 )
+
+[node name="Roboport" parent="Arend/Z" instance=ExtResource( 15 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3380.5, 5, 1391.5 )
+type_flags = 1
+
+[node name="Refinery" parent="Arend/Z" instance=ExtResource( 19 )]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 3343.47, 4.5, 1392.24 )
+
+[node name="MunitionsFactory" parent="Arend/Z" instance=ExtResource( 21 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3346.5, 4.5, 1428.5 )
+
+[node name="DroneHQ" parent="Arend" instance=ExtResource( 25 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3241, 5, 571.5 )
+ghosts = {
+"Munition Factory": ExtResource( 22 ),
+"Refinery": ExtResource( 24 ),
+"Roboport": ExtResource( 20 ),
+"Spawn Platform": ExtResource( 23 ),
+"Storage Pod": ExtResource( 18 )
+}
+
+[node name="DroneX" parent="Arend" instance=ExtResource( 25 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3299, 3.5, 546.5 )
+ghosts = {
+"Munition Factory": ExtResource( 22 ),
+"Refinery": ExtResource( 24 ),
+"Roboport": ExtResource( 20 ),
+"Spawn Platform": ExtResource( 23 ),
+"Storage Pod": ExtResource( 18 )
+}
+
+[node name="DroneY" parent="Arend" instance=ExtResource( 25 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3186.5, 19.5, 479.5 )
+ghosts = {
+"Munition Factory": ExtResource( 22 ),
+"Refinery": ExtResource( 24 ),
+"Roboport": ExtResource( 20 ),
+"Spawn Platform": ExtResource( 23 ),
+"Storage Pod": ExtResource( 18 )
+}
+
+[node name="_UnitGroup_AfterEnterBeforeReady" type="Node" parent="Arend"]
+__meta__ = {
+"_editor_description_": "This node is needed so that add_units is called before the _ready of the child nodes but after _enter_tree so the children are already added to the tree."
+}
+
 [node name="HTerrain" type="Spatial" parent="."]
 script = ExtResource( 1 )
 _terrain_data = ExtResource( 2 )
 chunk_size = 32
+collision_enabled = true
+collision_layer = 129
+collision_mask = 129
 shader_type = "Classic4"
 custom_shader = null
+custom_globalmap_shader = null
 shader_params/u_ground_uv_scale_per_texture = Plane( 20, 10, 10, 50 )
 shader_params/u_depth_blending = false
 shader_params/u_triplanar = true
@@ -95,4 +233,6 @@ speed = 200.0
 environment = ExtResource( 8 )
 
 [node name="HUD" parent="." instance=ExtResource( 17 )]
-[connection signal="ready" from="Player/_UnitGroup_AfterEnterBeforeReady" to="Player" method="add_units"]
+camera = NodePath("../FreeCamera")
+[connection signal="tree_entered" from="Player/_UnitGroup_AfterEnterBeforeReady" to="Player" method="add_units"]
+[connection signal="tree_entered" from="Arend/_UnitGroup_AfterEnterBeforeReady" to="Arend" method="add_units"]
