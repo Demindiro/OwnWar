@@ -337,7 +337,9 @@ margin_bottom = 41.6293
 size_flags_horizontal = 3
 shortcut = ExtResource( 9 )
 text = "Load"
+[connection signal="load_game" from="." to="Map" method="_on_Designer_load_game"]
 [connection signal="load_game" from="." to="HUD" method="_on_Designer_load_game"]
+[connection signal="save_game" from="." to="Map" method="_on_Designer_save_game"]
 [connection signal="save_game" from="." to="HUD" method="_on_Designer_save_game"]
 [connection signal="item_selected" from="HUD/ChangeTeam" to="HUD/ChangeTeam" method="_on_ChangeTeam_item_selected"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Continue" to="GUI/Main" method="_on_Continue_pressed"]
