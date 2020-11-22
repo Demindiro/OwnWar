@@ -22,6 +22,9 @@ func _process(_delta: float) -> void:
 			assert(c is Structure)
 			var transform: Transform = c.global_transform
 			var org := transform.origin
+			var basis := transform.basis
+			# Apply offset
+			org -= basis * c.position_offset
 			# Snap X and Z to 0.5 resolution
 			org = (org * 2).round() / 2
 			# Snap to floor
@@ -31,9 +34,8 @@ func _process(_delta: float) -> void:
 					org + Vector3.DOWN * 1_000.0,
 					[], Constants.COLLISION_MASK_TERRAIN)
 			if len(res) > 0:
-				org.y = res["position"].y + c.position_offset.y
+				org.y = res["position"].y
 			# Snap rotation
-			var basis := transform.basis
 			# Get the "aligned" basis, determine the angle and the direction
 			# and determine current rotation from that
 			var ta_basis := Util.get_aligned_basis(basis.y)
@@ -44,6 +46,8 @@ func _process(_delta: float) -> void:
 			var up: Vector3 = res["normal"] if len(res) > 0 else Vector3.UP
 			basis = Util.get_aligned_basis(up)
 			basis = basis.rotated(up, rot)
+			# Apply offset along normal
+			org += basis * c.position_offset
 			# Apply transform (unless it's pretty much equal)
 			var n_transform := Transform(basis, org)
 			if not Util.is_transform_approx_eq(n_transform, transform,
