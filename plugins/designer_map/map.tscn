@@ -3,7 +3,7 @@
 [ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=1]
 [ext_resource path="res://plugins/designer_map/floor_mesh.tres" type="PlaneMesh" id=2]
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform.tscn" type="PackedScene" id=3]
-[ext_resource path="res://core/hud.tscn" type="PackedScene" id=4]
+[ext_resource path="res://core/map/hud.tscn" type="PackedScene" id=4]
 [ext_resource path="res://plugins/basic_manufacturing/drill/ore.tscn" type="PackedScene" id=5]
 [ext_resource path="res://core/block/debug/vane.obj" type="ArrayMesh" id=6]
 [ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod.tscn" type="PackedScene" id=7]
@@ -33,6 +33,7 @@
 [ext_resource path="res://plugins/designer_map/floor_shape.tres" type="Shape" id=31]
 [ext_resource path="res://plugins/designer_map/change_team.gd" type="Script" id=32]
 [ext_resource path="res://core/unit/unit_group.tscn" type="PackedScene" id=33]
+
 
 
 [node name="Designer" type="Node"]
