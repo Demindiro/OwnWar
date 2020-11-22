@@ -11,60 +11,41 @@ export(NodePath) var victory_screen
 export var team_count := 2
 export var map_name: String
 # warning-ignore:unused_class_variable
-var teams := ["Player", "Evil AI"]
-var teams_alive := team_count
-var units := []
+var teams := PoolStringArray([])
 # warning-ignore:unused_class_variable
 var ores := []
 var uid_counter := 0
+var _loading_game := false
 
 
-func _enter_tree():
+func _enter_tree() -> void:
 	assert(map_name != "")
-	for i in team_count:
-		units.append([])
+	get_tree().connect("node_added", self, "_node_added")
 
 
-func add_unit(team, unit):
-	units[team].append(unit)
-	unit.team = team
-	unit.uid = uid_counter
-	uid_counter += 241
-	add_child(unit)
-	emit_signal("unit_added", unit)
-
-
-func remove_unit(team, unit):
-	var index = units[team].find(unit)
-	if index == -1:
-		push_error("Unit '%s' not found in units[%d]" % [unit, team])
-		return
-	units[team].remove(index)
-	unit.queue_free()
-	if len(units[team]) == 0:
-		teams_alive -= 1
-		if teams_alive == 1:
-			game_end()
-			
-
-func get_units(team, unit_name = null):
+func get_units(team: String, unit_name = null) -> Array:
+	assert(team in teams)
+	var team_name := "units_" + team
 	if unit_name == null:
-		return units[team].duplicate()
+		return get_tree().get_nodes_in_group(team_name)
 	else:
 		var units_by_name = []
-		for unit in units[team]:
+		for unit in get_tree().get_nodes_in_group(team_name):
 			if unit.unit_name == unit_name:
 				units_by_name.append(unit)
 		return units_by_name
 
 
 func get_unit_by_uid(uid: int):# -> Unit:
-	for l in units:
-		for u in l:
-			if u.uid == uid:
-				return u
+	for u in get_tree().get_nodes_in_group("units"):
+		if u.uid == uid:
+			return u
 	assert(false)
 	return null
+
+
+func get_teams():
+	return teams
 
 
 func game_end():
@@ -80,7 +61,8 @@ func save_game(p_name: String) -> int:
 	var s_units := {}
 	for i in range(len(teams)):
 		var list := []
-		for u in units[i]:
+		var team := teams[i]
+		for u in get_tree().get_nodes_in_group("units_" + team):
 			var u_data := {
 					"name": u.unit_name,
 					"transform": var2str(u.transform),
@@ -92,7 +74,7 @@ func save_game(p_name: String) -> int:
 				u_data["linear_velocity"] = var2str(u.linear_velocity)
 				u_data["angular_velocity"] = var2str(u.angular_velocity)
 			list.append(u_data)
-		s_units[teams[i]] = list
+		s_units[team] = list
 
 	var s_plugins := {}
 	for plugin in Plugin.get_all_plugins():
@@ -201,3 +183,15 @@ static func get_game_master(node: Node) -> Node:# -> GameMaster:
 			return child
 	assert(false)
 	return null
+
+
+func _node_added(node: Node) -> void:
+	#if node is Unit:
+	if not _loading_game and node.get("unit_name") != null:
+		assert(node.uid == -1)
+		node.uid = uid_counter
+		uid_counter += 7
+		if not node.team in teams:
+			print("Adding team %s" % node.team)
+			teams.append(node.team)
+		emit_signal("unit_added", node)

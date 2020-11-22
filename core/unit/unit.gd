@@ -1,5 +1,4 @@
 class_name Unit
-
 extends Spatial
 
 
@@ -31,7 +30,7 @@ enum TypeFlags {
 }
 const UNITS := {}
 export var max_health := 10
-export var team := 0
+export var team := ""
 # warning-ignore:unused_class_variable
 export var unit_name := "unit"
 # warning-ignore:unused_class_variable
@@ -40,6 +39,11 @@ export var type_flags := TypeFlags.DEFAULT
 var uid := -1
 onready var health := max_health
 onready var game_master = GameMaster.get_game_master(self)
+
+
+func _enter_tree():
+	add_to_group("units")
+	add_to_group("units_" + team)
 
 
 func projectile_hit(_origin: Vector3, _direction: Vector3, damage: int):
@@ -123,7 +127,7 @@ func take_matter(_id: int, _amount: int) -> int:
 
 
 func destroy():
-	game_master.remove_unit(team, self)
+	queue_free()
 	emit_signal("destroyed", self)
 
 

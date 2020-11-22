@@ -275,8 +275,9 @@ func _get_idle_drone(near_points := PoolVector3Array()) -> Drone:
 		var drone = drone_scene.instance()
 		drone.transform = $SpawnPoint.global_transform
 		drone.connect("task_completed", self, "_task_completed", [drone])
+		drone.team = team
 		_drones.append(drone)
-		game_master.add_unit(team, drone)
+		get_tree().root.add_child(drone)
 		_spawn_timer = get_tree().create_timer(2.5, false)
 		return drone
 	return null

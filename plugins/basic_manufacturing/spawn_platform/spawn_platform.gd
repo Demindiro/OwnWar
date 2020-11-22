@@ -135,7 +135,8 @@ func put_matter(id: int, amount: int) -> int:
 			return amount
 		self.material += amount
 		if material >= queued_vehicle.get_cost():
-			game_master.add_unit(team, queued_vehicle)
+			queued_vehicle.team = team
+			get_tree().root.add_child(queued_vehicle)
 			emit_signal("spawned", queued_vehicle)
 			var remainder = material - queued_vehicle.get_cost()
 			queued_vehicle = null

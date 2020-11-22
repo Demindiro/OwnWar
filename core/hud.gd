@@ -3,7 +3,7 @@ extends Control
 
 const SHORTCUT_PREFIX = "campaign_shortcut_"
 const SHORTCUT_COUNT = 10
-export var team := 0
+export var team := "Player"
 export var camera: NodePath
 var selected_units = [] setget set_selected_units
 onready var game_master = GameMaster.get_game_master(self)
@@ -75,7 +75,7 @@ func _gui_input(event):
 					_mouse_position_start = _last_mouse_position
 				else:
 					_selecting_units = false
-					set_selected_units(get_selected_units(1 << team))
+					set_selected_units(get_selected_units(PoolStringArray([team])))
 					filter_units()
 					_unit_info_index = 0
 					set_unit_info()
@@ -109,7 +109,7 @@ func _draw():
 		var units
 		var color
 		if _action_input_name == null:
-			units = get_selected_units(1 << team)
+			units = get_selected_units(PoolStringArray([team]))
 			color = Color.green
 		else:
 			units = get_selected_units(_units_teams_mask)
@@ -190,9 +190,12 @@ func set_action_buttons(unit_name, sub_action = null, arguments = null):
 			button.toggle_mode = true
 		elif action[1] & Unit.Action.INPUT_UNITS:
 			if action[1] & Unit.Action.INPUT_ENEMY_UNITS:
-				_units_teams_mask = ~(1 << team)
+				_units_teams_mask = []
+				for t in game_master.teams:
+					if t != team:
+						_units_teams_mask.append(t)
 			else:
-				_units_teams_mask = 1 << team
+				_units_teams_mask = [team]
 			button.connect("pressed", self, "get_units", [button, action])
 			button.toggle_mode = true
 		elif action[1] & Unit.Action.INPUT_TOGGLE:
@@ -284,7 +287,7 @@ func clear_action_button():
 	_action = null
 
 
-func get_selected_units(teams_mask):
+func get_selected_units(teams_mask: PoolStringArray) -> Array:
 	var start = _last_mouse_position
 	var end = _mouse_position_start
 	if start.x > end.x:
@@ -297,9 +300,9 @@ func get_selected_units(teams_mask):
 		end.y = s
 	var rect = Rect2(start, end - start)
 	var units = []
-	for i in range(len(game_master.teams)):
-		if teams_mask & (1 << i):
-			for child in game_master.units[i]:
+	for t in game_master.get_teams():
+		if t in teams_mask:
+			for child in game_master.get_units(t):
 				var screen_pos = _camera.unproject_position(child.translation)
 				if rect.has_point(screen_pos):
 					var direction: Vector3 = _camera.translation - child.translation
