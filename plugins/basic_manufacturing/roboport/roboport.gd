@@ -19,7 +19,6 @@ var _assigning_tasks := false
 onready var _spawn_timer := get_tree().create_timer(1.0, false)
 
 
-
 func _ready():
 	if not Engine.editor_hint:
 		var types_count := Matter.get_matter_types_count()
@@ -39,6 +38,8 @@ func _exit_tree():
 func _process(_delta: float) -> void:
 	if Engine.editor_hint:
 		show_feedback()
+	else:
+		set_process(false)
 
 
 func get_actions() -> Array:
