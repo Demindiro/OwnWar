@@ -144,25 +144,32 @@ func serialize_json() -> Dictionary:
 	var m_list := {}
 	for id in _munition:
 		m_list[Matter.get_matter_name(id)] = _munition[id]
-	return {
+	var data = {
 			"material": _material,
 			"munition": m_list,
-			"current_munition": Matter.get_matter_name(_current_munition_type.id),
-			"current_producing": Matter.get_matter_name(_current_producing_munition.id),
 			"time_until_produced": _time_until_munition_produced,
 		}
+	if _current_munition_type != null:
+		data["current_munition"] = Matter.get_matter_name(
+				_current_munition_type.id)
+	if _current_munition_type != null:
+		data["current_producing"] = Matter.get_matter_name(
+				_current_producing_munition.id)
+	return data
 
 
 func deserialize_json(data: Dictionary) -> void:
 	_material = data["material"]
 
-	var cur_mun_id: int = Matter.get_matter_id(data["current_munition"])
-	_current_munition_type = Munition.get_munition(cur_mun_id)
-	assert(Munition.is_munition(cur_mun_id))
+	if "current_munition" in data:
+		var cur_mun_id: int = Matter.get_matter_id(data["current_munition"])
+		_current_munition_type = Munition.get_munition(cur_mun_id)
+		assert(Munition.is_munition(cur_mun_id))
 
-	var cur_prod_id: int = Matter.get_matter_id(data["current_producing"])
-	assert(Munition.is_munition(cur_prod_id))
-	_current_producing_munition = Munition.get_munition(cur_prod_id)
+	if "current_producing" in data:
+		var cur_prod_id: int = Matter.get_matter_id(data["current_producing"])
+		assert(Munition.is_munition(cur_prod_id))
+		_current_producing_munition = Munition.get_munition(cur_prod_id)
 
 	_time_until_munition_produced = data["time_until_produced"]
 	_munition = {}
