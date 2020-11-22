@@ -164,6 +164,8 @@ transform = Transform( 0.258819, 0, -0.965926, 0, 1, 0, 0.965926, 0, 0.258819, 2
 script = ExtResource( 26 )
 max_health = 0
 team = "Arend"
+unit_name = "unit"
+type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Z" type="Node" parent="Arend"]
@@ -182,7 +184,7 @@ team = "Arend"
 type_flags = 1
 
 [node name="Refinery" parent="Arend/Z" instance=ExtResource( 19 )]
-transform = Transform( -0.00137023, 0.023391, -0.999725, -0.0584614, 0.998015, 0.0234311, 0.998289, 0.0584774, -4.35393e-08, 3343.5, 5.24997, 1392 )
+transform = Transform( -0.00137023, 0.023391, -0.999725, -0.0584614, 0.998015, 0.0234311, 0.998289, 0.0584774, -4.35393e-08, 3343.5, 5.25003, 1392 )
 team = "Arend"
 
 [node name="MunitionsFactory" parent="Arend/Z" instance=ExtResource( 21 )]
