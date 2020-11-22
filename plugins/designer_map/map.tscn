@@ -9,7 +9,7 @@
 [ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod.tscn" type="PackedScene" id=7]
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=8]
 [ext_resource path="res://core/shortcut/ui_accept.tres" type="ShortCut" id=9]
-[ext_resource path="res://core/game_master.gd" type="Script" id=10]
+[ext_resource path="res://core/map/game_master.gd" type="Script" id=10]
 [ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=11]
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform_ghost.tscn" type="PackedScene" id=12]
 [ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod_ghost.tscn" type="PackedScene" id=13]
@@ -33,6 +33,7 @@
 [ext_resource path="res://plugins/designer_map/floor_shape.tres" type="Shape" id=31]
 [ext_resource path="res://plugins/designer_map/change_team.gd" type="Script" id=32]
 [ext_resource path="res://core/unit/unit_group.tscn" type="PackedScene" id=33]
+
 
 [node name="Designer" type="Node"]
 process_priority = 1

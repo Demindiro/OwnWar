@@ -39,10 +39,10 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/game.gd"
 }, {
-"base": "Node",
+"base": "Reference",
 "class": "GameMaster",
 "language": "GDScript",
-"path": "res://core/game_master.gd"
+"path": "res://core/map/game_master.gd"
 }, {
 "base": "Unit",
 "class": "Ghost",

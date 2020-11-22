@@ -5,13 +5,14 @@
 [ext_resource path="res://plugins/basic_manufacturing/roboport/roboport.tscn" type="PackedScene" id=3]
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery.tscn" type="PackedScene" id=4]
 [ext_resource path="res://core/hud.tscn" type="PackedScene" id=5]
-[ext_resource path="res://core/game_master.gd" type="Script" id=6]
+[ext_resource path="res://core/map/game_master.gd" type="Script" id=6]
 [ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod.tscn" type="PackedScene" id=7]
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform.tscn" type="PackedScene" id=8]
 [ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory.tscn" type="PackedScene" id=9]
 [ext_resource path="res://plugins/basic_manufacturing/drill/drill.tscn" type="PackedScene" id=10]
 [ext_resource path="res://plugins/basic_manufacturing/drill/ore.tscn" type="PackedScene" id=11]
 [ext_resource path="res://test/unit/roboport/roboport_test.gd" type="Script" id=12]
+
 
 [sub_resource type="HeightMapShape" id=1]
 map_width = 100

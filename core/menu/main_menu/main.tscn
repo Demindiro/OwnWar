@@ -3,7 +3,7 @@
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=1]
 [ext_resource path="res://core/menu/main_menu/floor_material.tres" type="Material" id=2]
 [ext_resource path="res://core/menu/main_menu/saves.gd" type="Script" id=3]
-[ext_resource path="res://core/game_master.gd" type="Script" id=4]
+[ext_resource path="res://core/map/game_master.gd" type="Script" id=4]
 [ext_resource path="res://core/menu/main_menu/plugins.gd" type="Script" id=5]
 [ext_resource path="res://core/camera/tracker.gd" type="Script" id=6]
 [ext_resource path="res://core/menu/main_menu/maps.gd" type="Script" id=7]
@@ -14,6 +14,7 @@
 [ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=12]
 [ext_resource path="res://core/menu/main_menu/floor_mesh.tres" type="PlaneMesh" id=13]
 [ext_resource path="res://core/menu/main_menu/floor_shape.tres" type="Shape" id=14]
+
 
 [node name="Main" type="Node"]
 script = ExtResource( 4 )

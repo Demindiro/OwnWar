@@ -9,7 +9,7 @@
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform.tscn" type="PackedScene" id=7]
 [ext_resource path="res://plugins/basic_manufacturing/drill/drill.tscn" type="PackedScene" id=8]
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=9]
-[ext_resource path="res://core/game_master.gd" type="Script" id=10]
+[ext_resource path="res://core/map/game_master.gd" type="Script" id=10]
 [ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=11]
 [ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod_ghost.tscn" type="PackedScene" id=12]
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform_ghost.tscn" type="PackedScene" id=13]
@@ -35,6 +35,7 @@
 [ext_resource path="res://plugins/tutorial_map/water_mesh.tres" type="PlaneMesh" id=33]
 [ext_resource path="res://plugins/tutorial_map/evil_ai_trigger_shape.tres" type="Shape" id=34]
 [ext_resource path="res://core/unit/unit_group.tscn" type="PackedScene" id=35]
+
 
 [node name="Hill" type="Node"]
 script = ExtResource( 10 )
