@@ -52,11 +52,13 @@ func put_matter(id: int, amount: int) -> int:
 		_matter[id] = _matter.get(id, 0) + amount
 		_volume += amount * Matter.get_matter_volume(id)
 		_update_indicator()
+		emit_signal("provide_matter", id, _matter[id])
 		return 0
 	else:
 		_matter[id] = _matter.get(id, 0) + max_put
 		_volume += max_put * Matter.get_matter_volume(id)
 		_update_indicator()
+		emit_signal("provide_matter", id, _matter[id])
 		return amount - max_put
 
 
@@ -65,12 +67,14 @@ func take_matter(id: int, amount: int) -> int:
 		_matter[id] -= amount
 		_volume -= amount * Matter.get_matter_volume(id)
 		_update_indicator()
+		emit_signal("provide_matter", id, _matter[id])
 		return amount
 	else:
 		var remainder: int = _matter.get(id, 0)
 		_volume = 0
 # warning-ignore:return_value_discarded
 		_matter.erase(id)
+		emit_signal("provide_matter", id, 0)
 		return remainder
 
 
