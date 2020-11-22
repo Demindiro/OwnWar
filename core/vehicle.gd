@@ -295,7 +295,7 @@ func deserialize_json(data: Dictionary) -> void:
 		voxel_bodies.append(vb)
 
 	for body in voxel_bodies:
-		body.fix_physics(transform)
+		body.fix_physics()
 		max_cost += body.max_cost
 	var center_of_mass_0 = voxel_bodies[0].center_of_mass
 	for body in voxel_bodies:
