@@ -221,7 +221,7 @@ func _on_need_matter(id: int, amount: int, unit: Unit):
 func _on_provide_matter(id: int, amount: int, unit: Unit):
 	if amount > 0:
 		if not unit in _providers[id]:
-			_providers[id].append(unit)
+			_add_matter_provider(unit, id)
 	else:
 		_providers[id].erase(unit)
 	assign_tasks()
@@ -230,7 +230,7 @@ func _on_provide_matter(id: int, amount: int, unit: Unit):
 func _on_take_matter(id: int, amount: int, unit: Unit):
 	if amount > 0:
 		if not unit in _takers[id]:
-			_takers[id].append(unit)
+			_add_matter_taker(unit, id)
 	else:
 		_takers[id].erase(unit)
 	assign_tasks()
@@ -344,10 +344,7 @@ func _add_unit(unit: Unit) -> void:
 			else:
 				_needs_provider[id].append(unit)
 		if unit.takes_matter(id) > 0:
-			_takers[id].append(unit)
-			for needer in _needs_taker[id]:
-				_add_task(Drone.Task.EMPTY, [needer, unit, id])
-			_needs_taker[id] = []
+			_add_matter_taker(unit, id)
 
 	for id in unit.get_take_matter_list():
 		if unit.dumps_matter(id) > 0:
@@ -357,20 +354,21 @@ func _add_unit(unit: Unit) -> void:
 			else:
 				_needs_taker[id].append(unit)
 		if unit.provides_matter(id) > 0:
-			_providers[id].append(unit)
-			for needer in _needs_provider[id]:
-				_add_task(Drone.Task.FILL, [unit, needer, id])
-			_needs_provider[id] = []
+			_add_matter_provider(unit, id)
 
 
-func _add_matter_provider(unit: Unit, ids: Array) -> void:
-	for id in ids:
-		_providers[id].append(unit)
+func _add_matter_provider(unit: Unit, id: int) -> void:
+	_providers[id].append(unit)
+	for needer in _needs_provider[id]:
+		_add_task(Drone.Task.FILL, [unit, needer, id])
+	_needs_provider[id] = []
 
 
-func _add_matter_taker(unit: Unit, ids: Array) -> void:
-	for id in ids:
-		_takers[id].append(unit)
+func _add_matter_taker(unit: Unit, id: int) -> void:
+	_takers[id].append(unit)
+	for needer in _needs_taker[id]:
+		_add_task(Drone.Task.EMPTY, [needer, unit, id])
+	_needs_taker[id] = []
 
 
 func _remove_unit(unit: Unit) -> void:
