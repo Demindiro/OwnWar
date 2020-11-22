@@ -59,22 +59,18 @@ func save_game(p_name: String) -> int:
 	print("Saving game as %s" % p_name)
 	var start_time := OS.get_ticks_msec()
 	var s_units := {}
-	for i in range(len(teams)):
-		var list := []
-		var team := teams[i]
-		for u in get_tree().get_nodes_in_group("units_" + team):
-			var u_data := {
-					"name": u.unit_name,
-					"transform": var2str(u.transform),
-					"health": u.health,
-					"uid": u.uid,
-					"data": u.serialize_json(),
-				}
-			if u is RigidBody:
-				u_data["linear_velocity"] = var2str(u.linear_velocity)
-				u_data["angular_velocity"] = var2str(u.angular_velocity)
-			list.append(u_data)
-		s_units[team] = list
+	for u in get_tree().get_nodes_in_group("units"):
+		var u_data := {
+				"name": u.unit_name,
+				"transform": var2str(u.transform),
+				"health": u.health,
+				"team": u.team,
+				"data": u.serialize_json(),
+			}
+		if u is RigidBody:
+			u_data["linear_velocity"] = var2str(u.linear_velocity)
+			u_data["angular_velocity"] = var2str(u.angular_velocity)
+		s_units[var2str(u.uid)] = u_data
 
 	var s_plugins := {}
 	for plugin in Plugin.get_all_plugins():
@@ -109,54 +105,56 @@ func save_game(p_name: String) -> int:
 	return e
 
 
-static func _load_game(game_master: GameMaster, data: Dictionary) -> void:
+func _load_game(data: Dictionary) -> void:
+	_loading_game = true
 	var start_time := OS.get_ticks_msec()
 
-	for m_units in game_master.units:
-		for u in m_units:
-			u.free()
-	game_master.teams = []
-	game_master.units = []
+	for unit in get_tree().get_nodes_in_group("units"):
+		unit.free()
+	teams = []
 
 	print("Free time %d msec" % (OS.get_ticks_msec() - start_time))
 	start_time = OS.get_ticks_msec()
 
-	game_master.uid_counter = data["uid_counter"]
+	uid_counter = data["uid_counter"]
 	var _Vehicle := load("res://core/vehicle.gd")
-	var _Unit := load("res://core/unit.gd")
+	var _Unit := load("res://core/unit/unit.gd")
 
-	for team in data["units"]:
-		var u_list := []
-		for u_d in data["units"][team]:
-			var u_name: String = u_d["name"]
-			var u = _Vehicle.new() if \
-					u_name.begins_with("vehicle_") else \
-					_Unit.get_unit(u_d["name"]).instance()
-			if u_name.begins_with("vehicle_"):
-				u.unit_name = u_name
-			u.game_master = game_master
-			u.transform = str2var(u_d["transform"])
-			u.uid = u_d["uid"]
-			u.health = u_d["health"]
-			if u is RigidBody:
-				u.linear_velocity = str2var(u_d["linear_velocity"])
-				u.angular_velocity = str2var(u_d["angular_velocity"])
-			game_master.add_child(u)
-			u_list.append(u)
-		game_master.teams.push_front(team)
-		game_master.units.push_front(u_list)
+	teams = []
+	var units_data: Dictionary = data["units"]
+	for uid in units_data:
+		var u_d: Dictionary = units_data[uid]
+		var u_name: String = u_d["name"]
+		var u = _Vehicle.new() if \
+				u_name.begins_with("vehicle_") else \
+				_Unit.get_unit(u_d["name"]).instance()
+		if u_name.begins_with("vehicle_"):
+			u.unit_name = u_name
+		u.game_master = self
+		u.transform = str2var(u_d["transform"])
+		u.uid = str2var(uid)
+		u.health = u_d["health"]
+		if u is RigidBody:
+			u.linear_velocity = str2var(u_d["linear_velocity"])
+			u.angular_velocity = str2var(u_d["angular_velocity"])
+		u.team = u_d["team"]
+		u.add_to_group("units_" + u.team)
+		u.add_to_group("units")
+		add_child(u)
+		if not u.team in teams:
+			teams.append(u.team)
 
 	for plugin_name in data["plugin_data"]:
 		var plugin = Plugin.get_plugin(plugin_name)
-		plugin.load_game(game_master, data["plugin_data"][plugin_name])
+		plugin.load_game(self, data["plugin_data"][plugin_name])
 
-	for team in data["units"]:
-		for u_d in data["units"][team]:
-			game_master.get_unit_by_uid(u_d["uid"]).deserialize_json(u_d["data"])
+	for unit in get_tree().get_nodes_in_group("units"):
+		unit.deserialize_json(units_data[var2str(unit.uid)]["data"])
 
-	game_master.emit_signal("load_game", data)
+	emit_signal("load_game", data)
 
 	print("Deserialize time %d msec" % (OS.get_ticks_msec() - start_time))
+	_loading_game = false
 
 
 static func load_game(path: String) -> int:
@@ -167,13 +165,18 @@ static func load_game(path: String) -> int:
 		print("Failed to load game %d" % FAILED)
 		return FAILED
 	print("File read time %d msec" % (OS.get_ticks_msec() - start_time))
+
 	start_time = OS.get_ticks_msec()
 	var data: Dictionary = parse_json(text)
 	print("parse_json time %d msec" % (OS.get_ticks_msec() - start_time))
+
+	start_time = OS.get_ticks_msec()
+	data = Compatibility.convert_game_data(data)
+	print("convert_game_data %d msec" % (OS.get_ticks_msec() - start_time))
+
 	var map := Maps.get_map(data["map_name"])
 	# Christ's sake
-	var totallynotselfandstatic = load("res://core/game_master.gd")
-	Global.goto_scene(map, funcref(totallynotselfandstatic.new(), "_load_game"), [data])
+	Global.goto_scene(map, "_load_game", [data])
 	return OK
 
 

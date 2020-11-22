@@ -58,8 +58,33 @@ static func convert_vehicle_data(data):
 	converted_data["meta"] = data.get("meta", {})
 
 	return converted_data
-	
-	
+
+
+static func convert_game_data(data: Dictionary):# -> Dictionary:
+	var data_version := Util.version_str_to_vector(
+			data.get("game_version", "0.0.0"))
+	if data_version > Game.VERSION:
+		Global.error("Can't load game data: the data was created in a more " +
+				"recent version of the game")
+		return null
+
+	var converted_data := data.duplicate()
+	if data_version < Vector3(0, 15, 0):
+		data["game_version"] = Vector3(0, 15, 0)
+		var unit_dict := {}
+		for team in data["units"]:
+			for unit in data["units"][team]:
+				assert(unit is Dictionary)
+				unit = unit.duplicate()
+				var uid: int = unit["uid"]
+				assert(not uid in unit_dict)
+				unit.erase("uid")
+				unit["team"] = team
+				unit_dict[var2str(uid)] = unit
+		converted_data["units"] = unit_dict
+	return converted_data
+
+
 static func _convert_block_data(data, file_version):
 	data = data.duplicate(true)
 	if file_version < Vector3(0, 5, 0):
