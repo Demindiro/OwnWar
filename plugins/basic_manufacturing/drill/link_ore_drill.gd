@@ -21,6 +21,28 @@ func _ready() -> void:
 		drill.init(ore)
 
 
+func _process(_delta: float) -> void:
+	if Engine.editor_hint:
+		if _get_configuration_warning() != "":
+			return
+		var drill: Spatial = null
+		var ore: Spatial = null
+		var children = get_children()
+		assert(len(children) == 2)
+		if children[0] is preload("drill.gd"):
+			drill = children[0]
+			ore = children[1]
+		else:
+			drill = children[1]
+			ore = children[0]
+
+		var ore_pos = drill.to_global(-drill.position_offset)
+		if not ore_pos.is_equal_approx(ore.global_transform.origin):
+			ore.global_transform.origin = ore_pos
+	else:
+		set_process(false)
+
+
 func _get_configuration_warning() -> String:
 	var root := get_tree().get_edited_scene_root()
 	if root == self:
