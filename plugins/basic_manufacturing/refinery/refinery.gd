@@ -15,7 +15,7 @@ func _physics_process(delta):
 	if _producing:
 		_time_until_fuel_produced += delta
 		if _time_until_fuel_produced >= 1.0 and _fuel < _MAX_FUEL:
-			_fuel += 1
+			_fuel += 10
 			emit_signal("dump_matter", _fuel_id, _fuel)
 			emit_signal("provide_matter", _fuel_id, _fuel)
 			_time_until_fuel_produced = 0.0
