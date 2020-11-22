@@ -174,7 +174,7 @@ window/size/test_height=810
 
 [editor_plugins]
 
-enabled=PoolStringArray( "own_war_editor_plugin", "zylann.hterrain" )
+enabled=PoolStringArray( "godot-plugin-refresher", "own_war_editor_plugin", "zylann.hterrain" )
 
 [gdnative]
 
