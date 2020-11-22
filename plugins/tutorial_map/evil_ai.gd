@@ -1,7 +1,7 @@
 extends Node
 
 
-export(int) var team = 1
+export var team := "EvilAI"
 onready var game_master = GameMaster.get_game_master(self)
 
 var _worker

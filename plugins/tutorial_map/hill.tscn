@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=2]
+[gd_scene load_steps=36 format=2]
 
 [ext_resource path="res://plugins/basic_manufacturing/drill/ore.tscn" type="PackedScene" id=1]
 [ext_resource path="res://core/hud.tscn" type="PackedScene" id=2]
@@ -34,26 +34,27 @@
 [ext_resource path="res://plugins/tutorial_map/ocean_floor_material.tres" type="Material" id=32]
 [ext_resource path="res://plugins/tutorial_map/water_mesh.tres" type="PlaneMesh" id=33]
 [ext_resource path="res://plugins/tutorial_map/evil_ai_trigger_shape.tres" type="Shape" id=34]
+[ext_resource path="res://core/unit/unit_group.tscn" type="PackedScene" id=35]
 
 [node name="Hill" type="Node"]
 script = ExtResource( 10 )
 victory_screen = NodePath("Victory")
 map_name = "tutorial_hill"
 
-[node name="EvilAI" type="Node" parent="."]
+[node name="EvilAI_script" type="Node" parent="."]
 process_priority = 1000
 script = ExtResource( 27 )
 
-[node name="Area" type="Area" parent="EvilAI"]
+[node name="Area" type="Area" parent="EvilAI_script"]
 transform = Transform( 0.659251, 0, 0.751923, 0, 1, 0, -0.751923, 0, 0.659251, 719.094, 74.0377, 728.636 )
 __meta__ = {
 "_edit_group_": true
 }
 
-[node name="CollisionShape" type="CollisionShape" parent="EvilAI/Area"]
+[node name="CollisionShape" type="CollisionShape" parent="EvilAI_script/Area"]
 shape = ExtResource( 34 )
 
-[node name="IdlePoint" type="Spatial" parent="EvilAI"]
+[node name="IdlePoint" type="Spatial" parent="EvilAI_script"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 790.979, 0.481917, 778.691 )
 
 [node name="Map" type="Node" parent="."]
@@ -64,7 +65,6 @@ drone_scene = ExtResource( 11 )
 script = ExtResource( 6 )
 ambient_wind = 0.0
 lod_scale = 2.0
-custom_globalmap_shader = null
 map_scale = Vector3( 1, 1, 1 )
 _terrain_data = ExtResource( 15 )
 chunk_size = 32
@@ -73,6 +73,7 @@ collision_layer = 129
 collision_mask = 129
 shader_type = "Classic4Lite"
 custom_shader = null
+custom_globalmap_shader = null
 shader_params/u_ground_uv_scale = 20
 shader_params/u_depth_blending = false
 shader_params/u_triplanar = false
@@ -119,52 +120,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0 )
 mesh = ExtResource( 31 )
 material/0 = ExtResource( 32 )
 
-[node name="Player" type="Node" parent="Map"]
-
-[node name="Spawn" parent="Map/Player" instance=ExtResource( 7 )]
-transform = Transform( -0.5, 0, -0.866025, 0, 1, 0, 0.866025, 0, -0.5, 128.5, 0, 326.5 )
-
-[node name="Drill" parent="Map/Player" instance=ExtResource( 8 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 207, 1.5, 218 )
-
-[node name="StoragePod" parent="Map/Player" instance=ExtResource( 4 )]
-transform = Transform( 0.866025, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866025, 206.5, 1.3, 290 )
-
-[node name="Drone" parent="Map/Player" instance=ExtResource( 11 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 215.335, 4.11692, 356.776 )
-ghosts = {
-"Munition Factory": ExtResource( 17 ),
-"Refinery": ExtResource( 18 ),
-"Roboport": ExtResource( 26 ),
-"Spawn Platform": ExtResource( 13 ),
-"Storage Pod": ExtResource( 12 )
-}
-
-[node name="Enemy" type="Node" parent="Map"]
-
-[node name="Spawn" parent="Map/Enemy" instance=ExtResource( 7 )]
-transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 863, 0, 850.5 )
-team = 1
-
-[node name="StoragePod" parent="Map/Enemy" instance=ExtResource( 4 )]
-transform = Transform( 0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 813.5, 1.3, 864 )
-team = 1
-
-[node name="StoragePod2" parent="Map/Enemy" instance=ExtResource( 4 )]
-transform = Transform( 0.258819, 0, 0.965926, 0, 1, 0, -0.965926, 0, 0.258819, 823.5, 1.3, 856 )
-team = 1
-
-[node name="Drone" parent="Map/Enemy" instance=ExtResource( 11 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 810.656, 2.9553, 820.223 )
-team = 1
-ghosts = {
-"Munition Factory": ExtResource( 17 ),
-"Refinery": ExtResource( 18 ),
-"Roboport": ExtResource( 26 ),
-"Spawn Platform": ExtResource( 13 ),
-"Storage Pod": ExtResource( 12 )
-}
-
 [node name="Ores" type="Node" parent="Map"]
 
 [node name="Ore" parent="Map/Ores" instance=ExtResource( 1 )]
@@ -178,6 +133,56 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 312.708, 30.1831, 566.548 )
 
 [node name="Ore4" parent="Map/Ores" instance=ExtResource( 1 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 438.814, 30.591, 547.43 )
+
+[node name="Player" parent="." instance=ExtResource( 35 )]
+
+[node name="Spawn" parent="Player" instance=ExtResource( 7 )]
+transform = Transform( -0.5, 0, -0.866025, 0, 1, 0, 0.866025, 0, -0.5, 128.5, 0, 326.5 )
+team = "Player"
+
+[node name="Drill" parent="Player" instance=ExtResource( 8 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 207, 1.5, 218 )
+team = "Player"
+
+[node name="StoragePod" parent="Player" instance=ExtResource( 4 )]
+transform = Transform( 0.866025, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866025, 206.5, 1.3, 290 )
+team = "Player"
+
+[node name="Drone" parent="Player" instance=ExtResource( 11 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 215.335, 4.11692, 356.776 )
+team = "Player"
+ghosts = {
+"Munition Factory": ExtResource( 17 ),
+"Refinery": ExtResource( 18 ),
+"Roboport": ExtResource( 26 ),
+"Spawn Platform": ExtResource( 13 ),
+"Storage Pod": ExtResource( 12 )
+}
+
+[node name="EvilAI" parent="." instance=ExtResource( 35 )]
+
+[node name="Spawn" parent="EvilAI" instance=ExtResource( 7 )]
+transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 863, 0, 850.5 )
+team = "EvilAI"
+
+[node name="StoragePod" parent="EvilAI" instance=ExtResource( 4 )]
+transform = Transform( 0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 813.5, 1.3, 864 )
+team = "EvilAI"
+
+[node name="StoragePod2" parent="EvilAI" instance=ExtResource( 4 )]
+transform = Transform( 0.258819, 0, 0.965926, 0, 1, 0, -0.965926, 0, 0.258819, 823.5, 1.3, 856 )
+team = "EvilAI"
+
+[node name="Drone" parent="EvilAI" instance=ExtResource( 11 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 810.656, 2.9553, 820.223 )
+team = "EvilAI"
+ghosts = {
+"Munition Factory": ExtResource( 17 ),
+"Refinery": ExtResource( 18 ),
+"Roboport": ExtResource( 26 ),
+"Spawn Platform": ExtResource( 13 ),
+"Storage Pod": ExtResource( 12 )
+}
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = ExtResource( 5 )
@@ -224,6 +229,6 @@ text = "Exit"
 __meta__ = {
 "_edit_use_anchors_": false
 }
-[connection signal="body_entered" from="EvilAI/Area" to="EvilAI" method="_on_Area_body_entered"]
-[connection signal="body_exited" from="EvilAI/Area" to="EvilAI" method="_on_Area_body_exited"]
+[connection signal="body_entered" from="EvilAI_script/Area" to="EvilAI_script" method="_on_Area_body_entered"]
+[connection signal="body_exited" from="EvilAI_script/Area" to="EvilAI_script" method="_on_Area_body_exited"]
 [connection signal="pressed" from="Victory/Exit" to="Victory" method="_on_Exit_pressed"]
