@@ -45,7 +45,8 @@ func _process(_delta: float) -> void:
 			basis = basis.rotated(up, rot)
 			# Apply transform (unless it's pretty much equal)
 			var n_transform := Transform(basis, org)
-			if not n_transform.is_equal_approx(transform):
+			if not Util.is_transform_approx_eq(n_transform, transform,
+					1e-5, 1e-4):
 				c.global_transform = n_transform
 
 

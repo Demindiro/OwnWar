@@ -202,3 +202,11 @@ static func decode_color(s: String, delim := ",") -> Color:
 	var a := s.split_floats(delim)
 	assert(len(a) == 4)
 	return Color(a[0], a[1], a[2], a[3])
+
+
+static func is_transform_approx_eq(a: Transform, b: Transform,
+		epsilon_basis: float, epsilon_origin: float) -> bool:
+	return a.basis.is_equal_approx(b.basis, epsilon_basis) and \
+			abs(a.origin.x - b.origin.x) < epsilon_origin and \
+			abs(a.origin.y - b.origin.y) < epsilon_origin and \
+			abs(a.origin.z - b.origin.z) < epsilon_origin
