@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=2]
+[gd_scene load_steps=27 format=2]
 
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
 [ext_resource path="res://plugins/campaign_abcd/map_data/data.hterrain" type="Resource" id=2]
@@ -26,8 +26,6 @@
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery_ghost.tscn" type="PackedScene" id=24]
 [ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=25]
 [ext_resource path="res://core/vehicle.gd" type="Script" id=26]
-[ext_resource path="res://plugins/basic_manufacturing/drill/drill.gd" type="Script" id=27]
-[ext_resource path="res://plugins/basic_manufacturing/drill/ore.gd" type="Script" id=28]
 
 [node name="Map" type="Node"]
 script = ExtResource( 7 )
@@ -152,11 +150,11 @@ team = "Arend"
 type_flags = 1
 
 [node name="Refinery" parent="Arend/X" instance=ExtResource( 19 )]
-transform = Transform( -0.999973, 0.0073846, -8.16656e-05, 0.00738505, 0.999912, -0.0110461, 8.74134e-08, -0.0110464, -0.999939, 2502.51, 1.1066, 640.989 )
+transform = Transform( -0.999973, 0.0073846, -8.14907e-05, 0.00738505, 0.999912, -0.0110461, -8.73988e-08, -0.0110464, -0.999939, 2502.51, 1.1066, 640.989 )
 team = "Arend"
 
 [node name="MunitionsFactory" parent="Arend/X" instance=ExtResource( 21 )]
-transform = Transform( -0.99995, -0.0100093, 4.79967e-06, -0.0100093, 0.99995, -0.000488233, 8.74234e-08, -0.000488257, -1, 2520.99, 0.491588, 607 )
+transform = Transform( -0.99995, -0.0100093, 4.97451e-06, -0.0100093, 0.99995, -0.000488231, -8.74224e-08, -0.000488257, -1, 2520.99, 0.491588, 607 )
 team = "Arend"
 
 [node name="Vehicle" type="Spatial" parent="Arend/X"]
@@ -171,7 +169,7 @@ _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 [node name="Z" type="Node" parent="Arend"]
 
 [node name="SpawnPlatform" parent="Arend/Z" instance=ExtResource( 6 )]
-transform = Transform( -0.999931, -0.0117174, -0.000114507, -0.0117179, 0.999884, 0.00976382, 8.74134e-08, 0.00976449, -0.999952, 3364.5, 3.5459, 1407.5 )
+transform = Transform( -0.999931, -0.0117174, -0.000114332, -0.0117179, 0.999884, 0.00976382, -8.74425e-08, 0.00976449, -0.999952, 3364.5, 3.5459, 1407.5 )
 team = "Arend"
 
 [node name="StoragePod" parent="Arend/Z" instance=ExtResource( 11 )]
@@ -391,7 +389,7 @@ transform = Transform( -0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, -0.5, 1904.5, 7
 team = "Centaurs"
 
 [node name="Refinery" parent="Centaurs/HQ" instance=ExtResource( 19 )]
-transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1930.5, 76.1875, 2280.5 )
+transform = Transform( -1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 1930.5, 76.1875, 2280.5 )
 team = "Centaurs"
 
 [node name="Refinery3" parent="Centaurs/HQ" instance=ExtResource( 19 )]
@@ -501,31 +499,21 @@ _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="LinkOreDrill" parent="Centaurs/Mine" instance=ExtResource( 14 )]
 
-[node name="Drill" type="StaticBody" parent="Centaurs/Mine/LinkOreDrill" instance=ExtResource( 13 )]
+[node name="Drill" parent="Centaurs/Mine/LinkOreDrill" instance=ExtResource( 13 )]
 transform = Transform( 0.998053, -0.0605228, -0.0151012, 0.0623783, 0.968364, 0.24162, 0, -0.242091, 0.970254, 2241.41, 65.5463, 2213.64 )
-script = ExtResource( 27 )
-max_health = 500
 team = "Centaurs"
-unit_name = "drill"
-position_offset = Vector3( 0, 1.5, 0 )
 
-[node name="Ore" type="StaticBody" parent="Centaurs/Mine/LinkOreDrill" instance=ExtResource( 12 )]
+[node name="Ore" parent="Centaurs/Mine/LinkOreDrill" instance=ExtResource( 12 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2241.5, 64.0938, 2214 )
-script = ExtResource( 28 )
 
 [node name="LinkOreDrill2" parent="Centaurs/Mine" instance=ExtResource( 14 )]
 
-[node name="Drill" type="StaticBody" parent="Centaurs/Mine/LinkOreDrill2" instance=ExtResource( 13 )]
+[node name="Drill" parent="Centaurs/Mine/LinkOreDrill2" instance=ExtResource( 13 )]
 transform = Transform( 0.988012, -0.150893, -0.0326121, 0.154377, 0.965715, 0.208718, 0, -0.21125, 0.977432, 2253.27, 64.0892, 2202.68 )
-script = ExtResource( 27 )
-max_health = 500
 team = "Centaurs"
-unit_name = "drill"
-position_offset = Vector3( 0, 1.5, 0 )
 
-[node name="Ore" type="StaticBody" parent="Centaurs/Mine/LinkOreDrill2" instance=ExtResource( 12 )]
+[node name="Ore" parent="Centaurs/Mine/LinkOreDrill2" instance=ExtResource( 12 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2253.5, 62.6406, 2203 )
-script = ExtResource( 28 )
 
 [node name="LinkOreDrill3" parent="Centaurs/Mine" instance=ExtResource( 14 )]
 
@@ -613,7 +601,7 @@ team = "Centaurs"
 [node name="HQ" type="Node" parent="Dominator"]
 
 [node name="SpawnPlatform" parent="Dominator/HQ" instance=ExtResource( 6 )]
-transform = Transform( 0.701621, -0.062107, 0.709839, 0.109854, 0.993712, -0.021638, -0.704032, 0.0931605, 0.704032, 3765.5, 55.1719, 3731.5 )
+transform = Transform( 0.706072, -0.0312195, 0.707451, 0.0441511, 0.999025, 2.15378e-05, -0.706762, 0.0312195, 0.706762, 3765.5, 55.0312, 3731.5 )
 team = "Dominator"
 
 [node name="SpawnPlatform2" parent="Dominator/HQ" instance=ExtResource( 6 )]
@@ -625,32 +613,27 @@ transform = Transform( 0.267599, -0.0616334, 0.961557, -0.132399, 0.986134, 0.10
 team = "Dominator"
 
 [node name="SpawnPlatform3" parent="Dominator/HQ" instance=ExtResource( 6 )]
-transform = Transform( 0.701621, -0.062107, 0.709839, 0.109854, 0.993712, -0.021638, -0.704032, 0.0931605, 0.704032, 3778.5, 56.1407, 3719.5 )
+transform = Transform( 0.706072, -0.0312195, 0.707451, 0.0441511, 0.999025, 2.15378e-05, -0.706762, 0.0312195, 0.706762, 3778.5, 55.9376, 3719.5 )
 team = "Dominator"
 
 [node name="SpawnPlatform4" parent="Dominator/HQ" instance=ExtResource( 6 )]
-transform = Transform( 0.707107, 0, 0.707107, 0.0220863, 0.999512, -0.0220863, -0.706762, 0.0312348, 0.706762, 3737, 54.3437, 3760 )
+transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 3737, 54.3125, 3760 )
 team = "Dominator"
 
 [node name="SpawnPlatform5" parent="Dominator/HQ" instance=ExtResource( 6 )]
-transform = Transform( 0.706072, -0.0312195, 0.707451, 0.0441511, 0.999025, 2.15378e-05, -0.706762, 0.0312195, 0.706762, 3750, 55.2032, 3747.5 )
+transform = Transform( 0.708139, 0.031174, 0.705385, 0.0219789, 0.997568, -0.0661515, -0.705731, 0.062348, 0.705731, 3750, 54.6562, 3747.5 )
 team = "Dominator"
 
 [node name="Mine" type="Node" parent="Dominator/HQ"]
 
 [node name="LinkOreDrill" parent="Dominator/HQ/Mine" instance=ExtResource( 14 )]
 
-[node name="Drill" type="StaticBody" parent="Dominator/HQ/Mine/LinkOreDrill" instance=ExtResource( 13 )]
+[node name="Drill" parent="Dominator/HQ/Mine/LinkOreDrill" instance=ExtResource( 13 )]
 transform = Transform( 0.999512, 0.0312348, 0, -0.0312348, 0.999512, 0, 0, 0, 1, 3491.05, 59.8742, 3827.5 )
-script = ExtResource( 27 )
-max_health = 500
 team = "Dominator"
-unit_name = "drill"
-position_offset = Vector3( 0, 1.5, 0 )
 
-[node name="Ore" type="StaticBody" parent="Dominator/HQ/Mine/LinkOreDrill" instance=ExtResource( 12 )]
+[node name="Ore" parent="Dominator/HQ/Mine/LinkOreDrill" instance=ExtResource( 12 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3491, 58.375, 3827.5 )
-script = ExtResource( 28 )
 
 [node name="LinkOreDrill2" parent="Dominator/HQ/Mine" instance=ExtResource( 14 )]
 
