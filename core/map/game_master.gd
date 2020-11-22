@@ -117,7 +117,7 @@ func _load_game(data: Dictionary) -> void:
 	start_time = OS.get_ticks_msec()
 
 	uid_counter = data["uid_counter"]
-	var _Vehicle := load("res://core/vehicle.gd")
+	var _Vehicle := load("res://core/unit/vehicle.gd")
 	var _Unit := load("res://core/unit/unit.gd")
 
 	teams = []

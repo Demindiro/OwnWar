@@ -99,10 +99,10 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/util.gd"
 }, {
-"base": "Unit",
+"base": "Reference",
 "class": "Vehicle",
 "language": "GDScript",
-"path": "res://core/vehicle.gd"
+"path": "res://core/unit/vehicle.gd"
 }, {
 "base": "VehicleBody",
 "class": "VoxelBody",

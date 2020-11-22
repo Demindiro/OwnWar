@@ -8,12 +8,13 @@
 [ext_resource path="res://core/camera/tracker.gd" type="Script" id=6]
 [ext_resource path="res://core/menu/main_menu/maps.gd" type="Script" id=7]
 [ext_resource path="res://core/menu/main.gd" type="Script" id=8]
-[ext_resource path="res://core/vehicle.gd" type="Script" id=9]
+[ext_resource path="res://core/unit/vehicle.gd" type="Script" id=9]
 [ext_resource path="res://core/menu/font_small.tres" type="DynamicFont" id=10]
 [ext_resource path="res://core/menu/button/button.tscn" type="PackedScene" id=11]
 [ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=12]
 [ext_resource path="res://core/menu/main_menu/floor_mesh.tres" type="PlaneMesh" id=13]
 [ext_resource path="res://core/menu/main_menu/floor_shape.tres" type="Shape" id=14]
+
 
 
 [node name="Main" type="Node"]
