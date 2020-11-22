@@ -83,7 +83,7 @@ func save_game(p_name: String) -> int:
 			"units": s_units,
 			"plugin_data": s_plugins,
 			"uid_counter": uid_counter,
-			"game_version": Util.version_vector_to_str(Game.VERSION),
+			"game_version": Util.version_vector_to_str(Constants.VERSION),
 		}
 	emit_signal("save_game", data)
 	print("Serializing time %d msec" % (OS.get_ticks_msec() - start_time))

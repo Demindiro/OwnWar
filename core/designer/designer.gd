@@ -222,7 +222,7 @@ func highlight_face():
 
 func save_vehicle(var path):
 	var data := {}
-	data['game_version'] = Util.version_vector_to_str(Game.VERSION)
+	data['game_version'] = Util.version_vector_to_str(Constants.VERSION)
 	data['blocks'] = {}
 	for coordinate in blocks:
 		var block_data = blocks[coordinate].duplicate()
