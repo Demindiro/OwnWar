@@ -28,7 +28,7 @@ func add_build_progress(material):
 		unit.team = team
 		unit.global_transform = global_transform
 		unit.translate(spawn_offset)
-		game_master.add_unit(team, unit)
+		GameMaster.get_game_master(self).add_child(unit)
 		if unit.has_method("init") or init_arguments != []:
 			unit.callv("init", init_arguments)
 		destroy()

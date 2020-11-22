@@ -209,7 +209,8 @@ func build(flags, units):
 func build_ghost(flags, position, scroll, ghost_name):
 	var ghost = ghosts[ghost_name].instance()
 	ghost.transform = Transform(Basis.IDENTITY.rotated(Vector3.UP, scroll * PI / 8), position)
-	game_master.add_unit(team, ghost)
+	ghost.team = team
+	game_master.add_child(ghost)
 	add_task([Task.BUILD_STRUCTURE, ghost], flags & 0x1 > 0)
 	ghost.connect("built", self, "_ghost_built")
 
