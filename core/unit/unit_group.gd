@@ -2,9 +2,6 @@ tool
 extends Node
 
 
-export var team := -1
-
-
 func _process(_delta: float) -> void:
 	if Engine.editor_hint:
 		for c in Util.get_children_recursive(self):
