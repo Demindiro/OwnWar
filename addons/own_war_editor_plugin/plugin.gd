@@ -9,9 +9,10 @@ func _enter_tree() -> void:
 	get_tree().connect("node_added", self, "_node_added")
 	get_tree().connect("node_removed", self, "_node_removed")
 	var root := get_tree().get_edited_scene_root()
-	for c in Util.get_children_recursive(root):
-		if c is Structure:
-			_structures.append(c)
+	if root != null:
+		for c in Util.get_children_recursive(root):
+			if c is Structure:
+				_structures.append(c)
 
 
 func _process(_delta: float) -> void:
