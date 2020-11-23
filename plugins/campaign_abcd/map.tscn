@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=2]
+[gd_scene load_steps=28 format=2]
 
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
 [ext_resource path="res://plugins/campaign_abcd/map_data/data.hterrain" type="Resource" id=2]
@@ -26,6 +26,7 @@
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery_ghost.tscn" type="PackedScene" id=24]
 [ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=25]
 [ext_resource path="res://core/unit/vehicle.gd" type="Script" id=26]
+[ext_resource path="res://plugins/strategic_ai/ai.gd" type="Script" id=27]
 
 [node name="Map" type="Node"]
 script = ExtResource( 7 )
@@ -596,6 +597,10 @@ team = "Centaurs"
 transform = Transform( 0.862429, 0.182913, 0.471974, -0.0996718, 0.975537, -0.19594, -0.496269, 0.121942, 0.859563, 2214.74, 66.4244, 2167.66 )
 team = "Centaurs"
 
+[node name="Drone" parent="Centaurs/Mine" instance=ExtResource( 25 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2202.04, 70.3335, 2173.05 )
+team = "Centaurs"
+
 [node name="Dominator" parent="." instance=ExtResource( 16 )]
 
 [node name="HQ" type="Node" parent="Dominator"]
@@ -752,6 +757,10 @@ team = "Dominator"
 transform = Transform( 0.865115, -0.0312195, -0.500601, 0.0426522, 0.999025, 0.0114063, 0.499756, -0.0312195, 0.865603, 3594.46, 57.8455, 3571.96 )
 team = "Dominator"
 
+[node name="Drone" parent="Dominator/HQ" instance=ExtResource( 25 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3705.48, 59.6065, 3698.05 )
+team = "Dominator"
+
 [node name="HTerrain" type="Spatial" parent="."]
 script = ExtResource( 1 )
 ambient_wind = 0.0
@@ -789,6 +798,20 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 343, 19.3367, 416 )
 far = 2000.0
 script = ExtResource( 5 )
 speed = 200.0
+
+[node name="AI" type="Node" parent="."]
+
+[node name="Arend" type="Timer" parent="AI"]
+script = ExtResource( 27 )
+
+[node name="Bears" type="Timer" parent="AI"]
+script = ExtResource( 27 )
+
+[node name="Centaurs" type="Timer" parent="AI"]
+script = ExtResource( 27 )
+
+[node name="Dominator" type="Timer" parent="AI"]
+script = ExtResource( 27 )
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = ExtResource( 8 )

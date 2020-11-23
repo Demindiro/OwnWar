@@ -12,13 +12,6 @@
 [ext_resource path="res://plugins/worker_drone/worker_drone_body_mesh.tres" type="CubeMesh" id=10]
 [ext_resource path="res://plugins/worker_drone/worker_drone_collision_shape.tres" type="Shape" id=11]
 
-
-
-
-
-
-
-
 [node name="Drone" type="KinematicBody"]
 script = ExtResource( 2 )
 unit_name = "worker"
