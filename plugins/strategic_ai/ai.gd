@@ -5,11 +5,17 @@ const _ORE_MAX_DISTANCE_2 := 100.0 * 100.0
 const _DRONE := preload("res://plugins/worker_drone/drone.gd")
 const _ORE := preload("res://plugins/basic_manufacturing/drill/ore.gd")
 var _units := []
+# matter = resources in literally every other game
+var _matter_index := PoolIntArray()
+var _debug_last_message := ""
+var _debug_last_message_repeats := 0
+onready var _material_id := Matter.get_matter_id("material")
 
 
 func _ready() -> void:
+	_matter_index.resize(Matter.get_matter_types_count())
 	process_mode = Timer.TIMER_PROCESS_PHYSICS
-	wait_time = 0.1
+	wait_time = 1.0
 	autostart = true
 	var e := connect("timeout", self, "_ai_process")
 	assert(e == OK)
@@ -17,16 +23,34 @@ func _ready() -> void:
 
 func _ai_process() -> void:
 	_units = get_tree().get_nodes_in_group("units_" + name)
+	_index_matter()
 	_build_mining_post()
 
 
+func _index_matter() -> void:
+	for i in range(len(_matter_index)):
+		_matter_index[i] = 0
+	for u in _units:
+		assert(u is Unit)
+		for id in u.get_take_matter_list():
+			_matter_index[id] += u.get_matter_count(id)
+
+
 func _build_mining_post() -> void:
-	var ore := _get_closest_ore()
-	if ore != null:
-		var ore_pos := ore.global_transform.origin
-		var worker := _get_idle_worker(ore_pos)
-		if worker != null:
-			worker.build_drill(0, ore_pos)
+	if _matter_index[_material_id] >= 10:
+		var ore := _get_closest_ore()
+		if ore != null:
+			var ore_pos := ore.global_transform.origin
+			var worker := _get_idle_worker(ore_pos)
+			if worker != null:
+				_debug("Building drill")
+				worker.build_drill(0, ore_pos)
+			else:
+				_debug("No idle workers found to build drill")
+		else:
+			_debug("No nearby ores found")
+	else:
+		_debug("Not enough material to build a drill")
 
 
 # Get any worker without any tasks
@@ -59,3 +83,19 @@ func _get_closest_ore() -> _ORE:
 					closest_ore = ore
 					closest_distance2 = dist2
 	return closest_ore
+
+
+func _debug(message: String) -> void:
+	if OS.is_debug_build():
+		if _debug_last_message != message:
+			if _debug_last_message_repeats > 0:
+				print("[AI:DEBUG:%s] last message repeated %d time%s" % [
+						name,
+						_debug_last_message_repeats,
+						"" if _debug_last_message_repeats == 1 else "s"
+					])
+			print("[AI:DEBUG:%s] %s" % [name, message])
+			_debug_last_message = message
+			_debug_last_message_repeats = 0
+		else:
+			_debug_last_message_repeats += 1
