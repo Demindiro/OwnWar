@@ -227,7 +227,8 @@ func build_drill(flags, coordinate):
 		var ghost = drill_ghost.instance()
 		ghost.translation = closest_ore.translation + Vector3.UP * 1.4
 		ghost.init_arguments = [closest_ore]
-		game_master.add_unit(team, ghost)
+		ghost.team = team
+		game_master.add_child(ghost)
 		add_task([Task.BUILD_STRUCTURE, ghost], flags & 0x1 > 0)
 		ghost.connect("built", self, "_ghost_built")
 
