@@ -3,6 +3,14 @@ const PLUGIN_VERSION := Vector3(0, 0, 1)
 const MIN_VERSION := Vector3(0, 12, 0)
 const PLUGIN_DEPENDENCIES := {"worker_drone": Vector3(0, 0, 1)}
 
+const MunitionsFactory := preload("munitions_factory/munitions_factory.gd")
+const Ore := preload("drill/ore.gd")
+const Drill := preload("drill/drill.gd")
+const StoragePod := preload("storage_pod/storage_pod.gd")
+const SpawnPlatform := preload("spawn_platform/spawn_platform.gd")
+const Refinery := preload("refinery/refinery.gd")
+const Roboport := preload("roboport/roboport.gd")
+
 
 static func pre_init(_plugin_path: String):
 	Unit.add_unit("drill", preload("drill/drill.tscn"))

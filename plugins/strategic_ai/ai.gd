@@ -1,9 +1,10 @@
 extends Timer
 
+const BM := preload("res://plugins/basic_manufacturing/plugin.gd")
+const WorkerDrone := preload("res://plugins/worker_drone/drone.gd")
 
 const _ORE_MAX_DISTANCE_2 := 100.0 * 100.0
-const _DRONE := preload("res://plugins/worker_drone/drone.gd")
-const _ORE := preload("res://plugins/basic_manufacturing/drill/ore.gd")
+
 var _units := []
 # matter = resources in literally every other game
 var _matter_index := PoolIntArray()
@@ -54,11 +55,11 @@ func _build_mining_post() -> void:
 
 
 # Get any worker without any tasks
-func _get_idle_worker(closest_to: Vector3) -> _DRONE:
-	var closest: _DRONE = null
+func _get_idle_worker(closest_to: Vector3) -> WorkerDrone:
+	var closest: WorkerDrone = null
 	var closest_distance2 := INF
 	for u in _units:
-		if u is _DRONE and len(u.tasks) == 0:
+		if u is WorkerDrone and len(u.tasks) == 0:
 			var pos: Vector3 = u.global_transform.origin
 			var d2 := pos.distance_squared_to(closest_to)
 			if d2 < closest_distance2:
@@ -69,11 +70,11 @@ func _get_idle_worker(closest_to: Vector3) -> _DRONE:
 
 # Get any ore that is the closest to any of our structures and doesn't have a
 # drill yet.
-func _get_closest_ore() -> _ORE:
-	var closest_ore: _ORE = null
+func _get_closest_ore() -> BM.Ore:
+	var closest_ore: BM.Ore = null
 	var closest_distance2 := _ORE_MAX_DISTANCE_2
 	for ore in get_tree().get_nodes_in_group("ores"):
-		assert(ore is _ORE)
+		assert(ore is BM.Ore)
 		if ore.drill == null:
 			var ore_pos = ore.global_transform.origin
 			for u in _units:
