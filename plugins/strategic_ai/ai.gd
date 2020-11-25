@@ -49,7 +49,7 @@ func _index_matter() -> void:
 
 func _index_matter_needs() -> void:
 	for i in range(len(_matter_needs_index)):
-		_matter_needs_index[i] = 0 + 1 # Add 1 for testing
+		_matter_needs_index[i] = 0
 	for u in _units:
 		for id in u.get_put_matter_list():
 			_matter_needs_index[id] += u.needs_matter(id)
