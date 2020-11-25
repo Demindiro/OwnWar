@@ -11,8 +11,6 @@ var _units := []
 # matter = resources in literally every other game
 var _matter_index := PoolIntArray()
 var _matter_needs_index := PoolIntArray()
-var _debug_last_message := ""
-var _debug_last_message_repeats := 0
 onready var _material_id := Matter.get_matter_id("material")
 
 
@@ -114,7 +112,6 @@ func _find_best_storage_pod(matter_id: int) -> BM.StoragePod:
 func _find_closest_unit(position: Vector3, unit_type: GDScript = Unit) -> Unit:
 	var closest_unit: Unit = null
 	var distance2 := INF
-	print(unit_type)
 	for u in _units:
 		if u is unit_type:
 			var org: Vector3 = u.global_transform.origin
@@ -178,15 +175,9 @@ func _produce_munition(id: int, amount: int) -> void:
 
 func _debug(message: String) -> void:
 	if OS.is_debug_build():
-		if _debug_last_message != message:
-			if _debug_last_message_repeats > 0:
-				print("[AI:DEBUG:%s] last message repeated %d time%s" % [
-						name,
-						_debug_last_message_repeats,
-						"" if _debug_last_message_repeats == 1 else "s"
-					])
-			print("[AI:DEBUG:%s] %s" % [name, message])
-			_debug_last_message = message
-			_debug_last_message_repeats = 0
-		else:
-			_debug_last_message_repeats += 1
+		_log("DEBUG", message)
+
+
+func _log(type: String, message: String) -> void:
+	var f := Engine.get_physics_frames()
+	print("[%8d] [AI:%s:%s] %s" % [f, type, name, message])
