@@ -1,15 +1,195 @@
 extends Unit
 
 
-signal task_completed(task, target)
-enum Task {
-		PUT,
-		TAKE,
-		PUT_ONLY,
-		TAKE_ONLY,
-		BUILD_STRUCTURE,
-		GOTO_WAYPOINT,
-	}
+class Task:
+	var oneshot: bool
+
+	func _init() -> void:
+		# Thanks Godot
+#		assert(false)
+		pass
+
+	func _to_string() -> String:
+		assert(false)
+		return "(BUG)"
+
+	func serialize() -> Dictionary:
+		assert(false)
+		return {}
+
+	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+		match state["task"]:
+			"PUT": return TaskPut.deserialize(game_master, state)
+			"TAKE": return TaskTake.deserialize(game_master, state)
+			"PUT_ONLY": return TaskPutOnly.deserialize(game_master, state)
+			"TAKE_ONLY": return TaskTakeOnly.deserialize(game_master, state)
+			"BUILD_STRUCTURE": return TaskBuild.deserialize(game_master, state)
+			"GOTO_WAYPOINT": return TaskGoto.deserialize(game_master, state)
+		assert(false)
+		return null
+
+	func _serialize(type: String) -> Dictionary:
+		return {
+				"task": type,
+				"oneshot": oneshot,
+			}
+
+
+class TaskPut:
+	extends Task
+	var unit: Unit
+	var matter_id: int
+
+	func _init(p_unit: Unit, p_matter_id: int, p_oneshot := false):
+		unit = p_unit
+		matter_id = p_matter_id
+		oneshot = p_oneshot
+
+	func _to_string() -> String:
+		return "Put"
+
+	func serialize() -> Dictionary:
+		var s := ._serialize("PUT")
+		s["target"] = unit.uid
+		s["matter"] = Matter.get_matter_name(matter_id)
+		return s
+
+	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+		return TaskPut.new(
+				game_master.get_unit_by_uid(state["target"]),
+				Matter.get_matter_id(state["matter"]),
+				state.get("oneshot", false)
+			)
+
+
+class TaskTake:
+	extends Task
+	var unit: Unit
+	var matter_id: int
+
+	func _init(p_unit: Unit, p_matter_id: int, p_oneshot := false):
+		unit = p_unit
+		matter_id = p_matter_id
+		oneshot = p_oneshot
+
+	func _to_string() -> String:
+		return "Take"
+
+	func serialize() -> Dictionary:
+		var s := ._serialize("TAKE")
+		s["target"] = unit.uid
+		s["matter"] = Matter.get_matter_name(matter_id)
+		return s
+
+	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+		return TaskTake.new(
+				game_master.get_unit_by_uid(state["target"]),
+				Matter.get_matter_id(state["matter"]),
+				state.get("oneshot", false)
+			)
+
+
+class TaskPutOnly:
+	extends Task
+	var unit: Unit
+	var matter_id: int
+
+	func _init(p_unit: Unit, p_matter_id: int, p_oneshot := false):
+		unit = p_unit
+		matter_id = p_matter_id
+		oneshot = p_oneshot
+
+	func _to_string() -> String:
+		return "Put only"
+
+	func serialize() -> Dictionary:
+		var s := ._serialize("PUT_ONLY")
+		s["target"] = unit.uid
+		s["matter"] = Matter.get_matter_name(matter_id)
+		return s
+
+	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+		return TaskPutOnly.new(
+				game_master.get_unit_by_uid(state["target"]),
+				Matter.get_matter_id(state["matter"]),
+				state.get("oneshot", false)
+			)
+
+
+class TaskTakeOnly:
+	extends Task
+	var unit: Unit
+	var matter_id: int
+
+	func _init(p_unit: Unit, p_matter_id: int, p_oneshot := false):
+		unit = p_unit
+		matter_id = p_matter_id
+		oneshot = p_oneshot
+
+	func _to_string() -> String:
+		return "Take only"
+
+	func serialize() -> Dictionary:
+		var s := ._serialize("TAKE_ONLY")
+		s["target"] = unit.uid
+		s["matter"] = Matter.get_matter_name(matter_id)
+		return s
+
+	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+		return TaskTakeOnly.new(
+				game_master.get_unit_by_uid(state["target"]),
+				Matter.get_matter_id(state["matter"]),
+				state.get("oneshot", false)
+			)
+
+
+class TaskBuild:
+	extends Task
+	var unit: Unit
+
+	func _init(p_unit: Unit, p_oneshot := false):
+		unit = p_unit
+		oneshot = p_oneshot
+
+	func _to_string() -> String:
+		return "Build"
+
+	func serialize() -> Dictionary:
+		var s := ._serialize("BUILD_STRUCTURE")
+		s["target"] = unit.uid
+		return s
+
+	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+		return TaskBuild.new(
+				game_master.get_unit_by_uid(state["target"]),
+				state.get("oneshot", false)
+			)
+
+
+class TaskGoto:
+	extends Task
+	var coordinate: Vector3
+
+	func _init(p_coordinate: Vector3, p_oneshot := false):
+		coordinate = p_coordinate
+		oneshot = p_oneshot
+
+	func _to_string() -> String:
+		return "Goto"
+
+	func serialize() -> Dictionary:
+		var s := ._serialize("GOTO_WAYPOINT")
+		s["waypoint"] = var2str(coordinate)
+		return s
+
+	static func deserialize(_game_master: GameMaster, state: Dictionary) -> Task:
+		return TaskGoto.new(
+				str2var(state["waypoint"]),
+				state.get("oneshot", false)
+			)
+
+
+signal task_completed(task)
 const SPEED = 20.0
 const INTERACTION_DISTANCE = 6.0
 const INTERACTION_DISTANCE_2 = INTERACTION_DISTANCE * INTERACTION_DISTANCE
@@ -39,75 +219,78 @@ func _process(delta):
 func _physics_process(delta):
 	if len(tasks) == 0:
 		return
-	var task = tasks[0]
-	match task[0]:
-		Task.GOTO_WAYPOINT:
-			if move_towards(task[1], delta):
+	var task: Task = tasks[0]
+	if task is TaskGoto:
+		if move_towards(task.coordinate, delta):
+			current_task_completed()
+	elif task is TaskBuild:
+		if _matter_id == _material_id and _matter_count > 0:
+			if translation.distance_squared_to(task.unit.translation) <= INTERACTION_DISTANCE_2:
+				if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
+					_matter_count -= 1
+					_matter_count += task.unit.add_build_progress(1)
+					last_build_frame = Engine.get_physics_frames()
+			else:
+				move_towards(task.unit.translation, delta)
+		elif _matter_count == 0:
+			if _take_matter_from_any(_material_id, [], delta) < 0:
 				current_task_completed()
-		Task.BUILD_STRUCTURE:
-			if _matter_id == _material_id and _matter_count > 0:
-				if translation.distance_squared_to(task[1].translation) <= INTERACTION_DISTANCE_2:
-					if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
-						_matter_count -= 1
-						_matter_count += task[1].add_build_progress(1)
-						last_build_frame = Engine.get_physics_frames()
-				else:
-					move_towards(task[1].translation, delta)
-			elif _matter_count == 0:
-				if _take_matter_from_any(_material_id, [], delta) < 0:
+		else:
+			if _put_matter_in_any(_matter_id, [], delta) < 0:
+				current_task_completed()
+	elif task is TaskPut:
+		var id: int = task.matter_id
+		var unit: Unit = task.unit
+		if unit.get_matter_space(id) == 0:
+			current_task_completed()
+		elif _matter_id == id or _matter_count == 0:
+			_matter_id = id
+			if _matter_count > 0:
+				if _put_matter(id, unit, delta):
 					current_task_completed()
 			else:
-				if _put_matter_in_any(_matter_id, [], delta) < 0:
+				if _take_matter_from_any(id, [unit], delta) < 0:
 					current_task_completed()
-		Task.PUT:
-			var id: int = task[2]
-			if task[1].get_matter_space(id) == 0:
+		else:
+			if _put_matter_in_any(_matter_id, [unit], delta) < 0:
 				current_task_completed()
-			elif _matter_id == id or _matter_count == 0:
-				_matter_id = id
-				if _matter_count > 0:
-					if _put_matter(id, task[1], delta):
-						current_task_completed()
-				else:
-					if _take_matter_from_any(id, [task[1]], delta) < 0:
-						current_task_completed()
-			else:
-				if _put_matter_in_any(_matter_id, [task[1]], delta) < 0:
-					current_task_completed()
-		Task.TAKE:
-			var id: int = task[2]
-			if task[1].get_matter_count(id) == 0:
-				current_task_completed()
-			elif _matter_id == id or _matter_count == 0:
-				_matter_id = id
+	elif task is TaskTake:
+		var id: int = task.matter_id
+		var unit: Unit = task.unit
+		if unit.get_matter_count(id) == 0:
+			current_task_completed()
+		elif _matter_id == id or _matter_count == 0:
+			_matter_id = id
 # warning-ignore:integer_division
-				if _matter_count < _MAX_VOLUME / Matter.get_matter_volume(id):
-					if _take_matter(id, task[1], delta):
-						current_task_completed()
-				else:
-					if _put_matter_in_any(id, [task[1]], delta) < 0:
-						current_task_completed()
-			else:
-				if _put_matter_in_any(_matter_id, [task[1]], delta) < 0:
-					current_task_completed()
-		Task.PUT_ONLY:
-			var id: int = task[2]
-			if task[1].get_matter_space(id) == 0:
-				current_task_completed()
-			elif _matter_id == id and _matter_count > 0:
-				if _put_matter(id, task[1], delta):
+			if _matter_count < _MAX_VOLUME / Matter.get_matter_volume(id):
+				if _take_matter(id, unit, delta):
 					current_task_completed()
 			else:
-				current_task_completed()
-		Task.TAKE_ONLY:
-			var id: int = task[2]
-			if task[1].get_matter_count(id) == 0:
-				current_task_completed()
-			elif _matter_id == id or _matter_count == 0:
-				if _take_matter(id, task[1], delta):
+				if _put_matter_in_any(id, [unit], delta) < 0:
 					current_task_completed()
-			else:
+		else:
+			if _put_matter_in_any(_matter_id, [unit], delta) < 0:
 				current_task_completed()
+	elif task is TaskPutOnly:
+		var id: int = task.matter_id
+		var unit: Unit = task.unit
+		if unit.get_matter_space(id) == 0:
+			current_task_completed()
+		elif _matter_id == id and _matter_count > 0:
+			if _put_matter(id, unit, delta):
+				current_task_completed()
+		else:
+			current_task_completed()
+	elif task is TaskTakeOnly:
+		var id: int = task.matter_id
+		var unit: Unit = task.unit
+		if unit.get_matter_count(id) == 0:
+			current_task_completed()
+		elif _matter_id == id or _matter_count == 0:
+			if _take_matter(id, unit, delta):
+				current_task_completed()
+		else:
+			current_task_completed()
 
 
 func get_actions():
@@ -135,25 +318,7 @@ func get_build_actions(_flags):
 
 func get_info():
 	var info = .get_info()
-	var task_string
-	if len(tasks) > 0:
-		match tasks[0][0]:
-			Task.GOTO_WAYPOINT:
-				task_string = "Goto"
-			Task.BUILD_STRUCTURE:
-				task_string = "Build"
-			Task.PUT:
-				task_string = "Put"
-			Task.TAKE:
-				task_string = "Take"
-			Task.PUT_ONLY:
-				task_string = "Put only"
-			Task.TAKE_ONLY:
-				task_string = "Take only"
-			_:
-				task_string = "Unknown (BUG)"
-	else:
-		task_string = "None"
+	var task_string := str(tasks[0]) if len(tasks) > 0 else "None"
 	info["Current task"] = task_string
 	info["Total tasks"] = str(len(tasks))
 	if _matter_count > 0:
@@ -164,16 +329,17 @@ func get_info():
 	return info
 
 
-func add_task(task, force_append):
+func add_task(task: Task, force_append: bool) -> void:
 	if not force_append:
 		clear_tasks(0)
-	if task[1] is Unit and not task[1].is_connected("destroyed", self, "_unit_destroyed"):
-		task[1].connect("destroyed", self, "_unit_destroyed", [task])
+	if not task is TaskGoto:
+		task.unit.connect("destroyed", self, "_unit_destroyed", [task],
+				CONNECT_REFERENCE_COUNTED)
 	tasks.append(task)
 
 
 func set_waypoint(flags, coordinate):
-	add_task([Task.GOTO_WAYPOINT, coordinate], flags & 0x1 > 0)
+	add_task(TaskGoto.new(coordinate), flags & 0x1 > 0)
 
 
 func move_towards(position, delta):
@@ -201,8 +367,9 @@ func build(flags, units):
 	var force_append = flags & 0x1 > 0
 	for ghost in units:
 		if ghost is Ghost:
-			add_task([Task.BUILD_STRUCTURE, ghost], force_append)
-			ghost.connect("built", self, "_ghost_built")
+			var t := TaskBuild.new(ghost)
+			add_task(t, force_append)
+			ghost.connect("built", self, "_ghost_built", [t])
 			force_append = true
 			
 			
@@ -211,8 +378,9 @@ func build_ghost(flags, position, scroll, ghost_name):
 	ghost.transform = Transform(Basis.IDENTITY.rotated(Vector3.UP, scroll * PI / 8), position)
 	ghost.team = team
 	game_master.add_child(ghost)
-	add_task([Task.BUILD_STRUCTURE, ghost], flags & 0x1 > 0)
-	ghost.connect("built", self, "_ghost_built")
+	var t := TaskBuild.new(ghost)
+	add_task(t, flags & 0x1 > 0)
+	ghost.connect("built", self, "_ghost_built", [t])
 
 
 func build_drill(flags, coordinate):
@@ -229,40 +397,43 @@ func build_drill(flags, coordinate):
 		ghost.init_arguments = [closest_ore]
 		ghost.team = team
 		game_master.add_child(ghost)
-		add_task([Task.BUILD_STRUCTURE, ghost], flags & 0x1 > 0)
-		ghost.connect("built", self, "_ghost_built")
+		var t := TaskBuild.new(ghost)
+		add_task(t, flags & 0x1 > 0)
+		ghost.connect("built", self, "_ghost_built", [t])
 
 
-func put_matter_in(flags, units, only):
+func put_matter_in(flags, units, only, oneshot := false):
 	var force_append = flags & 0x1 > 0
 	for unit in units:
 		var matter_ids = unit.get_put_matter_list()
 		for id in matter_ids:
-			add_task([Task.PUT_ONLY if only else Task.PUT, unit, id], force_append)
+			add_task(TaskPutOnly.new(unit, id) if only \
+					else TaskPut.new(unit, id), force_append)
 			force_append = true
 
 
-func take_matter_from(flags, units, only):
+func take_matter_from(flags, units, only, oneshot := false):
 	var force_append = flags & 0x1 > 0
 	for unit in units:
 		var matter_ids = unit.get_take_matter_list()
 		for id in matter_ids:
-			add_task([Task.TAKE_ONLY if only else Task.TAKE, unit, id], force_append)
+			add_task(TaskTakeOnly.new(unit, id) if only \
+					else TaskTake.new(unit, id), force_append)
 			force_append = true
 
 
 func clear_tasks(_flags):
 	for task in tasks:
-		if task[1] is Unit:
-			task[1].disconnect("destroyed", self, "_unit_destroyed")
-		if task[0] == Task.BUILD_STRUCTURE and task[1] != null:
-			task[1].disconnect("built", self, "emit_signal")
+		if not task is TaskGoto:
+			task.unit.disconnect("destroyed", self, "_unit_destroyed")
+		if task is TaskBuild:
+			task.unit.disconnect("built", self, "emit_signal")
 	tasks = []
 
 
 func current_task_completed():
 	var task = tasks.pop_front()
-	emit_signal("task_completed", task[0], task[1])
+	emit_signal("task_completed", task)
 	tasks.push_back(task)
 	_task_cached_unit = null
 
@@ -276,19 +447,18 @@ func debug_draw():
 	for task in tasks:
 		var color
 		var position
-		match task[0]:
-			Task.GOTO_WAYPOINT:
-				color = Color.green
-				position = task[1] + Vector3.UP * Block.BLOCK_SCALE
-			Task.BUILD_STRUCTURE:
-				color = Color.orange
-				position = task[1].translation
-			Task.PUT, Task.PUT_ONLY:
-				color = Color.cyan
-				position = task[1].translation
-			Task.TAKE, Task.TAKE_ONLY:
-				color = Color.purple
-				position = task[1].translation
+		if task is TaskGoto:
+			color = Color.green
+			position = task.coordinate + Vector3.UP * Block.BLOCK_SCALE
+		elif task is TaskBuild:
+			color = Color.orange
+			position = task.unit.translation
+		elif task is TaskPut or task is TaskPutOnly:
+			color = Color.cyan
+			position = task.unit.translation
+		elif task is TaskTake or TaskTakeOnly:
+			color = Color.purple
+			position = task.unit.translation
 		if color != null:
 			Debug.draw_circle(position, color)
 			Debug.draw_line(start, position, color)
@@ -300,19 +470,7 @@ func debug_draw():
 func serialize_json() -> Dictionary:
 	var t_list := []
 	for t in tasks:
-		var d := { "task": Util.enum_to_str(Task, t[0]) }
-		match t[0]:
-			Task.GOTO_WAYPOINT:
-				d["waypoint"] = var2str(t[1])
-			Task.BUILD_STRUCTURE:
-				d["target"] = t[1].uid
-			Task.PUT, Task.PUT_ONLY, \
-			Task.TAKE, Task.TAKE_ONLY:
-				d["target"] = t[1].uid
-				d["matter"] = Matter.get_matter_name(t[2])
-			_:
-				assert(false)
-		t_list.append(d)
+		t_list.append(t.serialize())
 	var d := { "tasks": t_list }
 	if _task_cached_unit != null:
 		d["cached_unit"] = _task_cached_unit.uid
@@ -322,28 +480,14 @@ func serialize_json() -> Dictionary:
 func deserialize_json(data: Dictionary) -> void:
 	tasks = []
 	for t_d in data["tasks"]:
-		var t := [Task[t_d["task"]]]
-		match t[0]:
-			Task.GOTO_WAYPOINT:
-				t.append(str2var(t_d["waypoint"]))
-			Task.BUILD_STRUCTURE:
-				var u: Unit = game_master.get_unit_by_uid(t_d["target"])
-				t.append(u)
-			Task.PUT, Task.PUT_ONLY, \
-			Task.TAKE, Task.TAKE_ONLY:
-				var u: Unit = game_master.get_unit_by_uid(t_d["target"])
-				t.append(u)
-				t.append(Matter.get_matter_id(t_d["matter"]))
-			_:
-				assert(false)
-		tasks.append(t)
+		add_task(Task.deserialize(game_master, t_d), 1)
 	var c_uid: int = data.get("cached_unit", -1)
 	if c_uid >= 0:
-		_task_cached_unit = game_master.get_unit_by_uid(c_uid)
+		_set_cached_unit(game_master.get_unit_by_uid(c_uid))
 
 
-func _ghost_built(unit):
-	emit_signal("task_completed", Task.BUILD_STRUCTURE, unit)
+func _ghost_built(task: Task):
+	emit_signal("task_completed", task)
 
 
 func _unit_destroyed(_unit, task):
@@ -419,6 +563,7 @@ func _take_matter_from_any(id: int, exclude: Array, delta: float) -> int:
 func _set_cached_unit(unit: Unit) -> void:
 	if _task_cached_unit != null:
 		_task_cached_unit.disconnect("destroyed", self, "_set_cached_unit")
-	var e := unit.connect("destroyed", self, "_set_cached_unit", [null])
-	assert(e == OK)
+	if unit != null:
+		var e := unit.connect("destroyed", self, "_set_cached_unit", [null])
+		assert(e == OK)
 	_task_cached_unit = unit
