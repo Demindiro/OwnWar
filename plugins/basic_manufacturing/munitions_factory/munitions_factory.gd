@@ -95,7 +95,7 @@ func get_matter_space(id: int) -> int:
 
 
 func get_put_matter_list() -> PoolIntArray:
-	return PoolIntArray([_material])
+	return PoolIntArray([_material_id])
 
 
 func get_take_matter_list() -> PoolIntArray:
