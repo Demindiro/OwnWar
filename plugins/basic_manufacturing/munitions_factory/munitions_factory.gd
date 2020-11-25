@@ -132,6 +132,10 @@ func take_matter(id: int, amount: int) -> int:
 	return 0
 
 
+func get_current_munition_type():
+	return _current_munition_type
+
+
 func set_munition_type(_flags, munition_type):
 	_current_munition_type = munition_type
 	if _current_munition_type != null:
