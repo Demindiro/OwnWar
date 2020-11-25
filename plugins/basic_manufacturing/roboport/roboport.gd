@@ -200,7 +200,7 @@ func _set_radius2(radius2: float) -> void:
 		_takers[i] = []
 		_needs_provider[i] = []
 		_needs_taker[i] = []
-	for unit in game_master.get_units(team):
+	for unit in game_master.get_units(team, Structure):
 		if translation.distance_squared_to(unit.translation) < radius2:
 			_add_unit(unit)
 	assign_tasks()
@@ -320,11 +320,13 @@ func _get_nearest(unit: Unit, unit_list: Array, matter_id := -1, matter_count :=
 
 
 func _unit_added(unit: Unit) -> void:
-	if unit.team == team and unit.translation.distance_squared_to(translation) < _radius2:
+	if unit is Structure and \
+		unit.team == team and \
+		unit.translation.distance_squared_to(translation) < _radius2:
 		_add_unit(unit)
 
 
-func _add_unit(unit: Unit) -> void:
+func _add_unit(unit: Structure) -> void:
 	if unit in _units:
 		return
 	_units.append(unit)
@@ -358,21 +360,21 @@ func _add_unit(unit: Unit) -> void:
 			_add_matter_provider(unit, id)
 
 
-func _add_matter_provider(unit: Unit, id: int) -> void:
+func _add_matter_provider(unit: Structure, id: int) -> void:
 	_providers[id].append(unit)
 	for needer in _needs_provider[id]:
 		_add_task(Drone.Task.FILL, [unit, needer, id])
 	_needs_provider[id] = []
 
 
-func _add_matter_taker(unit: Unit, id: int) -> void:
+func _add_matter_taker(unit: Structure, id: int) -> void:
 	_takers[id].append(unit)
 	for needer in _needs_taker[id]:
 		_add_task(Drone.Task.EMPTY, [needer, unit, id])
 	_needs_taker[id] = []
 
 
-func _remove_unit(unit: Unit) -> void:
+func _remove_unit(unit: Structure) -> void:
 	unit.disconnect("message", self, "_get_message")
 	unit.disconnect("destroyed", self, "_unit_destroyed")
 	for id in unit.get_take_matter_list():
