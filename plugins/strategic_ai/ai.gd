@@ -12,6 +12,7 @@ var _units := []
 var _matter_index := PoolIntArray()
 var _matter_needs_index := PoolIntArray()
 onready var _material_id := Matter.get_matter_id("material")
+onready var _fuel_id := Matter.get_matter_id("fuel")
 
 
 func _ready() -> void:
@@ -35,9 +36,12 @@ func _ai_process() -> void:
 		if amount > 0:
 			if id == _material_id:
 				_build_mining_post()
+			elif id == _fuel_id:
+				_build_refinery()
 			elif Munition.is_munition(id):
 				_produce_munition(id, amount)
 	_supply_munition()
+	_supply_fuel()
 
 
 func _index_matter() -> void:
@@ -79,9 +83,10 @@ func _build_mining_post() -> void:
 		_debug("Not enough material to build a drill")
 
 
-func _build_munitions_factory() -> void:
+func _build_between_roboport_and_storage_pod(matter_id: int,
+		structure_name: String) -> void:
 	# Build it near a storage pod with a lot of material and a roboport
-	var pod := _find_best_storage_pod(_material_id)
+	var pod := _find_best_storage_pod(matter_id)
 	if pod != null:
 		var pod_org := pod.global_transform.origin
 		var roboport: BM.Roboport = _find_closest_unit(pod_org, BM.Roboport)
@@ -91,11 +96,31 @@ func _build_munitions_factory() -> void:
 #			if roboport_pod_dist2 > roboport._radius2:
 #				var fraction := sqrt(roboport_pod_dist2
 			var build_coord := pod_org + (roboport_org - pod_org) / 2
-			_build_structure(build_coord, "Munition Factory")
+			_build_structure(build_coord, structure_name)
 		else:
 			_debug("No roboport found")
 	else:
 		_debug("No storage pod found")
+
+
+func _build_munitions_factory() -> void:
+	var count := 0
+	for u in _units:
+		if u is BM.MunitionsFactory:
+			count += 1
+			if count >= 4:
+				return
+	_build_between_roboport_and_storage_pod(_material_id, "Munition Factory")
+
+
+func _build_refinery() -> void:
+	var count := 0
+	for u in _units:
+		if u is BM.Refinery:
+			count += 1
+			if count >= 4:
+				return
+	_build_between_roboport_and_storage_pod(_material_id, "Refinery")
 
 
 func _find_best_storage_pod(matter_id: int) -> BM.StoragePod:
@@ -155,6 +180,19 @@ func _get_closest_ore() -> BM.Ore:
 	return closest_ore
 
 
+# Get any vehicle that needs certain matter
+func _get_vehicle_with_needs(matter_id: int) -> Vehicle:
+	var vehicle: Vehicle = null
+	var amount := 0
+	for u in _units:
+		if u is Vehicle:
+			var a: int = u.needs_matter(matter_id)
+			if a > amount:
+				vehicle = u
+				amount = a
+	return vehicle
+
+
 # Produce munition of the given ID
 func _produce_munition(id: int, amount: int) -> void:
 	assert(amount > 0)
@@ -177,22 +215,26 @@ func _produce_munition(id: int, amount: int) -> void:
 func _supply_munition() -> void:
 	var id := Matter.get_matter_id("160mm AP")
 	if _matter_index[id] > 0:
-		# Get any vehicle that needs munition
-		var vehicle: Vehicle = null
-		var amount := 0
-		for u in _units:
-			if u is Vehicle:
-				var a: int = u.needs_matter(id)
-				if a > amount:
-					vehicle = u
-					amount = a
-		if amount > 0:
+		var vehicle := _get_vehicle_with_needs(id)
+		if vehicle != null:
 			var worker := _get_idle_worker(vehicle.global_transform.origin)
 			if worker != null:
 				var task := WorkerDrone.TaskPut.new(vehicle, id, true)
 				worker.add_task(task, true)
 	else:
 		_debug("No %s available" % Matter.get_matter_name(id))
+
+
+func _supply_fuel() -> void:
+	if _matter_index[_fuel_id] > 0:
+		var vehicle := _get_vehicle_with_needs(_fuel_id)
+		if vehicle != null:
+			var worker := _get_idle_worker(vehicle.global_transform.origin)
+			if worker != null:
+				var task := WorkerDrone.TaskPut.new(vehicle, _fuel_id, true)
+				worker.add_task(task, true)
+	else:
+		_debug("No %s available" % Matter.get_matter_name(_fuel_id))
 
 
 func _debug(message: String) -> void:
