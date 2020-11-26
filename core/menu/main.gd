@@ -16,7 +16,6 @@ func _ready_deferred():
 		if not Plugin.is_plugin_enabled(p):
 			print("Missing plugin %s" % p)
 			return
-	$"../Vehicle".load_from_file("user://vehicles/apc.json")
 	call_deferred("_on_Timer_timeout")
 	$"../Timer".start()
 	$Main/Version.text = Util.version_vector_to_str(Constants.VERSION)
@@ -27,7 +26,7 @@ func _on_Timer_timeout():
 	var distance = rand_range(WAYPOINT_MIN_RADIUS, WAYPOINT_MAX_RADIUS)
 	var mainframes = $"../Vehicle".get_blocks("mainframe")
 	for mainframe in mainframes:
-		mainframe[2].ai.waypoints = [Vector3(distance * cos(angle), 0, distance * sin(angle))]
+		mainframe.node.ai.waypoints = [Vector3(distance * cos(angle), 0, distance * sin(angle))]
 		break
 
 

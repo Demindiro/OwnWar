@@ -2,7 +2,8 @@ tool
 extends Structure
 
 
-const Drone = preload("roboport_drone.gd")
+const Drone := preload("roboport_drone.gd")
+const Tasks := preload("tasks.gd")
 export var drone_scene: PackedScene
 export var drone_limit := 10
 export var _radius2 := 100.0 * 100.0
@@ -118,49 +119,44 @@ func _assign_tasks() -> void:
 	_assigning_tasks = true
 
 	for i in range(len(_tasks) - 1, -1, -1):
-		var task: int = _tasks[i][0]
-		var task_data = _tasks[i][1]
-		match task:
-			Drone.Task.EMPTY, Drone.Task.FILL:
-				if not task_data[0] in _units or not task_data[1] in _units:
-					_tasks.remove(i)
-			Drone.Task.DESPAWN, Drone.Task.NONE:
-				pass
-			_:
-				assert(false)
+		var task: Tasks.Task = _tasks[i]
+		if task is Tasks.Empty or task is Tasks.Fill:
+			if not task.from in _units or not task.to in _units:
+				_tasks.remove(i)
+		else:
+			assert(false)
 
 	while len(_tasks) > 0:
-		var task: int
-		var task_data: Array
-		var assignees: int = 1 << 62
-		var _task: Array
+		var task: Tasks.Task
 		for t in _tasks:
-			if t[2] < assignees:
-				task = t[0]
-				task_data = t[1]
-				assignees = t[2]
-				_task = t
+			if task == null or t.assignees < task.assignees:
+				task = t
 		var drone
-		if task == Drone.Task.EMPTY or task == Drone.Task.FILL:
-			drone = _get_idle_drone(PoolVector3Array(
-				[task_data[0].translation, task_data[1].translation]))
+		if task is Tasks.Empty or task is Tasks.Fill:
+			drone = _get_idle_drone(PoolVector3Array([task.from, task.to]))
 		else:
+			assert(false)
 			drone = _get_idle_drone()
 		if drone is GDScriptFunctionState:
 			drone = yield(drone, "completed")
 		if drone == null:
 			break
 		assert(drone is Drone)
-		if task == Drone.Task.EMPTY or task == Drone.Task.FILL:
-			if drone.matter_count != 0 and drone.matter_id != task_data[2]:
+		if task is Tasks.Empty or task is Tasks.Fill:
+			if drone.matter_count != 0 and drone.matter_id != task.matter_id:
 				var taker := _get_nearest(drone, _takers[drone.matter_id],
 						drone.matter_id, drone.matter_count)
 				if taker == null:
 					break
 				drone.dump_target = taker
-		_task[2] += 1
+		task.assignees += 1
 		_tasks.push_back(_tasks.pop_front())
-		drone.set_task(task, task_data)
+		if task is Tasks.Empty:
+			drone.set_task(task)
+		elif task is Tasks.Fill:
+			drone.set_task(task)
+		else:
+			assert(false)
 
 	_dirty = false
 	_assigning_tasks = false
@@ -210,11 +206,11 @@ func _on_need_matter(id: int, amount: int, unit: Unit):
 	if amount > 0:
 		var provider := _get_nearest(unit, _providers[id])
 		if provider != null:
-			_add_task(Drone.Task.FILL, [provider, unit, id])
+			_add_task(Tasks.Fill.new(provider, unit, id))
 		else:
 			_needs_taker[id].append(unit)
 	else:
-		_remove_task(Drone.Task.FILL, unit)
+		_remove_task(Tasks.Fill, unit)
 	assign_tasks()
 
 
@@ -240,11 +236,11 @@ func _on_dump_matter(id: int, amount: int, unit: Unit):
 	if amount > 0:
 		var taker := _get_nearest(unit, _takers[id])
 		if taker != null:
-			_add_task(Drone.Task.EMPTY, [unit, taker, id])
+			_add_task(Tasks.Empty.new(unit, taker, id))
 		else:
 			_needs_taker[id].append(unit)
 	else:
-		_remove_task(Drone.Task.FILL, unit)
+		_remove_task(Tasks.Empty, unit)
 	_assign_tasks()
 
 
@@ -256,7 +252,7 @@ func _get_idle_drone(near_points := PoolVector3Array()) -> Drone:
 	var shortest_distance := INF
 	var candidate: Drone = null
 	for drone in _drones:
-		if drone.task == drone.Task.NONE:
+		if drone.task == null:
 			var nearest_distance := INF
 			for point in near_points:
 				var distance: float = drone.translation.distance_squared_to(point)
@@ -284,26 +280,8 @@ func _get_idle_drone(near_points := PoolVector3Array()) -> Drone:
 
 
 func _task_completed(drone: Drone) -> void:
-	match drone.task:
-		Drone.Task.FILL:
-			pass
-		Drone.Task.EMPTY:
-			pass
-		Drone.Task.DESPAWN:
-			drone.queue_free()
-		_:
-			assert(false)
-	for t in _tasks:
-		if t[0] == drone.task:
-			match drone.task:
-				Drone.Task.FILL, Drone.Task.EMPTY:
-					if t[1][0] == drone.from_target and t[1][1] == drone.to_target:
-						t[2] -= 1
-						break
-				Drone.DESPAWN, Drone.NONE:
-					pass
-				_:
-					assert(false)
+	assert(drone.task is Tasks.Fill or drone.task is Tasks.Empty)
+	drone.task.assignees -= 1
 	assign_tasks()
 
 
@@ -343,7 +321,7 @@ func _add_unit(unit: Structure) -> void:
 		if unit.needs_matter(id) > 0:
 			var provider := _get_nearest(unit, _providers[id])
 			if provider != null:
-				_add_task(Drone.Task.FILL, [provider, unit, id])
+				_add_task(Tasks.Fill.new(provider, unit, id))
 			else:
 				_needs_provider[id].append(unit)
 		if unit.takes_matter(id) > 0:
@@ -353,7 +331,7 @@ func _add_unit(unit: Structure) -> void:
 		if unit.dumps_matter(id) > 0:
 			var taker := _get_nearest(unit, _takers[id])
 			if taker != null:
-				_add_task(Drone.Task.EMPTY, [unit, taker, id])
+				_add_task(Tasks.Empty.new(unit, taker, id))
 			else:
 				_needs_taker[id].append(unit)
 		if unit.provides_matter(id) > 0:
@@ -363,14 +341,14 @@ func _add_unit(unit: Structure) -> void:
 func _add_matter_provider(unit: Structure, id: int) -> void:
 	_providers[id].append(unit)
 	for needer in _needs_provider[id]:
-		_add_task(Drone.Task.FILL, [unit, needer, id])
+		_add_task(Tasks.Fill.new(unit, needer, id))
 	_needs_provider[id] = []
 
 
 func _add_matter_taker(unit: Structure, id: int) -> void:
 	_takers[id].append(unit)
 	for needer in _needs_taker[id]:
-		_add_task(Drone.Task.EMPTY, [needer, unit, id])
+		_add_task(Tasks.Empty.new(needer, unit, id))
 	_needs_taker[id] = []
 
 
@@ -386,20 +364,27 @@ func _remove_unit(unit: Structure) -> void:
 	_units.erase(unit)
 
 
-func _add_task(task: int, data: Array) -> void:
+func _add_task(task: Tasks.Task) -> void:
 	for t in _tasks:
-		if t[0] == task and t[1] == data:
-			return
-	_tasks.push_back([task, data, 0])
+		if t.script == task.script:
+			if task is Tasks.Fill or task is Tasks.Empty:
+				if task.from == t.from and task.to == t.to:
+					return
+			else:
+				assert(false)
+	_tasks.push_back(task)
 	assign_tasks()
 
 
-func _remove_task(task: int, unit: Unit) -> void:
-	for i in range(len(_tasks)):
+func _remove_task(task: GDScript, unit: Unit) -> void:
+	# cba with the range() syntax
+	var i := len(_tasks) - 1
+	while i >= 0:
 		var t = _tasks[i]
-		if t[0] == task and unit in t[1]:
-			_tasks.remove(i)
-			break
+		if t is task:
+			if t.from == unit or t.to == unit:
+				_tasks.remove(i)
+		i -= 1
 
 
 func debug_draw():

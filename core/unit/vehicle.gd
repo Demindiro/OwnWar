@@ -39,7 +39,7 @@ func get_info():
 	for body in voxel_bodies:
 		for coordinate in body.blocks:
 			var block = body.blocks[coordinate]
-			remaining_health += block[1]
+			remaining_health += block.health
 			remaining_cost += Block.get_block_by_id(block[0]).cost
 	info["Health"] = "%d / %d" % [remaining_health, max_health]
 	info["Cost"] = "%d / %d" % [remaining_cost, max_cost]
@@ -268,8 +268,8 @@ func get_blocks_by_id(id):
 	var filtered_blocks = []
 	for body in voxel_bodies:
 		for block in body.blocks.values():
-			if block[0] == id:
-				filtered_blocks.append(block.duplicate())
+			if block.id == id:
+				filtered_blocks.append(block)
 	return filtered_blocks
 
 
