@@ -40,7 +40,7 @@ func get_info():
 		for coordinate in body.blocks:
 			var block = body.blocks[coordinate]
 			remaining_health += block.health
-			remaining_cost += Block.get_block_by_id(block[0]).cost
+			remaining_cost += Block.get_block_by_id(block.id).cost
 	info["Health"] = "%d / %d" % [remaining_health, max_health]
 	info["Cost"] = "%d / %d" % [remaining_cost, max_cost]
 	for info_function in _info:

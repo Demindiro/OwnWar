@@ -13,6 +13,7 @@ var _fuel_id: int
 
 func init(vehicle: Vehicle) -> void:
 	_fuel_id = Matter.get_matter_id("fuel")
+	vehicle.add_matter_needs_handler(funcref(self, "get_matter_needs"))
 	vehicle.add_matter_count_handler(funcref(self, "get_matter_count"))
 	vehicle.add_matter_space_handler(funcref(self, "get_matter_space"))
 	vehicle.add_matter_take_handler(funcref(self, "take_matter"))
@@ -60,6 +61,10 @@ func process(_delta: float) -> void:
 
 	assert(_remaining_power >= 0)
 	_energy -= used_energy
+
+
+func get_matter_needs(id: int) -> int:
+	return get_matter_space(id)
 
 
 func get_matter_count(id: int) -> int:

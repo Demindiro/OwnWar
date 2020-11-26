@@ -280,7 +280,8 @@ func _get_idle_drone(near_points := PoolVector3Array()) -> Drone:
 
 
 func _task_completed(drone: Drone) -> void:
-	assert(drone.task is Tasks.Fill or drone.task is Tasks.Empty)
+	# ??? Editor complains "Task cannot be of type Fill ever"
+#	assert(drone.task is Tasks.Fill or drone.task is Tasks.Empty)
 	drone.task.assignees -= 1
 	assign_tasks()
 
@@ -299,8 +300,8 @@ func _get_nearest(unit: Unit, unit_list: Array, matter_id := -1, matter_count :=
 
 func _unit_added(unit: Unit) -> void:
 	if unit is Structure and \
-		unit.team == team and \
-		unit.translation.distance_squared_to(translation) < _radius2:
+			unit.team == team and \
+			unit.translation.distance_squared_to(translation) < _radius2:
 		_add_unit(unit)
 
 

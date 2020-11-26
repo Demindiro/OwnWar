@@ -34,8 +34,6 @@
 [ext_resource path="res://plugins/designer_map/change_team.gd" type="Script" id=32]
 [ext_resource path="res://core/unit/unit_group.tscn" type="PackedScene" id=33]
 
-
-
 [node name="Designer" type="Node"]
 process_priority = 1
 script = ExtResource( 10 )
