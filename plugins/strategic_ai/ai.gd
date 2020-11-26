@@ -3,6 +3,7 @@ extends Timer
 const BM := preload("res://plugins/basic_manufacturing/plugin.gd")
 const WorkerDrone := preload("res://plugins/worker_drone/drone.gd")
 const Munition := preload("res://plugins/weapon_manager/munition.gd")
+const Mainframe := preload("res://plugins/mainframe/mainframe.gd")
 
 export var _vehicle_path := ""
 const _ORE_MAX_DISTANCE_2 := 100.0 * 100.0
@@ -42,6 +43,38 @@ func _ai_process() -> void:
 				_produce_munition(id, amount)
 	_supply_munition()
 	_supply_fuel()
+	_attack_any()
+
+
+func _attack_any() -> void:
+	# Find all vehicles with a mainframe
+	var vehicle_candidates := []
+	for u in _units:
+		if u is Vehicle and len(u.get_blocks("mainframe")) > 0:
+			vehicle_candidates.append(u)
+	# Find the vehicle <-> enemy unit pair with the least distance between them
+	var enemy_unit: Unit
+	var vehicle: Vehicle
+	var distance2 := INF
+	for eu in get_tree().get_nodes_in_group("units"):
+		if eu.team != name:
+			var eu_org: Vector3 = eu.global_transform.origin
+			for v in vehicle_candidates:
+				var v_org: Vector3 = v.global_transform.origin
+				var d2 := v_org.distance_squared_to(eu_org)
+				if d2 < distance2:
+					enemy_unit = eu
+					vehicle = v
+					distance2 = d2
+	if enemy_unit != null and vehicle != null:
+		# Drive towards and fire at the enemy
+		var eu_org := enemy_unit.global_transform.origin
+		var v_org := vehicle.global_transform.origin
+		var offset := (eu_org - v_org).normalized() * 15.0
+		var waypoint := eu_org - offset
+		var mainframe: Mainframe = vehicle.get_blocks("mainframe")[0].node
+		mainframe.set_waypoint(0, waypoint)
+		mainframe.set_targets(0, [enemy_unit])
 
 
 func _index_matter() -> void:
