@@ -432,9 +432,10 @@ func clear_tasks(_flags):
 
 
 func current_task_completed():
-	var task = tasks.pop_front()
+	var task: Task = tasks.pop_front()
 	emit_signal("task_completed", task)
-	tasks.push_back(task)
+	if not task.oneshot:
+		tasks.push_back(task)
 	_task_cached_unit = null
 
 
