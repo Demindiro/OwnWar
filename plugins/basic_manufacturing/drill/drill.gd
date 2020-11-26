@@ -1,26 +1,27 @@
 extends Structure
 
 
+const Ore := preload("ore.gd")
 const MAX_MATERIAL := 100
-var ore
-var _ticks_until_next := 0
+var ore: Ore
 var material := 0
+var _time_until_next := 0.0
 onready var _material_id: int = Matter.get_matter_id("material")
 
 
-func _physics_process(_delta):
-	_ticks_until_next += 1
-	if _ticks_until_next >= Engine.iterations_per_second:
+func _physics_process(delta: float) -> void:
+	_time_until_next += delta
+	if _time_until_next >= 0.0:
 		if material < MAX_MATERIAL:
 			material += ore.take_material(1)
 			emit_signal("dump_matter", _material_id, material)
-			_ticks_until_next = 0
+			_time_until_next = 0.0
 			if ore.material == 0:
 				set_process(false)
 				set_physics_process(false)
 				
 
-func get_info():
+func get_info() -> Dictionary:
 	var info = .get_info()
 	info["Ore"] = ore.material
 	info["Material"] = "%d / %d" % [material, MAX_MATERIAL]
@@ -43,11 +44,11 @@ func get_take_matter_list() -> PoolIntArray:
 	return PoolIntArray([_material_id])
 
 
-func provide_matter(id: int) -> int:
+func provides_matter(id: int) -> int:
 	return material if _material_id == id else 0
 
 
-func dump_matter(id: int) -> int:
+func dumps_matter(id: int) -> int:
 	return material if _material_id == id else 0
 
 
@@ -62,14 +63,14 @@ func take_matter(id: int, amount: int) -> int:
 	return amount
 
 
-func take_material(p_material):
+func take_material(p_material: int) -> int:
 	return take_matter(_material_id, p_material)
 
 
 func serialize_json() -> Dictionary:
 	var data := {
 			"material": material,
-			"ticks_until_next": _ticks_until_next,
+			"time_until_next": _time_until_next,
 		}
 	if ore != null:
 		data["ore_translation"] = ore.translation
@@ -78,7 +79,10 @@ func serialize_json() -> Dictionary:
 
 func deserialize_json(data: Dictionary) -> void:
 	material = data["material"]
-	_ticks_until_next = data["ticks_until_next"]
+	if "ticks_until_next" in data:
+		_time_until_next = data["ticks_until_next"] / 150.0
+	else:
+		_time_until_next = data["time_until_next"]
 	var ore_translation = data.get("ore_translation")
 	if ore_translation != null:
 		for o in get_tree().get_nodes_in_group("ores"):
@@ -88,6 +92,6 @@ func deserialize_json(data: Dictionary) -> void:
 		assert(ore != null)
 
 
-func init(p_ore):
+func init(p_ore) -> void:
 	ore = p_ore
 	ore.drill = self
