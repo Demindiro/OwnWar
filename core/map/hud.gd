@@ -30,7 +30,7 @@ func _ready():
 func _process(_delta):
 	if len(selected_units) > 0 or _selecting_units:
 		update()
-	$FPS.text = "FPS: " + str(round(1.0 / _delta)) if _delta > 0 else "Impossibly much"
+	$FPS.text = "FPS: " + str(Engine.get_frames_per_second())
 	var draw_calls = get_tree().root.get_render_info(Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME)
 	$DrawCalls.text = "Draw calls: " + str(draw_calls)
 	set_unit_info()
