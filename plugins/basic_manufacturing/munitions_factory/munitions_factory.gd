@@ -95,7 +95,7 @@ func get_matter_space(id: int) -> int:
 
 
 func get_put_matter_list() -> PoolIntArray:
-	return PoolIntArray([_material])
+	return PoolIntArray([_material_id])
 
 
 func get_take_matter_list() -> PoolIntArray:
@@ -130,6 +130,10 @@ func take_matter(id: int, amount: int) -> int:
 		emit_signal("provide_matter", id, _munition.get(id, 0))
 		return amount
 	return 0
+
+
+func get_current_munition_type():
+	return _current_munition_type
 
 
 func set_munition_type(_flags, munition_type):

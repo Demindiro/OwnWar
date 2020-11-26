@@ -13,6 +13,10 @@ var _object_to_actions_map := {}
 var _info := []
 var _matter_handlers_count := []
 var _matter_handlers_space := []
+var _matter_handlers_needs := []
+var _matter_handlers_provides := []
+var _matter_handlers_dumps := []
+var _matter_handlers_takes := []
 var _matter_handlers_put := []
 var _matter_handlers_take := []
 var _matter_put_list := PoolIntArray()
@@ -35,7 +39,7 @@ func get_info():
 	for body in voxel_bodies:
 		for coordinate in body.blocks:
 			var block = body.blocks[coordinate]
-			remaining_health += block[1]
+			remaining_health += block.health
 			remaining_cost += Block.get_block_by_id(block[0]).cost
 	info["Health"] = "%d / %d" % [remaining_health, max_health]
 	info["Cost"] = "%d / %d" % [remaining_cost, max_cost]
@@ -64,6 +68,34 @@ func get_put_matter_list() -> PoolIntArray:
 
 func get_take_matter_list() -> PoolIntArray:
 	return _matter_take_list
+
+
+func needs_matter(id: int) -> int:
+	var amount := 0
+	for f in _matter_handlers_needs:
+		amount += f.call_func(id)
+	return amount
+
+
+func provides_matter(id: int) -> int:
+	var amount := 0
+	for f in _matter_handlers_provides:
+		amount += f.call_func(id)
+	return amount
+
+
+func takes_matter(id: int) -> int:
+	var amount := 0
+	for f in _matter_handlers_takes:
+		amount += f.call_func(id)
+	return amount
+
+
+func dumps_matter(id: int) -> int:
+	var amount := 0
+	for f in _matter_handlers_dumps:
+		amount += f.call_func(id)
+	return amount
 
 
 func put_matter(id: int, amount: int) -> int:
@@ -191,6 +223,22 @@ func add_matter_take(id: int) -> void:
 		_matter_take_list.append(id)
 
 
+func add_matter_needs_handler(function: FuncRef) -> void:
+	_matter_handlers_needs.append(function)
+
+
+func add_matter_provides_handler(function: FuncRef) -> void:
+	_matter_handlers_provides.append(function)
+
+
+func add_matter_takes_handler(function: FuncRef) -> void:
+	_matter_handlers_takes.append(function)
+
+
+func add_matter_dumps_handler(function: FuncRef) -> void:
+	_matter_handlers_dumps.append(function)
+
+
 func add_matter_count_handler(function: FuncRef) -> void:
 	_matter_handlers_count.append(function)
 
@@ -220,8 +268,8 @@ func get_blocks_by_id(id):
 	var filtered_blocks = []
 	for body in voxel_bodies:
 		for block in body.blocks.values():
-			if block[0] == id:
-				filtered_blocks.append(block.duplicate())
+			if block.id == id:
+				filtered_blocks.append(block)
 	return filtered_blocks
 
 

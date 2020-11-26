@@ -2,8 +2,7 @@ class_name Ghost
 extends Unit
 
 
-signal built(structure)
-
+signal built()
 export(PackedScene) var structure
 export(Array) var init_arguments
 export(Vector3) var spawn_offset = Vector3.ZERO
@@ -32,7 +31,7 @@ func add_build_progress(material):
 		if unit.has_method("init") or init_arguments != []:
 			unit.callv("init", init_arguments)
 		destroy()
-		emit_signal("built", unit)
+		emit_signal("built")
 		return cost - build_progress
 	return 0
 

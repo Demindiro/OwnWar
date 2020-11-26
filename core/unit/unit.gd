@@ -42,6 +42,7 @@ onready var game_master = GameMaster.get_game_master(self)
 
 
 func _enter_tree():
+	assert(unit_name.begins_with("vehicle_") or unit_name in UNITS)
 	add_to_group("units")
 	add_to_group("units_" + team)
 

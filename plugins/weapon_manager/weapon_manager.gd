@@ -4,14 +4,16 @@ extends Reference
 var _max_volume_by_gauge := {}
 var _munitions_count := {}
 var _gauge_to_munitions := {}
+var _needs_munition := {}
 var _weapons := []
 var _vehicle
-var Munition = Plugin.get_plugin("weapon_manager").Munition
+var Munition := preload("res://plugins/weapon_manager/munition.gd")
 
 
 #func init(vehicle: Vehicle) -> void:
 func init(vehicle) -> void:
 	_vehicle = vehicle
+	vehicle.add_matter_needs_handler(funcref(self, "get_matter_needs"))
 	vehicle.add_matter_count_handler(funcref(self, "get_matter_count"))
 	vehicle.add_matter_space_handler(funcref(self, "get_matter_space"))
 	vehicle.add_matter_put_handler(funcref(self, "put_matter"))
@@ -26,6 +28,14 @@ func get_matter_count(id: int) -> int:
 func get_matter_space(id: int) -> int:
 	var munition = Munition.get_munition(id) if Munition.is_munition(id) else null
 	return get_munition_space(munition.gauge) if munition != null else 0
+
+
+func get_matter_needs(id: int) -> int:
+	if Munition.is_munition(id):
+		var m := Munition.get_munition(id)
+		if m.gauge in _max_volume_by_gauge:
+			return get_matter_space(id)
+	return 0
 
 
 func put_matter(id: int, amount: int) -> int:

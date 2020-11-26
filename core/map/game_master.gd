@@ -23,17 +23,27 @@ func _enter_tree() -> void:
 	get_tree().connect("node_added", self, "_node_added")
 
 
-func get_units(team: String, unit_name = null) -> Array:
+func get_units(team: String, unit_filter = null) -> Array:
 	assert(team in teams)
 	var team_name := "units_" + team
-	if unit_name == null:
-		return get_tree().get_nodes_in_group(team_name)
-	else:
+	var units := get_tree().get_nodes_in_group(team_name)
+	if unit_filter == null:
+		return units
+	elif unit_filter is String:
 		var units_by_name = []
-		for unit in get_tree().get_nodes_in_group(team_name):
-			if unit.unit_name == unit_name:
+		for unit in units:
+			if unit.unit_name == unit_filter:
 				units_by_name.append(unit)
 		return units_by_name
+	elif unit_filter is GDScript:
+		var units_by_type = []
+		for unit in units:
+			if unit is unit_filter:
+				units_by_type.append(unit)
+		return units_by_type
+	else:
+		assert(false)
+		return []
 
 
 func get_unit_by_uid(uid: int):# -> Unit:

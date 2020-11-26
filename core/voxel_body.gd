@@ -2,6 +2,22 @@ class_name VoxelBody
 extends VehicleBody
 
 
+class BodyBlock:
+	var id: int
+	var health: int
+	var node: Spatial
+	var rotation: int
+	var color: Color
+
+	func _init(block: Block, p_node: Spatial, p_rotation: int, p_color: Color) \
+			-> void:
+		id = block.id
+		health = block.health
+		node = p_node
+		rotation = p_rotation
+		color = p_color
+
+
 signal hit(voxel_body)
 var start_position := Vector3.ONE * INF
 var end_position := Vector3.ONE * -INF
@@ -46,27 +62,27 @@ func fix_physics():
 	global_transform = Transform(Basis.IDENTITY, center_of_mass)
 
 
-func projectile_hit(origin: Vector3, direction: Vector3, damage: int):
-	var local_origin = to_local(origin) + center_of_mass
+func projectile_hit(origin: Vector3, direction: Vector3, damage: int) -> int:
+	var local_origin := to_local(origin) + center_of_mass
 	local_origin /= Block.BLOCK_SCALE
-	var local_direction = to_local(origin + direction) - to_local(origin)
+	var local_direction := to_local(origin + direction) - to_local(origin)
 	_raycast.start(local_origin, local_direction, 25, 25, 25)
 	_debug_hits = []
 	while not _raycast.finished:
-		var key = [_raycast.x, _raycast.y, _raycast.z]
-		var block = blocks.get(key)
+		var key := [_raycast.x, _raycast.y, _raycast.z]
+		var block: BodyBlock = blocks.get(key)
 		if block != null:
 			_debug_hits.append([key, Color.orange])
-			if block[1] < damage:
-				damage -= block[1]
-				if block[2] != null:
-					block[2].queue_free()
+			if block.health < damage:
+				damage -= block.health
+				if block.node != null:
+					block.node.queue_free()
 				_voxel_mesh.remove_block(_raycast.voxel)
 				# warning-ignore:return_value_discarded
 				blocks.erase(key)
-				cost -= Block.get_block_by_id(block[0]).cost
+				cost -= Block.get_block_by_id(block.id).cost
 			else:
-				block[1] -= damage
+				block.health -= damage
 				damage = 0
 				break
 		else:
@@ -98,7 +114,7 @@ func spawn_block(x: int, y: int, z: int, r: int, block: Block, color: Color) -> 
 					child.material_override = material
 	max_cost += block.cost
 	max_health += block.health
-	blocks[[x, y, z]] = [block.id, block.health, node, r, color]
+	blocks[[x, y, z]] = BodyBlock.new(block, node, r, color)
 	start_position.x = float(x) if start_position.x > x else start_position.x
 	start_position.y = float(y) if start_position.y > y else start_position.y
 	start_position.z = float(z) if start_position.z > z else start_position.z
@@ -115,16 +131,16 @@ func coordinate_to_vector(coordinate):
 
 func init_blocks(vehicle, meta):
 	for coordinate in blocks:
-		var block_data = blocks[coordinate]
-		if block_data[2] == null:
+		var block: BodyBlock = blocks[coordinate]
+		if block.node == null:
 			continue
 		var meta_data = meta.get(coordinate)
-		if block_data[2].has_method("init"):
-			block_data[2].init(coordinate, block_data, -1, self, vehicle, meta_data)
+		if block.node.has_method("init"):
+			block.node.init(coordinate, block, -1, self, vehicle, meta_data)
 		else:
-			for child in block_data[2].get_children():
+			for child in block.node.get_children():
 				if child.has_method("init"):
-					child.init(coordinate, block_data, -1, self, vehicle, meta_data)
+					child.init(coordinate, block, -1, self, vehicle, meta_data)
 
 
 func _set_collision_box(start: Vector3, end: Vector3) -> void:
@@ -136,11 +152,11 @@ func _set_collision_box(start: Vector3, end: Vector3) -> void:
 
 
 func _correct_mass() -> void:
-	var total_mass = 0
+	var total_mass := 0.0
 	center_of_mass = Vector3.ZERO
 	for coordinate in blocks:
-		var block = blocks[coordinate]
-		var block_mass = Block.get_block_by_id(block[0]).mass
+		var block: BodyBlock = blocks[coordinate]
+		var block_mass: float = Block.get_block_by_id(block.id).mass
 		center_of_mass += Vector3(coordinate[0], coordinate[1], coordinate[2]) * block_mass
 		total_mass += block_mass
 	assert(total_mass > 0)

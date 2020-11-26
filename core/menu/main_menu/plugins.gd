@@ -13,9 +13,9 @@ func _ready():
 		var e := button.connect("pressed", self, "_show_info", [plugin.PLUGIN_ID])
 		assert(e == OK)
 		match Plugin.get_disable_reason(plugin.PLUGIN_ID):
-			Plugin.DisableReason.NONE:
+			Plugin.PluginState.NONE:
 				pass
-			Plugin.DisableReason.MANUAL:
+			Plugin.PluginState.MANUAL:
 				button.modulate = Color.orange
 			_:
 				button.modulate = Color.red

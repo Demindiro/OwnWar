@@ -7,8 +7,8 @@ var _time_until_fuel_produced := 0.0
 var _producing := false
 var _material := 0
 var _fuel := 0
-onready var _material_id: int = Matter.get_matter_id("material")
-onready var _fuel_id: int = Matter.get_matter_id("fuel")
+var _material_id: int = Matter.get_matter_id("material")
+var _fuel_id: int = Matter.get_matter_id("fuel")
 
 
 func _physics_process(delta):
@@ -35,7 +35,9 @@ func get_info():
 
 
 func needs_matter(id: int) -> int:
-	return _MAX_MATERIAL - _material if _material_id == id else 0
+	if _material_id == id:
+		return _MAX_MATERIAL - _material
+	return 0
 
 
 func dumps_matter(id: int) -> int:

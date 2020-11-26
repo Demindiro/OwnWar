@@ -15,8 +15,6 @@
 [ext_resource path="res://core/menu/main_menu/floor_mesh.tres" type="PlaneMesh" id=13]
 [ext_resource path="res://core/menu/main_menu/floor_shape.tres" type="Shape" id=14]
 
-
-
 [node name="Main" type="Node"]
 script = ExtResource( 4 )
 map_name = "__main_menu"
@@ -42,6 +40,8 @@ __meta__ = {
 [node name="Vehicle" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -9 )
 script = ExtResource( 9 )
+max_health = 0
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Timer" type="Timer" parent="."]
 wait_time = 3.0
