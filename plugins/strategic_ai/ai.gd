@@ -37,6 +37,7 @@ func _ai_process() -> void:
 				_build_mining_post()
 			elif Munition.is_munition(id):
 				_produce_munition(id, amount)
+	_supply_munition()
 
 
 func _index_matter() -> void:
@@ -171,6 +172,27 @@ func _produce_munition(id: int, amount: int) -> void:
 				break
 	if count == 0:
 		_build_munitions_factory()
+
+
+func _supply_munition() -> void:
+	var id := Matter.get_matter_id("160mm AP")
+	if _matter_index[id] > 0:
+		# Get any vehicle that needs munition
+		var vehicle: Vehicle = null
+		var amount := 0
+		for u in _units:
+			if u is Vehicle:
+				var a: int = u.needs_matter(id)
+				if a > amount:
+					vehicle = u
+					amount = a
+		if amount > 0:
+			var worker := _get_idle_worker(vehicle.global_transform.origin)
+			if worker != null:
+				var task := WorkerDrone.TaskPut.new(vehicle, id, true)
+				worker.add_task(task, true)
+	else:
+		_debug("No %s available" % Matter.get_matter_name(id))
 
 
 func _debug(message: String) -> void:
