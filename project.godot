@@ -158,6 +158,10 @@ Debug="*res://core/debug.gd"
 [debug]
 
 gdscript/warnings/unused_class_variable=true
+gdscript/warnings/unsafe_property_access=true
+gdscript/warnings/unsafe_method_access=true
+gdscript/warnings/unsafe_cast=true
+gdscript/warnings/unsafe_call_argument=true
 
 [display]
 
@@ -374,6 +378,7 @@ common/physics_fps=150
 
 [rendering]
 
+threads/thread_model=2
 vram_compression/import_etc2=false
 quality/filters/msaa=2
 environment/default_environment="res://default_env.tres"
