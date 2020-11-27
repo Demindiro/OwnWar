@@ -37,14 +37,14 @@ func debug_draw():
 	var projectile_position = _projectile_spawn.global_transform.origin
 	var projectile_velocity_v = _projectile_spawn.global_transform.basis.z * \
 			projectile_velocity
-	var l := int(20.0 / 0.1)
+	var l := int(10.0 / 0.5)
 	var arr := PoolVector3Array()
 	arr.resize(l)
 	for i in range(l):
 		arr[i] = projectile_position
-		projectile_velocity_v.y -= GRAVITY * 0.1 / 2
-		projectile_position += projectile_velocity_v * 0.1
-		projectile_velocity_v.y -= GRAVITY * 0.1 / 2
+		projectile_velocity_v.y -= GRAVITY * 0.5 / 2
+		projectile_position += projectile_velocity_v * 0.5
+		projectile_velocity_v.y -= GRAVITY * 0.5 / 2
 	Debug.draw_graph(arr, Color.lightgreen)
 
 
