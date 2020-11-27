@@ -70,6 +70,7 @@ func draw_point(origin: Vector3, color := Color.white, radius := 1.0):
 	if _is_point_visible(origin):
 		var vic := mm.visible_instance_count
 		if mm.instance_count <= vic:
+			# warning-ignore:integer_division
 			mm.instance_count = (vic + 1) * 3 / 2
 		var tr := Transform(Basis.IDENTITY.scaled(Vector3.ONE * radius), origin)
 		mm.set_instance_transform(vic, tr)
