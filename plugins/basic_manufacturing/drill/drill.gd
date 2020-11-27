@@ -19,7 +19,7 @@ func _physics_process(delta: float) -> void:
 			if ore.material == 0:
 				set_process(false)
 				set_physics_process(false)
-				
+
 
 func get_info() -> Dictionary:
 	var info = .get_info()

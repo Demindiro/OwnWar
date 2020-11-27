@@ -32,7 +32,7 @@ func _is_valid():
 			(x - v).cross(x - y).length_squared() < 1e-5:
 		return false
 	return not _is_blacklisted()
-	
-	
+
+
 func _is_blacklisted():
 	return indice_generator.indices in _blacklist

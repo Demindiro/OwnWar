@@ -55,13 +55,13 @@ static func resize_grid(grid, new_width, new_height, create_func=null, delete_fu
 	if delete_func != null:
 		assert(typeof(delete_func) == TYPE_OBJECT and delete_func is FuncRef)
 	var is_create_func = typeof(create_func) == TYPE_OBJECT and create_func is FuncRef
-	
+
 	# Get old size (supposed to be rectangular!)
 	var old_height = grid.size()
 	var old_width = 0
 	if grid.size() != 0:
 		old_width = grid[0].size()
-	
+
 	# Delete old rows
 	if new_height < old_height:
 		if delete_func != null:
@@ -71,7 +71,7 @@ static func resize_grid(grid, new_width, new_height, create_func=null, delete_fu
 					var elem = row[x]
 					delete_func.call_func(elem)
 		grid.resize(new_height)
-	
+
 	# Delete old columns
 	if new_width < old_width:
 		for y in range(0, grid.size()):
@@ -81,7 +81,7 @@ static func resize_grid(grid, new_width, new_height, create_func=null, delete_fu
 					var elem = row[x]
 					delete_func.call_func(elem)
 			row.resize(new_width)
-	
+
 	# Create new columns
 	if new_width > old_width:
 		for y in range(0, grid.size()):
@@ -93,7 +93,7 @@ static func resize_grid(grid, new_width, new_height, create_func=null, delete_fu
 			else:
 				for x in range(old_width, new_width):
 					row[x] = create_func
-	
+
 	# Create new rows
 	if new_height > old_height:
 		grid.resize(new_height)
@@ -107,7 +107,7 @@ static func resize_grid(grid, new_width, new_height, create_func=null, delete_fu
 			else:
 				for x in range(0, new_width):
 					row[x] = create_func
-	
+
 	# Debug test check
 	assert(grid.size() == new_height)
 	for y in range(0, grid.size()):
@@ -151,7 +151,7 @@ static func grid_extract_area_safe_crop(src_grid, x0, y0, w, h):
 	var gh = src_grid[0].size()
 	if x0 >= gw or y0 >= gh:
 		return []
-	
+
 	# Crop min pos
 	if x0 < 0:
 		w += x0
@@ -159,7 +159,7 @@ static func grid_extract_area_safe_crop(src_grid, x0, y0, w, h):
 	if y0 < 0:
 		h += y0
 		y0 = 0
-	
+
 	# Crop max pos
 	if x0 + w >= gw:
 		w = gw-x0

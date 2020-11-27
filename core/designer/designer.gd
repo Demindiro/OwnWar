@@ -38,7 +38,7 @@ onready var _block_face_highlighter_csgbox: CSGBox = $BlockFaceHighlighter/CSGBo
 
 func _enter_tree():
 	get_tree().paused = true
-	
+
 
 func _exit_tree():
 	get_tree().paused = false
@@ -233,7 +233,7 @@ func highlight_face():
 	_block_face_highlighter.visible = ray_hits_block
 	var csgbox_mat: SpatialMaterial = _block_face_highlighter_csgbox.material
 	csgbox_mat.albedo_color = Color.green if ray_voxel_valid else Color.red
-	
+
 
 func save_vehicle(var path):
 	var data := {}
@@ -308,7 +308,7 @@ func set_material(p_material: SpatialMaterial):
 
 func set_layer(p_layer: int):
 	selected_layer = p_layer
-		
+
 
 func set_view_layer(p_view_layer: int):
 	view_layer = p_view_layer

@@ -14,7 +14,7 @@ func start(p_segments: int, indice_count: int):
 
 func step():
 	pass
-	
-	
+
+
 func get_name(_prefix: String):
 	pass

@@ -17,7 +17,7 @@ var _empty_icon = load("res://addons/zylann.hterrain/tools/icons/empty.png")
 
 func _ready():
 	_edit_dialog.set_load_texture_dialog(_load_dialog)
-	
+
 	# Default amount, will be updated when a terrain is assigned
 	_textures_list.clear()
 	for i in range(4):

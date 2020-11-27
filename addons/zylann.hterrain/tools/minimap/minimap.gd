@@ -21,9 +21,9 @@ var _camera_transform := Transform()
 func _ready():
 	if Util.is_in_edited_scene(self):
 		return
-	
+
 	_set_mode(_mode)
-	
+
 	_popup_menu.add_item("Quadtree mode", MODE_QUADTREE)
 	_popup_menu.add_item("Normal mode", MODE_NORMAL)
 
@@ -106,17 +106,17 @@ func _update_normal_material():
 func _draw():
 	if _terrain == null:
 		return
-	
+
 	if _mode == MODE_QUADTREE:
 		var lod_count = _terrain.get_lod_count()
-	
+
 		if lod_count > 0:
 			# Fit drawing to rect
-			
+
 			var size = 1 << (lod_count - 1)
 			var vsize = rect_size
 			draw_set_transform(Vector2(0, 0), 0, Vector2(vsize.x / size, vsize.y / size))
-	
+
 			_terrain._edit_debug_draw(self)
 
 

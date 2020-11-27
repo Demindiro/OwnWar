@@ -34,17 +34,17 @@ func bake(terrain: HTerrain):
 
 	var splatmap := data.get_texture(HTerrainData.CHANNEL_SPLAT)
 	var colormap := data.get_texture(HTerrainData.CHANNEL_COLOR)
-	
+
 	if _viewport == null:
 		_setup_scene()
-	
+
 	var terrain_size := data.get_resolution()
 	var cw := terrain_size / VIEWPORT_SIZE
 	var ch := terrain_size / VIEWPORT_SIZE
 	for y in ch:
 		for x in cw:
 			_sectors.append(Vector2(x, y))
-	
+
 	var mat := _plane.material_override
 	_terrain.setup_globalmap_material(mat)
 
@@ -63,16 +63,16 @@ func _setup_scene():
 	_viewport.world = World.new()
 	_viewport.own_world = true
 	_viewport.debug_draw = Viewport.DEBUG_DRAW_UNSHADED
-	
+
 	var mat = ShaderMaterial.new()
-	
+
 	_plane = MeshInstance.new()
 	# Make a very small mesh, vertex precision isn't required
 	var plane_res = 4
 	_plane.mesh = HTerrainMesher.make_flat_chunk(plane_res, plane_res, VIEWPORT_SIZE / plane_res, 0)
 	_plane.material_override = mat
 	_viewport.add_child(_plane)
-	
+
 	_camera = Camera.new()
 	_camera.projection = Camera.PROJECTION_ORTHOGONAL
 	_camera.size = _viewport.size.x
@@ -81,7 +81,7 @@ func _setup_scene():
 	_camera.current = true
 	_camera.rotation_degrees = Vector3(-90, 0, 0)
 	_viewport.add_child(_camera)
-	
+
 	add_child(_viewport)
 
 
@@ -130,16 +130,16 @@ func _setup_pass(sector: Vector2):
 func _grab_image(sector: Vector2):
 	var tex := _viewport.get_texture()
 	var src := tex.get_data()
-	
+
 	assert(_terrain != null)
 	var data := _terrain.get_data()
 	assert(data != null)
-	
+
 	if data.get_map_count(HTerrainData.CHANNEL_GLOBAL_ALBEDO) == 0:
 		data._edit_add_map(HTerrainData.CHANNEL_GLOBAL_ALBEDO)
-	
+
 	var dst := data.get_image(HTerrainData.CHANNEL_GLOBAL_ALBEDO)
-	
+
 	src.convert(dst.get_format())
 	var origin = sector * VIEWPORT_SIZE
 	dst.blit_rect(src, Rect2(0, 0, src.get_width(), src.get_height()), origin)
@@ -150,10 +150,10 @@ func _finish():
 	var data := _terrain.get_data() as HTerrainData
 	assert(data != null)
 	var dst := data.get_image(HTerrainData.CHANNEL_GLOBAL_ALBEDO)
-	
-	data.notify_region_change(Rect2(0, 0, dst.get_width(), dst.get_height()), 
+
+	data.notify_region_change(Rect2(0, 0, dst.get_width(), dst.get_height()),
 		HTerrainData.CHANNEL_GLOBAL_ALBEDO)
 	emit_signal("permanent_change_performed", "Bake globalmap")
-	
+
 	_cleanup_scene()
 	_terrain = null

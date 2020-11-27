@@ -22,7 +22,7 @@ func _init(p_parent, p_cell_x: int, p_cell_y: int, p_material: Material):
 	assert(typeof(p_cell_x) == TYPE_INT)
 	assert(typeof(p_cell_y) == TYPE_INT)
 	assert(p_material is Material)
-	
+
 	cell_origin_x = p_cell_x
 	cell_origin_y = p_cell_y
 

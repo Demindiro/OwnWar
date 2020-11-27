@@ -65,20 +65,20 @@ func aim_at(position: Vector3, _velocity := Vector3.ZERO):
 	var normal_xz = rel_pos
 	normal_xz.y = 0
 	normal_xz = normal_xz.normalized()
-	
+
 	var projectile_spawn_y = _projectile_spawn.translation.y
 	var projectile_spawn_z = _projectile_spawn.translation.z
-	
+
 	distance_xz -= projectile_spawn_y * _desired_direction.y + \
 			projectile_spawn_z * _desired_direction.z
 	distance_y -= projectile_spawn_y * _desired_direction.z + \
 			projectile_spawn_z * -_desired_direction.y
-	
+
 	var x = distance_xz
 	var y = distance_y
 	var v2 = projectile_velocity * projectile_velocity
 	var g = GRAVITY
-	
+
 	var f = v2 * v2 - g * (g * x * x + 2 * y * v2)
 	set_angle(atan2(v2 - sqrt(f), g * x) if f >= 0.0 else 0.0)
 

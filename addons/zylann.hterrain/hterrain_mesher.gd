@@ -19,25 +19,25 @@ func configure(chunk_size_x: int, chunk_size_y: int, lod_count: int):
 	assert(typeof(chunk_size_x) == TYPE_INT)
 	assert(typeof(chunk_size_y) == TYPE_INT)
 	assert(typeof(lod_count) == TYPE_INT)
-	
+
 	assert(chunk_size_x >= 2 or chunk_size_y >= 2)
 
 	_mesh_cache.resize(SEAM_CONFIG_COUNT)
-	
+
 	if chunk_size_x == _chunk_size_x \
 	and chunk_size_y == _chunk_size_y and lod_count == len(_mesh_cache):
 		return
-	
+
 	_chunk_size_x = chunk_size_x
 	_chunk_size_y = chunk_size_y
 
 	# TODO Will reduce the size of this cache, but need index buffer swap feature
 	for seams in range(SEAM_CONFIG_COUNT):
-		
+
 		var slot = []
 		slot.resize(lod_count)
 		_mesh_cache[seams] = slot
-		
+
 		for lod in range(lod_count):
 			slot[lod] = make_flat_chunk(_chunk_size_x, _chunk_size_y, 1 << lod, seams)
 
@@ -56,7 +56,7 @@ static func make_flat_chunk(quad_count_x: int, quad_count_y: int, stride: int, s
 		for x in range(quad_count_x + 1):
 			positions[i] = Vector3(x * stride, 0, y * stride)
 			i += 1
-		
+
 	var indices = make_indices(quad_count_x, quad_count_y, seams)
 
 	var arrays = []
@@ -85,7 +85,7 @@ static func make_indices(chunk_size_x: int, chunk_size_y: int, seams: int) -> Po
 	var reg_size_x := chunk_size_x
 	var reg_size_y := chunk_size_y
 	var reg_hstride := 1
-	
+
 	if seams & SEAM_LEFT:
 		reg_origin_x += 1;
 		reg_size_x -= 1;
@@ -107,7 +107,7 @@ static func make_indices(chunk_size_x: int, chunk_size_y: int, seams: int) -> Po
 
 	for y in range(reg_size_y):
 		for x in range(reg_size_x):
-			
+
 			var i00 := ii
 			var i10 := ii + 1
 			var i01 := ii + chunk_size_x + 1
@@ -235,7 +235,7 @@ static func make_indices(chunk_size_x: int, chunk_size_y: int, seams: int) -> Po
 
 		var i := 0;
 		var n := chunk_size_x / 2;
-		
+
 		for j in range(n):
 
 			var i0 := i
@@ -309,18 +309,18 @@ static func get_mesh_size(width: int, height: int) -> Dictionary:
 # Makes a full mesh from a heightmap, without any LOD considerations.
 # Using this mesh for rendering is very expensive on large terrains.
 # Initially used as a workaround for Godot to use for navmesh generation.
-static func make_heightmap_mesh(heightmap: Image, stride: int, scale: Vector3, 
+static func make_heightmap_mesh(heightmap: Image, stride: int, scale: Vector3,
 	logger = null) -> Mesh:
-	
+
 	var size_x := heightmap.get_width() / stride
 	var size_z := heightmap.get_height() / stride
 
 	assert(size_x >= 2)
 	assert(size_z >= 2)
-	
+
 	var positions := PoolVector3Array()
 	positions.resize(size_x * size_z)
-	
+
 	heightmap.lock()
 
 	var i := 0
@@ -331,21 +331,21 @@ static func make_heightmap_mesh(heightmap: Image, stride: int, scale: Vector3,
 			var y := heightmap.get_pixel(x, z).r
 			positions[i] = Vector3(x, y, z) * scale
 			i += 1
-	
+
 	heightmap.unlock()
-	
+
 	var indices := make_indices(size_x - 1, size_z - 1, 0)
 
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX);
 	arrays[Mesh.ARRAY_VERTEX] = positions
 	arrays[Mesh.ARRAY_INDEX] = indices
-	
+
 	if logger != null:
 		logger.debug(str("Generated mesh has ", len(positions),
 			" vertices and ", len(indices) / 3, " triangles"))
 
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	
+
 	return mesh

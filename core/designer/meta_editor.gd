@@ -30,11 +30,11 @@ func set_meta_items(block, meta_data):
 			_meta_data[meta_name] = meta_data[meta_name]
 		else:
 			_meta_data[meta_name] = block.meta[meta_name]
-		
+
 		for child in $GridContainer.get_children():
 			child.queue_free()
 			$GridContainer.remove_child(child)
-		
+
 		var label = Label.new()
 		label.text = meta_name
 		$GridContainer.add_child(label)

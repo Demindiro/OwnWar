@@ -61,9 +61,9 @@ func update():
 			button.connect("pressed", $Save/BlockName, "set_text", [block_name])
 			button.connect("pressed", self, "_on_Load_pressed", [], CONNECT_DEFERRED)
 			$UI/SavedBlocks.add_child(button)
-	update_mirror()	
-	
-	
+	update_mirror()
+
+
 func update_mirror():
 	var mirror_transform
 	var flip_faces = false

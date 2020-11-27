@@ -53,7 +53,7 @@ func _ready():
 			"exts": ["png"]
 		}
 	})
-	
+
 	# Testing
 #	_errors_label.text = "- Hello World!"
 #	_warnings_label.text = "- Yolo Jesus!"
@@ -87,9 +87,9 @@ func _show_feedback(res):
 
 	for w in res.warnings:
 		_logger.warn(w)
-	
+
 	_clear_feedback()
-	
+
 	if len(res.errors) > 0:
 		_errors_label.text = _format_feedbacks(res.errors)
 
@@ -140,7 +140,7 @@ func _on_ImportButton_pressed():
 	var data = _terrain.get_data()
 	data._edit_import_maps(params)
 	emit_signal("permanent_change_performed", "Import maps")
-	
+
 	_logger.debug("Terrain import finished")
 	hide()
 
@@ -214,13 +214,13 @@ static func _check_map_size(path, map_name, heightmap_size, res, logger):
 	var adjusted_size = HTerrainData.get_adjusted_map_size(size.width, size.height)
 	if adjusted_size != heightmap_size:
 		res.errors.append(str(
-			"The ", map_name, 
+			"The ", map_name,
 			" must have the same resolution as the heightmap (", heightmap_size, ")"))
 	else:
 		if adjusted_size != size.width:
 			res.warnings.append(
-				"The square resolution deduced from ", map_name, 
-				" file size is not power of two + 1.\nThe ", 
+				"The square resolution deduced from ", map_name,
+				" file size is not power of two + 1.\nThe ",
 				map_name, " will be cropped.")
 
 
@@ -251,7 +251,7 @@ static func _load_image_size(path, logger):
 		var size = Util.integer_square_root(flen / 2)
 		if size == -1:
 			return { "error": "RAW image is not square" }
-		
+
 		logger.debug("Deduced RAW heightmap resolution: {0}*{1}, for a length of {2}" \
 			.format([size, size, flen]))
 

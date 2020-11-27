@@ -59,7 +59,7 @@ func update():
 	$UI/VariantIndex.text = "%d (%d)" % [variant_index, len(meshes)]
 	$UI/MeshName.text = mesh_names[variant_index]
 	$UI/Segments.text = str(segments)
-	
+
 
 func _on_NextVariant_pressed():
 	variant_index = posmod(variant_index + 1, len(meshes))

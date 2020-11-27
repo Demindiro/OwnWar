@@ -22,8 +22,8 @@ func _set_generator():
 func start(p_segments: int):
 	indice_generator.start(p_segments, indice_count)
 	finished = indice_generator.finished
-	
-	
+
+
 func step():
 	indice_generator.step()
 	fractions = PoolRealArray()

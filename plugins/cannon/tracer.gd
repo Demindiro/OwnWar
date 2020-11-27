@@ -26,14 +26,14 @@ func _process(_delta: float) -> void:
 	offset -= 1
 	if offset < 0:
 		offset = count - 1
-		
+
 
 func _physics_process(delta):
 	alive_time += delta
 	if alive_time >= 5.0:
 		queue_free()
-			
-			
+
+
 func set_count(p_count: int) -> void:
 	assert(p_count >= 0)
 	vertices.resize(p_count)

@@ -31,7 +31,7 @@ func _init(attached_node: Node, initial_layer: int, initial_mask: int):
 	})
 
 	PhysicsServer.body_add_shape(_body_rid, _shape_rid)
-	
+
 	# This makes collision hits report the provided object as `collider`
 	PhysicsServer.body_attach_object_instance_id(_body_rid, attached_node.get_instance_id())
 
@@ -112,7 +112,7 @@ func _update_transform(aabb=null):
 		# In 3.2, vertical centering changed.
 		# https://github.com/godotengine/godot/pull/28326
 		trans = Transform(Basis(), 0.5 * Vector3(width - 1, 0, depth - 1))
-	
+
 	# And then apply the terrain transform
 	trans = _terrain_transform * trans
 

@@ -219,7 +219,7 @@ func paint(terrain: HTerrain, cell_pos_x: int, cell_pos_y: int, override_mode: i
 	if override_mode != -1:
 		assert(override_mode >= 0 or override_mode < MODE_COUNT)
 		mode = override_mode
-	
+
 	var use_indexed_splat := terrain.is_using_texture_array()
 
 	_last_painted_maps = _get_mode_map_types(mode, use_indexed_splat, _detail_index)
@@ -278,9 +278,9 @@ static func _is_valid_pos(pos_x: int, pos_y: int, im: Image) -> bool:
 	return not (pos_x < 0 or pos_y < 0 or pos_x >= im.get_width() or pos_y >= im.get_height())
 
 
-func _backup_for_undo(terrain_data: HTerrainData, undo_cache: Dictionary, 
+func _backup_for_undo(terrain_data: HTerrainData, undo_cache: Dictionary,
 	rect_origin_x: int, rect_origin_y: int, rect_size_x: int, rect_size_y: int):
-	
+
 	assert(len(_last_painted_maps) > 0)
 
 	# Backup cells before they get changed,
@@ -301,35 +301,35 @@ func _backup_for_undo(terrain_data: HTerrainData, undo_cache: Dictionary,
 			if undo_cache.has(k):
 				# Already backupped
 				continue
-			
+
 			var sub_images = []
-			
+
 			# Get backups in the same order
 			for map in _last_painted_maps:
 				var map_type = map[0]
 				var map_index = map[1]
 				var im = terrain_data.get_image(map_type)
 				assert(im != null)
-				
+
 				var min_x = cpos_x * EDIT_CHUNK_SIZE
 				var max_x = min_x + EDIT_CHUNK_SIZE
-	
+
 				var invalid_min = not _is_valid_pos(min_x, min_y, im)
 				var invalid_max = not _is_valid_pos(max_x - 1, max_y - 1, im) # Note: max is excluded
-	
+
 				if invalid_min or invalid_max:
 					# Out of bounds
-	
-					# Note: this error check isn't working because data grids are 
+
+					# Note: this error check isn't working because data grids are
 					# intentionally off-by-one
 					#if(invalid_min ^ invalid_max)
 					#	_logger.error("Wut? Grid might not be multiple of chunk size!");
-	
+
 					continue
-	
+
 				var sub_image = im.get_rect(Rect2(min_x, min_y, max_x - min_x, max_y - min_y))
 				sub_images.append(sub_image)
-			
+
 			if len(sub_images) > 0:
 				undo_cache[k] = sub_images
 
@@ -391,7 +391,7 @@ func _paint_indexed_splat(data: HTerrainData, origin_x: int, origin_y: int):
 	var index_map := _get_or_create_map(data, HTerrainData.CHANNEL_SPLAT_INDEX)
 	var weight_map := _get_or_create_map(data, HTerrainData.CHANNEL_SPLAT_WEIGHT)
 	_backup_for_undo(data, _undo_cache, origin_x, origin_y, _shape_size, _shape_size)
-	_image_utils.paint_indexed_splat(index_map, weight_map, _shape, Vector2(origin_x, origin_y), 
+	_image_utils.paint_indexed_splat(index_map, weight_map, _shape, Vector2(origin_x, origin_y),
 		_texture_index, 0.5 * _opacity)
 
 
@@ -446,31 +446,31 @@ func _edit_pop_undo_redo_data(heightmap_data: HTerrainData) -> Dictionary:
 	assert(len(_last_painted_maps) > 0)
 
 	var chunk_positions := _undo_cache.keys()
-	
+
 	var maps_redo_data = []
 	var maps_undo_data = []
-		
+
 	for painted_index in len(_last_painted_maps):
 		var map = _last_painted_maps[painted_index]
 		var map_type = map[0]
 		var map_index = map[1]
-		
+
 		var im = heightmap_data.get_image(map_type, map_index)
 		assert(im != null)
 
 		var redo_chunks = _fetch_redo_chunks(im, chunk_positions)
-		
+
 		maps_redo_data.append({
 			"map_type": map_type,
 			"map_index": map_index,
 			"chunks": redo_chunks
 		})
-		
+
 		var undo_chunks = []
 		for key in chunk_positions:
 			# Same order as in "chunk_positions" later
 			undo_chunks.append(_undo_cache[key][painted_index])
-		
+
 		maps_undo_data.append({
 			"map_type": map_type,
 			"map_index": map_index,

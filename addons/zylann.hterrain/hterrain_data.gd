@@ -363,7 +363,7 @@ func get_interpolated_height_at(pos: Vector3) -> float:
 func get_heights_region(x0: int, y0: int, w: int, h: int) -> PoolRealArray:
 	var im = get_image(CHANNEL_HEIGHT)
 	assert(im != null)
-	
+
 	var min_x := Util.clamp_int(x0, 0, im.get_width())
 	var min_y := Util.clamp_int(y0, 0, im.get_height())
 	var max_x := Util.clamp_int(x0 + w, 0, im.get_width() + 1)
@@ -401,7 +401,7 @@ func get_all_heights() -> PoolRealArray:
 # Call this function after you end modifying a map.
 # It will commit the change to the GPU so the change will take effect.
 # In the editor, it will also mark the map as modified so it will be saved when needed.
-# Finally, it will emit `region_changed`, 
+# Finally, it will emit `region_changed`,
 # which allows other systems to catch up (like physics or grass)
 #
 # p_rect: modified area.
@@ -409,12 +409,12 @@ func get_all_heights() -> PoolRealArray:
 # index: index of the map that changed
 func notify_region_change(p_rect: Rect2, channel: int, index := 0):
 	assert(channel >= 0 and channel < CHANNEL_COUNT)
-	
+
 	var min_x := int(p_rect.position.x)
 	var min_y := int(p_rect.position.y)
 	var size_x := int(p_rect.size.x)
 	var size_y := int(p_rect.size.y)
-	
+
 	if channel == CHANNEL_HEIGHT:
 		assert(index == 0)
 		# TODO when drawing very large patches,
@@ -464,33 +464,33 @@ func _edit_apply_undo(undo_data: Dictionary, image_cache: ImageFileCache):
 	for map_info in map_infos:
 		var map_type := map_info.map_type as int
 		var map_index := map_info.map_index as int
-		
+
 		var regions_changed := []
-		
+
 		for chunk_index in len(map_info.chunks):
 			var cpos : Vector2 = chunk_positions[chunk_index]
 			var cpos_x := int(cpos.x)
 			var cpos_y := int(cpos.y)
-	
+
 			var min_x := cpos_x * chunk_size
 			var min_y := cpos_y * chunk_size
 			var max_x := min_x + chunk_size
 			var max_y := min_y + chunk_size
-	
+
 			var data_id = map_info.chunks[chunk_index]
 			var data := image_cache.load_image(data_id)
 			assert(data != null)
-	
+
 			var data_rect := Rect2(0, 0, data.get_width(), data.get_height())
-	
+
 			var dst_image := get_image(map_type, map_index)
 			assert(dst_image != null)
-	
+
 			if _map_types[map_type].authored:
 				dst_image.blit_rect(data, data_rect, Vector2(min_x, min_y))
 			else:
 				_logger.error("This is a calculated channel!, no undo on this one\n")
-	
+
 			# Defer this to a second pass,
 			# otherwise it causes order-dependent artifacts on the normal map
 			regions_changed.append([
@@ -646,7 +646,7 @@ func _edit_add_map(map_type: int) -> int:
 func _edit_insert_map_from_image_cache(map_type: int, index: int, image_cache, image_id: int):
 	if _edit_disable_apply_undo:
 		return
-	_logger.debug(str("Adding map of type ", get_channel_name(map_type), 
+	_logger.debug(str("Adding map of type ", get_channel_name(map_type),
 		" from an image at index ", index))
 	while map_type >= len(_maps):
 		_maps.append([])
@@ -757,7 +757,7 @@ func get_region_aabb(origin_in_cells_x: int, origin_in_cells_y: int, \
 	cmax_y = Util.clamp_int(cmax_y, 0, _chunked_vertical_bounds.get_height())
 
 	_chunked_vertical_bounds.lock()
-	
+
 	var min_height := _chunked_vertical_bounds.get_pixel(cmin_x, cmin_y).r
 	var max_height = min_height
 
@@ -766,7 +766,7 @@ func get_region_aabb(origin_in_cells_x: int, origin_in_cells_y: int, \
 			var b = _chunked_vertical_bounds.get_pixel(x, y)
 			min_height = min(b.r, min_height)
 			max_height = max(b.g, max_height)
-	
+
 	_chunked_vertical_bounds.unlock()
 
 	var aabb = AABB()
@@ -802,7 +802,7 @@ func _update_vertical_bounds(origin_in_cells_x: int, origin_in_cells_y: int, \
 	# have an actual size of chunk size + 1.
 	var chunk_size_x := VERTICAL_BOUNDS_CHUNK_SIZE + 1
 	var chunk_size_y := VERTICAL_BOUNDS_CHUNK_SIZE + 1
-	
+
 	_chunked_vertical_bounds.lock()
 
 	for y in range(cmin_y, cmax_y):
@@ -818,7 +818,7 @@ func _update_vertical_bounds(origin_in_cells_x: int, origin_in_cells_y: int, \
 
 func _compute_vertical_bounds_at(
 	origin_x: int, origin_y: int, size_x: int, size_y: int) -> Vector2:
-	
+
 	var heights = get_image(CHANNEL_HEIGHT)
 	assert(heights != null)
 	return _image_utils.get_red_range(heights, Rect2(origin_x, origin_y, size_x, size_y))
@@ -826,7 +826,7 @@ func _compute_vertical_bounds_at(
 
 func save_data(data_dir: String):
 	_logger.debug("Saving terrain data...")
-	
+
 	_locked = true
 
 	_save_metadata(data_dir.plus_file(META_FILENAME))
@@ -851,7 +851,7 @@ func save_data(data_dir: String):
 
 			map.modified = false
 			pi += 1
-	
+
 	# TODO Cleanup unused map files?
 
 	# TODO In editor, trigger reimport on generated assets
@@ -997,7 +997,7 @@ func _save_map(dir_path: String, map_type: int, index: int) -> bool:
 	if im == null:
 		var tex = map.texture
 		if tex != null:
-			_logger.debug(str("Image not found for map ", map_type, 
+			_logger.debug(str("Image not found for map ", map_type,
 				", downloading from VRAM"))
 			im = tex.get_data()
 		else:
@@ -1034,7 +1034,7 @@ static func _try_write_default_import_options(fpath: String, channel: int, logge
 	if f.file_exists(imp_fpath):
 		# Already exists
 		return
-	
+
 	var map_info = _map_types[channel]
 	var texture_flags: int = map_info.texture_flags
 	var filter := (texture_flags & Texture.FLAG_FILTER) != 0
@@ -1054,21 +1054,21 @@ static func _try_write_default_import_options(fpath: String, channel: int, logge
 			# but apparently what is saved in the .import file does not match,
 			# and rather corresponds TO THE UI IN THE IMPORT DOCK :facepalm:
 			"compress/mode": 0,
-			
+
 			"compress/hdr_mode": 0,
 			"compress/normal_map": 0,
 			"flags/mipmaps": false,
 			"flags/filter": filter,
-			
+
 			# Most textures aren't color.
 			# Same here, this is mapping something from the import dock UI,
 			# and doesn't have any enum associated, just raw numbers in C++ code...
 			# 0 = "disabled", 1 = "enabled", 2 = "detect"
 			"flags/srgb": 2 if srgb else 0,
-			
+
 			# No need for this, the meaning of alpha is never transparency
 			"process/fix_alpha_border": false,
-			
+
 			# Don't try to be smart.
 			# This can actually overwrite the settings with defaults...
 			# https://github.com/godotengine/godot/issues/24220
@@ -1208,7 +1208,7 @@ static func _try_delete_0_8_0_heightmap(fpath: String, logger):
 #
 # TODO Plan is to make this function threaded, in case import takes too long.
 # So anything that could mess with the main thread should be avoided.
-# Eventually, it would be temporarily removed from the terrain node to work 
+# Eventually, it would be temporarily removed from the terrain node to work
 # in isolation during import.
 func _edit_import_maps(input: Dictionary) -> bool:
 	assert(typeof(input) == TYPE_DICTIONARY)
@@ -1284,7 +1284,7 @@ func _import_heightmap(fpath: String, min_y: int, max_y: int, big_endian: bool) 
 
 		src_image.unlock()
 		im.unlock()
-	
+
 	elif ext == "exr":
 		var src_image := Image.new()
 		var err := src_image.load(fpath)
@@ -1304,13 +1304,13 @@ func _import_heightmap(fpath: String, min_y: int, max_y: int, big_endian: bool) 
 		assert(im != null)
 
 		_logger.debug("Converting to internal format...")
-		
+
 		# See https://github.com/Zylann/godot_heightmap_plugin/issues/34
 		# Godot can load EXR but it always makes them have at least 3-channels.
 		# Heightmaps need only one, so we have to get rid of 2.
 		var height_format = _map_types[CHANNEL_HEIGHT].texture_format
 		src_image.convert(height_format)
-		
+
 		im.blit_rect(src_image, Rect2(0, 0, res, res), Vector2())
 
 	elif ext == "raw":
@@ -1427,7 +1427,7 @@ class _CellRaycastContext:
 	var broad_param_2d_to_3d := 1.0
 	var cell_param_2d_to_3d := 1.0
 	#var dbg
-	
+
 	func broad_cb(cx: int, cz: int, enter_param: float, exit_param: float) -> bool:
 		if cx < 0 or cz < 0 or cz >= vertical_bounds.get_height() \
 		or cx >= vertical_bounds.get_width():
@@ -1449,7 +1449,7 @@ class _CellRaycastContext:
 		hit = Util.grid_raytrace_2d(
 			cell_ray_origin_2d, dir_2d, cell_cb_funcref, distance_in_chunk_2d)
 		return hit != null
-	
+
 	func cell_cb(cx: int, cz: int, enter_param: float, exit_param: float) -> bool:
 		var enter_y := _cell_begin_pos.y + dir.y * enter_param * cell_param_2d_to_3d
 		var exit_y := _cell_begin_pos.y + dir.y * exit_param * cell_param_2d_to_3d
@@ -1491,12 +1491,12 @@ func cell_raycast(ray_origin: Vector3, ray_direction: Vector3, max_distance: flo
 	if max_distance_2d < 0.001:
 		# TODO Direct vertical hit?
 		return null
-	
+
 	# Get ratio along the segment where the first point was clipped
 	var begin_clip_param := ray_origin_2d.distance_to(clipped_segment_2d[0]) / max_distance_2d
-	
+
 	var ray_direction_2d := _get_xz(ray_direction).normalized()
-	
+
 	var ctx := _CellRaycastContext.new()
 	ctx.begin_pos = ray_origin + ray_direction * (begin_clip_param * max_distance)
 	ctx.dir = ray_direction
@@ -1516,7 +1516,7 @@ func cell_raycast(ray_origin: Vector3, ray_direction: Vector3, max_distance: flo
 	var broad_ray_origin = clipped_segment_2d[0] / VERTICAL_BOUNDS_CHUNK_SIZE
 	var broad_max_distance = \
 		clipped_segment_2d[0].distance_to(clipped_segment_2d[1]) / VERTICAL_BOUNDS_CHUNK_SIZE
-	var hit_bp = Util.grid_raytrace_2d(broad_ray_origin, ray_direction_2d, 
+	var hit_bp = Util.grid_raytrace_2d(broad_ray_origin, ray_direction_2d,
 		funcref(ctx, "broad_cb"), broad_max_distance)
 
 	heightmap.unlock()
@@ -1525,7 +1525,7 @@ func cell_raycast(ray_origin: Vector3, ray_direction: Vector3, max_distance: flo
 	if hit_bp == null:
 		# No hit
 		return null
-	
+
 	return ctx.hit.hit_cell_pos
 
 

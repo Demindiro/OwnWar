@@ -389,8 +389,8 @@ func build(flags, units):
 			add_task(t, force_append)
 			ghost.connect("built", self, "_ghost_built", [t])
 			force_append = true
-			
-			
+
+
 func build_ghost(flags, position, scroll, ghost_name):
 	var ghost = ghosts[ghost_name].instance()
 	ghost.transform = Transform(Basis.IDENTITY.rotated(Vector3.UP, scroll * PI / 8), position)

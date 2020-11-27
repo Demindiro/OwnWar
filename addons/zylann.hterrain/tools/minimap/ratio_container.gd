@@ -21,12 +21,12 @@ func _sort_children2():
 			continue
 		var w = rect_size.x
 		var h = rect_size.x / ratio
-		
+
 		if h > rect_size.y:
 			h = rect_size.y
 			w = h * ratio
 
 		var rect := Rect2(0, 0, w, h)
-		
+
 		fit_child_in_rect(child, rect)
-		
+

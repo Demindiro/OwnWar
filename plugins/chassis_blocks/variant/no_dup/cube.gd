@@ -53,8 +53,8 @@ func _is_valid():
 	if (w - u).cross(w - v).dot(a - w) < 1e-5:
 		return false
 	return not _is_blacklisted()
-	
-	
+
+
 func _is_blacklisted():
 	# Some duplicate variants I haven't managed to eliminate automagically yet
 	return indice_generator.indices in _blacklist

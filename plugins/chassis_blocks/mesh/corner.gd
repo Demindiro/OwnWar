@@ -8,12 +8,12 @@ func _init():
 func generate(transform, x, y, z, flip_faces = false):
 	var vertices = PoolVector3Array()
 #	var normals = PoolVector3Array()
-	
+
 	var o = transform * Vector3.ZERO
 	x = transform * x
 	y = transform * y
 	z = transform * z
-	
+
 	for vertex in [z, y, x]: # E
 		vertices.append(vertex)
 	for vertex in [o, y, z]: # X
@@ -22,10 +22,10 @@ func generate(transform, x, y, z, flip_faces = false):
 		vertices.append(vertex)
 	for vertex in [o, x, y]: # Z
 		vertices.append(vertex)
-		
+
 	if flip_faces:
 		vertices.invert()
-	
+
 	var array = []
 	array.resize(Mesh.ARRAY_MAX)
 	array[Mesh.ARRAY_VERTEX] = vertices
