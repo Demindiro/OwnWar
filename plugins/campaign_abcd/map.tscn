@@ -146,7 +146,7 @@ team = "Arend"
 type_flags = 1
 
 [node name="Refinery" parent="Arend/X" instance=ExtResource( 19 )]
-transform = Transform( -0.999973, 0.0073846, -8.16656e-05, 0.00738505, 0.999912, -0.0110461, 8.74134e-08, -0.0110464, -0.999939, 2502.51, 1.1066, 640.989 )
+transform = Transform( -0.999973, 0.0073846, -8.14907e-05, 0.00738505, 0.999912, -0.0110461, -8.73988e-08, -0.0110464, -0.999939, 2502.51, 1.1066, 640.989 )
 team = "Arend"
 
 [node name="MunitionsFactory" parent="Arend/X" instance=ExtResource( 21 )]
