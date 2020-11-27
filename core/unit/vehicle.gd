@@ -327,6 +327,9 @@ func deserialize_json(data: Dictionary) -> void:
 	max_cost = 0
 	voxel_bodies = []
 
+	var conv_table := Compatibility.get_block_name_mapping(Vector3(0, 10, 0),
+			Constants.VERSION)
+
 	for vb_data in data["blocks"]:
 		var vb := VoxelBody.new()
 		for k in vb_data:
@@ -337,8 +340,10 @@ func deserialize_json(data: Dictionary) -> void:
 			var x := int(crd[0])
 			var y := int(crd[1])
 			var z := int(crd[2])
+			var b_name: String = b_data["name"]
+			b_name = conv_table.get(b_name, b_name)
 			vb.spawn_block(x, y, z, b_data["rotation"],
-					Block.get_block(b_data["name"]),
+					Block.get_block(b_name),
 					str2var(b_data["color"]))
 		add_child(vb)
 		voxel_bodies.append(vb)
