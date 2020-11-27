@@ -39,6 +39,8 @@ func _process(_delta):
 			mm.visible_instance_count = 0
 		# Get camera properties
 		_cam = _vp.get_camera()
+		if _cam == null:
+			return
 		_cam_far2 = _cam.far
 		_cam_far2 *= _cam_far2
 		_vp_rect = Rect2(Vector2.ZERO, _vp.size)

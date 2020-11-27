@@ -290,15 +290,16 @@ func serialize_json() -> Dictionary:
 	for i in range(len(voxel_bodies)):
 		b_list[i] = {}
 		for crd in voxel_bodies[i].blocks:
-			var b: Array = voxel_bodies[i].blocks[crd]
+			var b: VoxelBody.BodyBlock = voxel_bodies[i].blocks[crd]
 			var d := {
-					"name": Block.get_block_by_id(b[0]).name,
-					"health": b[1],
-					"rotation": b[3],
-					"color": var2str(b[4]),
+					"name": Block.get_block_by_id(b.id).name,
+					"health": b.health,
+					"rotation": b.rotation,
+					"color": var2str(b.color),
 				}
-			if b[2] != null and b[2].has_method("serialize_json"):
-				d["meta"] = b[2].serialize_json()
+			if b.node != null and b.node.has_method("serialize_json"):
+				# warning-ignore:unsafe_method_access
+				d["meta"] = b.node.serialize_json()
 			b_list[i]["%d,%d,%d" % crd] = d
 
 	var m_list := {}
