@@ -45,19 +45,3 @@ static func pre_init(plugin_folder: String):
 				block.mirror_block = mirror_block
 			else:
 				block.set_mirror_rotation_offset(mirror)
-
-
-static func init(_plugin_path: String):
-	pass
-
-
-static func post_init(_plugin_path: String):
-	pass
-
-
-static func save_game(_game_master: GameMaster) -> Dictionary:
-	return {}
-
-
-static func load_game(_game_master: GameMaster, _data: Dictionary) -> void:
-	pass
