@@ -204,9 +204,13 @@ static func decode_color(s: String, delim := ",") -> Color:
 	return Color(a[0], a[1], a[2], a[3])
 
 
+static func is_vec3_approc_eq(a: Vector3, b: Vector3, epsilon: float):
+	return abs(a.x - b.x) < epsilon and \
+			abs(a.y - b.y) < epsilon and \
+			abs(a.z - b.z) < epsilon
+
+
 static func is_transform_approx_eq(a: Transform, b: Transform,
 		epsilon_basis: float, epsilon_origin: float) -> bool:
 	return a.basis.is_equal_approx(b.basis, epsilon_basis) and \
-			abs(a.origin.x - b.origin.x) < epsilon_origin and \
-			abs(a.origin.y - b.origin.y) < epsilon_origin and \
-			abs(a.origin.z - b.origin.z) < epsilon_origin
+			is_vec3_approc_eq(a.origin, b.origin, epsilon_origin)

@@ -23,7 +23,6 @@
 [ext_resource path="res://core/designer/designer.gd" type="Script" id=21]
 [ext_resource path="res://core/designer/block_base_material.tres" type="Material" id=22]
 
-
 [node name="Designer" type="Node"]
 pause_mode = 2
 script = ExtResource( 21 )

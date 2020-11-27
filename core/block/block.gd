@@ -162,6 +162,7 @@ static func orthogonal_index_to_rotation(index: int) -> int:
 
 
 func __set_mirror_block(block: Resource):
+	# warning-ignore:unsafe_property_access
 	__mirror_block_name = block.name
 
 

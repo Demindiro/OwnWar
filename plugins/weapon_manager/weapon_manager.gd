@@ -1,13 +1,13 @@
 extends Reference
 
 
+const Munition := preload("munition.gd")
+const AmmoRack := preload("ammo_rack.gd")
 var _max_volume_by_gauge := {}
 var _munitions_count := {}
 var _gauge_to_munitions := {}
-var _needs_munition := {}
 var _weapons := []
 var _vehicle
-var Munition := preload("res://plugins/weapon_manager/munition.gd")
 
 
 #func init(vehicle: Vehicle) -> void:
@@ -32,7 +32,7 @@ func get_matter_space(id: int) -> int:
 
 func get_matter_needs(id: int) -> int:
 	if Munition.is_munition(id):
-		var m := Munition.get_munition(id)
+		var m: Munition = Munition.get_munition(id)
 		if m.gauge in _max_volume_by_gauge:
 			return get_matter_space(id)
 	return 0
@@ -61,6 +61,9 @@ func get_munition_space(gauge := 0) -> int:
 	if gauge != 0:
 		volume += _max_volume_by_gauge.get(gauge, 0)
 
+	# This assert breaks old saves (TODO?)
+#	assert(volume % Munition.get_volume_by_gauge(gauge) == 0)
+	# warning-ignore:integer_division
 	var count: int = volume / Munition.get_volume_by_gauge(gauge)
 	for id in _gauge_to_munitions.get(0, PoolIntArray()):
 		count -= _munitions_count[id]
@@ -73,7 +76,8 @@ func get_munition_space(gauge := 0) -> int:
 
 func put_munition(id: int, amount: int) -> int:
 	assert(id in Munition.get_munition_ids())
-	var gauge: int = Munition.get_munition(id).gauge
+	var munition: Munition = Munition.get_munition(id)
+	var gauge := munition.gauge
 	var space := get_munition_space(gauge)
 	if space >= amount:
 		_munitions_count[id] = _munitions_count.get(id, 0) + amount
@@ -131,14 +135,15 @@ func fire_weapons(_max_error := 1e10) -> void:
 		weapon.fire()
 
 
-func add_ammo_rack(ammo_rack: Node) -> void:
+func add_ammo_rack(ammo_rack: AmmoRack) -> void:
 	var gauge = ammo_rack.gauge
 	if not gauge in _max_volume_by_gauge:
 		_max_volume_by_gauge[gauge] = 0
 		_gauge_to_munitions[gauge] = []
 		if gauge != 0:
 			for id in Munition.get_munition_ids():
-				if Munition.get_munition(id).gauge == gauge:
+				var munition: Munition = Munition.get_munition(id)
+				if munition.gauge == gauge:
 					_vehicle.add_matter_put(id)
 					_vehicle.add_matter_take(id)
 	_max_volume_by_gauge[gauge] += ammo_rack.max_volume
@@ -169,7 +174,7 @@ func deserialize_json(data: Dictionary) -> void:
 		assert(m == 0)
 
 
-func _ammo_rack_destroyed(ammo_rack: Node) -> void:
+func _ammo_rack_destroyed(ammo_rack: AmmoRack) -> void:
 	var gauge = ammo_rack.gauge
 	_max_volume_by_gauge[gauge] -= ammo_rack.max_volume
 
@@ -187,4 +192,5 @@ func get_info(info: Dictionary) -> void:
 	var fraction = 100 * total_volume / max_volume
 	info["Ammo capacity"] = "%d%%" % fraction
 	for id in _munitions_count:
-		info[Munition.get_munition(id).human_name] = str(_munitions_count[id])
+		var munition: Munition = Munition.get_munition(id)
+		info[munition.human_name] = str(_munitions_count[id])

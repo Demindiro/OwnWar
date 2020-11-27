@@ -180,7 +180,8 @@ func _load_scene():
 			_show_loading_progress()
 		else:
 			error("Error loading scene", err)
-			tree.current_scene.get_node("ColorRect").color = Color.red
+			var cr: ColorRect = tree.current_scene.get_node("ColorRect")
+			cr.color = Color.red
 			_show_loading_progress()
 			_loader = null
 			return

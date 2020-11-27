@@ -6,9 +6,10 @@ var _funcrefs := {}
 
 
 func _init():
-	material_override = SpatialMaterial.new()
-	material_override.flags_unshaded = true
-	material_override.vertex_color_use_as_albedo = true
+	var mat := SpatialMaterial.new()
+	mat.flags_unshaded = true
+	mat.vertex_color_use_as_albedo = true
+	material_override = mat
 
 
 func _enter_tree():

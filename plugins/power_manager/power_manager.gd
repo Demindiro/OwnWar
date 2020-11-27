@@ -1,6 +1,9 @@
 extends Reference
 
 
+const PowerEngine := preload("engine.gd")
+const FuelTank := preload("fuel_tank.gd")
+
 const _ENERGY_PER_FUEL := 1000
 var _max_power := 0
 var _max_fuel := 0
@@ -39,12 +42,12 @@ func process(_delta: float) -> void:
 		power_fraction_down = requested_power
 
 	if requested_power > 0:
-# warning-ignore:integer_division
+		# warning-ignore:integer_division
 		needed_energy = requested_power / Engine.iterations_per_second
 		used_energy = needed_energy
 		if needed_energy > _energy:
 			# Round up (https://stackoverflow.com/a/503201/7327379)
-# warning-ignore:integer_division
+			# warning-ignore:integer_division
 			var needed_fuel = (needed_energy - _energy - 1) / _ENERGY_PER_FUEL + 1
 			var fuel = take_matter(_fuel_id, needed_fuel)
 			_energy += fuel * _ENERGY_PER_FUEL
@@ -101,19 +104,19 @@ func reserve_power(object, amount):
 
 
 func unreserve_power(object):
-# warning-ignore:return_value_discarded
+	# warning-ignore:return_value_discarded
 	 _reserved_power.erase(object)
 
 
-func add_engine(engine: Node) -> void:
+func add_engine(engine: PowerEngine) -> void:
 	_max_power += engine.max_power
-# warning-ignore:return_value_discarded
+	# warning-ignore:return_value_discarded
 	engine.connect("tree_exited", self, "_engine_destroyed", [engine])
 
 
-func add_fuel_tank(fuel_tank: Node) -> void:
+func add_fuel_tank(fuel_tank: FuelTank) -> void:
 	_max_fuel += fuel_tank.max_fuel
-# warning-ignore:return_value_discarded
+	# warning-ignore:return_value_discarded
 	fuel_tank.connect("tree_exited", self, "_fuel_tank_destroyed", [fuel_tank])
 
 
@@ -132,9 +135,9 @@ func deserialize_json(data: Dictionary) -> void:
 	_fuel = data["fuel"]
 
 
-func _engine_destroyed(engine: Node) -> void:
+func _engine_destroyed(engine: PowerEngine) -> void:
 	_max_power -= engine.max_power
 
 
-func _fuel_tank_destroyed(fuel_tank: Node) -> void:
+func _fuel_tank_destroyed(fuel_tank: FuelTank) -> void:
 	_max_fuel -= fuel_tank.max_fuel

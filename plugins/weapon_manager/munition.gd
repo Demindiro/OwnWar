@@ -31,7 +31,7 @@ static func get_munition_ids() -> PoolIntArray:
 	return PoolIntArray(_ID_TO_MUNITION.keys())
 
 
-static func get_munition(p_id: int) -> Resource:
+static func get_munition(p_id: int) -> Resource:# -> Munition:
 	return _ID_TO_MUNITION[p_id]
 
 

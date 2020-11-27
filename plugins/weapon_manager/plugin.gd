@@ -6,6 +6,7 @@ const PLUGIN_DEPENDENCIES := {}
 
 const Munition := preload("munition.gd")
 const Weapon := preload("weapon.gd")
+const Projectile := preload("projectile.gd")
 
 
 static func pre_init(_plugin_path: String):
@@ -39,8 +40,9 @@ static func save_game(game_master: GameMaster) -> Dictionary:
 
 static func load_game(game_master: GameMaster, data: Dictionary) -> void:
 	for s in data["projectiles"]:
-		var id = Matter.get_matter_id(s["name"])
-		var shell = Munition.get_munition(id).shell.instance()
+		var id := Matter.get_matter_id(s["name"])
+		var munition: Munition = Munition.get_munition(id)
+		var shell: Projectile = munition.shell.instance()
 		shell.transform = str2var(s["transform"])
 		shell.linear_velocity = str2var(s["velocity"])
 		shell.damage = s["damage"]
@@ -48,5 +50,6 @@ static func load_game(game_master: GameMaster, data: Dictionary) -> void:
 		var meta = s.get("meta")
 		if meta:
 			assert(shell.has_method("deserialize_json"))
+			# warning-ignore:unsafe_method_access
 			shell.deserialize_json(meta)
 		game_master.add_child(shell)

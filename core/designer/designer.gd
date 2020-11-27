@@ -1,14 +1,15 @@
 extends Node
 
 
+const MetaEditor := preload("meta_editor.gd")
+
+
 const GRID_SIZE = 25
 const SCALE = 4
-
-export(bool) var enabled := true
-export(PackedScene) var main_menu
-export(PackedScene) var test_map
+export var enabled := true
+export var main_menu: PackedScene
+export var test_map: PackedScene
 export var material: SpatialMaterial setget set_material
-
 var selected_block: Block
 var blocks := {}
 var meta := {}
@@ -17,9 +18,22 @@ var mirror := false
 var ray_voxel_valid := false
 var selected_layer := 0 setget set_layer
 var view_layer := -1 setget set_view_layer
-
 onready var ray := preload("res://addons/voxel_raycast.gd").new()
-
+onready var _floor_origin: Spatial = $Floor/Origin
+onready var _floor_origin_ghost: MeshInstance = $Floor/Origin/Ghost
+onready var _floor_mirror: Spatial = $Floor/Mirror
+onready var _camera: FreeCamera = $Camera
+onready var _camera_mesh: MeshInstance = $Camera/MeshInstance
+onready var _gui_menu: Control = $GUI/Menu
+onready var _gui_inventory: Control = $GUI/Inventory
+onready var _gui_save_vehicle: Control = $GUI/SaveVehicle
+onready var _gui_load_vehicle: Control = $GUI/LoadVehicle
+onready var _gui_color_picker: Control = $GUI/ColorPicker
+onready var _gui_meta_editor: MetaEditor = $GUI/MetaEditor
+onready var _hud_block_layer: OptionButton = $HUD/BlockLayer
+onready var _hud_block_layer_view: OptionButton = $HUD/BlockLayerView
+onready var _block_face_highlighter: Spatial = $BlockFaceHighlighter
+onready var _block_face_highlighter_csgbox: CSGBox = $BlockFaceHighlighter/CSGBox
 
 
 func _enter_tree():
@@ -33,11 +47,11 @@ func _exit_tree():
 func _ready():
 	select_block(Block.get_block_by_id(1).name)
 	set_enabled(true) # Disable UIs
-	$Floor/Mirror.visible = mirror
+	_floor_mirror.visible = mirror
 
 
 func _input(event):
-	if not $Camera.enabled:
+	if not _camera.enabled:
 		return
 	if event is InputEventMouseButton and event.is_pressed():
 		if event.is_action("designer_rotate_down"):
@@ -58,13 +72,13 @@ func _process(_delta):
 func set_enabled(var p_enabled):
 	enabled = p_enabled
 	if p_enabled:
-		$GUI/Menu.visible = false
-		$GUI/Inventory.visible = false
-		$GUI/SaveVehicle.visible = false
-		$GUI/LoadVehicle.visible = false
-		$GUI/ColorPicker.visible = false
-		$GUI/MetaEditor.visible = false
-	$Camera.enabled = enabled
+		_gui_menu.visible = false
+		_gui_inventory.visible = false
+		_gui_save_vehicle.visible = false
+		_gui_load_vehicle.visible = false
+		_gui_color_picker.visible = false
+		_gui_meta_editor.visible = false
+	_camera.enabled = enabled
 	set_process(enabled)
 	set_process_input(enabled)
 	set_physics_process(enabled)
@@ -73,10 +87,10 @@ func set_enabled(var p_enabled):
 func process_actions():
 	if Input.is_action_just_pressed("ui_cancel"):
 		set_enabled(false)
-		$GUI/Menu.visible = true
+		_gui_menu.visible = true
 	elif Input.is_action_pressed("designer_open_inventory"):
 		set_enabled(false)
-		$GUI/Inventory.visible = true
+		_gui_inventory.visible = true
 	elif Input.is_action_just_pressed("designer_place_block"):
 		if ray_voxel_valid and not Input.is_action_pressed("designer_release_cursor"):
 			var coordinate = _v2a(_a2v(ray.voxel) + _a2v(ray.get_normal()))
@@ -87,9 +101,9 @@ func process_actions():
 				var mirror_x = (GRID_SIZE - 1) / 2
 				var delta = coordinate[0] - mirror_x
 				coordinate[0] = mirror_x - delta
-				place_block(selected_block.mirror_block, coordinate,
-					selected_block.mirror_block.get_mirror_rotation(_rotation), 
-					selected_layer)
+				var m_block: Block = selected_block.mirror_block
+				place_block(m_block, coordinate, m_block \
+						.get_mirror_rotation(_rotation), selected_layer)
 	elif Input.is_action_just_pressed("designer_remove_block"):
 		if not ray.finished and not Input.is_action_pressed("designer_release_cursor"):
 			var coordinate = [] + ray.voxel
@@ -103,22 +117,22 @@ func process_actions():
 				remove_block(coordinate)
 	elif Input.is_action_just_pressed("designer_mirror"):
 		mirror = not mirror
-		$Floor/Mirror.visible = mirror
+		_floor_mirror.visible = mirror
 	elif Input.is_action_just_pressed("designer_open_colorpicker"):
 		set_enabled(false)
-		$GUI/ColorPicker.visible = true
+		_gui_color_picker.visible = true
 	elif Input.is_action_just_pressed("designer_release_cursor"):
-		$Camera.enabled = false
+		_camera.enabled = false
 	elif Input.is_action_just_released("designer_release_cursor"):
-		$Camera.enabled = true
+		_camera.enabled = true
 	elif Input.is_action_just_pressed("designer_configure"):
 		if ray_voxel_valid and ray.voxel in blocks:
 			var block = Block.get_block(blocks[ray.voxel][0])
 			if len(block.meta) > 0:
 				var meta_data = meta[ray.voxel] if ray.voxel in meta else block.meta
 				set_enabled(false)
-				$GUI/MetaEditor.set_meta_items(block, meta_data)
-				$GUI/MetaEditor.visible = true
+				_gui_meta_editor.set_meta_items(block, meta_data)
+				_gui_meta_editor.visible = true
 
 
 func place_block(block, coordinate, rotation, layer):
@@ -133,7 +147,7 @@ func place_block(block, coordinate, rotation, layer):
 	if block.scene != null:
 		var scene = block.scene.instance()
 		node.add_child(scene)
-	$Floor/Origin.add_child(node)
+	_floor_origin.add_child(node)
 	node.translation = _a2v(coordinate)
 	node.transform.basis = block.get_basis(rotation)
 	node.scale_object_local(Vector3.ONE * SCALE)
@@ -157,16 +171,16 @@ func remove_block(coordinate):
 
 func select_block(name):
 	selected_block = Block.get_block(name)
-	for child in $Camera/MeshInstance.get_children():
+	for child in _camera_mesh.get_children():
 		child.queue_free()
-	for child in $Floor/Origin/Ghost.get_children():
+	for child in _floor_origin_ghost.get_children():
 		child.queue_free()
-	$Camera/MeshInstance.mesh = selected_block.mesh
-	$Floor/Origin/Ghost.mesh = selected_block.mesh
+	_camera_mesh.mesh = selected_block.mesh
+	_floor_origin_ghost.mesh = selected_block.mesh
 	if selected_block.scene != null:
-		$Camera/MeshInstance.add_child(selected_block.scene.instance())
+		_camera_mesh.add_child(selected_block.scene.instance())
 		var node = selected_block.scene.instance()
-		$Floor/Origin/Ghost.add_child(node)
+		_floor_origin_ghost.add_child(node)
 		for child in Util.get_children_recursive(node):
 			if child is MeshInstance:
 				if child.material_override != null:
@@ -174,17 +188,17 @@ func select_block(name):
 					child.material_override.flags_transparent = true
 					child.material_override.albedo_color.a *= 0.2
 				else:
-					child.material_override = $Floor/Origin/Ghost.material_override
+					child.material_override = _floor_origin_ghost.material_override
 			elif child is Sprite3D:
 				child.opacity *= 0.2
-	$Camera/MeshInstance.material_override = material
-	for child in Util.get_children_recursive($Camera/MeshInstance):
+	_camera_mesh.material_override = material
+	for child in Util.get_children_recursive(_camera_mesh):
 		if child is GeometryInstance and not child is Sprite3D:
 			child.material_override = material
 
 
 func highlight_face():
-	ray.start($Camera.translation, -$Camera.transform.basis.z, GRID_SIZE, GRID_SIZE, GRID_SIZE)
+	ray.start(_camera.translation, -_camera.transform.basis.z, GRID_SIZE, GRID_SIZE, GRID_SIZE)
 	var ray_hits_block = not ray.finished
 	if ray.finished:
 		ray_voxel_valid = false
@@ -205,19 +219,20 @@ func highlight_face():
 			if y.length_squared() < 0.01:
 				z = Vector3.UP.cross(x)
 				y = z.cross(x)
-			$BlockFaceHighlighter.transform = Transform(x, y, z, _a2v(place_at) + 
-					(Vector3.ONE - _a2v(direction)) * 0.5)
+			_block_face_highlighter.transform = Transform(x, y, z,
+					_a2v(place_at) + (Vector3.ONE - _a2v(direction)) * 0.5)
 			if AABB(Vector3.ZERO, Vector3.ONE * (GRID_SIZE - 1)).has_point(_a2v(place_at)) \
 					and not place_at in blocks:
 				ray_voxel_valid = true
-				$Floor/Origin/Ghost.translation = _a2v(place_at)
-				$Floor/Origin/Ghost.transform.basis = selected_block.get_basis(_rotation)
-				$Floor/Origin/Ghost.scale_object_local(Vector3.ONE * SCALE)
+				_floor_origin_ghost.translation = _a2v(place_at)
+				_floor_origin_ghost.transform.basis = selected_block.get_basis(_rotation)
+				_floor_origin_ghost.scale_object_local(Vector3.ONE * SCALE)
 			else:
 				ray_voxel_valid = false
-	$Floor/Origin/Ghost.visible = ray_voxel_valid
-	$BlockFaceHighlighter.visible = ray_hits_block
-	$BlockFaceHighlighter/CSGBox.material.albedo_color = Color.green if ray_voxel_valid else Color.red
+	_floor_origin_ghost.visible = ray_voxel_valid
+	_block_face_highlighter.visible = ray_hits_block
+	var csgbox_mat: SpatialMaterial = _block_face_highlighter_csgbox.material
+	csgbox_mat.albedo_color = Color.green if ray_voxel_valid else Color.red
 	
 
 func save_vehicle(var path):
@@ -250,7 +265,7 @@ func load_vehicle(path):
 	else:
 		var data = parse_json(file.get_as_text())
 		data = Compatibility.convert_vehicle_data(data)
-		for child in $Floor/Origin.get_children():
+		for child in _floor_origin.get_children():
 			if child.name != "Ghost":
 				child.queue_free()
 		blocks.clear()
@@ -281,12 +296,12 @@ func set_material(p_material: SpatialMaterial):
 	var ghost_material := material.duplicate() as SpatialMaterial
 	ghost_material.flags_transparent = true
 	ghost_material.albedo_color.a *= 0.6
-	$Floor/Origin/Ghost.material_override = ghost_material
-	$Camera/MeshInstance.material_override = material
-	for child in Util.get_children_recursive($Floor/Origin/Ghost):
+	_floor_origin_ghost.material_override = ghost_material
+	_camera_mesh.material_override = material
+	for child in Util.get_children_recursive(_floor_origin_ghost):
 		if child is GeometryInstance and not child is Sprite3D:
 			child.material_override = ghost_material
-	for child in Util.get_children_recursive($Camera/MeshInstance):
+	for child in Util.get_children_recursive(_camera_mesh):
 		if child is GeometryInstance and not child is Sprite3D:
 			child.material_override = material
 
@@ -336,7 +351,7 @@ func _on_BlockLayer_item_selected(index):
 	set_layer(index)
 	if view_layer != selected_layer and view_layer >= 0:
 		set_view_layer(index)
-		$HUD/BlockLayerView.select(index + 1)
+		_hud_block_layer_view.select(index + 1)
 
 
 func _on_BlockLayerView_item_selected(index):
@@ -344,7 +359,7 @@ func _on_BlockLayerView_item_selected(index):
 	set_view_layer(index)
 	if index >= 0:
 		set_layer(index)
-		$HUD/BlockLayer.select(index)
+		_hud_block_layer.select(index)
 
 
 func _on_MetaEditor_meta_changed(meta_data):

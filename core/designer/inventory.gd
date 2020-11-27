@@ -14,6 +14,7 @@ var _block_container: Node
 var _preview_mesh: MeshInstance
 var _designer: Node
 var _escape_pressed := false
+onready var _parent: Control = get_parent()
 
 
 func _ready():
@@ -26,13 +27,13 @@ func _ready():
 		
 		
 func _unhandled_input(event):
-	if not $"..".visible:
+	if not _parent.visible:
 		return
 	if event.is_action("ui_cancel") or event.is_action("designer_open_inventory"):
 		if event.pressed:
 			_escape_pressed = true
 		elif _escape_pressed:
-			$"..".visible = false
+			_parent.visible = false
 			_escape_pressed = false
 	
 	

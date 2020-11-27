@@ -204,7 +204,7 @@ func do_action(flags, arg0, arg1 = null):
 		object.callv(function, [flags] + arguments)
 
 
-func get_manager(p_name: String) -> GDScript:
+func get_manager(p_name: String) -> Reference:
 	var manager = managers.get(p_name)
 	if manager == null:
 		manager = MANAGERS[p_name].new()
@@ -360,7 +360,8 @@ func deserialize_json(data: Dictionary) -> void:
 		for crd in voxel_bodies[i].blocks:
 			var meta = data["blocks"][i]["%d,%d,%d" % crd].get("meta")
 			if meta != null:
-				voxel_bodies[i].blocks[crd][2].deserialize_json(meta)
+				assert(voxel_bodies[i].blocks[crd] != null)
+				voxel_bodies[i].blocks[crd].node.deserialize_json(meta)
 
 	for m in data["managers"]:
 		assert(m in managers)

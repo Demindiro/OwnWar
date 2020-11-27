@@ -136,6 +136,7 @@ func init_blocks(vehicle, meta):
 			continue
 		var meta_data = meta.get(coordinate)
 		if block.node.has_method("init"):
+			# warning-ignore:unsafe_method_access
 			block.node.init(coordinate, block, -1, self, vehicle, meta_data)
 		else:
 			for child in block.node.get_children():
@@ -145,10 +146,11 @@ func init_blocks(vehicle, meta):
 
 func _set_collision_box(start: Vector3, end: Vector3) -> void:
 	end += Vector3.ONE
-	var center = (start + end) / 2
-	var extents = (end - start) / 2
+	var center := (start + end) / 2
+	var extents := (end - start) / 2
 	_collision_shape.transform.origin = center * Block.BLOCK_SCALE
-	_collision_shape.shape.extents = extents * Block.BLOCK_SCALE
+	var shape: BoxShape = _collision_shape.shape
+	shape.extents = extents * Block.BLOCK_SCALE
 
 
 func _correct_mass() -> void:

@@ -8,4 +8,5 @@ extends CollisionShape
 
 
 func _init():
-	shape.radius = 0.115
+	var s: CylinderShape = shape
+	s.radius = 0.115

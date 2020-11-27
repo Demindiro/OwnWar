@@ -1,8 +1,10 @@
 extends Reference
 
 
+const PowerManager := preload("res://plugins/power_manager/power_manager.gd")
+
 var _wheels := []
-var _power_manager: Reference
+var _power_manager: PowerManager
 
 
 func init(vehicle: Vehicle) -> void:

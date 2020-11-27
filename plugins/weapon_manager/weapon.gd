@@ -2,7 +2,7 @@ extends Spatial
 
 
 # warning-ignore:unused_class_variable
-var Munition = load("res://plugins/weapon_manager/plugin.gd").Munition setget _assert_noset
+const Munition := preload("res://plugins/weapon_manager/munition.gd")
 var weapon_manager setget _assert_noset
 
 

@@ -5,7 +5,6 @@ const WorkerDrone := preload("res://plugins/worker_drone/drone.gd")
 const Munition := preload("res://plugins/weapon_manager/munition.gd")
 const Mainframe := preload("res://plugins/mainframe/mainframe.gd")
 
-export var _vehicle_path := ""
 const _ORE_MAX_DISTANCE_2 := 100.0 * 100.0
 
 var _units := []
@@ -143,7 +142,7 @@ func _build_munitions_factory() -> void:
 			count += 1
 			if count >= 4:
 				return
-	_build_between_roboport_and_storage_pod(_material_id, "Munition Factory")
+	_build_between_roboport_and_storage_pod(_material_id, "munitions_factory")
 
 
 func _build_refinery() -> void:
@@ -153,7 +152,7 @@ func _build_refinery() -> void:
 			count += 1
 			if count >= 4:
 				return
-	_build_between_roboport_and_storage_pod(_material_id, "Refinery")
+	_build_between_roboport_and_storage_pod(_material_id, "refinery")
 
 
 func _find_best_storage_pod(matter_id: int) -> BM.StoragePod:

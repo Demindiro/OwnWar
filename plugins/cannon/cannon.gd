@@ -13,6 +13,7 @@ var _desired_direction := Vector3.FORWARD
 var _time_of_last_shot := 0.0
 var _rel_offset: Vector3
 var _error: float
+onready var _projectile_spawn: Spatial = $ProjectileSpawn
 
 
 func _physics_process(_delta):
@@ -33,8 +34,9 @@ func _physics_process(_delta):
 
 
 func debug_draw():
-	var projectile_position = $ProjectileSpawn.global_transform.origin
-	var projectile_velocity_v = $ProjectileSpawn.global_transform.basis.z * projectile_velocity
+	var projectile_position = _projectile_spawn.global_transform.origin
+	var projectile_velocity_v = _projectile_spawn.global_transform.basis.z * \
+			projectile_velocity
 	Debug.begin(Mesh.PRIMITIVE_LINE_STRIP)
 	Debug.set_color(Color.lightgreen)
 	for _i in range(int(20.0 / 0.1)):
@@ -63,8 +65,8 @@ func aim_at(position: Vector3, _velocity := Vector3.ZERO):
 	normal_xz.y = 0
 	normal_xz = normal_xz.normalized()
 	
-	var projectile_spawn_y = $ProjectileSpawn.translation.y
-	var projectile_spawn_z = $ProjectileSpawn.translation.z
+	var projectile_spawn_y = _projectile_spawn.translation.y
+	var projectile_spawn_z = _projectile_spawn.translation.z
 	
 	distance_xz -= projectile_spawn_y * _desired_direction.y + \
 			projectile_spawn_z * _desired_direction.z
@@ -86,22 +88,21 @@ func fire():
 		var munitions: Dictionary = weapon_manager.take_munition(gauge, 1)
 		for id in munitions:
 			if munitions[id] > 0:
+				var g_trans := _projectile_spawn.global_transform
 				var munition = Munition.get_munition(id)
-				var y = $ProjectileSpawn.global_transform.basis.y
-				var z = $ProjectileSpawn.global_transform.basis.z
-				var direction = (y.rotated(z, randf() * PI * 2) * inaccuracy + z).normalized()
+				var y = g_trans.basis.y
+				var z = g_trans.basis.z
+				var direction = (y.rotated(z, randf() * PI * 2) * inaccuracy + z)\
+						.normalized()
 				var node = munition.shell.instance()
 				node.munition_id = id
-				node.global_transform = $ProjectileSpawn.global_transform
+				node.global_transform = _projectile_spawn.global_transform
 				node.linear_velocity = direction * projectile_velocity
 				var s = self
 				assert(s is RigidBody)
 				assert(not is_nan(recoil_impulse))
-				Util.add_impulse(
-						s,
-						$ProjectileSpawn.global_transform.origin,
-						-$ProjectileSpawn.global_transform.basis.z * recoil_impulse
-					)
+				Util.add_impulse(s, g_trans.origin, -g_trans.basis.z * \
+						recoil_impulse)
 				get_tree().current_scene.add_child(node)
 				_time_of_last_shot = current_time
 				emit_signal("fired")
