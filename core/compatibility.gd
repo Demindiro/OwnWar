@@ -6,7 +6,7 @@ extends Resource
 # Coincidentally, a Vector3 also consists of 3 numbers and the '<' and '>'
 # operators compare first X, then Y, then Z.
 # So it's ideal for comparing version numbers
-const BLOCK_MAPPINGS = [
+const _BLOCK_MAPPINGS := [
 		[Vector3(0, 4, 0), {
 				"cube": "cube_b_1_1-1-1-1-1-1-1-1-1-1-1-1",
 				"edge": "edge_b_1_1-1-1-1-1-1-1",
@@ -17,23 +17,27 @@ const BLOCK_MAPPINGS = [
 	]
 
 
-static func get_block_name_mapping(from_version: Vector3, to_version: Vector3):
+static func get_block_name_mapping(from_version: Vector3, to_version: Vector3) \
+		-> Dictionary:
 	var index = 0
 	var mappings = []
-	while index < len(BLOCK_MAPPINGS) and BLOCK_MAPPINGS[index][0] <= from_version:
+	var _m := _BLOCK_MAPPINGS
+	while index < len(_BLOCK_MAPPINGS) and _BLOCK_MAPPINGS[index][0] <= from_version:
 		index += 1
-	while index < len(BLOCK_MAPPINGS) and BLOCK_MAPPINGS[index][0] <= to_version:
-		mappings.append(BLOCK_MAPPINGS[index][1])
+	while index < len(_BLOCK_MAPPINGS) and _BLOCK_MAPPINGS[index][0] <= to_version:
+		mappings.append(_BLOCK_MAPPINGS[index][1])
 		index += 1
 	if len(mappings) == 0:
 		return {}
-	var final_mapping = mappings.pop_front()
+	var final_mapping: Dictionary = mappings.pop_front().duplicate()
 	while len(mappings) > 0:
-		var mapping = mappings.pop_front()
+		var mapping: Dictionary = mappings.pop_front()
 		for key in final_mapping:
-			var value = final_mapping[key]
+			var value: String = final_mapping[key]
 			if value in mapping:
 				final_mapping[key] = mapping[key]
+		for key in mapping:
+			final_mapping[key] = mapping[key]
 	return final_mapping
 
 
@@ -83,6 +87,26 @@ static func convert_game_data(data: Dictionary):# -> Dictionary:
 				unit_dict[var2str(uid)] = unit
 		converted_data["units"] = unit_dict
 	return converted_data
+
+
+static func add_block_mapping(from: String, to: String, version: Vector3) -> void:
+	assert(version <= Constants.VERSION)
+	var d := _get_block_map(version)
+	assert(not from in d)
+	d[from] = to
+
+
+static func _get_block_map(version: Vector3) -> Dictionary:
+	var i := 0
+	for a in _BLOCK_MAPPINGS:
+		if a[0] == version:
+			return a[1]
+		elif a[0] > version:
+			break
+		i += 1
+	var d := {}
+	_BLOCK_MAPPINGS.insert(i, [version, d])
+	return d
 
 
 static func _convert_block_data(data, file_version):
