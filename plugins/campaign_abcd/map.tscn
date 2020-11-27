@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=2]
+[gd_scene load_steps=23 format=2]
 
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
 [ext_resource path="res://plugins/campaign_abcd/map_data/data.hterrain" type="Resource" id=2]
@@ -17,13 +17,8 @@
 [ext_resource path="res://plugins/basic_manufacturing/roboport/roboport.tscn" type="PackedScene" id=15]
 [ext_resource path="res://core/unit/unit_group.tscn" type="PackedScene" id=16]
 [ext_resource path="res://core/map/hud.tscn" type="PackedScene" id=17]
-[ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod_ghost.tscn" type="PackedScene" id=18]
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery.tscn" type="PackedScene" id=19]
-[ext_resource path="res://plugins/basic_manufacturing/roboport/roboport_ghost.tscn" type="PackedScene" id=20]
 [ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory.tscn" type="PackedScene" id=21]
-[ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory_ghost.tscn" type="PackedScene" id=22]
-[ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform_ghost.tscn" type="PackedScene" id=23]
-[ext_resource path="res://plugins/basic_manufacturing/refinery/refinery_ghost.tscn" type="PackedScene" id=24]
 [ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=25]
 [ext_resource path="res://core/unit/vehicle.gd" type="Script" id=26]
 [ext_resource path="res://plugins/strategic_ai/ai.gd" type="Script" id=27]
@@ -151,11 +146,11 @@ team = "Arend"
 type_flags = 1
 
 [node name="Refinery" parent="Arend/X" instance=ExtResource( 19 )]
-transform = Transform( -0.999973, 0.0073846, -8.14907e-05, 0.00738505, 0.999912, -0.0110461, -8.73988e-08, -0.0110464, -0.999939, 2502.51, 1.1066, 640.989 )
+transform = Transform( -0.999973, 0.0073846, -8.16656e-05, 0.00738505, 0.999912, -0.0110461, 8.74134e-08, -0.0110464, -0.999939, 2502.51, 1.1066, 640.989 )
 team = "Arend"
 
 [node name="MunitionsFactory" parent="Arend/X" instance=ExtResource( 21 )]
-transform = Transform( -0.99995, -0.0100093, 4.97451e-06, -0.0100093, 0.99995, -0.000488231, -8.74224e-08, -0.000488257, -1, 2520.99, 0.491588, 607 )
+transform = Transform( -0.99995, -0.0100093, 4.79967e-06, -0.0100093, 0.99995, -0.000488233, 8.74234e-08, -0.000488257, -1, 2520.99, 0.491588, 607 )
 team = "Arend"
 
 [node name="Vehicle" type="Spatial" parent="Arend/X"]
@@ -170,7 +165,7 @@ _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 [node name="Z" type="Node" parent="Arend"]
 
 [node name="SpawnPlatform" parent="Arend/Z" instance=ExtResource( 6 )]
-transform = Transform( -0.999931, -0.0117174, -0.000114332, -0.0117179, 0.999884, 0.00976382, -8.74425e-08, 0.00976449, -0.999952, 3364.5, 3.5459, 1407.5 )
+transform = Transform( -0.999931, -0.0117174, -0.000114507, -0.0117179, 0.999884, 0.00976382, 8.74134e-08, 0.00976449, -0.999952, 3364.5, 3.5459, 1407.5 )
 team = "Arend"
 
 [node name="StoragePod" parent="Arend/Z" instance=ExtResource( 11 )]
@@ -193,35 +188,14 @@ team = "Arend"
 [node name="DroneHQ" parent="Arend" instance=ExtResource( 25 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3241, 5, 571.5 )
 team = "Arend"
-ghosts = {
-"Munition Factory": ExtResource( 22 ),
-"Refinery": ExtResource( 24 ),
-"Roboport": ExtResource( 20 ),
-"Spawn Platform": ExtResource( 23 ),
-"Storage Pod": ExtResource( 18 )
-}
 
 [node name="DroneX" parent="Arend" instance=ExtResource( 25 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3299, 3.5, 546.5 )
 team = "Arend"
-ghosts = {
-"Munition Factory": ExtResource( 22 ),
-"Refinery": ExtResource( 24 ),
-"Roboport": ExtResource( 20 ),
-"Spawn Platform": ExtResource( 23 ),
-"Storage Pod": ExtResource( 18 )
-}
 
 [node name="DroneY" parent="Arend" instance=ExtResource( 25 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3186.5, 19.5, 479.5 )
 team = "Arend"
-ghosts = {
-"Munition Factory": ExtResource( 22 ),
-"Refinery": ExtResource( 24 ),
-"Roboport": ExtResource( 20 ),
-"Spawn Platform": ExtResource( 23 ),
-"Storage Pod": ExtResource( 18 )
-}
 
 [node name="Bears" parent="." instance=ExtResource( 16 )]
 
@@ -390,7 +364,7 @@ transform = Transform( -0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, -0.5, 1904.5, 7
 team = "Centaurs"
 
 [node name="Refinery" parent="Centaurs/HQ" instance=ExtResource( 19 )]
-transform = Transform( -1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 1930.5, 76.1875, 2280.5 )
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1930.5, 76.1875, 2280.5 )
 team = "Centaurs"
 
 [node name="Refinery3" parent="Centaurs/HQ" instance=ExtResource( 19 )]

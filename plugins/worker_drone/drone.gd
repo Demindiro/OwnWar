@@ -193,9 +193,9 @@ signal task_completed(task)
 const SPEED = 20.0
 const INTERACTION_DISTANCE = 6.0
 const INTERACTION_DISTANCE_2 = INTERACTION_DISTANCE * INTERACTION_DISTANCE
-export(Dictionary) var ghosts = {}
 export(PackedScene) var drill_ghost
 export(int) var cost = 20
+var ghosts := {}
 var tasks = []
 var last_build_frame = 0
 onready var rotors = [
@@ -209,6 +209,13 @@ var _task_cached_unit: Unit
 var _matter_id := -1
 var _matter_count := 0
 onready var _material_id: int = Matter.get_matter_id("material")
+
+
+func _init() -> void:
+	var d := Unit.get_all_units()
+	for k in d:
+		if k.ends_with("_ghost"):
+			ghosts[k.substr(0, len(k) - 6)] = d[k]
 
 
 func _process(delta):

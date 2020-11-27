@@ -140,3 +140,7 @@ static func add_unit(p_name: String, unit) -> void:
 static func get_unit(p_name: String):# -> Unit:
 	assert(p_name in UNITS)
 	return UNITS[p_name]
+
+
+static func get_all_units() -> Dictionary:
+	return UNITS
