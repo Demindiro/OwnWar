@@ -81,8 +81,8 @@ func _process(_delta):
 		_load_scene()
 	else:
 		set_process(false)
-		
-		
+
+
 func _notification(notification):
 	match notification:
 		MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
@@ -118,7 +118,7 @@ func goto_scene(path, callback = null, arguments := []) -> void:
 	_loader_callback = callback
 	_loader_callback_arguments = arguments.duplicate()
 	call_deferred("_goto_scene", path)
-	
+
 
 func error(string, code := -1):
 	if code != -1:
@@ -180,7 +180,8 @@ func _load_scene():
 			_show_loading_progress()
 		else:
 			error("Error loading scene", err)
-			tree.current_scene.get_node("ColorRect").color = Color.red
+			var cr: ColorRect = tree.current_scene.get_node("ColorRect")
+			cr.color = Color.red
 			_show_loading_progress()
 			_loader = null
 			return

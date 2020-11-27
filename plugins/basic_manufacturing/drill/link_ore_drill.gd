@@ -2,21 +2,25 @@ tool
 extends Node
 
 
+const Drill := preload("drill.gd")
+const Ore := preload("ore.gd")
+
+
 func _ready() -> void:
 	if not Engine.editor_hint:
-		var drill: Spatial = null
-		var ore: Spatial = null
+		var drill: Drill = null
+		var ore: Ore = null
 		var children = get_children()
 		assert(len(children) == 2)
 
-		if children[0] is preload("drill.gd"):
+		if children[0] is Drill:
 			drill = children[0]
 			ore = children[1]
 		else:
 			drill = children[1]
 			ore = children[0]
-		assert(drill is preload("drill.gd"))
-		assert(ore is preload("ore.gd"))
+		assert(drill is Drill)
+		assert(ore is Ore)
 
 		drill.init(ore)
 
@@ -25,11 +29,11 @@ func _process(_delta: float) -> void:
 	if Engine.editor_hint:
 		if _get_configuration_warning() != "":
 			return
-		var drill: Spatial = null
-		var ore: Spatial = null
+		var drill: Drill = null
+		var ore: Ore = null
 		var children = get_children()
 		assert(len(children) == 2)
-		if children[0] is preload("drill.gd"):
+		if children[0] is Drill:
 			drill = children[0]
 			ore = children[1]
 		else:

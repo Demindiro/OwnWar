@@ -18,8 +18,10 @@ var _action
 var _append_action = false
 var _scroll = 0
 var _unit_info_index = 0
-onready var _camera := get_node(camera)
+onready var _camera: Camera = get_node(camera)
 onready var _action_button_template := find_node("Template")
+onready var _fps_label: Label = $FPS
+onready var _drawcalls_label: Label = $DrawCalls
 
 
 func _ready():
@@ -30,9 +32,9 @@ func _ready():
 func _process(_delta):
 	if len(selected_units) > 0 or _selecting_units:
 		update()
-	$FPS.text = "FPS: " + str(round(1.0 / _delta)) if _delta > 0 else "Impossibly much"
+	_fps_label.text = "FPS: " + str(Engine.get_frames_per_second())
 	var draw_calls = get_tree().root.get_render_info(Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME)
-	$DrawCalls.text = "Draw calls: " + str(draw_calls)
+	_drawcalls_label.text = "Draw calls: " + str(draw_calls)
 	set_unit_info()
 	show_feedback()
 	show_action_feedback()
@@ -136,7 +138,7 @@ func filter_units():
 	var unique_units = {}
 	for unit in selected_units:
 		unique_units[unit.unit_name] = null
-		
+
 	if len(unique_units) == 1:
 		set_action_buttons(selected_units[0].unit_name)
 		return
@@ -179,7 +181,7 @@ func set_action_buttons(unit_name, sub_action = null, arguments = null):
 		var action_function = action[2]
 		var action_arguments = action[3] if len(action) > 3 else []
 		var action_pressed = action[4] if len(action) > 4 else false
-		
+
 		var button = _action_button_template.duplicate()
 		button.text = action[0]
 		if action[1] & Unit.Action.SUBACTION:
@@ -237,8 +239,8 @@ func get_coordinate(button, action):
 	_action_button = button
 	_action = action
 	button.pressed = true
-	
-	
+
+
 func get_units(button, action):
 	if button == _action_button:
 		clear_action_button()
@@ -248,8 +250,8 @@ func get_units(button, action):
 	_action_button = button
 	_action = action
 	button.pressed = true
-		
-		
+
+
 func send_coordinate(coordinate):
 	for unit in selected_units:
 		var arguments = [get_modifier_flags(), coordinate]
@@ -258,8 +260,8 @@ func send_coordinate(coordinate):
 		arguments += _action[3]
 		unit.callv(_action[2], arguments)
 	clear_action_button()
-	
-	
+
+
 func send_units(units):
 	for unit in selected_units:
 		var arguments = [get_modifier_flags(), units] + _action[3]
@@ -271,7 +273,7 @@ func send_toggle(button, action):
 	for unit in selected_units:
 		var arguments = [get_modifier_flags(), button.pressed] + action[3]
 		unit.callv(action[2], arguments)
-		
+
 
 func send_plain(action):
 	for unit in selected_units:

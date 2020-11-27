@@ -29,17 +29,17 @@ var _logger = Logger.get_for(self)
 func _ready():
 	_format_names.resize(FORMAT_COUNT)
 	_format_extensions.resize(FORMAT_COUNT)
-	
+
 	_format_names[FORMAT_RH] = "16-bit RAW float (native)"
 	_format_names[FORMAT_R16] = "16-bit RAW unsigned"
 	_format_names[FORMAT_PNG8] = "8-bit PNG"
 	_format_names[FORMAT_EXRH] = "16-bit float greyscale EXR (native)"
-	
+
 	_format_extensions[FORMAT_RH] = "raw"
 	_format_extensions[FORMAT_R16] = "raw"
 	_format_extensions[FORMAT_PNG8] = "png"
 	_format_extensions[FORMAT_EXRH] = "exr"
-	
+
 	if not Util.is_in_edited_scene(self):
 		for i in len(_format_names):
 			_format_selector.get_popup().add_item(_format_names[i], i)
@@ -54,7 +54,7 @@ func setup_dialogs(base_control):
 	fd.connect("file_selected", self, "_on_FileDialog_file_selected")
 	base_control.add_child(fd)
 	_file_dialog = fd
-	
+
 	_update_file_extension()
 
 
@@ -85,55 +85,55 @@ func _export() -> bool:
 	assert(_terrain.get_data() != null)
 	var heightmap: Image = _terrain.get_data().get_image(HTerrainData.CHANNEL_HEIGHT)
 	var fpath := _output_path_line_edit.text.strip_edges()
-	
+
 	# TODO Is `selected` an ID or an index? I need an ID, it works by chance for now.
 	var format := _format_selector.selected
-	
+
 	var height_min := _height_range_min_spinbox.value
 	var height_max := _height_range_max_spinbox.value
-	
+
 	if height_min == height_max:
 		_logger.error("Cannot export, height range is zero")
 		return false
-	
+
 	if height_min > height_max:
 		_logger.error("Cannot export, height min is greater than max")
 		return false
-	
+
 	var save_error := OK
-	
+
 	if format == FORMAT_PNG8:
 		var hscale = 1.0 / (height_max - height_min)
 		var im = Image.new()
 		im.create(heightmap.get_width(), heightmap.get_height(), false, Image.FORMAT_R8)
-		
+
 		im.lock()
 		heightmap.lock()
-		
+
 		for y in heightmap.get_height():
 			for x in heightmap.get_width():
 				var h = clamp((heightmap.get_pixel(x, y).r - height_min) * hscale, 0.0, 1.0)
 				im.set_pixel(x, y, Color(h, h, h))
-		
+
 		im.unlock()
 		heightmap.unlock()
-		
+
 		save_error = im.save_png(fpath)
-	
+
 	elif format == FORMAT_EXRH:
 		save_error = heightmap.save_exr(fpath, true)
-		
+
 	else:
 		var f = File.new()
 		var err = f.open(fpath, File.WRITE)
 		if err != OK:
 			_print_file_error(fpath, err)
 			return false
-		
+
 		if format == FORMAT_RH:
 			# Native format
 			f.store_buffer(heightmap.get_data())
-		
+
 		elif format == FORMAT_R16:
 			var hscale = 65535.0 / (height_max - height_min)
 			heightmap.lock()
@@ -148,9 +148,9 @@ func _export() -> bool:
 						_logger.debug(str(h))
 					f.store_16(h)
 			heightmap.unlock()
-	
+
 		f.close()
-	
+
 	if save_error == OK:
 		_logger.debug("Exported heightmap as \"{0}\"".format([fpath]))
 		return true
@@ -164,14 +164,14 @@ func _update_file_extension():
 		_format_selector.selected = 0
 		# This recursively calls the current function
 		return
-	
+
 	# TODO Is `selected` an ID or an index? I need an ID, it works by chance for now.
 	var format = _format_selector.selected
 
 	var ext = _format_extensions[format]
 	_file_dialog.clear_filters()
 	_file_dialog.add_filter(str("*.", ext, " ; ", ext.to_upper(), " files"))
-	
+
 	var fpath = _output_path_line_edit.text.strip_edges()
 	if fpath != "":
 		_output_path_line_edit.text = str(fpath.get_basename(), ".", ext)

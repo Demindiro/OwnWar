@@ -3,11 +3,12 @@ extends Node
 
 export var team := "EvilAI"
 onready var game_master = GameMaster.get_game_master(self)
-
 var _worker
 var _spawned_vehicle
 var _target
 var _enemies_in_territory = []
+onready var _idle_point: Spatial = $IdlePoint
+
 
 
 func _ready():
@@ -22,10 +23,10 @@ func _physics_process(_delta):
 				_target = _enemies_in_territory[0]
 			if _target != null:
 				var direction = (_target.translation - _spawned_vehicle.translation).normalized()
-				mainframes[0][2].ai.targets = [_target]
-				mainframes[0][2].ai.waypoints = [_target.translation - direction * 100.0]
+				mainframes[0].node.ai.targets = [_target]
+				mainframes[0].node.ai.waypoints = [_target.translation - direction * 100.0]
 			else:
-				mainframes[0][2].ai.waypoints = [$IdlePoint.translation]
+				mainframes[0].node.ai.waypoints = [_idle_point.translation]
 
 
 func _on_Area_body_entered(body):

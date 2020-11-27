@@ -1,6 +1,8 @@
 extends Structure
 
 
+const Munition := preload("res://plugins/weapon_manager/munition.gd")
+
 #export(Array, Munition) var munition_types := []
 export(Array, Resource) var munition_types := []
 const _MAX_MATERIAL := 30
@@ -11,7 +13,6 @@ var _munition_volume := 0
 var _current_munition_type
 var _current_producing_munition
 var _time_until_munition_produced := 0.0
-var Munition = Plugin.get_plugin("weapon_manager").Munition
 onready var _material_id = Matter.get_matter_id("material")
 
 
@@ -57,8 +58,12 @@ func get_info():
 		info["Producing"] = str(_current_munition_type)
 	else:
 		info["Producing"] = "None"
-	# warning-ignore:integer_division
-	info["Volume"] = "%d / %d" % [_munition_volume / 1_000_000, _MAX_MUNITION_VOLUME / 1_000_000]
+	info["Volume"] = "%d / %d" % [
+			# warning-ignore:integer_division
+			_munition_volume / 1_000_000,
+			# warning-ignore:integer_division
+			_MAX_MUNITION_VOLUME / 1_000_000
+		]
 	for m in _munition:
 		info[Matter.get_matter_name(m)] = _munition[m]
 	return info

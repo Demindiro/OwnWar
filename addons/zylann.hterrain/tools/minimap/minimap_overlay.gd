@@ -18,7 +18,7 @@ func set_cursor_position_normalized(pos_norm: Vector2, dir: Vector2):
 		pos_norm.x = clamp(pos_norm.x, 0.0, 1.0)
 		pos_norm.y = clamp(pos_norm.y, 0.0, 1.0)
 		_sprite.texture = out_of_range_texture
-	
+
 	_sprite.position = pos_norm * rect_size
 	_sprite.rotation = dir.angle()
 

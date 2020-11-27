@@ -13,6 +13,7 @@ static func pre_init(plugin_folder: String):
 	var data = parse_json(file.get_as_text())
 	for generator_name in data:
 		var blocks = data[generator_name]
+		# warning-ignore:unsafe_method_access
 		var generator = load(plugin_folder.plus_file("variant/complex/%s.gd") % generator_name).new()
 		for block_name in blocks:
 			var block_data = blocks[block_name]

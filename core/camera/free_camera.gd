@@ -1,13 +1,13 @@
 extends Camera
 class_name FreeCamera
 
-export(float) var speed = 10
-export(float) var angular_speed = 0.01
-export(bool) var always_capture = false
+export var speed := 10.0
+export var angular_speed := 0.01
+export var always_capture := false
 
-var _rot_x = 0
-var _rot_y = 0
-var enabled = true setget set_enabled
+var _rot_x := 0.0
+var _rot_y := 0.0
+var enabled := true setget set_enabled
 
 
 func _ready():

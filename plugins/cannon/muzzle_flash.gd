@@ -21,6 +21,9 @@ func _on_fired():
 
 func set_brightness(p_brightness):
 	brightness = p_brightness
-	$OmniLight.light_energy = brightness
-	$OmniLight2.light_energy = brightness
-	$OmniLight3.light_energy = brightness
+	var l1: OmniLight = $OmniLight
+	var l2: OmniLight = $OmniLight2
+	var l3: OmniLight = $OmniLight3
+	l1.light_energy = brightness
+	l2.light_energy = brightness
+	l3.light_energy = brightness

@@ -14,8 +14,8 @@ func start(segments: int):
 
 func step():
 	.step()
-		
-		
+
+
 func get_result():
 	var x = Vector3(fractions[0], 0, 0)
 	var y = Vector3(0, fractions[1], 0)

@@ -193,9 +193,9 @@ signal task_completed(task)
 const SPEED = 20.0
 const INTERACTION_DISTANCE = 6.0
 const INTERACTION_DISTANCE_2 = INTERACTION_DISTANCE * INTERACTION_DISTANCE
-export(Dictionary) var ghosts = {}
 export(PackedScene) var drill_ghost
 export(int) var cost = 20
+var ghosts := {}
 var tasks = []
 var last_build_frame = 0
 onready var rotors = [
@@ -209,6 +209,14 @@ var _task_cached_unit: Unit
 var _matter_id := -1
 var _matter_count := 0
 onready var _material_id: int = Matter.get_matter_id("material")
+onready var _raycast: RayCast = $RayCast
+
+
+func _init() -> void:
+	var d := Unit.get_all_units()
+	for k in d:
+		if k.ends_with("_ghost"):
+			ghosts[k.substr(0, len(k) - 6)] = d[k]
 
 
 func _process(delta):
@@ -221,17 +229,20 @@ func _physics_process(delta):
 		return
 	var task: Task = tasks[0]
 	if task is TaskGoto:
-		if move_towards(task.coordinate, delta):
+		var t: TaskGoto = task
+		if move_towards(t.coordinate, delta):
 			current_task_completed()
 	elif task is TaskBuild:
+		var t: TaskBuild = task
 		if _matter_id == _material_id and _matter_count > 0:
-			if translation.distance_squared_to(task.unit.translation) <= INTERACTION_DISTANCE_2:
+			if translation.distance_squared_to(t.unit.translation) <= INTERACTION_DISTANCE_2:
 				if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
+					var u: Ghost = t.unit
 					_matter_count -= 1
-					_matter_count += task.unit.add_build_progress(1)
+					_matter_count += u.add_build_progress(1)
 					last_build_frame = Engine.get_physics_frames()
 			else:
-				move_towards(task.unit.translation, delta)
+				move_towards(t.unit.translation, delta)
 		elif _matter_count == 0:
 			if _take_matter_from_any(_material_id, [], delta) < 0:
 				current_task_completed()
@@ -239,8 +250,9 @@ func _physics_process(delta):
 			if _put_matter_in_any(_matter_id, [], delta) < 0:
 				current_task_completed()
 	elif task is TaskPut:
-		var id: int = task.matter_id
-		var unit: Unit = task.unit
+		var t: TaskPut = task
+		var id: int = t.matter_id
+		var unit: Unit = t.unit
 		if unit.get_matter_space(id) == 0:
 			current_task_completed()
 		elif _matter_id == id or _matter_count == 0:
@@ -255,13 +267,14 @@ func _physics_process(delta):
 			if _put_matter_in_any(_matter_id, [unit], delta) < 0:
 				current_task_completed()
 	elif task is TaskTake:
-		var id: int = task.matter_id
-		var unit: Unit = task.unit
+		var t: TaskTake = task
+		var id: int = t.matter_id
+		var unit: Unit = t.unit
 		if unit.get_matter_count(id) == 0:
 			current_task_completed()
 		elif _matter_id == id or _matter_count == 0:
 			_matter_id = id
-# warning-ignore:integer_division
+			# warning-ignore:integer_division
 			if _matter_count < _MAX_VOLUME / Matter.get_matter_volume(id):
 				if _take_matter(id, unit, delta):
 					current_task_completed()
@@ -272,8 +285,9 @@ func _physics_process(delta):
 			if _put_matter_in_any(_matter_id, [unit], delta) < 0:
 				current_task_completed()
 	elif task is TaskPutOnly:
-		var id: int = task.matter_id
-		var unit: Unit = task.unit
+		var t: TaskPutOnly = task
+		var id: int = t.matter_id
+		var unit: Unit = t.unit
 		if unit.get_matter_space(id) == 0:
 			current_task_completed()
 		elif _matter_id == id and _matter_count > 0:
@@ -282,8 +296,9 @@ func _physics_process(delta):
 		else:
 			current_task_completed()
 	elif task is TaskTakeOnly:
-		var id: int = task.matter_id
-		var unit: Unit = task.unit
+		var t: TaskTakeOnly = task
+		var id: int = t.matter_id
+		var unit: Unit = t.unit
 		if unit.get_matter_count(id) == 0:
 			current_task_completed()
 		elif _matter_id == id or _matter_count == 0:
@@ -333,6 +348,7 @@ func add_task(task: Task, force_append: bool) -> void:
 	if not force_append:
 		clear_tasks(0)
 	if not task is TaskGoto:
+		# warning-ignore:unsafe_property_access
 		task.unit.connect("destroyed", self, "_unit_destroyed", [task],
 				CONNECT_REFERENCE_COUNTED)
 	tasks.append(task)
@@ -349,14 +365,16 @@ func move_towards(position, delta):
 	var speed = SPEED if distance_xz_length2 > SPEED * SPEED * delta * delta else \
 			sqrt(distance_xz_length2) / delta
 	var velocity_direction = distance_xz.normalized()
-	var height = translation.y - $RayCast.get_collision_point().y if \
-			$RayCast.is_colliding() else 5
+	var height := translation.y - _raycast.get_collision_point().y if \
+			_raycast.is_colliding() else 5.0
 	if height < 1:
 		velocity_direction = (velocity_direction + Vector3.UP).normalized()
 	elif height > 4:
 		velocity_direction = (velocity_direction + Vector3.DOWN).normalized()
 	if distance_xz_length2 > 1e-5:
-		$".".move_and_slide(velocity_direction * speed, Vector3.UP,
+		var kb: KinematicBody = self as Spatial
+		# warning-ignore:return_value_discarded
+		kb.move_and_slide(velocity_direction * speed, Vector3.UP,
 				false, 4, PI / 4, false)
 		return false
 	else:
@@ -371,8 +389,8 @@ func build(flags, units):
 			add_task(t, force_append)
 			ghost.connect("built", self, "_ghost_built", [t])
 			force_append = true
-			
-			
+
+
 func build_ghost(flags, position, scroll, ghost_name):
 	var ghost = ghosts[ghost_name].instance()
 	ghost.transform = Transform(Basis.IDENTITY.rotated(Vector3.UP, scroll * PI / 8), position)
@@ -402,23 +420,27 @@ func build_drill(flags, coordinate):
 		ghost.connect("built", self, "_ghost_built", [t])
 
 
-func put_matter_in(flags, units, only, oneshot := false):
+func put_matter_in(flags, units, only):
 	var force_append = flags & 0x1 > 0
 	for unit in units:
 		var matter_ids = unit.get_put_matter_list()
 		for id in matter_ids:
-			add_task(TaskPutOnly.new(unit, id) if only \
-					else TaskPut.new(unit, id), force_append)
+			if only:
+				add_task(TaskPutOnly.new(unit, id), force_append)
+			else:
+				add_task(TaskPut.new(unit, id), force_append)
 			force_append = true
 
 
-func take_matter_from(flags, units, only, oneshot := false):
+func take_matter_from(flags, units, only):
 	var force_append = flags & 0x1 > 0
 	for unit in units:
 		var matter_ids = unit.get_take_matter_list()
 		for id in matter_ids:
-			add_task(TaskTakeOnly.new(unit, id) if only \
-					else TaskTake.new(unit, id), force_append)
+			if only:
+				add_task(TaskTakeOnly.new(unit, id), force_append)
+			else:
+				add_task(TaskTake.new(unit, id), force_append)
 			force_append = true
 
 
@@ -484,7 +506,8 @@ func deserialize_json(data: Dictionary) -> void:
 		add_task(Task.deserialize(game_master, t_d), 1)
 	var c_uid: int = data.get("cached_unit", -1)
 	if c_uid >= 0:
-		_set_cached_unit(game_master.get_unit_by_uid(c_uid))
+		var gm: GameMaster = game_master
+		_set_cached_unit(gm.get_unit_by_uid(c_uid))
 
 
 func _ghost_built(task: Task):
@@ -528,7 +551,8 @@ func _put_matter_in_any(id: int, exclude: Array, delta: float) -> int:
 	assert(_matter_count > 0 and id == _matter_id)
 	if _task_cached_unit == null:
 		var closest_distance2 := INF
-		for unit in game_master.get_units(team):
+		var gm: GameMaster = game_master
+		for unit in gm.get_units(team):
 			if not unit in exclude:
 				if unit.takes_matter(id) > 0:
 					var d := translation.distance_squared_to(unit.translation)
@@ -547,7 +571,8 @@ func _take_matter_from_any(id: int, exclude: Array, delta: float) -> int:
 	assert(_matter_count == 0)
 	if _task_cached_unit == null:
 		var closest_distance2 := INF
-		for unit in game_master.get_units(team):
+		var gm: GameMaster = game_master
+		for unit in gm.get_units(team):
 			if not unit in exclude and unit.provides_matter(id) > 0:
 				var d := translation.distance_squared_to(unit.translation)
 				if d < closest_distance2:

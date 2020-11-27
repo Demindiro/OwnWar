@@ -51,7 +51,7 @@ func _process(_delta: float) -> void:
 			# Apply transform (unless it's pretty much equal)
 			var n_transform := Transform(basis, org)
 			if not Util.is_transform_approx_eq(n_transform, transform,
-					1e-5, 1e-4):
+					1e-3, 1e-3):
 				c.global_transform = n_transform
 
 

@@ -38,7 +38,7 @@ export var type_flags := TypeFlags.DEFAULT
 # warning-ignore:unused_class_variable
 var uid := -1
 onready var health := max_health
-onready var game_master = GameMaster.get_game_master(self)
+onready var game_master: Node#: GameMaster
 
 
 func _enter_tree():
@@ -140,3 +140,7 @@ static func add_unit(p_name: String, unit) -> void:
 static func get_unit(p_name: String):# -> Unit:
 	assert(p_name in UNITS)
 	return UNITS[p_name]
+
+
+static func get_all_units() -> Dictionary:
+	return UNITS

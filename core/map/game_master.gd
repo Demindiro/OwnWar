@@ -1,14 +1,12 @@
 class_name GameMaster
 extends Node
 
-
 signal unit_added(unit)
 # "unused" (see line 177)
 # warning-ignore:unused_signal
 signal load_game(data)
 signal save_game(data)
 export(NodePath) var victory_screen
-export var team_count := 2
 export var map_name: String
 # warning-ignore:unused_class_variable
 var teams := PoolStringArray([])
@@ -20,7 +18,8 @@ var _loading_game := false
 
 func _enter_tree() -> void:
 	assert(map_name != "")
-	get_tree().connect("node_added", self, "_node_added")
+	var e := get_tree().connect("node_added", self, "_node_added")
+	assert(e == OK)
 
 
 func get_units(team: String, unit_filter = null) -> Array:
@@ -60,8 +59,10 @@ func get_teams():
 
 func game_end():
 	get_tree().paused = true
-	get_node(victory_screen).visible = true
-	get_node(victory_screen).pause_mode = PAUSE_MODE_PROCESS
+	var node: Control = get_node(victory_screen)
+	assert(node != null)
+	node.visible = true
+	node.pause_mode = PAUSE_MODE_PROCESS
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 
@@ -84,7 +85,7 @@ func save_game(p_name: String) -> int:
 
 	var s_plugins := {}
 	for plugin in Plugin.get_all_plugins():
-		if Plugin.get_disable_reason(plugin.PLUGIN_ID) == Plugin.DisableReason.NONE:
+		if Plugin.get_disable_reason(plugin.PLUGIN_ID) == Plugin.PluginState.NONE:
 			s_plugins[plugin.PLUGIN_ID] = plugin.save_game(self)
 			assert(s_plugins[plugin.PLUGIN_ID] is Dictionary)
 
@@ -127,26 +128,28 @@ func _load_game(data: Dictionary) -> void:
 	start_time = OS.get_ticks_msec()
 
 	uid_counter = data["uid_counter"]
-	var _Vehicle := load("res://core/unit/vehicle.gd")
-	var _Unit := load("res://core/unit/unit.gd")
 
 	teams = []
 	var units_data: Dictionary = data["units"]
 	for uid in units_data:
 		var u_d: Dictionary = units_data[uid]
 		var u_name: String = u_d["name"]
-		var u = _Vehicle.new() if \
-				u_name.begins_with("vehicle_") else \
-				_Unit.get_unit(u_d["name"]).instance()
+		var u: Unit
+		if u_name.begins_with("vehicle_"):
+			u = Vehicle.new()
+		else:
+			u = Unit.get_unit(u_d["name"]).instance()
 		if u_name.begins_with("vehicle_"):
 			u.unit_name = u_name
 		u.game_master = self
 		u.transform = str2var(u_d["transform"])
 		u.uid = str2var(uid)
 		u.health = u_d["health"]
-		if u is RigidBody:
-			u.linear_velocity = str2var(u_d["linear_velocity"])
-			u.angular_velocity = str2var(u_d["angular_velocity"])
+		if (u as Spatial) is RigidBody:
+			var s: RigidBody
+			s = u as Spatial
+			s.linear_velocity = str2var(u_d["linear_velocity"])
+			s.angular_velocity = str2var(u_d["angular_velocity"])
 		u.team = u_d["team"]
 		u.add_to_group("units_" + u.team)
 		u.add_to_group("units")
@@ -202,11 +205,13 @@ static func get_game_master(node: Node) -> Node:# -> GameMaster:
 
 func _node_added(node: Node) -> void:
 	#if node is Unit:
-	if not _loading_game and node.get("unit_name") != null:
-		assert(node.uid == -1)
-		node.uid = uid_counter
+	var unit := node as Unit
+	if not _loading_game and unit != null:
+		assert(unit.uid == -1)
+		unit.uid = uid_counter
 		uid_counter += 7
-		if not node.team in teams:
-			print("Adding team %s" % node.team)
-			teams.append(node.team)
-		emit_signal("unit_added", node)
+		if not unit.team in teams:
+			print("Adding team %s" % unit.team)
+			teams.append(unit.team)
+		unit.game_master = self
+		emit_signal("unit_added", unit)

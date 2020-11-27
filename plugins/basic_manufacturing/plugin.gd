@@ -47,8 +47,10 @@ static func load_game(game_master: GameMaster, data: Dictionary) -> void:
 	for s in data["ores"]:
 		var found := false
 		var transform: Transform = str2var(s[0])
+		var org := transform.origin
 		for ore in game_master.get_tree().get_nodes_in_group("ores"):
-			if ore.transform == transform:
+			# High leeway because old saves
+			if Util.is_vec3_approx_eq(ore.translation, org, 0.25):
 				ore.material = s[1]
 				found = true
 				break

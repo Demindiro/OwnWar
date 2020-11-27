@@ -4,6 +4,7 @@ extends Structure
 const _MAX_VOLUME := 1000_000_000
 var _volume := 0
 var _matter := {}
+onready var _indicator: Spatial
 
 
 func _ready():
@@ -98,4 +99,7 @@ func deserialize_json(data: Dictionary) -> void:
 
 
 func _update_indicator() -> void:
-	$Indicator.scale.y = float(_volume) / _MAX_VOLUME
+	if _indicator == null:
+		# _ready being called in "reverse" is quite annoying
+		_indicator = $Indicator
+	_indicator.scale.y = float(_volume) / _MAX_VOLUME

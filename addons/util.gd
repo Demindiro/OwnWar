@@ -204,9 +204,22 @@ static func decode_color(s: String, delim := ",") -> Color:
 	return Color(a[0], a[1], a[2], a[3])
 
 
+static func is_vec3_approx_eq(a: Vector3, b: Vector3, epsilon: float) -> bool:
+	return abs(a.x - b.x) < epsilon and \
+			abs(a.y - b.y) < epsilon and \
+			abs(a.z - b.z) < epsilon
+
+
+# This comparison function does not care about "relative" size and thus _does_
+# determine 8.74134e-08 is ~= to -8.74425e-08 (unlike what the builtin seems to
+# do? See is_equal_approx_ratio in core/math/math_funcs.h)
+static func is_basis_approx_eq(a: Basis, b: Basis, epsilon: float) -> bool:
+	return is_vec3_approx_eq(a.x, b.x, epsilon) and \
+			is_vec3_approx_eq(a.y, b.y, epsilon) and \
+			is_vec3_approx_eq(a.z, b.z, epsilon)
+
+
 static func is_transform_approx_eq(a: Transform, b: Transform,
 		epsilon_basis: float, epsilon_origin: float) -> bool:
-	return a.basis.is_equal_approx(b.basis, epsilon_basis) and \
-			abs(a.origin.x - b.origin.x) < epsilon_origin and \
-			abs(a.origin.y - b.origin.y) < epsilon_origin and \
-			abs(a.origin.z - b.origin.z) < epsilon_origin
+	return is_basis_approx_eq(a.basis, b.basis, epsilon_basis) and \
+			is_vec3_approx_eq(a.origin, b.origin, epsilon_origin)

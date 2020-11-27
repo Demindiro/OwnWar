@@ -18,6 +18,7 @@ var _tasks := []
 var _dirty := false
 var _assigning_tasks := false
 onready var _spawn_timer := get_tree().create_timer(1.0, false)
+onready var _spawn_point: Transform = ($SpawnPoint as Spatial).global_transform
 
 
 func _ready():
@@ -28,7 +29,8 @@ func _ready():
 		_needs_provider.resize(types_count)
 		_needs_taker.resize(types_count)
 		_set_radius2(_radius2)
-		game_master.connect("unit_added", self, "_unit_added")
+		var e = game_master.connect("unit_added", self, "_unit_added")
+		assert(e == OK)
 
 
 func _exit_tree():
@@ -61,9 +63,10 @@ func get_info() -> Dictionary:
 func show_feedback():
 	if _immediate_geometry == null:
 		_immediate_geometry = ImmediateGeometry.new()
-		_immediate_geometry.material_override = SpatialMaterial.new()
-		_immediate_geometry.material_override.albedo_color = Color.orange
-		_immediate_geometry.material_override.flags_unshaded = true
+		var mat := SpatialMaterial.new()
+		mat.albedo_color = Color.orange
+		mat.flags_unshaded = true
+		_immediate_geometry.material_override = mat
 		add_child(_immediate_geometry)
 	_draw_circle(sqrt(_radius2))
 
@@ -77,7 +80,7 @@ func hide_feedback():
 func show_action_feedback(function: String, viewport: Viewport, arguments: Array) -> void:
 	match function:
 		"set_coverage_radius":
-			var position := arguments[1] as Vector3
+			var position: Vector3 = arguments[1]
 			var projected_position := Plane(transform.basis.y, 0).project(position)
 			_draw_circle(translation.distance_to(projected_position))
 		_:
@@ -108,7 +111,8 @@ func serialize_json() -> Dictionary:
 func deserialize_json(data: Dictionary) -> void:
 	_drones = []
 	for d_uid in data["drones"]:
-		_drones.append(game_master.get_unit_by_uid(d_uid))
+		var gm: GameMaster = game_master
+		_drones.append(gm.get_unit_by_uid(d_uid))
 	_spawn_timer = get_tree().create_timer(data["spawn_timer"], false)
 	_set_radius2(data["radius2"])
 
@@ -120,8 +124,9 @@ func _assign_tasks() -> void:
 
 	for i in range(len(_tasks) - 1, -1, -1):
 		var task: Tasks.Task = _tasks[i]
-		if task is Tasks.Empty or task is Tasks.Fill:
-			if not task.from in _units or not task.to in _units:
+		if task is Tasks.Transport:
+			var tr_task: Tasks.Transport = task
+			if not tr_task.from in _units or not tr_task.to in _units:
 				_tasks.remove(i)
 		else:
 			assert(false)
@@ -132,8 +137,9 @@ func _assign_tasks() -> void:
 			if task == null or t.assignees < task.assignees:
 				task = t
 		var drone
-		if task is Tasks.Empty or task is Tasks.Fill:
-			drone = _get_idle_drone(PoolVector3Array([task.from, task.to]))
+		if task is Tasks.Transport:
+			var tr_task: Tasks.Transport = task
+			drone = _get_idle_drone(PoolVector3Array([tr_task.from, tr_task.to]))
 		else:
 			assert(false)
 			drone = _get_idle_drone()
@@ -142,8 +148,9 @@ func _assign_tasks() -> void:
 		if drone == null:
 			break
 		assert(drone is Drone)
-		if task is Tasks.Empty or task is Tasks.Fill:
-			if drone.matter_count != 0 and drone.matter_id != task.matter_id:
+		if task is Tasks.Transport:
+			var tr_task: Tasks.Transport = task
+			if drone.matter_count != 0 and drone.matter_id != tr_task.matter_id:
 				var taker := _get_nearest(drone, _takers[drone.matter_id],
 						drone.matter_id, drone.matter_count)
 				if taker == null:
@@ -196,7 +203,8 @@ func _set_radius2(radius2: float) -> void:
 		_takers[i] = []
 		_needs_provider[i] = []
 		_needs_taker[i] = []
-	for unit in game_master.get_units(team, Structure):
+	var gm: GameMaster = game_master
+	for unit in gm.get_units(team, Structure):
 		if translation.distance_squared_to(unit.translation) < radius2:
 			_add_unit(unit)
 	assign_tasks()
@@ -269,7 +277,7 @@ func _get_idle_drone(near_points := PoolVector3Array()) -> Drone:
 
 	if len(_drones) < drone_limit:
 		var drone = drone_scene.instance()
-		drone.transform = $SpawnPoint.global_transform
+		drone.transform = _spawn_point
 		drone.connect("task_completed", self, "_task_completed", [drone])
 		drone.team = team
 		_drones.append(drone)
@@ -280,7 +288,8 @@ func _get_idle_drone(near_points := PoolVector3Array()) -> Drone:
 
 
 func _task_completed(drone: Drone) -> void:
-	assert(drone.task is Tasks.Fill or drone.task is Tasks.Empty)
+	# ??? Editor complains "Task cannot be of type Fill ever"
+#	assert(drone.task is Tasks.Fill or drone.task is Tasks.Empty)
 	drone.task.assignees -= 1
 	assign_tasks()
 
@@ -299,8 +308,8 @@ func _get_nearest(unit: Unit, unit_list: Array, matter_id := -1, matter_count :=
 
 func _unit_added(unit: Unit) -> void:
 	if unit is Structure and \
-		unit.team == team and \
-		unit.translation.distance_squared_to(translation) < _radius2:
+			unit.team == team and \
+			unit.translation.distance_squared_to(translation) < _radius2:
 		_add_unit(unit)
 
 
@@ -366,12 +375,12 @@ func _remove_unit(unit: Structure) -> void:
 
 func _add_task(task: Tasks.Task) -> void:
 	for t in _tasks:
-		if t.script == task.script:
-			if task is Tasks.Fill or task is Tasks.Empty:
-				if task.from == t.from and task.to == t.to:
-					return
-			else:
-				assert(false)
+		if (t is Tasks.Fill and task is Tasks.Fill) or \
+			(t is Tasks.Empty and task is Tasks.Empty):
+			var tr_t: Tasks.Transport = t
+			var tr_task: Tasks.Transport = task
+			if tr_task.from == tr_t.from and tr_task.to == tr_t.to:
+				return
 	_tasks.push_back(task)
 	assign_tasks()
 

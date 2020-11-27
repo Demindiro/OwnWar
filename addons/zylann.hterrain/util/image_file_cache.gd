@@ -42,7 +42,7 @@ func _init(cache_dir: String):
 		if err != OK:
 			_logger.error("Could not create directory {0}, error {1}" \
 				.format([_cache_dir, err]))
-	_save_thread_running = true 
+	_save_thread_running = true
 	_saving_thread.start(self, "_save_thread_func")
 
 
@@ -75,7 +75,7 @@ func save_image(im: Image) -> int:
 	if im.has_mipmaps():
 		# TODO Add support for this? Didn't need it so far
 		_logger.error("Caching an image with mipmaps, this isn't supported")
-	
+
 	var fpath := _get_current_cache_file_name()
 	if _next_id == 0:
 		# First file
@@ -83,7 +83,7 @@ func save_image(im: Image) -> int:
 
 	var id := _next_id
 	_next_id += 1
-	
+
 	var item := {
 		# Duplicate the image so we are sure nothing funny will happen to it
 		# while the thread saves it
@@ -92,7 +92,7 @@ func save_image(im: Image) -> int:
 		"data_offset": _cache_file_offset,
 		"saved": false
 	}
-	
+
 	_cache_file_offset += _get_image_data_size(im)
 	if _cache_file_offset >= CACHE_FILE_SIZE_THRESHOLD:
 		_cache_file_offset = 0
@@ -100,13 +100,13 @@ func save_image(im: Image) -> int:
 		_create_new_cache_file(_get_current_cache_file_name())
 
 	_cache_image_info[id] = item
-	
+
 	_save_queue_mutex.lock()
 	_save_queue.append(item)
 	_save_queue_mutex.unlock()
-	
+
 	_save_semaphore.post()
-	
+
 	return id
 
 
@@ -136,7 +136,7 @@ static func _read_image(f: File) -> Image:
 
 func load_image(id: int) -> Image:
 	var info := _cache_image_info[id] as Dictionary
-	
+
 	var timeout = 5.0
 	var time_before = OS.get_ticks_msec()
 	# We could just grab `image`, because the thread only reads it.
@@ -148,39 +148,39 @@ func load_image(id: int) -> Image:
 		if OS.get_ticks_msec() - time_before > timeout:
 			_logger.error("Could not get image {0} from cache. Something went wrong.".format([id]))
 			return null
-	
+
 	var fpath := info.path as String
-	
+
 	var f := File.new()
 	var err = f.open(fpath, File.READ)
 	if err != OK:
 		_logger.error("Could not load cached image from {0}, error {1}" \
 			.format([fpath, err]))
 		return null
-	
+
 	f.seek(info.data_offset)
 	var im = _read_image(f)
 	f.close()
-	
+
 	assert(im != null)
 	return im
 
 
 func clear():
 	_logger.debug("Clearing image cache")
-	
+
 	var dir := Directory.new()
 	var err := dir.open(_cache_dir)
 	if err != OK:
 		_logger.error("Could not open image file cache directory '{0}'" \
 			.format([_cache_dir]))
 		return
-	
+
 	err = dir.list_dir_begin(true, true)
 	if err != OK:
 		_logger.error("Could not start list_dir_begin in '{0}'".format([_cache_dir]))
 		return
-		
+
 	# Delete all cache files
 	while true:
 		var fpath := dir.get_next()
@@ -211,14 +211,14 @@ func _save_thread_func(_unused_userdata):
 		var to_save := _save_queue.duplicate(false)
 		_save_queue.clear()
 		_save_queue_mutex.unlock()
-		
+
 		if len(to_save) == 0:
 			_save_semaphore.wait()
 			continue
-			
+
 		var f := File.new()
 		var path := ""
-		
+
 		for item in to_save:
 			# Keep re-using the same file if we did not change path.
 			# It makes I/Os faster.
@@ -231,7 +231,7 @@ func _save_thread_func(_unused_userdata):
 					call_deferred("_on_error", "Could not open file {0}, error {1}" \
 						.format([path, err]))
 					continue
-			
+
 			f.seek(item.data_offset)
 			_write_image(f, item.image)
 			# Notify main thread.

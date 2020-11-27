@@ -9,14 +9,14 @@ class Quad:
 
 	func _init():
 		pass
-	
+
 	func clear():
 		clear_children()
 		data = null
-	
+
 	func clear_children():
 		children = null
-	
+
 	func has_children():
 		return children != null
 
@@ -84,7 +84,7 @@ func get_split_scale() -> float:
 
 func update(view_pos: Vector3):
 	_update(_tree, _max_depth, view_pos)
-	
+
 	# This makes sure we keep seeing the lowest LOD,
 	# if the tree is cleared while we are far away
 	if not _tree.has_children() and _tree.data == null:
@@ -98,18 +98,18 @@ func get_lod_size(lod: int) -> int:
 
 func _update(quad: Quad, lod: int, view_pos: Vector3):
 	# This function should be called regularly over frames.
-	
+
 	var lod_factor := get_lod_size(lod)
 	var chunk_size := _base_size * lod_factor
 	var world_center := \
 		chunk_size * (Vector3(quad.origin_x, 0, quad.origin_y) + Vector3(0.5, 0, 0.5))
-	
+
 	if _vertical_bounds_func != null:
 		var vbounds = _vertical_bounds_func.call_func(quad.origin_x, quad.origin_y, lod)
 		world_center.y = (vbounds.x + vbounds.y) / 2.0
-	
+
 	var split_distance := _base_size * lod_factor * _split_scale
-	
+
 	if not quad.has_children():
 		if lod > 0 and world_center.distance_to(view_pos) < split_distance:
 			# Split
@@ -126,15 +126,15 @@ func _update(quad: Quad, lod: int, view_pos: Vector3):
 			if quad.data != null:
 				_recycle_chunk(quad.data, quad.origin_x, quad.origin_y, lod)
 				quad.data = null
-	
+
 	else:
 		var no_split_child := true
-		
+
 		for child in quad.children:
 			_update(child, lod - 1, view_pos)
 			if child.has_children():
 				no_split_child = false
-		
+
 		if no_split_child and world_center.distance_to(view_pos) > split_distance:
 			# Join
 			if quad.has_children():
@@ -155,7 +155,7 @@ func _join_all_recursively(quad: Quad, lod: int):
 			_join_all_recursively(child, lod - 1)
 
 		quad.clear_children()
-		
+
 	elif quad.data != null:
 		_recycle_chunk(quad.data, quad.origin_x, quad.origin_y, lod)
 		quad.data = null
@@ -182,7 +182,7 @@ func _debug_draw_tree_recursive(ci: CanvasItem, quad: Quad, lod_index: int, chil
 	if quad.has_children():
 		for i in range(0, quad.children.size()):
 			var child = quad.children[i]
-			_debug_draw_tree_recursive(ci, child, lod_index - 1, i)	
+			_debug_draw_tree_recursive(ci, child, lod_index - 1, i)
 	else:
 		var size := get_lod_size(lod_index)
 		var checker := 0

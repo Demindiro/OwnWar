@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=2]
+[gd_scene load_steps=23 format=2]
 
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
 [ext_resource path="res://plugins/campaign_abcd/map_data/data.hterrain" type="Resource" id=2]
@@ -17,13 +17,8 @@
 [ext_resource path="res://plugins/basic_manufacturing/roboport/roboport.tscn" type="PackedScene" id=15]
 [ext_resource path="res://core/unit/unit_group.tscn" type="PackedScene" id=16]
 [ext_resource path="res://core/map/hud.tscn" type="PackedScene" id=17]
-[ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod_ghost.tscn" type="PackedScene" id=18]
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery.tscn" type="PackedScene" id=19]
-[ext_resource path="res://plugins/basic_manufacturing/roboport/roboport_ghost.tscn" type="PackedScene" id=20]
 [ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory.tscn" type="PackedScene" id=21]
-[ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory_ghost.tscn" type="PackedScene" id=22]
-[ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform_ghost.tscn" type="PackedScene" id=23]
-[ext_resource path="res://plugins/basic_manufacturing/refinery/refinery_ghost.tscn" type="PackedScene" id=24]
 [ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=25]
 [ext_resource path="res://core/unit/vehicle.gd" type="Script" id=26]
 [ext_resource path="res://plugins/strategic_ai/ai.gd" type="Script" id=27]
@@ -155,7 +150,7 @@ transform = Transform( -0.999973, 0.0073846, -8.14907e-05, 0.00738505, 0.999912,
 team = "Arend"
 
 [node name="MunitionsFactory" parent="Arend/X" instance=ExtResource( 21 )]
-transform = Transform( -0.99995, -0.0100093, 4.97451e-06, -0.0100093, 0.99995, -0.000488231, -8.74224e-08, -0.000488257, -1, 2520.99, 0.491588, 607 )
+transform = Transform( -0.99995, -0.0100093, 4.79967e-06, -0.0100093, 0.99995, -0.000488233, 8.74234e-08, -0.000488257, -1, 2520.99, 0.491588, 607 )
 team = "Arend"
 
 [node name="Vehicle" type="Spatial" parent="Arend/X"]
@@ -163,14 +158,12 @@ transform = Transform( 0.258819, 0, -0.965926, 0, 1, 0, 0.965926, 0, 0.258819, 2
 script = ExtResource( 26 )
 max_health = 0
 team = "Arend"
-unit_name = "unit"
-type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Z" type="Node" parent="Arend"]
 
 [node name="SpawnPlatform" parent="Arend/Z" instance=ExtResource( 6 )]
-transform = Transform( -0.999931, -0.0117174, -0.000114332, -0.0117179, 0.999884, 0.00976382, -8.74425e-08, 0.00976449, -0.999952, 3364.5, 3.5459, 1407.5 )
+transform = Transform( -0.999931, -0.0117174, -0.000114507, -0.0117179, 0.999884, 0.00976382, 8.74134e-08, 0.00976449, -0.999952, 3364.5, 3.5459, 1407.5 )
 team = "Arend"
 
 [node name="StoragePod" parent="Arend/Z" instance=ExtResource( 11 )]
@@ -193,35 +186,14 @@ team = "Arend"
 [node name="DroneHQ" parent="Arend" instance=ExtResource( 25 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3241, 5, 571.5 )
 team = "Arend"
-ghosts = {
-"Munition Factory": ExtResource( 22 ),
-"Refinery": ExtResource( 24 ),
-"Roboport": ExtResource( 20 ),
-"Spawn Platform": ExtResource( 23 ),
-"Storage Pod": ExtResource( 18 )
-}
 
 [node name="DroneX" parent="Arend" instance=ExtResource( 25 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3299, 3.5, 546.5 )
 team = "Arend"
-ghosts = {
-"Munition Factory": ExtResource( 22 ),
-"Refinery": ExtResource( 24 ),
-"Roboport": ExtResource( 20 ),
-"Spawn Platform": ExtResource( 23 ),
-"Storage Pod": ExtResource( 18 )
-}
 
 [node name="DroneY" parent="Arend" instance=ExtResource( 25 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3186.5, 19.5, 479.5 )
 team = "Arend"
-ghosts = {
-"Munition Factory": ExtResource( 22 ),
-"Refinery": ExtResource( 24 ),
-"Roboport": ExtResource( 20 ),
-"Spawn Platform": ExtResource( 23 ),
-"Storage Pod": ExtResource( 18 )
-}
 
 [node name="Bears" parent="." instance=ExtResource( 16 )]
 
@@ -306,8 +278,6 @@ transform = Transform( -0.988779, 0, 0.149385, 0, 1, 0, -0.149385, 0, -0.988779,
 script = ExtResource( 26 )
 max_health = 0
 team = "Bears"
-unit_name = "unit"
-type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle2" type="Spatial" parent="Bears/The Great Tank Wall"]
@@ -315,8 +285,6 @@ transform = Transform( -0.944602, 0, 0.328217, 0, 1, 0, -0.328217, 0, -0.944602,
 script = ExtResource( 26 )
 max_health = 0
 team = "Bears"
-unit_name = "unit"
-type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle3" type="Spatial" parent="Bears/The Great Tank Wall"]
@@ -324,8 +292,6 @@ transform = Transform( -0.899414, 0, 0.437097, 0, 1, 0, -0.437097, 0, -0.899414,
 script = ExtResource( 26 )
 max_health = 0
 team = "Bears"
-unit_name = "unit"
-type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle4" type="Spatial" parent="Bears/The Great Tank Wall"]
@@ -333,8 +299,6 @@ transform = Transform( -0.774765, 0, 0.63225, 0, 1, 0, -0.63225, 0, -0.774765, 5
 script = ExtResource( 26 )
 max_health = 0
 team = "Bears"
-unit_name = "unit"
-type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle5" type="Spatial" parent="Bears/The Great Tank Wall"]
@@ -342,8 +306,6 @@ transform = Transform( -0.774765, 0, 0.63225, 0, 1, 0, -0.63225, 0, -0.774765, 5
 script = ExtResource( 26 )
 max_health = 0
 team = "Bears"
-unit_name = "unit"
-type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle6" type="Spatial" parent="Bears/The Great Tank Wall"]
@@ -351,8 +313,6 @@ transform = Transform( -0.635273, 0.100858, 0.765673, -0.181647, 0.944107, -0.27
 script = ExtResource( 26 )
 max_health = 0
 team = "Bears"
-unit_name = "unit"
-type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle7" type="Spatial" parent="Bears/The Great Tank Wall"]
@@ -360,8 +320,6 @@ transform = Transform( -0.470134, 0, 0.882595, 0, 1, 0, -0.882595, 0, -0.470134,
 script = ExtResource( 26 )
 max_health = 0
 team = "Bears"
-unit_name = "unit"
-type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle8" type="Spatial" parent="Bears/The Great Tank Wall"]
@@ -369,8 +327,6 @@ transform = Transform( -0.828467, 0, 0.560037, 0, 1, 0, -0.560037, 0, -0.828467,
 script = ExtResource( 26 )
 max_health = 0
 team = "Bears"
-unit_name = "unit"
-type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Centaurs" parent="." instance=ExtResource( 16 )]
@@ -390,7 +346,7 @@ transform = Transform( -0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, -0.5, 1904.5, 7
 team = "Centaurs"
 
 [node name="Refinery" parent="Centaurs/HQ" instance=ExtResource( 19 )]
-transform = Transform( -1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 1930.5, 76.1875, 2280.5 )
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1930.5, 76.1875, 2280.5 )
 team = "Centaurs"
 
 [node name="Refinery3" parent="Centaurs/HQ" instance=ExtResource( 19 )]
@@ -447,8 +403,6 @@ transform = Transform( -0.777497, 0, -0.628886, 0, 1, 0, 0.628886, 0, -0.777497,
 script = ExtResource( 26 )
 max_health = 0
 team = "Centaurs"
-unit_name = "unit"
-type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle2" type="Spatial" parent="Centaurs/HQWall"]
@@ -456,8 +410,6 @@ transform = Transform( -0.777497, 0, -0.628886, 0, 1, 0, 0.628886, 0, -0.777497,
 script = ExtResource( 26 )
 max_health = 0
 team = "Centaurs"
-unit_name = "unit"
-type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle3" type="Spatial" parent="Centaurs/HQWall"]
@@ -465,8 +417,6 @@ transform = Transform( 0.574705, 0, 0.818361, 0, 1, 0, -0.818361, 0, 0.574705, 2
 script = ExtResource( 26 )
 max_health = 0
 team = "Centaurs"
-unit_name = "unit"
-type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle4" type="Spatial" parent="Centaurs/HQWall"]
@@ -474,8 +424,6 @@ transform = Transform( 0.745199, 0, 0.666842, 0, 1, 0, -0.666842, 0, 0.745199, 1
 script = ExtResource( 26 )
 max_health = 0
 team = "Centaurs"
-unit_name = "unit"
-type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle5" type="Spatial" parent="Centaurs/HQWall"]
@@ -483,8 +431,6 @@ transform = Transform( 0.845134, 0, 0.534555, 0, 1, 0, -0.534555, 0, 0.845134, 2
 script = ExtResource( 26 )
 max_health = 0
 team = "Centaurs"
-unit_name = "unit"
-type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle6" type="Spatial" parent="Centaurs/HQWall"]
@@ -492,8 +438,6 @@ transform = Transform( 0.9457, 0, 0.32504, 0, 1, 0, -0.32504, 0, 0.9457, 1525.35
 script = ExtResource( 26 )
 max_health = 0
 team = "Centaurs"
-unit_name = "unit"
-type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Mine" type="Node" parent="Centaurs"]

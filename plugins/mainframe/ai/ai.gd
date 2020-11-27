@@ -15,8 +15,8 @@ func init(_mainframe):
 
 func process(_mainframe, _delta):
 	pass
-		
-	
+
+
 func debug_draw(mainframe):
 	var start_vertex = mainframe.vehicle.translation + Vector3.UP * 0.1
 	for waypoint in waypoints:

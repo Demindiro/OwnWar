@@ -2,14 +2,16 @@ extends Sprite3D
 
 
 const GRID_SIZE = preload("designer.gd").GRID_SIZE
+onready var _origin: Spatial = $Origin
+onready var _mirror: Spatial = $Mirror
 
 
 func _ready():
-	$Origin.translation = -Vector3(1, 0, 1) * (GRID_SIZE / 2.0 - 0.5) + Vector3.UP / 2
-	translation = -$Origin.translation + Vector3(0.5, 0.5, 0.5)
+	_origin.translation = -Vector3(1, 0, 1) * (GRID_SIZE / 2.0 - 0.5) + Vector3.UP / 2
+	translation = -_origin.translation + Vector3(0.5, 0.5, 0.5)
 	if texture == null:
 		_generate_texture()
-	$Mirror.scale.y = GRID_SIZE
+	_mirror.scale.y = GRID_SIZE
 
 
 func _generate_texture():
@@ -24,11 +26,12 @@ func _generate_texture():
 		image.set_pixel(i, size - 1, Color.cyan)
 		image.set_pixel(size - 1, i, Color.cyan)
 	image.unlock()
-	texture = ImageTexture.new()
-	texture.create_from_image(image)
-	texture.flags &= ~Texture.FLAG_FILTER
-	texture.flags &= ~Texture.FLAG_MIPMAPS
-	texture.flags |= Texture.FLAG_ANISOTROPIC_FILTER
+	var img_tex := ImageTexture.new()
+	img_tex.create_from_image(image)
+	img_tex.flags &= ~Texture.FLAG_FILTER
+	img_tex.flags &= ~Texture.FLAG_MIPMAPS
+	img_tex.flags |= Texture.FLAG_ANISOTROPIC_FILTER
+	texture = img_tex
 	region_enabled = true
 	region_rect = Rect2(0, 0, size * GRID_SIZE, size * GRID_SIZE)
 	pixel_size = 1.0 / size

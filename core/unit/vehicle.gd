@@ -40,7 +40,7 @@ func get_info():
 		for coordinate in body.blocks:
 			var block = body.blocks[coordinate]
 			remaining_health += block.health
-			remaining_cost += Block.get_block_by_id(block[0]).cost
+			remaining_cost += Block.get_block_by_id(block.id).cost
 	info["Health"] = "%d / %d" % [remaining_health, max_health]
 	info["Cost"] = "%d / %d" % [remaining_cost, max_cost]
 	for info_function in _info:
@@ -204,7 +204,7 @@ func do_action(flags, arg0, arg1 = null):
 		object.callv(function, [flags] + arguments)
 
 
-func get_manager(p_name: String) -> GDScript:
+func get_manager(p_name: String) -> Reference:
 	var manager = managers.get(p_name)
 	if manager == null:
 		manager = MANAGERS[p_name].new()
@@ -325,7 +325,7 @@ func serialize_json() -> Dictionary:
 func deserialize_json(data: Dictionary) -> void:
 	max_cost = 0
 	voxel_bodies = []
-	
+
 	for vb_data in data["blocks"]:
 		var vb := VoxelBody.new()
 		for k in vb_data:
@@ -360,7 +360,8 @@ func deserialize_json(data: Dictionary) -> void:
 		for crd in voxel_bodies[i].blocks:
 			var meta = data["blocks"][i]["%d,%d,%d" % crd].get("meta")
 			if meta != null:
-				voxel_bodies[i].blocks[crd][2].deserialize_json(meta)
+				assert(voxel_bodies[i].blocks[crd] != null)
+				voxel_bodies[i].blocks[crd].node.deserialize_json(meta)
 
 	for m in data["managers"]:
 		assert(m in managers)
@@ -375,8 +376,8 @@ func _voxel_body_hit(_voxel_body):
 static func path_to_name(path: String) -> String:
 	assert(path.ends_with(Global.FILE_EXTENSION))
 	return path.substr(0, len(path) - len(Global.FILE_EXTENSION)).capitalize()
-	
-	
+
+
 static func name_to_path(p_name: String) -> String:
 	return p_name.to_lower().replace(' ', '_') + '.json'
 
