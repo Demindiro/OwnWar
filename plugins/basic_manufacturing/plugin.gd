@@ -50,7 +50,7 @@ static func load_game(game_master: GameMaster, data: Dictionary) -> void:
 		var org := transform.origin
 		for ore in game_master.get_tree().get_nodes_in_group("ores"):
 			# High leeway because old saves
-			if Util.is_vec3_approc_eq(ore.translation, org, 0.25):
+			if Util.is_vec3_approx_eq(ore.translation, org, 0.25):
 				ore.material = s[1]
 				found = true
 				break

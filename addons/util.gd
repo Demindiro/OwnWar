@@ -204,7 +204,7 @@ static func decode_color(s: String, delim := ",") -> Color:
 	return Color(a[0], a[1], a[2], a[3])
 
 
-static func is_vec3_approx_eq(a: Vector3, b: Vector3, epsilon: float):
+static func is_vec3_approx_eq(a: Vector3, b: Vector3, epsilon: float) -> bool:
 	return abs(a.x - b.x) < epsilon and \
 			abs(a.y - b.y) < epsilon and \
 			abs(a.z - b.z) < epsilon
@@ -213,7 +213,7 @@ static func is_vec3_approx_eq(a: Vector3, b: Vector3, epsilon: float):
 # This comparison function does not care about "relative" size and thus _does_
 # determine 8.74134e-08 is ~= to -8.74425e-08 (unlike what the builtin seems to
 # do? See is_equal_approx_ratio in core/math/math_funcs.h)
-static func is_basis_approx_eq(a: Basis, b: Basis, epsilon: float):
+static func is_basis_approx_eq(a: Basis, b: Basis, epsilon: float) -> bool:
 	return is_vec3_approx_eq(a.x, b.x, epsilon) and \
 			is_vec3_approx_eq(a.y, b.y, epsilon) and \
 			is_vec3_approx_eq(a.z, b.z, epsilon)
