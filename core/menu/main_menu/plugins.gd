@@ -2,6 +2,13 @@ extends "res://core/menu/dialog/independent_panel.gd"
 
 
 export var button_template: PackedScene
+onready var _info: Control = $Info
+onready var _info_id: Label = $Info/VBoxContainer/ID
+onready var _info_version: Label = $Info/VBoxContainer/Version
+onready var _info_dependencies: Label = $Info/VBoxContainer/Dependencies
+onready var _info_enabled: Button = $Info/VBoxContainer/Enabled
+onready var _info_errors: Label = $Info/VBoxContainer/Errors
+
 
 
 func _ready():
@@ -13,9 +20,9 @@ func _ready():
 		var e := button.connect("pressed", self, "_show_info", [plugin.PLUGIN_ID])
 		assert(e == OK)
 		match Plugin.get_disable_reason(plugin.PLUGIN_ID):
-			Plugin.DisableReason.NONE:
+			Plugin.PluginState.NONE:
 				pass
-			Plugin.DisableReason.MANUAL:
+			Plugin.PluginState.MANUAL:
 				button.modulate = Color.orange
 			_:
 				button.modulate = Color.red
@@ -25,33 +32,38 @@ func _ready():
 func _show_info(id: String) -> void:
 	var plugin := Plugin.get_plugin(id)
 
-	$Info.visible = true
-	$Info/VBoxContainer/ID.text = "ID: " + id
-	$Info/VBoxContainer/Version.text = "Version: %d.%d.%d" % [plugin.PLUGIN_VERSION.x,
-			plugin.PLUGIN_VERSION.y, plugin.PLUGIN_VERSION.z]
-	$Info/VBoxContainer/Dependencies.text = "Dependencies: " + \
-			PoolStringArray(plugin.PLUGIN_DEPENDENCIES.keys()).join(", ")
-	$Info/VBoxContainer/Enabled.disconnect("toggled", self, "_enable_plugin")
-	$Info/VBoxContainer/Enabled.pressed = Plugin.is_plugin_enabled(id)
-	var e := $Info/VBoxContainer/Enabled.connect("toggled", self, "_enable_plugin", [id])
+	_info.visible = true
+	_info_id.text = "ID: " + id
+	# warning-ignore:unsafe_property_access
+	var version: Vector3 = plugin.PLUGIN_VERSION
+	_info_version.text = "Version: %s" % Util.version_vector_to_str(version)
+	# warning-ignore:unsafe_property_access
+	var deps: Dictionary = plugin.PLUGIN_DEPENDENCIES
+	_info_dependencies.text = "Dependencies: " + PoolStringArray(deps.keys()) \
+			.join(", ")
+	_info_enabled.disconnect("toggled", self, "_enable_plugin")
+	_info_enabled.pressed = Plugin.is_plugin_enabled(id)
+	var e := _info_enabled.connect("toggled", self, "_enable_plugin", [id])
 	assert(e == OK)
 
 	var disable_reason = Plugin.get_disable_reason(id)
 	match disable_reason:
-		Plugin.DisableReason.NONE:
-			$Info/VBoxContainer/Enabled.visible = true
-			$Info/VBoxContainer/Errors.visible = false
-		Plugin.DisableReason.MANUAL:
-			$Info/VBoxContainer/Enabled.visible = true
-			$Info/VBoxContainer/Errors.visible = false
+		Plugin.PluginState.NONE:
+			_info_enabled.visible = true
+			_info_errors.visible = false
+		Plugin.PluginState.MANUAL:
+			_info_enabled.visible = true
+			_info_errors.visible = false
 		_:
-			$Info/VBoxContainer/Enabled.visible = false
-			$Info/VBoxContainer/Errors.visible = true
-			var reverse_map := {}
-			for key in Plugin.DisableReason.keys():
-				reverse_map[Plugin.DisableReason[key]] = key
+			_info_enabled.visible = false
+			_info_errors.visible = true
+			var strs := PoolStringArray()
 			var reason: int = Plugin.get_disable_reason(id)
-			$Info/VBoxContainer/Errors.text = "Error: " + reverse_map[reason]
+			for i in range(64):
+				var m := 1 << i
+				if reason & m:
+					strs.append(Plugin.PluginState.DISABLE_REASON_TO_STR[m])
+			_info_errors.text = "Error: " + strs.join(", ")
 
 
 func _enable_plugin(enable: bool, id: String):

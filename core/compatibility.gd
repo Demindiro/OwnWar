@@ -39,14 +39,14 @@ static func get_block_name_mapping(from_version: Vector3, to_version: Vector3):
 
 static func convert_vehicle_data(data):
 	var file_version = Util.version_str_to_vector(data["game_version"])
-	if file_version > Game.VERSION:
+	if file_version > Constants.VERSION:
 		Global.error("Can't load vehicle data: the data was created in a more " +
 			"recent version of the game")
 		return null
-	var mapping = get_block_name_mapping(file_version, Game.VERSION)
+	var mapping = get_block_name_mapping(file_version, Constants.VERSION)
 	var converted_data = {}
 	var converted_blocks = {}
-	converted_data["game_version"] = Util.version_vector_to_str(Game.VERSION)
+	converted_data["game_version"] = Util.version_vector_to_str(Constants.VERSION)
 	var old_blocks = data["blocks"]
 	for key in old_blocks:
 		var block_data = _convert_block_data(data["blocks"][key], file_version)
@@ -58,8 +58,33 @@ static func convert_vehicle_data(data):
 	converted_data["meta"] = data.get("meta", {})
 
 	return converted_data
-	
-	
+
+
+static func convert_game_data(data: Dictionary):# -> Dictionary:
+	var data_version := Util.version_str_to_vector(
+			data.get("game_version", "0.0.0"))
+	if data_version > Constants.VERSION:
+		Global.error("Can't load game data: the data was created in a more " +
+				"recent version of the game")
+		return null
+
+	var converted_data := data.duplicate()
+	if data_version < Vector3(0, 15, 0):
+		data["game_version"] = Vector3(0, 15, 0)
+		var unit_dict := {}
+		for team in data["units"]:
+			for unit in data["units"][team]:
+				assert(unit is Dictionary)
+				unit = unit.duplicate()
+				var uid: int = unit["uid"]
+				assert(not uid in unit_dict)
+				unit.erase("uid")
+				unit["team"] = team
+				unit_dict[var2str(uid)] = unit
+		converted_data["units"] = unit_dict
+	return converted_data
+
+
 static func _convert_block_data(data, file_version):
 	data = data.duplicate(true)
 	if file_version < Vector3(0, 5, 0):

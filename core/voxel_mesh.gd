@@ -2,6 +2,15 @@ class_name VoxelMesh
 extends ArrayMesh
 
 
+class SubMesh:
+	var array: Array
+	var coordinate: Array
+
+	func _init(p_array: Array, p_coordinate: Array):
+		array = p_array
+		coordinate = p_coordinate
+
+
 var dirty := false
 var _material_to_meshes_map := {}
 var _material_to_dirty_map := {}
@@ -12,17 +21,23 @@ func add_block(block: Block, color: Color, coordinate: Array, rotation: int) -> 
 	var mesh := block.mesh
 	if mesh == null:
 		return
+	add_mesh(mesh, color, coordinate, rotation)
+
+
+func add_mesh(mesh: Mesh, color: Color, coordinate: Array, rotation: int) -> void:
 	for i in range(mesh.get_surface_count()):
 #		var material := mesh.surface_get_material(i)
 #		var material := MaterialCache.get_material(color)
-		var material = MaterialCache.get_material(color)
-		var array = _get_mesh_arrays(mesh, i)
+		var material := MaterialCache.get_material(color)
+		var array := _get_mesh_arrays(mesh, i)
 		_transform_array(array, coordinate, rotation)
 		_dedup_array(array)
-		if material in _material_to_meshes_map:
-			_material_to_meshes_map[material].append([array, coordinate])
+		var sm := SubMesh.new(array, coordinate)
+		var sm_array: Array = _material_to_meshes_map.get(material, [])
+		if len(sm_array) > 0:
+			sm_array.append(sm)
 		else:
-			_material_to_meshes_map[material] = [[array, coordinate]]
+			_material_to_meshes_map[material] = [sm]
 		_material_to_dirty_map[material] = true
 		dirty = true
 
@@ -35,11 +50,13 @@ func remove_block(coordinate: Array) -> void:
 func generate() -> void:
 	var remove_materials := []
 	for material in _material_to_meshes_map:
-		var list := _material_to_meshes_map[material] as Array
-		var array_dirty := _material_to_dirty_map[material] as bool
+		var list: Array = _material_to_meshes_map[material]
+		# warning-ignore:unsafe_cast
+		var array_dirty: bool = _material_to_dirty_map[material]
 		var i := 0
 		while i < len(list):
-			var coordinate := list[i][1] as Array
+			var sm: SubMesh = list[i]
+			var coordinate := sm.coordinate
 			if coordinate in _remove_list_positions:
 				list.remove(i)
 				i -= 1
@@ -56,13 +73,13 @@ func generate() -> void:
 			array[ARRAY_INDEX] = PoolIntArray()
 			i = 0
 			while i < len(list):
-				var block_array := list[i][0] as Array
+				var sm: SubMesh = list[i]
 				var offset = len(array[ARRAY_VERTEX])
-				var index_array = block_array[ARRAY_INDEX]
+				var index_array = sm.array[ARRAY_INDEX]
 				for j in range(len(index_array)):
 					index_array[j] += offset
-				array[ARRAY_VERTEX] += block_array[ARRAY_VERTEX]
-				array[ARRAY_NORMAL] += block_array[ARRAY_NORMAL]
+				array[ARRAY_VERTEX] += sm.array[ARRAY_VERTEX]
+				array[ARRAY_NORMAL] += sm.array[ARRAY_NORMAL]
 				array[ARRAY_INDEX] += index_array
 				i += 1
 			if len(array[ARRAY_VERTEX]) > 0:

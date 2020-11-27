@@ -115,10 +115,8 @@ const _DEBUG_AABB = false
 
 signal transform_changed(global_transform)
 
-export var collision_enabled := true setget set_collision_enabled
 export(float, 0.0, 1.0) var ambient_wind := 0.0 setget set_ambient_wind
 export(int, 2, 5) var lod_scale := 2.0 setget set_lod_scale, get_lod_scale
-export(Shader) var custom_globalmap_shader
 
 # TODO Replace with `size` in world units?
 # Prefer using this instead of scaling the node's transform.
@@ -127,6 +125,7 @@ export(Shader) var custom_globalmap_shader
 export var map_scale := Vector3(1, 1, 1) setget set_map_scale
 
 var _custom_shader : Shader = null
+var _custom_globalmap_shader : Shader = null
 var _shader_type := SHADER_CLASSIC4_LITE
 var _shader_uses_texture_array := false
 var _material := ShaderMaterial.new()
@@ -153,7 +152,10 @@ var _pending_chunk_updates := []
 
 var _detail_layers := []
 
+var _collision_enabled := true
 var _collider: HTerrainCollider = null
+var _collision_layer := 1
+var _collision_mask := 1
 
 # Stats & debug
 var _updated_chunks := 0
@@ -184,19 +186,21 @@ func _init():
 	_material.set_shader_param("u_depth_blending", true)
 
 	_material.shader = load(_builtin_shaders[_shader_type].path)
-	
+
 	_ground_textures.resize(GROUND_CLASSIC_TEXTURE_MAX)
 	for slot in len(_ground_textures):
 		var e = []
 		e.resize(GROUND_TEXTURE_TYPE_COUNT)
 		_ground_textures[slot] = e
 
-	if collision_enabled:
+	if _collision_enabled:
 		if _check_heightmap_collider_support():
-			_collider = HTerrainCollider.new(self)
+			_collider = HTerrainCollider.new(self, _collision_layer, _collision_mask)
 
 
 func _get_property_list():
+	# A lot of properties had to be exported like this instead of using `export`,
+	# because Godot 3 does not support easy categorization and lacks some hints
 	var props = [
 		{
 			# Terrain data is exposed only as a path in the editor,
@@ -225,6 +229,33 @@ func _get_property_list():
 			"hint_string": "16, 32"
 		},
 		{
+			"name": "Collision",
+			"type": TYPE_NIL,
+			"usage": PROPERTY_USAGE_GROUP
+		},
+		{
+			"name": "collision_enabled",
+			"type": TYPE_BOOL,
+			"usage": PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_STORAGE
+		},
+		{
+			"name": "collision_layer",
+			"type": TYPE_INT,
+			"usage": PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_STORAGE,
+			"hint": PROPERTY_HINT_LAYERS_3D_PHYSICS
+		},
+		{
+			"name": "collision_mask",
+			"type": TYPE_INT,
+			"usage": PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_STORAGE,
+			"hint": PROPERTY_HINT_LAYERS_3D_PHYSICS
+		},
+		{
+			"name": "Shader",
+			"type": TYPE_NIL,
+			"usage": PROPERTY_USAGE_GROUP
+		},
+		{
 			"name": "shader_type",
 			"type": TYPE_STRING,
 			"usage": PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_STORAGE,
@@ -232,8 +263,14 @@ func _get_property_list():
 			"hint_string": _SHADER_TYPE_HINT_STRING
 		},
 		{
-			# Had to specify it like this because need to be in category...
 			"name": "custom_shader",
+			"type": TYPE_OBJECT,
+			"usage": PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_STORAGE,
+			"hint": PROPERTY_HINT_RESOURCE_TYPE,
+			"hint_string": "Shader"
+		},
+		{
+			"name": "custom_globalmap_shader",
 			"type": TYPE_OBJECT,
 			"usage": PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_STORAGE,
 			"hint": PROPERTY_HINT_RESOURCE_TYPE,
@@ -293,12 +330,24 @@ func _get(key: String):
 	elif key == "custom_shader":
 		return get_custom_shader()
 
+	elif key == "custom_globalmap_shader":
+		return _custom_globalmap_shader
+
 	elif key.begins_with("shader_params/"):
 		var param_name = key.right(len("shader_params/"))
 		return get_shader_param(param_name)
 
 	elif key == "chunk_size":
 		return _chunk_size
+
+	elif key == "collision_enabled":
+		return _collision_enabled
+
+	elif key == "collision_layer":
+		return _collision_layer
+
+	elif key == "collision_mask":
+		return _collision_mask
 
 
 func _set(key: String, value):
@@ -323,12 +372,28 @@ func _set(key: String, value):
 	elif key == "custom_shader":
 		set_custom_shader(value)
 
+	elif key == "custom_globalmap_shader":
+		_custom_globalmap_shader = value
+
 	elif key.begins_with("shader_params/"):
 		var param_name = key.right(len("shader_params/"))
 		set_shader_param(param_name, value)
 
 	elif key == "chunk_size":
 		set_chunk_size(value)
+
+	elif key == "collision_enabled":
+		set_collision_enabled(value)
+
+	elif key == "collision_layer":
+		_collision_layer = value
+		if _collider != null:
+			_collider.set_collision_layer(value)
+
+	elif key == "collision_mask":
+		_collision_mask = value
+		if _collider != null:
+			_collider.set_collision_mask(value)
 
 
 func get_shader_param(param_name: String):
@@ -375,11 +440,11 @@ func _check_heightmap_collider_support() -> bool:
 
 
 func set_collision_enabled(enabled: bool):
-	if collision_enabled != enabled:
-		collision_enabled = enabled
-		if collision_enabled:
+	if _collision_enabled != enabled:
+		_collision_enabled = enabled
+		if _collision_enabled:
 			if _check_heightmap_collider_support():
-				_collider = HTerrainCollider.new(self)
+				_collider = HTerrainCollider.new(self, _collision_layer, _collision_mask)
 				# Collision is not updated with data here,
 				# because loading is quite a mess at the moment...
 				# 1) This function can be called while no data has been set yet
@@ -574,9 +639,9 @@ func set_data(new_data: HTerrainData):
 		_on_data_resolution_changed()
 
 	_material_params_need_update = true
-	
+
 	Util.update_configuration_warning(self, true)
-	
+
 	_logger.debug("Set data done")
 
 
@@ -584,7 +649,7 @@ func set_data(new_data: HTerrainData):
 # so the whole collider can be updated in one go.
 # It may be slow for ingame use, so prefer calling it when appropriate.
 func update_collider():
-	assert(collision_enabled)
+	assert(_collision_enabled)
 	assert(_collider != null)
 	_collider.create_from_terrain_data(_data)
 
@@ -674,14 +739,14 @@ func set_shader_type(type: String):
 	if type == _shader_type:
 		return
 	_shader_type = type
-	
+
 	if _shader_type == SHADER_CUSTOM:
 		_material.shader = _custom_shader
 	else:
 		_material.shader = load(_builtin_shaders[_shader_type].path)
 
 	_material_params_need_update = true
-	
+
 	if Engine.editor_hint:
 		property_list_changed_notify()
 
@@ -717,7 +782,7 @@ func set_custom_shader(shader: Shader):
 		_custom_shader.connect("changed", self, "_on_custom_shader_changed")
 		if _shader_type == SHADER_CUSTOM:
 			_material_params_need_update = true
-	
+
 	if Engine.editor_hint:
 		property_list_changed_notify()
 
@@ -729,10 +794,10 @@ func _on_custom_shader_changed():
 func _update_material_params():
 	assert(_material != null)
 	_logger.debug("Updating terrain material params")
-		
+
 	var terrain_textures := {}
 	var res := Vector2(-1, -1)
-	
+
 	var lookdev_material : ShaderMaterial
 	if _lookdev_enabled:
 		lookdev_material = _get_lookdev_material()
@@ -757,11 +822,11 @@ func _update_material_params():
 		# This is needed to properly transform normals if the terrain is scaled
 		var normal_basis = gt.basis.inverse().transposed()
 		_material.set_shader_param(SHADER_PARAM_NORMAL_BASIS, normal_basis)
-		
+
 		if lookdev_material != null:
 			lookdev_material.set_shader_param(SHADER_PARAM_INVERSE_TRANSFORM, t)
 			lookdev_material.set_shader_param(SHADER_PARAM_NORMAL_BASIS, normal_basis)
-	
+
 	for param_name in terrain_textures:
 		var tex = terrain_textures[param_name]
 		_material.set_shader_param(param_name, tex)
@@ -773,9 +838,9 @@ func _update_material_params():
 		for type in len(textures):
 			var shader_param = _get_ground_texture_shader_param_name(type, slot)
 			_material.set_shader_param(shader_param, textures[type])
-	
+
 	_shader_uses_texture_array = false
-	
+
 	var shader := _material.shader
 	if shader != null:
 		var param_list := VisualServer.shader_get_param_list(shader.get_rid())
@@ -794,17 +859,17 @@ func is_using_texture_array() -> bool:
 static func _get_common_shader_params(shader1: Shader, shader2: Shader) -> Array:
 	var shader1_param_names := {}
 	var common_params := []
-	
+
 	var shader1_params := VisualServer.shader_get_param_list(shader1.get_rid())
 	var shader2_params := VisualServer.shader_get_param_list(shader2.get_rid())
-	
+
 	for p in shader1_params:
 		shader1_param_names[p.name] = true
-	
+
 	for p in shader2_params:
 		if shader1_param_names.has(p.name):
 			common_params.append(p.name)
-	
+
 	return common_params
 
 
@@ -824,8 +889,8 @@ func setup_globalmap_material(mat: ShaderMaterial):
 # Gets which shader will be used to bake the globalmap
 func get_globalmap_shader() -> Shader:
 	if _shader_type == SHADER_CUSTOM:
-		if custom_globalmap_shader != null:
-			return custom_globalmap_shader
+		if _custom_globalmap_shader != null:
+			return _custom_globalmap_shader
 		_logger.warn("The terrain uses a custom shader but doesn't have one for baking the "
 			+ "global map. Will attempt to use a built-in shader.")
 		if is_using_texture_array():
@@ -889,10 +954,10 @@ func _update_viewer_position(camera: Camera):
 		var viewport := get_viewport()
 		if viewport != null:
 			camera = viewport.get_camera()
-	
+
 	if camera == null:
 		return
-	
+
 	if camera.projection == Camera.PROJECTION_ORTHOGONAL:
 		# In this mode, due to the fact Godot does not allow negative near plane,
 		# users have to pull the camera node very far away, but it confuses LOD
@@ -902,12 +967,12 @@ func _update_viewer_position(camera: Camera):
 		var cam_dir := -camera.global_transform.basis.z
 		var max_distance := camera.far * 1.2
 		var hit_cell_pos = cell_raycast(cam_pos, cam_dir, max_distance)
-		
+
 		if hit_cell_pos != null:
 			var cell_to_world := get_internal_transform()
 			var h := _data.get_height_at(hit_cell_pos.x, hit_cell_pos.y)
 			_viewer_pos_world = cell_to_world * Vector3(hit_cell_pos.x, h, hit_cell_pos.y)
-			
+
 	else:
 		_viewer_pos_world = camera.global_transform.origin
 
@@ -1088,11 +1153,11 @@ func _cb_make_chunk(cpos_x: int, cpos_y: int, lod: int):
 
 	if chunk == null:
 		# This is the first time this chunk is required at this lod, generate it
-		
+
 		var lod_factor := _lodder.get_lod_size(lod)
 		var origin_in_cells_x := cpos_x * _chunk_size * lod_factor
 		var origin_in_cells_y := cpos_y * _chunk_size * lod_factor
-		
+
 		var material = _material
 		if _lookdev_enabled:
 			material = _get_lookdev_material()
@@ -1129,7 +1194,7 @@ func _cb_get_vertical_bounds(cpos_x: int, cpos_y: int, lod: int):
 	# because the proper algorithm appears to be too slow for GDScript.
 	# It should be good enough for most common cases, unless you have super-sharp cliffs.
 	return _data.get_point_aabb(
-		origin_in_cells_x + chunk_size / 2, 
+		origin_in_cells_x + chunk_size / 2,
 		origin_in_cells_y + chunk_size / 2)
 #	var aabb = _data.get_region_aabb(
 #		origin_in_cells_x, origin_in_cells_y, chunk_size, chunk_size)
@@ -1163,7 +1228,7 @@ func cell_raycast(origin_world: Vector3, dir_world: Vector3, max_distance: float
 static func _get_ground_texture_shader_param_name(ground_texture_type: int, slot: int) -> String:
 	assert(typeof(slot) == TYPE_INT and slot >= 0)
 	_check_ground_texture_type(ground_texture_type)
-	return str(SHADER_PARAM_GROUND_PREFIX, 
+	return str(SHADER_PARAM_GROUND_PREFIX,
 		_ground_enum_to_name[ground_texture_type], "_", slot)
 
 

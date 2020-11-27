@@ -1,0 +1,36 @@
+class Task:
+	# warning-ignore:unused_class_variable
+	var assignees := 0
+
+#	func _init() -> void:
+		# (┛◉Д◉) ┛彡┻━┻
+#		assert(false)
+#		pass
+
+
+class Transport:
+	extends Task
+	var from: Structure
+	var to: Structure
+	var matter_id: int
+
+	func _init(p_from: Structure, p_to: Structure, p_matter_id: int) -> void:
+		from = p_from
+		to = p_to
+		matter_id = p_matter_id
+
+
+class Fill:
+	extends Transport
+
+	func _init(p_from: Structure, p_to: Structure, p_matter_id: int) \
+			.(p_from, p_to, p_matter_id) -> void:
+		pass
+
+
+class Empty:
+	extends Transport
+
+	func _init(p_from: Structure, p_to: Structure, p_matter_id: int) \
+			.(p_from, p_to, p_matter_id) -> void:
+		pass

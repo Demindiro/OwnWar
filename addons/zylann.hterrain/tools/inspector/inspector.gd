@@ -23,10 +23,10 @@ class Editor:
 class ResourceEditor extends Editor:
 	var value = null
 	var label = null
-	
+
 	func get_value():
 		return value
-	
+
 	func set_value(v):
 		value = v
 		label.text = "null" if v == null else v.resource_path
@@ -34,22 +34,22 @@ class ResourceEditor extends Editor:
 
 class VectorEditor extends Editor:
 	signal value_changed(v)
-	
+
 	var value = Vector2()
 	var xed = null
 	var yed = null
-	
+
 	func get_value():
 		return value
-	
+
 	func set_value(v):
 		xed.value = v.x
 		yed.value = v.y
 		value = v
-	
+
 	func _component_changed(v, i):
 		value[i] = v
-		emit_signal("value_changed", value)		
+		emit_signal("value_changed", value)
 
 
 # TODO Rename _schema
@@ -130,27 +130,27 @@ func set_values(values: Dictionary):
 # TODO Rename set_schema
 func set_prototype(proto: Dictionary):
 	clear_prototype()
-	
+
 	for key in proto:
 		var prop = proto[key]
-		
+
 		var label := Label.new()
 		label.text = str(key).capitalize()
 		_grid_container.add_child(label)
-		
+
 		var editor = _make_editor(key, prop)
 		editor.key_label = label
-		
+
 		if prop.has("default_value"):
 			editor.setter.call_func(prop.default_value)
 
 		_editors[key] = editor
-		
+
 		if prop.has("enabled"):
 			set_property_enabled(key, prop.enabled)
-		
+
 		_grid_container.add_child(editor.control)
-	
+
 	_prototype = proto
 
 
@@ -162,16 +162,16 @@ func trigger_all_modified():
 
 func set_property_enabled(prop_name: String, enabled: bool):
 	var ed = _editors[prop_name]
-	
+
 	if ed.control is BaseButton:
 		ed.control.disabled = not enabled
-		
+
 	elif ed.control is SpinBox:
 		ed.control.editable = enabled
 
 	elif ed.control is LineEdit:
 		ed.control.editable = enabled
-	
+
 	# TODO Support more editors
 
 	var col = ed.key_label.modulate
@@ -184,12 +184,12 @@ func set_property_enabled(prop_name: String, enabled: bool):
 
 func _make_editor(key: String, prop: Dictionary):
 	var ed = null
-	
+
 	var editor = null
 	var getter = null
 	var setter = null
 	var extra = null
-	
+
 	match prop.type:
 		TYPE_INT, \
 		TYPE_REAL:
@@ -200,39 +200,39 @@ func _make_editor(key: String, prop: Dictionary):
 				pre.connect("pressed", self, "_randomize_property_pressed", [key])
 				pre.text = "Randomize"
 				editor.add_child(pre)
-			
+
 			if prop.type == TYPE_INT and prop.has("usage") and prop.usage == USAGE_ENUM:
 				# Enumerated value
 				assert(prop.has("enum_items"))
 				var option_button = OptionButton.new()
-				
+
 				for i in len(prop.enum_items):
 					var item = prop.enum_items[i]
 					option_button.add_item(item)
-				
+
 				# TODO We assume index, actually
 				getter = funcref(option_button, "get_selected_id")
 				setter = funcref(option_button, "select")
 				option_button.connect("item_selected", self, "_property_edited", [key])
-				
+
 				editor = option_button
-				
+
 			else:
 				# Numeric value
 				var spinbox = SpinBox.new()
 				# Spinboxes have shit UX when not expanded...
-				spinbox.rect_min_size = Vector2(120, 16) 
+				spinbox.rect_min_size = Vector2(120, 16)
 				_setup_range_control(spinbox, prop)
 				spinbox.connect("value_changed", self, "_property_edited", [key])
-				
+
 				# TODO In case the type is INT, the getter should return an integer!
 				getter = funcref(spinbox, "get_value")
 				setter = funcref(spinbox, "set_value")
-				
+
 				var show_slider = prop.has("range") \
 					and not (prop.has("slidable") \
 					and prop.slidable == false)
-					
+
 				if show_slider:
 					if editor == null:
 						editor = HBoxContainer.new()
@@ -250,58 +250,58 @@ func _make_editor(key: String, prop: Dictionary):
 						editor = spinbox
 					else:
 						editor.add_child(spinbox)
-			
+
 		TYPE_STRING:
 			if prop.has("usage") and prop.usage == USAGE_FILE:
 				editor = HBoxContainer.new()
-				
+
 				var line_edit = LineEdit.new()
 				line_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 				editor.add_child(line_edit)
-				
+
 				var exts = []
 				if prop.has("exts"):
 					exts = prop.exts
-				
+
 				var load_button = Button.new()
 				load_button.text = "..."
 				load_button.connect("pressed", self, "_on_ask_load_file", [key, exts])
 				editor.add_child(load_button)
-				
+
 				line_edit.connect("text_entered", self, "_property_edited", [key])
 				getter = funcref(line_edit, "get_text")
 				setter = funcref(line_edit, "set_text")
-				
+
 			else:
 				editor = LineEdit.new()
 				editor.connect("text_entered", self, "_property_edited", [key])
 				getter = funcref(editor, "get_text")
 				setter = funcref(editor, "set_text")
-		
+
 		TYPE_COLOR:
 			editor = ColorPickerButton.new()
 			editor.connect("color_changed", self, "_property_edited", [key])
 			getter = funcref(editor, "get_pick_color")
 			setter = funcref(editor, "set_pick_color")
-			
+
 		TYPE_BOOL:
 			editor = CheckBox.new()
 			editor.connect("toggled", self, "_property_edited", [key])
 			getter = funcref(editor, "is_pressed")
 			setter = funcref(editor, "set_pressed")
-		
+
 		TYPE_OBJECT:
 			# TODO How do I even check inheritance if I work on the class themselves, not instances?
 			if prop.object_type == Resource:
 				editor = HBoxContainer.new()
-				
+
 				var label = Label.new()
 				label.text = "null"
 				label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 				label.clip_text = true
 				label.align = Label.ALIGN_RIGHT
 				editor.add_child(label)
-				
+
 				var load_button = Button.new()
 				load_button.text = "Load..."
 				load_button.connect("pressed", self, "_on_ask_load_texture", [key])
@@ -311,12 +311,12 @@ func _make_editor(key: String, prop: Dictionary):
 				clear_button.text = "Clear"
 				clear_button.connect("pressed", self, "_on_ask_clear_texture", [key])
 				editor.add_child(clear_button)
-				
+
 				ed = ResourceEditor.new()
 				ed.label = label
 				getter = funcref(ed, "get_value")
 				setter = funcref(ed, "set_value")
-		
+
 		TYPE_VECTOR2:
 			editor = HBoxContainer.new()
 
@@ -333,7 +333,7 @@ func _make_editor(key: String, prop: Dictionary):
 			# TODO This will fire twice (for each coordinate), hmmm...
 			xed.connect("value_changed", ed, "_component_changed", [0])
 			editor.add_child(xed)
-			
+
 			var ylabel = Label.new()
 			ylabel.text = "y"
 			editor.add_child(ylabel)
@@ -344,29 +344,29 @@ func _make_editor(key: String, prop: Dictionary):
 			yed.max_value = 10000
 			yed.connect("value_changed", ed, "_component_changed", [1])
 			editor.add_child(yed)
-			
+
 			ed.xed = xed
 			ed.yed = yed
 			ed.connect("value_changed", self, "_property_edited", [key])
 			getter = funcref(ed, "get_value")
 			setter = funcref(ed, "set_value")
-		
+
 		_:
 			editor = Label.new()
 			editor.text = "<not editable>"
 			getter = funcref(self, "_dummy_getter")
 			setter = funcref(self, "_dummy_setter")
-	
+
 	if not(editor is CheckButton):
 		editor.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	
+
 	if ed == null:
 		# Default
 		ed = Editor.new()
 	ed.control = editor
 	ed.getter = getter
 	ed.setter = setter
-	
+
 	return ed
 
 
@@ -395,7 +395,7 @@ func _property_edited(value, key):
 func _randomize_property_pressed(key):
 	var prop = _prototype[key]
 	var v = 0
-	
+
 	# TODO Support range step
 	match prop.type:
 		TYPE_INT:
@@ -407,8 +407,8 @@ func _randomize_property_pressed(key):
 			if prop.has("range"):
 				v = rand_range(prop.range.min, prop.range.max)
 			else:
-				v = randf()			
-	
+				v = randf()
+
 	_editors[key].setter.call_func(v)
 
 

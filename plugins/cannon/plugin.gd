@@ -10,8 +10,10 @@ static func pre_init(_plugin_path: String):
 
 
 static func init(_plugin_path: String):
-	var Munition = Plugin.get_plugin("weapon_manager").Munition
+	var Munition := preload("res://plugins/weapon_manager/plugin.gd").Munition
+	# warning-ignore:return_value_discarded
 	Munition.add_munition(preload("160mm/shell_160mm.tres"))
+	# warning-ignore:return_value_discarded
 	Munition.add_munition(preload("35mm/shell_35mm.tres"))
 
 

@@ -29,15 +29,15 @@ func _init():
 	_viewport.world = World.new()
 	_viewport.own_world = true
 	add_child(_viewport)
-	
+
 	var mat = ShaderMaterial.new()
 	mat.shader = load("res://addons/zylann.hterrain/tools/bump2normal_tex.shader")
-	
+
 	_ci = Sprite.new()
 	_ci.centered = false
 	_ci.material = mat
 	_viewport.add_child(_ci)
-	
+
 	set_process(false)
 
 
@@ -50,13 +50,13 @@ func set_terrain_data(data):
 	_processing_tile = null
 	_ci.texture = null
 	set_process(false)
-	
+
 	if data == null:
 		_terrain_data.disconnect("map_changed", self, "_on_terrain_data_map_changed")
 		_terrain_data.disconnect("resolution_changed", self, "_on_terrain_data_resolution_changed")
 
 	_terrain_data = data
-	
+
 	if _terrain_data != null:
 		_terrain_data.connect("map_changed", self, "_on_terrain_data_map_changed")
 		_terrain_data.connect("resolution_changed", self, "_on_terrain_data_resolution_changed")
@@ -77,7 +77,7 @@ func request_tiles_in_region(min_pos, size):
 	assert(is_inside_tree())
 	assert(_terrain_data != null)
 	var res = _terrain_data.get_resolution()
-	
+
 	min_pos -= Vector2(1, 1)
 	var max_pos = min_pos + size + Vector2(1, 1)
 	var tmin = (min_pos / VIEWPORT_SIZE).floor()
@@ -88,7 +88,7 @@ func request_tiles_in_region(min_pos, size):
 	tmin.y = clamp(tmin.y, 0, nty)
 	tmax.x = clamp(tmax.x, 0, ntx)
 	tmax.y = clamp(tmax.y, 0, nty)
-	
+
 	for y in range(tmin.y, tmax.y):
 		for x in range(tmin.x, tmax.x):
 			request_tile(Vector2(x, y))
@@ -108,11 +108,11 @@ func request_tile(tpos):
 func _process(delta):
 	if not is_processing():
 		return
-	
+
 	if _processing_tile != null and _terrain_data != null:
 		var src = _viewport.get_texture().get_data()
 		var dst = _terrain_data.get_image(HTerrainData.CHANNEL_NORMAL)
-		
+
 		src.convert(dst.get_format())
 		#src.save_png(str("test_", _processing_tile.x, "_", _processing_tile.y, ".png"))
 		var pos = _processing_tile * VIEWPORT_SIZE
@@ -120,7 +120,7 @@ func _process(delta):
 		var h = src.get_height() - 1
 		dst.blit_rect(src, Rect2(1, 1, w, h), pos)
 		_terrain_data.notify_region_change(Rect2(pos.x, pos.y, w, h), HTerrainData.CHANNEL_NORMAL)
-		
+
 		if _pending_tiles_grid[_processing_tile] == STATE_PROCESSING:
 			_pending_tiles_grid.erase(_processing_tile)
 		_processing_tile = null

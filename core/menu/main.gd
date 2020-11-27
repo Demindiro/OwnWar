@@ -3,6 +3,12 @@ extends Control
 
 const WAYPOINT_MIN_RADIUS = 100
 const WAYPOINT_MAX_RADIUS = 200
+onready var _timer: Timer = $"../Timer"
+onready var _version: Label = $Main/Version
+onready var _vehicle: Vehicle = $"../Vehicle"
+onready var _button_campaign: Control = $Campaign
+onready var _button_plugins: Control = $Plugins
+onready var _button_saves: Control = $Saves
 
 
 func _ready():
@@ -16,25 +22,24 @@ func _ready_deferred():
 		if not Plugin.is_plugin_enabled(p):
 			print("Missing plugin %s" % p)
 			return
-	$"../Vehicle".load_from_file("user://vehicles/apc.json")
 	call_deferred("_on_Timer_timeout")
-	$"../Timer".start()
-	$Main/Version.text = Util.version_vector_to_str(Game.VERSION)
+	_timer.start()
+	_version.text = Util.version_vector_to_str(Constants.VERSION)
 
 
 func _on_Timer_timeout():
 	var angle = randf() * PI * 2
 	var distance = rand_range(WAYPOINT_MIN_RADIUS, WAYPOINT_MAX_RADIUS)
-	var mainframes = $"../Vehicle".get_blocks("mainframe")
+	var mainframes = _vehicle.get_blocks("mainframe")
 	for mainframe in mainframes:
-		mainframe[2].ai.waypoints = [Vector3(distance * cos(angle), 0, distance * sin(angle))]
+		mainframe.node.ai.waypoints = [Vector3(distance * cos(angle), 0, distance * sin(angle))]
 		break
 
 
 func _on_Campaign_pressed():
-	$Campaign.visible = not $Campaign.visible
-	$Plugins.visible = false
-	$Saves.visible = false
+	_button_campaign.visible = not _button_campaign.visible
+	_button_plugins.visible = false
+	_button_saves.visible = false
 
 
 func _on_RandomMap_pressed():
@@ -58,12 +63,12 @@ func _on_Tutorial_pressed():
 
 
 func _on_Plugins_pressed():
-	$Plugins.visible = not $Plugins.visible
-	$Campaign.visible = false
-	$Saves.visible = false
+	_button_plugins.visible = not _button_plugins.visible
+	_button_campaign.visible = false
+	_button_saves.visible = false
 
 
 func _on_Saves_pressed():
-	$Saves.visible = not $Saves.visible
-	$Campaign.visible = false
-	$Plugins.visible = false
+	_button_saves.visible = not _button_saves.visible
+	_button_campaign.visible = false
+	_button_plugins.visible = false

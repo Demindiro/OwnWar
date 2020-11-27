@@ -24,20 +24,20 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/compatibility.gd"
 }, {
+"base": "Object",
+"class": "Constants",
+"language": "GDScript",
+"path": "res://core/constants.gd"
+}, {
 "base": "Camera",
 "class": "FreeCamera",
 "language": "GDScript",
 "path": "res://core/camera/free_camera.gd"
 }, {
-"base": "Reference",
-"class": "Game",
-"language": "GDScript",
-"path": "res://core/game.gd"
-}, {
 "base": "Node",
 "class": "GameMaster",
 "language": "GDScript",
-"path": "res://core/game_master.gd"
+"path": "res://core/map/game_master.gd"
 }, {
 "base": "Unit",
 "class": "Ghost",
@@ -59,10 +59,20 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/maps.gd"
 }, {
+"base": "Object",
+"class": "MaterialCache",
+"language": "GDScript",
+"path": "res://core/material_cache.gd"
+}, {
 "base": "Reference",
 "class": "Matter",
 "language": "GDScript",
 "path": "res://core/matter.gd"
+}, {
+"base": "Object",
+"class": "ObjectCache",
+"language": "GDScript",
+"path": "res://core/object_cache.gd"
 }, {
 "base": "OptionButton",
 "class": "OptionButtonPreset",
@@ -74,10 +84,15 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/plugin.gd"
 }, {
+"base": "Unit",
+"class": "Structure",
+"language": "GDScript",
+"path": "res://core/unit/structure.gd"
+}, {
 "base": "Spatial",
 "class": "Unit",
 "language": "GDScript",
-"path": "res://core/unit.gd"
+"path": "res://core/unit/unit.gd"
 }, {
 "base": "Reference",
 "class": "Util",
@@ -87,7 +102,7 @@ _global_script_classes=[ {
 "base": "Unit",
 "class": "Vehicle",
 "language": "GDScript",
-"path": "res://core/vehicle.gd"
+"path": "res://core/unit/vehicle.gd"
 }, {
 "base": "VehicleBody",
 "class": "VoxelBody",
@@ -108,16 +123,19 @@ _global_script_class_icons={
 "AI": "",
 "Block": "",
 "Compatibility": "",
+"Constants": "",
 "FreeCamera": "",
-"Game": "",
 "GameMaster": "",
 "Ghost": "",
 "HTerrainDataLoader": "",
 "HTerrainDataSaver": "",
 "Maps": "",
+"MaterialCache": "",
 "Matter": "",
+"ObjectCache": "",
 "OptionButtonPreset": "",
 "Plugin": "",
+"Structure": "",
 "Unit": "",
 "Util": "",
 "Vehicle": "",
@@ -135,13 +153,15 @@ config/icon="res://icon.png"
 [autoload]
 
 Global="*res://core/global.gd"
-MaterialCache="*res://core/material_cache.gd"
-ObjectCache="*res://core/object_cache.gd"
 Debug="*res://core/debug.gd"
 
 [debug]
 
 gdscript/warnings/unused_class_variable=true
+gdscript/warnings/unsafe_property_access=true
+gdscript/warnings/unsafe_method_access=true
+gdscript/warnings/unsafe_cast=true
+gdscript/warnings/unsafe_call_argument=true
 
 [display]
 
@@ -152,7 +172,7 @@ window/size/test_height=810
 
 [editor_plugins]
 
-enabled=PoolStringArray( "zylann.hterrain" )
+enabled=PoolStringArray( "godot-plugin-refresher", "own_war_editor_plugin", "zylann.hterrain" )
 
 [gdnative]
 
@@ -358,6 +378,7 @@ common/physics_fps=150
 
 [rendering]
 
+threads/thread_model=2
 vram_compression/import_etc2=false
 quality/filters/msaa=2
 environment/default_environment="res://default_env.tres"

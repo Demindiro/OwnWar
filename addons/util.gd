@@ -169,3 +169,57 @@ static func sum(array):
 	for e in array:
 		sum = e if sum == null else sum + e
 	return sum
+
+
+static func round_res(num: float, resolution: float) -> float:
+	return round(num * resolution) / resolution
+
+
+static func get_aligned_basis(up: Vector3) -> Basis:
+	var right := Vector3(up.y, -up.x, 0).normalized()
+	var forward := right.cross(up)
+	return Basis(right, up, forward)
+
+
+static func split_int(s: String, delim := ",") -> PoolIntArray:
+	var c := s.split(delim)
+	var a := PoolIntArray()
+	a.resize(len(c))
+	var i := 0
+	while i < len(a):
+		a[i] = int(c[i])
+		i += 1
+	return a
+
+
+static func decode_vec3i(s: String, delim := ",") -> PoolIntArray:
+	var a := split_int(s, delim)
+	assert(len(a) == 3)
+	return a
+
+
+static func decode_color(s: String, delim := ",") -> Color:
+	var a := s.split_floats(delim)
+	assert(len(a) == 4)
+	return Color(a[0], a[1], a[2], a[3])
+
+
+static func is_vec3_approx_eq(a: Vector3, b: Vector3, epsilon: float) -> bool:
+	return abs(a.x - b.x) < epsilon and \
+			abs(a.y - b.y) < epsilon and \
+			abs(a.z - b.z) < epsilon
+
+
+# This comparison function does not care about "relative" size and thus _does_
+# determine 8.74134e-08 is ~= to -8.74425e-08 (unlike what the builtin seems to
+# do? See is_equal_approx_ratio in core/math/math_funcs.h)
+static func is_basis_approx_eq(a: Basis, b: Basis, epsilon: float) -> bool:
+	return is_vec3_approx_eq(a.x, b.x, epsilon) and \
+			is_vec3_approx_eq(a.y, b.y, epsilon) and \
+			is_vec3_approx_eq(a.z, b.z, epsilon)
+
+
+static func is_transform_approx_eq(a: Transform, b: Transform,
+		epsilon_basis: float, epsilon_origin: float) -> bool:
+	return is_basis_approx_eq(a.basis, b.basis, epsilon_basis) and \
+			is_vec3_approx_eq(a.origin, b.origin, epsilon_origin)

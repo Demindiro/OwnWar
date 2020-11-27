@@ -1,4 +1,4 @@
-extends Unit
+extends Structure
 
 
 signal spawned(unit)
@@ -7,17 +7,18 @@ var material = 0 setget set_material
 var queued_vehicle = null
 var queued_vehicle_name
 onready var _material_id = Matter.get_matter_id("material")
-
-
-func _init():
-	type_flags = TypeFlags.STRUCTURE
+onready var _indicator_material: Spatial = $IndicatorMaterial
+onready var _indicator_vehicle_material: SpatialMaterial
+onready var _interaction_port: Spatial = $InteractionPort
 
 
 func _ready():
 	unit_name = "spawn_platform"
 	set_material(material)
-	$IndicatorVehicle.material_override = $IndicatorVehicle.material_override.duplicate()
-	$IndicatorVehicle.material_override.albedo_color = Color.green
+	var indic: MeshInstance = $IndicatorVehicle
+	_indicator_vehicle_material = indic.material_override.duplicate()
+	indic.material_override = _indicator_vehicle_material
+	_indicator_vehicle_material.albedo_color = Color.green
 
 
 func _notification(notification):
@@ -55,14 +56,14 @@ func get_actions():
 
 
 func get_interaction_port() -> Vector3:
-	return $InteractionPort.global_transform.origin
+	return _interaction_port.global_transform.origin
 
 
 func spawn_worker(_flags):
 	if queued_vehicle != null:
 		queued_vehicle.free()
 	queued_vehicle = worker.instance()
-	$IndicatorVehicle.material_override.albedo_color = Color.orange
+	_indicator_vehicle_material.albedo_color = Color.orange
 	queued_vehicle.global_transform = global_transform
 	queued_vehicle.translate(Vector3.UP * 5)
 	queued_vehicle.rotate_y(PI)
@@ -80,12 +81,12 @@ func spawn_vehicle(_flags, path):
 		Global.error("Failed to spawn vehicle from '%s'" % path, err)
 		queued_vehicle.free()
 		queued_vehicle = null
-		$IndicatorVehicle.material_override.albedo_color = Color.red
+		_indicator_vehicle_material.albedo_color = Color.red
 	else:
 		queued_vehicle.global_transform = global_transform
 		queued_vehicle.translate(Vector3.UP * 5)
 		queued_vehicle.rotate_y(PI)
-		$IndicatorVehicle.material_override.albedo_color = Color.orange
+		_indicator_vehicle_material.albedo_color = Color.orange
 		queued_vehicle_name = Vehicle.path_to_name(path.get_file())
 	emit_signal("need_matter", _material_id, _get_needed_material())
 	return queued_vehicle
@@ -96,9 +97,9 @@ func set_material(p_material):
 	material = p_material
 	emit_signal("need_matter", _material_id, _get_needed_material())
 	if queued_vehicle == null:
-		$IndicatorMaterial.scale.z = 0 if material == 0 else 1
+		_indicator_material.scale.z = 0 if material == 0 else 1
 	else:
-		$IndicatorMaterial.scale.z = clamp(float(material) / queued_vehicle.get_cost(), 0, 1)
+		_indicator_material.scale.z = clamp(float(material) / queued_vehicle.get_cost(), 0, 1)
 
 
 func get_matter_count(id: int) -> int:
@@ -137,14 +138,15 @@ func put_matter(id: int, amount: int) -> int:
 	if id == _material_id:
 		if queued_vehicle == null:
 			return amount
-		self.material += amount
+		set_material(material + amount)
 		if material >= queued_vehicle.get_cost():
-			game_master.add_unit(team, queued_vehicle)
+			queued_vehicle.team = team
+			GameMaster.get_game_master(self).add_child(queued_vehicle)
 			emit_signal("spawned", queued_vehicle)
 			var remainder = material - queued_vehicle.get_cost()
 			queued_vehicle = null
-			self.material = 0
-			$IndicatorVehicle.material_override.albedo_color = Color.green
+			set_material(0)
+			_indicator_vehicle_material.albedo_color = Color.green
 			return remainder
 		return 0
 	return amount

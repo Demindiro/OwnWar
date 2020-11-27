@@ -13,15 +13,17 @@ func _set_generator():
 	var dir: String = get_script().get_path().get_base_dir()
 	# https://github.com/godotengine/godot/issues/35832
 	var dir_bb := dir.get_base_dir().get_base_dir()
+	# warning-ignore:unsafe_method_access
 	mesh_generator = load(dir_bb.plus_file("mesh/%s.gd") % name).new()
+	# warning-ignore:unsafe_method_access
 	indice_generator = load(dir_bb.plus_file("indice/all.gd")).new()
 
 
 func start(p_segments: int):
 	indice_generator.start(p_segments, indice_count)
 	finished = indice_generator.finished
-	
-	
+
+
 func step():
 	indice_generator.step()
 	fractions = PoolRealArray()

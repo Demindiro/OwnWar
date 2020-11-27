@@ -1,6 +1,9 @@
 extends Node
 
 
+const WeaponManager := preload("res://plugins/weapon_manager/weapon_manager.gd")
+const MovementManager := preload("res://plugins/movement_manager/movement_manager.gd")
+
 var ai: AI
 var aim_weapons := false
 var weapons_aim_point := Vector3.ZERO
@@ -9,8 +12,8 @@ var drive_yaw := 0.0
 var brake := 0.0
 var vehicle: Vehicle
 var _fire_weapons := false
-var _weapon_manager: Reference
-var _movement_manager: Reference
+var _weapon_manager: WeaponManager
+var _movement_manager: MovementManager
 
 
 func process(delta):

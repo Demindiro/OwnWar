@@ -70,10 +70,10 @@ func _ready():
 		return
 	# TEST
 	#show()
-	
+
 	for i in len(_resolutions):
 		_resolution_dropdown.add_item(str(_resolutions[i]), i)
-	
+
 	_anchor_button_group = ButtonGroup.new()
 	_anchor_buttons.resize(ANCHOR_COUNT)
 	var x = 0
@@ -112,10 +112,10 @@ func _notification(what):
 
 func _on_AnchorButton_pressed(anchor0, x0, y0):
 	_selected_anchor = anchor0
-	
+
 	for button in _anchor_buttons:
 		button.icon = null
-	
+
 	for anchor in ANCHOR_COUNT:
 		var d = _anchor_dirs[anchor]
 		var nx = x0 + d[0]
@@ -157,12 +157,12 @@ func _apply(p_resolution, p_stretch, p_anchor):
 	if _terrain == null:
 		_logger.error("Cannot apply resize, terrain is not set")
 		return
-	
+
 	var data = _terrain.get_data()
 	if data == null:
 		_logger.error("Cannot apply resize, terrain has no data")
 		return
-	
+
 	data.resize(p_resolution, p_stretch, p_anchor)
 	data.notify_full_change()
 	emit_signal("permanent_change_performed", "Resize terrain")

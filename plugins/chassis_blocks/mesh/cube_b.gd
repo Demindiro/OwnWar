@@ -7,7 +7,7 @@ func _init():
 
 func generate(transform, x, y, z, u, v, w, a, flip_faces := false):
 	var vertices = PoolVector3Array()
-	
+
 	var o = transform * Vector3.ZERO
 	x = transform * x
 	y = transform * y
@@ -16,7 +16,7 @@ func generate(transform, x, y, z, u, v, w, a, flip_faces := false):
 	v = transform * v
 	w = transform * w
 	a = transform * a
-	
+
 	for vertex in [o, y, u, o, u, z]: # -X
 		vertices.append(vertex)
 	for vertex in [o, v, x, o, z, v]: # -Y
@@ -35,10 +35,10 @@ func generate(transform, x, y, z, u, v, w, a, flip_faces := false):
 		vertices.append(vertex)
 	for vertex in [a, v, u]: # +Z (L)
 		vertices.append(vertex)
-		
+
 	if flip_faces:
 		vertices.invert()
-		
+
 	var array = []
 	array.resize(Mesh.ARRAY_MAX)
 	array[Mesh.ARRAY_VERTEX] = vertices

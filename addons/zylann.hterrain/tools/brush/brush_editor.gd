@@ -57,7 +57,7 @@ func _ready():
 	_color_picker.connect("color_changed", self, "_on_color_picker_color_changed")
 	_density_slider.connect("value_changed", self, "_on_density_slider_changed")
 	_holes_checkbox.connect("toggled", self, "_on_holes_checkbox_toggled")
-	
+
 	if NativeFactory.is_native_available():
 		_size_slider.max_value = 200
 	else:
@@ -94,9 +94,9 @@ func _exit_tree():
 func set_brush(brush: Brush):
 	if _brush != null:
 		_brush.disconnect("changed", self, "_on_brush_changed")
-	
+
 	_brush = brush
-	
+
 	if _brush != null:
 		# Initial params
 		_size_slider.value = brush.get_radius()
@@ -108,7 +108,7 @@ func set_brush(brush: Brush):
 
 		set_display_mode(brush.get_mode())
 		_set_brush_shape_from_file(SHAPES_DIR.plus_file(DEFAULT_BRUSH))
-		
+
 		_brush.connect("changed", self, "_on_brush_properties_changed")
 
 

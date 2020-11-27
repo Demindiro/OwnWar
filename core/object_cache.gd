@@ -1,12 +1,13 @@
-extends Node
+extends Object
+class_name ObjectCache
 
 
-var _cache := {}
+const _CACHE := {}
 
 
-func dedup_immutable(object):
-	if object in _cache:
-		return _cache[object]
+static func dedup_immutable(object):
+	if object in _CACHE:
+		return _CACHE[object]
 	else:
-		_cache[object] = object
+		_CACHE[object] = object
 		return object

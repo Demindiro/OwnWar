@@ -18,10 +18,10 @@ func _init():
 	_material.shader = load("res://addons/zylann.hterrain/tools/brush/decal.shader")
 	_mesh_instance = DirectMeshInstance.new()
 	_mesh_instance.set_material(_material)
-		
+
 	_mesh = PlaneMesh.new()
 	_mesh_instance.set_mesh(_mesh)
-	
+
 	#_debug_mesh_instance = DirectMeshInstance.new()
 	#_debug_mesh_instance.set_mesh(_debug_mesh)
 
@@ -75,7 +75,7 @@ func set_terrain(terrain):
 func set_position(p_local_pos):
 	assert(_terrain != null)
 	assert(typeof(p_local_pos) == TYPE_VECTOR3)
-	
+
 	# Set custom AABB (in local cells) because the decal is displaced by shader
 	var data = _terrain.get_data()
 	if data != null:
@@ -88,7 +88,7 @@ func set_position(p_local_pos):
 		aabb.position = Vector3(-r.x, aabb.position.y, -r.y)
 		_mesh.custom_aabb = aabb
 		#_debug_mesh.size = aabb.size
-	
+
 	var trans = Transform(Basis(), p_local_pos)
 	var terrain_gt = _terrain.get_internal_transform()
 	trans = terrain_gt * trans

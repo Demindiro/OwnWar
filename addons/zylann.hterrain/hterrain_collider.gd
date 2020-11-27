@@ -9,15 +9,14 @@ var _terrain_data = null
 var _logger = Logger.get_for(self)
 
 
-func _init(attached_node: Node):
+func _init(attached_node: Node, initial_layer: int, initial_mask: int):
 	_logger.debug("HTerrainCollider: creating body")
 	assert(attached_node != null)
 	_shape_rid = PhysicsServer.shape_create(PhysicsServer.SHAPE_HEIGHTMAP)
 	_body_rid = PhysicsServer.body_create(PhysicsServer.BODY_MODE_STATIC)
 
-	# TODO Let user configure layer and mask
-	PhysicsServer.body_set_collision_layer(_body_rid, 1)
-	PhysicsServer.body_set_collision_mask(_body_rid, 1)
+	PhysicsServer.body_set_collision_layer(_body_rid, initial_layer)
+	PhysicsServer.body_set_collision_mask(_body_rid, initial_mask)
 
 	# TODO This is an attempt to workaround https://github.com/godotengine/godot/issues/24390
 	PhysicsServer.body_set_ray_pickable(_body_rid, false)
@@ -32,9 +31,17 @@ func _init(attached_node: Node):
 	})
 
 	PhysicsServer.body_add_shape(_body_rid, _shape_rid)
-	
+
 	# This makes collision hits report the provided object as `collider`
 	PhysicsServer.body_attach_object_instance_id(_body_rid, attached_node.get_instance_id())
+
+
+func set_collision_layer(layer: int):
+	PhysicsServer.body_set_collision_layer(_body_rid, layer)
+
+
+func set_collision_mask(mask: int):
+	PhysicsServer.body_set_collision_mask(_body_rid, mask)
 
 
 func _notification(what):
@@ -105,7 +112,7 @@ func _update_transform(aabb=null):
 		# In 3.2, vertical centering changed.
 		# https://github.com/godotengine/godot/pull/28326
 		trans = Transform(Basis(), 0.5 * Vector3(width - 1, 0, depth - 1))
-	
+
 	# And then apply the terrain transform
 	trans = _terrain_transform * trans
 

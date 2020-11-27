@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://core/unit/vehicle.gd" type="Script" id=1]
+
+
+[node name="EditorMesh" type="Node"]
+
+[node name="Vehicle" type="Spatial" parent="."]
+transform = Transform( 0.614256, -0.323056, 0.719947, 0, 0.912357, 0.409394, -0.789107, -0.251473, 0.560421, -3.20185, 0, 2.624 )
+script = ExtResource( 1 )
+max_health = 0
+_file = "res://plugins/tutorial_map/vehicles/tank.json"
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 0.321196, 0.473506, -0.820137, 0, 0.866025, 0.5, 0.947013, -0.160598, 0.278164, 0, 0, 0 )

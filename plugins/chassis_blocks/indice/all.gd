@@ -6,8 +6,8 @@ func start(p_segments: int, indice_count: int):
 	for i in range(len(indices)):
 		indices[i] = segments
 	indices[0] += 1
-	
-	
+
+
 func step():
 	for i in len(indices):
 		indices[i] -= 1

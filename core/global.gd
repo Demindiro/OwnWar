@@ -62,17 +62,17 @@ const ERROR_TO_STRING = [
 const COLLISION_MASK_TERRAIN = 1 << (8 - 1) # Christ's sake, Godot pls
 
 var _loader
-var _loader_callback: FuncRef
+var _loader_callback
 var _loader_callback_arguments: Array
 
 
 func _init():
-	print("Game version %s" % [Game.VERSION])
+	print("Game version %s" % [Constants.VERSION])
 	Block.add_block(preload("block/debug/vane.tres"))
 # warning-ignore:return_value_discarded
 	Matter.add_matter("material", 1_000_000)
 # warning-ignore:return_value_discarded
-	Matter.add_matter("fuel", 1_000_000)
+	Matter.add_matter("fuel", 100_000)
 	Plugin.load_plugins()
 
 
@@ -81,8 +81,8 @@ func _process(_delta):
 		_load_scene()
 	else:
 		set_process(false)
-		
-		
+
+
 func _notification(notification):
 	match notification:
 		MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
@@ -112,12 +112,13 @@ func recurse_directory(path: String, ends_with: String = "", _arr := []) -> Arra
 	return _arr
 
 
-func goto_scene(path, callback: FuncRef = null, arguments := []) -> void:
+func goto_scene(path, callback = null, arguments := []) -> void:
 	assert(path is String or path is PackedScene)
+	assert(callback == null or callback is FuncRef or callback is String)
 	_loader_callback = callback
 	_loader_callback_arguments = arguments.duplicate()
 	call_deferred("_goto_scene", path)
-	
+
 
 func error(string, code := -1):
 	if code != -1:
@@ -162,8 +163,12 @@ func _load_scene():
 				tree.root.add_child(instance)
 				tree.root.move_child(instance, 0)
 				if _loader_callback != null:
-					_loader_callback_arguments.push_front(instance)
-					_loader_callback.call_funcv(_loader_callback_arguments)
+					var fr = _loader_callback
+					if fr is String:
+						fr = funcref(instance, fr)
+					else:
+						_loader_callback_arguments.push_front(instance)
+					fr.call_funcv(_loader_callback_arguments)
 				# Allow any heavy scene stuff to load first (Heightmap terrain)
 				yield(get_tree(), "idle_frame")
 				tree.current_scene.queue_free()
@@ -175,7 +180,8 @@ func _load_scene():
 			_show_loading_progress()
 		else:
 			error("Error loading scene", err)
-			tree.current_scene.get_node("ColorRect").color = Color.red
+			var cr: ColorRect = tree.current_scene.get_node("ColorRect")
+			cr.color = Color.red
 			_show_loading_progress()
 			_loader = null
 			return

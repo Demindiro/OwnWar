@@ -34,7 +34,7 @@ func _ready():
 		_sea_outline = MeshInstance.new()
 		_sea_outline.mesh = mesh
 		_viewport.add_child(_sea_outline)
-	
+
 	if _sea_plane == null:
 		var mesh = PlaneMesh.new()
 		mesh.size = Vector2(1, 1)
@@ -52,7 +52,7 @@ func _ready():
 func setup(heights_texture: Texture, normals_texture: Texture):
 	var terrain_size = heights_texture.get_width()
 	var mesh_resolution = terrain_size / PREVIEW_MESH_LOD
-	
+
 	if _mesh_resolution != mesh_resolution or not (_mesh_instance.mesh is ArrayMesh):
 		_mesh_resolution = mesh_resolution
 		var mesh = HTerrainMesher.make_flat_chunk(
@@ -64,12 +64,12 @@ func setup(heights_texture: Texture, normals_texture: Texture):
 		_update_camera()
 
 	var mat = _mesh_instance.mesh.surface_get_material(0)
-	
+
 	if mat == null:
 		mat = ShaderMaterial.new()
 		mat.shader = _shader
 		_mesh_instance.mesh.surface_set_material(0, mat)
-			
+
 	mat.set_shader_param("u_terrain_heightmap", heights_texture)
 	mat.set_shader_param("u_terrain_normalmap", normals_texture)
 	mat.set_shader_param("u_terrain_inverse_transform", Transform())
@@ -112,7 +112,7 @@ func cleanup():
 func _gui_input(event: InputEvent):
 	if Util.is_in_edited_scene(self):
 		return
-	
+
 	if event is InputEventMouseMotion:
 		if event.button_mask & BUTTON_MASK_MIDDLE:
 			var d = 0.01 * event.relative
@@ -124,15 +124,15 @@ func _gui_input(event: InputEvent):
 			# Align dragging to view rotation
 			rel = -rel.rotated(-_yaw)
 			emit_signal("dragged", rel, event.button_mask)
-	
+
 	elif event is InputEventMouseButton:
 		if event.pressed:
-			
+
 			var factor = 1.2
 			var max_factor = 10.0
 			var min_distance = _default_distance / max_factor
 			var max_distance = _default_distance
-			
+
 			# Zoom in/out
 			if event.button_index == BUTTON_WHEEL_DOWN:
 				_distance = clamp(_distance * factor, min_distance, max_distance)

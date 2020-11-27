@@ -40,15 +40,15 @@ static func get_shader(shader_name: String) -> Shader:
 func _ready():
 	_inspector.set_prototype({
 		"seed": {
-			"type": TYPE_INT, 
-			"randomizable": true, 
-			"range": { "min": -100, "max": 100 }, 
+			"type": TYPE_INT,
+			"randomizable": true,
+			"range": { "min": -100, "max": 100 },
 			"slidable": false
 		},
 		"offset": {
 			"type": TYPE_VECTOR2
 		},
-		"base_height": { 
+		"base_height": {
 			"type": TYPE_REAL,
 			"range": {"min": -500.0, "max": 500.0, "step": 0.1 },
 			"default_value": -50.0
@@ -153,13 +153,13 @@ func _adjust_viewport_resolution():
 	if data == null:
 		return
 	var terrain_resolution = data.get_resolution()
-	
+
 	# By default we want to work with a large enough viewport to generate tiles,
 	# but we should pick a smaller size if the terrain is smaller than that...
 	var vp_res := MAX_VIEWPORT_RESOLUTION
 	while vp_res > terrain_resolution:
 		vp_res /= 2
-	
+
 	_generator.set_resolution(Vector2(vp_res, vp_res))
 	_viewport_resolution = vp_res
 
@@ -184,7 +184,7 @@ func _notification(what: int):
 				if _dialog_visible:
 					return
 				_dialog_visible = true
-				
+
 				_adjust_viewport_resolution()
 
 				_preview.set_sea_visible(_inspector.get_value("show_sea"))
@@ -355,7 +355,7 @@ func _apply():
 		return
 
 	_applying = true
-	
+
 	_undo_map_ids[HTerrainData.CHANNEL_HEIGHT] = _image_cache.save_image(dst_heights)
 	_undo_map_ids[HTerrainData.CHANNEL_NORMAL] = _image_cache.save_image(dst_normals)
 
@@ -405,7 +405,7 @@ func _on_TextureGenerator_output_generated(image: Image, info: Dictionary):
 
 		emit_signal("progress_notified", {
 			"progress": info.progress,
-			"message": "Calculating sector (" 
+			"message": "Calculating sector ("
 				+ str(info.sector.x) + ", " + str(info.sector.y) + ")"
 		})
 
@@ -419,7 +419,7 @@ func _on_TextureGenerator_completed():
 	if not _applying:
 		return
 	_applying = false
-	
+
 	assert(_terrain != null)
 	var data : HTerrainData = _terrain.get_data()
 	var resolution := data.get_resolution()

@@ -71,11 +71,11 @@ func start(start: Vector3, direction: Vector3, limit_x: int, limit_y: int, limit
 	_step_x = int(step.x)
 	_step_y = int(step.y)
 	_step_z = int(step.z)
-	
+
 	_limit_x = limit_x if _step_x > 0 else -1
 	_limit_y = limit_y if _step_y > 0 else -1
 	_limit_z = limit_z if _step_z > 0 else -1
-	
+
 	var planes = Vector3(
 			1 if _step_x > 0 else 0,
 			1 if _step_y > 0 else 0,
@@ -95,9 +95,9 @@ func start(start: Vector3, direction: Vector3, limit_x: int, limit_y: int, limit
 				_last_step = 2
 			else:
 				_last_step = 3
-	
+
 	finished = false
-	
+
 
 func step() -> void:
 	assert(not finished)

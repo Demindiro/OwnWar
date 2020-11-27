@@ -11,6 +11,7 @@
 [node name="Refinery" type="StaticBody"]
 script = ExtResource( 1 )
 unit_name = "refinery"
+position_offset = Vector3( 0, 1, 0 )
 
 [node name="CSGCylinder" type="CSGCylinder" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.375 )

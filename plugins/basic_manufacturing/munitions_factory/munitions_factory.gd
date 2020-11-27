@@ -1,5 +1,7 @@
-extends Unit
+extends Structure
 
+
+const Munition := preload("res://plugins/weapon_manager/munition.gd")
 
 #export(Array, Munition) var munition_types := []
 export(Array, Resource) var munition_types := []
@@ -11,12 +13,7 @@ var _munition_volume := 0
 var _current_munition_type
 var _current_producing_munition
 var _time_until_munition_produced := 0.0
-var Munition = Plugin.get_plugin("weapon_manager").Munition
 onready var _material_id = Matter.get_matter_id("material")
-
-
-func _init():
-	type_flags = TypeFlags.STRUCTURE
 
 
 func _physics_process(delta):
@@ -61,8 +58,12 @@ func get_info():
 		info["Producing"] = str(_current_munition_type)
 	else:
 		info["Producing"] = "None"
-	# warning-ignore:integer_division
-	info["Volume"] = "%d / %d" % [_munition_volume / 1_000_000, _MAX_MUNITION_VOLUME / 1_000_000]
+	info["Volume"] = "%d / %d" % [
+			# warning-ignore:integer_division
+			_munition_volume / 1_000_000,
+			# warning-ignore:integer_division
+			_MAX_MUNITION_VOLUME / 1_000_000
+		]
 	for m in _munition:
 		info[Matter.get_matter_name(m)] = _munition[m]
 	return info
@@ -99,7 +100,7 @@ func get_matter_space(id: int) -> int:
 
 
 func get_put_matter_list() -> PoolIntArray:
-	return PoolIntArray([_material])
+	return PoolIntArray([_material_id])
 
 
 func get_take_matter_list() -> PoolIntArray:
@@ -136,6 +137,10 @@ func take_matter(id: int, amount: int) -> int:
 	return 0
 
 
+func get_current_munition_type():
+	return _current_munition_type
+
+
 func set_munition_type(_flags, munition_type):
 	_current_munition_type = munition_type
 	if _current_munition_type != null:
@@ -148,25 +153,32 @@ func serialize_json() -> Dictionary:
 	var m_list := {}
 	for id in _munition:
 		m_list[Matter.get_matter_name(id)] = _munition[id]
-	return {
+	var data = {
 			"material": _material,
 			"munition": m_list,
-			"current_munition": Matter.get_matter_name(_current_munition_type.id),
-			"current_producing": Matter.get_matter_name(_current_producing_munition.id),
 			"time_until_produced": _time_until_munition_produced,
 		}
+	if _current_munition_type != null:
+		data["current_munition"] = Matter.get_matter_name(
+				_current_munition_type.id)
+	if _current_munition_type != null:
+		data["current_producing"] = Matter.get_matter_name(
+				_current_producing_munition.id)
+	return data
 
 
 func deserialize_json(data: Dictionary) -> void:
 	_material = data["material"]
 
-	var cur_mun_id: int = Matter.get_matter_id(data["current_munition"])
-	_current_munition_type = Munition.get_munition(cur_mun_id)
-	assert(Munition.is_munition(cur_mun_id))
+	if "current_munition" in data:
+		var cur_mun_id: int = Matter.get_matter_id(data["current_munition"])
+		_current_munition_type = Munition.get_munition(cur_mun_id)
+		assert(Munition.is_munition(cur_mun_id))
 
-	var cur_prod_id: int = Matter.get_matter_id(data["current_producing"])
-	assert(Munition.is_munition(cur_prod_id))
-	_current_producing_munition = Munition.get_munition(cur_prod_id)
+	if "current_producing" in data:
+		var cur_prod_id: int = Matter.get_matter_id(data["current_producing"])
+		assert(Munition.is_munition(cur_prod_id))
+		_current_producing_munition = Munition.get_munition(cur_prod_id)
 
 	_time_until_munition_produced = data["time_until_produced"]
 	_munition = {}

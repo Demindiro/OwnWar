@@ -1,25 +1,20 @@
-[gd_scene load_steps=33 format=2]
+[gd_scene load_steps=29 format=2]
 
 [ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=1]
 [ext_resource path="res://plugins/designer_map/floor_mesh.tres" type="PlaneMesh" id=2]
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform.tscn" type="PackedScene" id=3]
-[ext_resource path="res://core/hud.tscn" type="PackedScene" id=4]
+[ext_resource path="res://core/map/hud.tscn" type="PackedScene" id=4]
 [ext_resource path="res://plugins/basic_manufacturing/drill/ore.tscn" type="PackedScene" id=5]
 [ext_resource path="res://core/block/debug/vane.obj" type="ArrayMesh" id=6]
 [ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod.tscn" type="PackedScene" id=7]
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=8]
 [ext_resource path="res://core/shortcut/ui_accept.tres" type="ShortCut" id=9]
-[ext_resource path="res://core/game_master.gd" type="Script" id=10]
+[ext_resource path="res://core/map/game_master.gd" type="Script" id=10]
 [ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=11]
-[ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform_ghost.tscn" type="PackedScene" id=12]
-[ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod_ghost.tscn" type="PackedScene" id=13]
 [ext_resource path="res://core/camera/free_camera.gd" type="Script" id=14]
 [ext_resource path="res://core/designer/load_vehicle.gd" type="Script" id=15]
 [ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory.tscn" type="PackedScene" id=16]
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery.tscn" type="PackedScene" id=17]
-[ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory_ghost.tscn" type="PackedScene" id=18]
-[ext_resource path="res://plugins/basic_manufacturing/refinery/refinery_ghost.tscn" type="PackedScene" id=19]
-[ext_resource path="res://plugins/basic_manufacturing/roboport/roboport_ghost.tscn" type="PackedScene" id=20]
 [ext_resource path="res://plugins/basic_manufacturing/roboport/roboport.tscn" type="PackedScene" id=21]
 [ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=22]
 [ext_resource path="res://plugins/designer_map/menu.gd" type="Script" id=23]
@@ -32,6 +27,7 @@
 [ext_resource path="res://plugins/designer_map/floor_material.tres" type="Material" id=30]
 [ext_resource path="res://plugins/designer_map/floor_shape.tres" type="Shape" id=31]
 [ext_resource path="res://plugins/designer_map/change_team.gd" type="Script" id=32]
+[ext_resource path="res://core/unit/unit_group.tscn" type="PackedScene" id=33]
 
 [node name="Designer" type="Node"]
 process_priority = 1
@@ -40,8 +36,6 @@ map_name = "designer"
 
 [node name="Map" type="Node" parent="."]
 script = ExtResource( 26 )
-
-[node name="FilthyHack" type="Node" parent="Map"]
 
 [node name="Floor" type="StaticBody" parent="Map"]
 collision_layer = 129
@@ -93,56 +87,14 @@ __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="SpawnPlayer" parent="Map" instance=ExtResource( 3 )]
-transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -27, 0, 0 )
-max_health = 2305843009213693952
-
-[node name="SpawnEnemy" parent="Map" instance=ExtResource( 3 )]
-transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 27, 0, 0 )
-max_health = 2305843009213693952
-team = 1
-
 [node name="Ore" parent="Map" instance=ExtResource( 5 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 70.2412 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 70 )
 
 [node name="Ore2" parent="Map" instance=ExtResource( 5 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.62004, 0, 70.2412 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 0, 70 )
 
 [node name="Ore3" parent="Map" instance=ExtResource( 5 )]
-transform = Transform( 1, 0, 0, 0, 0.99997, 0.00776664, 0, -0.00776664, 0.99997, 11.4464, 0, 70.2412 )
-
-[node name="Drone" parent="Map" instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 0.999754, -0.022164, 0, 0.022164, 0.999754, -45.0914, 9.15196, 71.3294 )
-ghosts = {
-"Munition Factory": ExtResource( 18 ),
-"Refinery": ExtResource( 19 ),
-"Roboport": ExtResource( 20 ),
-"Spawn Platform": ExtResource( 12 ),
-"Storage Pod": ExtResource( 13 )
-}
-
-[node name="DroneEnemy" parent="Map" instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 0.999754, -0.022164, 0, 0.022164, 0.999754, 0.936497, 2.85958, 30.7343 )
-team = 1
-ghosts = {
-"Munition Factory": ExtResource( 18 ),
-"Refinery": ExtResource( 19 ),
-"Roboport": ExtResource( 20 ),
-"Spawn Platform": ExtResource( 12 ),
-"Storage Pod": ExtResource( 13 )
-}
-
-[node name="StoragePod" parent="Map" instance=ExtResource( 7 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -72.3055, 0, 39.8329 )
-
-[node name="MunitionsFactory" parent="Map" instance=ExtResource( 16 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -54.4685, 1.00068, 17.6888 )
-
-[node name="Refinery" parent="Map" instance=ExtResource( 17 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -54.627, 0.5, 4.70696 )
-
-[node name="Roboport" parent="Map" instance=ExtResource( 21 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -47.2105, 0.5, 35.2623 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 11.5, 0, 70 )
 
 [node name="Vane" type="MeshInstance" parent="Map"]
 transform = Transform( 12, 0, 0, 0, 12, 0, 0, 0, 12, 0, 1.5, 0 )
@@ -165,6 +117,45 @@ transform = Transform( 0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0
 shadow_enabled = true
 directional_shadow_blend_splits = true
 directional_shadow_depth_range = 1
+
+[node name="Player" parent="." instance=ExtResource( 33 )]
+
+[node name="SpawnPlatform" parent="Player" instance=ExtResource( 3 )]
+transform = Transform( -1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, -27, 0, 0 )
+max_health = 2305843009213693952
+team = "Player"
+
+[node name="Drone" parent="Player" instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 0.999754, -0.022164, 0, 0.022164, 0.999754, -45.0914, 9.15196, 71.3294 )
+team = "Player"
+
+[node name="StoragePod" parent="Player" instance=ExtResource( 7 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -72.5, 1.3, 40 )
+team = "Player"
+
+[node name="MunitionsFactory" parent="Player" instance=ExtResource( 16 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -54.5, 0.999969, 17.5 )
+team = "Player"
+
+[node name="Refinery" parent="Player" instance=ExtResource( 17 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -54.5, 0.500031, 4.5 )
+team = "Player"
+position_offset = Vector3( 0, 0.5, 0 )
+
+[node name="Roboport" parent="Player" instance=ExtResource( 21 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -47, 0.500031, 35.5 )
+team = "Player"
+
+[node name="Enemy" parent="." instance=ExtResource( 33 )]
+
+[node name="SpawnPlatform" parent="Enemy" instance=ExtResource( 3 )]
+transform = Transform( -1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 27, 0, 0 )
+max_health = 2305843009213693952
+team = "Enemy"
+
+[node name="Drone" parent="Enemy" instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 0.999754, -0.022164, 0, 0.022164, 0.999754, 0.936497, 2.85958, 30.7343 )
+team = "Enemy"
 
 [node name="Camera" type="Camera" parent="."]
 transform = Transform( 0.770113, 0.200224, -0.60567, 0, 0.949464, 0.313876, 0.637908, -0.24172, 0.731194, -47.744, 14.2517, 67.2209 )
@@ -328,8 +319,9 @@ size_flags_horizontal = 3
 shortcut = ExtResource( 9 )
 text = "Load"
 [connection signal="load_game" from="." to="HUD" method="_on_Designer_load_game"]
+[connection signal="load_game" from="." to="Map" method="_on_Designer_load_game"]
 [connection signal="save_game" from="." to="HUD" method="_on_Designer_save_game"]
-[connection signal="ready" from="Map/FilthyHack" to="Map" method="_on_FilthyHack_ready"]
+[connection signal="save_game" from="." to="Map" method="_on_Designer_save_game"]
 [connection signal="item_selected" from="HUD/ChangeTeam" to="HUD/ChangeTeam" method="_on_ChangeTeam_item_selected"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Continue" to="GUI/Main" method="_on_Continue_pressed"]
 [connection signal="pressed" from="GUI/Main/VBoxContainer/Save" to="." method="save_game" binds= [ "_designer" ]]

@@ -17,9 +17,9 @@ func init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
 	var id = Block.get_block("turret_connector").id
 	for body in vehicle.voxel_bodies:
 		if body != voxel_body:
-			var other_block = body.blocks.get(connecting_coordinate)
-			if other_block != null and other_block[0] == id:
-				other_connector = other_block[2]
+			var other_block: VoxelBody.BodyBlock = body.blocks.get(connecting_coordinate)
+			if other_block != null and other_block.id == id:
+				other_connector = other_block.node
 				if other_connector.get_connecting_coordinate(connecting_coordinate) == coordinate:
 					_create_joint(voxel_body, body)
 					connected = true
@@ -73,7 +73,7 @@ func debug_draw():
 			global_transform.origin + global_transform.basis.z * 10.0)
 	Debug.draw_line(global_transform.origin, \
 			global_transform.origin + global_transform.basis * _desired_direction * 20.0)
-	Debug.draw_line(other_connector.global_transform.origin, 
+	Debug.draw_line(other_connector.global_transform.origin,
 			other_connector.global_transform.origin + other_connector.global_transform.basis.z * 20.0)
 
 

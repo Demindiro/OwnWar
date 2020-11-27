@@ -1,0 +1,764 @@
+[gd_scene load_steps=23 format=2]
+
+[ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
+[ext_resource path="res://plugins/campaign_abcd/map_data/data.hterrain" type="Resource" id=2]
+[ext_resource path="res://addons/tiles/sand/IMG_8938 Seamless Normal.jpg" type="Texture" id=3]
+[ext_resource path="res://addons/tiles/sand/IMG_8938 Seamless.jpg" type="Texture" id=4]
+[ext_resource path="res://core/camera/free_camera.gd" type="Script" id=5]
+[ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform.tscn" type="PackedScene" id=6]
+[ext_resource path="res://plugins/campaign_abcd/map.gd" type="Script" id=7]
+[ext_resource path="res://plugins/campaign_abcd/environment.tres" type="Environment" id=8]
+[ext_resource path="res://addons/tiles/3D_pattern_57/pattern_288/normal.tga" type="Texture" id=9]
+[ext_resource path="res://addons/tiles/3D_pattern_57/pattern_288/diffuse.tga" type="Texture" id=10]
+[ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod.tscn" type="PackedScene" id=11]
+[ext_resource path="res://plugins/basic_manufacturing/drill/ore.tscn" type="PackedScene" id=12]
+[ext_resource path="res://plugins/basic_manufacturing/drill/drill.tscn" type="PackedScene" id=13]
+[ext_resource path="res://plugins/basic_manufacturing/drill/link_ore_drill.tscn" type="PackedScene" id=14]
+[ext_resource path="res://plugins/basic_manufacturing/roboport/roboport.tscn" type="PackedScene" id=15]
+[ext_resource path="res://core/unit/unit_group.tscn" type="PackedScene" id=16]
+[ext_resource path="res://core/map/hud.tscn" type="PackedScene" id=17]
+[ext_resource path="res://plugins/basic_manufacturing/refinery/refinery.tscn" type="PackedScene" id=19]
+[ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory.tscn" type="PackedScene" id=21]
+[ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=25]
+[ext_resource path="res://core/unit/vehicle.gd" type="Script" id=26]
+[ext_resource path="res://plugins/strategic_ai/ai.gd" type="Script" id=27]
+
+[node name="Map" type="Node"]
+script = ExtResource( 7 )
+map_name = "campaign_abcd"
+
+[node name="Player" parent="." instance=ExtResource( 16 )]
+
+[node name="SpawnPlatform" parent="Player" instance=ExtResource( 6 )]
+transform = Transform( -0.865362, 0.034646, -0.499949, 0.0341506, 0.999365, 0.0101438, 0.499983, -0.00829551, -0.865996, 280, 0.915497, 255 )
+team = "Player"
+
+[node name="StoragePod" parent="Player" instance=ExtResource( 11 )]
+transform = Transform( 0.865475, 0.0328188, 0.499876, -0.030983, 0.999448, -0.0119744, -0.499994, -0.00512413, 0.866014, 295.043, 1.5766, 244.993 )
+team = "Player"
+
+[node name="StoragePod2" parent="Player" instance=ExtResource( 11 )]
+transform = Transform( 0.86555, 0.0275758, 0.500063, -0.0291885, 0.999563, -0.00459892, -0.499972, -0.0106155, 0.865977, 298.536, 1.45419, 242.986 )
+team = "Player"
+
+[node name="LinkOreDrill" parent="Player" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Player/LinkOreDrill" instance=ExtResource( 13 )]
+transform = Transform( 0.999678, -0.0253819, -0.000161064, 0.0253824, 0.999658, 0.00634344, 0, -0.00634548, 0.99998, 352.962, 0.916021, 259.99 )
+team = "Player"
+
+[node name="Ore" parent="Player/LinkOreDrill" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 353, -0.583466, 260 )
+
+[node name="LinkOreDrill2" parent="Player" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Player/LinkOreDrill2" instance=ExtResource( 13 )]
+transform = Transform( 0.447214, 0.666667, -0.596285, -0.894427, 0.333333, -0.298142, 0, 0.666667, 0.745356, 373, 776.5, 22.5 )
+team = "Player"
+
+[node name="Ore" parent="Player/LinkOreDrill2" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 372, 776, 21.5 )
+
+[node name="Roboport" parent="Player" instance=ExtResource( 15 )]
+transform = Transform( 0.965887, 0.0216502, 0.258056, -0.0122448, 0.999203, -0.0379987, -0.258673, 0.0335426, 0.965382, 306.511, 0.618528, 224.017 )
+team = "Player"
+type_flags = 1
+_radius2 = 4000.0
+
+[node name="Arend" parent="." instance=ExtResource( 16 )]
+
+[node name="HQ" type="Node" parent="Arend"]
+
+[node name="LinkOreDrill" parent="Arend/HQ" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Arend/HQ/LinkOreDrill" instance=ExtResource( 13 )]
+transform = Transform( 0.986807, 0.160963, 0.0173731, -0.161898, 0.981109, 0.105893, 0, -0.107309, 0.994226, 3228.74, 6.92876, 460.339 )
+team = "Arend"
+
+[node name="Ore" parent="Arend/HQ/LinkOreDrill" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3228.5, 5.45709, 460.5 )
+
+[node name="LinkOreDrill2" parent="Arend/HQ" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Arend/HQ/LinkOreDrill2" instance=ExtResource( 13 )]
+transform = Transform( 0.698736, 0.135433, 0.702443, -0.109338, 0.990598, -0.082229, -0.706974, -0.0193476, 0.706974, 3209.7, 7.5953, 431.471 )
+team = "Arend"
+
+[node name="Ore" parent="Arend/HQ/LinkOreDrill2" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3209.5, 6.10941, 431.5 )
+
+[node name="LinkOreDrill3" parent="Arend/HQ" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Arend/HQ/LinkOreDrill3" instance=ExtResource( 13 )]
+transform = Transform( 0.707031, 0.153919, -0.690229, -0.0553947, 0.985082, 0.162927, 0.70501, -0.0769595, 0.70501, 3186.73, 19.8057, 505.885 )
+team = "Arend"
+
+[node name="Ore" parent="Arend/HQ/LinkOreDrill3" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3186.5, 18.3281, 506 )
+
+[node name="SpawnPlatform" parent="Arend/HQ" instance=ExtResource( 6 )]
+transform = Transform( -0.70943, -0.0393102, 0.703679, 0.0447497, 0.993916, 0.100639, -0.703354, 0.102886, -0.703354, 3333, 0.911652, 590 )
+team = "Arend"
+
+[node name="SpawnPlatform2" parent="Arend/HQ" instance=ExtResource( 6 )]
+transform = Transform( -0.707112, -0.000488218, 0.707101, 0.0110902, 0.999869, 0.0117807, -0.707014, 0.0161722, -0.707014, 3349.5, 0.11441, 606.5 )
+team = "Arend"
+
+[node name="Roboport" parent="Arend/HQ" instance=ExtResource( 15 )]
+transform = Transform( -0.866025, -7.45058e-09, 0.5, -0.0771884, 0.988012, -0.133694, -0.494006, -0.154377, -0.855644, 3174.5, 17.0565, 489.423 )
+team = "Arend"
+type_flags = 1
+
+[node name="StoragePod" parent="Arend/HQ" instance=ExtResource( 11 )]
+transform = Transform( 0.999952, 0.00976201, 0.000247852, -0.00976516, 0.99963, 0.02538, 0, -0.0253812, 0.999678, 3308.01, 4.24086, 547.967 )
+team = "Arend"
+
+[node name="StoragePod2" parent="Arend/HQ" instance=ExtResource( 11 )]
+transform = Transform( 0.491686, 0.0774914, 0.867318, -0.125921, 0.991891, -0.0172363, -0.86162, -0.100739, 0.497456, 3194.1, 10.6762, 448.369 )
+team = "Arend"
+
+[node name="StoragePod3" parent="Arend/HQ" instance=ExtResource( 11 )]
+transform = Transform( 0.937846, 0.204469, 0.280422, -0.233884, 0.969336, 0.0754139, -0.256403, -0.136313, 0.95691, 3213.77, 10.2484, 466.323 )
+team = "Arend"
+
+[node name="StoragePod4" parent="Arend/HQ" instance=ExtResource( 11 )]
+transform = Transform( 0.929288, 0.284311, -0.235775, -0.263763, 0.957681, 0.115228, 0.258558, -0.0448913, 0.964952, 3205.87, 15.1434, 501.942 )
+team = "Arend"
+
+[node name="Roboport2" parent="Arend/HQ" instance=ExtResource( 15 )]
+transform = Transform( -0.866528, -0.0155757, 0.498885, 0.0254044, 0.996842, 0.0752478, -0.498482, 0.0778783, -0.863395, 3357.99, 2.45835, 579.039 )
+team = "Arend"
+type_flags = 1
+
+[node name="X" type="Node" parent="Arend"]
+
+[node name="SpawnPlatform" parent="Arend/X" instance=ExtResource( 6 )]
+transform = Transform( 8.69632e-05, -0.00488198, 0.999988, -0.017819, 0.99983, 0.00488275, -0.999841, -0.0178192, -4.3714e-08, 2532, -0.421997, 622.5 )
+team = "Arend"
+
+[node name="StoragePod" parent="Arend/X" instance=ExtResource( 11 )]
+transform = Transform( 0.999922, 0.0125108, 9.92603e-05, -0.0125112, 0.99989, 0.00793308, 0, -0.0079337, 0.999969, 2489.02, 1.34527, 595.49 )
+team = "Arend"
+
+[node name="Roboport" parent="Arend/X" instance=ExtResource( 15 )]
+transform = Transform( -0.00648454, -0.0756745, -0.997112, 0.0851298, 0.993471, -0.0759519, 0.996349, -0.0853764, -4.37722e-08, 2546.96, 1.5192, 640.957 )
+team = "Arend"
+type_flags = 1
+
+[node name="Refinery" parent="Arend/X" instance=ExtResource( 19 )]
+transform = Transform( -0.999973, 0.0073846, -8.14907e-05, 0.00738505, 0.999912, -0.0110461, -8.73988e-08, -0.0110464, -0.999939, 2502.51, 1.1066, 640.989 )
+team = "Arend"
+
+[node name="MunitionsFactory" parent="Arend/X" instance=ExtResource( 21 )]
+transform = Transform( -0.99995, -0.0100093, 4.79967e-06, -0.0100093, 0.99995, -0.000488233, 8.74234e-08, -0.000488257, -1, 2520.99, 0.491588, 607 )
+team = "Arend"
+
+[node name="Vehicle" type="Spatial" parent="Arend/X"]
+transform = Transform( 0.258819, 0, -0.965926, 0, 1, 0, 0.965926, 0, 0.258819, 2480, 2, 625 )
+script = ExtResource( 26 )
+max_health = 0
+team = "Arend"
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
+
+[node name="Z" type="Node" parent="Arend"]
+
+[node name="SpawnPlatform" parent="Arend/Z" instance=ExtResource( 6 )]
+transform = Transform( -0.999931, -0.0117174, -0.000114507, -0.0117179, 0.999884, 0.00976382, 8.74134e-08, 0.00976449, -0.999952, 3364.5, 3.5459, 1407.5 )
+team = "Arend"
+
+[node name="StoragePod" parent="Arend/Z" instance=ExtResource( 11 )]
+transform = Transform( -0.00244503, -0.027224, 0.999626, 0.0894167, 0.995619, 0.0273335, -0.995991, 0.0894502, -4.37722e-08, 3363.96, 5.46227, 1384.12 )
+team = "Arend"
+
+[node name="Roboport" parent="Arend/Z" instance=ExtResource( 15 )]
+transform = Transform( 0.999512, -0.0312345, 0.00012195, 0.0312348, 0.999504, -0.00390241, 0, 0.00390431, 0.999992, 3380.48, 4.95089, 1391.5 )
+team = "Arend"
+type_flags = 1
+
+[node name="Refinery" parent="Arend/Z" instance=ExtResource( 19 )]
+transform = Transform( -0.00137023, 0.023391, -0.999725, -0.0584614, 0.998015, 0.0234311, 0.998289, 0.0584774, -4.35393e-08, 3343.52, 5.24805, 1392.06 )
+team = "Arend"
+
+[node name="MunitionsFactory" parent="Arend/Z" instance=ExtResource( 21 )]
+transform = Transform( 0.999383, 0.0350619, -0.00225845, -0.0351345, 0.997316, -0.0642404, 0, 0.0642801, 0.997932, 3346.54, 4.34009, 1428.56 )
+team = "Arend"
+
+[node name="DroneHQ" parent="Arend" instance=ExtResource( 25 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3241, 5, 571.5 )
+team = "Arend"
+
+[node name="DroneX" parent="Arend" instance=ExtResource( 25 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3299, 3.5, 546.5 )
+team = "Arend"
+
+[node name="DroneY" parent="Arend" instance=ExtResource( 25 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3186.5, 19.5, 479.5 )
+team = "Arend"
+
+[node name="Bears" parent="." instance=ExtResource( 16 )]
+
+[node name="HQ" type="Node" parent="Bears"]
+
+[node name="LinkOreDrill" parent="Bears/HQ" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Bears/HQ/LinkOreDrill" instance=ExtResource( 13 )]
+transform = Transform( 0.716845, -0.144752, 0.682042, -0.0134081, 0.975169, 0.221055, -0.697104, -0.167607, 0.697104, 330.283, 10.1854, 3753.25 )
+team = "Bears"
+
+[node name="Ore" parent="Bears/HQ/LinkOreDrill" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 330.5, 8.72266, 3753.5 )
+
+[node name="LinkOreDrill2" parent="Bears/HQ" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Bears/HQ/LinkOreDrill2" instance=ExtResource( 13 )]
+transform = Transform( 0.70657, 0.00777816, 0.707601, -0.0715219, 0.995604, 0.0604737, -0.70402, -0.0933379, 0.70402, 346.512, 12.8645, 3751.86 )
+team = "Bears"
+
+[node name="Ore" parent="Bears/HQ/LinkOreDrill2" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 346.5, 11.3711, 3752 )
+
+[node name="LinkOreDrill3" parent="Bears/HQ" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Bears/HQ/LinkOreDrill3" instance=ExtResource( 13 )]
+transform = Transform( 0.684712, -0.235356, 0.689766, 0.176876, 0.971791, 0.156006, -0.707025, 0.0151842, 0.707025, 329.647, 11.0437, 3773.02 )
+team = "Bears"
+
+[node name="Ore" parent="Bears/HQ/LinkOreDrill3" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 330, 9.58597, 3773 )
+
+[node name="StoragePod" parent="Bears/HQ" instance=ExtResource( 11 )]
+transform = Transform( 0.981455, -0.191415, -0.0102739, 0.191691, 0.980045, 0.0526023, 0, -0.0535962, 0.998563, 335.751, 11.8209, 3764.93 )
+team = "Bears"
+
+[node name="StoragePod2" parent="Bears/HQ" instance=ExtResource( 11 )]
+transform = Transform( 0.859365, -0.168986, 0.482633, 0.112631, 0.983191, 0.143699, -0.498804, -0.0691306, 0.863954, 340.28, 12.5711, 3763.41 )
+team = "Bears"
+
+[node name="StoragePod4" parent="Bears/HQ" instance=ExtResource( 11 )]
+transform = Transform( 0.512192, 0.107309, 0.852141, 0.0842086, 0.981109, -0.174164, -0.854733, 0.160963, 0.49348, 347.139, 11.8341, 3791.71 )
+team = "Bears"
+
+[node name="StoragePod3" parent="Bears/HQ" instance=ExtResource( 11 )]
+transform = Transform( -0.259282, 0.00779705, -0.96577, -0.0582272, 0.998023, 0.0236898, 0.964045, 0.0623764, -0.258315, 354.01, 10.9224, 3794.58 )
+team = "Bears"
+
+[node name="Roboport" parent="Bears/HQ" instance=ExtResource( 15 )]
+transform = Transform( 0.999878, -0.0155756, -0.0012167, 0.0156231, 0.996841, 0.0778687, 0, -0.0778782, 0.996963, 353.992, 12.0688, 3772.46 )
+team = "Bears"
+_radius2 = 1000.0
+
+[node name="SpawnPlatform" parent="Bears/HQ" instance=ExtResource( 6 )]
+transform = Transform( 0.866203, -0.0204909, -0.499271, 0.000196658, 0.999173, -0.0406664, 0.499692, 0.0351272, 0.865491, 291.5, 0.670441, 3695.5 )
+team = "Bears"
+
+[node name="SpawnPlatform2" parent="Bears/HQ" instance=ExtResource( 6 )]
+transform = Transform( 0.86509, -0.066232, -0.497224, 0.0428052, 0.997376, -0.0583798, 0.499787, 0.02922, 0.865656, 552.5, 3.99811, 3850 )
+team = "Bears"
+
+[node name="Refinery" parent="Bears/HQ" instance=ExtResource( 19 )]
+transform = Transform( 0.996328, -0.0855804, 0.00266457, 0.0856219, 0.995845, -0.0310059, 0, 0.0311202, 0.999516, 375.914, 12.6834, 3782.03 )
+team = "Bears"
+
+[node name="Refinery2" parent="Bears/HQ" instance=ExtResource( 19 )]
+transform = Transform( -0.258328, -0.0390316, 0.965269, -0.017637, 0.999208, 0.0356838, -0.965896, -0.00780631, -0.258811, 379.461, 13.0656, 3775.99 )
+team = "Bears"
+
+[node name="MunitionsFactory" parent="Bears/HQ" instance=ExtResource( 21 )]
+transform = Transform( 0.700977, 0.0462072, 0.711686, -0.147341, 0.985754, 0.0811223, -0.697798, -0.161725, 0.697798, 369.046, 12.0248, 3759.84 )
+team = "Bears"
+
+[node name="MunitionsFactory2" parent="Bears/HQ" instance=ExtResource( 21 )]
+transform = Transform( 0.697729, 0.0772138, 0.712188, -0.14761, 0.988336, 0.0374604, -0.700989, -0.131263, 0.700989, 370.577, 12.1641, 3761.37 )
+team = "Bears"
+
+[node name="The Great Tank Wall" type="Node" parent="Bears"]
+
+[node name="Vehicle" type="Spatial" parent="Bears/The Great Tank Wall"]
+transform = Transform( -0.988779, 0, 0.149385, 0, 1, 0, -0.149385, 0, -0.988779, 181.328, 4.2374, 3364.44 )
+script = ExtResource( 26 )
+max_health = 0
+team = "Bears"
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
+
+[node name="Vehicle2" type="Spatial" parent="Bears/The Great Tank Wall"]
+transform = Transform( -0.944602, 0, 0.328217, 0, 1, 0, -0.328217, 0, -0.944602, 394.219, 4.2374, 3389.41 )
+script = ExtResource( 26 )
+max_health = 0
+team = "Bears"
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
+
+[node name="Vehicle3" type="Spatial" parent="Bears/The Great Tank Wall"]
+transform = Transform( -0.899414, 0, 0.437097, 0, 1, 0, -0.437097, 0, -0.899414, 455.287, 4.2374, 3407.08 )
+script = ExtResource( 26 )
+max_health = 0
+team = "Bears"
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
+
+[node name="Vehicle4" type="Spatial" parent="Bears/The Great Tank Wall"]
+transform = Transform( -0.774765, 0, 0.63225, 0, 1, 0, -0.63225, 0, -0.774765, 509.862, 4.2374, 3445.24 )
+script = ExtResource( 26 )
+max_health = 0
+team = "Bears"
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
+
+[node name="Vehicle5" type="Spatial" parent="Bears/The Great Tank Wall"]
+transform = Transform( -0.774765, 0, 0.63225, 0, 1, 0, -0.63225, 0, -0.774765, 559.728, 4.52531, 3491.39 )
+script = ExtResource( 26 )
+max_health = 0
+team = "Bears"
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
+
+[node name="Vehicle6" type="Spatial" parent="Bears/The Great Tank Wall"]
+transform = Transform( -0.635273, 0.100858, 0.765673, -0.181647, 0.944107, -0.275074, -0.750621, -0.313829, -0.581445, 613.992, 15.6605, 3547.24 )
+script = ExtResource( 26 )
+max_health = 0
+team = "Bears"
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
+
+[node name="Vehicle7" type="Spatial" parent="Bears/The Great Tank Wall"]
+transform = Transform( -0.470134, 0, 0.882595, 0, 1, 0, -0.882595, 0, -0.470134, 651.694, 9.24912, 3596.18 )
+script = ExtResource( 26 )
+max_health = 0
+team = "Bears"
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
+
+[node name="Vehicle8" type="Spatial" parent="Bears/The Great Tank Wall"]
+transform = Transform( -0.828467, 0, 0.560037, 0, 1, 0, -0.560037, 0, -0.828467, 702.258, 9.24912, 3649.29 )
+script = ExtResource( 26 )
+max_health = 0
+team = "Bears"
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
+
+[node name="Centaurs" parent="." instance=ExtResource( 16 )]
+
+[node name="HQ" type="Node" parent="Centaurs"]
+
+[node name="SpawnPlatform" parent="Centaurs/HQ" instance=ExtResource( 6 )]
+transform = Transform( 0.992278, 0.123797, 0.00767756, -0.124035, 0.990375, 0.0614205, 0, -0.0618985, 0.998083, 1933.5, 73.1875, 2230 )
+team = "Centaurs"
+
+[node name="SpawnPlatform2" parent="Centaurs/HQ" instance=ExtResource( 6 )]
+transform = Transform( -0.48949, 0.123797, -0.863177, 0.115209, 0.990375, 0.076707, 0.864365, -0.0618985, -0.499041, 1956, 72.4063, 2277.5 )
+team = "Centaurs"
+
+[node name="SpawnPlatform3" parent="Centaurs/HQ" instance=ExtResource( 6 )]
+transform = Transform( -0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, -0.5, 1904.5, 75.2501, 2273.5 )
+team = "Centaurs"
+
+[node name="Refinery" parent="Centaurs/HQ" instance=ExtResource( 19 )]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1930.5, 76.1875, 2280.5 )
+team = "Centaurs"
+
+[node name="Refinery3" parent="Centaurs/HQ" instance=ExtResource( 19 )]
+transform = Transform( 0.496139, 0.124035, -0.859338, -0.0620174, 0.992278, 0.107417, 0.866026, 0, 0.5, 1950.12, 72.9923, 2250 )
+team = "Centaurs"
+
+[node name="Refinery2" parent="Centaurs/HQ" instance=ExtResource( 19 )]
+transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 1915, 76.1249, 2247 )
+team = "Centaurs"
+
+[node name="StoragePod" parent="Centaurs/HQ" instance=ExtResource( 11 )]
+transform = Transform( 0.998053, 0.0622573, 0.0038835, -0.0623783, 0.996117, 0.062136, 0, -0.0622573, 0.99806, 1930.58, 75.8575, 2259.42 )
+team = "Centaurs"
+
+[node name="StoragePod2" parent="Centaurs/HQ" instance=ExtResource( 11 )]
+transform = Transform( 0.992278, 0.124035, 0, -0.124035, 0.992278, 0, 0, 0, 1, 1935.66, 75.3525, 2259.5 )
+team = "Centaurs"
+
+[node name="StoragePod3" parent="Centaurs/HQ" instance=ExtResource( 11 )]
+transform = Transform( 0.992278, 0.124035, 0, -0.124035, 0.992278, 0, 0, 0, 1, 1933.16, 75.6024, 2259.5 )
+team = "Centaurs"
+
+[node name="StoragePod4" parent="Centaurs/HQ" instance=ExtResource( 11 )]
+transform = Transform( 0.998053, 0.0622573, 0.0038835, -0.0623783, 0.996117, 0.062136, 0, -0.0622573, 0.99806, 1928.08, 76.0762, 2259.42 )
+team = "Centaurs"
+
+[node name="StoragePod5" parent="Centaurs/HQ" instance=ExtResource( 11 )]
+transform = Transform( -0.00388355, 0.0622573, 0.998053, -0.062136, 0.996117, -0.0623783, -0.99806, -0.0622573, -4.35393e-08, 1931.58, 75.9199, 2263.42 )
+team = "Centaurs"
+
+[node name="StoragePod6" parent="Centaurs/HQ" instance=ExtResource( 11 )]
+transform = Transform( -0.00388355, 0.0622573, 0.998053, -0.062136, 0.996117, -0.0623783, -0.99806, -0.0622573, -4.35393e-08, 1931.58, 75.6074, 2255.42 )
+team = "Centaurs"
+
+[node name="Roboport" parent="Centaurs/HQ" instance=ExtResource( 15 )]
+transform = Transform( -0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, -0.707107, 1912, 75.6875, 2244 )
+team = "Centaurs"
+_radius2 = 5000.0
+
+[node name="Roboport2" parent="Centaurs/HQ" instance=ExtResource( 15 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1930.5, 75.75, 2285 )
+team = "Centaurs"
+_radius2 = 5000.0
+
+[node name="Roboport3" parent="Centaurs/HQ" instance=ExtResource( 15 )]
+transform = Transform( -0.50239, 0.0622573, 0.862397, -0.0226222, 0.996117, -0.0850892, -0.864345, -0.0622573, -0.49903, 1954.03, 71.9981, 2247.97 )
+team = "Centaurs"
+_radius2 = 5000.0
+
+[node name="HQWall" type="Node" parent="Centaurs"]
+
+[node name="Vehicle" type="Spatial" parent="Centaurs/HQWall"]
+transform = Transform( -0.777497, 0, -0.628886, 0, 1, 0, 0.628886, 0, -0.777497, 1648.92, 79.0293, 2001.43 )
+script = ExtResource( 26 )
+max_health = 0
+team = "Centaurs"
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
+
+[node name="Vehicle2" type="Spatial" parent="Centaurs/HQWall"]
+transform = Transform( -0.777497, 0, -0.628886, 0, 1, 0, 0.628886, 0, -0.777497, 1777.17, 79.0293, 1926.25 )
+script = ExtResource( 26 )
+max_health = 0
+team = "Centaurs"
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
+
+[node name="Vehicle3" type="Spatial" parent="Centaurs/HQWall"]
+transform = Transform( 0.574705, 0, 0.818361, 0, 1, 0, -0.818361, 0, 0.574705, 2303.9, 95.1624, 2600.4 )
+script = ExtResource( 26 )
+max_health = 0
+team = "Centaurs"
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
+
+[node name="Vehicle4" type="Spatial" parent="Centaurs/HQWall"]
+transform = Transform( 0.745199, 0, 0.666842, 0, 1, 0, -0.666842, 0, 0.745199, 1890.53, 102.385, 2709.73 )
+script = ExtResource( 26 )
+max_health = 0
+team = "Centaurs"
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
+
+[node name="Vehicle5" type="Spatial" parent="Centaurs/HQWall"]
+transform = Transform( 0.845134, 0, 0.534555, 0, 1, 0, -0.534555, 0, 0.845134, 2358.27, 102.644, 2239.37 )
+script = ExtResource( 26 )
+max_health = 0
+team = "Centaurs"
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
+
+[node name="Vehicle6" type="Spatial" parent="Centaurs/HQWall"]
+transform = Transform( 0.9457, 0, 0.32504, 0, 1, 0, -0.32504, 0, 0.9457, 1525.35, 69.2905, 2787.64 )
+script = ExtResource( 26 )
+max_health = 0
+team = "Centaurs"
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
+
+[node name="Mine" type="Node" parent="Centaurs"]
+
+[node name="LinkOreDrill" parent="Centaurs/Mine" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Centaurs/Mine/LinkOreDrill" instance=ExtResource( 13 )]
+transform = Transform( 0.998053, -0.0605228, -0.0151012, 0.0623783, 0.968364, 0.24162, 0, -0.242091, 0.970254, 2241.41, 65.5463, 2213.64 )
+team = "Centaurs"
+
+[node name="Ore" parent="Centaurs/Mine/LinkOreDrill" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2241.5, 64.0938, 2214 )
+
+[node name="LinkOreDrill2" parent="Centaurs/Mine" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Centaurs/Mine/LinkOreDrill2" instance=ExtResource( 13 )]
+transform = Transform( 0.988012, -0.150893, -0.0326121, 0.154377, 0.965715, 0.208718, 0, -0.21125, 0.977432, 2253.27, 64.0892, 2202.68 )
+team = "Centaurs"
+
+[node name="Ore" parent="Centaurs/Mine/LinkOreDrill2" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2253.5, 62.6406, 2203 )
+
+[node name="LinkOreDrill3" parent="Centaurs/Mine" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Centaurs/Mine/LinkOreDrill3" instance=ExtResource( 13 )]
+transform = Transform( 0.998053, -0.0543928, -0.0305364, 0.0623783, 0.870285, 0.488582, 0, -0.489535, 0.871983, 2238.92, 72.993, 2230.27 )
+team = "Centaurs"
+
+[node name="Ore" parent="Centaurs/Mine/LinkOreDrill3" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2239, 71.6875, 2231 )
+
+[node name="LinkOreDrill4" parent="Centaurs/Mine" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Centaurs/Mine/LinkOreDrill4" instance=ExtResource( 13 )]
+transform = Transform( 0.992278, 0.108306, 0.0604517, -0.124035, 0.866449, 0.483614, 0, -0.487377, 0.873191, 2224.66, 73.0184, 2228.77 )
+team = "Centaurs"
+
+[node name="Ore" parent="Centaurs/Mine/LinkOreDrill4" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2224.5, 71.7188, 2229.5 )
+
+[node name="Free ores" type="Node" parent="Centaurs/Mine"]
+
+[node name="Ore" parent="Centaurs/Mine/Free ores" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2234.5, 60.0312, 2193.5 )
+
+[node name="Ore2" parent="Centaurs/Mine/Free ores" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2217, 62.5782, 2192.5 )
+
+[node name="Ore3" parent="Centaurs/Mine/Free ores" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2224, 62.3125, 2203.5 )
+
+[node name="Ore4" parent="Centaurs/Mine/Free ores" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2225, 61.2812, 2185.5 )
+
+[node name="Ore9" parent="Centaurs/Mine/Free ores" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2240.5, 60.9844, 2201 )
+
+[node name="Ore5" parent="Centaurs/Mine/Free ores" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2211.5, 65.25, 2205.5 )
+
+[node name="Ore6" parent="Centaurs/Mine/Free ores" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2214, 70.625, 2223 )
+
+[node name="Ore7" parent="Centaurs/Mine/Free ores" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2223.5, 64.8125, 2214 )
+
+[node name="Ore8" parent="Centaurs/Mine/Free ores" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2205.5, 70.3749, 2216.5 )
+
+[node name="Roboport" parent="Centaurs/Mine" instance=ExtResource( 15 )]
+transform = Transform( -0.329389, 0.285831, 0.899891, -0.186325, 0.914659, -0.358723, -0.925627, -0.285831, -0.248021, 2173.14, 79.4885, 2209.36 )
+team = "Centaurs"
+_radius2 = 7000.0
+
+[node name="Roboport2" parent="Centaurs/Mine" instance=ExtResource( 15 )]
+transform = Transform( 0.999512, 0.031174, -0.00194742, -0.0312348, 0.997568, -0.0623176, 0, 0.062348, 0.998055, 2242.02, 60.53, 2178.53 )
+team = "Centaurs"
+_radius2 = 3500.0
+
+[node name="StoragePod" parent="Centaurs/Mine" instance=ExtResource( 11 )]
+transform = Transform( 0.685994, 0.242536, 0.685994, -0.171499, 0.970142, -0.171499, -0.707107, 0, 0.707107, 2193.32, 70.7612, 2182 )
+team = "Centaurs"
+
+[node name="StoragePod2" parent="Centaurs/Mine" instance=ExtResource( 11 )]
+transform = Transform( 0.699906, 0.296174, 0.649933, -0.130955, 0.947758, -0.29087, -0.702127, 0.11847, 0.702127, 2195.89, 70.2633, 2179.15 )
+team = "Centaurs"
+
+[node name="StoragePod3" parent="Centaurs/Mine" instance=ExtResource( 11 )]
+transform = Transform( 0.696374, 0.242091, 0.675615, -0.12998, 0.968364, -0.213017, -0.705811, 0.0605228, 0.705811, 2198.81, 69.6652, 2176.58 )
+team = "Centaurs"
+
+[node name="StoragePod4" parent="Centaurs/Mine" instance=ExtResource( 11 )]
+transform = Transform( 0.854767, 0.240772, 0.459785, -0.151646, 0.963087, -0.222412, -0.496364, 0.120386, 0.859727, 2208.81, 67.502, 2170.66 )
+team = "Centaurs"
+
+[node name="StoragePod5" parent="Centaurs/Mine" instance=ExtResource( 11 )]
+transform = Transform( 0.854767, 0.240772, 0.459785, -0.151646, 0.963087, -0.222412, -0.496364, 0.120386, 0.859727, 2211.81, 66.9395, 2169.16 )
+team = "Centaurs"
+
+[node name="StoragePod6" parent="Centaurs/Mine" instance=ExtResource( 11 )]
+transform = Transform( 0.862429, 0.182913, 0.471974, -0.0996718, 0.975537, -0.19594, -0.496269, 0.121942, 0.859563, 2214.74, 66.4244, 2167.66 )
+team = "Centaurs"
+
+[node name="Drone" parent="Centaurs/Mine" instance=ExtResource( 25 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2202.04, 70.3335, 2173.05 )
+team = "Centaurs"
+
+[node name="Dominator" parent="." instance=ExtResource( 16 )]
+
+[node name="HQ" type="Node" parent="Dominator"]
+
+[node name="SpawnPlatform" parent="Dominator/HQ" instance=ExtResource( 6 )]
+transform = Transform( 0.706072, -0.0312195, 0.707451, 0.0441511, 0.999025, 2.15378e-05, -0.706762, 0.0312195, 0.706762, 3765.5, 55.0312, 3731.5 )
+team = "Dominator"
+
+[node name="SpawnPlatform2" parent="Dominator/HQ" instance=ExtResource( 6 )]
+transform = Transform( 0.998053, 0.062348, 0.00194458, -0.0623783, 0.997568, 0.0311133, 0, -0.031174, 0.999514, 3566, 56.8437, 3759 )
+team = "Dominator"
+
+[node name="SpawnPlatform6" parent="Dominator/HQ" instance=ExtResource( 6 )]
+transform = Transform( 0.267599, -0.0616334, 0.961557, -0.132399, 0.986134, 0.100055, -0.954391, -0.154083, 0.255728, 3685, 51.5937, 3447 )
+team = "Dominator"
+
+[node name="SpawnPlatform3" parent="Dominator/HQ" instance=ExtResource( 6 )]
+transform = Transform( 0.706072, -0.0312195, 0.707451, 0.0441511, 0.999025, 2.15378e-05, -0.706762, 0.0312195, 0.706762, 3778.5, 55.9376, 3719.5 )
+team = "Dominator"
+
+[node name="SpawnPlatform4" parent="Dominator/HQ" instance=ExtResource( 6 )]
+transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 3737, 54.3125, 3760 )
+team = "Dominator"
+
+[node name="SpawnPlatform5" parent="Dominator/HQ" instance=ExtResource( 6 )]
+transform = Transform( 0.708139, 0.031174, 0.705385, 0.0219789, 0.997568, -0.0661515, -0.705731, 0.062348, 0.705731, 3750, 54.6562, 3747.5 )
+team = "Dominator"
+
+[node name="Mine" type="Node" parent="Dominator/HQ"]
+
+[node name="LinkOreDrill" parent="Dominator/HQ/Mine" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Dominator/HQ/Mine/LinkOreDrill" instance=ExtResource( 13 )]
+transform = Transform( 0.999512, 0.0312348, 0, -0.0312348, 0.999512, 0, 0, 0, 1, 3491.05, 59.8742, 3827.5 )
+team = "Dominator"
+
+[node name="Ore" parent="Dominator/HQ/Mine/LinkOreDrill" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3491, 58.375, 3827.5 )
+
+[node name="LinkOreDrill2" parent="Dominator/HQ/Mine" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Dominator/HQ/Mine/LinkOreDrill2" instance=ExtResource( 13 )]
+transform = Transform( 0.706072, 0.0312195, 0.707451, -0.0441511, 0.999025, -2.15378e-05, -0.706762, -0.0312195, 0.706762, 3498.05, 60.2954, 3832.45 )
+team = "Dominator"
+
+[node name="Ore" parent="Dominator/HQ/Mine/LinkOreDrill2" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3498, 58.7969, 3832.5 )
+
+[node name="LinkOreDrill3" parent="Dominator/HQ/Mine" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Dominator/HQ/Mine/LinkOreDrill3" instance=ExtResource( 13 )]
+transform = Transform( 0.866025, 0, -0.5, -0.0156174, 0.999512, -0.0270501, 0.499756, 0.0312348, 0.865603, 3482, 59.7805, 3834.05 )
+team = "Dominator"
+
+[node name="Ore" parent="Dominator/HQ/Mine/LinkOreDrill3" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3482, 58.2812, 3834 )
+
+[node name="LinkOreDrill4" parent="Dominator/HQ/Mine" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Dominator/HQ/Mine/LinkOreDrill4" instance=ExtResource( 13 )]
+transform = Transform( 0.998053, -0.062348, -0.00194458, 0.0623783, 0.997568, 0.0311133, 0, -0.031174, 0.999514, 3488.91, 59.9651, 3837.95 )
+team = "Dominator"
+
+[node name="Ore" parent="Dominator/HQ/Mine/LinkOreDrill4" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3489, 58.4688, 3838 )
+
+[node name="Ore" parent="Dominator/HQ/Mine" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3475.5, 58.3281, 3843 )
+
+[node name="Ore2" parent="Dominator/HQ/Mine" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3484, 58.4688, 3846.5 )
+
+[node name="Ore3" parent="Dominator/HQ/Mine" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3492, 58.6562, 3844 )
+
+[node name="Roboport" parent="Dominator/HQ/Mine" instance=ExtResource( 15 )]
+transform = Transform( -0.867244, 0.062107, -0.493994, 0.00753164, 0.993712, 0.111711, 0.497826, 0.0931605, -0.862259, 3500.53, 59.0281, 3846.05 )
+team = "Dominator"
+_radius2 = 1000.0
+
+[node name="StoragePod" parent="Dominator/HQ/Mine" instance=ExtResource( 11 )]
+transform = Transform( 0.999512, 0.0312348, 0, -0.0312348, 0.999512, 0, 0, 0, 1, 3510.54, 59.94, 3846.5 )
+team = "Dominator"
+
+[node name="StoragePod2" parent="Dominator/HQ/Mine" instance=ExtResource( 11 )]
+transform = Transform( 0.864629, 0.031174, 0.501443, -0.0582089, 0.997568, 0.0383512, -0.499027, -0.062348, 0.864341, 3508.54, 59.8437, 3836.92 )
+team = "Dominator"
+
+[node name="StoragePod3" parent="Dominator/HQ/Mine" instance=ExtResource( 11 )]
+transform = Transform( 0.864339, -0.0623783, -0.499026, 0.0540212, 0.998053, -0.0311891, 0.5, 0, 0.866025, 3506.92, 59.86, 3843.5 )
+team = "Dominator"
+
+[node name="Mine2" type="Node" parent="Dominator/HQ"]
+
+[node name="LinkOreDrill" parent="Dominator/HQ/Mine2" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Dominator/HQ/Mine2/LinkOreDrill" instance=ExtResource( 13 )]
+transform = Transform( 1, 0, 0, 0, 0.999512, 0.0312348, 0, -0.0312348, 0.999512, 3592.5, 58.1399, 3594.45 )
+team = "Dominator"
+
+[node name="Ore" parent="Dominator/HQ/Mine2/LinkOreDrill" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3592.5, 56.6406, 3594.5 )
+
+[node name="LinkOreDrill2" parent="Dominator/HQ/Mine2" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Dominator/HQ/Mine2/LinkOreDrill2" instance=ExtResource( 13 )]
+transform = Transform( 0.707451, -0.0312195, 0.706072, 2.15378e-05, 0.999025, 0.0441511, -0.706762, -0.0312195, 0.706762, 3604.45, 58.3579, 3589.95 )
+team = "Dominator"
+
+[node name="Ore" parent="Dominator/HQ/Mine2/LinkOreDrill2" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3604.5, 56.8593, 3590 )
+
+[node name="LinkOreDrill3" parent="Dominator/HQ/Mine2" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Dominator/HQ/Mine2/LinkOreDrill3" instance=ExtResource( 13 )]
+transform = Transform( 0.86609, -0.0312195, -0.498912, 0.0114479, 0.999025, -0.0426411, 0.499756, 0.0312195, 0.865603, 3586.45, 58.0923, 3585.55 )
+team = "Dominator"
+
+[node name="Ore" parent="Dominator/HQ/Mine2/LinkOreDrill3" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3586.5, 56.5937, 3585.5 )
+
+[node name="LinkOreDrill4" parent="Dominator/HQ/Mine2" instance=ExtResource( 14 )]
+
+[node name="Drill" parent="Dominator/HQ/Mine2/LinkOreDrill4" instance=ExtResource( 13 )]
+transform = Transform( 0.998053, -0.062348, 0.00194458, 0.0623783, 0.997568, -0.0311133, 0, 0.031174, 0.999514, 3602.91, 57.7932, 3555.55 )
+team = "Dominator"
+
+[node name="Ore" parent="Dominator/HQ/Mine2/LinkOreDrill4" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3603, 56.2969, 3555.5 )
+
+[node name="Ore" parent="Dominator/HQ/Mine2" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3593.5, 56.4063, 3561.5 )
+
+[node name="Ore2" parent="Dominator/HQ/Mine2" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3602.5, 56.4063, 3564.5 )
+
+[node name="Ore3" parent="Dominator/HQ/Mine2" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3614, 56.7657, 3584.5 )
+
+[node name="Roboport" parent="Dominator/HQ/Mine2" instance=ExtResource( 15 )]
+transform = Transform( -0.866577, 0.031174, -0.49807, -0.00410869, 0.997568, 0.069586, 0.499027, 0.062348, -0.864341, 3604.52, 57.3269, 3575.03 )
+team = "Dominator"
+_radius2 = 1000.0
+
+[node name="StoragePod" parent="Dominator/HQ/Mine2" instance=ExtResource( 11 )]
+transform = Transform( 0.999512, 0.0312195, 0.000975134, -0.0312348, 0.999025, 0.0312043, 0, -0.0312195, 0.999513, 3614.54, 57.9863, 3575.46 )
+team = "Dominator"
+
+[node name="StoragePod2" parent="Dominator/HQ/Mine2" instance=ExtResource( 11 )]
+transform = Transform( 0.865143, 0.0931605, 0.492797, -0.0499175, 0.993712, -0.100222, -0.499035, 0.062107, 0.864354, 3612.62, 57.8386, 3566.08 )
+team = "Dominator"
+
+[node name="StoragePod3" parent="Dominator/HQ/Mine2" instance=ExtResource( 11 )]
+transform = Transform( 0.865115, -0.0312195, -0.500601, 0.0426522, 0.999025, 0.0114063, 0.499756, -0.0312195, 0.865603, 3594.46, 57.8455, 3571.96 )
+team = "Dominator"
+
+[node name="Drone" parent="Dominator/HQ" instance=ExtResource( 25 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3705.48, 59.6065, 3698.05 )
+team = "Dominator"
+
+[node name="HTerrain" type="Spatial" parent="."]
+script = ExtResource( 1 )
+ambient_wind = 0.0
+lod_scale = 2.0
+map_scale = Vector3( 1, 1, 1 )
+_terrain_data = ExtResource( 2 )
+chunk_size = 32
+collision_enabled = true
+collision_layer = 129
+collision_mask = 129
+shader_type = "Classic4"
+custom_shader = null
+custom_globalmap_shader = null
+shader_params/u_ground_uv_scale_per_texture = Plane( 20, 10, 10, 50 )
+shader_params/u_depth_blending = false
+shader_params/u_triplanar = true
+shader_params/u_tile_reduction = Plane( 1, 1, 1, 1 )
+shader_params/u_globalmap_blend_start = 0.0
+shader_params/u_globalmap_blend_distance = 0.0
+shader_params/u_colormap_opacity_per_texture = Plane( 1, 1, 1, 1 )
+ground/albedo_bump_0 = ExtResource( 4 )
+ground/normal_roughness_0 = ExtResource( 3 )
+ground/albedo_bump_1 = null
+ground/normal_roughness_1 = null
+ground/albedo_bump_2 = ExtResource( 10 )
+ground/normal_roughness_2 = ExtResource( 9 )
+ground/albedo_bump_3 = ExtResource( 10 )
+ground/normal_roughness_3 = ExtResource( 9 )
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 9, 0 )
+
+[node name="FreeCamera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 343, 19.3367, 416 )
+far = 2000.0
+script = ExtResource( 5 )
+speed = 200.0
+
+[node name="AI" type="Node" parent="."]
+
+[node name="Arend" type="Timer" parent="AI"]
+script = ExtResource( 27 )
+
+[node name="Bears" type="Timer" parent="AI"]
+script = ExtResource( 27 )
+
+[node name="Centaurs" type="Timer" parent="AI"]
+script = ExtResource( 27 )
+
+[node name="Dominator" type="Timer" parent="AI"]
+script = ExtResource( 27 )
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource( 8 )
+
+[node name="HUD" parent="." instance=ExtResource( 17 )]
+camera = NodePath("../FreeCamera")

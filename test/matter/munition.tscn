@@ -1,7 +1,7 @@
 [gd_scene load_steps=14 format=2]
 
-[ext_resource path="res://core/hud.tscn" type="PackedScene" id=1]
-[ext_resource path="res://core/game_master.gd" type="Script" id=2]
+[ext_resource path="res://core/map/hud.tscn" type="PackedScene" id=1]
+[ext_resource path="res://core/map/game_master.gd" type="Script" id=2]
 [ext_resource path="res://test/matter/munition.gd" type="Script" id=3]
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery_ghost.tscn" type="PackedScene" id=4]
 [ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory_ghost.tscn" type="PackedScene" id=5]
@@ -11,6 +11,8 @@
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform_ghost.tscn" type="PackedScene" id=9]
 [ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=10]
 [ext_resource path="res://core/camera/free_camera.gd" type="Script" id=11]
+
+
 
 [sub_resource type="PlaneShape" id=1]
 

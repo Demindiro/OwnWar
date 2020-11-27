@@ -5,6 +5,8 @@
 [ext_resource path="res://plugins/basic_manufacturing/drill/ore_rock_mesh.tres" type="ArrayMesh" id=3]
 [ext_resource path="res://plugins/basic_manufacturing/drill/ore_collision_shape.tres" type="Shape" id=4]
 
+
+
 [node name="Ore" type="StaticBody"]
 script = ExtResource( 1 )
 

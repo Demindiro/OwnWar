@@ -1,4 +1,4 @@
-extends Unit
+extends Structure
 
 
 const _MAX_MATERIAL := 50
@@ -7,19 +7,15 @@ var _time_until_fuel_produced := 0.0
 var _producing := false
 var _material := 0
 var _fuel := 0
-onready var _material_id: int = Matter.get_matter_id("material")
-onready var _fuel_id: int = Matter.get_matter_id("fuel")
-
-
-func _init():
-	type_flags = TypeFlags.STRUCTURE
+var _material_id: int = Matter.get_matter_id("material")
+var _fuel_id: int = Matter.get_matter_id("fuel")
 
 
 func _physics_process(delta):
 	if _producing:
 		_time_until_fuel_produced += delta
 		if _time_until_fuel_produced >= 1.0 and _fuel < _MAX_FUEL:
-			_fuel += 1
+			_fuel += 10
 			emit_signal("dump_matter", _fuel_id, _fuel)
 			emit_signal("provide_matter", _fuel_id, _fuel)
 			_time_until_fuel_produced = 0.0
@@ -39,7 +35,9 @@ func get_info():
 
 
 func needs_matter(id: int) -> int:
-	return _MAX_MATERIAL - _material if _material_id == id else 0
+	if _material_id == id:
+		return _MAX_MATERIAL - _material
+	return 0
 
 
 func dumps_matter(id: int) -> int:
