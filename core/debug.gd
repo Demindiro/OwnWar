@@ -67,6 +67,15 @@ func draw_normal(origin: Vector3, direction: Vector3, color := Color.white):
 	end()
 
 
+func draw_graph(points: PoolVector3Array, color := Color.white):
+	assert(_assert_drawing)
+	begin(Mesh.PRIMITIVE_LINE_STRIP)
+	set_color(color)
+	for p in points:
+		add_vertex(p)
+	end()
+
+
 func _node_added(node: Node) -> void:
 	assert(not node in _funcrefs)
 	if node.has_method("debug_draw"):

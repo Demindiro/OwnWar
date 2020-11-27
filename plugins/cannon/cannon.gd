@@ -37,14 +37,15 @@ func debug_draw():
 	var projectile_position = _projectile_spawn.global_transform.origin
 	var projectile_velocity_v = _projectile_spawn.global_transform.basis.z * \
 			projectile_velocity
-	Debug.begin(Mesh.PRIMITIVE_LINE_STRIP)
-	Debug.set_color(Color.lightgreen)
-	for _i in range(int(20.0 / 0.1)):
-		Debug.add_vertex(projectile_position)
+	var l := int(20.0 / 0.1)
+	var arr := PoolVector3Array()
+	arr.resize(l)
+	for i in range(l):
+		arr[i] = projectile_position
 		projectile_velocity_v.y -= GRAVITY * 0.1 / 2
 		projectile_position += projectile_velocity_v * 0.1
 		projectile_velocity_v.y -= GRAVITY * 0.1 / 2
-	Debug.end()
+	Debug.draw_graph(arr, Color.lightgreen)
 
 
 func init(_coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
