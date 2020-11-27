@@ -33,9 +33,9 @@ func _on_Designer_load_game(data: Dictionary) -> void:
 	var gm: GameMaster = GameMaster.get_game_master(self)
 	var d = data.get("designer_map_data")
 	if d != null:
-		_player_spawn_platform = gm.get_unit_by_uid(d["player_spawn_platform.uid"])
-		_enemy_spawn_platform = gm.get_unit_by_uid(d["player_spawn_platform.uid"])
-		_player_storage_pod = gm.get_unit_by_uid(d["player_spawn_platform.uid"])
+		_player_spawn_platform = gm.get_unit_by_uid(d["player_spawn_platform_uid"])
+		_enemy_spawn_platform = gm.get_unit_by_uid(d["enemy_spawn_platform_uid"])
+		_player_storage_pod = gm.get_unit_by_uid(d["player_storage_pod_uid"])
 	else:
 		# Magic constants from before v0.14.1
 		_player_spawn_platform = gm.get_unit_by_uid(0)
