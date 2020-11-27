@@ -190,8 +190,6 @@ func _draw_circle(radius: float) -> void:
 func _set_radius2(radius2: float) -> void:
 	_radius2 = radius2
 	for unit in _units:
-		unit.disconnect("message", self, "_get_message")
-		unit.disconnect("destroyed", self, "_unit_destroyed")
 		unit.disconnect("destroyed", self, "_unit_destroyed")
 		unit.disconnect("need_matter", self, "_on_need_matter")
 		unit.disconnect("provide_matter", self, "_on_provide_matter")
