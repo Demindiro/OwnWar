@@ -18,3 +18,5 @@ data_*/
 
 # Dia backup files
 *.autosave
+
+/bin/
