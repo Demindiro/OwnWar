@@ -1,25 +1,23 @@
 extends "res://core/menu/dialog/independent_panel.gd"
 
 
-export var button_template: PackedScene
 onready var _info: Control = $Info
 onready var _info_id: Label = $Info/Box/Attributes/ID
 onready var _info_version: Label = $Info/Box/Attributes/Version
-onready var _info_dependencies: Control = $Info/Box/Dependencies
 onready var _info_dependencies_box: VBoxContainer = \
 	$Info/Box/Dependencies/Box/Box/Box
 onready var _info_enabled: Button = $Info/Box/Attributes/Enabled
 onready var _info_errors: Label = $Info/Box/Attributes/Errors
+onready var _list: BoxContainer = $List/Box
 
 
 func _ready():
 	var plugins = Plugin.get_all_plugins()
 	for id in plugins:
 		var plugin: Plugin.PluginState = plugins[id]
-		var singleton := plugin.singleton
-		var version := Util.version_vector_to_str(plugin.get_version())
-		var button: Button = button_template.instance()
-		button.text = "%s (%s)" % [id, version]
+		var button := Button.new()
+		button.text = id
+		button.align = Button.ALIGN_LEFT
 		var e := button.connect("pressed", self, "_show_info", [id])
 		assert(e == OK)
 		match plugin.disable_reason:
@@ -29,7 +27,7 @@ func _ready():
 				button.modulate = Color.orange
 			_:
 				button.modulate = Color.red
-		$ScrollContainer/VBoxContainer.add_child(button)
+		_list.add_child(button)
 
 
 func _show_info(id: String) -> void:
