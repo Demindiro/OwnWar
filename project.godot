@@ -77,7 +77,7 @@ _global_script_classes=[ {
 "base": "Object",
 "class": "OwnWar",
 "language": "GDScript",
-"path": "res://core/constants.gd"
+"path": "res://core/ownwar.gd"
 }, {
 "base": "Reference",
 "class": "Plugin",

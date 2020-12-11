@@ -1,6 +1,0 @@
-class_name OwnWar
-extends Object
-
-
-const VERSION := Vector3(0, 15, 2)
-const COLLISION_MASK_TERRAIN := 1 << (8 - 1)
