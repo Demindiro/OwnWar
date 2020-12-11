@@ -16,8 +16,9 @@ func _ready():
 	for id in plugins:
 		var plugin: PluginInterface = plugins[id].singleton
 		var button: Button = button_template.instance()
-		button.text = "%s (%d.%d.%d)" % [id,
-				plugin.PLUGIN_VERSION.x, plugin.PLUGIN_VERSION.y, plugin.PLUGIN_VERSION.z
+		button.text = "%s (%s)" % [
+				id,
+				Util.version_vector_to_str(plugin.PLUGIN_VERSION),
 			]
 		var e := button.connect("pressed", self, "_show_info", [plugin.PLUGIN_ID])
 		assert(e == OK)
