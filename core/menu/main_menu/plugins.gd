@@ -42,7 +42,8 @@ func _show_info(id: String) -> void:
 		var label := Label.new()
 		label.text = id
 		_info_dependencies_box.add_child(label)
-	_info_enabled.disconnect("toggled", self, "_enable_plugin")
+	if _info_enabled.is_connected("toggled", self, "_enable_plugin"):
+		_info_enabled.disconnect("toggled", self, "_enable_plugin")
 	_info_enabled.pressed = Plugin.is_plugin_enabled(id)
 	var e := _info_enabled.connect("toggled", self, "_enable_plugin", [id])
 	assert(e == OK)
