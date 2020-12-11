@@ -12,22 +12,40 @@ onready var _list: BoxContainer = $List/Box
 
 
 func _ready():
-	var plugins = Plugin.get_all_plugins()
+	var plugins := Plugin.get_all_plugins()
+	# Sort plugins by any disabled reason first, then enabled, then manually
+	# disabled and alphabetically lastly
+	var disabled := []
+	var enabled := []
+	var manual := []
 	for id in plugins:
-		var plugin: Plugin.PluginState = plugins[id]
-		var button := Button.new()
-		button.text = id
-		button.align = Button.ALIGN_LEFT
-		var e := button.connect("pressed", self, "_show_info", [id])
-		assert(e == OK)
-		match plugin.disable_reason:
+		match plugins[id].disable_reason:
 			Plugin.PluginState.NONE:
-				pass
+				enabled.append(id)
 			Plugin.PluginState.MANUAL:
-				button.modulate = Color.orange
+				manual.append(id)
 			_:
-				button.modulate = Color.red
-		_list.add_child(button)
+				disabled.append(id)
+	disabled.sort()
+	enabled.sort()
+	manual.sort()
+	for id in disabled:
+		_add_plugin_button(id, plugins[id], Color.red)
+	for id in enabled:
+		_add_plugin_button(id, plugins[id])
+	for id in manual:
+		_add_plugin_button(id, plugins[id], Color.orange)
+
+
+func _add_plugin_button(id: String, plugin: Plugin.PluginState, color = null):
+	var button := Button.new()
+	button.text = id
+	button.align = Button.ALIGN_LEFT
+	var e := button.connect("pressed", self, "_show_info", [id])
+	assert(e == OK)
+	if color != null:
+		button.modulate = color
+	_list.add_child(button)
 
 
 func _show_info(id: String) -> void:
