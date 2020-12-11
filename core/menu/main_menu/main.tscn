@@ -127,8 +127,7 @@ __meta__ = {
 visible = false
 margin_left = 456.0
 margin_top = 44.0
-margin_right = 987.0
-margin_bottom = 424.0
+margin_right = 1016.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource( 5 )
@@ -146,8 +145,8 @@ __meta__ = {
 }
 
 [node name="Box" type="VBoxContainer" parent="GUI/Plugins/List"]
-margin_right = 471.0
-margin_bottom = 320.0
+margin_right = 500.0
+margin_bottom = 276.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_constants/separation = 10
@@ -157,16 +156,16 @@ __meta__ = {
 
 [node name="Info" parent="GUI/Plugins" instance=ExtResource( 12 )]
 visible = false
-margin_left = -414.267
+margin_left = -414.0
 margin_top = 438.0
-margin_right = 504.733
+margin_right = 558.0
 margin_bottom = 818.0
 title = "Plugin info"
 
 [node name="Box" type="HBoxContainer" parent="GUI/Plugins/Info"]
 margin_left = 40.0
 margin_top = 40.0
-margin_right = 895.0
+margin_right = 954.0
 margin_bottom = 354.0
 custom_constants/separation = 100
 __meta__ = {
@@ -238,26 +237,26 @@ text = "<errors>"
 
 [node name="Dependencies" type="VBoxContainer" parent="GUI/Plugins/Info/Box"]
 margin_left = 500.0
-margin_right = 855.0
+margin_right = 912.0
 margin_bottom = 314.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Dependencies2" type="Label" parent="GUI/Plugins/Info/Box/Dependencies"]
-margin_right = 355.0
+margin_right = 412.0
 margin_bottom = 20.0
 text = "Dependencies"
 
 [node name="Box" type="PanelContainer" parent="GUI/Plugins/Info/Box/Dependencies"]
 margin_top = 30.0
-margin_right = 355.0
+margin_right = 412.0
 margin_bottom = 314.0
 size_flags_vertical = 3
 
 [node name="Box" type="ScrollContainer" parent="GUI/Plugins/Info/Box/Dependencies/Box"]
 margin_left = 16.0
 margin_top = 11.0
-margin_right = 339.0
+margin_right = 396.0
 margin_bottom = 273.0
 size_flags_vertical = 3
 scroll_horizontal_enabled = false
