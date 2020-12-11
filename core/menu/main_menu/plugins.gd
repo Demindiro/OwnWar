@@ -12,9 +12,11 @@ onready var _info_errors: Label = $Info/VBoxContainer/Errors
 
 
 func _ready():
-	for plugin in Plugin.get_all_plugins():
+	var plugins = Plugin.get_all_plugins()
+	for id in plugins:
+		var plugin: PluginInterface = plugins[id].singleton
 		var button: Button = button_template.instance()
-		button.text = "%s (%d.%d.%d)" % [plugin.PLUGIN_ID,
+		button.text = "%s (%d.%d.%d)" % [id,
 				plugin.PLUGIN_VERSION.x, plugin.PLUGIN_VERSION.y, plugin.PLUGIN_VERSION.z
 			]
 		var e := button.connect("pressed", self, "_show_info", [plugin.PLUGIN_ID])

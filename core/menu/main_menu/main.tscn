@@ -41,6 +41,9 @@ __meta__ = {
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -9 )
 script = ExtResource( 9 )
 max_health = 0
+team = ""
+unit_name = "unit"
+type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Timer" type="Timer" parent="."]

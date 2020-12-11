@@ -1,4 +1,4 @@
-extends "res://block/chassis/variant/complex/square_corner.gd"
+extends "../complex/square_corner.gd"
 
 
 func _init():

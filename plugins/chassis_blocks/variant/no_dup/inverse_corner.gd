@@ -1,4 +1,4 @@
-extends "res://block/chassis/variant/complex/inverse_corner.gd"
+extends "../complex/inverse_corner.gd"
 
 
 var _blacklist = [

@@ -82,7 +82,12 @@ _global_script_classes=[ {
 "base": "Reference",
 "class": "Plugin",
 "language": "GDScript",
-"path": "res://core/plugin.gd"
+"path": "res://core/plugin/loader.gd"
+}, {
+"base": "Reference",
+"class": "PluginInterface",
+"language": "GDScript",
+"path": "res://core/plugin/plugin.gd"
 }, {
 "base": "Unit",
 "class": "Structure",
@@ -135,6 +140,7 @@ _global_script_class_icons={
 "ObjectCache": "",
 "OptionButtonPreset": "",
 "Plugin": "",
+"PluginInterface": "",
 "Structure": "",
 "Unit": "",
 "Util": "",

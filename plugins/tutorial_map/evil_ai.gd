@@ -50,7 +50,7 @@ func _assign_tasks():
 	var platform = game_master.get_units(team, "spawn_platform")[0]
 	_worker.put_matter_in(1, [platform], false)
 	platform.connect("spawned", self, "_vehicle_spawned")
-	var dir: String = get_script().get_path().get_base_dir()
+	var dir: String = Util.get_script_dir(self) 
 	_spawned_vehicle = platform.spawn_vehicle(0, dir.plus_file("vehicles/tank.json"))
 
 

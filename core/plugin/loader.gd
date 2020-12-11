@@ -24,11 +24,11 @@ class PluginState:
 			DEPENDENCY_TOO_OLD: "Dependency too old",
 			DEPENDENCY_DISABLED: "Dependency disabled",
 		}
-	var plugin_script: GDScript
+	var singleton: PluginInterface
 	var disable_reason := NONE
 
 	func _init(p_script):
-		plugin_script = p_script
+		singleton = p_script.new()
 
 
 const _PLUGINS := {}
@@ -61,17 +61,14 @@ static func enable_plugin(id: String, enable: bool) -> bool:
 		return false
 
 
-static func get_plugin(name: String) -> GDScript:
+static func get_plugin(name: String) -> PluginState:
 	assert(name in _PLUGINS)
-	assert(_PLUGINS[name].plugin_script is GDScript)
-	return _PLUGINS[name].plugin_script
+	assert(_PLUGINS[name].singleton is PluginInterface)
+	return _PLUGINS[name].singleton
 
 
-static func get_all_plugins() -> Array:
-	var a := []
-	for id in _PLUGINS:
-		a.append(_PLUGINS[id].plugin_script)
-	return a
+static func get_all_plugins() -> Dictionary:
+	return _PLUGINS
 
 
 static func get_disable_reason(name: String) -> int:
@@ -120,7 +117,7 @@ static func load_plugins():
 		for id in _PLUGINS:
 			if _PLUGINS[id].disable_reason != PluginState.NONE:
 				continue
-			var script = _PLUGINS[id].plugin_script
+			var script = _PLUGINS[id].singleton
 			var flags := 0
 			for dep_id in script.PLUGIN_DEPENDENCIES:
 				var dep_req_ver: Vector3 = script.PLUGIN_DEPENDENCIES[dep_id]
@@ -130,7 +127,7 @@ static func load_plugins():
 					dependencies_satisfied = false
 					continue
 
-				var dep_ver: Vector3 = _PLUGINS[dep_id].plugin_script.PLUGIN_VERSION
+				var dep_ver: Vector3 = _PLUGINS[dep_id].singleton.PLUGIN_VERSION
 				if dep_ver < dep_req_ver:
 					print("%s dependency %s too old %s > %s" % [id, dep_id,
 							Util.version_vector_to_str(dep_req_ver),
@@ -153,17 +150,23 @@ static func load_plugins():
 	print("Calling pre_init")
 	for p in _PLUGINS.values():
 		if p.disable_reason == PluginState.NONE:
-			p.plugin_script.pre_init(p.plugin_script.resource_path.get_base_dir())
+			var s = p.singleton
+			if s.has_method("pre_init"):
+				s.pre_init()
 
 	print("Calling init")
 	for p in _PLUGINS.values():
 		if p.disable_reason == PluginState.NONE:
-			p.plugin_script.init(p.plugin_script.resource_path.get_base_dir())
+			var s = p.singleton
+			if s.has_method("init"):
+				s.init()
 
 	print("Calling post_init")
 	for p in _PLUGINS.values():
 		if p.disable_reason == PluginState.NONE:
-			p.plugin_script.post_init(p.plugin_script.resource_path.get_base_dir())
+			var s = p.singleton
+			if s.has_method("post_init"):
+				s.post_init()
 
 
 static func _load_plugins_from_dir() -> Array:
@@ -180,7 +183,9 @@ static func _load_plugins_from_dir() -> Array:
 		if plugin_path == "":
 			break
 		if dir.current_is_dir():
-			var script_path := "res://plugins/".plus_file(plugin_path).plus_file("plugin.gd")
+			var script_path := "res://plugins/" \
+				.plus_file(plugin_path) \
+				.plus_file("plugin.gd")
 			print("Loading %s" % [script_path])
 			var script = load(script_path)
 			if script == null:

@@ -223,3 +223,7 @@ static func is_transform_approx_eq(a: Transform, b: Transform,
 		epsilon_basis: float, epsilon_origin: float) -> bool:
 	return is_basis_approx_eq(a.basis, b.basis, epsilon_basis) and \
 			is_vec3_approx_eq(a.origin, b.origin, epsilon_origin)
+
+
+static func get_script_dir(object: Object) -> String:
+	return object.get_script().get_path().get_base_dir()

@@ -1,4 +1,4 @@
-extends "res://block/chassis/variant/no_dup/inverse_corner.gd"
+extends "inverse_corner.gd"
 
 
 func _init():
