@@ -43,25 +43,16 @@ const _PLUGINS := {}
 static func enable_plugin(id: String, enable: bool) -> bool:
 	var p: PluginState = _PLUGINS.get(id)
 	if p != null:
-		if p.disable_reason == PluginState.NONE or \
-				p.disable_reason == PluginState.MANUAL:
-			var text := Util.read_file_text("user://plugins/disabled.txt")
-			var list := Array(text.split("\n")) if text != null else []
+		var text := Util.read_file_text("user://plugins/disabled.txt")
+		var list := Array(text.split("\n")) if text != null else []
 
-			if enable and id in list:
-				list.erase(id)
-			elif not enable and not id in list:
-				list.append(id)
+		if enable and id in list:
+			list.erase(id)
+		elif not enable and not id in list:
+			list.append(id)
 
-			return Util.write_file_text("user://plugins/disabled.txt",
-					PoolStringArray(list).join("\n"))
-		else:
-			var s := PoolStringArray()
-			for i in range(len(PluginState.DISABLE_REASON_TO_STR)):
-				if p.disable_reason & (1 << i):
-					s.append(PluginState.DISABLE_REASON_TO_STR[(1 << i)])
-			print("Can't enable plugin %s : %s" % [id, s.join(", ")])
-			return false
+		return Util.write_file_text("user://plugins/disabled.txt",
+				PoolStringArray(list).join("\n"))
 	else:
 		print("Plugin %s not found" % id)
 		return false

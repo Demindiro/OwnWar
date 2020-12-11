@@ -51,13 +51,10 @@ func _show_info(id: String) -> void:
 	var disable_reason = Plugin.get_disable_reason(id)
 	match disable_reason:
 		Plugin.PluginState.NONE:
-			_info_enabled.visible = true
 			_info_errors.text = ""
 		Plugin.PluginState.MANUAL:
-			_info_enabled.visible = true
 			_info_errors.text = ""
 		_:
-			_info_enabled.visible = false
 			var strs := PoolStringArray()
 			var reason: int = Plugin.get_disable_reason(id)
 			for i in range(64):
