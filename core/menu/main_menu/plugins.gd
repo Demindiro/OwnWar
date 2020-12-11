@@ -10,19 +10,17 @@ onready var _info_enabled: Button = $Info/VBoxContainer/Enabled
 onready var _info_errors: Label = $Info/VBoxContainer/Errors
 
 
-
 func _ready():
 	var plugins = Plugin.get_all_plugins()
 	for id in plugins:
-		var plugin: PluginInterface = plugins[id].singleton
+		var plugin: Plugin.PluginState = plugins[id]
+		var singleton := plugin.singleton
+		var version := Util.version_vector_to_str(plugin.get_version())
 		var button: Button = button_template.instance()
-		button.text = "%s (%s)" % [
-				id,
-				Util.version_vector_to_str(plugin.PLUGIN_VERSION),
-			]
-		var e := button.connect("pressed", self, "_show_info", [plugin.PLUGIN_ID])
+		button.text = "%s (%s)" % [id, version]
+		var e := button.connect("pressed", self, "_show_info", [id])
 		assert(e == OK)
-		match Plugin.get_disable_reason(plugin.PLUGIN_ID):
+		match plugin.disable_reason:
 			Plugin.PluginState.NONE:
 				pass
 			Plugin.PluginState.MANUAL:

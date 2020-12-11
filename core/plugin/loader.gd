@@ -30,6 +30,9 @@ class PluginState:
 	func _init(p_script):
 		singleton = p_script.new()
 
+	func get_version() -> Vector3:
+		return singleton.PLUGIN_VERSION
+
 
 const _PLUGINS := {}
 
@@ -88,7 +91,7 @@ static func load_plugins():
 
 	print("Checking IDs and versions")
 	for script in scripts:
-		var id: String = script.PLUGIN_ID
+		var id: String = script.get_path().get_base_dir().get_file()
 		if id in _PLUGINS:
 			print("Conflicting plugin id! %s", id)
 			_PLUGINS[id].disable_reason |= PluginState.CONFLICT

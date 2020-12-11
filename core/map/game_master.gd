@@ -1,6 +1,5 @@
 class_name GameMaster
 extends Node
-
 signal unit_added(unit)
 # "unused" (see line 177)
 # warning-ignore:unused_signal
@@ -84,10 +83,13 @@ func save_game(p_name: String) -> int:
 		s_units[var2str(u.uid)] = u_data
 
 	var s_plugins := {}
-	for plugin in Plugin.get_all_plugins():
-		if Plugin.get_disable_reason(plugin.PLUGIN_ID) == Plugin.PluginState.NONE:
-			s_plugins[plugin.PLUGIN_ID] = plugin.save_game(self)
-			assert(s_plugins[plugin.PLUGIN_ID] is Dictionary)
+	var plugins := Plugin.get_all_plugins()
+	for id in plugins:
+		var p = plugins[id]
+		if p.disable_reason == Plugin.PluginState.NONE:
+			if id.singleton.has_method("save_game"):
+				s_plugins[id] = id.singleton.save_game(self)
+				assert(s_plugins[id] is Dictionary)
 
 	var data := {
 			"map_name": map_name,
@@ -159,7 +161,8 @@ func _load_game(data: Dictionary) -> void:
 
 	for plugin_name in data["plugin_data"]:
 		var plugin = Plugin.get_plugin(plugin_name)
-		plugin.load_game(self, data["plugin_data"][plugin_name])
+		if plugin.singleton.has_method("load_game"):
+			plugin.singleton.load_game(self, data["plugin_data"][plugin_name])
 
 	for unit in get_tree().get_nodes_in_group("units"):
 		unit.deserialize_json(units_data[var2str(unit.uid)]["data"])
