@@ -67,7 +67,7 @@ var _loader_callback_arguments: Array
 
 
 func _init():
-	print("Game version %s" % [Constants.VERSION])
+	print("Game version %s" % [OwnWar.VERSION])
 	Block.add_block(preload("block/debug/vane.tres"))
 # warning-ignore:return_value_discarded
 	Matter.add_matter("material", 1_000_000)

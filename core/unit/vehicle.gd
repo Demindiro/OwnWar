@@ -328,7 +328,7 @@ func deserialize_json(data: Dictionary) -> void:
 	voxel_bodies = []
 
 	var conv_table := Compatibility.get_block_name_mapping(Vector3(0, 10, 0),
-			Constants.VERSION)
+			OwnWar.VERSION)
 
 	for vb_data in data["blocks"]:
 		var vb := VoxelBody.new()

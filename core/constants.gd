@@ -1,4 +1,4 @@
-class_name Constants
+class_name OwnWar
 extends Object
 
 

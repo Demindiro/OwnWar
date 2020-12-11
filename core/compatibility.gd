@@ -43,14 +43,14 @@ static func get_block_name_mapping(from_version: Vector3, to_version: Vector3) \
 
 static func convert_vehicle_data(data):
 	var file_version = Util.version_str_to_vector(data["game_version"])
-	if file_version > Constants.VERSION:
+	if file_version > OwnWar.VERSION:
 		Global.error("Can't load vehicle data: the data was created in a more " +
 			"recent version of the game")
 		return null
-	var mapping = get_block_name_mapping(file_version, Constants.VERSION)
+	var mapping = get_block_name_mapping(file_version, OwnWar.VERSION)
 	var converted_data = {}
 	var converted_blocks = {}
-	converted_data["game_version"] = Util.version_vector_to_str(Constants.VERSION)
+	converted_data["game_version"] = Util.version_vector_to_str(OwnWar.VERSION)
 	var old_blocks = data["blocks"]
 	for key in old_blocks:
 		var block_data = _convert_block_data(data["blocks"][key], file_version)
@@ -67,7 +67,7 @@ static func convert_vehicle_data(data):
 static func convert_game_data(data: Dictionary):# -> Dictionary:
 	var data_version := Util.version_str_to_vector(
 			data.get("game_version", "0.0.0"))
-	if data_version > Constants.VERSION:
+	if data_version > OwnWar.VERSION:
 		Global.error("Can't load game data: the data was created in a more " +
 				"recent version of the game")
 		return null
@@ -90,7 +90,7 @@ static func convert_game_data(data: Dictionary):# -> Dictionary:
 
 
 static func add_block_mapping(from: String, to: String, version: Vector3) -> void:
-	assert(version <= Constants.VERSION)
+	assert(version <= OwnWar.VERSION)
 	var d := _get_block_map(version)
 	assert(not from in d)
 	d[from] = to

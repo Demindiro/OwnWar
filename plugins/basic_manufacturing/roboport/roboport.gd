@@ -180,7 +180,7 @@ func _draw_circle(radius: float) -> void:
 		# NOTE: raycast tests against large bodies are very inaccurate because
 		# reasons (https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=3524)
 		var result := space_state.intersect_ray(v + Vector3.UP * 1000,
-				v + Vector3.DOWN * 1000, [], Constants.COLLISION_MASK_TERRAIN)
+				v + Vector3.DOWN * 1000, [], OwnWar.COLLISION_MASK_TERRAIN)
 		if len(result) > 0:
 			v = result.position + Vector3.UP * 0.025
 		_immediate_geometry.add_vertex(to_local(v))

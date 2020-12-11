@@ -101,7 +101,7 @@ static func load_plugins():
 		else:
 			_PLUGINS[id] = PluginState.new(script)
 
-		if Constants.VERSION < script.MIN_VERSION:
+		if OwnWar.VERSION < script.MIN_VERSION:
 			print("Plugin version is more recent than the game version! %s", id)
 			print("Plugin version: %d.%d.%d" % [script.MIN_VERSION.x,
 					script.MIN_VERSION.y, script.MIN_VERSION.z])

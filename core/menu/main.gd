@@ -9,6 +9,7 @@ onready var _vehicle: Vehicle = $"../Vehicle"
 onready var _button_campaign: Control = $Campaign
 onready var _button_plugins: Control = $Plugins
 onready var _button_saves: Control = $Saves
+onready var _background := $"../Background"
 
 
 func _ready():
@@ -24,7 +25,7 @@ func _ready_deferred():
 			return
 	call_deferred("_on_Timer_timeout")
 	_timer.start()
-	_version.text = Util.version_vector_to_str(Constants.VERSION)
+	_version.text = Util.version_vector_to_str(OwnWar.VERSION)
 
 
 func _on_Timer_timeout():

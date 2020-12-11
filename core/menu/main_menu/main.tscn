@@ -309,6 +309,8 @@ scroll_horizontal_enabled = false
 margin_bottom = 262.0
 size_flags_vertical = 3
 
+[node name="Background" type="Node" parent="."]
+
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 0.866025, 0.25, -0.433013, 0, 0.866025, 0.5, 0.5, -0.433013, 0.75, 0, 25.7531, 0 )
 light_energy = 0.5

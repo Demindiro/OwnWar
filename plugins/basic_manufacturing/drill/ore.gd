@@ -22,7 +22,7 @@ func _process(_delta: float) -> void:
 		var result := state.intersect_ray(
 				org + Vector3.UP * 1_000.0,
 				org + Vector3.DOWN * 1_000.0,
-				[], Constants.COLLISION_MASK_TERRAIN)
+				[], OwnWar.COLLISION_MASK_TERRAIN)
 		if len(result) > 0:
 			org.y = result["position"].y
 		else:
