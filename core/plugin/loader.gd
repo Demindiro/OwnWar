@@ -33,6 +33,9 @@ class PluginState:
 	func get_version() -> Vector3:
 		return singleton.PLUGIN_VERSION
 
+	func get_dependencies() -> Dictionary:
+		return singleton.PLUGIN_DEPENDENCIES
+
 
 const _PLUGINS := {}
 
@@ -66,8 +69,8 @@ static func enable_plugin(id: String, enable: bool) -> bool:
 
 static func get_plugin(name: String) -> PluginState:
 	assert(name in _PLUGINS)
-	assert(_PLUGINS[name].singleton is PluginInterface)
-	return _PLUGINS[name].singleton
+	assert(_PLUGINS[name] is PluginState)
+	return _PLUGINS[name]
 
 
 static func get_all_plugins() -> Dictionary:

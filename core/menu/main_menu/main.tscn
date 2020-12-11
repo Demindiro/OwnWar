@@ -150,6 +150,7 @@ __meta__ = {
 }
 
 [node name="Saves" parent="GUI" instance=ExtResource( 12 )]
+visible = false
 margin_left = 456.0
 margin_top = 44.0
 margin_right = 1016.0
@@ -201,51 +202,113 @@ __meta__ = {
 [node name="Info" parent="GUI/Plugins" instance=ExtResource( 12 )]
 visible = false
 margin_left = -414.267
-margin_top = 463.0
+margin_top = 438.0
 margin_right = 504.733
-margin_bottom = 843.0
+margin_bottom = 818.0
 title = "Plugin info"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="GUI/Plugins/Info"]
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="Box" type="HBoxContainer" parent="GUI/Plugins/Info"]
 margin_left = 40.0
 margin_top = 40.0
-margin_right = -20.0
-margin_bottom = -20.0
+margin_right = 895.0
+margin_bottom = 354.0
+custom_constants/separation = 100
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ID" type="Label" parent="GUI/Plugins/Info/VBoxContainer"]
-margin_right = 859.0
+[node name="Attributes" type="GridContainer" parent="GUI/Plugins/Info/Box"]
+margin_right = 400.0
+margin_bottom = 314.0
+rect_min_size = Vector2( 400, 0 )
+size_flags_vertical = 3
+custom_constants/hseparation = 50
+columns = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="IDLabel" type="Label" parent="GUI/Plugins/Info/Box/Attributes"]
+margin_right = 93.0
 margin_bottom = 20.0
-text = "ID: <id>"
+text = "ID"
 
-[node name="Version" type="Label" parent="GUI/Plugins/Info/VBoxContainer"]
-margin_top = 30.0
-margin_right = 859.0
-margin_bottom = 50.0
-text = "Version: <version>"
+[node name="ID" type="Label" parent="GUI/Plugins/Info/Box/Attributes"]
+margin_left = 143.0
+margin_right = 255.0
+margin_bottom = 20.0
+text = "<id>"
 
-[node name="Dependencies" type="Label" parent="GUI/Plugins/Info/VBoxContainer"]
-margin_top = 60.0
-margin_right = 859.0
-margin_bottom = 80.0
-text = "Dependencies: <dependencies>"
+[node name="VersionLabel" type="Label" parent="GUI/Plugins/Info/Box/Attributes"]
+margin_top = 24.0
+margin_right = 93.0
+margin_bottom = 44.0
+text = "Version"
 
-[node name="Enabled" type="CheckButton" parent="GUI/Plugins/Info/VBoxContainer"]
-visible = false
-margin_top = 90.0
-margin_right = 859.0
-margin_bottom = 143.629
+[node name="Version" type="Label" parent="GUI/Plugins/Info/Box/Attributes"]
+margin_left = 143.0
+margin_top = 24.0
+margin_right = 255.0
+margin_bottom = 44.0
+text = "<version>"
+
+[node name="EnabledLabel" type="Label" parent="GUI/Plugins/Info/Box/Attributes"]
+margin_top = 54.0
+margin_right = 93.0
+margin_bottom = 74.0
+size_flags_horizontal = 9
 text = "Enabled"
 
-[node name="Errors" type="Label" parent="GUI/Plugins/Info/VBoxContainer"]
-margin_top = 90.0
-margin_right = 859.0
-margin_bottom = 110.0
-text = "Errors: <errors>"
+[node name="Enabled" type="CheckButton" parent="GUI/Plugins/Info/Box/Attributes"]
+margin_left = 143.0
+margin_top = 48.0
+margin_right = 207.0
+margin_bottom = 80.0
+grow_horizontal = 0
+size_flags_horizontal = 0
+
+[node name="ErrorsLabel" type="Label" parent="GUI/Plugins/Info/Box/Attributes"]
+margin_top = 84.0
+margin_right = 93.0
+margin_bottom = 104.0
+text = "Errors"
+
+[node name="Errors" type="Label" parent="GUI/Plugins/Info/Box/Attributes"]
+margin_left = 143.0
+margin_top = 84.0
+margin_right = 255.0
+margin_bottom = 104.0
+text = "<errors>"
+
+[node name="Dependencies" type="VBoxContainer" parent="GUI/Plugins/Info/Box"]
+margin_left = 500.0
+margin_right = 855.0
+margin_bottom = 314.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Dependencies2" type="Label" parent="GUI/Plugins/Info/Box/Dependencies"]
+margin_right = 355.0
+margin_bottom = 20.0
+text = "Dependencies"
+
+[node name="Box" type="PanelContainer" parent="GUI/Plugins/Info/Box/Dependencies"]
+margin_top = 30.0
+margin_right = 355.0
+margin_bottom = 314.0
+size_flags_vertical = 3
+
+[node name="Box" type="ScrollContainer" parent="GUI/Plugins/Info/Box/Dependencies/Box"]
+margin_left = 16.0
+margin_top = 11.0
+margin_right = 339.0
+margin_bottom = 273.0
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+
+[node name="Box" type="VBoxContainer" parent="GUI/Plugins/Info/Box/Dependencies/Box/Box"]
+margin_bottom = 262.0
+size_flags_vertical = 3
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 0.866025, 0.25, -0.433013, 0, 0.866025, 0.5, 0.5, -0.433013, 0.75, 0, 25.7531, 0 )

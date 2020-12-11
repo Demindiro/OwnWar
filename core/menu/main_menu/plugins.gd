@@ -3,11 +3,13 @@ extends "res://core/menu/dialog/independent_panel.gd"
 
 export var button_template: PackedScene
 onready var _info: Control = $Info
-onready var _info_id: Label = $Info/VBoxContainer/ID
-onready var _info_version: Label = $Info/VBoxContainer/Version
-onready var _info_dependencies: Label = $Info/VBoxContainer/Dependencies
-onready var _info_enabled: Button = $Info/VBoxContainer/Enabled
-onready var _info_errors: Label = $Info/VBoxContainer/Errors
+onready var _info_id: Label = $Info/Box/Attributes/ID
+onready var _info_version: Label = $Info/Box/Attributes/Version
+onready var _info_dependencies: Control = $Info/Box/Dependencies
+onready var _info_dependencies_box: VBoxContainer = \
+	$Info/Box/Dependencies/Box/Box/Box
+onready var _info_enabled: Button = $Info/Box/Attributes/Enabled
+onready var _info_errors: Label = $Info/Box/Attributes/Errors
 
 
 func _ready():
@@ -34,14 +36,14 @@ func _show_info(id: String) -> void:
 	var plugin := Plugin.get_plugin(id)
 
 	_info.visible = true
-	_info_id.text = "ID: " + id
-	# warning-ignore:unsafe_property_access
-	var version: Vector3 = plugin.PLUGIN_VERSION
-	_info_version.text = "Version: %s" % Util.version_vector_to_str(version)
-	# warning-ignore:unsafe_property_access
-	var deps: Dictionary = plugin.PLUGIN_DEPENDENCIES
-	_info_dependencies.text = "Dependencies: " + PoolStringArray(deps.keys()) \
-			.join(", ")
+	_info_id.text = id
+	_info_version.text = Util.version_vector_to_str(plugin.get_version())
+	Util.free_children(_info_dependencies_box)
+	var dependencies := plugin.get_dependencies()
+	for id in dependencies:
+		var label := Label.new()
+		label.text = id
+		_info_dependencies_box.add_child(label)
 	_info_enabled.disconnect("toggled", self, "_enable_plugin")
 	_info_enabled.pressed = Plugin.is_plugin_enabled(id)
 	var e := _info_enabled.connect("toggled", self, "_enable_plugin", [id])
@@ -51,20 +53,19 @@ func _show_info(id: String) -> void:
 	match disable_reason:
 		Plugin.PluginState.NONE:
 			_info_enabled.visible = true
-			_info_errors.visible = false
+			_info_errors.text = ""
 		Plugin.PluginState.MANUAL:
 			_info_enabled.visible = true
-			_info_errors.visible = false
+			_info_errors.text = ""
 		_:
 			_info_enabled.visible = false
-			_info_errors.visible = true
 			var strs := PoolStringArray()
 			var reason: int = Plugin.get_disable_reason(id)
 			for i in range(64):
 				var m := 1 << i
 				if reason & m:
 					strs.append(Plugin.PluginState.DISABLE_REASON_TO_STR[m])
-			_info_errors.text = "Error: " + strs.join(", ")
+			_info_errors.text = strs.join(", ")
 
 
 func _enable_plugin(enable: bool, id: String):
