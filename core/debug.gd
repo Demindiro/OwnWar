@@ -18,6 +18,7 @@ func _init():
 	mat.vertex_color_use_as_albedo = true
 	_im.material_override = mat
 	_create_point_mesh()
+	pause_mode = Node.PAUSE_MODE_PROCESS
 
 
 func _enter_tree():
