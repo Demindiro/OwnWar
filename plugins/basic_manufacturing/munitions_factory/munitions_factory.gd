@@ -39,15 +39,20 @@ func _physics_process(delta):
 
 func get_actions():
 	var actions = [
-			["Turn off", Action.INPUT_NONE, "set_munition_type", [null]]
-		]
+		OwnWar.Action.new(
+			"Turn off",
+			Action.INPUT_NONE,
+			funcref(self, "set_munition_type"),
+			[null]
+		)
+	]
 	for munition_type in munition_types:
-		actions.append([
-				"Produce %s" % str(munition_type),
-				Action.INPUT_NONE,
-				"set_munition_type",
-				[munition_type],
-			])
+		actions.append(OwnWar.Action.new(
+			"Produce %s" % str(munition_type),
+			Action.INPUT_NONE,
+			funcref(self, "set_munition_type"),
+			[munition_type]
+		))
 	return actions
 
 

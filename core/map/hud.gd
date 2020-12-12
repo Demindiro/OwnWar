@@ -158,7 +158,8 @@ func filter_units():
 		$Actions.add_child(button)
 
 
-func set_action_buttons(unit_name, sub_action = null, arguments = null):
+func set_action_buttons(unit_name: String, sub_action: FuncRef = null,
+		arguments := []) -> void:
 	var filtered_units = []
 	for unit in selected_units:
 		if unit.unit_name == unit_name:
@@ -174,24 +175,20 @@ func set_action_buttons(unit_name, sub_action = null, arguments = null):
 
 	var unit = selected_units[0]
 	var shortcut_index = 0
-	for action in unit.get_actions() if sub_action == null else \
-			unit.callv(sub_action, [get_modifier_flags()] + arguments):
-#		var action_name = action[0]
-#		var action_flags = action[1]
-		var action_function = action[2]
-		var action_arguments = action[3] if len(action) > 3 else []
-		var action_pressed = action[4] if len(action) > 4 else false
+	for r_action in unit.get_actions() if sub_action == null else \
+			sub_action.call_funcv([get_modifier_flags()] + arguments):
+		var action: OwnWar.Action = r_action
 
-		var button = _action_button_template.duplicate()
-		button.text = action[0]
-		if action[1] & Unit.Action.SUBACTION:
+		var button: Button = _action_button_template.duplicate()
+		button.text = action.name
+		if action.input_flags & Unit.Action.SUBACTION:
 			button.connect("pressed", self, "set_action_buttons",
-					[unit_name, action_function, action_arguments])
-		elif action[1] & Unit.Action.INPUT_COORDINATE:
+					[unit_name, action.function, action.arguments])
+		elif action.input_flags & Unit.Action.INPUT_COORDINATE:
 			button.connect("pressed", self, "get_coordinate", [button, action])
 			button.toggle_mode = true
-		elif action[1] & Unit.Action.INPUT_UNITS:
-			if action[1] & Unit.Action.INPUT_ENEMY_UNITS:
+		elif action.input_flags & Unit.Action.INPUT_UNITS:
+			if action.input_flags & Unit.Action.INPUT_ENEMY_UNITS:
 				_units_teams_mask = []
 				for t in game_master.teams:
 					if t != team:
@@ -200,10 +197,10 @@ func set_action_buttons(unit_name, sub_action = null, arguments = null):
 				_units_teams_mask = [team]
 			button.connect("pressed", self, "get_units", [button, action])
 			button.toggle_mode = true
-		elif action[1] & Unit.Action.INPUT_TOGGLE:
+		elif action.input_flags & Unit.Action.INPUT_TOGGLE:
 			button.connect("pressed", self, "send_toggle", [button, action])
 			button.toggle_mode = true
-			button.pressed = action_pressed
+			button.pressed = action.pressed
 		else:
 			button.connect("pressed", self, "send_plain", [action])
 
@@ -230,7 +227,7 @@ func set_action_buttons(unit_name, sub_action = null, arguments = null):
 	$Actions.add_child(button)
 
 
-func get_coordinate(button, action):
+func get_coordinate(button: Button, action: OwnWar.Action) -> void:
 	if button == _action_button:
 		clear_action_button()
 		return
@@ -241,7 +238,7 @@ func get_coordinate(button, action):
 	button.pressed = true
 
 
-func get_units(button, action):
+func get_units(button: Button, action: OwnWar.Action) -> void:
 	if button == _action_button:
 		clear_action_button()
 		return
@@ -252,33 +249,33 @@ func get_units(button, action):
 	button.pressed = true
 
 
-func send_coordinate(coordinate):
+func send_coordinate(coordinate: Vector3) -> void:
 	for unit in selected_units:
 		var arguments = [get_modifier_flags(), coordinate]
-		if _action[1] & Unit.Action.INPUT_SCROLL:
+		if _action.input_flags & Unit.Action.INPUT_SCROLL:
 			arguments += [_scroll]
-		arguments += _action[3]
-		unit.callv(_action[2], arguments)
+		arguments += _action.arguments
+		_action.function.call_funcv(arguments)
 	clear_action_button()
 
 
-func send_units(units):
+func send_units(units: Array) -> void:
 	for unit in selected_units:
-		var arguments = [get_modifier_flags(), units] + _action[3]
-		unit.callv(_action[2], arguments)
+		var arguments = [get_modifier_flags(), units] + _action.arguments
+		_action.function.call_funcv(arguments)
 	clear_action_button()
 
 
-func send_toggle(button, action):
+func send_toggle(button: Button, action: OwnWar.Action) -> void:
 	for unit in selected_units:
-		var arguments = [get_modifier_flags(), button.pressed] + action[3]
-		unit.callv(action[2], arguments)
+		var arguments = [get_modifier_flags(), button.pressed] + action.arguments
+		action.function.call_funcv(arguments)
 
 
-func send_plain(action):
+func send_plain(action: OwnWar.Action) -> void:
 	for unit in selected_units:
-		var arguments = [get_modifier_flags()] + action[3]
-		unit.callv(action[2], arguments)
+		var arguments = [get_modifier_flags()] + action.arguments
+		action.function.call_funcv(arguments)
 
 
 func clear_action_button():
@@ -373,24 +370,20 @@ func show_action_feedback():
 					normal * 1_000_000)
 			if len(result) > 0:
 				for unit in selected_units:
-					var arguments = [get_modifier_flags(), result.position]
-					if _action[1] & Unit.Action.INPUT_SCROLL:
-						arguments += [_scroll]
-					arguments += _action[3]
-					unit.show_action_feedback(_action[2], _camera.get_viewport(), arguments)
+					if _action.feedback != null:
+						var arguments := [
+							_camera.get_viewport(),
+							get_modifier_flags(),
+							result.position,
+						]
+						if _action.input_flags & Unit.Action.INPUT_SCROLL:
+							arguments += [_scroll]
+						arguments += _action.arguments
+						_action.feedback.call_funcv(arguments)
 		"units":
-			for unit in selected_units:
-				unit.hide_action_feedback()
-#			if event.pressed:
-#				_selecting_units = true
-#				_mouse_position_start = _last_mouse_position
-#			else:
-#				_selecting_units = false
-#				var units = get_selected_units(_units_teams_mask)
-#				send_units(units)
+			pass
 		_:
-			for unit in selected_units:
-				unit.hide_action_feedback()
+			pass
 
 
 func _unit_destroyed(unit):

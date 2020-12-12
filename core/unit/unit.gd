@@ -50,8 +50,6 @@ func projectile_hit(_origin: Vector3, _direction: Vector3, damage: int):
 
 
 func get_actions() -> Array:
-	# Return format: [human_name, flags, function_name, [args...]]
-	# If INPUT_TOGGLE is specified, append a bool to indicate on/off
 	return []
 
 
@@ -60,14 +58,6 @@ func show_feedback():
 
 
 func hide_feedback():
-	pass
-
-
-func show_action_feedback(_function: String, _viewport: Viewport, _arguments: Array) -> void:
-	pass
-
-
-func hide_action_feedback() -> void:
 	pass
 
 

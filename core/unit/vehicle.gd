@@ -179,7 +179,12 @@ func get_actions():
 
 
 func add_action(object, human_name, flags, function, arguments):
-	var action = [human_name, flags, "do_action", [[object, function] + arguments]]
+	var action := OwnWar.Action.new(
+			human_name,
+			flags,
+			funcref(self, "do_action"),
+			[[object, function] + arguments]
+		)
 	actions.append(action)
 	if object in _object_to_actions_map:
 		_object_to_actions_map[object].append(action)

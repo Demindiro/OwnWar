@@ -309,25 +309,39 @@ func _physics_process(delta):
 
 
 func get_actions():
+	var A := OwnWar.Action
 	return [
-			["Set waypoint", Action.INPUT_COORDINATE, "set_waypoint", []],
-			["Take", Action.INPUT_OWN_UNITS, "take_matter_from", [false]],
-			["Put", Action.INPUT_OWN_UNITS, "put_matter_in", [false]],
-			["Take only", Action.INPUT_OWN_UNITS, "take_matter_from", [true]],
-			["Put only", Action.INPUT_OWN_UNITS, "put_matter_in", [true]],
-			["Build", Action.SUBACTION, "get_build_actions", []],
-			["Clear tasks", Action.INPUT_NONE, "clear_tasks", []],
-		]
+		A.new("Set waypoint", Action.INPUT_COORDINATE,
+			funcref(self, "set_waypoint")),
+		A.new("Take", Action.INPUT_OWN_UNITS, funcref(self, "take_matter_from"),
+			[false]),
+		A.new("Put", Action.INPUT_OWN_UNITS, funcref(self, "put_matter_in"),
+			[false]),
+		A.new("Take only", Action.INPUT_OWN_UNITS,
+			funcref(self, "take_matter_from"), [true]),
+		A.new("Put only", Action.INPUT_OWN_UNITS,
+			funcref(self, "put_matter_in"), [true]),
+		A.new("Build", Action.SUBACTION, funcref(self, "get_build_actions")),
+		A.new("Clear tasks", Action.INPUT_NONE, funcref(self, "clear_tasks")),
+	]
 
 
 func get_build_actions(_flags):
+	var A := OwnWar.Action
 	var actions = [
-			["Build", Action.INPUT_OWN_UNITS, "build", []],
-			["Build drill", Action.INPUT_COORDINATE, "build_drill", []],
+			A.new("Build", Action.INPUT_OWN_UNITS, funcref(self, "build")),
+			A.new("Build drill", Action.INPUT_COORDINATE,
+				funcref(self, "build_drill")),
 		]
 	for ghost_name in ghosts:
-		actions += [["Build " + ghost_name, Action.INPUT_COORDINATE | Action.INPUT_SCROLL,
-				"build_ghost", [ghost_name]]]
+		actions.append(
+			A.new(
+				"Build " + ghost_name,
+				Action.INPUT_COORDINATE | Action.INPUT_SCROLL,
+				funcref(self, "build_ghost"),
+				[ghost_name]
+			)
+		)
 	return actions
 
 

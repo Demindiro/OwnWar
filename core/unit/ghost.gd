@@ -1,5 +1,5 @@
 class_name Ghost
-extends Unit
+extends Structure
 
 
 signal built()
@@ -14,6 +14,21 @@ func get_info():
 	var info = .get_info()
 	info["Progress"] = "%d / %d" % [build_progress, cost]
 	return info
+
+
+func enable_preview_mode():
+	remove_from_group("units")
+	remove_from_group("units_" + team)
+	propagate_call("set_physics_process", [false])
+	for c in Util.get_children_recursive(self):
+		if c is RigidBody:
+			c.collision_layer = 0
+			c.collision_mask = 0
+
+
+func show_preview(position: Vector3):
+	self.global_transform.origin = position
+	OwnWar.snap_transform(self)
 
 
 func add_build_progress(material):

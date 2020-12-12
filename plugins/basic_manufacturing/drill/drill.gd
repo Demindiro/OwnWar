@@ -96,6 +96,5 @@ func deserialize_json(data: Dictionary) -> void:
 
 
 func init(p_ore) -> void:
-	breakpoint
 	ore = p_ore
 	ore.drill = self

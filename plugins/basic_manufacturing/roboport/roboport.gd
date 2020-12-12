@@ -47,9 +47,13 @@ func _process(_delta: float) -> void:
 
 func get_actions() -> Array:
 	var actions := .get_actions()
-	actions += [
-			["Set Coverage", Action.INPUT_COORDINATE, "set_coverage_radius", []]
-		]
+	var set_cov := OwnWar.Action.new(
+		"Set Coverage",
+		Action.INPUT_COORDINATE,
+		funcref(self, "set_coverage_radius")
+	)
+	set_cov.feedback = funcref(self, "set_coverage_radius_feedback")
+	actions.append(set_cov)
 	return actions
 
 func get_info() -> Dictionary:
@@ -77,18 +81,14 @@ func hide_feedback():
 		_immediate_geometry = null
 
 
-func show_action_feedback(function: String, viewport: Viewport, arguments: Array) -> void:
-	match function:
-		"set_coverage_radius":
-			var position: Vector3 = arguments[1]
-			var projected_position := Plane(transform.basis.y, 0).project(position)
-			_draw_circle(translation.distance_to(projected_position))
-		_:
-			.show_action_feedback(function, viewport, arguments)
-
-
 func set_coverage_radius(_flags: int, position: Vector3) -> void:
 	_set_radius2(translation.distance_squared_to(position))
+
+
+func set_coverage_radius_feedback(viewport: Viewport, _flags: int,
+	position: Vector3) -> void:
+	var projected_position := Plane(transform.basis.y, 0).project(position)
+	_draw_circle(translation.distance_to(projected_position))
 
 
 func assign_tasks() -> void:
