@@ -87,8 +87,8 @@ func save_game(p_name: String) -> int:
 	for id in plugins:
 		var p = plugins[id]
 		if p.disable_reason == Plugin.PluginState.NONE:
-			if id.singleton.has_method("save_game"):
-				s_plugins[id] = id.singleton.save_game(self)
+			if p.singleton.has_method("save_game"):
+				s_plugins[id] = p.singleton.save_game(self)
 				assert(s_plugins[id] is Dictionary)
 
 	var data := {
