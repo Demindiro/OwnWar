@@ -182,10 +182,13 @@ func set_action_buttons(unit_name: String, sub_action: FuncRef = null,
 		var button: Button = _action_button_template.duplicate()
 		button.text = action.name
 		if action.input_flags & Unit.Action.SUBACTION:
-			button.connect("pressed", self, "set_action_buttons",
-					[unit_name, action.function, action.arguments])
+			var e := button.connect("pressed", self, "set_action_buttons",
+				[unit_name, action.function, action.arguments])
+			assert(e == OK)
 		elif action.input_flags & Unit.Action.INPUT_COORDINATE:
-			button.connect("pressed", self, "get_coordinate", [button, action])
+			var e := button.connect("pressed", self, "get_coordinate",
+				[button, action])
+			assert(e == OK)
 			button.toggle_mode = true
 		elif action.input_flags & Unit.Action.INPUT_UNITS:
 			if action.input_flags & Unit.Action.INPUT_ENEMY_UNITS:
@@ -195,14 +198,19 @@ func set_action_buttons(unit_name: String, sub_action: FuncRef = null,
 						_units_teams_mask.append(t)
 			else:
 				_units_teams_mask = [team]
-			button.connect("pressed", self, "get_units", [button, action])
+			var e := button.connect("pressed", self, "get_units",
+				[button, action])
+			assert(e == OK)
 			button.toggle_mode = true
 		elif action.input_flags & Unit.Action.INPUT_TOGGLE:
-			button.connect("pressed", self, "send_toggle", [button, action])
+			var e := button.connect("pressed", self, "send_toggle",
+				[button, action])
+			assert(e == OK)
 			button.toggle_mode = true
 			button.pressed = action.pressed
 		else:
-			button.connect("pressed", self, "send_plain", [action])
+			var e := button.connect("pressed", self, "send_plain", [action])
+			assert(e == OK)
 
 		if shortcut_index < SHORTCUT_COUNT:
 			var input_event = InputEventAction.new()
