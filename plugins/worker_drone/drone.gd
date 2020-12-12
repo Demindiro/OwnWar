@@ -329,10 +329,8 @@ func get_actions():
 func get_build_actions(_flags):
 	var A := OwnWar.Action
 	var actions = [
-			A.new("Build", Action.INPUT_OWN_UNITS, funcref(self, "build")),
-			A.new("Build drill", Action.INPUT_COORDINATE,
-				funcref(self, "build_drill")),
-		]
+		A.new("Build", Action.INPUT_OWN_UNITS, funcref(self, "build")),
+	]
 	for ghost_name in ghosts:
 		var a := A.new(
 			"Build " + ghost_name,
@@ -429,25 +427,6 @@ func build_ghost_feedback(viewport: Viewport, flags: int, position: Vector3,
 	ghost.snap_transform(position, scroll)
 	yield(get_tree(), "idle_frame")
 	ghost.free()
-
-
-
-func build_drill(flags, coordinate):
-	var closest_ore = null
-	var max_distance = 3.0
-	for ore in game_master.get_tree().get_nodes_in_group("ores"):
-		var distance = (ore.translation - coordinate).length()
-		if ore.drill == null and distance < max_distance:
-			closest_ore = ore
-			max_distance = distance
-	if closest_ore != null:
-		var ghost = drill_ghost.instance()
-		ghost.translation = closest_ore.translation + Vector3.UP * 1.4
-		ghost.init_arguments = [closest_ore]
-		ghost.team = team
-		game_master.add_child(ghost)
-		var t := TaskBuild.new(ghost)
-		add_task(t, flags & 0x1 > 0)
 
 
 func put_matter_in(flags, units, only):
