@@ -349,8 +349,13 @@ func add_task(task: Task, force_append: bool) -> void:
 		clear_tasks(0)
 	if not task is TaskGoto:
 		# warning-ignore:unsafe_property_access
-		task.unit.connect("destroyed", self, "_unit_destroyed", [task],
+		var e: int = task.unit.connect("destroyed", self, "_unit_destroyed", [],
 				CONNECT_REFERENCE_COUNTED)
+		assert(e == OK)
+	if task is TaskBuild:
+		# warning-ignore:unsafe_property_access
+		var e: int = task.unit.connect("built", self, "_ghost_built", [task])
+		assert(e == OK)
 	tasks.append(task)
 
 
@@ -387,7 +392,6 @@ func build(flags, units):
 		if ghost is Ghost:
 			var t := TaskBuild.new(ghost)
 			add_task(t, force_append)
-			ghost.connect("built", self, "_ghost_built", [t])
 			force_append = true
 
 
@@ -398,7 +402,6 @@ func build_ghost(flags, position, scroll, ghost_name):
 	game_master.add_child(ghost)
 	var t := TaskBuild.new(ghost)
 	add_task(t, flags & 0x1 > 0)
-	ghost.connect("built", self, "_ghost_built", [t])
 
 
 func build_drill(flags, coordinate):
@@ -417,7 +420,6 @@ func build_drill(flags, coordinate):
 		game_master.add_child(ghost)
 		var t := TaskBuild.new(ghost)
 		add_task(t, flags & 0x1 > 0)
-		ghost.connect("built", self, "_ghost_built", [t])
 
 
 func put_matter_in(flags, units, only):
@@ -449,7 +451,7 @@ func clear_tasks(_flags):
 		if not task is TaskGoto:
 			task.unit.disconnect("destroyed", self, "_unit_destroyed")
 		if task is TaskBuild:
-			task.unit.disconnect("built", self, "emit_signal")
+			task.unit.disconnect("built", self, "_ghost_built")
 	tasks = []
 
 
@@ -514,14 +516,14 @@ func _ghost_built(task: Task):
 	emit_signal("task_completed", task)
 
 
-func _unit_destroyed(_unit, task):
-	while true:
-		var index = tasks.find_last(task)
-		if index < 0:
-			break
-		tasks.remove(index)
-		if index == 0:
-			_task_cached_unit = null
+func _unit_destroyed(unit):
+	for i in range(len(tasks) - 1, -1, -1):
+		var task: Task = tasks[i]
+		# warning-ignore:unsafe_property_access
+		if not task is TaskGoto and task.unit == unit:
+			tasks.remove(i)
+			if i == 0:
+				_task_cached_unit = null
 
 
 func _put_matter(id: int, unit: Unit, delta: float) -> bool:
