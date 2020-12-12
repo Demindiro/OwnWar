@@ -1,8 +1,15 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://core/camera/free_camera.gd" type="Script" id=1]
 [ext_resource path="res://test/turret/wheel.tscn" type="PackedScene" id=2]
 
+[sub_resource type="GDScript" id=12]
+script/source = "extends Node
+
+func _ready():
+	var x = $VehicleBody/TurretJoint.get(\"angular_limit_x/upper_angle\")
+	print(x)
+"
 
 [sub_resource type="CubeMesh" id=1]
 size = Vector3( 200, 2, 200 )
@@ -76,6 +83,7 @@ extents = Vector3( 0.2, 0.2, 0.2 )
 size = Vector3( 0.4, 0.4, 0.4 )
 
 [node name="Tank" type="Node"]
+script = SubResource( 12 )
 
 [node name="StaticBody" type="StaticBody" parent="."]
 
@@ -135,7 +143,8 @@ damping_relaxation = 0.8
 transform = Transform( 1.91069e-15, 4.37114e-08, -1, 1, -4.37114e-08, 0, -4.37114e-08, -1, -4.37114e-08, 0, 0, 0 )
 nodes/node_a = NodePath("..")
 nodes/node_b = NodePath("../../Turret")
-angular_limit_x/enabled = false
+angular_limit_x/upper_angle = 5.0
+angular_limit_x/lower_angle = -5.0
 angular_motor_x/enabled = true
 angular_limit_y/softness = 0.01
 angular_limit_y/restitution = 0.1

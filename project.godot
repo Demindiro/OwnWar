@@ -34,10 +34,10 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/map/game_master.gd"
 }, {
-"base": "Unit",
+"base": "Reference",
 "class": "Ghost",
 "language": "GDScript",
-"path": "res://plugins/basic_manufacturing/ghost.gd"
+"path": "res://core/unit/ghost.gd"
 }, {
 "base": "ResourceFormatLoader",
 "class": "HTerrainDataLoader",

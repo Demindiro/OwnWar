@@ -73,11 +73,12 @@ func serialize_json() -> Dictionary:
 			"time_until_next": _time_until_next,
 		}
 	if ore != null:
-		data["ore_translation"] = ore.translation
+		data["ore_translation"] = var2str(ore.translation)
 	return data
 
 
 func deserialize_json(data: Dictionary) -> void:
+	breakpoint
 	material = data["material"]
 	if "ticks_until_next" in data:
 		_time_until_next = data["ticks_until_next"] / 150.0
@@ -85,13 +86,16 @@ func deserialize_json(data: Dictionary) -> void:
 		_time_until_next = data["time_until_next"]
 	var ore_translation = data.get("ore_translation")
 	if ore_translation != null:
+		var ot: Vector3 = str2var(ore_translation)
 		for o in get_tree().get_nodes_in_group("ores"):
-			if o.translation == ore_translation:
+			if o.translation == ot:
+				breakpoint
 				ore = o
 				break
 		assert(ore != null)
 
 
 func init(p_ore) -> void:
+	breakpoint
 	ore = p_ore
 	ore.drill = self
