@@ -24,17 +24,11 @@ enum Action {
 
 	SUBACTION = 0x100,
 }
-enum TypeFlags {
-	DEFAULT = 0x0,
-	GHOST = 0x2,
-}
 const UNITS := {}
 export var max_health := 10
 export var team := ""
 # warning-ignore:unused_class_variable
 export var unit_name := "unit"
-# warning-ignore:unused_class_variable
-export var type_flags := TypeFlags.DEFAULT
 # warning-ignore:unused_class_variable
 var uid := -1
 onready var health := max_health

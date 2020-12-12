@@ -10,10 +10,6 @@ export(int) var cost = 10
 var build_progress = 0
 
 
-func _init():
-	type_flags = TypeFlags.GHOST
-
-
 func get_info():
 	var info = .get_info()
 	info["Progress"] = "%d / %d" % [build_progress, cost]
