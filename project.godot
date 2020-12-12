@@ -34,7 +34,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/map/game_master.gd"
 }, {
-"base": "Reference",
+"base": "Structure",
 "class": "Ghost",
 "language": "GDScript",
 "path": "res://core/unit/ghost.gd"
@@ -74,7 +74,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/option_button_preset.gd"
 }, {
-"base": "Object",
+"base": "Reference",
 "class": "OwnWar",
 "language": "GDScript",
 "path": "res://core/ownwar.gd"

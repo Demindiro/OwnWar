@@ -37,17 +37,22 @@ func snap_transform(position: Vector3, scroll: int):
 func add_build_progress(material):
 	build_progress += material
 	if build_progress >= cost:
-		var unit = structure.instance()
-		unit.team = team
-		unit.global_transform = global_transform
-		unit.translate(spawn_offset)
-		GameMaster.get_game_master(self).add_child(unit)
-		if unit.has_method("init") or init_arguments != []:
-			unit.callv("init", init_arguments)
-		destroy()
-		emit_signal("built")
+		finished_building()
 		return cost - build_progress
 	return 0
+
+
+func finished_building():
+	var unit = structure.instance()
+	unit.team = team
+	unit.global_transform = global_transform
+	unit.translate(spawn_offset)
+	GameMaster.get_game_master(self).add_child(unit)
+	if unit.has_method("init") or init_arguments != []:
+		unit.callv("init", init_arguments)
+	destroy()
+	emit_signal("built")
+
 
 
 func serialize_json() -> Dictionary:
