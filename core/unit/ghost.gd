@@ -26,8 +26,11 @@ func enable_preview_mode():
 			c.collision_mask = 0
 
 
-func show_preview(position: Vector3):
-	self.global_transform.origin = position
+func snap_transform(position: Vector3, scroll: int):
+	self.global_transform = Transform(
+		Basis.IDENTITY.rotated(Vector3.UP, scroll * PI / 8),
+		position
+	)
 	OwnWar.snap_transform(self)
 
 

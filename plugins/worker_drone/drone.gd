@@ -334,14 +334,14 @@ func get_build_actions(_flags):
 				funcref(self, "build_drill")),
 		]
 	for ghost_name in ghosts:
-		actions.append(
-			A.new(
-				"Build " + ghost_name,
-				Action.INPUT_COORDINATE | Action.INPUT_SCROLL,
-				funcref(self, "build_ghost"),
-				[ghost_name]
-			)
+		var a := A.new(
+			"Build " + ghost_name,
+			Action.INPUT_COORDINATE | Action.INPUT_SCROLL,
+			funcref(self, "build_ghost"),
+			[ghost_name]
 		)
+		a.feedback = funcref(self, "build_ghost_feedback")
+		actions.append(a)
 	return actions
 
 
@@ -409,13 +409,27 @@ func build(flags, units):
 			force_append = true
 
 
-func build_ghost(flags, position, scroll, ghost_name):
+func build_ghost(flags: int, position: Vector3, scroll: int, ghost_name: String
+	) -> void:
 	var ghost = ghosts[ghost_name].instance()
-	ghost.transform = Transform(Basis.IDENTITY.rotated(Vector3.UP, scroll * PI / 8), position)
 	ghost.team = team
 	game_master.add_child(ghost)
+	ghost.snap_transform(position, scroll)
 	var t := TaskBuild.new(ghost)
 	add_task(t, flags & 0x1 > 0)
+
+
+func build_ghost_feedback(viewport: Viewport, flags: int, position: Vector3,
+	scroll: int, ghost_name: String) -> void:
+	# This is absolutely terrible, but I don't really care since it shouldn't
+	# impact performance much anyways
+	var ghost: Ghost = ghosts[ghost_name].instance()
+	get_tree().root.add_child(ghost)
+	ghost.enable_preview_mode()
+	ghost.snap_transform(position, scroll)
+	yield(get_tree(), "idle_frame")
+	ghost.free()
+
 
 
 func build_drill(flags, coordinate):
