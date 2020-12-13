@@ -1,4 +1,4 @@
-extends PluginInterface
+extends OwnWar.Plugin.Interface
 
 
 const MIN_VERSION := Vector3(0, 15, 1)

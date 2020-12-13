@@ -1,4 +1,9 @@
+const Interface := preload("plugin.gd")
+
+
 class PluginState:
+	const Interface := preload("plugin.gd")
+
 	enum {
 		NONE = 0x0,
 		MANUAL = 0x1,
@@ -21,7 +26,7 @@ class PluginState:
 			DEPENDENCY_TOO_OLD: "Dependency too old",
 			DEPENDENCY_DISABLED: "Dependency disabled",
 		}
-	var singleton: PluginInterface
+	var singleton: Interface
 	var disable_reason := NONE
 
 	func _init(p_script):
@@ -145,23 +150,17 @@ static func load_plugins():
 	print("Calling pre_init")
 	for p in _PLUGINS.values():
 		if p.disable_reason == PluginState.NONE:
-			var s = p.singleton
-			if s.has_method("pre_init"):
-				s.pre_init()
+			p.singleton.pre_init()
 
 	print("Calling init")
 	for p in _PLUGINS.values():
 		if p.disable_reason == PluginState.NONE:
-			var s = p.singleton
-			if s.has_method("init"):
-				s.init()
+			p.singleton.init()
 
 	print("Calling post_init")
 	for p in _PLUGINS.values():
 		if p.disable_reason == PluginState.NONE:
-			var s = p.singleton
-			if s.has_method("post_init"):
-				s.post_init()
+			p.singleton.post_init()
 
 
 static func _load_plugins_from_dir() -> Array:

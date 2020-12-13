@@ -90,11 +90,12 @@ func save_game(p_name: String) -> int:
 	var s_plugins := {}
 	var plugins := Plugin.get_all_plugins()
 	for id in plugins:
-		var p = plugins[id]
+		var p: Plugin.PluginState = plugins[id]
 		if p.disable_reason == Plugin.PluginState.NONE:
-			if p.singleton.has_method("save_game"):
-				s_plugins[id] = p.singleton.save_game(self)
-				assert(s_plugins[id] is Dictionary)
+			var data := p.singleton.save_game(self)
+			assert(data is Dictionary)
+			if len(data) > 0:
+				s_plugins[id] = data
 
 	var game_version: Vector3 = load("res://core/ownwar.gd").VERSION
 	var data := {
@@ -167,8 +168,7 @@ func _load_game(data: Dictionary) -> void:
 
 	for plugin_name in data["plugin_data"]:
 		var plugin = Plugin.get_plugin(plugin_name)
-		if plugin.singleton.has_method("load_game"):
-			plugin.singleton.load_game(self, data["plugin_data"][plugin_name])
+		plugin.singleton.load_game(self, data["plugin_data"][plugin_name])
 
 	for unit in get_tree().get_nodes_in_group("units"):
 		unit.deserialize_json(units_data[var2str(unit.uid)]["data"])

@@ -17,7 +17,6 @@ const VoxelBody := preload("voxel_body.gd")
 const VoxelMesh := preload("voxel_mesh.gd")
 
 const Plugin := preload("plugin/loader.gd")
-const PluginInterface := preload("plugin/plugin.gd")
 
 
 const VERSION := Vector3(0, 15, 2)
