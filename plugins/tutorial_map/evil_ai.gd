@@ -2,7 +2,7 @@ extends Node
 
 
 export var team := "EvilAI"
-onready var game_master = GameMaster.get_game_master(self)
+onready var game_master := OwnWar.GameMaster.get_game_master(self)
 var _worker
 var _spawned_vehicle
 var _target
@@ -30,9 +30,9 @@ func _physics_process(_delta):
 
 
 func _on_Area_body_entered(body):
-	if body is Unit and body.team != team:
+	if body is OwnWar.Unit and body.team != team:
 		_enemies_in_territory.append(body)
-	elif body is VoxelBody and body.get_parent().team != team:
+	elif body is OwnWar.VoxelBody and body.get_parent().team != team:
 		_enemies_in_territory.append(body.get_parent())
 
 
@@ -50,7 +50,7 @@ func _assign_tasks():
 	var platform = game_master.get_units(team, "spawn_platform")[0]
 	_worker.put_matter_in(1, [platform], false)
 	platform.connect("spawned", self, "_vehicle_spawned")
-	var dir: String = Util.get_script_dir(self) 
+	var dir: String = Util.get_script_dir(self)
 	_spawned_vehicle = platform.spawn_vehicle(0, dir.plus_file("vehicles/tank.json"))
 
 
