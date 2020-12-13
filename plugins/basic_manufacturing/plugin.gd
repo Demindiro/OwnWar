@@ -15,6 +15,7 @@ const Roboport := preload("roboport/roboport.gd")
 
 
 func pre_init():
+	var Unit := OwnWar.Unit
 	Unit.add_unit("drill", preload("drill/drill.tscn"))
 	Unit.add_unit("munitions_factory", preload("munitions_factory/munitions_factory.tscn"))
 	Unit.add_unit("storage_pod", preload("storage_pod/storage_pod.tscn"))

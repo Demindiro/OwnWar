@@ -10,4 +10,4 @@ const PLUGIN_DEPENDENCIES := {
 
 
 func pre_init():
-	Block.add_block(preload("wheel.tres"))
+	OwnWar.Block.add_block(preload("wheel.tres"))

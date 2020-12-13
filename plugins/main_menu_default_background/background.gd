@@ -4,7 +4,7 @@ extends Node
 const WAYPOINT_MIN_RADIUS = 100
 const WAYPOINT_MAX_RADIUS = 200
 onready var _timer: Timer = $"Timer"
-onready var _vehicle: Vehicle = $"Vehicle"
+onready var _vehicle: OwnWar.Vehicle = $"Vehicle"
 
 
 func _ready():

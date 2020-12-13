@@ -1,5 +1,4 @@
-class_name Structure
-extends Unit
+extends "unit.gd"
 
 
 # warning-ignore:unused_class_variable

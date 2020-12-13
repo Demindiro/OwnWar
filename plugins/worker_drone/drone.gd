@@ -1,4 +1,4 @@
-extends Unit
+extends OwnWar.Unit
 
 
 class Task:
@@ -37,10 +37,10 @@ class Task:
 
 class TaskPut:
 	extends Task
-	var unit: Unit
+	var unit: OwnWar.Unit
 	var matter_id: int
 
-	func _init(p_unit: Unit, p_matter_id: int, p_oneshot := false):
+	func _init(p_unit: OwnWar.Unit, p_matter_id: int, p_oneshot := false):
 		unit = p_unit
 		matter_id = p_matter_id
 		oneshot = p_oneshot
@@ -64,10 +64,10 @@ class TaskPut:
 
 class TaskTake:
 	extends Task
-	var unit: Unit
+	var unit: OwnWar.Unit
 	var matter_id: int
 
-	func _init(p_unit: Unit, p_matter_id: int, p_oneshot := false):
+	func _init(p_unit: OwnWar.Unit, p_matter_id: int, p_oneshot := false):
 		unit = p_unit
 		matter_id = p_matter_id
 		oneshot = p_oneshot
@@ -91,10 +91,10 @@ class TaskTake:
 
 class TaskPutOnly:
 	extends Task
-	var unit: Unit
+	var unit: OwnWar.Unit
 	var matter_id: int
 
-	func _init(p_unit: Unit, p_matter_id: int, p_oneshot := false):
+	func _init(p_unit: OwnWar.Unit, p_matter_id: int, p_oneshot := false):
 		unit = p_unit
 		matter_id = p_matter_id
 		oneshot = p_oneshot
@@ -118,10 +118,10 @@ class TaskPutOnly:
 
 class TaskTakeOnly:
 	extends Task
-	var unit: Unit
+	var unit: OwnWar.Unit
 	var matter_id: int
 
-	func _init(p_unit: Unit, p_matter_id: int, p_oneshot := false):
+	func _init(p_unit: OwnWar.Unit, p_matter_id: int, p_oneshot := false):
 		unit = p_unit
 		matter_id = p_matter_id
 		oneshot = p_oneshot
@@ -145,9 +145,9 @@ class TaskTakeOnly:
 
 class TaskBuild:
 	extends Task
-	var unit: Unit
+	var unit: OwnWar.Unit
 
-	func _init(p_unit: Unit, p_oneshot := false):
+	func _init(p_unit: OwnWar.Unit, p_oneshot := false):
 		unit = p_unit
 		oneshot = p_oneshot
 
@@ -205,7 +205,7 @@ onready var rotors = [
 		$ArmRB/Rotor,
 	]
 const _MAX_VOLUME := 20_000_000
-var _task_cached_unit: Unit
+var _task_cached_unit: OwnWar.Unit
 var _matter_id := -1
 var _matter_count := 0
 onready var _material_id: int = Matter.get_matter_id("material")
@@ -213,7 +213,7 @@ onready var _raycast: RayCast = $RayCast
 
 
 func _init() -> void:
-	var d := Unit.get_all_units()
+	var d := OwnWar.Unit.get_all_units()
 	for k in d:
 		if k.ends_with("_ghost"):
 			ghosts[k.substr(0, len(k) - 6)] = d[k]
@@ -237,7 +237,7 @@ func _physics_process(delta):
 		if _matter_id == _material_id and _matter_count > 0:
 			if translation.distance_squared_to(t.unit.translation) <= INTERACTION_DISTANCE_2:
 				if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
-					var u: Ghost = t.unit
+					var u: OwnWar.Ghost = t.unit
 					_matter_count -= 1
 					_matter_count += u.add_build_progress(1)
 					last_build_frame = Engine.get_physics_frames()
@@ -252,7 +252,7 @@ func _physics_process(delta):
 	elif task is TaskPut:
 		var t: TaskPut = task
 		var id: int = t.matter_id
-		var unit: Unit = t.unit
+		var unit: OwnWar.Unit = t.unit
 		if unit.get_matter_space(id) == 0:
 			current_task_completed()
 		elif _matter_id == id or _matter_count == 0:
@@ -269,7 +269,7 @@ func _physics_process(delta):
 	elif task is TaskTake:
 		var t: TaskTake = task
 		var id: int = t.matter_id
-		var unit: Unit = t.unit
+		var unit: OwnWar.Unit = t.unit
 		if unit.get_matter_count(id) == 0:
 			current_task_completed()
 		elif _matter_id == id or _matter_count == 0:
@@ -287,7 +287,7 @@ func _physics_process(delta):
 	elif task is TaskPutOnly:
 		var t: TaskPutOnly = task
 		var id: int = t.matter_id
-		var unit: Unit = t.unit
+		var unit: OwnWar.Unit = t.unit
 		if unit.get_matter_space(id) == 0:
 			current_task_completed()
 		elif _matter_id == id and _matter_count > 0:
@@ -298,7 +298,7 @@ func _physics_process(delta):
 	elif task is TaskTakeOnly:
 		var t: TaskTakeOnly = task
 		var id: int = t.matter_id
-		var unit: Unit = t.unit
+		var unit: OwnWar.Unit = t.unit
 		if unit.get_matter_count(id) == 0:
 			current_task_completed()
 		elif _matter_id == id or _matter_count == 0:
@@ -401,7 +401,7 @@ func move_towards(position, delta):
 func build(flags, units):
 	var force_append = flags & 0x1 > 0
 	for ghost in units:
-		if ghost is Ghost:
+		if ghost is OwnWar.Ghost:
 			var t := TaskBuild.new(ghost)
 			add_task(t, force_append)
 			force_append = true
@@ -421,7 +421,7 @@ func build_ghost_feedback(viewport: Viewport, flags: int, position: Vector3,
 	scroll: int, ghost_name: String) -> void:
 	# This is absolutely terrible, but I don't really care since it shouldn't
 	# impact performance much anyways
-	var ghost: Ghost = ghosts[ghost_name].instance()
+	var ghost: OwnWar.Ghost = ghosts[ghost_name].instance()
 	get_tree().root.add_child(ghost)
 	ghost.enable_preview_mode()
 	ghost.snap_transform(position, scroll)
@@ -481,7 +481,7 @@ func debug_draw():
 		var position
 		if task is TaskGoto:
 			color = Color.green
-			position = task.coordinate + Vector3.UP * Block.BLOCK_SCALE
+			position = task.coordinate + Vector3.UP * OwnWar.Block.BLOCK_SCALE
 		elif task is TaskBuild:
 			color = Color.orange
 			position = task.unit.translation
@@ -533,7 +533,7 @@ func _unit_destroyed(unit):
 				_task_cached_unit = null
 
 
-func _put_matter(id: int, unit: Unit, delta: float) -> bool:
+func _put_matter(id: int, unit: OwnWar.Unit, delta: float) -> bool:
 	if translation.distance_squared_to(unit.translation) <= INTERACTION_DISTANCE_2:
 		_matter_count = unit.put_matter(id, _matter_count)
 		return true
@@ -542,7 +542,7 @@ func _put_matter(id: int, unit: Unit, delta: float) -> bool:
 		return false
 
 
-func _take_matter(id: int, unit: Unit, delta: float) -> bool:
+func _take_matter(id: int, unit: OwnWar.Unit, delta: float) -> bool:
 	assert(id == _matter_id or _matter_count == 0)
 # warning-ignore:integer_division
 	var matter_space := _MAX_VOLUME / Matter.get_matter_volume(id) - _matter_count
@@ -595,7 +595,7 @@ func _take_matter_from_any(id: int, exclude: Array, delta: float) -> int:
 	return -1
 
 
-func _set_cached_unit(unit: Unit) -> void:
+func _set_cached_unit(unit: OwnWar.Unit) -> void:
 	if _task_cached_unit != null:
 		_task_cached_unit.disconnect("destroyed", self, "_set_cached_unit")
 	if unit != null:

@@ -181,17 +181,17 @@ func set_action_buttons(unit_name: String, sub_action: FuncRef = null,
 
 		var button: Button = _action_button_template.duplicate()
 		button.text = action.name
-		if action.input_flags & Unit.Action.SUBACTION:
+		if action.input_flags & OwnWar.Unit.Action.SUBACTION:
 			var e := button.connect("pressed", self, "set_action_buttons",
 				[unit_name, action.function, action.arguments])
 			assert(e == OK)
-		elif action.input_flags & Unit.Action.INPUT_COORDINATE:
+		elif action.input_flags & OwnWar.Unit.Action.INPUT_COORDINATE:
 			var e := button.connect("pressed", self, "get_coordinate",
 				[button, action])
 			assert(e == OK)
 			button.toggle_mode = true
-		elif action.input_flags & Unit.Action.INPUT_UNITS:
-			if action.input_flags & Unit.Action.INPUT_ENEMY_UNITS:
+		elif action.input_flags & OwnWar.Unit.Action.INPUT_UNITS:
+			if action.input_flags & OwnWar.Unit.Action.INPUT_ENEMY_UNITS:
 				_units_teams_mask = []
 				for t in game_master.teams:
 					if t != team:
@@ -202,7 +202,7 @@ func set_action_buttons(unit_name: String, sub_action: FuncRef = null,
 				[button, action])
 			assert(e == OK)
 			button.toggle_mode = true
-		elif action.input_flags & Unit.Action.INPUT_TOGGLE:
+		elif action.input_flags & OwnWar.Unit.Action.INPUT_TOGGLE:
 			var e := button.connect("pressed", self, "send_toggle",
 				[button, action])
 			assert(e == OK)
@@ -260,7 +260,7 @@ func get_units(button: Button, action: OwnWar.Action) -> void:
 func send_coordinate(coordinate: Vector3) -> void:
 	for unit in selected_units:
 		var arguments = [get_modifier_flags(), coordinate]
-		if _action.input_flags & Unit.Action.INPUT_SCROLL:
+		if _action.input_flags & OwnWar.Unit.Action.INPUT_SCROLL:
 			arguments += [_scroll]
 		arguments += _action.arguments
 		_action.function.call_funcv(arguments)
@@ -384,7 +384,7 @@ func show_action_feedback():
 							get_modifier_flags(),
 							result.position,
 						]
-						if _action.input_flags & Unit.Action.INPUT_SCROLL:
+						if _action.input_flags & OwnWar.Unit.Action.INPUT_SCROLL:
 							arguments += [_scroll]
 						arguments += _action.arguments
 						_action.feedback.call_funcv(arguments)

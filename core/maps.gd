@@ -1,6 +1,3 @@
-class_name Maps
-
-
 const MAPS := {}
 
 

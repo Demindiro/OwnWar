@@ -1,6 +1,9 @@
 tool
-class_name Vehicle
-extends Unit
+extends "unit.gd"
+
+
+const Block := preload("../block/block.gd")
+const HUDAction := preload("../map/action.gd")
 
 
 const MANAGERS := {}
@@ -179,7 +182,7 @@ func get_actions():
 
 
 func add_action(object, human_name, flags, function, arguments):
-	var action := OwnWar.Action.new(
+	var action := HUDAction.new(
 			human_name,
 			flags,
 			funcref(self, "do_action"),
@@ -333,7 +336,7 @@ func deserialize_json(data: Dictionary) -> void:
 	voxel_bodies = []
 
 	var conv_table := Compatibility.get_block_name_mapping(Vector3(0, 10, 0),
-			OwnWar.VERSION)
+			load("res://core/ownwar.gd").VERSION)
 
 	for vb_data in data["blocks"]:
 		var vb := VoxelBody.new()

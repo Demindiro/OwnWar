@@ -28,7 +28,7 @@ func _ready() -> void:
 func _ai_process() -> void:
 	_units = get_tree().get_nodes_in_group("units_" + name)
 	for u in _units:
-		assert(u is Unit)
+		assert(u is OwnWar.Unit)
 	_index_matter()
 	_index_matter_needs()
 	for id in range(len(_matter_index)):
@@ -49,11 +49,11 @@ func _attack_any() -> void:
 	# Find all vehicles with a mainframe
 	var vehicle_candidates := []
 	for u in _units:
-		if u is Vehicle and len(u.get_blocks("mainframe")) > 0:
+		if u is OwnWar.Vehicle and len(u.get_blocks("mainframe")) > 0:
 			vehicle_candidates.append(u)
 	# Find the vehicle <-> enemy unit pair with the least distance between them
-	var enemy_unit: Unit
-	var vehicle: Vehicle
+	var enemy_unit: OwnWar.Unit
+	var vehicle: OwnWar.Vehicle
 	var distance2 := INF
 	for eu in get_tree().get_nodes_in_group("units"):
 		if eu.team != name:
@@ -167,8 +167,8 @@ func _find_best_storage_pod(matter_id: int) -> BM.StoragePod:
 	return best
 
 
-func _find_closest_unit(position: Vector3, unit_type: GDScript = Unit) -> Unit:
-	var closest_unit: Unit = null
+func _find_closest_unit(position: Vector3, unit_type: GDScript = OwnWar.Unit) -> OwnWar.Unit:
+	var closest_unit: OwnWar.Unit = null
 	var distance2 := INF
 	for u in _units:
 		if u is unit_type:
@@ -213,11 +213,11 @@ func _get_closest_ore() -> BM.Ore:
 
 
 # Get any vehicle that needs certain matter
-func _get_vehicle_with_needs(matter_id: int) -> Vehicle:
-	var vehicle: Vehicle = null
+func _get_vehicle_with_needs(matter_id: int) -> OwnWar.Vehicle:
+	var vehicle: OwnWar.Vehicle = null
 	var amount := 0
 	for u in _units:
-		if u is Vehicle:
+		if u is OwnWar.Vehicle:
 			var a: int = u.needs_matter(matter_id)
 			if a > amount:
 				vehicle = u

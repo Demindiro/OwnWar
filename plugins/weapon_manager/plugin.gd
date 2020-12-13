@@ -12,11 +12,11 @@ const Projectile := preload("projectile.gd")
 
 
 func pre_init():
-	Block.add_block(preload("ammo_rack.tres"))
-	Vehicle.add_manager("weapon", preload("weapon_manager.gd"))
+	OwnWar.Block.add_block(preload("ammo_rack.tres"))
+	OwnWar.Vehicle.add_manager("weapon", preload("weapon_manager.gd"))
 
 
-func save_game(game_master: GameMaster) -> Dictionary:
+func save_game(game_master: OwnWar.GameMaster) -> Dictionary:
 	var s := []
 	for p in game_master.get_tree().get_nodes_in_group("projectiles"):
 		assert(Munition.is_munition(p.munition_id))
@@ -32,7 +32,7 @@ func save_game(game_master: GameMaster) -> Dictionary:
 	return {"projectiles": s}
 
 
-func load_game(game_master: GameMaster, data: Dictionary) -> void:
+func load_game(game_master: OwnWar.GameMaster, data: Dictionary) -> void:
 	for s in data["projectiles"]:
 		var id := Matter.get_matter_id(s["name"])
 		var munition: Munition = Munition.get_munition(id)

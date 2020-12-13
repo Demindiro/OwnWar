@@ -1,5 +1,5 @@
 tool
-extends Structure
+extends OwnWar.Structure
 
 
 const Drone := preload("roboport_drone.gd")
@@ -202,13 +202,13 @@ func _set_radius2(radius2: float) -> void:
 		_needs_provider[i] = []
 		_needs_taker[i] = []
 	var gm: GameMaster = game_master
-	for unit in gm.get_units(team, Structure):
+	for unit in gm.get_units(team, OwnWar.Structure):
 		if translation.distance_squared_to(unit.translation) < radius2:
 			_add_unit(unit)
 	assign_tasks()
 
 
-func _on_need_matter(id: int, amount: int, unit: Unit):
+func _on_need_matter(id: int, amount: int, unit: OwnWar.Unit):
 	if amount > 0:
 		var provider := _get_nearest(unit, _providers[id])
 		if provider != null:
@@ -220,7 +220,7 @@ func _on_need_matter(id: int, amount: int, unit: Unit):
 	assign_tasks()
 
 
-func _on_provide_matter(id: int, amount: int, unit: Unit):
+func _on_provide_matter(id: int, amount: int, unit: OwnWar.Unit):
 	if amount > 0:
 		if not unit in _providers[id]:
 			_add_matter_provider(unit, id)
@@ -229,7 +229,7 @@ func _on_provide_matter(id: int, amount: int, unit: Unit):
 	assign_tasks()
 
 
-func _on_take_matter(id: int, amount: int, unit: Unit):
+func _on_take_matter(id: int, amount: int, unit: OwnWar.Unit):
 	if amount > 0:
 		if not unit in _takers[id]:
 			_add_matter_taker(unit, id)
@@ -238,7 +238,7 @@ func _on_take_matter(id: int, amount: int, unit: Unit):
 	assign_tasks()
 
 
-func _on_dump_matter(id: int, amount: int, unit: Unit):
+func _on_dump_matter(id: int, amount: int, unit: OwnWar.Unit):
 	if amount > 0:
 		var taker := _get_nearest(unit, _takers[id])
 		if taker != null:
@@ -292,8 +292,9 @@ func _task_completed(drone: Drone) -> void:
 	assign_tasks()
 
 
-func _get_nearest(unit: Unit, unit_list: Array, matter_id := -1, matter_count := 0) -> Unit:
-	var provider: Unit
+func _get_nearest(unit: OwnWar.Unit, unit_list: Array, matter_id := -1,
+	matter_count := 0) -> OwnWar.Unit:
+	var provider: OwnWar.Unit
 	var shortest_distance := INF
 	for prov in unit_list:
 		if prov.get_matter_space(matter_id) >= matter_count:
@@ -304,14 +305,14 @@ func _get_nearest(unit: Unit, unit_list: Array, matter_id := -1, matter_count :=
 	return provider
 
 
-func _unit_added(unit: Unit) -> void:
-	if unit is Structure and \
+func _unit_added(unit: OwnWar.Unit) -> void:
+	if unit is OwnWar.Structure and \
 			unit.team == team and \
 			unit.translation.distance_squared_to(translation) < _radius2:
 		_add_unit(unit)
 
 
-func _add_unit(unit: Structure) -> void:
+func _add_unit(unit: OwnWar.Structure) -> void:
 	if unit in _units:
 		return
 	_units.append(unit)
@@ -345,21 +346,21 @@ func _add_unit(unit: Structure) -> void:
 			_add_matter_provider(unit, id)
 
 
-func _add_matter_provider(unit: Structure, id: int) -> void:
+func _add_matter_provider(unit: OwnWar.Structure, id: int) -> void:
 	_providers[id].append(unit)
 	for needer in _needs_provider[id]:
 		_add_task(Tasks.Fill.new(unit, needer, id))
 	_needs_provider[id] = []
 
 
-func _add_matter_taker(unit: Structure, id: int) -> void:
+func _add_matter_taker(unit: OwnWar.Structure, id: int) -> void:
 	_takers[id].append(unit)
 	for needer in _needs_taker[id]:
 		_add_task(Tasks.Empty.new(needer, unit, id))
 	_needs_taker[id] = []
 
 
-func _remove_unit(unit: Structure) -> void:
+func _remove_unit(unit: OwnWar.Structure) -> void:
 	unit.disconnect("message", self, "_get_message")
 	unit.disconnect("destroyed", self, "_unit_destroyed")
 	for id in unit.get_take_matter_list():
@@ -383,7 +384,7 @@ func _add_task(task: Tasks.Task) -> void:
 	assign_tasks()
 
 
-func _remove_task(task: GDScript, unit: Unit) -> void:
+func _remove_task(task: GDScript, unit: OwnWar.Unit) -> void:
 	# cba with the range() syntax
 	var i := len(_tasks) - 1
 	while i >= 0:

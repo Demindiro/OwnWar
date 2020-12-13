@@ -10,7 +10,7 @@ export var enabled := true
 export var main_menu: PackedScene
 export var test_map: PackedScene
 export var material: SpatialMaterial setget set_material
-var selected_block: Block
+var selected_block: OwnWar.Block
 var blocks := {}
 var meta := {}
 var _rotation := 0
@@ -45,7 +45,7 @@ func _exit_tree():
 
 
 func _ready():
-	select_block(Block.get_block_by_id(1).name)
+	select_block(OwnWar.Block.get_block_by_id(1).name)
 	set_enabled(true) # Disable UIs
 	_floor_mirror.visible = mirror
 
@@ -101,7 +101,7 @@ func process_actions():
 				var mirror_x = (GRID_SIZE - 1) / 2
 				var delta = coordinate[0] - mirror_x
 				coordinate[0] = mirror_x - delta
-				var m_block: Block = selected_block.mirror_block
+				var m_block: OwnWar.Block = selected_block.mirror_block
 				place_block(m_block, coordinate, m_block \
 						.get_mirror_rotation(_rotation), selected_layer)
 	elif Input.is_action_just_pressed("designer_remove_block"):
@@ -127,7 +127,7 @@ func process_actions():
 		_camera.enabled = true
 	elif Input.is_action_just_pressed("designer_configure"):
 		if ray_voxel_valid and ray.voxel in blocks:
-			var block = Block.get_block(blocks[ray.voxel][0])
+			var block = OwnWar.Block.get_block(blocks[ray.voxel][0])
 			if len(block.meta) > 0:
 				var meta_data = meta[ray.voxel] if ray.voxel in meta else block.meta
 				set_enabled(false)
@@ -170,7 +170,7 @@ func remove_block(coordinate):
 
 
 func select_block(name):
-	selected_block = Block.get_block(name)
+	selected_block = OwnWar.Block.get_block(name)
 	for child in _camera_mesh.get_children():
 		child.queue_free()
 	for child in _floor_origin_ghost.get_children():
@@ -275,7 +275,7 @@ func load_vehicle(path):
 			assert(len(key_components) == 3)
 			for i in range(3):
 				coordinate[i] = int(key_components[i])
-			var block = Block.get_block(data['blocks'][key][0])
+			var block = OwnWar.Block.get_block(data['blocks'][key][0])
 			var color_components = data["blocks"][key][2].split_floats(",")
 			var color = Color(color_components[0], color_components[1],
 					color_components[2], color_components[3])

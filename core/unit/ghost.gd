@@ -1,5 +1,4 @@
-class_name Ghost
-extends Structure
+extends "structure.gd"
 
 
 signal built()
@@ -31,7 +30,8 @@ func snap_transform(position: Vector3, scroll: int):
 		Basis.IDENTITY.rotated(Vector3.UP, scroll * PI / 8),
 		position
 	)
-	OwnWar.snap_transform(self)
+	# Cyclic dependencies make me go REEEE
+	load("res://core/ownwar.gd").snap_transform(self)
 
 
 func add_build_progress(material):

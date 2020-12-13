@@ -14,7 +14,7 @@ func init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
 	if connected:
 		return
 	var connecting_coordinate = get_connecting_coordinate(coordinate)
-	var id = Block.get_block("turret_connector").id
+	var id = OwnWar.Block.get_block("turret_connector").id
 	for body in vehicle.voxel_bodies:
 		if body != voxel_body:
 			var other_block: VoxelBody.BodyBlock = body.blocks.get(connecting_coordinate)
@@ -102,7 +102,7 @@ func _create_joint(p_body_a, p_body_b):
 	joint = Generic6DOFJoint.new()
 	add_child(joint)
 	joint.transform = Transform.IDENTITY
-	joint.rotate_z(PI / 2)
+	joint.rotate_z(PI/ 2)
 	joint.set("nodes/node_a", joint.get_path_to(body_a))
 	joint.set("nodes/node_b", joint.get_path_to(body_b))
 	joint.set("angular_limit_x/enabled", false)

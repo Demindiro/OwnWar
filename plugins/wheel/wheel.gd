@@ -1,5 +1,4 @@
 extends VehicleWheel
-class_name Wheel
 
 
 # warning-ignore:unused_class_variable

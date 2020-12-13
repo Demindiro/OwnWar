@@ -1,4 +1,4 @@
-extends Structure
+extends OwnWar.Structure
 
 
 const Munition := preload("res://plugins/weapon_manager/munition.gd")

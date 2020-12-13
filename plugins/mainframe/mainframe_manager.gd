@@ -1,12 +1,12 @@
 extends Reference
 
 
-var _vehicle: Vehicle
+var _vehicle: OwnWar.Vehicle
 var _mainframes := []
 var _actions := {}
 
 
-func init(vehicle: Vehicle) -> void:
+func init(vehicle: OwnWar.Vehicle) -> void:
 	_vehicle = vehicle
 
 

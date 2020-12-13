@@ -7,4 +7,4 @@ const PLUGIN_DEPENDENCIES := {"basic_manufacturing": Vector3(0, 0, 1)}
 
 
 func pre_init():
-	Unit.add_unit("worker", preload("drone.tscn"))
+	OwnWar.Unit.add_unit("worker", preload("drone.tscn"))

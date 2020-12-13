@@ -2,6 +2,22 @@ class_name OwnWar
 
 
 const Action := preload("map/action.gd")
+const Maps := preload("maps.gd")
+const GameMaster := preload("map/game_master.gd")
+
+const Unit := preload("unit/unit.gd")
+const Structure := preload("unit/structure.gd")
+const Ghost := preload("unit/ghost.gd")
+const Vehicle := preload("unit/vehicle.gd")
+
+const Matter := preload("matter.gd")
+
+const Block := preload("block/block.gd")
+const VoxelBody := preload("voxel_body.gd")
+const VoxelMesh := preload("voxel_mesh.gd")
+
+const Plugin := preload("plugin/loader.gd")
+const PluginInterface := preload("plugin/plugin.gd")
 
 
 const VERSION := Vector3(0, 15, 2)
@@ -26,7 +42,7 @@ static func get_random_main_menu_background() -> PackedScene:
 	return ret
 
 
-static func snap_transform(node: Structure) -> void:
+static func snap_transform(node) -> void:
 	var transform: Transform = node.global_transform
 	var org := transform.origin
 	var basis := transform.basis

@@ -7,7 +7,7 @@ var _wheels := []
 var _power_manager: PowerManager
 
 
-func init(vehicle: Vehicle) -> void:
+func init(vehicle: OwnWar.Vehicle) -> void:
 	_power_manager = vehicle.get_manager("power")
 
 

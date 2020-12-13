@@ -1,10 +1,10 @@
-extends Unit
+extends OwnWar.Unit
 
 
 const Tasks := preload("tasks.gd")
 signal task_completed()
 var task: Tasks.Task
-var dump_target: Unit
+var dump_target: OwnWar.Unit
 var matter_count := 0
 var matter_id := -1
 const _MAX_VOLUME := 30_000_000
@@ -25,7 +25,7 @@ func _physics_process(_delta: float) -> void:
 		pass
 	elif task is Tasks.Transport:
 		var tr_task: Tasks.Transport = task
-		var target: Unit = null
+		var target: OwnWar.Unit = null
 		if tr_task.matter_id != matter_id and matter_count != 0:
 			assert(dump_target != null)
 			target = dump_target
@@ -167,8 +167,8 @@ func deserialize_json(data: Dictionary) -> void:
 
 func _move_towards(target_node: Spatial) -> void:
 	var target: Vector3
-	if target_node is Unit:
-		var u: Unit = target_node
+	if target_node is OwnWar.Unit:
+		var u: OwnWar.Unit = target_node
 		target = u.get_interaction_port()
 	elif target_node is Spatial:
 		target = target_node.translation
@@ -215,7 +215,7 @@ func _task_completed() -> void:
 	_task_step = 0
 
 
-func _take_matter(unit: Unit) -> bool:
+func _take_matter(unit: OwnWar.Unit) -> bool:
 	var task_tr: Tasks.Transport = task
 	assert(task_tr.matter_id == matter_id or matter_count == 0)
 	var m_vol := Matter.get_matter_volume(task_tr.matter_id)
@@ -230,7 +230,7 @@ func _take_matter(unit: Unit) -> bool:
 	return false
 
 
-func _put_matter(unit: Unit) -> bool:
+func _put_matter(unit: OwnWar.Unit) -> bool:
 	var proj_pos = Plane(transform.basis.y, 0).project(unit.get_interaction_port() - translation)
 	if proj_pos.length_squared() < 9:
 		matter_count = unit.put_matter(matter_id, matter_count)

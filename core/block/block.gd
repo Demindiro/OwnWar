@@ -1,5 +1,3 @@
-class_name Block
-
 extends Resource
 
 
@@ -78,7 +76,7 @@ func get_mirror_rotation(rotation: int) -> int:
 	return mirror_rotation_map[rotation]
 
 
-static func add_block(block: Block):
+static func add_block(block):
 	if block.name in _NAME_TO_BLOCK:
 		assert(false)
 		push_error("Block name is already registered: '%s'" % block.name)

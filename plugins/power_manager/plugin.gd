@@ -7,4 +7,4 @@ const PLUGIN_DEPENDENCIES := {}
 
 
 func pre_init():
-	Vehicle.add_manager("power", preload("power_manager.gd"))
+	OwnWar.Vehicle.add_manager("power", preload("power_manager.gd"))

@@ -1,4 +1,4 @@
-extends Structure
+extends OwnWar.Structure
 
 
 const _MAX_MATERIAL := 50

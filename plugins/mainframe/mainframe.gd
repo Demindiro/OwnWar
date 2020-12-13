@@ -10,7 +10,7 @@ var weapons_aim_point := Vector3.ZERO
 var drive_forward := 0.0
 var drive_yaw := 0.0
 var brake := 0.0
-var vehicle: Vehicle
+var vehicle: OwnWar.Vehicle
 var _fire_weapons := false
 var _weapon_manager: WeaponManager
 var _movement_manager: MovementManager
@@ -37,8 +37,8 @@ func init(_coordinate, _block_data, _rotation, _voxel_body, p_vehicle, _meta):
 
 	var manager = vehicle.get_manager("mainframe")
 	manager.add_mainframe(self)
-	manager.add_action(self, "Set waypoint", Unit.Action.INPUT_COORDINATE, "set_waypoint", [])
-	manager.add_action(self, "Set targets", Unit.Action.INPUT_ENEMY_UNITS, "set_targets", [])
+	manager.add_action(self, "Set waypoint", OwnWar.Unit.Action.INPUT_COORDINATE, "set_waypoint", [])
+	manager.add_action(self, "Set targets", OwnWar.Unit.Action.INPUT_ENEMY_UNITS, "set_targets", [])
 
 	_weapon_manager = vehicle.get_manager("weapon")
 	_movement_manager = vehicle.get_manager("movement")

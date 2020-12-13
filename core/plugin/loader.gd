@@ -1,6 +1,3 @@
-class_name Plugin
-
-
 class PluginState:
 	enum {
 		NONE = 0x0,
@@ -82,6 +79,7 @@ static func is_plugin_enabled(name: String) -> bool:
 static func load_plugins():
 	_load_pcks()
 	var scripts := _load_plugins_from_dir()
+	var game_version: Vector3 = load("res://core/ownwar.gd").VERSION
 
 	print("Checking IDs and versions")
 	for script in scripts:
@@ -92,7 +90,7 @@ static func load_plugins():
 		else:
 			_PLUGINS[id] = PluginState.new(script)
 
-		if OwnWar.VERSION < script.MIN_VERSION:
+		if game_version < script.MIN_VERSION:
 			print("Plugin version is more recent than the game version! %s", id)
 			print("Plugin version: %d.%d.%d" % [script.MIN_VERSION.x,
 					script.MIN_VERSION.y, script.MIN_VERSION.z])

@@ -1,8 +1,3 @@
-# Static class to track all types of "matter" (AKA Resources, but that name is
-# already taken)
-class_name Matter
-
-
 const _MATTER_NAME := PoolStringArray()
 const _MATTER_VOLUME := PoolIntArray()
 const _NAME_TO_ID := {}

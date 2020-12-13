@@ -1,4 +1,4 @@
-extends Structure
+extends OwnWar.Structure
 
 
 signal spawned(unit)
@@ -52,7 +52,7 @@ func get_actions():
 		while file_name != "":
 			if not directory.current_is_dir() and \
 					file_name.ends_with(Global.FILE_EXTENSION):
-				var action_name = "Spawn " + Vehicle.path_to_name(file_name)
+				var action_name = "Spawn " + OwnWar.Vehicle.path_to_name(file_name)
 				var path = directory.get_current_dir() + '/' + file_name
 				actions.append(
 					OwnWar.Action.new(
@@ -88,7 +88,7 @@ func spawn_worker(_flags):
 func spawn_vehicle(_flags, path):
 	if queued_vehicle != null:
 		queued_vehicle.free()
-	queued_vehicle = Vehicle.new()
+	queued_vehicle = OwnWar.Vehicle.new()
 	var err = queued_vehicle.load_from_file(path)
 	if err != OK:
 		Global.error("Failed to spawn vehicle from '%s'" % path, err)
@@ -100,7 +100,7 @@ func spawn_vehicle(_flags, path):
 		queued_vehicle.translate(Vector3.UP * 5)
 		queued_vehicle.rotate_y(PI)
 		_indicator_vehicle_material.albedo_color = Color.orange
-		queued_vehicle_name = Vehicle.path_to_name(path.get_file())
+		queued_vehicle_name = OwnWar.Vehicle.path_to_name(path.get_file())
 	emit_signal("need_matter", _material_id, _get_needed_material())
 	return queued_vehicle
 
@@ -185,7 +185,7 @@ func deserialize_json(data: Dictionary) -> void:
 		if queued_type == "worker":
 			queued_vehicle = worker.instance()
 		elif queued_type == "vehicle":
-			queued_vehicle = Vehicle.new()
+			queued_vehicle = OwnWar.Vehicle.new()
 		queued_vehicle.deserialize_json(data["queued_data"])
 
 

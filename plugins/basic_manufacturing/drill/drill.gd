@@ -1,4 +1,4 @@
-extends Structure
+extends OwnWar.Structure
 
 
 const Ore := preload("ore.gd")

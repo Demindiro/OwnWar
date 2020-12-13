@@ -1,4 +1,4 @@
-extends Ghost
+extends OwnWar.Ghost
 
 
 const Ore := preload("ore.gd")

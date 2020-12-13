@@ -75,7 +75,7 @@ func move_to_waypoint(mainframe, waypoint):
 
 
 func fire_at(mainframe, target, delta):
-	if target is Vehicle:
+	if target is OwnWar.Vehicle:
 		# Check if the currently targeted block is present
 		var block_present = false
 		if time_until_block_switch < 3:
@@ -96,7 +96,7 @@ func fire_at(mainframe, target, delta):
 			time_until_block_switch = 0
 			var local_position = body.coordinate_to_vector(random_block_coordinate)
 			mainframe.weapons_aim_point = body.to_global(local_position +
-					Vector3.ONE * Block.BLOCK_SCALE / 2)
+					Vector3.ONE * OwnWar.Block.BLOCK_SCALE / 2)
 		time_until_block_switch += delta
 	else:
 		mainframe.weapons_aim_point = target.translation
@@ -108,6 +108,6 @@ func debug_draw(mainframe):
 	.debug_draw(mainframe)
 	if len(targets) > 0:
 		Debug.draw_point(mainframe.weapons_aim_point, Color.red,
-				Block.BLOCK_SCALE)
+				OwnWar.Block.BLOCK_SCALE)
 		Debug.draw_line(mainframe.vehicle.translation,
 				mainframe.weapons_aim_point, Color.red)

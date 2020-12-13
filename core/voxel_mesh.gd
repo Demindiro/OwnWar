@@ -1,5 +1,7 @@
-class_name VoxelMesh
 extends ArrayMesh
+
+
+const Block := preload("block/block.gd")
 
 
 class SubMesh:

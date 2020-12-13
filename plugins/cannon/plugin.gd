@@ -7,8 +7,8 @@ const PLUGIN_DEPENDENCIES := {"weapon_manager": Vector3(0, 0, 1)}
 
 
 func pre_init():
-	Block.add_block(preload("160mm/80mm_cannon.tres"))
-	Block.add_block(preload("35mm/35mm_cannon.tres"))
+	OwnWar.Block.add_block(preload("160mm/80mm_cannon.tres"))
+	OwnWar.Block.add_block(preload("35mm/35mm_cannon.tres"))
 	var Munition := preload("res://plugins/weapon_manager/plugin.gd").Munition
 # warning-ignore:return_value_discarded
 	Munition.add_munition(preload("160mm/shell_160mm.tres"))

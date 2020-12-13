@@ -4,7 +4,7 @@ extends Spatial
 
 export var max_material := 10000
 # warning-ignore:unused_class_variable
-var drill : Unit
+var drill : OwnWar.Unit
 onready var material := max_material
 
 

@@ -1,5 +1,10 @@
-class_name GameMaster
 extends Node
+
+
+const Unit := preload("../unit/unit.gd")
+const Vehicle := preload("../unit/vehicle.gd")
+
+
 signal unit_added(unit)
 # "unused" (see line 177)
 # warning-ignore:unused_signal
@@ -91,12 +96,13 @@ func save_game(p_name: String) -> int:
 				s_plugins[id] = p.singleton.save_game(self)
 				assert(s_plugins[id] is Dictionary)
 
+	var game_version: Vector3 = load("res://core/ownwar.gd").VERSION
 	var data := {
 			"map_name": map_name,
 			"units": s_units,
 			"plugin_data": s_plugins,
 			"uid_counter": uid_counter,
-			"game_version": Util.version_vector_to_str(OwnWar.VERSION),
+			"game_version": Util.version_vector_to_str(game_version),
 		}
 	emit_signal("save_game", data)
 	print("Serializing time %d msec" % (OS.get_ticks_msec() - start_time))

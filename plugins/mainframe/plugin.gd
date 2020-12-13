@@ -7,5 +7,5 @@ const PLUGIN_DEPENDENCIES := {}
 
 
 func pre_init():
-	Block.add_block(preload("mainframe.tres"))
-	Vehicle.add_manager("mainframe", preload("mainframe_manager.gd"))
+	OwnWar.Block.add_block(preload("mainframe.tres"))
+	OwnWar.Vehicle.add_manager("mainframe", preload("mainframe_manager.gd"))

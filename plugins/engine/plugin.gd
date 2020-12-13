@@ -7,5 +7,5 @@ const PLUGIN_DEPENDENCIES := {"power_manager": Vector3(0, 0, 1)}
 
 
 func pre_init():
-	Block.add_block(preload("engine.tres"))
-	Block.add_block(preload("fuel_tank.tres"))
+	OwnWar.Block.add_block(preload("engine.tres"))
+	OwnWar.Block.add_block(preload("fuel_tank.tres"))
