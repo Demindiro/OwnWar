@@ -6,7 +6,7 @@ const SHORTCUT_COUNT = 10
 export var team := "Player"
 export var camera: NodePath
 var selected_units = [] setget set_selected_units
-onready var game_master = GameMaster.get_game_master(self)
+onready var game_master = OwnWar.GameMaster.get_game_master(self)
 
 var _selecting_units = false
 var _mouse_position_start

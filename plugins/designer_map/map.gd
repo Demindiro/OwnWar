@@ -3,7 +3,7 @@ extends Node
 
 const BM := preload("res://plugins/basic_manufacturing/plugin.gd")
 
-onready var material_id = Matter.get_matter_id("material")
+onready var material_id = OwnWar.Matter.get_matter_id("material")
 onready var _player_spawn_platform: BM.SpawnPlatform = $"../Player/SpawnPlatform"
 onready var _enemy_spawn_platform: BM.SpawnPlatform = $"../Enemy/SpawnPlatform"
 onready var _player_storage_pod: BM.StoragePod = $"../Player/StoragePod"
@@ -30,7 +30,7 @@ func _on_Designer_save_game(data: Dictionary) -> void:
 
 
 func _on_Designer_load_game(data: Dictionary) -> void:
-	var gm: GameMaster = GameMaster.get_game_master(self)
+	var gm: OwnWar.GameMaster = OwnWar.GameMaster.get_game_master(self)
 	var d = data.get("designer_map_data")
 	if d != null:
 		_player_spawn_platform = gm.get_unit_by_uid(d["player_spawn_platform_uid"])

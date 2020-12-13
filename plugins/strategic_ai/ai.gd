@@ -11,13 +11,13 @@ var _units := []
 # matter = resources in literally every other game
 var _matter_index := PoolIntArray()
 var _matter_needs_index := PoolIntArray()
-onready var _material_id := Matter.get_matter_id("material")
-onready var _fuel_id := Matter.get_matter_id("fuel")
+onready var _material_id := OwnWar.Matter.get_matter_id("material")
+onready var _fuel_id := OwnWar.Matter.get_matter_id("fuel")
 
 
 func _ready() -> void:
-	_matter_index.resize(Matter.get_matter_types_count())
-	_matter_needs_index.resize(Matter.get_matter_types_count())
+	_matter_index.resize(OwnWar.Matter.get_matter_types_count())
+	_matter_needs_index.resize(OwnWar.Matter.get_matter_types_count())
 	process_mode = Timer.TIMER_PROCESS_PHYSICS
 	wait_time = 1.0
 	autostart = true
@@ -245,7 +245,7 @@ func _produce_munition(id: int, amount: int) -> void:
 
 
 func _supply_munition() -> void:
-	var id := Matter.get_matter_id("160mm AP")
+	var id := OwnWar.Matter.get_matter_id("160mm AP")
 	if _matter_index[id] > 0:
 		var vehicle := _get_vehicle_with_needs(id)
 		if vehicle != null:
@@ -254,7 +254,7 @@ func _supply_munition() -> void:
 				var task := WorkerDrone.TaskPut.new(vehicle, id, true)
 				worker.add_task(task, true)
 	else:
-		_debug("No %s available" % Matter.get_matter_name(id))
+		_debug("No %s available" % OwnWar.Matter.get_matter_name(id))
 
 
 func _supply_fuel() -> void:
@@ -266,7 +266,7 @@ func _supply_fuel() -> void:
 				var task := WorkerDrone.TaskPut.new(vehicle, _fuel_id, true)
 				worker.add_task(task, true)
 	else:
-		_debug("No %s available" % Matter.get_matter_name(_fuel_id))
+		_debug("No %s available" % OwnWar.Matter.get_matter_name(_fuel_id))
 
 
 func _debug(message: String) -> void:

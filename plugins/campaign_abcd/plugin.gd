@@ -17,4 +17,4 @@ const PLUGIN_DEPENDENCIES := {
 
 func pre_init():
 	var dir = Util.get_script_dir(self)
-	Maps.add_map("campaign_abcd", dir.plus_file("map.tscn"))
+	OwnWar.Maps.add_map("campaign_abcd", dir.plus_file("map.tscn"))

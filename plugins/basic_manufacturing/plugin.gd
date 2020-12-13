@@ -31,14 +31,14 @@ func pre_init():
 	Unit.add_unit("roboport_drone", preload("roboport/roboport_drone.tscn"))
 
 
-func save_game(game_master: GameMaster) -> Dictionary:
+func save_game(game_master: OwnWar.GameMaster) -> Dictionary:
 	var s_ores := []
 	for ore in game_master.get_tree().get_nodes_in_group("ores"):
 		s_ores.append([var2str(ore.transform), ore.material])
 	return {"ores": s_ores}
 
 
-func load_game(game_master: GameMaster, data: Dictionary) -> void:
+func load_game(game_master: OwnWar.GameMaster, data: Dictionary) -> void:
 	for s in data["ores"]:
 		var found := false
 		var transform: Transform = str2var(s[0])

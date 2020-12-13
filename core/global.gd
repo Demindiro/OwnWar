@@ -70,10 +70,10 @@ func _init():
 	print("Game version %s" % [OwnWar.VERSION])
 	OwnWar.Block.add_block(preload("block/debug/vane.tres"))
 # warning-ignore:return_value_discarded
-	Matter.add_matter("material", 1_000_000)
+	OwnWar.Matter.add_matter("material", 1_000_000)
 # warning-ignore:return_value_discarded
-	Matter.add_matter("fuel", 100_000)
-	Plugin.load_plugins()
+	OwnWar.Matter.add_matter("fuel", 100_000)
+	OwnWar.Plugin.load_plugins()
 
 
 func _process(_delta):

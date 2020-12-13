@@ -4,6 +4,9 @@ extends "unit.gd"
 
 const Block := preload("../block/block.gd")
 const HUDAction := preload("../map/action.gd")
+const Compatibility := preload("../compatibility.gd")
+const VoxelBody := preload("../voxel_body.gd")
+const VoxelMesh := preload("../voxel_mesh.gd")
 
 
 const MANAGERS := {}

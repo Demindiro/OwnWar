@@ -6,7 +6,7 @@ var worker = load("res://plugins/worker_drone/drone.tscn")
 var material = 0 setget set_material
 var queued_vehicle = null
 var queued_vehicle_name
-onready var _material_id = Matter.get_matter_id("material")
+onready var _material_id := OwnWar.Matter.get_matter_id("material")
 onready var _indicator_material: Spatial = $IndicatorMaterial
 onready var _indicator_vehicle_material: SpatialMaterial
 onready var _interaction_port: Spatial = $InteractionPort
@@ -154,7 +154,7 @@ func put_matter(id: int, amount: int) -> int:
 		set_material(material + amount)
 		if material >= queued_vehicle.get_cost():
 			queued_vehicle.team = team
-			GameMaster.get_game_master(self).add_child(queued_vehicle)
+			OwnWar.GameMaster.get_game_master(self).add_child(queued_vehicle)
 			emit_signal("spawned", queued_vehicle)
 			var remainder = material - queued_vehicle.get_cost()
 			queued_vehicle = null

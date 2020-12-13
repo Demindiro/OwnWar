@@ -23,7 +23,7 @@ onready var _spawn_point: Transform = ($SpawnPoint as Spatial).global_transform
 
 func _ready():
 	if not Engine.editor_hint:
-		var types_count := Matter.get_matter_types_count()
+		var types_count := OwnWar.Matter.get_matter_types_count()
 		_providers.resize(types_count)
 		_takers.resize(types_count)
 		_needs_provider.resize(types_count)
@@ -111,7 +111,7 @@ func serialize_json() -> Dictionary:
 func deserialize_json(data: Dictionary) -> void:
 	_drones = []
 	for d_uid in data["drones"]:
-		var gm: GameMaster = game_master
+		var gm: OwnWar.GameMaster = game_master
 		_drones.append(gm.get_unit_by_uid(d_uid))
 	_spawn_timer = get_tree().create_timer(data["spawn_timer"], false)
 	_set_radius2(data["radius2"])
@@ -196,12 +196,12 @@ func _set_radius2(radius2: float) -> void:
 		unit.disconnect("take_matter", self, "_on_take_matter")
 		unit.disconnect("dump_matter", self, "_on_dump_matter")
 	_units = []
-	for i in range(Matter.get_matter_types_count()):
+	for i in range(OwnWar.Matter.get_matter_types_count()):
 		_providers[i] = []
 		_takers[i] = []
 		_needs_provider[i] = []
 		_needs_taker[i] = []
-	var gm: GameMaster = game_master
+	var gm: OwnWar.GameMaster = game_master
 	for unit in gm.get_units(team, OwnWar.Structure):
 		if translation.distance_squared_to(unit.translation) < radius2:
 			_add_unit(unit)

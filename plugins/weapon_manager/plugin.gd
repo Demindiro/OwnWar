@@ -21,7 +21,7 @@ func save_game(game_master: OwnWar.GameMaster) -> Dictionary:
 	for p in game_master.get_tree().get_nodes_in_group("projectiles"):
 		assert(Munition.is_munition(p.munition_id))
 		var d := {
-				"name": Matter.get_matter_name(p.munition_id),
+				"name": OwnWar.Matter.get_matter_name(p.munition_id),
 				"transform": var2str(p.transform),
 				"velocity": var2str(p.linear_velocity),
 				"damage": p.damage,
@@ -34,7 +34,7 @@ func save_game(game_master: OwnWar.GameMaster) -> Dictionary:
 
 func load_game(game_master: OwnWar.GameMaster, data: Dictionary) -> void:
 	for s in data["projectiles"]:
-		var id := Matter.get_matter_id(s["name"])
+		var id := OwnWar.Matter.get_matter_id(s["name"])
 		var munition: Munition = Munition.get_munition(id)
 		var shell: Projectile = munition.shell.instance()
 		shell.transform = str2var(s["transform"])

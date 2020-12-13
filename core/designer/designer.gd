@@ -264,7 +264,7 @@ func load_vehicle(path):
 		Global.error("Failed to open file '%s'" % path, err)
 	else:
 		var data = parse_json(file.get_as_text())
-		data = Compatibility.convert_vehicle_data(data)
+		data = OwnWar.Compatibility.convert_vehicle_data(data)
 		for child in _floor_origin.get_children():
 			if child.name != "Ghost":
 				child.queue_free()

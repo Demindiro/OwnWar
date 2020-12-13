@@ -27,6 +27,6 @@ func _refresh_save_list() -> void:
 
 
 func _load_game(path: String) -> void:
-	var e := GameMaster.load_game(path)
+	var e := OwnWar.GameMaster.load_game(path)
 	if e != OK:
 		Global.error("Failed to load game %d", e)

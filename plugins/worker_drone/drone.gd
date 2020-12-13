@@ -17,7 +17,7 @@ class Task:
 		assert(false)
 		return {}
 
-	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+	static func deserialize(game_master: OwnWar.GameMaster, state: Dictionary) -> Task:
 		match state["task"]:
 			"PUT": return TaskPut.deserialize(game_master, state)
 			"TAKE": return TaskTake.deserialize(game_master, state)
@@ -51,13 +51,13 @@ class TaskPut:
 	func serialize() -> Dictionary:
 		var s := ._serialize("PUT")
 		s["target"] = unit.uid
-		s["matter"] = Matter.get_matter_name(matter_id)
+		s["matter"] = OwnWar.Matter.get_matter_name(matter_id)
 		return s
 
-	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+	static func deserialize(game_master: OwnWar.GameMaster, state: Dictionary) -> Task:
 		return TaskPut.new(
 				game_master.get_unit_by_uid(state["target"]),
-				Matter.get_matter_id(state["matter"]),
+				OwnWar.Matter.get_matter_id(state["matter"]),
 				state.get("oneshot", false)
 			)
 
@@ -78,13 +78,13 @@ class TaskTake:
 	func serialize() -> Dictionary:
 		var s := ._serialize("TAKE")
 		s["target"] = unit.uid
-		s["matter"] = Matter.get_matter_name(matter_id)
+		s["matter"] = OwnWar.Matter.get_matter_name(matter_id)
 		return s
 
-	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+	static func deserialize(game_master: OwnWar.GameMaster, state: Dictionary) -> Task:
 		return TaskTake.new(
 				game_master.get_unit_by_uid(state["target"]),
-				Matter.get_matter_id(state["matter"]),
+				OwnWar.Matter.get_matter_id(state["matter"]),
 				state.get("oneshot", false)
 			)
 
@@ -105,13 +105,13 @@ class TaskPutOnly:
 	func serialize() -> Dictionary:
 		var s := ._serialize("PUT_ONLY")
 		s["target"] = unit.uid
-		s["matter"] = Matter.get_matter_name(matter_id)
+		s["matter"] = OwnWar.Matter.get_matter_name(matter_id)
 		return s
 
-	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+	static func deserialize(game_master: OwnWar.GameMaster, state: Dictionary) -> Task:
 		return TaskPutOnly.new(
 				game_master.get_unit_by_uid(state["target"]),
-				Matter.get_matter_id(state["matter"]),
+				OwnWar.Matter.get_matter_id(state["matter"]),
 				state.get("oneshot", false)
 			)
 
@@ -132,13 +132,13 @@ class TaskTakeOnly:
 	func serialize() -> Dictionary:
 		var s := ._serialize("TAKE_ONLY")
 		s["target"] = unit.uid
-		s["matter"] = Matter.get_matter_name(matter_id)
+		s["matter"] = OwnWar.Matter.get_matter_name(matter_id)
 		return s
 
-	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+	static func deserialize(game_master: OwnWar.GameMaster, state: Dictionary) -> Task:
 		return TaskTakeOnly.new(
 				game_master.get_unit_by_uid(state["target"]),
-				Matter.get_matter_id(state["matter"]),
+				OwnWar.Matter.get_matter_id(state["matter"]),
 				state.get("oneshot", false)
 			)
 
@@ -159,7 +159,7 @@ class TaskBuild:
 		s["target"] = unit.uid
 		return s
 
-	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+	static func deserialize(game_master: OwnWar.GameMaster, state: Dictionary) -> Task:
 		return TaskBuild.new(
 				game_master.get_unit_by_uid(state["target"]),
 				state.get("oneshot", false)
@@ -182,7 +182,7 @@ class TaskGoto:
 		s["waypoint"] = var2str(coordinate)
 		return s
 
-	static func deserialize(_game_master: GameMaster, state: Dictionary) -> Task:
+	static func deserialize(_game_master: OwnWar.GameMaster, state: Dictionary) -> Task:
 		return TaskGoto.new(
 				str2var(state["waypoint"]),
 				state.get("oneshot", false)
@@ -193,7 +193,6 @@ signal task_completed(task)
 const SPEED = 20.0
 const INTERACTION_DISTANCE = 6.0
 const INTERACTION_DISTANCE_2 = INTERACTION_DISTANCE * INTERACTION_DISTANCE
-export(PackedScene) var drill_ghost
 export(int) var cost = 20
 var ghosts := {}
 var tasks = []
@@ -208,7 +207,7 @@ const _MAX_VOLUME := 20_000_000
 var _task_cached_unit: OwnWar.Unit
 var _matter_id := -1
 var _matter_count := 0
-onready var _material_id: int = Matter.get_matter_id("material")
+onready var _material_id: int = OwnWar.Matter.get_matter_id("material")
 onready var _raycast: RayCast = $RayCast
 
 
@@ -275,7 +274,7 @@ func _physics_process(delta):
 		elif _matter_id == id or _matter_count == 0:
 			_matter_id = id
 			# warning-ignore:integer_division
-			if _matter_count < _MAX_VOLUME / Matter.get_matter_volume(id):
+			if _matter_count < _MAX_VOLUME / OwnWar.Matter.get_matter_volume(id):
 				if _take_matter(id, unit, delta):
 					current_task_completed()
 			else:
@@ -349,10 +348,10 @@ func get_info():
 	info["Current task"] = task_string
 	info["Total tasks"] = str(len(tasks))
 	if _matter_count > 0:
-		info["Matter type"] = Matter.get_matter_name(_matter_id)
-		info["Matter count"] = "%d / %d" % [_matter_count,
+		info["OwnWar.Matter type"] = OwnWar.Matter.get_matter_name(_matter_id)
+		info["OwnWar.Matter count"] = "%d / %d" % [_matter_count,
 # warning-ignore:integer_division
-				_MAX_VOLUME / Matter.get_matter_volume(_matter_id)]
+				_MAX_VOLUME / OwnWar.Matter.get_matter_volume(_matter_id)]
 	return info
 
 
@@ -515,7 +514,7 @@ func deserialize_json(data: Dictionary) -> void:
 		add_task(Task.deserialize(game_master, t_d), 1)
 	var c_uid: int = data.get("cached_unit", -1)
 	if c_uid >= 0:
-		var gm: GameMaster = game_master
+		var gm: OwnWar.GameMaster = game_master
 		_set_cached_unit(gm.get_unit_by_uid(c_uid))
 
 
@@ -545,7 +544,7 @@ func _put_matter(id: int, unit: OwnWar.Unit, delta: float) -> bool:
 func _take_matter(id: int, unit: OwnWar.Unit, delta: float) -> bool:
 	assert(id == _matter_id or _matter_count == 0)
 # warning-ignore:integer_division
-	var matter_space := _MAX_VOLUME / Matter.get_matter_volume(id) - _matter_count
+	var matter_space := _MAX_VOLUME / OwnWar.Matter.get_matter_volume(id) - _matter_count
 	assert(matter_space != 0 or _matter_count != 0)
 	if translation.distance_squared_to(unit.translation) <= INTERACTION_DISTANCE_2:
 		_matter_count += unit.take_matter(id, matter_space)
@@ -560,7 +559,7 @@ func _put_matter_in_any(id: int, exclude: Array, delta: float) -> int:
 	assert(_matter_count > 0 and id == _matter_id)
 	if _task_cached_unit == null:
 		var closest_distance2 := INF
-		var gm: GameMaster = game_master
+		var gm: OwnWar.GameMaster = game_master
 		for unit in gm.get_units(team):
 			if not unit in exclude:
 				if unit.takes_matter(id) > 0:
@@ -580,7 +579,7 @@ func _take_matter_from_any(id: int, exclude: Array, delta: float) -> int:
 	assert(_matter_count == 0)
 	if _task_cached_unit == null:
 		var closest_distance2 := INF
-		var gm: GameMaster = game_master
+		var gm: OwnWar.GameMaster = game_master
 		for unit in gm.get_units(team):
 			if not unit in exclude and unit.provides_matter(id) > 0:
 				var d := translation.distance_squared_to(unit.translation)

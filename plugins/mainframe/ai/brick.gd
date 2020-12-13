@@ -1,4 +1,4 @@
-extends AI
+extends "ai.gd"
 
 # Minimal (usable) AI implementaion
 var random_block_coordinate = [-1, -1, -1]

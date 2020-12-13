@@ -12,7 +12,7 @@ onready var _list: BoxContainer = $List/Box
 
 
 func _ready():
-	var plugins := Plugin.get_all_plugins()
+	var plugins := OwnWar.Plugin.get_all_plugins()
 	# Sort plugins by any disabled reason first, then enabled, then manually
 	# disabled and alphabetically lastly
 	var disabled := []
@@ -20,9 +20,9 @@ func _ready():
 	var manual := []
 	for id in plugins:
 		match plugins[id].disable_reason:
-			Plugin.PluginState.NONE:
+			OwnWar.Plugin.PluginState.NONE:
 				enabled.append(id)
-			Plugin.PluginState.MANUAL:
+			OwnWar.Plugin.PluginState.MANUAL:
 				manual.append(id)
 			_:
 				disabled.append(id)
@@ -37,7 +37,8 @@ func _ready():
 		_add_plugin_button(id, plugins[id], Color.orange)
 
 
-func _add_plugin_button(id: String, plugin: Plugin.PluginState, color = null):
+func _add_plugin_button(id: String, plugin: OwnWar.Plugin.PluginState,
+		color = null):
 	var button := Button.new()
 	button.text = id
 	button.align = Button.ALIGN_LEFT
@@ -49,7 +50,7 @@ func _add_plugin_button(id: String, plugin: Plugin.PluginState, color = null):
 
 
 func _show_info(id: String) -> void:
-	var plugin := Plugin.get_plugin(id)
+	var plugin := OwnWar.Plugin.get_plugin(id)
 
 	_info.visible = true
 	_info_id.text = id
@@ -62,27 +63,27 @@ func _show_info(id: String) -> void:
 		_info_dependencies_box.add_child(label)
 	if _info_enabled.is_connected("toggled", self, "_enable_plugin"):
 		_info_enabled.disconnect("toggled", self, "_enable_plugin")
-	_info_enabled.pressed = Plugin.is_plugin_enabled(id)
+	_info_enabled.pressed = OwnWar.Plugin.is_plugin_enabled(id)
 	var e := _info_enabled.connect("toggled", self, "_enable_plugin", [id])
 	assert(e == OK)
 
-	var disable_reason = Plugin.get_disable_reason(id)
+	var disable_reason = OwnWar.Plugin.get_disable_reason(id)
 	match disable_reason:
-		Plugin.PluginState.NONE:
+		OwnWar.Plugin.PluginState.NONE:
 			_info_errors.text = ""
-		Plugin.PluginState.MANUAL:
+		OwnWar.Plugin.PluginState.MANUAL:
 			_info_errors.text = ""
 		_:
 			var strs := PoolStringArray()
-			var reason: int = Plugin.get_disable_reason(id)
+			var reason: int = OwnWar.Plugin.get_disable_reason(id)
 			for i in range(64):
 				var m := 1 << i
 				if reason & m:
-					strs.append(Plugin.PluginState.DISABLE_REASON_TO_STR[m])
+					strs.append(OwnWar.Plugin.PluginState.DISABLE_REASON_TO_STR[m])
 			_info_errors.text = strs.join(", ")
 
 
 func _enable_plugin(enable: bool, id: String):
-	var success := Plugin.enable_plugin(id, enable)
+	var success := OwnWar.Plugin.enable_plugin(id, enable)
 	if not success:
 		Global.error("Failed to toggle plugin")

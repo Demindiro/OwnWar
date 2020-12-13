@@ -38,6 +38,6 @@ func finished_building() -> void:
 	unit.translate(spawn_offset)
 	unit.ore = _ore
 	_ore.drill = unit
-	GameMaster.get_game_master(self).add_child(unit)
+	OwnWar.GameMaster.get_game_master(self).add_child(unit)
 	destroy()
 	emit_signal("built")

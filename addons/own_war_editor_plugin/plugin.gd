@@ -11,15 +11,15 @@ func _enter_tree() -> void:
 	var root := get_tree().get_edited_scene_root()
 	if root != null:
 		for c in Util.get_children_recursive(root):
-			if c is Structure:
+			if c is OwnWar.Structure:
 				_structures.append(c)
 
 
 func _process(_delta: float) -> void:
 	var root := get_tree().get_edited_scene_root()
-	if root is GameMaster:
+	if root is OwnWar.GameMaster:
 		for c in _structures:
-			assert(c is Structure)
+			assert(c is OwnWar.Structure)
 			var transform: Transform = c.global_transform
 			var org := transform.origin
 			var basis := transform.basis
@@ -56,10 +56,10 @@ func _process(_delta: float) -> void:
 
 
 func _node_added(node: Node):
-	if node is Structure:
+	if node is OwnWar.Structure:
 		_structures.append(node)
 
 
 func _node_removed(node: Node):
-	if node is Structure:
+	if node is OwnWar.Structure:
 		_structures.erase(node)

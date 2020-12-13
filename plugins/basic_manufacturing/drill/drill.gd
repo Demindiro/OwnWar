@@ -6,7 +6,7 @@ const MAX_MATERIAL := 100
 var ore: Ore
 var material := 0
 var _time_until_next := 0.0
-onready var _material_id: int = Matter.get_matter_id("material")
+onready var _material_id: int = OwnWar.Matter.get_matter_id("material")
 
 
 func _physics_process(delta: float) -> void:

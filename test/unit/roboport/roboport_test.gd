@@ -13,7 +13,7 @@ func _ready():
 	game_master.units[0].append($"../SpawnPlatform")
 	game_master.ores.append($"../Ore")
 	$"../Drill".init($"../Ore")
-	$"../StoragePod3".put_matter(Matter.get_matter_id("material"), 5000)
+	$"../StoragePod3".put_matter(OwnWar.Matter.get_matter_id("material"), 5000)
 
 
 func _physics_process(_delta):

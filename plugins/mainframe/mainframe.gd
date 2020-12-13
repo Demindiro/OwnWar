@@ -3,6 +3,7 @@ extends Node
 
 const WeaponManager := preload("res://plugins/weapon_manager/weapon_manager.gd")
 const MovementManager := preload("res://plugins/movement_manager/movement_manager.gd")
+const AI := preload("ai/ai.gd")
 
 var ai: AI
 var aim_weapons := false
@@ -68,9 +69,12 @@ func debug_draw():
 
 func serialize_json() -> Dictionary:
 	return {
-			"ai_state": ai.serialize_json(GameMaster.get_game_master(self))
-		}
+		"ai_state": ai.serialize_json(OwnWar.GameMaster.get_game_master(self))
+	}
 
 
 func deserialize_json(data: Dictionary) -> void:
-	ai.deserialize_json(GameMaster.get_game_master(self), data["ai_state"])
+	ai.deserialize_json(
+		OwnWar.GameMaster.get_game_master(self),
+		data["ai_state"]
+	)

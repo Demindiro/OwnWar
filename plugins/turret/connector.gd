@@ -17,7 +17,8 @@ func init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
 	var id = OwnWar.Block.get_block("turret_connector").id
 	for body in vehicle.voxel_bodies:
 		if body != voxel_body:
-			var other_block: VoxelBody.BodyBlock = body.blocks.get(connecting_coordinate)
+			var other_block: OwnWar.VoxelBody.BodyBlock = \
+				body.blocks.get(connecting_coordinate)
 			if other_block != null and other_block.id == id:
 				other_connector = other_block.node
 				if other_connector.get_connecting_coordinate(connecting_coordinate) == coordinate:

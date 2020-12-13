@@ -15,7 +15,7 @@ var _fuel_id: int
 
 
 func init(vehicle: OwnWar.Vehicle) -> void:
-	_fuel_id = Matter.get_matter_id("fuel")
+	_fuel_id = OwnWar.Matter.get_matter_id("fuel")
 	vehicle.add_matter_needs_handler(funcref(self, "get_matter_needs"))
 	vehicle.add_matter_count_handler(funcref(self, "get_matter_count"))
 	vehicle.add_matter_space_handler(funcref(self, "get_matter_space"))

@@ -3,6 +3,9 @@ extends Node
 
 const Unit := preload("../unit/unit.gd")
 const Vehicle := preload("../unit/vehicle.gd")
+const Compatibility := preload("../compatibility.gd")
+const Maps := preload("../maps.gd")
+const Plugin := preload("../plugin/loader.gd")
 
 
 signal unit_added(unit)

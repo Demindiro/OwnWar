@@ -1,6 +1,10 @@
 extends "structure.gd"
 
 
+const GameMaster := preload("../map/game_master.gd")
+var OwnWar = load("res://core/ownwar.gd")
+
+
 signal built()
 export(PackedScene) var structure
 export(Array) var init_arguments
@@ -31,7 +35,7 @@ func snap_transform(position: Vector3, scroll: int):
 		position
 	)
 	# Cyclic dependencies make me go REEEE
-	load("res://core/ownwar.gd").snap_transform(self)
+	OwnWar.snap_transform(self)
 
 
 func add_build_progress(material):

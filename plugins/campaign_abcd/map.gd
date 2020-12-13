@@ -1,1 +1,1 @@
-extends GameMaster
+extends OwnWar.GameMaster

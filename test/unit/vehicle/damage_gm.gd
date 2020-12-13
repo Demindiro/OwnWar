@@ -1,4 +1,4 @@
-extends GameMaster
+extends OwnWar.GameMaster
 
 
 func _enter_tree():
