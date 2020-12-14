@@ -1,4 +1,4 @@
-extends OwnWar.Structure
+extends OwnWar_Structure
 
 
 signal spawned(unit)

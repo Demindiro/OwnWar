@@ -1,4 +1,4 @@
-extends OwnWar.Structure
+extends OwnWar_Structure
 
 
 const _MAX_VOLUME := 1000_000_000

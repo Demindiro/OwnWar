@@ -1,4 +1,4 @@
-extends OwnWar.Unit
+extends OwnWar_Unit
 
 
 const Tasks := preload("tasks.gd")

@@ -1,4 +1,5 @@
 extends "structure.gd"
+class_name OwnWar_Ghost
 
 
 const GameMaster := preload("../map/game_master.gd")

@@ -1,5 +1,5 @@
 tool
-extends OwnWar.Structure
+extends OwnWar_Structure
 
 
 const Drone := preload("roboport_drone.gd")

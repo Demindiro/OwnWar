@@ -44,6 +44,21 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/ownwar.gd"
 }, {
+"base": "",
+"class": "OwnWar_Ghost",
+"language": "GDScript",
+"path": "res://core/unit/ghost.gd"
+}, {
+"base": "",
+"class": "OwnWar_Structure",
+"language": "GDScript",
+"path": "res://core/unit/structure.gd"
+}, {
+"base": "Spatial",
+"class": "OwnWar_Unit",
+"language": "GDScript",
+"path": "res://core/unit/unit.gd"
+}, {
 "base": "Reference",
 "class": "Util",
 "language": "GDScript",
@@ -57,6 +72,9 @@ _global_script_class_icons={
 "ObjectCache": "",
 "OptionButtonPreset": "",
 "OwnWar": "",
+"OwnWar_Ghost": "",
+"OwnWar_Structure": "",
+"OwnWar_Unit": "",
 "Util": ""
 }
 

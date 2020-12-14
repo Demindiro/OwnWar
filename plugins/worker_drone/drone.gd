@@ -1,4 +1,4 @@
-extends OwnWar.Unit
+extends OwnWar_Unit
 
 
 class Task:
