@@ -24,6 +24,7 @@ enum Action {
 	SUBACTION = 0x100,
 }
 const UNITS := {}
+const REVERSE_UNITS := {}
 export var max_health := 10
 export var team := ""
 # warning-ignore:unused_class_variable

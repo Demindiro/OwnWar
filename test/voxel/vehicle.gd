@@ -10,7 +10,7 @@ func _process(delta):
 	get_tree().paused = true
 	var start := OS.get_ticks_msec()
 	while index < count:
-		var vehicle = Vehicle.new()
+		var vehicle = OwnWar.Vehicle.new()
 		vehicle.pause_mode = Node.PAUSE_MODE_STOP
 		vehicle.load_from_file(file)
 		vehicle.translation = Vector3(index & 0xff, (index >> 8) & 0xff, (index >> 16) & 0xff) * 2
