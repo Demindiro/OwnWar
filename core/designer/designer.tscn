@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=1]
 [ext_resource path="res://core/designer/meta_editor.gd" type="Script" id=2]
@@ -22,6 +22,7 @@
 [ext_resource path="res://core/designer/color_picker.gd" type="Script" id=20]
 [ext_resource path="res://core/designer/designer.gd" type="Script" id=21]
 [ext_resource path="res://core/designer/block_base_material.tres" type="Material" id=22]
+[ext_resource path="res://core/thumbnail/mock_cube.tres" type="CubeMesh" id=23]
 
 [node name="Designer" type="Node"]
 pause_mode = 2
@@ -222,7 +223,7 @@ __meta__ = {
 }
 category_button_template = NodePath("../../Inventory/Inventory/HBoxContainer2/HBoxContainer/Categories/VBoxContainer/Template")
 block_button_template = NodePath("../../Inventory/Inventory/HBoxContainer2/HBoxContainer/Blocks/GridContainer/Template")
-preview_mesh = NodePath("../../Inventory/Inventory/HBoxContainer2/HBoxContainer2/ViewportContainer/Viewport/Camera/MeshInstance")
+preview_mesh = NodePath("HBoxContainer2/ViewportContainer/Viewport/MeshInstance")
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="GUI/Inventory/Inventory"]
 margin_right = 1760.0
@@ -230,7 +231,7 @@ margin_bottom = 920.0
 size_flags_vertical = 3
 
 [node name="HBoxContainer" type="HBoxContainer" parent="GUI/Inventory/Inventory/HBoxContainer2"]
-margin_right = 878.0
+margin_right = 1056.0
 margin_bottom = 920.0
 size_flags_horizontal = 3
 
@@ -264,29 +265,34 @@ margin_right = 150.0
 margin_right = 150.0
 rect_min_size = Vector2( 150, 0 )
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="GUI/Inventory/Inventory/HBoxContainer2"]
-margin_left = 882.0
+[node name="ViewportContainer" type="ViewportContainer" parent="GUI/Inventory/Inventory/HBoxContainer2"]
+margin_left = 1060.0
 margin_right = 1760.0
 margin_bottom = 920.0
-size_flags_horizontal = 3
-
-[node name="ViewportContainer" type="ViewportContainer" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer2"]
-margin_right = 878.0
-margin_bottom = 920.0
-size_flags_horizontal = 3
+rect_min_size = Vector2( 700, 0 )
 stretch = true
 
-[node name="Viewport" type="Viewport" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer2/ViewportContainer"]
-size = Vector2( 878, 920 )
+[node name="Viewport" type="Viewport" parent="GUI/Inventory/Inventory/HBoxContainer2/ViewportContainer"]
+size = Vector2( 700, 920 )
+own_world = true
+transparent_bg = true
 handle_input_locally = false
+msaa = 4
+usage = 3
 render_target_update_mode = 3
+gui_disable_input = true
 
-[node name="Camera" type="Camera" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer2/ViewportContainer/Viewport"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 42.9181, 16.5937, 0 )
+[node name="Camera" type="Camera" parent="GUI/Inventory/Inventory/HBoxContainer2/ViewportContainer/Viewport"]
+transform = Transform( 0.642788, -0.323744, 0.694272, 0, 0.906308, 0.422618, -0.766044, -0.271654, 0.582563, 0.6838, 0.4475, 0.572 )
+fov = 30.0
 
-[node name="MeshInstance" type="MeshInstance" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer2/ViewportContainer/Viewport/Camera"]
+[node name="DirectionalLight" type="DirectionalLight" parent="GUI/Inventory/Inventory/HBoxContainer2/ViewportContainer/Viewport"]
+transform = Transform( 0.866025, -0.17101, 0.469846, 0, 0.939693, 0.34202, -0.5, -0.296198, 0.813798, 0, 0, 0 )
+
+[node name="MeshInstance" type="MeshInstance" parent="GUI/Inventory/Inventory/HBoxContainer2/ViewportContainer/Viewport"]
 pause_mode = 1
-transform = Transform( 2.71817, 0.145894, 2.93091, 1.28558, 3.53209, -1.36808, -2.63796, 1.87165, 2.35332, 0, 0, -2 )
+mesh = ExtResource( 23 )
+material/0 = null
 
 [node name="SaveVehicle" parent="GUI" instance=ExtResource( 5 )]
 visible = false

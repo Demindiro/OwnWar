@@ -24,6 +24,7 @@ func _ready():
 	for c in categories:
 		show_category(c)
 		break
+	_preview_mesh.mesh = null
 
 
 func _unhandled_input(event):
@@ -45,6 +46,8 @@ func show_block(var block_name):
 	var block = OwnWar.Block.get_block(block_name)
 	_preview_mesh.mesh = block.mesh
 	_preview_mesh.material_override = block.material
+	_preview_mesh.scale = \
+		Vector3.ONE / max(block.size.x, max(block.size.y, block.size.z))
 	for child in _preview_mesh.get_children():
 		child.queue_free()
 	if block.scene != null:
