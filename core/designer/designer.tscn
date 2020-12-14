@@ -210,6 +210,37 @@ margin_right = -40.0
 margin_bottom = -40.0
 title = "Inventory"
 
+[node name="ViewportContainer" type="ViewportContainer" parent="GUI/Inventory"]
+modulate = Color( 1, 1, 1, 0.498039 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+stretch = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Viewport" type="Viewport" parent="GUI/Inventory/ViewportContainer"]
+size = Vector2( 1840, 1000 )
+own_world = true
+transparent_bg = true
+handle_input_locally = false
+msaa = 4
+usage = 3
+render_target_update_mode = 3
+gui_disable_input = true
+
+[node name="Camera" type="Camera" parent="GUI/Inventory/ViewportContainer/Viewport"]
+transform = Transform( 0.642788, -0.323744, 0.694272, 0, 0.906308, 0.422618, -0.766044, -0.271654, 0.582563, 0.6838, 0.4475, 0.572 )
+fov = 30.0
+
+[node name="DirectionalLight" type="DirectionalLight" parent="GUI/Inventory/ViewportContainer/Viewport"]
+transform = Transform( 0.866025, -0.17101, 0.469846, 0, 0.939693, 0.34202, -0.5, -0.296198, 0.813798, 0, 0, 0 )
+
+[node name="MeshInstance" type="MeshInstance" parent="GUI/Inventory/ViewportContainer/Viewport"]
+pause_mode = 1
+mesh = ExtResource( 23 )
+material/0 = null
+
 [node name="Inventory" type="VBoxContainer" parent="GUI/Inventory"]
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -223,7 +254,7 @@ __meta__ = {
 }
 category_button_template = NodePath("../../Inventory/Inventory/HBoxContainer2/HBoxContainer/Categories/VBoxContainer/Template")
 block_button_template = NodePath("../../Inventory/Inventory/HBoxContainer2/HBoxContainer/Blocks/GridContainer/Template")
-preview_mesh = NodePath("HBoxContainer2/ViewportContainer/Viewport/MeshInstance")
+preview_mesh = NodePath("../ViewportContainer/Viewport/MeshInstance")
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="GUI/Inventory/Inventory"]
 margin_right = 1760.0
@@ -231,7 +262,7 @@ margin_bottom = 920.0
 size_flags_vertical = 3
 
 [node name="HBoxContainer" type="HBoxContainer" parent="GUI/Inventory/Inventory/HBoxContainer2"]
-margin_right = 1056.0
+margin_right = 1760.0
 margin_bottom = 920.0
 size_flags_horizontal = 3
 
@@ -254,45 +285,18 @@ text = "Category"
 
 [node name="Blocks" type="ScrollContainer" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer"]
 margin_left = 154.0
-margin_right = 304.0
+margin_right = 1760.0
 margin_bottom = 920.0
+size_flags_horizontal = 3
 scroll_horizontal_enabled = false
 
 [node name="GridContainer" type="GridContainer" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer/Blocks"]
 margin_right = 150.0
+columns = 6
 
 [node name="Template" type="TextureButton" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer/Blocks/GridContainer"]
 margin_right = 150.0
 rect_min_size = Vector2( 150, 0 )
-
-[node name="ViewportContainer" type="ViewportContainer" parent="GUI/Inventory/Inventory/HBoxContainer2"]
-margin_left = 1060.0
-margin_right = 1760.0
-margin_bottom = 920.0
-rect_min_size = Vector2( 700, 0 )
-stretch = true
-
-[node name="Viewport" type="Viewport" parent="GUI/Inventory/Inventory/HBoxContainer2/ViewportContainer"]
-size = Vector2( 700, 920 )
-own_world = true
-transparent_bg = true
-handle_input_locally = false
-msaa = 4
-usage = 3
-render_target_update_mode = 3
-gui_disable_input = true
-
-[node name="Camera" type="Camera" parent="GUI/Inventory/Inventory/HBoxContainer2/ViewportContainer/Viewport"]
-transform = Transform( 0.642788, -0.323744, 0.694272, 0, 0.906308, 0.422618, -0.766044, -0.271654, 0.582563, 0.6838, 0.4475, 0.572 )
-fov = 30.0
-
-[node name="DirectionalLight" type="DirectionalLight" parent="GUI/Inventory/Inventory/HBoxContainer2/ViewportContainer/Viewport"]
-transform = Transform( 0.866025, -0.17101, 0.469846, 0, 0.939693, 0.34202, -0.5, -0.296198, 0.813798, 0, 0, 0 )
-
-[node name="MeshInstance" type="MeshInstance" parent="GUI/Inventory/Inventory/HBoxContainer2/ViewportContainer/Viewport"]
-pause_mode = 1
-mesh = ExtResource( 23 )
-material/0 = null
 
 [node name="SaveVehicle" parent="GUI" instance=ExtResource( 5 )]
 visible = false
