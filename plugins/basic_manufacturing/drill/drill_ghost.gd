@@ -30,6 +30,24 @@ func snap_transform(position: Vector3, scroll: int):
 	OwnWar.snap_transform(self)
 
 
+func serialize_json() -> Dictionary:
+	if _ore != null:
+		return {"ore_translation": var2str(_ore.translation)}
+	else:
+		return {}
+
+
+func deserialize_json(data: Dictionary) -> void:
+	var ore_translation = data.get("ore_translation")
+	if ore_translation != null:
+		var ot: Vector3 = str2var(ore_translation)
+		for o in get_tree().get_nodes_in_group("ores"):
+			if o.translation == ot:
+				_ore = o
+				break
+		assert(_ore != null)
+
+
 func finished_building() -> void:
 	assert(_ore != null)
 	var unit = structure.instance()

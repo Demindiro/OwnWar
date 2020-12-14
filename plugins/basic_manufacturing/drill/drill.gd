@@ -78,7 +78,6 @@ func serialize_json() -> Dictionary:
 
 
 func deserialize_json(data: Dictionary) -> void:
-	breakpoint
 	material = data["material"]
 	if "ticks_until_next" in data:
 		_time_until_next = data["ticks_until_next"] / 150.0
@@ -89,7 +88,6 @@ func deserialize_json(data: Dictionary) -> void:
 		var ot: Vector3 = str2var(ore_translation)
 		for o in get_tree().get_nodes_in_group("ores"):
 			if o.translation == ot:
-				breakpoint
 				ore = o
 				break
 		assert(ore != null)
