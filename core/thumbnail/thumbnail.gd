@@ -7,7 +7,7 @@ func _ready():
 	var mi: MeshInstance = tn.get_node("MeshInstance")
 	for b in OwnWar.Block.get_all_blocks():
 		var block: OwnWar.Block = b
-		var path := "/tmp/godot-thumbnail/" + block.name + ".png"
+		var path := _get_path(block.name)
 		if not File.new().file_exists(path):
 			print("Generating thumbnail for ", block.name)
 			mi.scale = Vector3.ONE / max(block.size.x, max(block.size.y, block.size.z))
@@ -27,3 +27,14 @@ func _ready():
 			if scene != null:
 				tn.remove_child(scene)
 				scene.queue_free()
+
+
+static func get_thumbnail(name: String) -> Image:
+	var img := Image.new()
+	var e := img.load(_get_path(name))
+	assert(e == OK)
+	return img
+
+
+static func _get_path(name: String) -> String:
+	return "/tmp/godot-thumbnail/" + name + ".png"

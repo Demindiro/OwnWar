@@ -9,7 +9,7 @@ var categories := {}
 
 var _category_button_template: Button
 var _category_container: Node
-var _block_button_template: Button
+var _block_button_template: TextureButton
 var _block_container: Node
 var _preview_mesh: MeshInstance
 var _designer: Node
@@ -55,7 +55,7 @@ func _resolve_node_paths():
 	_category_button_template = get_node(category_button_template) as Button
 	_category_container = _category_button_template.get_parent()
 	_category_container.remove_child(_category_button_template)
-	_block_button_template = get_node(block_button_template) as Button
+	_block_button_template = get_node(block_button_template)
 	_block_container = _block_button_template.get_parent()
 	_block_container.remove_child(_block_button_template)
 	_preview_mesh = get_node(preview_mesh)
@@ -74,8 +74,12 @@ func _block_container_init(var category):
 	for child in _block_container.get_children():
 		_block_container.remove_child(child)
 	for block_name in categories[category]:
-		var node = _block_button_template.duplicate() as Button
-		node.text = OwnWar.Block.get_block(block_name).human_name
+		var node: TextureButton = _block_button_template.duplicate()
+		#node.text = OwnWar.Block.get_block(block_name).human_name
+		var img: Image = OwnWar_Thumbnail.get_thumbnail(block_name)
+		var tex := ImageTexture.new()
+		tex.create_from_image(img)
+		node.texture_normal = tex
 		node.connect("mouse_entered", self, "show_block", [block_name])
 		node.connect("pressed", _designer, "select_block", [block_name])
 		node.connect("pressed", _designer, "set_enabled", [true])
