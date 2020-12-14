@@ -88,7 +88,7 @@ config/icon="res://icon.png"
 
 Global="*res://core/global.gd"
 Debug="*res://core/debug.gd"
-Thumbnail="*res://core/thumbnail/thumbnail.gd"
+OwnWar_Thumbnail="*res://core/thumbnail/thumbnail.gd"
 
 [debug]
 

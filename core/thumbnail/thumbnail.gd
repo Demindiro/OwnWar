@@ -21,6 +21,7 @@ func _ready():
 			yield(VisualServer, "frame_post_draw")
 			yield(VisualServer, "frame_post_draw")
 			var img := tn.get_texture().get_data()
+			img.convert(Image.FORMAT_RGBA8)
 			var e := img.save_png(path)
 			assert(e == OK)
 			if scene != null:
