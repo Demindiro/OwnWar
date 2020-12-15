@@ -3,14 +3,16 @@ extends Node
 
 static func get_thumbnail_async(name: String, callback: FuncRef, arguments := []
 	) -> bool:
-	var img := Image.new()
-	var e := img.load(_get_path(name))
-	if e != OK:
-		OwnWar_Thumbnail._create_thumbnail(name, callback, arguments)
-		return false
-	else:
+	var path := _get_path(name)
+	if File.new().file_exists(path):
+		var img := Image.new()
+		var e := img.load(path)
+		assert(e == OK)
 		callback.call_funcv([img] + arguments)
 		return true
+	else:
+		OwnWar_Thumbnail._create_thumbnail(name, callback, arguments)
+		return false
 
 
 static func _get_path(name: String) -> String:

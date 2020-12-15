@@ -28,6 +28,10 @@ func _ready():
 	_preview_mesh.mesh = null
 
 
+func _process(delta: float) -> void:
+	_preview_mesh.rotate_y(delta * 0.3)
+
+
 func _unhandled_input(event):
 	if not _parent.visible:
 		return
@@ -47,6 +51,7 @@ func show_block(var block_name):
 	var block = OwnWar.Block.get_block(block_name)
 	_preview_mesh.mesh = block.mesh
 	_preview_mesh.material_override = block.material
+	_preview_mesh.transform = Transform.IDENTITY
 	_preview_mesh.scale = \
 		Vector3.ONE / max(block.size.x, max(block.size.y, block.size.z))
 	for child in _preview_mesh.get_children():
