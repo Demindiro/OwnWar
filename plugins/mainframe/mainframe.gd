@@ -64,7 +64,8 @@ func fire_weapons():
 
 
 func debug_draw():
-	ai.debug_draw(self)
+	if ai != null:
+		ai.debug_draw(self)
 
 
 func serialize_json() -> Dictionary:
