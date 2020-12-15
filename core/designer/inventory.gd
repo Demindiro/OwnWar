@@ -4,6 +4,7 @@ extends Control
 export(NodePath) var category_button_template
 export(NodePath) var block_button_template
 export(NodePath) var preview_mesh
+export var _thumbnail_placeholder: Texture
 
 var categories := {}
 
@@ -79,14 +80,21 @@ func _block_container_init(var category):
 	for block_name in categories[category]:
 		var node: TextureButton = _block_button_template.duplicate()
 		#node.text = OwnWar.Block.get_block(block_name).human_name
-		var img: Image = OwnWar_Thumbnail.get_thumbnail(block_name)
-		var tex := ImageTexture.new()
-		tex.create_from_image(img)
-		node.texture_normal = tex
+		if not OwnWar_Thumbnail.get_thumbnail_async(block_name,
+			funcref(self, "_block_set_thumbnail"), [node]):
+			_block_set_thumbnail(_thumbnail_placeholder, node)
 		node.connect("mouse_entered", self, "show_block", [block_name])
 		node.connect("pressed", _designer, "select_block", [block_name])
 		node.connect("pressed", _designer, "set_enabled", [true])
 		_block_container.add_child(node)
+
+
+func _block_set_thumbnail(img, button: TextureButton) -> void:
+	if img is Image:
+		var tex := ImageTexture.new()
+		tex.create_from_image(img)
+		img = tex
+	button.texture_normal = img
 
 
 func _get_categories():

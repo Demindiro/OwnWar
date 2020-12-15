@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=2]
+[gd_scene load_steps=29 format=2]
 
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=1]
 [ext_resource path="res://core/designer/meta_editor.gd" type="Script" id=2]
@@ -24,6 +24,7 @@
 [ext_resource path="res://core/designer/block_base_material.tres" type="Material" id=22]
 [ext_resource path="res://core/thumbnail/mock_cube.tres" type="CubeMesh" id=23]
 [ext_resource path="res://addons/flowcontainer.gd" type="Script" id=24]
+[ext_resource path="res://core/designer/ellipsis.png" type="Texture" id=25]
 
 [sub_resource type="SpatialMaterial" id=1]
 
@@ -295,6 +296,7 @@ __meta__ = {
 category_button_template = NodePath("HBoxContainer/Categories/VBoxContainer/Template")
 block_button_template = NodePath("HBoxContainer/Blocks/GridContainer/Template")
 preview_mesh = NodePath("../ViewportContainer/Viewport/MeshInstance")
+_thumbnail_placeholder = ExtResource( 25 )
 
 [node name="HBoxContainer" type="HBoxContainer" parent="GUI/Inventory/Inventory"]
 margin_right = 1760.0
