@@ -1,6 +1,9 @@
 extends Node
 
 
+const THUMBNAIL_DIRECTORY := "user://cache/thumbnails"
+
+
 static func get_thumbnail_async(name: String, callback: FuncRef, arguments := []
 	) -> bool:
 	var path := _get_path(name)
@@ -16,7 +19,7 @@ static func get_thumbnail_async(name: String, callback: FuncRef, arguments := []
 
 
 static func _get_path(name: String) -> String:
-	return "/tmp/godot-thumbnail/" + name + ".png"
+	return THUMBNAIL_DIRECTORY.plus_file(name + ".png")
 
 
 func _create_thumbnail(name: String, callback: FuncRef, arguments: Array
@@ -42,7 +45,9 @@ func _create_thumbnail(name: String, callback: FuncRef, arguments: Array
 	yield(VisualServer, "frame_post_draw")
 	var img := tn.get_texture().get_data()
 	img.convert(Image.FORMAT_RGBA8)
-	var e := img.save_png(path)
+	var e := Util.create_dirs(THUMBNAIL_DIRECTORY)
+	assert(e == OK)
+	e = img.save_png(path)
 	assert(e == OK)
 	tn.queue_free()
 	callback.call_funcv([img] + arguments)
