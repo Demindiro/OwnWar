@@ -96,6 +96,8 @@ func _input(event: InputEvent) -> void:
 		_move_vehicle(Vector3.FORWARD)
 	elif event.is_action_pressed("designer_vehicle_forward"):
 		_move_vehicle(Vector3.BACK)
+	elif event.is_action_pressed("designer_vehicle_rotate"):
+		_rotate_vehicle()
 
 
 func _process(_delta):
@@ -370,12 +372,7 @@ func _snap_face(direction: Vector3) -> void:
 
 
 func _move_vehicle(direction: Vector3) -> void:
-	var aabb: AABB
-	for crd in blocks:
-		aabb = AABB(_a2v(crd), Vector3.ZERO)
-		break
-	for crd in blocks:
-		aabb = aabb.expand(_a2v(crd))
+	var aabb := _get_vehicle_aabb()
 	aabb.position += direction
 	if AABB(Vector3.ZERO, Vector3.ONE * GRID_SIZE).encloses(aabb):
 		var dict := {}
@@ -384,6 +381,37 @@ func _move_vehicle(direction: Vector3) -> void:
 			dict[_v2a(_a2v(crd) + direction)] = b
 			b.node.translation += direction
 		blocks = dict
+
+
+func _rotate_vehicle() -> void:
+	var aabb := _get_vehicle_aabb()
+	var center := aabb.position + (aabb.size / 2.0).round()
+	var lower := aabb.position - center
+	lower = Vector3(-lower.z, lower.y, lower.x)
+	aabb.position = lower + center
+	aabb.size = Vector3(-aabb.size.z, aabb.size.y, aabb.size.x)
+	aabb = aabb.abs()
+	if AABB(Vector3.ZERO, Vector3.ONE * GRID_SIZE).encloses(aabb):
+		var dict := {}
+		for crd in blocks:
+			var b: Block = blocks[crd]
+			lower = _a2v(crd) - center
+			lower = Vector3(-lower.z, lower.y, lower.x)
+			dict[_v2a(lower + center)] = b
+			b.node.translation = lower + center
+			b.node.rotate_y(-PI / 2.0)
+			b.rotation = OwnWar.Block.basis_to_rotation(b.node.transform.basis)
+		blocks = dict
+
+
+func _get_vehicle_aabb() -> AABB:
+	var aabb: AABB
+	for crd in blocks:
+		aabb = AABB(_a2v(crd), Vector3.ZERO)
+		break
+	for crd in blocks:
+		aabb = aabb.expand(_a2v(crd))
+	return aabb
 
 
 # Vector3i in Godot 4...
