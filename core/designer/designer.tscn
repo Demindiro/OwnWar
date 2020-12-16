@@ -261,6 +261,7 @@ __meta__ = {
 }
 
 [node name="Viewport" type="Viewport" parent="GUI/Inventory/ViewportContainer"]
+pause_mode = 1
 size = Vector2( 1840, 1000 )
 own_world = true
 transparent_bg = true

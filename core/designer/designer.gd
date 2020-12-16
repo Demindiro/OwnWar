@@ -18,6 +18,7 @@ var mirror := false
 var ray_voxel_valid := false
 var selected_layer := 0 setget set_layer
 var view_layer := -1 setget set_view_layer
+var _snap_face := true
 onready var ray := preload("res://addons/voxel_raycast.gd").new()
 onready var _floor_origin: Spatial = $Floor/Origin
 onready var _floor_origin_ghost: MeshInstance = $Floor/Origin/Ghost
@@ -51,7 +52,7 @@ func _ready():
 	_floor_mirror.visible = mirror
 
 
-func _input(event):
+func _input(event: InputEvent) -> void:
 	if not _camera.enabled:
 		return
 	if event is InputEventMouseButton and event.is_pressed():
@@ -63,6 +64,8 @@ func _input(event):
 			_rotation += 1
 			if _rotation >= 24:
 				_rotation = 0
+	if event.is_action_pressed("designer_snap_faces"):
+		_snap_face = not _snap_face
 
 
 func _process(_delta):
@@ -96,6 +99,7 @@ func process_actions():
 	elif Input.is_action_just_pressed("designer_place_block"):
 		if ray_voxel_valid and not Input.is_action_pressed("designer_release_cursor"):
 			var coordinate = _v2a(_a2v(ray.voxel) + _a2v(ray.get_normal()))
+			_snap_face(_a2v(ray.get_normal()))
 			place_block(selected_block, coordinate, _rotation, selected_layer)
 			if mirror:
 				coordinate = [] + coordinate
@@ -214,6 +218,7 @@ func highlight_face():
 			ray_hits_block = false
 		else:
 			var direction = ray.get_normal()
+			_snap_face(_a2v(direction))
 			var place_at = _v2a(_a2v(ray.voxel) + _a2v(direction))
 			var x = _a2v(direction)
 			var y = Vector3.RIGHT.cross(x)
@@ -227,7 +232,8 @@ func highlight_face():
 					and not place_at in blocks:
 				ray_voxel_valid = true
 				_floor_origin_ghost.translation = _a2v(place_at)
-				_floor_origin_ghost.transform.basis = selected_block.get_basis(_rotation)
+				_floor_origin_ghost.transform.basis = selected_block \
+					.get_basis(_rotation)
 				_floor_origin_ghost.scale_object_local(Vector3.ONE * SCALE)
 			else:
 				ray_voxel_valid = false
@@ -319,14 +325,23 @@ func set_view_layer(p_view_layer: int):
 		block[2].visible = view_layer < 0 or block[4] == view_layer
 
 
+func _snap_face(direction: Vector3) -> void:
+	if _snap_face:
+		var dir := OwnWar.Block.axis_to_direction(direction)
+		assert(dir != -1)
+		_rotation &= 0b11
+		_rotation |= dir
+
+
+
 # Vector3i in Godot 4...
 # Gib Godot 4 pls (> °-°)>
-func _v2a(v):
+func _v2a(v: Vector3) -> Array:
 	v.round()
 	return [int(v.x), int(v.y), int(v.z)]
 
 
-func _a2v(a):
+func _a2v(a: Array) -> Vector3:
 	return Vector3(a[0], a[1], a[2])
 
 

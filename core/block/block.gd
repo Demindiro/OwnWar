@@ -159,6 +159,22 @@ static func orthogonal_index_to_rotation(index: int) -> int:
 	return -1
 
 
+static func axis_to_direction(axis: Vector3) -> int:
+	# Matching is fine, because round() rounds to whole integers, which can be
+	# represented in memory without any loss of precisision
+	axis = axis.round()
+	var d := -1
+	match axis:
+		Vector3.UP: d = 0
+		Vector3.DOWN: d = 1
+		Vector3.RIGHT: d = 2
+		Vector3.LEFT: d = 3
+		Vector3.BACK: d = 4
+		Vector3.FORWARD: d = 5
+		_: assert(false)
+	return d << 2
+
+
 func __set_mirror_block(block: Resource):
 	# warning-ignore:unsafe_property_access
 	__mirror_block_name = block.name
