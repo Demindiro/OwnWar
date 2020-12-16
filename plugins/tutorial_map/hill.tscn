@@ -118,16 +118,16 @@ material/0 = ExtResource( 32 )
 [node name="Ores" type="Node" parent="Map"]
 
 [node name="Ore" parent="Map/Ores" instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 207.102, 0.0835114, 217.925 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 207, 0, 218 )
 
 [node name="Ore2" parent="Map/Ores" instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 244.295, 0.210837, 255.474 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 244.5, 0, 255.5 )
 
 [node name="Ore3" parent="Map/Ores" instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 312.708, 30.1831, 566.548 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 312.5, 29.9688, 566.5 )
 
 [node name="Ore4" parent="Map/Ores" instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 438.814, 30.591, 547.43 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 439, 30.4765, 547.5 )
 
 [node name="Player" parent="." instance=ExtResource( 35 )]
 

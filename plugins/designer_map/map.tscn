@@ -144,7 +144,10 @@ position_offset = Vector3( 0, 0.5, 0 )
 
 [node name="Roboport" parent="Player" instance=ExtResource( 21 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -47, 0.500031, 35.5 )
+max_health = 10
 team = "Player"
+drone_limit = 10
+_radius2 = 10000.0
 
 [node name="Enemy" parent="." instance=ExtResource( 33 )]
 
