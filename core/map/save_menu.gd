@@ -49,4 +49,4 @@ func _on_Cancel_pressed() -> void:
 
 func _on_Save_pressed() -> void:
 	if _path.is_valid_filename():
-		_save(_path)
+		_save(save_directory.plus_file(_path))
