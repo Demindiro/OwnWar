@@ -3,6 +3,24 @@ extends Node
 
 const MetaEditor := preload("meta_editor.gd")
 
+class Block:
+	var name: String
+	var rotation: int
+	var node: Spatial
+	var color: Color
+	var layer: int
+
+	func _init(p_name: String, p_rotation: int, p_node: Spatial, p_color: Color,
+		p_layer: int) -> void:
+		name = p_name
+		rotation = p_rotation
+		node = p_node
+		color = p_color
+		layer = p_layer
+
+	func to_array() -> Array:
+		return [name, rotation, node, color, layer]
+
 
 const GRID_SIZE = 25
 const SCALE = 4
@@ -66,6 +84,18 @@ func _input(event: InputEvent) -> void:
 				_rotation = 0
 	if event.is_action_pressed("designer_snap_faces"):
 		_snap_face = not _snap_face
+	elif event.is_action_pressed("designer_vehicle_up"):
+		_move_vehicle(Vector3.UP)
+	elif event.is_action_pressed("designer_vehicle_down"):
+		_move_vehicle(Vector3.DOWN)
+	elif event.is_action_pressed("designer_vehicle_left"):
+		_move_vehicle(Vector3.RIGHT)
+	elif event.is_action_pressed("designer_vehicle_right"):
+		_move_vehicle(Vector3.LEFT)
+	elif event.is_action_pressed("designer_vehicle_back"):
+		_move_vehicle(Vector3.FORWARD)
+	elif event.is_action_pressed("designer_vehicle_forward"):
+		_move_vehicle(Vector3.BACK)
 
 
 func _process(_delta):
@@ -133,7 +163,7 @@ func process_actions():
 		_camera.enabled = true
 	elif Input.is_action_just_pressed("designer_configure"):
 		if ray_voxel_valid and ray.voxel in blocks:
-			var block = OwnWar.Block.get_block(blocks[ray.voxel][0])
+			var block = OwnWar.Block.get_block(blocks[ray.voxel].name)
 			if len(block.meta) > 0:
 				var meta_data = meta[ray.voxel] if ray.voxel in meta else block.meta
 				set_enabled(false)
@@ -161,13 +191,19 @@ func place_block(block, coordinate, rotation, layer):
 	for child in Util.get_children_recursive(node):
 		if child is GeometryInstance and not child is Sprite3D:
 			child.material_override = material
-	blocks[coordinate] = [block.name, rotation, node, material.albedo_color, layer]
+	blocks[coordinate] = Block.new(
+		block.name,
+		rotation,
+		node,
+		material.albedo_color,
+		layer
+	)
 	return true
 
 
 func remove_block(coordinate):
 	if coordinate in blocks:
-		var node = blocks[coordinate][2]
+		var node = blocks[coordinate].node
 		node.queue_free()
 		# warning-ignore:return_value_discarded
 		blocks.erase(coordinate)
@@ -248,7 +284,7 @@ func save_vehicle(var path):
 	data['game_version'] = Util.version_vector_to_str(OwnWar.VERSION)
 	data['blocks'] = {}
 	for coordinate in blocks:
-		var block_data = blocks[coordinate].duplicate()
+		var block_data = blocks[coordinate].to_array()
 		block_data.remove(2)
 		data['blocks']["%d,%d,%d" % coordinate] = block_data
 
@@ -322,7 +358,7 @@ func set_view_layer(p_view_layer: int):
 	view_layer = p_view_layer
 	for coordinate in blocks:
 		var block = blocks[coordinate]
-		block[2].visible = view_layer < 0 or block[4] == view_layer
+		block.node.visible = view_layer < 0 or block[4] == view_layer
 
 
 func _snap_face(direction: Vector3) -> void:
@@ -332,6 +368,25 @@ func _snap_face(direction: Vector3) -> void:
 		_rotation &= 0b11
 		_rotation |= dir
 
+
+func _move_vehicle(direction: Vector3) -> void:
+	var aabb: AABB
+	for crd in blocks:
+		aabb = AABB(_a2v(crd), Vector3.ZERO)
+		break
+	for crd in blocks:
+		aabb = aabb.expand(_a2v(crd))
+	aabb.position += direction
+	if AABB(Vector3.ZERO, Vector3.ONE * GRID_SIZE).encloses(aabb):
+		print(aabb)
+		print(aabb.end)
+		print(Vector3.ONE * (GRID_SIZE - 1))
+		var dict := {}
+		for crd in blocks:
+			var b: Block = blocks[crd]
+			dict[_v2a(_a2v(crd) + direction)] = b
+			b.node.translation += direction
+		blocks = dict
 
 
 # Vector3i in Godot 4...
