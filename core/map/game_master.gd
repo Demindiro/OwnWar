@@ -74,8 +74,8 @@ func game_end():
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 
-func save_game(p_name: String) -> int:
-	print("Saving game as %s" % p_name)
+func save_game(path: String) -> int:
+	print("Saving game as %s" % path)
 	var start_time := OS.get_ticks_msec()
 	var s_units := {}
 	for u in get_tree().get_nodes_in_group("units"):
@@ -118,12 +118,12 @@ func save_game(p_name: String) -> int:
 
 	var e := Util.create_dirs("user://game_saves")
 	if e == OK:
-		e = OK if Util.write_file_text("user://game_saves".plus_file(p_name) + \
-				".json", json, true) else FAILED
+		e = OK if Util.write_file_text(path, json, true) else FAILED
 		if e == OK:
 			print("Saved game")
 		else:
-			print("Error saving game %d" % e)
+			assert(false)
+			push_error("Error saving game %d" % e)
 	else:
 		print("Error creating directory %d" %e)
 	return e
