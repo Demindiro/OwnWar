@@ -49,6 +49,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/ownwar.gd"
 }, {
+"base": "Node",
+"class": "OwnWar_GameMaster",
+"language": "GDScript",
+"path": "res://core/map/game_master.gd"
+}, {
 "base": "",
 "class": "OwnWar_Ghost",
 "language": "GDScript",
@@ -78,6 +83,7 @@ _global_script_class_icons={
 "ObjectCache": "",
 "OptionButtonPreset": "",
 "OwnWar": "",
+"OwnWar_GameMaster": "",
 "OwnWar_Ghost": "",
 "OwnWar_Structure": "",
 "OwnWar_Unit": "",

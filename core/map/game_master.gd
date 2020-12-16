@@ -209,6 +209,7 @@ static func load_game(path: String) -> int:
 static func get_game_master(node: Node) -> Node:# -> GameMaster:
 	if Engine.editor_hint:
 		return null
+	assert(node.get_tree() != null)
 	for child in node.get_tree().root.get_children():
 		if child.has_method("get_game_master"):
 			return child
