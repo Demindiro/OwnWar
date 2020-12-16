@@ -1,7 +1,7 @@
 extends "res://test/shapes/shapes.gd"
 
 
-export(String, FILE, "*.json") var data_path := "res://block/chassis/shapes.json"
+export(String, FILE, "*.json") var data_path := "res://plugins/chassis_blocks/shapes.json"
 var data: Dictionary
 var rotation := 0
 var mirror := 0
