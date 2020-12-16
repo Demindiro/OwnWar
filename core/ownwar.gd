@@ -24,7 +24,7 @@ const VERSION := Vector3(0, 15, 2)
 const COLLISION_MASK_TERRAIN := 1 << (8 - 1)
 const COLLISION_MASK_UNIT := 1 << (19 - 1)
 const COLLISION_MASK_STRUCTURE := 1 << (20 - 1)
-
+const _MAIN_MENU := "res://core/menu/main_menu/main.tscn"
 const _MAIN_MENU_SCENES := PoolStringArray()
 
 
@@ -76,3 +76,8 @@ static func snap_transform(node) -> void:
 	if not Util.is_transform_approx_eq(n_transform, transform,
 			1e-3, 1e-3):
 		node.global_transform = n_transform
+
+
+static func goto_main_menu(tree: SceneTree) -> void:
+	tree.change_scene(_MAIN_MENU)
+	tree.paused = false
