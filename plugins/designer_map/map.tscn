@@ -182,10 +182,10 @@ options = PoolStringArray( "Player", "Enemy" )
 [node name="GUI" parent="." instance=ExtResource( 12 )]
 pause_mode = 2
 visible = false
-[connection signal="load_game" from="." to="HUD" method="_on_Designer_load_game"]
 [connection signal="load_game" from="." to="Map" method="_on_Designer_load_game"]
-[connection signal="save_game" from="." to="HUD" method="_on_Designer_save_game"]
+[connection signal="load_game" from="." to="HUD" method="_on_Designer_load_game"]
 [connection signal="save_game" from="." to="Map" method="_on_Designer_save_game"]
+[connection signal="save_game" from="." to="HUD" method="_on_Designer_save_game"]
 [connection signal="item_selected" from="HUD/ChangeTeam" to="HUD/ChangeTeam" method="_on_ChangeTeam_item_selected"]
 [connection signal="cancel" from="GUI" to="Map" method="_on_GUI_cancel"]
 [connection signal="exit" from="GUI" to="Map" method="_on_GUI_exit"]
