@@ -104,6 +104,30 @@ static func version_vector_to_str(version: Vector3) -> String:
 	return "%d.%d.%d" % [version.x, version.y, version.z]
 
 
+static func iterate_dir(path: String, extension = null) -> PoolStringArray:
+	assert(extension == null or extension is String)
+
+	var dir := Directory.new()
+	var e := dir.open(path)
+	if e != OK:
+		return PoolStringArray()
+
+	e = dir.list_dir_begin(true)
+	if e != OK:
+		return PoolStringArray()
+
+	var file_paths := PoolStringArray()
+	while true:
+		var file := dir.get_next()
+		if file == "":
+			break
+		if not dir.current_is_dir():
+			if extension == null or file.get_extension() == extension:
+				file_paths.append(file)
+
+	return file_paths
+
+
 static func iterate_dir_recursive(path: String, extension = null) -> Array:
 	assert(extension == null or extension is String)
 	var file_paths: Array
@@ -227,3 +251,14 @@ static func is_transform_approx_eq(a: Transform, b: Transform,
 
 static func get_script_dir(object: Object) -> String:
 	return object.get_script().get_path().get_base_dir()
+
+
+static func humanize_file_name(name: String) -> String:
+	var ext_index := name.find_last(".")
+	if ext_index < 0:
+		ext_index = len(name)
+	return name.substr(0, ext_index).replace("_", " ").capitalize()
+
+
+static func filenamize_human_name(name: String) -> String:
+	return name.replace(" ", "_").to_lower()
