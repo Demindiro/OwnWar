@@ -392,7 +392,7 @@ func _move_vehicle(direction: Vector3) -> void:
 # Vector3i in Godot 4...
 # Gib Godot 4 pls (> °-°)>
 func _v2a(v: Vector3) -> Array:
-	v.round()
+	v = v.round()
 	return [int(v.x), int(v.y), int(v.z)]
 
 
