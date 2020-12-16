@@ -378,9 +378,6 @@ func _move_vehicle(direction: Vector3) -> void:
 		aabb = aabb.expand(_a2v(crd))
 	aabb.position += direction
 	if AABB(Vector3.ZERO, Vector3.ONE * GRID_SIZE).encloses(aabb):
-		print(aabb)
-		print(aabb.end)
-		print(Vector3.ONE * (GRID_SIZE - 1))
 		var dict := {}
 		for crd in blocks:
 			var b: Block = blocks[crd]
