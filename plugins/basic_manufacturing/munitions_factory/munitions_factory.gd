@@ -166,7 +166,7 @@ func serialize_json() -> Dictionary:
 	if _current_munition_type != null:
 		data["current_munition"] = OwnWar.Matter.get_matter_name(
 				_current_munition_type.id)
-	if _current_munition_type != null:
+	if _current_producing_munition != null:
 		data["current_producing"] = OwnWar.Matter.get_matter_name(
 				_current_producing_munition.id)
 	return data
