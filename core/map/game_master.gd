@@ -1,4 +1,5 @@
 extends Node
+class_name OwnWar_GameMaster
 
 
 const Unit := preload("../unit/unit.gd")
