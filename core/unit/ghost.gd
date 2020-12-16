@@ -6,7 +6,7 @@ const GameMaster := preload("../map/game_master.gd")
 var OwnWar = load("res://core/ownwar.gd")
 
 
-signal built()
+signal built(unit)
 export(PackedScene) var structure
 export(Array) var init_arguments
 export(Vector3) var spawn_offset = Vector3.ZERO
@@ -56,7 +56,7 @@ func finished_building():
 	if unit.has_method("init") or init_arguments != []:
 		unit.callv("init", init_arguments)
 	destroy()
-	emit_signal("built")
+	emit_signal("built", unit)
 
 
 

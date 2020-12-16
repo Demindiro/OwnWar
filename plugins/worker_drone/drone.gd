@@ -146,6 +146,7 @@ class TaskTakeOnly:
 class TaskBuild:
 	extends Task
 	var unit: OwnWar.Unit
+	var built_unit: OwnWar.Unit
 
 	func _init(p_unit: OwnWar.Unit, p_oneshot := false):
 		unit = p_unit
@@ -518,7 +519,8 @@ func deserialize_json(data: Dictionary) -> void:
 		_set_cached_unit(gm.get_unit_by_uid(c_uid))
 
 
-func _ghost_built(task: Task):
+func _ghost_built(ghost: OwnWar.Unit, task: TaskBuild):
+	task.built_unit = ghost
 	emit_signal("task_completed", task)
 
 
