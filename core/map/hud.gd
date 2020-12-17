@@ -41,14 +41,14 @@ func _process(_delta):
 
 
 func _unhandled_input(event):
-	if event.is_action_pressed("campaign_append_action"):
+	if event.is_action("campaign_append_action"):
 		_append_action = event.pressed
 		get_tree().set_input_as_handled()
-	elif event.is_action_pressed("campaign_debug"):
+	if event.is_action_pressed("campaign_debug"):
 		if event.pressed:
 			Debug.visible = not Debug.visible
 		get_tree().set_input_as_handled()
-	elif event.is_action_pressed("ui_cancel"):
+	if event.is_action_pressed("ui_cancel"):
 		if _action_button != null:
 			if event.pressed:
 				clear_action_button()
