@@ -98,6 +98,7 @@ double_sided = false
 script = ExtResource( 16 )
 
 [node name="Origin" type="Spatial" parent="Floor"]
+pause_mode = 1
 
 [node name="Ghost" type="MeshInstance" parent="Floor/Origin"]
 transform = Transform( 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, -1 )
