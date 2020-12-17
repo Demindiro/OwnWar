@@ -161,6 +161,9 @@ func put_matter(id: int, amount: int) -> int:
 		if material >= queued_vehicle.get_cost():
 			queued_vehicle.team = team
 			queued_vehicle.transform = global_transform
+			queued_vehicle.translate(Vector3.UP * 5.0)
+			# Rotate 180° because I cba to fix it properly
+			queued_vehicle.rotate_y(PI)
 			OwnWar.GameMaster.get_game_master(self).add_child(queued_vehicle)
 			emit_signal("spawned", queued_vehicle)
 			var remainder = material - queued_vehicle.get_cost()
