@@ -3,6 +3,8 @@ extends "ai.gd"
 # Minimal (usable) AI implementaion
 var random_block_coordinate = [-1, -1, -1]
 var time_until_block_switch = 0
+var target_body: OwnWar.VoxelBody
+var local_aim_point: Vector3
 
 
 func process(mainframe, delta):
@@ -90,13 +92,14 @@ func fire_at(mainframe, target, delta):
 				if len(body.blocks) > 0:
 					valid_bodies.append(body)
 			# Pick a random (alive) block so we don't shoot at air constantly
-			var body = valid_bodies[randi() % len(valid_bodies)]
-			var keys = body.blocks.keys()
+			target_body = valid_bodies[randi() % len(valid_bodies)]
+			var keys: Array = target_body.blocks.keys()
 			random_block_coordinate = keys[randi() % len(keys)]
 			time_until_block_switch = 0
-			var local_position = body.coordinate_to_vector(random_block_coordinate)
-			mainframe.weapons_aim_point = body.to_global(local_position +
-					Vector3.ONE * OwnWar.Block.BLOCK_SCALE / 2)
+			local_aim_point = target_body.coordinate_to_vector(random_block_coordinate)
+		# Aim at the block
+		mainframe.weapons_aim_point = target_body.to_global(local_aim_point +
+				Vector3.ONE * OwnWar.Block.BLOCK_SCALE / 2)
 		time_until_block_switch += delta
 	else:
 		mainframe.weapons_aim_point = target.translation
