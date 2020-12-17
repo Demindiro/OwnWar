@@ -9,10 +9,12 @@ var local_aim_point: Vector3
 
 func process(mainframe, delta):
 	.process(mainframe, delta)
-	if len(waypoints) > 0:
+	if len(waypoints) > 1:
 		move_to_waypoint(mainframe, waypoints[0])
 		if (mainframe.vehicle.translation - waypoints[0]).length_squared() < 40:
 			waypoints.remove(0)
+	elif len(waypoints) == 1:
+		move_to_waypoint(mainframe, waypoints[0])
 	else:
 		mainframe.brake = 1
 	# Fire at target
@@ -68,12 +70,16 @@ func move_to_waypoint(mainframe, waypoint):
 		mainframe.brake = 0
 	# Stop and brake if the drive is low
 	if mainframe.drive_forward < 0.01:
-		mainframe.drive_yaw = 0.0
-		mainframe.drive_forward = 0.0
-		mainframe.brake = 1.0
-		# Don't slam the brakes if going too fast
-		if velocity > 10:
-			mainframe.brake = 0.4
+		# Keep moving forward if the waypoint is in front
+		if forward2d.dot(distance2d) > 0 and linear_velocity.dot(forward) < 1.0:
+			mainframe.drive_forward = 0.25
+		else:
+			mainframe.drive_yaw = 0.0
+			mainframe.drive_forward = 0.0
+			mainframe.brake = 1.0
+			# Don't slam the brakes if going too fast
+			if velocity > 10:
+				mainframe.brake = 0.4
 
 
 func fire_at(mainframe, target, delta):
