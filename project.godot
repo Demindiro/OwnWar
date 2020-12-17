@@ -17,7 +17,7 @@ _global_script_classes=[ {
 "base": "Camera",
 "class": "FreeCamera",
 "language": "GDScript",
-"path": "res://core/camera/free_camera.gd"
+"path": "res://addons/free_camera.gd"
 }, {
 "base": "ResourceFormatLoader",
 "class": "HTerrainDataLoader",

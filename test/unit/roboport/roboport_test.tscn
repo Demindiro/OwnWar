@@ -1,7 +1,7 @@
 [gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://addons/tiles/metal_grid/set3_example_3.png" type="Texture" id=1]
-[ext_resource path="res://core/camera/free_camera.gd" type="Script" id=2]
+[ext_resource path="res://addons/free_camera.gd" type="Script" id=2]
 [ext_resource path="res://plugins/basic_manufacturing/roboport/roboport.tscn" type="PackedScene" id=3]
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery.tscn" type="PackedScene" id=4]
 [ext_resource path="res://core/map/hud.tscn" type="PackedScene" id=5]

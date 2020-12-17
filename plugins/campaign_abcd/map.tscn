@@ -4,7 +4,7 @@
 [ext_resource path="res://plugins/campaign_abcd/map_data/data.hterrain" type="Resource" id=2]
 [ext_resource path="res://addons/tiles/sand/IMG_8938 Seamless Normal.jpg" type="Texture" id=3]
 [ext_resource path="res://addons/tiles/sand/IMG_8938 Seamless.jpg" type="Texture" id=4]
-[ext_resource path="res://core/camera/free_camera.gd" type="Script" id=5]
+[ext_resource path="res://addons/free_camera.gd" type="Script" id=5]
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform.tscn" type="PackedScene" id=6]
 [ext_resource path="res://plugins/campaign_abcd/map.gd" type="Script" id=7]
 [ext_resource path="res://plugins/campaign_abcd/environment.tres" type="Environment" id=8]
