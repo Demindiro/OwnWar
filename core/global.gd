@@ -170,9 +170,12 @@ func _load_scene():
 						_loader_callback_arguments.push_front(instance)
 					fr.call_funcv(_loader_callback_arguments)
 				# Allow any heavy scene stuff to load first (Heightmap terrain)
-				get_tree().paused = true
+				var was_paused := get_tree().paused
+				if not was_paused:
+					get_tree().paused = true
 				yield(get_tree(), "idle_frame")
-				get_tree().paused = false
+				if not was_paused:
+					get_tree().paused = false
 				tree.current_scene.queue_free()
 				tree.current_scene = instance
 			else:
