@@ -31,9 +31,11 @@ func _notification(notification):
 
 func get_info():
 	var info = .get_info()
-	info["Material"] = "%d / %d" % [material, _get_needed_material()]
 	if queued_vehicle != null:
+		info["Material"] = "%d / %d" % [material, queued_vehicle.get_cost()]
 		info["Queued"] = queued_vehicle_name
+	else:
+		info["Material"] = "%d" % material
 	return info
 
 
