@@ -2,7 +2,7 @@
 
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=1]
 [ext_resource path="res://core/designer/meta_editor.gd" type="Script" id=2]
-[ext_resource path="res://addons/free_camera.gd" type="Script" id=3]
+[ext_resource path="res://addons/aabb_camera.gd" type="Script" id=3]
 [ext_resource path="res://core/designer/block_layer.gd" type="Script" id=4]
 [ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=5]
 [ext_resource path="res://core/designer/mirror_line_material.tres" type="Material" id=6]
@@ -58,10 +58,13 @@ visible = false
 
 [node name="Camera" type="Camera" parent="."]
 process_priority = -1
-transform = Transform( -1, 0, -3.25841e-07, -1.62921e-07, 0.866025, 0.5, 2.82187e-07, 0.5, -0.866025, -0.112284, 5.09171, -11.6802 )
+transform = Transform( -1, -1.42109e-13, -3.25842e-07, -1.62921e-07, 0.866025, 0.5, 2.82187e-07, 0.5, -0.866025, 10, 5.09171, 0 )
 cull_mask = 1
 script = ExtResource( 3 )
+speed = 10.0
+angular_speed = 0.01
 always_capture = true
+aabb = AABB( -10, 0.55, -10, 45, 30, 45 )
 
 [node name="Box" type="ViewportContainer" parent="Camera"]
 anchor_right = 1.0
