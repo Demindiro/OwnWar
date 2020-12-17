@@ -328,7 +328,11 @@ func load_vehicle(path):
 			_on_ColorPicker_pick_color(color)
 			place_block(block, coordinate, data['blocks'][key][1], data["blocks"][key][3])
 
-		meta = data["meta"]
+		meta = {}
+		for crd in data["meta"]:
+			var crd_arr: Array = crd.split(",")
+			var c := [int(crd[0]), int(crd[1]), int(crd[2])]
+			meta[c] = data["meta"][crd]
 
 		print("Loaded vehicle from '%s'" % path)
 
