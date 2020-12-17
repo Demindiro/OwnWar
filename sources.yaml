@@ -54,3 +54,7 @@ assets:
     author: yughues
     source: https://opengameart.org/content/free-tiling-textures-pack-57
     license: cc0
+  - asset: addons/wheels/big_tire.blend
+    author: Clint Bellanger
+    source: https://opengameart.org/content/big-tire
+    license: cc-by 3.0
