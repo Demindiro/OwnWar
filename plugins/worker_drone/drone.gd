@@ -311,29 +311,68 @@ func _physics_process(delta):
 func get_actions():
 	var A := OwnWar.Action
 	return [
-		A.new("Set waypoint", Action.INPUT_COORDINATE,
-			funcref(self, "set_waypoint")),
-		A.new("Take", Action.INPUT_OWN_UNITS, funcref(self, "take_matter_from"),
+		A.new(
+			"Set waypoint",
+			null,
+			Action.INPUT_COORDINATE,
+			funcref(self, "set_waypoint")
+		),
+		A.new(
+			"Take",
+			null,
+			Action.INPUT_OWN_UNITS,
+			funcref(self, "take_matter_from"),
+			[false]
+		),
+		A.new(
+			"Put",
+			null,
+			Action.INPUT_OWN_UNITS,
+			funcref(self, "put_matter_in"),
 			[false]),
-		A.new("Put", Action.INPUT_OWN_UNITS, funcref(self, "put_matter_in"),
-			[false]),
-		A.new("Take only", Action.INPUT_OWN_UNITS,
-			funcref(self, "take_matter_from"), [true]),
-		A.new("Put only", Action.INPUT_OWN_UNITS,
-			funcref(self, "put_matter_in"), [true]),
-		A.new("Build", Action.SUBACTION, funcref(self, "get_build_actions")),
-		A.new("Clear tasks", Action.INPUT_NONE, funcref(self, "clear_tasks")),
+		A.new(
+			"Take only",
+			null,
+			Action.INPUT_OWN_UNITS,
+			funcref(self, "take_matter_from"),
+			[true]
+		),
+		A.new(
+			"Put only",
+			null,
+			Action.INPUT_OWN_UNITS,
+			funcref(self, "put_matter_in"),
+			[true]
+		),
+		A.new(
+			"Build",
+			null,
+			Action.SUBACTION,
+			funcref(self, "get_build_actions")
+		),
+		A.new(
+			"Clear tasks",
+			null,
+			Action.INPUT_NONE,
+			funcref(self, "clear_tasks")
+		),
 	]
 
 
 func get_build_actions(_flags):
 	var A := OwnWar.Action
 	var actions = [
-		A.new("Build", Action.INPUT_OWN_UNITS, funcref(self, "build")),
+		A.new(
+			"Build",
+			null,
+			Action.INPUT_OWN_UNITS,
+			funcref(self, "build")
+		),
 	]
 	for ghost_name in ghosts:
 		var a := A.new(
 			"Build " + ghost_name,
+			null,
 			Action.INPUT_COORDINATE | Action.INPUT_SCROLL,
 			funcref(self, "build_ghost"),
 			[ghost_name]

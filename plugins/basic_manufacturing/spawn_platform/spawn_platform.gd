@@ -43,6 +43,7 @@ func get_actions():
 	var actions = [
 		OwnWar.Action.new(
 			"Spawn Drone",
+			null,
 			Action.INPUT_NONE,
 			funcref(self, "spawn_worker")
 		)
@@ -57,13 +58,19 @@ func get_actions():
 					file_name.ends_with(Global.FILE_EXTENSION):
 				var action_name = "Spawn " + OwnWar.Vehicle.path_to_name(file_name)
 				var path = directory.get_current_dir() + '/' + file_name
+				var texture := ImageTexture.new()
 				actions.append(
 					OwnWar.Action.new(
 						action_name,
+						texture,
 						Action.INPUT_NONE,
 						funcref(self, "spawn_vehicle"),
 						[path]
 					)
+				)
+				OwnWar_Thumbnail.get_vehicle_thumbnail_async(
+					path,
+					funcref(texture, "create_from_image")
 				)
 			file_name = directory.get_next()
 	else:

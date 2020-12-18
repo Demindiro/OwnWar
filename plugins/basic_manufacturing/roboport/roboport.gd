@@ -49,6 +49,7 @@ func get_actions() -> Array:
 	var actions := .get_actions()
 	var set_cov := OwnWar.Action.new(
 		"Set Coverage",
+		null,
 		Action.INPUT_COORDINATE,
 		funcref(self, "set_coverage_radius")
 	)
