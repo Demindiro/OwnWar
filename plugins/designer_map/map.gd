@@ -4,6 +4,7 @@ extends Node
 const BM := preload("res://plugins/basic_manufacturing/plugin.gd")
 
 onready var material_id = OwnWar.Matter.get_matter_id("material")
+onready var _fuel_id := OwnWar.Matter.get_matter_id("fuel")
 onready var _player_spawn_platform: BM.SpawnPlatform = $"../Player/SpawnPlatform"
 onready var _enemy_spawn_platform: BM.SpawnPlatform = $"../Enemy/SpawnPlatform"
 onready var _player_storage_pod: BM.StoragePod = $"../Player/StoragePod"
@@ -13,6 +14,8 @@ onready var _gui: Control = $"../GUI"
 func _ready() -> void:
 	# warning-ignore:return_value_discarded
 	_player_storage_pod.put_matter(material_id, 500)
+	_player_spawn_platform.connect("spawned", self, "_insert_fuel")
+	_enemy_spawn_platform.connect("spawned", self, "_insert_fuel")
 
 
 func _physics_process(_delta: float) -> void:
@@ -42,6 +45,8 @@ func _on_Designer_load_game(data: Dictionary) -> void:
 		_player_spawn_platform = gm.get_unit_by_uid(0)
 		_enemy_spawn_platform = gm.get_unit_by_uid(241)
 		_player_storage_pod = gm.get_unit_by_uid(964)
+	_player_spawn_platform.connect("spawned", self, "_insert_fuel")
+	_enemy_spawn_platform.connect("spawned", self, "_insert_fuel")
 
 
 func _unhandled_input(event):
@@ -49,6 +54,10 @@ func _unhandled_input(event):
 		get_tree().paused = true
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		_gui.visible = true
+
+
+func _insert_fuel(unit: OwnWar.Unit) -> void:
+	unit.put_matter(_fuel_id, 1 << 30)
 
 
 func _on_GUI_cancel():
