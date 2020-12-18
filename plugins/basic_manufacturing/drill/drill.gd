@@ -12,7 +12,7 @@ onready var _material_id: int = OwnWar.Matter.get_matter_id("material")
 func _physics_process(delta: float) -> void:
 	_time_until_next += delta
 	if _time_until_next >= 0.0:
-		if material < MAX_MATERIAL:
+		if material < MAX_MATERIAL and ore != null:
 			material += ore.take_material(1)
 			emit_signal("dump_matter", _material_id, material)
 			_time_until_next = 0.0
