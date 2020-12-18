@@ -85,7 +85,7 @@ func _block_container_init(var category):
 	for block_name in categories[category]:
 		var node: TextureButton = _block_button_template.duplicate()
 		#node.text = OwnWar.Block.get_block(block_name).human_name
-		if not OwnWar_Thumbnail.get_thumbnail_async(block_name,
+		if not OwnWar_Thumbnail.get_block_thumbnail_async(block_name,
 			funcref(self, "_block_set_thumbnail"), [node]):
 			_block_set_thumbnail(_thumbnail_placeholder, node)
 		node.connect("mouse_entered", self, "show_block", [block_name])
