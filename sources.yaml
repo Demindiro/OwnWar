@@ -58,3 +58,7 @@ assets:
     author: Clint Bellanger
     source: https://opengameart.org/content/big-tire
     license: cc-by 3.0
+  - asset: addons/engines/242740__marlonhj__engine.wav
+    author: MarlonHJ
+    source: https://freesound.org/people/MarlonHJ/sounds/242740/
+    license: cc0

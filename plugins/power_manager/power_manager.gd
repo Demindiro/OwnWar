@@ -12,6 +12,8 @@ var _reserved_power := {}
 var _remaining_power := 0
 var _energy := 0
 var _fuel_id: int
+var _engines := []
+var _power_fraction_ease := 0.0
 
 
 func init(vehicle: OwnWar.Vehicle) -> void:
@@ -26,7 +28,7 @@ func init(vehicle: OwnWar.Vehicle) -> void:
 	vehicle.add_info(self, "get_info")
 
 
-func process(_delta: float) -> void:
+func process(delta: float) -> void:
 	var requested_power := 0
 	var needed_energy := 0
 	var power_fraction_up := 1
@@ -64,6 +66,18 @@ func process(_delta: float) -> void:
 
 	assert(_remaining_power >= 0)
 	_energy -= used_energy
+
+	var power_fraction := 1.0 - float(_remaining_power) / _max_power
+	_power_fraction_ease = ease(
+		_power_fraction_ease * (1.0 - delta) + power_fraction * delta,
+		1.0
+	)
+	if _energy > 0 or _fuel > 0:
+		for eng in _engines:
+			eng.power_use_feedback(_power_fraction_ease)
+	else:
+		for eng in _engines:
+			eng.power_use_feedback(-1.0)
 
 
 func get_matter_needs(id: int) -> int:
@@ -110,14 +124,15 @@ func unreserve_power(object):
 
 func add_engine(engine: PowerEngine) -> void:
 	_max_power += engine.max_power
-	# warning-ignore:return_value_discarded
-	engine.connect("tree_exited", self, "_engine_destroyed", [engine])
+	var e := engine.connect("tree_exited", self, "_engine_destroyed", [engine])
+	assert(e == OK)
+	_engines.append(engine)
 
 
 func add_fuel_tank(fuel_tank: FuelTank) -> void:
 	_max_fuel += fuel_tank.max_fuel
-	# warning-ignore:return_value_discarded
-	fuel_tank.connect("tree_exited", self, "_fuel_tank_destroyed", [fuel_tank])
+	var e := fuel_tank.connect("tree_exited", self, "_fuel_tank_destroyed", [fuel_tank])
+	assert(e == OK)
 
 
 func get_info(info):
@@ -137,6 +152,7 @@ func deserialize_json(data: Dictionary) -> void:
 
 func _engine_destroyed(engine: PowerEngine) -> void:
 	_max_power -= engine.max_power
+	_engines.erase(engine)
 
 
 func _fuel_tank_destroyed(fuel_tank: FuelTank) -> void:
