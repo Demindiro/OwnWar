@@ -184,6 +184,7 @@ func set_action_buttons(unit_name: String, sub_action: FuncRef = null,
 			button.texture_normal = action.thumbnail
 		else:
 			button.texture_normal = preload("../designer/ellipsis.png")
+		button.rect_min_size = Vector2(96, 96)
 		button.hint_tooltip = action.name
 		if action.input_flags & OwnWar.Unit.Action.SUBACTION:
 			var e := button.connect("pressed", self, "set_action_buttons",
