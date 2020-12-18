@@ -117,7 +117,7 @@ directional_shadow_depth_range = 1
 [node name="Player" parent="." instance=ExtResource( 33 )]
 
 [node name="SpawnPlatform" parent="Player" instance=ExtResource( 3 )]
-transform = Transform( -1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, -27, 0, 0 )
+transform = Transform( -1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, -27, -3.05176e-05, 0 )
 max_health = 2305843009213693952
 team = "Player"
 
@@ -140,10 +140,7 @@ position_offset = Vector3( 0, 0.5, 0 )
 
 [node name="Roboport" parent="Player" instance=ExtResource( 21 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -47, 0.500031, 35.5 )
-max_health = 10
 team = "Player"
-drone_limit = 10
-_radius2 = 10000.0
 
 [node name="Enemy" parent="." instance=ExtResource( 33 )]
 

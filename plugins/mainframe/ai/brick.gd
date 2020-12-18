@@ -70,11 +70,20 @@ func move_to_waypoint(mainframe, waypoint):
 		mainframe.brake = 0
 	# Stop and brake if the drive is low
 	if mainframe.drive_forward < 0.01:
+		var front = forward2d.dot(distance2d)
+		var lin_vel = linear_velocity.dot(forward)
 		# Keep moving forward if the waypoint is in front
-		if forward2d.dot(distance2d) > 0 and linear_velocity.dot(forward) < 1.0:
+		if front > 0.1 and lin_vel < 1.0:
 			mainframe.drive_forward = 0.25
+		elif front < -0.1 and lin_vel > -1.0:
+			# Brake if going in the wrong direction
+			if lin_vel > 0.05:
+				mainframe.drive_forward = 0
+				mainframe.brake = 1.0
+			else:
+				mainframe.drive_forward = -0.25
+				mainframe.brake = 0.0
 		else:
-			mainframe.drive_yaw = 0.0
 			mainframe.drive_forward = 0.0
 			mainframe.brake = 1.0
 			# Don't slam the brakes if going too fast

@@ -15,6 +15,7 @@ func set_drive_forward(drive):
 	drive = clamp(drive, -1, 1)
 	for wheel in _wheels:
 		_power_manager.reserve_power(wheel, abs(wheel.max_power * drive))
+		wheel.set_drive(drive)
 
 
 func set_drive_yaw(drive):

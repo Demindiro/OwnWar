@@ -22,4 +22,5 @@ transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0
 
 [node name="Camera" type="Camera" parent="Spatial"]
 transform = Transform( 0.848566, 0.210343, -0.485481, 0, 0.917578, 0.397556, 0.52909, -0.337353, 0.778625, -0.379299, 0.28632, 0.611424 )
+current = true
 fov = 30.0

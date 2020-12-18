@@ -19,13 +19,12 @@ var _append_action = false
 var _scroll = 0
 var _unit_info_index = 0
 onready var _camera: Camera = get_node(camera)
-onready var _action_button_template := find_node("Template")
 onready var _fps_label: Label = $FPS
 onready var _drawcalls_label: Label = $DrawCalls
+onready var _actions: Control = $Box/Actions
 
 
 func _ready():
-	_action_button_template.get_parent().remove_child(_action_button_template)
 	assert(_camera != null)
 
 
@@ -38,6 +37,9 @@ func _process(_delta):
 	set_unit_info()
 	show_feedback()
 	show_action_feedback()
+	# Temporary hack to show changed ImageTextures and force the scale to 0.5
+	for child in _actions.get_children():
+		child.update()
 
 
 func _unhandled_input(event):
@@ -125,14 +127,8 @@ func _draw():
 			draw_rect(rect, color, false, 2)
 
 
-func _notification(notification):
-	match notification:
-		NOTIFICATION_PREDELETE:
-			_action_button_template.free()
-
-
 func filter_units():
-	for child in $Actions.get_children():
+	for child in _actions.get_children():
 		child.queue_free()
 
 	if len(selected_units) == 0:
@@ -148,9 +144,10 @@ func filter_units():
 
 	var shortcut_index = 0
 	for unit_name in unique_units:
-		var button = _action_button_template.duplicate()
+		var button := Button.new()
 		button.text = unit_name
-		button.connect("pressed", self, "set_action_buttons", [unit_name])
+		var e := button.connect("pressed", self, "set_action_buttons", [unit_name])
+		assert(e == OK)
 		if shortcut_index < SHORTCUT_COUNT:
 			var input_event = InputEventAction.new()
 			input_event.action = SHORTCUT_PREFIX + str(shortcut_index)
@@ -158,7 +155,7 @@ func filter_units():
 			button.shortcut.shortcut = input_event
 			button.text += " (" + str((shortcut_index + 1) % 10) + ")"
 			shortcut_index += 1
-		$Actions.add_child(button)
+		_actions.add_child(button)
 
 
 func set_action_buttons(unit_name: String, sub_action: FuncRef = null,
@@ -170,7 +167,7 @@ func set_action_buttons(unit_name: String, sub_action: FuncRef = null,
 	set_selected_units(filtered_units)
 
 	clear_action_button()
-	for child in $Actions.get_children():
+	for child in _actions.get_children():
 		child.queue_free()
 
 	if len(selected_units) == 0:
@@ -182,8 +179,12 @@ func set_action_buttons(unit_name: String, sub_action: FuncRef = null,
 			sub_action.call_funcv([get_modifier_flags()] + arguments):
 		var action: OwnWar.Action = r_action
 
-		var button: Button = _action_button_template.duplicate()
-		button.text = action.name
+		var button := TextureButton.new()
+		if action.thumbnail != null:
+			button.texture_normal = action.thumbnail
+		else:
+			button.texture_normal = preload("../designer/ellipsis.png")
+		button.hint_tooltip = action.name
 		if action.input_flags & OwnWar.Unit.Action.SUBACTION:
 			var e := button.connect("pressed", self, "set_action_buttons",
 				[unit_name, action.function, action.arguments])
@@ -220,25 +221,28 @@ func set_action_buttons(unit_name: String, sub_action: FuncRef = null,
 			input_event.action = SHORTCUT_PREFIX + str(shortcut_index)
 			button.shortcut = ShortCut.new()
 			button.shortcut.shortcut = input_event
-			button.text += " (" + str((shortcut_index + 1) % 10) + ")"
+			#button.text += " (" + str((shortcut_index + 1) % 10) + ")"
 			shortcut_index += 1
 
-		$Actions.add_child(button)
+		_actions.add_child(button)
 
-	var button = _action_button_template.duplicate()
-	var input_event = InputEventAction.new()
+	var button := Button.new()
+	var input_event := InputEventAction.new()
 	input_event.action = SHORTCUT_PREFIX + "cancel"
-	button.text = "Cancel (X)"
+	button.text = "X"
 	button.shortcut = ShortCut.new()
 	button.shortcut.shortcut = input_event
 	if sub_action == null:
-		button.connect("pressed", self, "clear_units")
+		var e := button.connect("pressed", self, "clear_units")
+		assert(e == OK)
 	else:
-		button.connect("pressed", self, "set_action_buttons", [unit.unit_name])
-	$Actions.add_child(button)
+		var e := button.connect("pressed", self, "set_action_buttons", [unit.unit_name])
+		assert(e == OK)
+	_actions.add_child(button)
 
 
-func get_coordinate(button: Button, action: OwnWar.Action) -> void:
+func get_coordinate(button: BaseButton, action: OwnWar.Action) -> void:
+	assert(button != null)
 	if button == _action_button:
 		clear_action_button()
 		return
@@ -249,7 +253,8 @@ func get_coordinate(button: Button, action: OwnWar.Action) -> void:
 	button.pressed = true
 
 
-func get_units(button: Button, action: OwnWar.Action) -> void:
+func get_units(button: BaseButton, action: OwnWar.Action) -> void:
+	assert(button != null)
 	if button == _action_button:
 		clear_action_button()
 		return
@@ -277,7 +282,7 @@ func send_units(units: Array) -> void:
 	clear_action_button()
 
 
-func send_toggle(button: Button, action: OwnWar.Action) -> void:
+func send_toggle(button: BaseButton, action: OwnWar.Action) -> void:
 	for unit in selected_units:
 		var arguments = [get_modifier_flags(), button.pressed] + action.arguments
 		action.function.call_funcv(arguments)

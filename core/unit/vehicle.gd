@@ -187,6 +187,7 @@ func get_actions():
 func add_action(object, human_name, flags, function, arguments):
 	var action := HUDAction.new(
 			human_name,
+			null,
 			flags,
 			funcref(self, "do_action"),
 			[[object, function] + arguments]
@@ -383,6 +384,21 @@ func deserialize_json(data: Dictionary) -> void:
 	for m in data["managers"]:
 		assert(m in managers)
 		managers[m].deserialize_json(data["managers"][m])
+
+
+func get_aabb() -> AABB:
+	var aabb := AABB()
+	for vb in voxel_bodies:
+		for crd in vb.blocks:
+			aabb.position = Vector3(crd[0], crd[1], crd[2])
+			aabb.size = Vector3.ONE
+			break
+	for vb in voxel_bodies:
+		for crd in vb.blocks:
+			var v := Vector3(crd[0], crd[1], crd[2])
+			aabb = aabb.expand(v).expand(v + Vector3.ONE)
+	print("AABB  ", aabb)
+	return aabb
 
 
 func _voxel_body_hit(_voxel_body):

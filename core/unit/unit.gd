@@ -63,7 +63,12 @@ func hide_feedback():
 
 
 func get_info():
-	return {
+	if health >= (1 << 60):
+		return {
+			"Health": "A lot"
+		}
+	else:
+		return {
 			"Health": str(health) + " / " + str(max_health)
 		}
 
