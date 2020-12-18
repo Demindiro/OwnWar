@@ -4,6 +4,7 @@ extends Node
 const _THUMBNAIL_DIRECTORY := "user://cache/thumbnails"
 const _BLOCK_DIRECTORY := "blocks"
 const _VEHICLE_DIRECTORY := "vehicles"
+const _UNIT_DIRECTORY := "units"
 
 
 static func get_block_thumbnail_async(name: String, callback: FuncRef,
@@ -24,6 +25,15 @@ static func get_vehicle_thumbnail_async(path: String, callback: FuncRef,
 		return false
 
 
+static func get_unit_thumbnail_async(name: String, callback: FuncRef,
+	arguments := []) -> bool:
+	if _try_get_thumbnail(_get_unit_path(name), callback, arguments):
+		return true
+	else:
+		OwnWar_Thumbnail._create_unit_thumbnail(name, callback, arguments)
+		return false
+
+
 static func _get_block_path(name: String) -> String:
 	return _THUMBNAIL_DIRECTORY \
 		.plus_file(_BLOCK_DIRECTORY) \
@@ -39,6 +49,12 @@ static func _get_vehicle_path(path: String) -> String:
 	return _THUMBNAIL_DIRECTORY \
 		.plus_file(_VEHICLE_DIRECTORY) \
 		.plus_file(path.sha1_text() + ".png")
+
+
+static func _get_unit_path(name: String) -> String:
+	return _THUMBNAIL_DIRECTORY \
+		.plus_file(_UNIT_DIRECTORY) \
+		.plus_file(name + ".png")
 
 
 static func _try_get_thumbnail(path: String, callback: FuncRef, arguments: Array
@@ -114,13 +130,48 @@ func _create_vehicle_thumbnail(p_path: String, callback: FuncRef, arguments: Arr
 	vehicle.propagate_call("set_physics_process", [false], true)
 	vehicle.propagate_call("set_physics_process_internal", [false], true)
 	tn.add_child(vehicle)
-	print(vehicle.translation)
 	yield(VisualServer, "frame_post_draw")
 	yield(VisualServer, "frame_post_draw")
 	var img := tn.get_texture().get_data()
 	img.convert(Image.FORMAT_RGBA8)
 	e = Util.create_dirs(_THUMBNAIL_DIRECTORY.plus_file(_VEHICLE_DIRECTORY))
 	assert(e == OK)
+	e = img.save_png(path)
+	assert(e == OK)
+	tn.queue_free()
+	callback.call_funcv([img] + arguments)
+
+
+func _create_unit_thumbnail(name: String, callback: FuncRef, arguments: Array
+	) -> void:
+	while get_child_count() > 16:
+		yield(get_tree(), "idle_frame")
+	var tn: Viewport = preload("thumbnail.tscn").instance()
+	add_child(tn)
+	tn.get_child(0).free()
+	print("Generating unit thumbnail for ", name)
+	var unit: OwnWar.Unit = OwnWar.Unit.get_unit(name).instance()
+	var aabb := AABB()
+	for child in Util.get_children_recursive(unit):
+		var vi := child as VisualInstance
+		if vi != null:
+			var ab := vi.get_aabb()
+			ab.position += vi.translation
+			aabb = aabb.merge(ab)
+	var size := max(aabb.size.x, max(aabb.size.y, aabb.size.z))
+	var camera: Camera = tn.get_node("Spatial/Camera")
+	# 4.0 has been derived by trial and error
+	camera.translate(Vector3.BACK * size * 4.0)
+	if (unit as Spatial) is RigidBody:
+		unit.mode = RigidBody.MODE_KINEMATIC
+	tn.add_child(unit)
+	yield(VisualServer, "frame_post_draw")
+	yield(VisualServer, "frame_post_draw")
+	var img := tn.get_texture().get_data()
+	img.convert(Image.FORMAT_RGBA8)
+	var e := Util.create_dirs(_THUMBNAIL_DIRECTORY.plus_file(_UNIT_DIRECTORY))
+	assert(e == OK)
+	var path := _get_unit_path(name)
 	e = img.save_png(path)
 	assert(e == OK)
 	tn.queue_free()

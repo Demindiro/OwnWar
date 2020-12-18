@@ -370,12 +370,17 @@ func get_build_actions(_flags):
 		),
 	]
 	for ghost_name in ghosts:
+		var tex := ImageTexture.new()
 		var a := A.new(
 			"Build " + ghost_name,
-			null,
+			tex,
 			Action.INPUT_COORDINATE | Action.INPUT_SCROLL,
 			funcref(self, "build_ghost"),
 			[ghost_name]
+		)
+		OwnWar_Thumbnail.get_unit_thumbnail_async(
+			ghost_name,
+			funcref(tex, "create_from_image")
 		)
 		a.feedback = funcref(self, "build_ghost_feedback")
 		actions.append(a)

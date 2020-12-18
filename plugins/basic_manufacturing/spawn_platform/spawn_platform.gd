@@ -40,14 +40,19 @@ func get_info():
 
 
 func get_actions():
+	var drone_texture := ImageTexture.new()
 	var actions = [
 		OwnWar.Action.new(
 			"Spawn Drone",
-			null,
+			drone_texture,
 			Action.INPUT_NONE,
 			funcref(self, "spawn_worker")
 		)
 	]
+	OwnWar_Thumbnail.get_unit_thumbnail_async(
+		"worker",
+		funcref(drone_texture, "create_from_image")
+	)
 	var directory = Directory.new()
 	var err = directory.open(Global.DIRECTORY_USER_VEHICLES)
 	if err == OK:
