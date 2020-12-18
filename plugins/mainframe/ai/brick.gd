@@ -76,7 +76,13 @@ func move_to_waypoint(mainframe, waypoint):
 		if front > 0.1 and lin_vel < 1.0:
 			mainframe.drive_forward = 0.25
 		elif front < -0.1 and lin_vel > -1.0:
-			mainframe.drive_forward = -0.25
+			# Brake if going in the wrong direction
+			if lin_vel > 0.05:
+				mainframe.drive_forward = 0
+				mainframe.brake = 1.0
+			else:
+				mainframe.drive_forward = -0.25
+				mainframe.brake = 0.0
 		else:
 			mainframe.drive_forward = 0.0
 			mainframe.brake = 1.0
