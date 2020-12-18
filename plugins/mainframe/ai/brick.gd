@@ -89,6 +89,8 @@ func move_to_waypoint(mainframe, waypoint):
 			# Don't slam the brakes if going too fast
 			if velocity > 10:
 				mainframe.brake = 0.4
+		if abs(mainframe.drive_yaw) > 0.01:
+			mainframe.drive_yaw = sign(mainframe.drive_yaw) * 0.5
 
 
 func fire_at(mainframe, target, delta):
