@@ -28,28 +28,47 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Vehicle" type="Spatial" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -9 )
+[node name="VehicleA" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -41.1 )
 script = ExtResource( 1 )
 max_health = 0
-team = ""
+team = "A"
 unit_name = "unit"
-type_flags = 0
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
-[node name="Timer" type="Timer" parent="."]
+[node name="VehicleB" type="Spatial" parent="."]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 2, 40.3 )
+script = ExtResource( 1 )
+max_health = 0
+team = "B"
+unit_name = "unit"
+_file = "res://plugins/campaign_abcd/vehicles/tank.json"
+
+[node name="TimerA" type="Timer" parent="."]
+process_mode = 0
 wait_time = 3.0
+autostart = true
+
+[node name="TimerB" type="Timer" parent="."]
+process_mode = 0
+wait_time = 3.0
+autostart = true
+
+[node name="TimerCamera" type="Timer" parent="."]
+wait_time = 5.0
 autostart = true
 
 [node name="FollowCamera" type="Camera" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 43.6501, 33.42 )
 far = 1000.0
 script = ExtResource( 3 )
-node_path = NodePath("../Vehicle")
+node_path = NodePath("../VehicleA")
 max_distance = 20.0
-height = 3.0
+height = 15.0
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 0.866025, 0.25, -0.433013, 0, 0.866025, 0.5, 0.5, -0.433013, 0.75, 0, 25.7531, 0 )
 light_energy = 0.5
-[connection signal="timeout" from="Timer" to="." method="_on_Timer_timeout"]
+[connection signal="timeout" from="TimerA" to="." method="_on_Timer_timeout" binds= [ 0 ]]
+[connection signal="timeout" from="TimerB" to="." method="_on_Timer_timeout" binds= [ 1 ]]
+[connection signal="timeout" from="TimerCamera" to="." method="_on_TimerCamera_timeout"]

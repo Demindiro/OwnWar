@@ -20,6 +20,11 @@ _global_script_classes=[ {
 "path": "res://addons/flowcontainer.gd"
 }, {
 "base": "Camera",
+"class": "FollowCamera",
+"language": "GDScript",
+"path": "res://core/camera/tracker.gd"
+}, {
+"base": "Camera",
 "class": "FreeCamera",
 "language": "GDScript",
 "path": "res://addons/free_camera.gd"
@@ -82,6 +87,7 @@ _global_script_classes=[ {
 _global_script_class_icons={
 "AABBCamera": "",
 "FlowContainer": "",
+"FollowCamera": "",
 "FreeCamera": "",
 "HTerrainDataLoader": "",
 "HTerrainDataSaver": "",
