@@ -4,13 +4,18 @@ extends VehicleWheel
 # warning-ignore:unused_class_variable
 export var max_power := 300.0
 var max_angle := 0.0
+var _drive := 0.0
 
 
 func supply_power(power):
-	engine_force = power
+	engine_force = power * _drive
 
 
 func init(_coordinate, _block_data, _rotation, _voxel_body, vehicle, _meta):
 	max_angle = asin(translation.dot(Vector3.FORWARD) / translation.length())
 	var manager = vehicle.get_manager("movement")
 	manager.add_wheel(self)
+
+
+func set_drive(drive: float) -> void:
+	_drive = sign(drive)

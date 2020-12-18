@@ -41,7 +41,7 @@ func get_actions():
 	var actions = [
 		OwnWar.Action.new(
 			"Turn off",
-			ImageTexture.new(),
+			null,
 			Action.INPUT_NONE,
 			funcref(self, "set_munition_type"),
 			[null]
@@ -50,7 +50,7 @@ func get_actions():
 	for munition_type in munition_types:
 		actions.append(OwnWar.Action.new(
 			"Produce %s" % str(munition_type),
-			ImageTexture.new(),
+			null,
 			Action.INPUT_NONE,
 			funcref(self, "set_munition_type"),
 			[munition_type]
