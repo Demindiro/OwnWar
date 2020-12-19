@@ -1,6 +1,27 @@
 extends Control
 
 
+class ActionGroup:
+	var input_name: String
+	var button: BaseButton
+	var actions: Array
+
+	func _init(p_input_name: String, p_button: BaseButton, p_actions: Array
+		) -> void:
+		input_name = p_input_name
+		button = p_button
+		actions = p_actions
+
+	func get_input_flags() -> int:
+		return actions[0].input_flags
+
+	func get_thumbnail() -> Texture:
+		return actions[0].thumbnail
+
+	func get_name() -> String:
+		return actions[0].name
+
+
 const SHORTCUT_PREFIX = "campaign_shortcut_"
 const SHORTCUT_COUNT = 10
 export var team := "Player"
@@ -12,9 +33,7 @@ var _selecting_units = false
 var _mouse_position_start
 var _last_mouse_position
 var _units_teams_mask
-var _action_input_name
-var _action_button
-var _action
+var _current_action: ActionGroup
 var _append_action = false
 var _scroll = 0
 var _unit_info_index = 0
@@ -51,7 +70,7 @@ func _unhandled_input(event):
 			Debug.visible = not Debug.visible
 		get_tree().set_input_as_handled()
 	if event.is_action_pressed("ui_cancel"):
-		if _action_button != null:
+		if _current_action != null:
 			if event.pressed:
 				clear_action_button()
 			get_tree().set_input_as_handled()
@@ -59,33 +78,36 @@ func _unhandled_input(event):
 
 func _gui_input(event):
 	if event.is_action("campaign_primary"):
-		match _action_input_name:
-			"coordinate":
-				if not event.pressed:
-					var origin = _camera.project_ray_origin(event.position)
-					var normal = _camera.project_ray_normal(event.position)
-					var space_state = _camera.get_world().direct_space_state
-					var result = space_state.intersect_ray(origin, origin + normal * 1000)
-					if len(result) > 0:
-						send_coordinate(result.position)
-			"units":
-				if event.pressed:
-					_selecting_units = true
-					_mouse_position_start = _last_mouse_position
-				else:
-					_selecting_units = false
-					var units = get_selected_units(_units_teams_mask)
-					send_units(units)
-			_:
-				if event.pressed:
-					_selecting_units = true
-					_mouse_position_start = _last_mouse_position
-				else:
-					_selecting_units = false
-					set_selected_units(get_selected_units(PoolStringArray([team])))
-					filter_units()
-					_unit_info_index = 0
-					set_unit_info()
+		if _current_action != null:
+			match _current_action.input_name:
+				"coordinate":
+					if not event.pressed:
+						var origin = _camera.project_ray_origin(event.position)
+						var normal = _camera.project_ray_normal(event.position)
+						var space_state = _camera.get_world().direct_space_state
+						var result = space_state.intersect_ray(origin, origin + normal * 1000)
+						if len(result) > 0:
+							send_coordinate(result.position)
+				"units":
+					if event.pressed:
+						_selecting_units = true
+						_mouse_position_start = _last_mouse_position
+					else:
+						_selecting_units = false
+						var units = get_selected_units(_units_teams_mask)
+						send_units(units)
+				_:
+					assert(false)
+		else:
+			if event.pressed:
+				_selecting_units = true
+				_mouse_position_start = _last_mouse_position
+			else:
+				_selecting_units = false
+				set_selected_units(get_selected_units(PoolStringArray([team])))
+				filter_units()
+				_unit_info_index = 0
+				set_unit_info()
 		update()
 	elif event.is_action("campaign_scroll_up"):
 		if event.pressed:
@@ -115,7 +137,7 @@ func _draw():
 		draw_rect(rect, Color.purple, false, 2)
 		var units
 		var color
-		if _action_input_name == null:
+		if _current_action == null:
 			units = get_selected_units(PoolStringArray([team]))
 			color = Color.green
 		else:
@@ -173,48 +195,94 @@ func set_action_buttons(unit_name: String, sub_action: FuncRef = null,
 	if len(selected_units) == 0:
 		return
 
+	# Get and group actions first
+	var unit_actions := []
+	for unit in selected_units:
+		if sub_action == null:
+			unit_actions.append(unit.get_actions())
+		else:
+			var act = sub_action.call_funcv([get_modifier_flags()] + arguments)
+			unit_actions.append(act)
+
+	var action_groups := []
+	for i in range(len(unit_actions[0])):
+		var a := []
+		for act in unit_actions:
+			a.append(act[i])
+		action_groups.append(ActionGroup.new("", null, a))
+
 	var unit = selected_units[0]
 	var shortcut_index = 0
-	for r_action in unit.get_actions() if sub_action == null else \
-			sub_action.call_funcv([get_modifier_flags()] + arguments):
-		var action: OwnWar.Action = r_action
-
+	for ag in action_groups:
+		var action_group: ActionGroup = ag
 		var button := TextureButton.new()
-		if action.thumbnail != null:
-			button.texture_normal = action.thumbnail
+		if action_group.get_thumbnail() != null:
+			button.texture_normal = action_group.get_thumbnail()
 		else:
 			button.texture_normal = preload("../designer/ellipsis.png")
 		button.rect_min_size = Vector2(96, 96)
-		button.hint_tooltip = action.name
-		if action.input_flags & OwnWar.Unit.Action.SUBACTION:
-			var e := button.connect("pressed", self, "set_action_buttons",
-				[unit_name, action.function, action.arguments])
+		button.hint_tooltip = action_group.get_name()
+		action_group.button = button
+		var input_flags := action_group.get_input_flags()
+		if input_flags & OwnWar.Unit.Action.SUBACTION:
+			action_group.input_name = "sub_action"
+			var e := button.connect(
+				"pressed",
+				self,
+				"set_action_buttons",
+				[
+					unit_name,
+					action_group.actions[0].function,
+					action_group.actions[0].arguments
+				]
+			)
 			assert(e == OK)
-		elif action.input_flags & OwnWar.Unit.Action.INPUT_COORDINATE:
-			var e := button.connect("pressed", self, "get_coordinate",
-				[button, action])
+		elif input_flags & OwnWar.Unit.Action.INPUT_COORDINATE:
+			action_group.input_name = "coordinate"
+			var e := button.connect(
+				"pressed",
+				self,
+				"get_coordinate",
+				[action_group]
+			)
 			assert(e == OK)
 			button.toggle_mode = true
-		elif action.input_flags & OwnWar.Unit.Action.INPUT_UNITS:
-			if action.input_flags & OwnWar.Unit.Action.INPUT_ENEMY_UNITS:
+		elif input_flags & OwnWar.Unit.Action.INPUT_UNITS:
+			action_group.input_name = "units"
+			if input_flags & OwnWar.Unit.Action.INPUT_ENEMY_UNITS:
 				_units_teams_mask = []
 				for t in game_master.teams:
 					if t != team:
 						_units_teams_mask.append(t)
 			else:
 				_units_teams_mask = [team]
-			var e := button.connect("pressed", self, "get_units",
-				[button, action])
+			var e := button.connect(
+				"pressed",
+				self,
+				"get_units",
+				[action_group]
+			)
 			assert(e == OK)
 			button.toggle_mode = true
-		elif action.input_flags & OwnWar.Unit.Action.INPUT_TOGGLE:
-			var e := button.connect("pressed", self, "send_toggle",
-				[button, action])
+		elif input_flags & OwnWar.Unit.Action.INPUT_TOGGLE:
+			action_group.input_name = "toggle"
+			var e := button.connect(
+				"pressed",
+				self,
+				"send_toggle",
+				[action_group]
+			)
 			assert(e == OK)
 			button.toggle_mode = true
-			button.pressed = action.pressed
+			button.pressed = action_group.actions[0].pressed
 		else:
-			var e := button.connect("pressed", self, "send_plain", [action])
+			action_group.input_name = "plain"
+			var e := button.connect(
+				"pressed",
+				self,
+				"send_plain",
+				[action_group]
+			)
 			assert(e == OK)
 
 		if shortcut_index < SHORTCUT_COUNT:
@@ -242,65 +310,62 @@ func set_action_buttons(unit_name: String, sub_action: FuncRef = null,
 	_actions.add_child(button)
 
 
-func get_coordinate(button: BaseButton, action: OwnWar.Action) -> void:
-	assert(button != null)
-	if button == _action_button:
+func get_coordinate(action_group: ActionGroup) -> void:
+	assert(action_group != null)
+	if action_group == _current_action:
 		clear_action_button()
 		return
 	clear_action_button()
-	_action_input_name = "coordinate"
-	_action_button = button
-	_action = action
-	button.pressed = true
+	_current_action = action_group
+	_current_action.button.pressed = true
 
 
-func get_units(button: BaseButton, action: OwnWar.Action) -> void:
-	assert(button != null)
-	if button == _action_button:
+func get_units(action_group: ActionGroup) -> void:
+	assert(action_group != null)
+	if action_group == _current_action:
 		clear_action_button()
 		return
 	clear_action_button()
-	_action_input_name = "units"
-	_action_button = button
-	_action = action
-	button.pressed = true
+	_current_action = action_group
+	_current_action.button.pressed = true
 
 
 func send_coordinate(coordinate: Vector3) -> void:
-	for unit in selected_units:
+	for a in _current_action.actions:
+		var action: OwnWar.Action = a
 		var arguments = [get_modifier_flags(), coordinate]
-		if _action.input_flags & OwnWar.Unit.Action.INPUT_SCROLL:
+		if action.input_flags & OwnWar.Unit.Action.INPUT_SCROLL:
 			arguments += [_scroll]
-		arguments += _action.arguments
-		_action.function.call_funcv(arguments)
+		arguments += action.arguments
+		action.function.call_funcv(arguments)
 	clear_action_button()
 
 
 func send_units(units: Array) -> void:
-	for unit in selected_units:
-		var arguments = [get_modifier_flags(), units] + _action.arguments
-		_action.function.call_funcv(arguments)
+	for a in _current_action.actions:
+		var action: OwnWar.Action = a
+		var arguments = [get_modifier_flags(), units] + action.arguments
+		action.function.call_funcv(arguments)
 	clear_action_button()
 
 
-func send_toggle(button: BaseButton, action: OwnWar.Action) -> void:
-	for unit in selected_units:
-		var arguments = [get_modifier_flags(), button.pressed] + action.arguments
+func send_toggle(action_group: ActionGroup) -> void:
+	for action in action_group.actions:
+		var arguments = [get_modifier_flags(), action_group.button.pressed] + \
+			action.arguments
 		action.function.call_funcv(arguments)
 
 
-func send_plain(action: OwnWar.Action) -> void:
-	for unit in selected_units:
+func send_plain(action_group: ActionGroup) -> void:
+	for action in action_group.actions:
 		var arguments = [get_modifier_flags()] + action.arguments
 		action.function.call_funcv(arguments)
 
 
 func clear_action_button():
-	if _action_button:
-		_action_button.pressed = false
-	_action_input_name = null
-	_action_button = null
-	_action = null
+	if _current_action != null:
+		_current_action.button.pressed = false
+		_current_action = null
 
 
 func get_selected_units(teams_mask: PoolStringArray) -> Array:
@@ -378,29 +443,31 @@ func show_feedback():
 
 
 func show_action_feedback():
-	match _action_input_name:
-		"coordinate":
-			var origin = _camera.project_ray_origin(_last_mouse_position)
-			var normal = _camera.project_ray_normal(_last_mouse_position)
-			var space_state = _camera.get_world().direct_space_state
-			var result = space_state.intersect_ray(origin, origin + \
-					normal * 1_000_000)
-			if len(result) > 0:
-				for unit in selected_units:
-					if _action.feedback != null:
-						var arguments := [
-							_camera.get_viewport(),
-							get_modifier_flags(),
-							result.position,
-						]
-						if _action.input_flags & OwnWar.Unit.Action.INPUT_SCROLL:
-							arguments += [_scroll]
-						arguments += _action.arguments
-						_action.feedback.call_funcv(arguments)
-		"units":
-			pass
-		_:
-			pass
+	if _current_action != null:
+		match _current_action.input_name:
+			"coordinate":
+				var origin = _camera.project_ray_origin(_last_mouse_position)
+				var normal = _camera.project_ray_normal(_last_mouse_position)
+				var space_state = _camera.get_world().direct_space_state
+				var result = space_state.intersect_ray(origin, origin + \
+						normal * 1_000_000)
+				if len(result) > 0:
+					for a in _current_action.actions:
+						var action: OwnWar.Action = a
+						if action.feedback != null:
+							var arguments := [
+								_camera.get_viewport(),
+								get_modifier_flags(),
+								result.position,
+							]
+							if action.input_flags & OwnWar.Unit.Action.INPUT_SCROLL:
+								arguments += [_scroll]
+							arguments += action.arguments
+							action.feedback.call_funcv(arguments)
+			"units":
+				pass
+			_:
+				assert(false)
 
 
 func _unit_destroyed(unit):
