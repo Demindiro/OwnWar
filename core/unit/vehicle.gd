@@ -406,6 +406,16 @@ func get_file_path() -> String:
 	return _file
 
 
+func debug_draw() -> void:
+	var msg := "\nSpace: "
+	for id in get_take_matter_list():
+		msg += str(id) + ": " + str(get_matter_space(id)) + ", "
+	msg += "\nHas: "
+	for id in get_take_matter_list():
+		msg += str(id) + ": " + str(get_matter_count(id)) + ", "
+	Debug.draw_text(translation, msg, Color.cyan)
+
+
 func _voxel_body_hit(_voxel_body):
 	if get_cost() * 4 < max_cost:
 		destroy()
