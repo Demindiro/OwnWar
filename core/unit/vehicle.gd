@@ -17,6 +17,7 @@ var actions := []
 var managers := {}
 export var _file := "" setget load_from_file, get_file_path
 var _info := []
+var _show_feedback_functions := []
 var _matter_handlers_count := []
 var _matter_handlers_space := []
 var _matter_handlers_needs := []
@@ -393,6 +394,15 @@ func get_aabb() -> AABB:
 
 func get_file_path() -> String:
 	return _file
+
+
+func add_feedback_function(function: FuncRef) -> void:
+	_show_feedback_functions.append(function)
+
+
+func show_feedback(hud: Control) -> void:
+	for function in _show_feedback_functions:
+		function.call_func(hud)
 
 
 func debug_draw() -> void:
