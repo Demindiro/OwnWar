@@ -6,6 +6,8 @@ const MovementManager := preload("res://plugins/movement_manager/movement_manage
 const AI := preload("ai/ai.gd")
 const WAYPOINT_ICON := preload("res://addons/hud/obituary_triple_arrow_to_point.tres")
 const ATTACK_ICON := preload("res://addons/hud/obituary_bullet.tres")
+const WAYPOINT_CURSOR := preload("res://addons/hud/obituary_triple_arrow_to_point_16x16.tres")
+const ATTACK_CURSOR := preload("res://addons/hud/obituary_bullet_16x16.tres")
 
 var ai: AI
 var aim_weapons := false
@@ -45,7 +47,8 @@ func init(_coordinate, _block_data, _rotation, _voxel_body, p_vehicle, _meta):
 		OwnWar.Unit.Action.INPUT_COORDINATE,
 		"set_waypoint",
 		[],
-		WAYPOINT_ICON
+		WAYPOINT_ICON,
+		WAYPOINT_CURSOR
 	)
 	manager.add_action(
 		self,
@@ -53,7 +56,8 @@ func init(_coordinate, _block_data, _rotation, _voxel_body, p_vehicle, _meta):
 		OwnWar.Unit.Action.INPUT_ENEMY_UNITS,
 		"set_targets",
 		[],
-		ATTACK_ICON
+		ATTACK_ICON,
+		ATTACK_CURSOR
 	)
 
 	_weapon_manager = vehicle.get_manager("weapon")

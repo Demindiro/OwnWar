@@ -326,6 +326,9 @@ func get_coordinate(action_group: ActionGroup) -> void:
 	clear_action_button()
 	_current_action = action_group
 	_current_action.button.pressed = true
+	var cursor: Texture = action_group.actions[0].cursor
+	if cursor != null:
+		Input.set_custom_mouse_cursor(cursor, 0, cursor.get_size() / 2.0)
 
 
 func get_units(action_group: ActionGroup) -> void:
@@ -336,6 +339,9 @@ func get_units(action_group: ActionGroup) -> void:
 	clear_action_button()
 	_current_action = action_group
 	_current_action.button.pressed = true
+	var cursor: Texture = action_group.actions[0].cursor
+	if cursor != null:
+		Input.set_custom_mouse_cursor(cursor, 0, cursor.get_size() / 2.0)
 
 
 func send_coordinate(coordinate: Vector3) -> void:
@@ -374,6 +380,7 @@ func clear_action_button():
 	if _current_action != null:
 		_current_action.button.pressed = false
 		_current_action = null
+	Input.set_custom_mouse_cursor(null)
 
 
 func get_selected_units(teams_mask: PoolStringArray) -> Array:
