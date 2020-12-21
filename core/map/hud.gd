@@ -216,6 +216,7 @@ func set_action_buttons(unit_name: String, sub_action: FuncRef = null,
 	for ag in action_groups:
 		var action_group: ActionGroup = ag
 		var button := TextureButton.new()
+		button.enabled_focus_mode = BaseButton.FOCUS_NONE
 		if action_group.get_thumbnail() != null:
 			button.texture_normal = action_group.get_thumbnail()
 		else:
