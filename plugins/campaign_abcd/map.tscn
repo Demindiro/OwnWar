@@ -62,9 +62,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 372, 776, 21.5 )
 
 [node name="Roboport" parent="Player" instance=ExtResource( 15 )]
 transform = Transform( 0.965887, 0.0216502, 0.258056, -0.0122448, 0.999203, -0.0379987, -0.258673, 0.0335426, 0.965382, 306.511, 0.618528, 224.017 )
-max_health = 10
 team = "Player"
-drone_limit = 10
 _radius2 = 4000.0
 
 [node name="Arend" parent="." instance=ExtResource( 16 )]
@@ -108,10 +106,7 @@ team = "Arend"
 
 [node name="Roboport" parent="Arend/HQ" instance=ExtResource( 15 )]
 transform = Transform( -0.866025, -7.45058e-09, 0.5, -0.0771884, 0.988012, -0.133694, -0.494006, -0.154377, -0.855644, 3174.5, 17.0565, 489.423 )
-max_health = 10
 team = "Arend"
-drone_limit = 10
-_radius2 = 10000.0
 
 [node name="StoragePod" parent="Arend/HQ" instance=ExtResource( 11 )]
 transform = Transform( 0.999952, 0.00976201, 0.000247852, -0.00976516, 0.99963, 0.02538, 0, -0.0253812, 0.999678, 3308.01, 4.24086, 547.967 )
@@ -131,10 +126,7 @@ team = "Arend"
 
 [node name="Roboport2" parent="Arend/HQ" instance=ExtResource( 15 )]
 transform = Transform( -0.866528, -0.0155757, 0.498885, 0.0254044, 0.996842, 0.0752478, -0.498482, 0.0778783, -0.863395, 3357.99, 2.45835, 579.039 )
-max_health = 10
 team = "Arend"
-drone_limit = 10
-_radius2 = 10000.0
 
 [node name="X" type="Node" parent="Arend"]
 
@@ -148,13 +140,10 @@ team = "Arend"
 
 [node name="Roboport" parent="Arend/X" instance=ExtResource( 15 )]
 transform = Transform( -0.00648454, -0.0756745, -0.997112, 0.0851298, 0.993471, -0.0759519, 0.996349, -0.0853764, -4.37722e-08, 2546.96, 1.5192, 640.957 )
-max_health = 10
 team = "Arend"
-drone_limit = 10
-_radius2 = 10000.0
 
 [node name="Refinery" parent="Arend/X" instance=ExtResource( 19 )]
-transform = Transform( -0.999973, 0.0073846, -8.16656e-05, 0.00738505, 0.999912, -0.0110461, 8.74134e-08, -0.0110464, -0.999939, 2502.51, 1.1066, 640.989 )
+transform = Transform( -0.999973, 0.0073846, -8.14907e-05, 0.00738505, 0.999912, -0.0110461, -8.73988e-08, -0.0110464, -0.999939, 2502.51, 1.1066, 640.989 )
 team = "Arend"
 
 [node name="MunitionsFactory" parent="Arend/X" instance=ExtResource( 21 )]
@@ -166,7 +155,6 @@ transform = Transform( 0.258819, 0, -0.965926, 0, 1, 0, 0.965926, 0, 0.258819, 2
 script = ExtResource( 26 )
 max_health = 0
 team = "Arend"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Z" type="Node" parent="Arend"]
@@ -181,10 +169,7 @@ team = "Arend"
 
 [node name="Roboport" parent="Arend/Z" instance=ExtResource( 15 )]
 transform = Transform( 0.999512, -0.0312345, 0.00012195, 0.0312348, 0.999504, -0.00390241, 0, 0.00390431, 0.999992, 3380.48, 4.95089, 1391.5 )
-max_health = 10
 team = "Arend"
-drone_limit = 10
-_radius2 = 10000.0
 
 [node name="Refinery" parent="Arend/Z" instance=ExtResource( 19 )]
 transform = Transform( -0.00137023, 0.023391, -0.999725, -0.0584614, 0.998015, 0.0234311, 0.998289, 0.0584774, -4.35393e-08, 3343.52, 5.24805, 1392.06 )
@@ -255,9 +240,7 @@ team = "Bears"
 
 [node name="Roboport" parent="Bears/HQ" instance=ExtResource( 15 )]
 transform = Transform( 0.999878, -0.0155756, -0.0012167, 0.0156231, 0.996841, 0.0778687, 0, -0.0778782, 0.996963, 353.992, 12.0688, 3772.46 )
-max_health = 10
 team = "Bears"
-drone_limit = 10
 _radius2 = 1000.0
 
 [node name="SpawnPlatform" parent="Bears/HQ" instance=ExtResource( 6 )]
@@ -291,7 +274,6 @@ transform = Transform( -0.988779, 0, 0.149385, 0, 1, 0, -0.149385, 0, -0.988779,
 script = ExtResource( 26 )
 max_health = 0
 team = "Bears"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle2" type="Spatial" parent="Bears/The Great Tank Wall"]
@@ -299,7 +281,6 @@ transform = Transform( -0.944602, 0, 0.328217, 0, 1, 0, -0.328217, 0, -0.944602,
 script = ExtResource( 26 )
 max_health = 0
 team = "Bears"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle3" type="Spatial" parent="Bears/The Great Tank Wall"]
@@ -307,7 +288,6 @@ transform = Transform( -0.899414, 0, 0.437097, 0, 1, 0, -0.437097, 0, -0.899414,
 script = ExtResource( 26 )
 max_health = 0
 team = "Bears"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle4" type="Spatial" parent="Bears/The Great Tank Wall"]
@@ -315,7 +295,6 @@ transform = Transform( -0.774765, 0, 0.63225, 0, 1, 0, -0.63225, 0, -0.774765, 5
 script = ExtResource( 26 )
 max_health = 0
 team = "Bears"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle5" type="Spatial" parent="Bears/The Great Tank Wall"]
@@ -323,7 +302,6 @@ transform = Transform( -0.774765, 0, 0.63225, 0, 1, 0, -0.63225, 0, -0.774765, 5
 script = ExtResource( 26 )
 max_health = 0
 team = "Bears"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle6" type="Spatial" parent="Bears/The Great Tank Wall"]
@@ -331,7 +309,6 @@ transform = Transform( -0.635273, 0.100858, 0.765673, -0.181647, 0.944107, -0.27
 script = ExtResource( 26 )
 max_health = 0
 team = "Bears"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle7" type="Spatial" parent="Bears/The Great Tank Wall"]
@@ -339,7 +316,6 @@ transform = Transform( -0.470134, 0, 0.882595, 0, 1, 0, -0.882595, 0, -0.470134,
 script = ExtResource( 26 )
 max_health = 0
 team = "Bears"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle8" type="Spatial" parent="Bears/The Great Tank Wall"]
@@ -347,7 +323,6 @@ transform = Transform( -0.828467, 0, 0.560037, 0, 1, 0, -0.560037, 0, -0.828467,
 script = ExtResource( 26 )
 max_health = 0
 team = "Bears"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Centaurs" parent="." instance=ExtResource( 16 )]
@@ -404,23 +379,17 @@ team = "Centaurs"
 
 [node name="Roboport" parent="Centaurs/HQ" instance=ExtResource( 15 )]
 transform = Transform( -0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, -0.707107, 1912, 75.6875, 2244 )
-max_health = 10
 team = "Centaurs"
-drone_limit = 10
 _radius2 = 5000.0
 
 [node name="Roboport2" parent="Centaurs/HQ" instance=ExtResource( 15 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1930.5, 75.75, 2285 )
-max_health = 10
 team = "Centaurs"
-drone_limit = 10
 _radius2 = 5000.0
 
 [node name="Roboport3" parent="Centaurs/HQ" instance=ExtResource( 15 )]
 transform = Transform( -0.50239, 0.0622573, 0.862397, -0.0226222, 0.996117, -0.0850892, -0.864345, -0.0622573, -0.49903, 1954.03, 71.9981, 2247.97 )
-max_health = 10
 team = "Centaurs"
-drone_limit = 10
 _radius2 = 5000.0
 
 [node name="HQWall" type="Node" parent="Centaurs"]
@@ -430,7 +399,6 @@ transform = Transform( -0.777497, 0, -0.628886, 0, 1, 0, 0.628886, 0, -0.777497,
 script = ExtResource( 26 )
 max_health = 0
 team = "Centaurs"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle2" type="Spatial" parent="Centaurs/HQWall"]
@@ -438,7 +406,6 @@ transform = Transform( -0.777497, 0, -0.628886, 0, 1, 0, 0.628886, 0, -0.777497,
 script = ExtResource( 26 )
 max_health = 0
 team = "Centaurs"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle3" type="Spatial" parent="Centaurs/HQWall"]
@@ -446,7 +413,6 @@ transform = Transform( 0.574705, 0, 0.818361, 0, 1, 0, -0.818361, 0, 0.574705, 2
 script = ExtResource( 26 )
 max_health = 0
 team = "Centaurs"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle4" type="Spatial" parent="Centaurs/HQWall"]
@@ -454,7 +420,6 @@ transform = Transform( 0.745199, 0, 0.666842, 0, 1, 0, -0.666842, 0, 0.745199, 1
 script = ExtResource( 26 )
 max_health = 0
 team = "Centaurs"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle5" type="Spatial" parent="Centaurs/HQWall"]
@@ -462,7 +427,6 @@ transform = Transform( 0.845134, 0, 0.534555, 0, 1, 0, -0.534555, 0, 0.845134, 2
 script = ExtResource( 26 )
 max_health = 0
 team = "Centaurs"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Vehicle6" type="Spatial" parent="Centaurs/HQWall"]
@@ -470,7 +434,6 @@ transform = Transform( 0.9457, 0, 0.32504, 0, 1, 0, -0.32504, 0, 0.9457, 1525.35
 script = ExtResource( 26 )
 max_health = 0
 team = "Centaurs"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="Mine" type="Node" parent="Centaurs"]
@@ -542,16 +505,12 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2205.5, 70.3749, 2216.5 )
 
 [node name="Roboport" parent="Centaurs/Mine" instance=ExtResource( 15 )]
 transform = Transform( -0.329389, 0.285831, 0.899891, -0.186325, 0.914659, -0.358723, -0.925627, -0.285831, -0.248021, 2173.14, 79.4885, 2209.36 )
-max_health = 10
 team = "Centaurs"
-drone_limit = 10
 _radius2 = 7000.0
 
 [node name="Roboport2" parent="Centaurs/Mine" instance=ExtResource( 15 )]
 transform = Transform( 0.999512, 0.031174, -0.00194742, -0.0312348, 0.997568, -0.0623176, 0, 0.062348, 0.998055, 2242.02, 60.53, 2178.53 )
-max_health = 10
 team = "Centaurs"
-drone_limit = 10
 _radius2 = 3500.0
 
 [node name="StoragePod" parent="Centaurs/Mine" instance=ExtResource( 11 )]
@@ -659,9 +618,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3492, 58.6562, 3844 )
 
 [node name="Roboport" parent="Dominator/HQ/Mine" instance=ExtResource( 15 )]
 transform = Transform( -0.867244, 0.062107, -0.493994, 0.00753164, 0.993712, 0.111711, 0.497826, 0.0931605, -0.862259, 3500.53, 59.0281, 3846.05 )
-max_health = 10
 team = "Dominator"
-drone_limit = 10
 _radius2 = 1000.0
 
 [node name="StoragePod" parent="Dominator/HQ/Mine" instance=ExtResource( 11 )]
@@ -725,9 +682,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3614, 56.7657, 3584.5 )
 
 [node name="Roboport" parent="Dominator/HQ/Mine2" instance=ExtResource( 15 )]
 transform = Transform( -0.866577, 0.031174, -0.49807, -0.00410869, 0.997568, 0.069586, 0.499027, 0.062348, -0.864341, 3604.52, 57.3269, 3575.03 )
-max_health = 10
 team = "Dominator"
-drone_limit = 10
 _radius2 = 1000.0
 
 [node name="StoragePod" parent="Dominator/HQ/Mine2" instance=ExtResource( 11 )]
