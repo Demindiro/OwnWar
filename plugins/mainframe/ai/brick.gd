@@ -44,6 +44,8 @@ func move_to_waypoint(mainframe, waypoint):
 		error = 1 - error / distance2d.length()
 	var right2d = Vector2(transform.basis.x.x, transform.basis.x.z).normalized()
 	mainframe.drive_yaw = -clamp(right2d.dot(distance2d) * 0.1, -1, 1) * 0.3
+	if forward2d.dot(distance2d) < 0:
+		mainframe.drive_yaw = sign(mainframe.drive_yaw) * 0.5
 	# Prevent turning too hard when going fast
 	mainframe.drive_yaw /= clamp(abs(velocity) * 0.15, 1, 1000)
 	# Correct distance
