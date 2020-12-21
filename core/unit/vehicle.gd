@@ -14,7 +14,7 @@ var max_cost: int
 var voxel_bodies := []
 var actions := []
 var managers := {}
-export var _file := "" setget load_from_file
+export var _file := "" setget load_from_file, get_file_path
 var _object_to_actions_map := {}
 var _info := []
 var _matter_handlers_count := []
@@ -124,6 +124,7 @@ func take_matter(id: int, amount: int) -> int:
 
 
 func load_from_file(path: String) -> int:
+	_file = path
 	var file := File.new()
 	var err = file.open(path, File.READ)
 	if err != OK:
@@ -399,6 +400,10 @@ func get_aabb() -> AABB:
 			aabb = aabb.expand(v).expand(v + Vector3.ONE)
 	print("AABB  ", aabb)
 	return aabb
+
+
+func get_file_path() -> String:
+	return _file
 
 
 func _voxel_body_hit(_voxel_body):

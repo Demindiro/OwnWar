@@ -158,7 +158,7 @@ func filter_units():
 
 	var unique_units = {}
 	for unit in selected_units:
-		unique_units[unit.unit_name] = null
+		unique_units[unit.unit_name] = unit
 
 	if len(unique_units) == 1:
 		set_action_buttons(selected_units[0].unit_name)
@@ -166,8 +166,21 @@ func filter_units():
 
 	var shortcut_index = 0
 	for unit_name in unique_units:
-		var button := Button.new()
-		button.text = unit_name
+		var button := TextureButton.new()
+		var unit: OwnWar.Unit = unique_units[unit_name]
+		var tex := ImageTexture.new()
+		if unit is OwnWar.Vehicle:
+			var v: OwnWar.Vehicle = unit
+			var _imm := OwnWar_Thumbnail.get_vehicle_thumbnail_async(
+				v.get_file_path(),
+				funcref(tex, "create_from_image")
+			)
+		else:
+			var _imm := OwnWar_Thumbnail.get_unit_thumbnail_async(
+				unit_name,
+				funcref(tex, "create_from_image")
+			)
+		button.texture_normal = tex
 		var e := button.connect("pressed", self, "set_action_buttons", [unit_name])
 		assert(e == OK)
 		if shortcut_index < SHORTCUT_COUNT:
@@ -175,7 +188,6 @@ func filter_units():
 			input_event.action = SHORTCUT_PREFIX + str(shortcut_index)
 			button.shortcut = ShortCut.new()
 			button.shortcut.shortcut = input_event
-			button.text += " (" + str((shortcut_index + 1) % 10) + ")"
 			shortcut_index += 1
 		_actions.add_child(button)
 
