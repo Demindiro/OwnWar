@@ -461,7 +461,7 @@ func build_ghost(flags: int, position: Vector3, scroll: int, ghost_name: String
 	add_task(t, flags & 0x1 > 0)
 
 
-func build_ghost_feedback(viewport: Viewport, flags: int, position: Vector3,
+func build_ghost_feedback(_hud: Control, _flags: int, position: Vector3,
 	scroll: int, ghost_name: String) -> void:
 	# This is absolutely terrible, but I don't really care since it shouldn't
 	# impact performance much anyways

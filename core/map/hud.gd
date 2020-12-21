@@ -471,7 +471,7 @@ func show_action_feedback():
 						var action: OwnWar.Action = a
 						if action.feedback != null:
 							var arguments := [
-								_camera.get_viewport(),
+								self,
 								get_modifier_flags(),
 								result.position,
 							]
