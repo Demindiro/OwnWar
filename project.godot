@@ -79,6 +79,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/unit/unit.gd"
 }, {
+"base": "",
+"class": "OwnWar_Vehicle",
+"language": "GDScript",
+"path": "res://core/unit/vehicle.gd"
+}, {
 "base": "Reference",
 "class": "Util",
 "language": "GDScript",
@@ -99,6 +104,7 @@ _global_script_class_icons={
 "OwnWar_Ghost": "",
 "OwnWar_Structure": "",
 "OwnWar_Unit": "",
+"OwnWar_Vehicle": "",
 "Util": ""
 }
 

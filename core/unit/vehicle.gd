@@ -1,5 +1,6 @@
 tool
 extends "unit.gd"
+class_name OwnWar_Vehicle
 
 
 const Block := preload("../block/block.gd")
