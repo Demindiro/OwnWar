@@ -62,3 +62,7 @@ assets:
     author: MarlonHJ
     source: https://freesound.org/people/MarlonHJ/sounds/242740/
     license: cc0
+  - asset: addons/hud/obituary.svg
+    author: sbed
+    source: https://opengameart.org/content/obituary-kill-or-death-icons
+    license: cc-by 3.0, cc-by-sa 3.0

@@ -186,10 +186,11 @@ func get_actions():
 	return actions
 
 
-func add_action(object, human_name, flags, function, arguments):
+func add_action(object, human_name, flags, function, arguments,
+	texture: Texture = null) -> void:
 	var action := HUDAction.new(
 			human_name,
-			null,
+			texture,
 			flags,
 			funcref(self, "do_action"),
 			[[object, function] + arguments]

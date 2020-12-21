@@ -4,6 +4,8 @@ extends Node
 const WeaponManager := preload("res://plugins/weapon_manager/weapon_manager.gd")
 const MovementManager := preload("res://plugins/movement_manager/movement_manager.gd")
 const AI := preload("ai/ai.gd")
+const WAYPOINT_ICON := preload("res://addons/hud/obituary_triple_arrow_to_point.tres")
+const ATTACK_ICON := preload("res://addons/hud/obituary_bullet.tres")
 
 var ai: AI
 var aim_weapons := false
@@ -38,8 +40,21 @@ func init(_coordinate, _block_data, _rotation, _voxel_body, p_vehicle, _meta):
 
 	var manager = vehicle.get_manager("mainframe")
 	manager.add_mainframe(self)
-	manager.add_action(self, "Set waypoint", OwnWar.Unit.Action.INPUT_COORDINATE, "set_waypoint", [])
-	manager.add_action(self, "Set targets", OwnWar.Unit.Action.INPUT_ENEMY_UNITS, "set_targets", [])
+	manager.add_action(self,
+		"Set waypoint",
+		OwnWar.Unit.Action.INPUT_COORDINATE,
+		"set_waypoint",
+		[],
+		WAYPOINT_ICON
+	)
+	manager.add_action(
+		self,
+		"Attack targets",
+		OwnWar.Unit.Action.INPUT_ENEMY_UNITS,
+		"set_targets",
+		[],
+		ATTACK_ICON
+	)
 
 	_weapon_manager = vehicle.get_manager("weapon")
 	_movement_manager = vehicle.get_manager("movement")

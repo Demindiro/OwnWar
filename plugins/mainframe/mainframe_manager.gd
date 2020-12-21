@@ -22,13 +22,13 @@ func add_mainframe(mainframe: Node) -> void:
 
 
 func add_action(mainframe: Node, name: String, flags: int, function: String,
-		arguments := []) -> void:
+		arguments := [], icon: Texture = null) -> void:
 	if name in _actions:
 		_actions[name].append(funcref(mainframe, function))
 	else:
 		_actions[name] = [funcref(mainframe, function)]
 		var callback = "_do_action_input" if flags != 0 else "_do_action"
-		_vehicle.add_action(self, name, flags, callback, [name, arguments])
+		_vehicle.add_action(self, name, flags, callback, [name, arguments], icon)
 
 
 func serialize_json() -> Dictionary:
