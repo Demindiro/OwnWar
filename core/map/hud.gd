@@ -49,11 +49,10 @@ func _process(_delta):
 	if len(selected_units) > 0 or _selecting_units:
 		update()
 	set_unit_info()
-	show_feedback()
-	show_action_feedback()
 	# Temporary hack to show changed ImageTextures and force the scale to 0.5
 	for child in _actions.get_children():
 		child.update()
+	update()
 
 
 func _unhandled_input(event):
@@ -117,6 +116,8 @@ func _gui_input(event):
 
 
 func _draw():
+	show_feedback()
+	show_action_feedback()
 	for unit in selected_units:
 		if (unit.translation - _camera.translation).dot(-_camera.transform.basis.z) > 0:
 			var position = _camera.unproject_position(unit.translation)
@@ -454,7 +455,7 @@ func clear_units():
 
 func show_feedback():
 	for unit in selected_units:
-		unit.show_feedback()
+		unit.show_feedback(self)
 
 
 func show_action_feedback():

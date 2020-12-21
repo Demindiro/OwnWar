@@ -40,7 +40,7 @@ func _exit_tree():
 
 func _process(_delta: float) -> void:
 	if Engine.editor_hint:
-		show_feedback()
+		show_feedback(null)
 	else:
 		set_process(false)
 
@@ -65,7 +65,7 @@ func get_info() -> Dictionary:
 	return info
 
 
-func show_feedback():
+func show_feedback(_hud: Control) -> void:
 	if _immediate_geometry == null:
 		_immediate_geometry = ImmediateGeometry.new()
 		var mat := SpatialMaterial.new()

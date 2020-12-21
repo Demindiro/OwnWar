@@ -54,7 +54,7 @@ func get_actions() -> Array:
 	return []
 
 
-func show_feedback():
+func show_feedback(_hud: Control) -> void:
 	pass
 
 
