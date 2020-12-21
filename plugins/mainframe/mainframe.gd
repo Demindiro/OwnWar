@@ -42,23 +42,24 @@ func init(_coordinate, _block_data, _rotation, _voxel_body, p_vehicle, _meta):
 
 	var manager = vehicle.get_manager("mainframe")
 	manager.add_mainframe(self)
-	manager.add_action(self,
+	var waypoint_action := OwnWar.Action.new(
 		"Set waypoint",
-		OwnWar.Unit.Action.INPUT_COORDINATE,
-		"set_waypoint",
-		[],
 		WAYPOINT_ICON,
-		WAYPOINT_CURSOR
+		OwnWar.Unit.Action.INPUT_COORDINATE,
+		funcref(self, "set_waypoint"),
+		[]
 	)
-	manager.add_action(
-		self,
+	waypoint_action.cursor = WAYPOINT_CURSOR
+	manager.add_action(waypoint_action)
+	var attack_action := OwnWar.Action.new(
 		"Attack targets",
-		OwnWar.Unit.Action.INPUT_ENEMY_UNITS,
-		"set_targets",
-		[],
 		ATTACK_ICON,
-		ATTACK_CURSOR
+		OwnWar.Unit.Action.INPUT_ENEMY_UNITS,
+		funcref(self, "set_targets"),
+		[]
 	)
+	attack_action.cursor = ATTACK_CURSOR
+	manager.add_action(attack_action)
 
 	_weapon_manager = vehicle.get_manager("weapon")
 	_movement_manager = vehicle.get_manager("movement")

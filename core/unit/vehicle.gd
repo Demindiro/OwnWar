@@ -16,7 +16,6 @@ var voxel_bodies := []
 var actions := []
 var managers := {}
 export var _file := "" setget load_from_file, get_file_path
-var _object_to_actions_map := {}
 var _info := []
 var _matter_handlers_count := []
 var _matter_handlers_space := []
@@ -186,21 +185,8 @@ func get_actions():
 	return actions
 
 
-func add_action(object, human_name, flags, function, arguments,
-	icon: Texture = null, cursor: Texture = null) -> void:
-	var action := HUDAction.new(
-			human_name,
-			icon,
-			flags,
-			funcref(self, "do_action"),
-			[[object, function] + arguments]
-		)
-	action.cursor = cursor
+func add_action(action: HUDAction) -> void:
 	actions.append(action)
-	if object in _object_to_actions_map:
-		_object_to_actions_map[object].append(action)
-	else:
-		_object_to_actions_map[object] = [action]
 
 
 func do_action(flags, arg0, arg1 = null):
