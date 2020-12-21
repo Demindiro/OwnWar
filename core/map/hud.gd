@@ -24,6 +24,7 @@ class ActionGroup:
 
 const SHORTCUT_PREFIX = "campaign_shortcut_"
 const SHORTCUT_COUNT = 10
+const SELECTED_UNIT_ICON := preload("res://addons/crosshairs/image0063.png")
 export var team := "Player"
 export var camera: NodePath
 var selected_units = [] setget set_selected_units
@@ -46,12 +47,6 @@ func _ready():
 
 
 func _process(_delta):
-	if len(selected_units) > 0 or _selecting_units:
-		update()
-	set_unit_info()
-	# Temporary hack to show changed ImageTextures and force the scale to 0.5
-	for child in _actions.get_children():
-		child.update()
 	update()
 
 
@@ -121,15 +116,11 @@ func _draw():
 	for unit in selected_units:
 		if (unit.translation - _camera.translation).dot(-_camera.transform.basis.z) > 0:
 			var position = _camera.unproject_position(unit.translation)
-			var rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
-			draw_rect(rect, Color.orange, false, 2)
-#		if unit is Vehicle and unit.ai.target != null and \
-#				(unit.ai.target.translation - _camera.translation).dot(-_camera.transform.basis.z) > 0:
-#			var position = _camera.unproject_position(unit.ai.target.translation)
-#			var rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
-#			draw_rect(rect, Color.red, false, 2)
+			var rect = Rect2(position - Vector2.ONE * 32, Vector2.ONE * 64)
+			draw_texture_rect(SELECTED_UNIT_ICON, rect, false, Color.orange)
 	if _selecting_units:
 		var rect = Rect2(_mouse_position_start, _last_mouse_position - _mouse_position_start)
+		#draw_texture_rect(SELECTED_UNIT_ICON, rect, false, Color.purple)
 		draw_rect(rect, Color.purple, false, 2)
 		var units
 		var color
@@ -141,8 +132,8 @@ func _draw():
 			color = Color.red
 		for unit in units:
 			var position = _camera.unproject_position(unit.translation)
-			rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
-			draw_rect(rect, color, false, 2)
+			rect = Rect2(position - Vector2.ONE * 32, Vector2.ONE * 64)
+			draw_texture_rect(SELECTED_UNIT_ICON, rect, false, color)
 
 
 func filter_units():
