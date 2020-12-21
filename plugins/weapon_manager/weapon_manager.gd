@@ -146,6 +146,10 @@ func add_ammo_rack(ammo_rack: AmmoRack) -> void:
 				if munition.gauge == gauge:
 					_vehicle.add_matter_put(id)
 					_vehicle.add_matter_take(id)
+		else:
+			for id in Munition.get_munition_ids():
+				_vehicle.add_matter_put(id)
+				_vehicle.add_matter_take(id)
 	_max_volume_by_gauge[gauge] += ammo_rack.max_volume
 	var e := ammo_rack.connect("tree_exited", self, "_ammo_rack_destroyed", [ammo_rack])
 	assert(e == OK)
