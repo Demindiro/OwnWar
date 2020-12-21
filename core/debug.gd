@@ -27,6 +27,7 @@ onready var _default_font := Control.new().get_font("font")
 
 
 func _init():
+	visible = OS.is_debug_build()
 	var mat := SpatialMaterial.new()
 	mat.flags_unshaded = true
 	mat.vertex_color_use_as_albedo = true
