@@ -77,7 +77,9 @@ func set_waypoint(flags, waypoint):
 
 func set_targets(flags, targets):
 	if flags & 0x1:
-		ai.targets += targets
+		for target in targets:
+			if not target in ai.targets:
+				ai.targets.append(target)
 	else:
 		ai.targets = targets.duplicate()
 
