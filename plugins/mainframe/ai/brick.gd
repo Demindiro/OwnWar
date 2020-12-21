@@ -33,9 +33,11 @@ func move_to_waypoint(mainframe, waypoint):
 	var position = transform.origin
 	var forward = transform.basis.z
 	var distance = waypoint - position
-	var distance2d = Vector2(distance.x, distance.z)
+	var distance2d := Vector2(distance.x, distance.z)
+	var direction2d := distance2d.normalized()
 	var forward2d = Vector2(forward.x, forward.z).normalized()
 	var velocity = linear_velocity.dot(forward)
+	var lin_vel = linear_velocity.dot(forward)
 	# Correct azimuth
 	var error = distance2d.dot(forward2d)
 	if error < 1e-5:
@@ -43,8 +45,8 @@ func move_to_waypoint(mainframe, waypoint):
 	else:
 		error = 1 - error / distance2d.length()
 	var right2d = Vector2(transform.basis.x.x, transform.basis.x.z).normalized()
-	mainframe.drive_yaw = -clamp(right2d.dot(distance2d) * 0.1, -1, 1) * 0.3
-	if forward2d.dot(distance2d) < 0:
+	mainframe.drive_yaw = -clamp(right2d.dot(direction2d), -1, 1) * 0.5
+	if forward2d.dot(distance2d) < 0 && lin_vel > 0.0:
 		mainframe.drive_yaw = sign(mainframe.drive_yaw) * 0.5
 	# Prevent turning too hard when going fast
 	mainframe.drive_yaw /= clamp(abs(velocity) * 0.15, 1, 1000)
@@ -73,10 +75,18 @@ func move_to_waypoint(mainframe, waypoint):
 	# Stop and brake if the drive is low
 	if mainframe.drive_forward < 0.01:
 		var front = forward2d.dot(distance2d)
-		var lin_vel = linear_velocity.dot(forward)
 		# Keep moving forward if the waypoint is in front
 		if front > 0.1 and lin_vel < 1.0:
-			mainframe.drive_forward = 0.25
+			# Go full speed if going too slow (or backwards!)
+			if lin_vel < 0.0:
+				mainframe.drive_forward = 0.0
+				mainframe.brake = 1.0
+			if lin_vel < 0.05:
+				mainframe.drive_forward = 1.0
+				mainframe.brake = 0.0
+			else:
+				mainframe.drive_forward = 0.25
+				mainframe.brake = 0.0
 		elif front < -0.1 and lin_vel > -1.0:
 			# Brake if going in the wrong direction
 			if lin_vel > 0.05:
@@ -91,7 +101,9 @@ func move_to_waypoint(mainframe, waypoint):
 			# Don't slam the brakes if going too fast
 			if velocity > 10:
 				mainframe.brake = 0.4
-		if abs(mainframe.drive_yaw) > 0.01:
+		if mainframe.drive_forward == 0.0 && lin_vel < 0.05:
+			mainframe.drive_yaw = 0.0
+		elif abs(mainframe.drive_yaw) > 0.01:
 			mainframe.drive_yaw = sign(mainframe.drive_yaw) * 0.5
 
 
