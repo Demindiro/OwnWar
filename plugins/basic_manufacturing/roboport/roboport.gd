@@ -399,3 +399,43 @@ func _remove_task(task: GDScript, unit: OwnWar.Unit) -> void:
 func debug_draw():
 	for drone in _drones:
 		Debug.draw_line(translation, drone.translation, Color.orange)
+	var uid_str := str(uid)
+	for u in _units:
+		var unit: OwnWar.Unit = u
+		var msg := "Roboport UID: %s" % uid_str
+		var prepended := false
+
+		for i in len(_providers):
+			if unit in _providers[i]:
+				if not prepended:
+					msg += "\nProvides: "
+					prepended = true
+				msg += str(i) + ", "
+
+		prepended = false
+		for i in len(_takers):
+			if unit in _takers[i]:
+				if not prepended:
+					msg += "\nTakes: "
+					prepended = true
+				msg += str(i) + ", "
+
+		prepended = false
+		for t in _tasks:
+			var task := t as Tasks.Fill
+			if task != null and task.to == unit:
+				if not prepended:
+					msg += "\nNeeds: "
+					prepended = true
+				msg += str(task.matter_id) + ", "
+
+		prepended = false
+		for t in _tasks:
+			var task := t as Tasks.Empty
+			if task != null and task.from == unit:
+				if not prepended:
+					msg += "\nDumps: "
+					prepended = true
+				msg += str(task.matter_id) + ", "
+
+		Debug.draw_text(unit.translation, msg, Color.orange)
