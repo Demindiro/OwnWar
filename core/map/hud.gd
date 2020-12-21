@@ -38,8 +38,6 @@ var _append_action = false
 var _scroll = 0
 var _unit_info_index = 0
 onready var _camera: Camera = get_node(camera)
-onready var _fps_label: Label = $FPS
-onready var _drawcalls_label: Label = $DrawCalls
 onready var _actions: Control = $Box/Actions
 
 
@@ -50,9 +48,6 @@ func _ready():
 func _process(_delta):
 	if len(selected_units) > 0 or _selecting_units:
 		update()
-	_fps_label.text = "FPS: " + str(Engine.get_frames_per_second())
-	var draw_calls = get_tree().root.get_render_info(Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME)
-	_drawcalls_label.text = "Draw calls: " + str(draw_calls)
 	set_unit_info()
 	show_feedback()
 	show_action_feedback()

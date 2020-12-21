@@ -33,7 +33,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -41.1 )
 script = ExtResource( 1 )
 max_health = 0
 team = "A"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="VehicleB" type="Spatial" parent="."]
@@ -41,7 +40,6 @@ transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 2, 4
 script = ExtResource( 1 )
 max_health = 0
 team = "B"
-unit_name = "unit"
 _file = "res://plugins/campaign_abcd/vehicles/tank.json"
 
 [node name="TimerA" type="Timer" parent="."]

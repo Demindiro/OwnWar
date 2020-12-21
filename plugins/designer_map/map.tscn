@@ -166,15 +166,18 @@ camera = NodePath("../Camera")
 anchor_left = 1.0
 anchor_right = 1.0
 margin_left = -162.842
-margin_top = 56.0561
+margin_top = 20.1889
 margin_right = -15.842
-margin_bottom = 98.0561
+margin_bottom = 62.1889
 focus_mode = 0
 theme = ExtResource( 8 )
 text = "Player"
 items = [ "Player", null, false, 1, null, "Enemy", null, false, 2, null ]
 selected = 0
 script = ExtResource( 32 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 options = PoolStringArray( "Player", "Enemy" )
 
 [node name="GUI" parent="." instance=ExtResource( 12 )]

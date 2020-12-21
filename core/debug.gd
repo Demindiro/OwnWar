@@ -191,3 +191,16 @@ func _draw_canvas_item():
 			for t in text:
 				_canvas_item.draw_string(_default_font, pos, t, text3d.color)
 				pos += Vector2(0, 16.0)
+	_canvas_item.draw_string(
+		_default_font,
+		Vector2(_canvas_item.rect_size.x / 2.0, 20.0),
+		"FPS: " + str(Engine.get_frames_per_second())
+	)
+	var draw_calls = get_tree() \
+		.root \
+		.get_render_info(Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME)
+	_canvas_item.draw_string(
+		_default_font,
+		Vector2(_canvas_item.rect_size.x / 2.0, 40.0),
+		"Draw calls: " + str(draw_calls)
+	)
