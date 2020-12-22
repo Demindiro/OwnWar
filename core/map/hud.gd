@@ -47,6 +47,7 @@ func _ready():
 
 
 func _process(_delta):
+	set_unit_info()
 	update()
 
 
