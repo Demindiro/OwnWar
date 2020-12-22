@@ -194,6 +194,11 @@ signal task_completed(task)
 const SPEED = 20.0
 const INTERACTION_DISTANCE = 6.0
 const INTERACTION_DISTANCE_2 = INTERACTION_DISTANCE * INTERACTION_DISTANCE
+const GOTO_ICON := preload("res://addons/hud/obituary_triple_arrow_to_point.tres")
+const BUILD_ICON := preload("res://addons/hud/obituary_hammer.tres")
+const PUT_ICON := preload("res://addons/hud/obituary_arrow_to_point.tres")
+const PUT_ONLY_ICON := preload("res://addons/hud/obituary_triple_arrow_to_point.tres")
+const CLEAR_TASKS_ICON := preload("res://addons/hud/obituary_cancel_cloud.tres")
 export(int) var cost = 20
 var ghosts := {}
 var tasks = []
@@ -318,53 +323,62 @@ func _integrate_forces(state: PhysicsDirectBodyState) -> void:
 
 
 func get_actions():
-	var A := OwnWar.Action
+	var goto_action := OwnWar.Action.new(
+		"Set waypoint",
+		GOTO_ICON,
+		Action.INPUT_COORDINATE,
+		funcref(self, "set_waypoint")
+	)
+	var take_action := OwnWar.Action.new(
+		"Take",
+		PUT_ICON,
+		Action.INPUT_OWN_UNITS,
+		funcref(self, "take_matter_from"),
+		[false]
+	)
+	var put_action := OwnWar.Action.new(
+		"Put",
+		PUT_ICON,
+		Action.INPUT_OWN_UNITS,
+		funcref(self, "put_matter_in"),
+		[false]
+	)
+	var take_only_action := OwnWar.Action.new(
+		"Take only",
+		PUT_ONLY_ICON,
+		Action.INPUT_OWN_UNITS,
+		funcref(self, "take_matter_from"),
+		[true]
+	)
+	var put_only_action := OwnWar.Action.new(
+		"Put only",
+		PUT_ONLY_ICON,
+		Action.INPUT_OWN_UNITS,
+		funcref(self, "put_matter_in"),
+		[true]
+	)
+	var build_action := OwnWar.Action.new(
+		"Build",
+		BUILD_ICON,
+		Action.SUBACTION,
+		funcref(self, "get_build_actions")
+	)
+	var clear_action := OwnWar.Action.new(
+		"Clear tasks",
+		CLEAR_TASKS_ICON,
+		Action.INPUT_NONE,
+		funcref(self, "clear_tasks")
+	)
+	take_action.flip_y = true
+	take_only_action.flip_y = true
 	return [
-		A.new(
-			"Set waypoint",
-			null,
-			Action.INPUT_COORDINATE,
-			funcref(self, "set_waypoint")
-		),
-		A.new(
-			"Take",
-			null,
-			Action.INPUT_OWN_UNITS,
-			funcref(self, "take_matter_from"),
-			[false]
-		),
-		A.new(
-			"Put",
-			null,
-			Action.INPUT_OWN_UNITS,
-			funcref(self, "put_matter_in"),
-			[false]),
-		A.new(
-			"Take only",
-			null,
-			Action.INPUT_OWN_UNITS,
-			funcref(self, "take_matter_from"),
-			[true]
-		),
-		A.new(
-			"Put only",
-			null,
-			Action.INPUT_OWN_UNITS,
-			funcref(self, "put_matter_in"),
-			[true]
-		),
-		A.new(
-			"Build",
-			null,
-			Action.SUBACTION,
-			funcref(self, "get_build_actions")
-		),
-		A.new(
-			"Clear tasks",
-			null,
-			Action.INPUT_NONE,
-			funcref(self, "clear_tasks")
-		),
+		goto_action,
+		take_action,
+		put_action,
+		take_only_action,
+		put_only_action,
+		build_action,
+		clear_action,
 	]
 
 
