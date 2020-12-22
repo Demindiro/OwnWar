@@ -4,6 +4,8 @@ extends OwnWar_Structure
 
 const Drone := preload("roboport_drone.gd")
 const Tasks := preload("tasks.gd")
+const RADIUS_ICON := preload("res://addons/hud/obituary_octa_circles.tres")
+const RADIUS_CURSOR := preload("res://addons/hud/obituary_octa_circles_16x16.tres")
 export var drone_scene: PackedScene
 export var drone_limit := 10
 export var _radius2 := 100.0 * 100.0
@@ -49,11 +51,12 @@ func get_actions() -> Array:
 	var actions := .get_actions()
 	var set_cov := OwnWar.Action.new(
 		"Set Coverage",
-		null,
+		RADIUS_ICON,
 		Action.INPUT_COORDINATE,
 		funcref(self, "set_coverage_radius")
 	)
 	set_cov.feedback = funcref(self, "set_coverage_radius_feedback")
+	set_cov.cursor = RADIUS_CURSOR
 	actions.append(set_cov)
 	return actions
 

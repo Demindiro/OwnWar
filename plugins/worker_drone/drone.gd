@@ -196,9 +196,10 @@ const INTERACTION_DISTANCE = 6.0
 const INTERACTION_DISTANCE_2 = INTERACTION_DISTANCE * INTERACTION_DISTANCE
 const GOTO_ICON := preload("res://addons/hud/obituary_triple_arrow_to_point.tres")
 const BUILD_ICON := preload("res://addons/hud/obituary_hammer.tres")
-const PUT_ICON := preload("res://addons/hud/obituary_arrow_to_point.tres")
-const PUT_ONLY_ICON := preload("res://addons/hud/obituary_triple_arrow_to_point.tres")
+const PUT_ICON := preload("res://addons/hud/obituary_triple_arrow_to_point.tres")
+const PUT_ONLY_ICON := preload("res://addons/hud/obituary_arrow_to_point.tres")
 const CLEAR_TASKS_ICON := preload("res://addons/hud/obituary_cancel_cloud.tres")
+const GOTO_CURSOR := preload("res://addons/hud/obituary_triple_arrow_to_point_16x16.tres")
 export(int) var cost = 20
 var ghosts := {}
 var tasks = []
@@ -371,6 +372,7 @@ func get_actions():
 	)
 	take_action.flip_y = true
 	take_only_action.flip_y = true
+	goto_action.cursor = GOTO_CURSOR
 	return [
 		goto_action,
 		take_action,
@@ -587,6 +589,60 @@ func deserialize_json(data: Dictionary) -> void:
 	if c_uid >= 0:
 		var gm: OwnWar.GameMaster = game_master
 		_set_cached_unit(gm.get_unit_by_uid(c_uid))
+
+
+func show_feedback(hud: Control) -> void:
+	var cam := get_tree().root.get_camera()
+	var font := hud.get_font("font")
+	var index := 1
+	var color := Color(1, 1, 1, 0.5)
+	for task in tasks:
+		var icon: Texture = null
+		var icon_pos: Vector2
+		var str_pos: Vector2
+		var flip_y := false
+		if task is TaskGoto:
+			var t: TaskGoto = task
+			var rel_pos := t.coordinate - cam.translation
+			if cam.transform.basis.z.dot(rel_pos) < 0:
+				var pos := cam.unproject_position(t.coordinate)
+				icon = GOTO_ICON
+				icon_pos = pos - Vector2(32, 32 + 27)
+				str_pos = pos + Vector2(20, 2)
+		elif task is TaskPut or task is TaskTake or task is TaskPutOnly or \
+			task is TaskTakeOnly or task is TaskBuild:
+			var unit: OwnWar.Unit = task.unit
+			var rel_pos := unit.translation - cam.translation
+			if cam.transform.basis.z.dot(rel_pos) < 0:
+				var pos := cam.unproject_position(unit.translation)
+				if task is TaskPut:
+					icon = PUT_ICON
+				elif task is TaskTake:
+					icon = PUT_ICON
+					flip_y = true
+				elif task is TaskPutOnly:
+					icon = PUT_ONLY_ICON
+				elif task is TaskPutOnly:
+					icon = PUT_ONLY_ICON
+					flip_y = true
+				elif task is TaskBuild:
+					icon = BUILD_ICON
+				else:
+					assert(false)
+				icon_pos = pos - Vector2(32, 32 + 27)
+				str_pos = pos + Vector2(20, 2)
+		else:
+			assert(false)
+		if icon != null:
+			hud.draw_texture_rect(
+				icon,
+				Rect2(icon_pos, Vector2(64, -64 if flip_y else 64)),
+				false,
+				color
+			)
+			hud.draw_string(font, str_pos, str(index), color)
+			index += 1
+
 
 
 func _ghost_built(ghost: OwnWar.Unit, task: TaskBuild):
