@@ -6,6 +6,7 @@ var arguments: Array
 var pressed: bool
 var feedback: FuncRef
 var cursor: Texture
+var flip_y := false
 
 
 func _init(p_name: String, p_thumbnail: Texture, p_input_flags: int,

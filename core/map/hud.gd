@@ -25,6 +25,7 @@ class ActionGroup:
 const SHORTCUT_PREFIX = "campaign_shortcut_"
 const SHORTCUT_COUNT = 10
 const SELECTED_UNIT_ICON := preload("res://addons/crosshairs/image0063.png")
+const FLIP_Y_MATERIAL := preload("flip_y.tres")
 export var team := "Player"
 export var camera: NodePath
 var selected_units = [] setget set_selected_units
@@ -219,6 +220,8 @@ func set_action_buttons(unit_name: String, sub_action: FuncRef = null,
 		button.enabled_focus_mode = BaseButton.FOCUS_NONE
 		if action_group.get_thumbnail() != null:
 			button.texture_normal = action_group.get_thumbnail()
+			if action_group.actions[0].flip_y:
+				button.material = FLIP_Y_MATERIAL
 		else:
 			button.texture_normal = preload("../designer/ellipsis.png")
 		button.rect_min_size = Vector2(96, 96)
