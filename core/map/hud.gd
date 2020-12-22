@@ -26,6 +26,9 @@ const SHORTCUT_PREFIX = "campaign_shortcut_"
 const SHORTCUT_COUNT = 10
 const SELECTED_UNIT_ICON := preload("res://addons/crosshairs/image0063.png")
 const FLIP_Y_MATERIAL := preload("flip_y.tres")
+const HOVER_MATERIAL := preload("hover.tres")
+const CLICK_MATERIAL := preload("click.tres")
+const PRESSED_MATERIAL := preload("click.tres")
 export var team := "Player"
 export var camera: NodePath
 var selected_units = [] setget set_selected_units
@@ -224,6 +227,35 @@ func set_action_buttons(unit_name: String, sub_action: FuncRef = null,
 				button.material = FLIP_Y_MATERIAL
 		else:
 			button.texture_normal = preload("../designer/ellipsis.png")
+		if true:
+			var e := button.connect(
+				"mouse_entered",
+				self,
+				"_action_mouse_entered",
+				[button, action_group.actions[0].flip_y]
+			)
+			assert(e == OK)
+			e = button.connect(
+				"mouse_exited",
+				self,
+				"_action_mouse_exited",
+				[button, action_group.actions[0].flip_y]
+			)
+			assert(e == OK)
+			e = button.connect(
+				"button_down",
+				self,
+				"_action_down",
+				[button, action_group.actions[0].flip_y]
+			)
+			assert(e == OK)
+			e = button.connect(
+				"button_up",
+				self,
+				"_action_up",
+				[button, action_group.actions[0].flip_y]
+			)
+			assert(e == OK)
 		button.rect_min_size = Vector2(96, 96)
 		button.hint_tooltip = action_group.get_name()
 		action_group.button = button
@@ -375,6 +407,7 @@ func send_plain(action_group: ActionGroup) -> void:
 func clear_action_button():
 	if _current_action != null:
 		_current_action.button.pressed = false
+		_action_up(_current_action.button, _current_action.actions[0].flip_y)
 		_current_action = null
 	Input.set_custom_mouse_cursor(null)
 
@@ -485,6 +518,37 @@ func _unit_destroyed(unit):
 	selected_units.erase(unit)
 	set_action_buttons(selected_units)
 	update()
+
+
+func _action_mouse_entered(button: BaseButton, flip_y: bool) -> void:
+	assert(button != null)
+	if not button.pressed:
+		HOVER_MATERIAL.set_shader_param("flip_y", flip_y)
+		button.material = HOVER_MATERIAL
+
+
+func _action_mouse_exited(button: BaseButton, flip_y: bool) -> void:
+	assert(button != null)
+	if not button.pressed:
+		if flip_y:
+			button.material = FLIP_Y_MATERIAL
+		else:
+			button.material = null
+
+
+func _action_down(button: BaseButton, flip_y: bool) -> void:
+	assert(button != null)
+	HOVER_MATERIAL.set_shader_param("flip_y", flip_y)
+	button.material = CLICK_MATERIAL
+
+
+func _action_up(button: BaseButton, flip_y: bool) -> void:
+	assert(button != null)
+	if not button.pressed:
+		if flip_y:
+			button.material = FLIP_Y_MATERIAL
+		else:
+			button.material = null
 
 
 func _on_Designer_load_game(data):
