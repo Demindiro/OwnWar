@@ -208,6 +208,7 @@ const _MAX_VOLUME := 20_000_000
 var _task_cached_unit: OwnWar.Unit
 var _matter_id := -1
 var _matter_count := 0
+var _desired_velocity := Vector3.ZERO
 onready var _material_id: int = OwnWar.Matter.get_matter_id("material")
 onready var _raycast: RayCast = $RayCast
 
@@ -224,13 +225,14 @@ func _process(delta):
 		rotor.rotate_object_local(Vector3.UP, delta * 50)
 
 
-func _physics_process(delta):
+func _physics_process(_delta):
+	_desired_velocity = Vector3.ZERO
 	if len(tasks) == 0:
 		return
 	var task: Task = tasks[0]
 	if task is TaskGoto:
 		var t: TaskGoto = task
-		if move_towards(t.coordinate, delta):
+		if move_towards(t.coordinate):
 			current_task_completed()
 	elif task is TaskBuild:
 		var t: TaskBuild = task
@@ -242,12 +244,12 @@ func _physics_process(delta):
 					_matter_count += u.add_build_progress(1)
 					last_build_frame = Engine.get_physics_frames()
 			else:
-				move_towards(t.unit.translation, delta)
+				move_towards(t.unit.translation)
 		elif _matter_count == 0:
-			if _take_matter_from_any(_material_id, [], delta) < 0:
+			if _take_matter_from_any(_material_id, []) < 0:
 				current_task_completed()
 		else:
-			if _put_matter_in_any(_matter_id, [], delta) < 0:
+			if _put_matter_in_any(_matter_id, []) < 0:
 				current_task_completed()
 	elif task is TaskPut:
 		var t: TaskPut = task
@@ -258,13 +260,13 @@ func _physics_process(delta):
 		elif _matter_id == id or _matter_count == 0:
 			_matter_id = id
 			if _matter_count > 0:
-				if _put_matter(id, unit, delta):
+				if _put_matter(id, unit):
 					current_task_completed()
 			else:
-				if _take_matter_from_any(id, [unit], delta) < 0:
+				if _take_matter_from_any(id, [unit]) < 0:
 					current_task_completed()
 		else:
-			if _put_matter_in_any(_matter_id, [unit], delta) < 0:
+			if _put_matter_in_any(_matter_id, [unit]) < 0:
 				current_task_completed()
 	elif task is TaskTake:
 		var t: TaskTake = task
@@ -276,13 +278,13 @@ func _physics_process(delta):
 			_matter_id = id
 			# warning-ignore:integer_division
 			if _matter_count < _MAX_VOLUME / OwnWar.Matter.get_matter_volume(id):
-				if _take_matter(id, unit, delta):
+				if _take_matter(id, unit):
 					current_task_completed()
 			else:
-				if _put_matter_in_any(id, [unit], delta) < 0:
+				if _put_matter_in_any(id, [unit]) < 0:
 					current_task_completed()
 		else:
-			if _put_matter_in_any(_matter_id, [unit], delta) < 0:
+			if _put_matter_in_any(_matter_id, [unit]) < 0:
 				current_task_completed()
 	elif task is TaskPutOnly:
 		var t: TaskPutOnly = task
@@ -291,7 +293,7 @@ func _physics_process(delta):
 		if unit.get_matter_space(id) == 0:
 			current_task_completed()
 		elif _matter_id == id and _matter_count > 0:
-			if _put_matter(id, unit, delta):
+			if _put_matter(id, unit):
 				current_task_completed()
 		else:
 			current_task_completed()
@@ -302,10 +304,17 @@ func _physics_process(delta):
 		if unit.get_matter_count(id) == 0:
 			current_task_completed()
 		elif _matter_id == id or _matter_count == 0:
-			if _take_matter(id, unit, delta):
+			if _take_matter(id, unit):
 				current_task_completed()
 		else:
 			current_task_completed()
+
+
+func _integrate_forces(state: PhysicsDirectBodyState) -> void:
+	state.linear_velocity = _desired_velocity
+	var move_direction := _desired_velocity.normalized()
+	var self_direction := transform.basis.z
+	state.angular_velocity = move_direction.cross(self_direction) * 5
 
 
 func get_actions():
@@ -419,27 +428,30 @@ func set_waypoint(flags, coordinate):
 	add_task(TaskGoto.new(coordinate), flags & 0x1 > 0)
 
 
-func move_towards(position, delta):
-	var distance = position - translation
-	var distance_xz = Vector3(distance.x, 0, distance.z)
-	var distance_xz_length2 = distance_xz.length_squared()
-	var speed = SPEED if distance_xz_length2 > SPEED * SPEED * delta * delta else \
-			sqrt(distance_xz_length2) / delta
-	var velocity_direction = distance_xz.normalized()
+func move_towards(position: Vector3) -> bool:
+	var distance := position - translation
+	var distance_xz := Vector3(distance.x, 0, distance.z)
+	var distance_xz_length2 := distance_xz.length_squared()
+	var velocity_direction := distance_xz.normalized()
 	var height := translation.y - _raycast.get_collision_point().y if \
 			_raycast.is_colliding() else 5.0
 	if height < 1:
 		velocity_direction = (velocity_direction + Vector3.UP).normalized()
 	elif height > 4:
 		velocity_direction = (velocity_direction + Vector3.DOWN).normalized()
-	if distance_xz_length2 > 1e-5:
-		var kb: KinematicBody = self as Spatial
-		# warning-ignore:return_value_discarded
-		kb.move_and_slide(velocity_direction * speed, Vector3.UP,
-				false, 4, PI / 4, false)
-		return false
+	var delta := Engine.get_physics_interpolation_fraction()
+	var estimated_travel := (velocity_direction * SPEED * delta).length_squared()
+	var fraction: float
+	if estimated_travel == 0:
+		fraction = 1.0
 	else:
+		fraction = sqrt(distance.length_squared() / estimated_travel)
+	var speed := SPEED * clamp(fraction, 0, 1)
+	if distance_xz_length2 <= 1e-2:
 		return true
+	else:
+		_desired_velocity = velocity_direction * speed
+		return false
 
 
 func build(flags, units):
@@ -578,16 +590,16 @@ func _unit_destroyed(unit):
 				_task_cached_unit = null
 
 
-func _put_matter(id: int, unit: OwnWar.Unit, delta: float) -> bool:
+func _put_matter(id: int, unit: OwnWar.Unit) -> bool:
 	if translation.distance_squared_to(unit.translation) <= INTERACTION_DISTANCE_2:
 		_matter_count = unit.put_matter(id, _matter_count)
 		return true
 	else:
-		move_towards(unit.translation, delta)
+		move_towards(unit.translation)
 		return false
 
 
-func _take_matter(id: int, unit: OwnWar.Unit, delta: float) -> bool:
+func _take_matter(id: int, unit: OwnWar.Unit) -> bool:
 	assert(id == _matter_id or _matter_count == 0)
 # warning-ignore:integer_division
 	var matter_space := _MAX_VOLUME / OwnWar.Matter.get_matter_volume(id) - _matter_count
@@ -597,11 +609,11 @@ func _take_matter(id: int, unit: OwnWar.Unit, delta: float) -> bool:
 		_matter_id = id
 		return true
 	else:
-		move_towards(unit.translation, delta)
+		move_towards(unit.translation)
 		return false
 
 
-func _put_matter_in_any(id: int, exclude: Array, delta: float) -> int:
+func _put_matter_in_any(id: int, exclude: Array) -> int:
 	assert(_matter_count > 0 and id == _matter_id)
 	if _task_cached_unit == null:
 		var closest_distance2 := INF
@@ -614,14 +626,14 @@ func _put_matter_in_any(id: int, exclude: Array, delta: float) -> int:
 						_task_cached_unit = unit
 						closest_distance2 = d
 	if _task_cached_unit != null:
-		if _put_matter(id, _task_cached_unit, delta):
+		if _put_matter(id, _task_cached_unit):
 			_task_cached_unit = null
 			return 1
 		return 0
 	return -1
 
 
-func _take_matter_from_any(id: int, exclude: Array, delta: float) -> int:
+func _take_matter_from_any(id: int, exclude: Array) -> int:
 	assert(_matter_count == 0)
 	if _task_cached_unit == null:
 		var closest_distance2 := INF
@@ -633,7 +645,7 @@ func _take_matter_from_any(id: int, exclude: Array, delta: float) -> int:
 					_task_cached_unit = unit
 					closest_distance2 = d
 	if _task_cached_unit != null:
-		if _take_matter(id, _task_cached_unit, delta):
+		if _take_matter(id, _task_cached_unit):
 			_task_cached_unit = null
 			return 1
 		return 0

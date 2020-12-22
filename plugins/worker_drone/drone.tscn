@@ -1,16 +1,18 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://plugins/worker_drone/drone.gd" type="Script" id=2]
-[ext_resource path="res://plugins/basic_manufacturing/drill/drill_ghost.tscn" type="PackedScene" id=7]
 [ext_resource path="res://plugins/worker_drone/worker_drone_rotor_mesh.tres" type="CubeMesh" id=8]
 [ext_resource path="res://plugins/worker_drone/worker_drone_arm_mesh.tres" type="CubeMesh" id=9]
 [ext_resource path="res://plugins/worker_drone/worker_drone_body_mesh.tres" type="CubeMesh" id=10]
 [ext_resource path="res://plugins/worker_drone/worker_drone_collision_shape.tres" type="Shape" id=11]
 
-[node name="Drone" type="KinematicBody"]
+[node name="Drone" type="RigidBody"]
+gravity_scale = 0.0
+can_sleep = false
+axis_lock_angular_x = true
+axis_lock_angular_z = true
 script = ExtResource( 2 )
 unit_name = "worker"
-drill_ghost = ExtResource( 7 )
 
 [node name="Body" type="MeshInstance" parent="."]
 mesh = ExtResource( 10 )
