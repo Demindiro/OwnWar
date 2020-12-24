@@ -69,7 +69,7 @@ func _attack_any() -> void:
 		# Drive towards and fire at the enemy
 		var eu_org := enemy_unit.global_transform.origin
 		var v_org := vehicle.global_transform.origin
-		var offset := (eu_org - v_org).normalized() * 15.0
+		var offset := (eu_org - v_org).normalized() * 50.0
 		var waypoint := eu_org - offset
 		var mainframe: Mainframe = vehicle.get_blocks("mainframe")[0].node
 		mainframe.set_waypoint(0, waypoint)
