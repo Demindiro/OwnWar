@@ -73,6 +73,8 @@ func _init():
 	OwnWar.Matter.add_matter("material", 1_000_000)
 # warning-ignore:return_value_discarded
 	OwnWar.Matter.add_matter("fuel", 100_000)
+	preload("res://blocks/chassis/chassis.gd").load_blocks()
+
 
 
 func _process(_delta):
