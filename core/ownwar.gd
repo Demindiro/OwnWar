@@ -9,8 +9,6 @@ const Unit := preload("unit/unit.gd")
 const Structure := preload("unit/structure.gd")
 const Vehicle := preload("unit/vehicle.gd")
 
-const Matter := preload("matter.gd")
-
 const Block := preload("block/block.gd")
 const VoxelBody := preload("voxel_body.gd")
 const VoxelMesh := preload("voxel_mesh.gd")

@@ -69,10 +69,6 @@ var _loader_callback_arguments: Array
 func _init():
 	print("Game version %s" % [OwnWar.VERSION])
 	OwnWar.Block.add_block(preload("block/debug/vane.tres"))
-# warning-ignore:return_value_discarded
-	OwnWar.Matter.add_matter("material", 1_000_000)
-# warning-ignore:return_value_discarded
-	OwnWar.Matter.add_matter("fuel", 100_000)
 	preload("res://blocks/chassis/chassis.gd").load_blocks()
 	OwnWar.Block.add_block(preload("res://blocks/wheels/big-wheel/wheel.tres"))
 
