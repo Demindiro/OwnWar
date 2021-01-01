@@ -1,11 +1,12 @@
 [gd_scene load_steps=7 format=2]
 
-[ext_resource path="res://plugins/cannon/35mm/35mm_cannon.obj" type="ArrayMesh" id=1]
-[ext_resource path="res://plugins/cannon/cannon.gd" type="Script" id=2]
-[ext_resource path="res://plugins/cannon/35mm/collision_shape.tres" type="Shape" id=3]
-[ext_resource path="res://plugins/cannon/muzzle_flash.tscn" type="PackedScene" id=4]
+[ext_resource path="res://blocks/weapons/cannon/35mm/35mm_cannon.obj" type="ArrayMesh" id=1]
+[ext_resource path="res://blocks/weapons/cannon/cannon.gd" type="Script" id=2]
+[ext_resource path="res://blocks/weapons/cannon/35mm/collision_shape.tres" type="Shape" id=3]
+[ext_resource path="res://blocks/weapons/cannon/muzzle_flash.tscn" type="PackedScene" id=4]
 [ext_resource path="res://addons/weapons/firing_sounds/91572__steveygos93__layeredgunshot.wav" type="AudioStream" id=5]
 [ext_resource path="res://empty.gd" type="Script" id=6]
+
 
 [node name="35mmCannon" type="RigidBody"]
 script = ExtResource( 2 )

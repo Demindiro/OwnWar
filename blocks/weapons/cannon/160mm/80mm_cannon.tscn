@@ -1,12 +1,13 @@
 [gd_scene load_steps=8 format=2]
 
-[ext_resource path="res://plugins/cannon/160mm/80mm_cannon.obj" type="ArrayMesh" id=1]
-[ext_resource path="res://plugins/cannon/cannon.gd" type="Script" id=2]
-[ext_resource path="res://plugins/cannon/160mm/collision_shape.tres" type="Shape" id=3]
-[ext_resource path="res://plugins/cannon/160mm/collision_shape_accuracy_fix.gd" type="Script" id=4]
-[ext_resource path="res://plugins/cannon/muzzle_flash.tscn" type="PackedScene" id=5]
+[ext_resource path="res://blocks/weapons/cannon/160mm/80mm_cannon.obj" type="ArrayMesh" id=1]
+[ext_resource path="res://blocks/weapons/cannon/cannon.gd" type="Script" id=2]
+[ext_resource path="res://blocks/weapons/cannon/160mm/collision_shape.tres" type="Shape" id=3]
+[ext_resource path="res://blocks/weapons/cannon/160mm/collision_shape_accuracy_fix.gd" type="Script" id=4]
+[ext_resource path="res://blocks/weapons/cannon/muzzle_flash.tscn" type="PackedScene" id=5]
 [ext_resource path="res://empty.gd" type="Script" id=6]
 [ext_resource path="res://addons/weapons/firing_sounds/448002__kneeling__cannon.ogg" type="AudioStream" id=7]
+
 
 [node name="80mmCannon" type="RigidBody"]
 script = ExtResource( 2 )

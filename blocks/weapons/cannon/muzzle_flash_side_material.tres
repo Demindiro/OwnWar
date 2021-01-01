@@ -1,7 +1,8 @@
 [gd_resource type="ShaderMaterial" load_steps=3 format=2]
 
-[ext_resource path="res://plugins/cannon/muzzle_flash.shader" type="Shader" id=1]
+[ext_resource path="res://blocks/weapons/cannon/muzzle_flash.shader" type="Shader" id=1]
 [ext_resource path="res://addons/weapons/muzzle_flashes/WFX_T_MF Side RIFLE1 A8.png" type="Texture" id=2]
+
 
 [resource]
 shader = ExtResource( 1 )
