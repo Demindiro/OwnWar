@@ -11,7 +11,6 @@
 [ext_resource path="res://core/designer/inventory.gd" type="Script" id=9]
 [ext_resource path="res://addons/arrow.png" type="Texture" id=10]
 [ext_resource path="res://core/designer/mirror_line_mesh.tres" type="QuadMesh" id=11]
-[ext_resource path="res://plugins/designer_map/map.tscn" type="PackedScene" id=12]
 [ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=13]
 [ext_resource path="res://core/menu/main_menu/main.tscn" type="PackedScene" id=14]
 [ext_resource path="res://core/designer/blockface_highlighter_material.tres" type="Material" id=15]
@@ -38,7 +37,6 @@ background_sky = SubResource( 2 )
 pause_mode = 2
 script = ExtResource( 21 )
 main_menu = ExtResource( 14 )
-test_map = ExtResource( 12 )
 material = ExtResource( 22 )
 
 [node name="Lights" type="Node" parent="."]
