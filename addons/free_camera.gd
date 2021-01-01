@@ -25,6 +25,14 @@ class_name FreeCamera
 export var speed := 10.0
 export var angular_speed := 0.01
 export var always_capture := false
+export var actions := PoolStringArray([
+	"camera_left",
+	"camera_right",
+	"camera_forward",
+	"camera_back",
+	"camera_up",
+	"camera_down"
+])
 
 var _rot_x := 0.0
 var _rot_y := 0.0
@@ -56,9 +64,8 @@ func _input(event):
 
 func _process(delta):
 	var direction = Vector3()
-	var actions = ["camera_left", "camera_right", "camera_forward", "camera_back", "camera_up", "camera_down"]
 	var directions = [Vector3.LEFT, Vector3.RIGHT, Vector3.FORWARD, Vector3.BACK, Vector3.UP, Vector3.DOWN]
-	for i in range(len(actions)):
+	for i in len(actions):
 		if Input.is_action_pressed(actions[i]):
 			direction += directions[i]
 	translate_object_local(direction * speed * delta)

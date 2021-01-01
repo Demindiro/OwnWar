@@ -62,6 +62,7 @@ script = ExtResource( 3 )
 speed = 10.0
 angular_speed = 0.01
 always_capture = true
+actions = PoolStringArray( "designer_move_left", "designer_move_right", "designer_move_forward", "designer_move_back", "designer_move_up", "designer_move_down" )
 aabb = AABB( -10, 0.55, -10, 45, 30, 45 )
 
 [node name="Box" type="ViewportContainer" parent="Camera"]
