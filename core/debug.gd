@@ -34,6 +34,7 @@ func _init():
 	_im.material_override = mat
 	_create_point_mesh()
 	pause_mode = Node.PAUSE_MODE_PROCESS
+	process_priority = 1000
 
 
 func _enter_tree():
@@ -51,6 +52,11 @@ func _enter_tree():
 	e = tr.connect("node_removed", self, "_node_removed")
 	assert(e == OK)
 	e = _canvas_item.connect("draw", self, "_draw_canvas_item")
+
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("toggle_debug"):
+		visible = not visible
 
 
 func _process(_delta):
