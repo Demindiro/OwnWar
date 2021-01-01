@@ -71,3 +71,7 @@ static func snap_transform(node) -> void:
 static func goto_main_menu(tree: SceneTree) -> void:
 	tree.change_scene(_MAIN_MENU)
 	tree.paused = false
+
+
+static func is_in_designer(tree: SceneTree) -> bool:
+	return tree.current_scene.filename == "res://core/designer/designer.tscn"

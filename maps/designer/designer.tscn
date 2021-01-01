@@ -1,0 +1,63 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
+[ext_resource path="res://maps/designer/rect.svg" type="Texture" id=2]
+[ext_resource path="res://core/map/hud.tscn" type="PackedScene" id=4]
+[ext_resource path="res://maps/designer/map_data/data.hterrain" type="Resource" id=5]
+[ext_resource path="res://maps/designer/designer.gd" type="Script" id=6]
+
+[sub_resource type="ProceduralSky" id=1]
+
+[sub_resource type="Environment" id=2]
+background_mode = 2
+background_sky = SubResource( 1 )
+ambient_light_energy = 0.2
+
+[node name="Designer" type="Node"]
+script = ExtResource( 6 )
+
+[node name="HUD" parent="." instance=ExtResource( 4 )]
+mouse_filter = 2
+camera = NodePath("../Camera")
+camera_rotate_speed = 0.75
+camera_zoom_speed = 0.75
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0682526, 2.32457, 7.83551 )
+far = 2000.0
+
+[node name="HTerrain" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -128.25, 0, -128.25 )
+script = ExtResource( 1 )
+ambient_wind = 0.0
+lod_scale = 2.0
+map_scale = Vector3( 0.5, 0.5, 0.5 )
+_terrain_data = ExtResource( 5 )
+chunk_size = 32
+collision_enabled = true
+collision_layer = 1
+collision_mask = 1
+shader_type = "Classic4Lite"
+custom_shader = null
+custom_globalmap_shader = null
+shader_params/u_ground_uv_scale = 1.0
+shader_params/u_depth_blending = true
+shader_params/u_triplanar = false
+shader_params/u_tile_reduction = Plane( 0, 0, 0, 0 )
+ground/albedo_bump_0 = ExtResource( 2 )
+ground/normal_roughness_0 = null
+ground/albedo_bump_1 = null
+ground/normal_roughness_1 = null
+ground/albedo_bump_2 = null
+ground/normal_roughness_2 = null
+ground/albedo_bump_3 = null
+ground/normal_roughness_3 = null
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 0.866025, 0.25, -0.433013, 0, 0.866025, 0.5, 0.5, -0.433013, 0.75, 0, 86, 0 )
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource( 2 )
+
+[node name="SpawnPoint" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0 )

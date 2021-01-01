@@ -4,7 +4,6 @@
 [ext_resource path="res://blocks/mainframe/mainframe.obj" type="ArrayMesh" id=2]
 [ext_resource path="res://blocks/mainframe/mainframe.tscn" type="PackedScene" id=3]
 
-
 [resource]
 script = ExtResource( 1 )
 name = "mainframe"
