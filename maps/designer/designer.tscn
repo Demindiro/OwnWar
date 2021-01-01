@@ -21,6 +21,7 @@ mouse_filter = 2
 camera = NodePath("../Camera")
 camera_rotate_speed = 0.75
 camera_zoom_speed = 0.75
+camera_offset = Vector3( 0, 2, 0 )
 
 [node name="Camera" type="Camera" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0682526, 2.32457, 7.83551 )

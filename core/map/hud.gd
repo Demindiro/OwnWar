@@ -6,6 +6,7 @@ export var camera_rotate_speed := 1.0
 export(float, 0.1, 10.0) var camera_zoom_speed := 1.0
 export(float, 0.0, 100.0) var camera_zoom_min := 5.0
 export(float, 0.0, 100.0) var camera_zoom_max := 50.0
+export var camera_offset := Vector3()
 var player_vehicle: OwnWar_Vehicle
 
 var _camera_pan := 0.0
@@ -63,6 +64,8 @@ func _process(_delta: float) -> void:
 
 
 func _set_camera() -> void:
-	var basis := Basis(Vector3(0, 1, 0), _camera_pan) * Basis(Vector3(1, 0, 0), _camera_tilt)
-	var origin := player_vehicle.visual_translation + basis * Vector3(0, 0, _camera_zoom)
+	var basis := Basis(Vector3(0, 1, 0), _camera_pan) * \
+		Basis(Vector3(1, 0, 0), _camera_tilt)
+	var origin := player_vehicle.visual_translation + \
+		basis * (Vector3(0, 0, _camera_zoom) + camera_offset)
 	_camera.transform = Transform(basis, origin)
