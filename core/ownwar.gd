@@ -20,7 +20,7 @@ const Plugin := preload("plugin/loader.gd")
 const Compatibility := preload("compatibility.gd")
 
 
-const VERSION := Vector3(0, 16, 0)
+const VERSION := Vector3(0, 17, 0)
 const COLLISION_MASK_TERRAIN := 1 << (8 - 1)
 const COLLISION_MASK_UNIT := 1 << (19 - 1)
 const COLLISION_MASK_STRUCTURE := 1 << (20 - 1)
