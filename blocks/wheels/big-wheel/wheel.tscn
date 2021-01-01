@@ -1,12 +1,12 @@
 [gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://plugins/wheel/wheel.gd" type="Script" id=2]
-[ext_resource path="res://plugins/wheel/wheel_mesh.tres" type="CylinderMesh" id=3]
-[ext_resource path="res://addons/wheels/textures/tire_d.png" type="Texture" id=4]
+[ext_resource path="res://blocks/wheels/big-wheel/wheel_mesh.tres" type="CylinderMesh" id=1]
+[ext_resource path="res://addons/wheels/textures/tire_d.png" type="Texture" id=2]
+[ext_resource path="res://blocks/wheels/wheel.gd" type="Script" id=3]
 
 [sub_resource type="SpatialMaterial" id=1]
 resource_name = "RubberTire"
-albedo_texture = ExtResource( 4 )
+albedo_texture = ExtResource( 2 )
 
 [sub_resource type="ArrayMesh" id=2]
 surfaces/0 = {
@@ -30,11 +30,11 @@ wheel_rest_length = 0.2
 suspension_travel = 0.2
 suspension_stiffness = 25.0
 suspension_max_force = 1500.0
-script = ExtResource( 2 )
+script = ExtResource( 3 )
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
 transform = Transform( -1.09278e-08, -0.125, 0, 0.25, -5.46392e-09, 0, 0, 0, 0.25, 0, 0, 0 )
-mesh = ExtResource( 3 )
+mesh = ExtResource( 1 )
 material/0 = null
 
 [node name="MeshInstance2" type="MeshInstance" parent="."]
