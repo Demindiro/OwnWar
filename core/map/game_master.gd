@@ -3,7 +3,7 @@ class_name OwnWar_GameMaster
 
 
 const Unit := preload("../unit/unit.gd")
-const Vehicle := preload("../unit/vehicle.gd")
+const Vehicle := preload("res://vehicles/vehicle.gd")
 const Compatibility := preload("../compatibility.gd")
 const Maps := preload("../maps.gd")
 

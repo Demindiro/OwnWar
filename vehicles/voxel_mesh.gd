@@ -1,7 +1,7 @@
 extends ArrayMesh
 
 
-const Block := preload("block/block.gd")
+const Block := preload("res://core/block/block.gd")
 
 
 class SubMesh:

@@ -1,33 +1,19 @@
 tool
-extends "unit.gd"
+extends OwnWar_Unit
 class_name OwnWar_Vehicle
 
 
-const Block := preload("../block/block.gd")
-const HUDAction := preload("../map/action.gd")
-const Compatibility := preload("../compatibility.gd")
-const VoxelBody := preload("../voxel_body.gd")
-const VoxelMesh := preload("../voxel_mesh.gd")
+const Block := preload("res://core/block/block.gd")
+const Compatibility := preload("res://core/compatibility.gd")
+const VoxelBody := preload("voxel_body.gd")
+const VoxelMesh := preload("voxel_mesh.gd")
 
 
 const MANAGERS := {}
 var max_cost: int
 var voxel_bodies := []
-var actions := []
 var managers := {}
 export var _file := "" setget load_from_file, get_file_path
-var _info := []
-var _show_feedback_functions := []
-var _matter_handlers_count := []
-var _matter_handlers_space := []
-var _matter_handlers_needs := []
-var _matter_handlers_provides := []
-var _matter_handlers_dumps := []
-var _matter_handlers_takes := []
-var _matter_handlers_put := []
-var _matter_handlers_take := []
-var _matter_put_list := PoolIntArray()
-var _matter_take_list := PoolIntArray()
 
 
 func _physics_process(delta):
@@ -37,91 +23,6 @@ func _physics_process(delta):
 			for manager_name in managers:
 				if managers[manager_name].has_method("process"):
 					managers[manager_name].process(delta)
-
-
-func get_info():
-	var info = .get_info()
-	var remaining_health = 0
-	var remaining_cost = 0
-	for body in voxel_bodies:
-		for coordinate in body.blocks:
-			var block = body.blocks[coordinate]
-			remaining_health += block.health
-			remaining_cost += Block.get_block_by_id(block.id).cost
-	info["Health"] = "%d / %d" % [remaining_health, max_health]
-	info["Cost"] = "%d / %d" % [remaining_cost, max_cost]
-	for info_function in _info:
-		info_function.call_func(info)
-	return info
-
-
-func get_matter_count(id: int) -> int:
-	var count := 0
-	for f in _matter_handlers_count:
-		count += f.call_func(id)
-	return count
-
-
-func get_matter_space(id: int) -> int:
-	var space := 0
-	for f in _matter_handlers_space:
-		space += f.call_func(id)
-	return space
-
-
-func get_put_matter_list() -> PoolIntArray:
-	return _matter_put_list
-
-
-func get_take_matter_list() -> PoolIntArray:
-	return _matter_take_list
-
-
-func needs_matter(id: int) -> int:
-	var amount := 0
-	for f in _matter_handlers_needs:
-		amount += f.call_func(id)
-	return amount
-
-
-func provides_matter(id: int) -> int:
-	var amount := 0
-	for f in _matter_handlers_provides:
-		amount += f.call_func(id)
-	return amount
-
-
-func takes_matter(id: int) -> int:
-	var amount := 0
-	for f in _matter_handlers_takes:
-		amount += f.call_func(id)
-	return amount
-
-
-func dumps_matter(id: int) -> int:
-	var amount := 0
-	for f in _matter_handlers_dumps:
-		amount += f.call_func(id)
-	return amount
-
-
-func put_matter(id: int, amount: int) -> int:
-	for f in _matter_handlers_put:
-		amount = f.call_func(id, amount)
-		assert(amount >= 0)
-		if amount == 0:
-			break
-	return amount
-
-
-func take_matter(id: int, amount: int) -> int:
-	var total := 0
-	for f in _matter_handlers_put:
-		total += f.call_func(id, amount - total)
-		assert(total >= 0 and total <= amount)
-		if total == amount:
-			break
-	return total
 
 
 func load_from_file(path: String) -> int:
@@ -180,86 +81,6 @@ func load_from_file(path: String) -> int:
 	var new_name = path.get_file()
 	unit_name = "vehicle_" + new_name.substr(0, len(new_name) - 5)
 	return OK
-
-
-func get_actions():
-	return actions
-
-
-func add_action(action: HUDAction) -> void:
-	actions.append(action)
-
-
-func do_action(flags, arg0, arg1 = null):
-	var object
-	var function
-	var arguments
-	if arg1 != null:
-		object = arg1[0]
-		function = arg1[1]
-		arguments = arg1.slice(1, len(arg1) - 1)
-		arguments[0] = arg0
-	else:
-		object = arg0[0]
-		function = arg0[1]
-		arguments = arg0.slice(2, len(arg0) - 1)
-	if is_instance_valid(object):
-		object.callv(function, [flags] + arguments)
-
-
-func get_manager(p_name: String) -> Reference:
-	var manager = managers.get(p_name)
-	if manager == null:
-		manager = MANAGERS[p_name].new()
-		managers[p_name] = manager
-		manager.init(self)
-	return manager
-
-
-func add_matter_put(id: int) -> void:
-	if not id in _matter_put_list:
-		_matter_put_list.append(id)
-
-
-func add_matter_take(id: int) -> void:
-	if not id in _matter_take_list:
-		_matter_take_list.append(id)
-
-
-func add_matter_needs_handler(function: FuncRef) -> void:
-	_matter_handlers_needs.append(function)
-
-
-func add_matter_provides_handler(function: FuncRef) -> void:
-	_matter_handlers_provides.append(function)
-
-
-func add_matter_takes_handler(function: FuncRef) -> void:
-	_matter_handlers_takes.append(function)
-
-
-func add_matter_dumps_handler(function: FuncRef) -> void:
-	_matter_handlers_dumps.append(function)
-
-
-func add_matter_count_handler(function: FuncRef) -> void:
-	_matter_handlers_count.append(function)
-
-
-func add_matter_space_handler(function: FuncRef) -> void:
-	_matter_handlers_space.append(function)
-
-
-func add_matter_put_handler(function: FuncRef) -> void:
-	_matter_handlers_put.append(function)
-
-
-func add_matter_take_handler(function: FuncRef) -> void:
-	_matter_handlers_take.append(function)
-
-
-func add_info(object, p_name):
-	_info.append(funcref(object, p_name))
 
 
 func get_blocks(block_name):
@@ -394,15 +215,6 @@ func get_aabb() -> AABB:
 
 func get_file_path() -> String:
 	return _file
-
-
-func add_feedback_function(function: FuncRef) -> void:
-	_show_feedback_functions.append(function)
-
-
-func show_feedback(hud: Control) -> void:
-	for function in _show_feedback_functions:
-		function.call_func(hud)
 
 
 func debug_draw() -> void:

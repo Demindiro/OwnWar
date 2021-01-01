@@ -1,12 +1,12 @@
 extends VehicleBody
 
 
-const Block := preload("block/block.gd")
+const Block := preload("res://core/block/block.gd")
 const VoxelMesh := preload("voxel_mesh.gd")
 
 
 class BodyBlock:
-	const Block := preload("block/block.gd")
+	const Block := preload("res://core/block/block.gd")
 
 	var id: int
 	var health: int

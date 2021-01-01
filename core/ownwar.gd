@@ -7,11 +7,11 @@ const GameMaster := preload("map/game_master.gd")
 
 const Unit := preload("unit/unit.gd")
 const Structure := preload("unit/structure.gd")
-const Vehicle := preload("unit/vehicle.gd")
+const Vehicle := preload("res://vehicles/vehicle.gd")
 
 const Block := preload("block/block.gd")
-const VoxelBody := preload("voxel_body.gd")
-const VoxelMesh := preload("voxel_mesh.gd")
+const VoxelBody := preload("res://vehicles/voxel_body.gd")
+const VoxelMesh := preload("res://vehicles/voxel_mesh.gd")
 
 const Compatibility := preload("compatibility.gd")
 

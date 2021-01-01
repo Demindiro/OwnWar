@@ -77,7 +77,7 @@ _global_script_classes=[ {
 "base": "",
 "class": "OwnWar_Vehicle",
 "language": "GDScript",
-"path": "res://core/unit/vehicle.gd"
+"path": "res://vehicles/vehicle.gd"
 }, {
 "base": "Reference",
 "class": "Util",
