@@ -71,6 +71,7 @@ func _init():
 	OwnWar.Block.add_block(preload("block/debug/vane.tres"))
 	preload("res://blocks/chassis/chassis.gd").load_blocks()
 	OwnWar.Block.add_block(preload("res://blocks/wheels/big-wheel/wheel.tres"))
+	OwnWar.Block.add_block(preload("res://blocks/mainframe/mainframe.tres"))
 
 
 
