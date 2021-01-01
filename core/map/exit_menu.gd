@@ -3,7 +3,6 @@ extends "res://core/menu/dialog/independent_panel.gd"
 
 
 signal cancel()
-signal save()
 signal settings()
 signal restart()
 signal exit()
@@ -11,10 +10,6 @@ signal exit()
 
 func _on_Continue_pressed():
 	emit_signal("cancel")
-
-
-func _on_Save_pressed():
-	emit_signal("save")
 
 
 func _on_Settings_pressed():

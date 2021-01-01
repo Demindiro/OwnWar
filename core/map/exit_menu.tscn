@@ -34,31 +34,24 @@ margin_bottom = 41.6293
 shortcut = ExtResource( 3 )
 text = "Continue"
 
-[node name="Save" type="Button" parent="Box" index="1"]
+[node name="Settings" type="Button" parent="Box" index="1"]
 margin_top = 51.0
 margin_right = 262.0
 margin_bottom = 92.6293
-text = "Save"
+text = "Settings"
 
-[node name="Settings" type="Button" parent="Box" index="2"]
+[node name="Restart" type="Button" parent="Box" index="2"]
 margin_top = 102.0
 margin_right = 262.0
 margin_bottom = 143.629
-text = "Settings"
+text = "Restart"
 
-[node name="Restart" type="Button" parent="Box" index="3"]
+[node name="Exit" type="Button" parent="Box" index="3"]
 margin_top = 153.0
 margin_right = 262.0
 margin_bottom = 194.629
-text = "Restart"
-
-[node name="Exit" type="Button" parent="Box" index="4"]
-margin_top = 204.0
-margin_right = 262.0
-margin_bottom = 245.629
 text = "Exit"
 [connection signal="pressed" from="Box/Continue" to="." method="_on_Continue_pressed"]
-[connection signal="pressed" from="Box/Save" to="." method="_on_Save_pressed"]
 [connection signal="pressed" from="Box/Settings" to="." method="_on_Settings_pressed"]
 [connection signal="pressed" from="Box/Restart" to="." method="_on_Restart_pressed"]
 [connection signal="pressed" from="Box/Exit" to="." method="_on_Exit_pressed"]
