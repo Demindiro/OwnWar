@@ -3,7 +3,6 @@ extends Control
 
 onready var _version: Label = $Main/Version
 onready var _button_campaign: Control = $Campaign
-onready var _button_plugins: Control = $Plugins
 onready var _button_saves: Control = $Saves
 onready var _background := $"../Background"
 
@@ -17,7 +16,6 @@ func _ready():
 
 func _on_Campaign_pressed():
 	_button_campaign.visible = not _button_campaign.visible
-	_button_plugins.visible = false
 	_button_saves.visible = false
 
 
@@ -41,13 +39,6 @@ func _on_Tutorial_pressed():
 	Global.goto_scene("res://campaign/tutorial/hill.tscn")
 
 
-func _on_Plugins_pressed():
-	_button_plugins.visible = not _button_plugins.visible
-	_button_campaign.visible = false
-	_button_saves.visible = false
-
-
 func _on_Saves_pressed():
 	_button_saves.visible = not _button_saves.visible
 	_button_campaign.visible = false
-	_button_plugins.visible = false

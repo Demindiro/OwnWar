@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=2]
 
-[sub_resource type="GDScript" id=2]
+[sub_resource type="GDScript" id=1]
 script/source = "extends Label
 
 func _process(_delta):
@@ -17,7 +17,7 @@ margin_left = -3.59155
 margin_top = -71.4137
 margin_right = 36.4084
 margin_bottom = -57.4137
-script = SubResource( 2 )
+script = SubResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }

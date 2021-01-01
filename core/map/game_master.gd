@@ -6,7 +6,6 @@ const Unit := preload("../unit/unit.gd")
 const Vehicle := preload("../unit/vehicle.gd")
 const Compatibility := preload("../compatibility.gd")
 const Maps := preload("../maps.gd")
-const Plugin := preload("../plugin/loader.gd")
 
 
 signal unit_added(unit)
@@ -92,14 +91,6 @@ func save_game(path: String) -> int:
 		s_units[var2str(u.uid)] = u_data
 
 	var s_plugins := {}
-	var plugins := Plugin.get_all_plugins()
-	for id in plugins:
-		var p: Plugin.PluginState = plugins[id]
-		if p.disable_reason == Plugin.PluginState.NONE:
-			var data := p.singleton.save_game(self)
-			assert(data is Dictionary)
-			if len(data) > 0:
-				s_plugins[id] = data
 
 	var game_version: Vector3 = load("res://core/ownwar.gd").VERSION
 	var data := {
@@ -169,10 +160,6 @@ func _load_game(data: Dictionary) -> void:
 		add_child(u)
 		if not u.team in teams:
 			teams.append(u.team)
-
-	for plugin_name in data["plugin_data"]:
-		var plugin = Plugin.get_plugin(plugin_name)
-		plugin.singleton.load_game(self, data["plugin_data"][plugin_name])
 
 	for unit in get_tree().get_nodes_in_group("units"):
 		unit.deserialize_json(units_data[var2str(unit.uid)]["data"])

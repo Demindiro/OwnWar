@@ -15,7 +15,6 @@ const Block := preload("block/block.gd")
 const VoxelBody := preload("voxel_body.gd")
 const VoxelMesh := preload("voxel_mesh.gd")
 
-const Plugin := preload("plugin/loader.gd")
 const Compatibility := preload("compatibility.gd")
 
 

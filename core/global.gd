@@ -73,7 +73,6 @@ func _init():
 	OwnWar.Matter.add_matter("material", 1_000_000)
 # warning-ignore:return_value_discarded
 	OwnWar.Matter.add_matter("fuel", 100_000)
-	OwnWar.Plugin.load_plugins()
 
 
 func _process(_delta):
