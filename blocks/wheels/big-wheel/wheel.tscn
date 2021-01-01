@@ -27,17 +27,20 @@ surfaces/0 = {
 process_priority = 50
 wheel_radius = 0.38
 wheel_rest_length = 0.2
+wheel_friction_slip = 1.5
 suspension_travel = 0.2
 suspension_stiffness = 25.0
 suspension_max_force = 1500.0
 script = ExtResource( 3 )
 
-[node name="MeshInstance" type="MeshInstance" parent="."]
+[node name="Visual" type="Spatial" parent="."]
+
+[node name="MeshInstance" type="MeshInstance" parent="Visual"]
 transform = Transform( -1.09278e-08, -0.125, 0, 0.25, -5.46392e-09, 0, 0, 0, 0.25, 0, 0, 0 )
 mesh = ExtResource( 1 )
 material/0 = null
 
-[node name="MeshInstance2" type="MeshInstance" parent="."]
+[node name="MeshInstance2" type="MeshInstance" parent="Visual"]
 transform = Transform( 1.5299e-08, -0.35, -5.28485e-08, -0.35, -1.5299e-08, -8.29412e-17, -2.22714e-15, 5.28485e-08, -0.35, 0, 0, 0 )
 mesh = SubResource( 2 )
 material/0 = null

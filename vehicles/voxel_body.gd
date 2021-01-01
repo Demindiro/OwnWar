@@ -31,10 +31,15 @@ var blocks := {}
 var cost := 0
 var max_cost := 0
 var max_health := 0
+var wheels := []
 var _debug_hits := []
 var _raycast := preload("res://addons/voxel_raycast.gd").new()
 var _collision_shape: CollisionShape
-var _voxel_mesh: VoxelMesh
+var _voxel_mesh := VoxelMesh.new()
+var _voxel_mesh_instance := MeshInstance.new()
+onready var visual_translation := translation
+onready var _prev_transform := transform
+onready var _next_transform := transform
 
 
 func _init():
@@ -42,15 +47,27 @@ func _init():
 	_collision_shape = CollisionShape.new()
 	_collision_shape.shape = BoxShape.new()
 	add_child(_collision_shape)
-	_voxel_mesh = VoxelMesh.new()
-	var mesh_instance = MeshInstance.new()
-	mesh_instance.mesh = _voxel_mesh
-	add_child(mesh_instance)
+	_voxel_mesh_instance.mesh = _voxel_mesh
+	_voxel_mesh_instance.set_as_toplevel(true)
+	add_child(_voxel_mesh_instance)
+	if OS.has_feature("Server"):
+		set_process(false)
+		set_physics_process(false)
 
 
-func _process(_delta):
+func _process(_delta: float) -> void:
 	if _voxel_mesh.dirty:
 		_voxel_mesh.generate()
+	var frac := Engine.get_physics_interpolation_fraction()
+	var trf := _prev_transform.interpolate_with(_next_transform, frac)
+	_voxel_mesh_instance.transform = trf
+	_voxel_mesh_instance.translation -= trf.basis * center_of_mass
+	visual_translation = trf.origin
+
+
+func _physics_process(_delta: float) -> void:
+	_prev_transform = _next_transform
+	_next_transform = transform
 
 
 func debug_draw():
@@ -126,6 +143,8 @@ func spawn_block(x: int, y: int, z: int, r: int, block: Block, color: Color) -> 
 	end_position.x = float(x) if end_position.x < x else end_position.x
 	end_position.y = float(y) if end_position.y < y else end_position.y
 	end_position.z = float(z) if end_position.z < z else end_position.z
+	if node is VehicleWheel:
+		wheels.append(node)
 
 
 func coordinate_to_vector(coordinate):
@@ -171,10 +190,16 @@ func _correct_mass() -> void:
 	center_of_mass += Vector3.ONE * 0.5
 	center_of_mass *= Block.BLOCK_SCALE
 	for child in get_children():
-		child.transform.origin -= center_of_mass
+		child.translation -= center_of_mass
 		if child is VehicleWheel:
 			remove_child(child) # Necessary to force VehicleWheel to move
 			add_child(child)    # See VehicleWheel3D::_notification in vehicle_body_3d.cpp:81
+			var angle := atan2(child.translation.z, child.translation.x)
+			if angle > PI / 2:
+				angle = PI - angle
+			elif angle < -PI / 2:
+				angle = -PI - angle
+			child.max_angle = angle
 	mass = total_mass
 
 

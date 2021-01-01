@@ -12,13 +12,65 @@ const VoxelMesh := preload("voxel_mesh.gd")
 const MANAGERS := {}
 var max_cost: int
 var voxel_bodies := []
+var wheels := []
+var turn_left := false
+var turn_right := false
+var pitch_up := false
+var pitch_down := false
+var move_forward := false
+var move_back := false
+onready var visual_translation := translation
 export var _file := "" setget load_from_file, get_file_path
+var _server_mode := OS.has_feature("Server")
+
+
+func _init() -> void:
+	set_process(not _server_mode)
 
 
 func _physics_process(_delta: float) -> void:
 	if not Engine.editor_hint:
-		if len(voxel_bodies) > 0:
-			global_transform = voxel_bodies[0].global_transform
+		if not _server_mode and len(voxel_bodies) > 0:
+			transform.basis = voxel_bodies[0].transform.basis
+			var avg_pos := Vector3()
+			var total_mass := 0.0
+			for body in voxel_bodies:
+				avg_pos = avg_pos * total_mass + body.translation * body.mass
+				total_mass += body.mass
+				avg_pos /= total_mass
+			translation = avg_pos
+		var drive_yaw := 0.0
+		var drive_forward := 0.0
+		var drive_brake := 0.0
+		if turn_left:
+			drive_yaw += 0.3
+		if turn_right:
+			drive_yaw -= 0.3
+		if move_forward:
+			drive_forward += 1.0
+		if move_back:
+			drive_forward -= 1.0
+		if not move_forward and not move_back:
+			drive_brake = 1.0
+			# Reduce brake to prevent jitter
+			if voxel_bodies[0].linear_velocity.length_squared() < 1.0:
+				drive_brake = 0.2
+		for wheel in wheels:
+			wheel.steering = drive_yaw * wheel.max_angle
+			wheel.engine_force = wheel.max_power * drive_forward
+			wheel.brake = drive_brake * wheel.max_brake
+
+
+func _process(_delta: float) -> void:
+	if len(voxel_bodies) > 0:
+		transform.basis = voxel_bodies[0].transform.basis
+		var avg_pos := Vector3()
+		var total_mass := 0.0
+		for body in voxel_bodies:
+			avg_pos = avg_pos * total_mass + body.visual_translation * body.mass
+			total_mass += body.mass
+			avg_pos /= total_mass
+		visual_translation = avg_pos
 
 
 func load_from_file(path: String) -> int:
@@ -71,6 +123,10 @@ func load_from_file(path: String) -> int:
 	var center_of_mass_0 = voxel_bodies[0].center_of_mass
 	for body in voxel_bodies:
 		body.translate(-center_of_mass_0)
+
+	for body in voxel_bodies:
+		wheels += body.wheels
+
 	var new_name = path.get_file()
 	return OK
 
@@ -120,7 +176,20 @@ func get_file_path() -> String:
 
 
 func debug_draw() -> void:
-	Debug.draw_text(translation, "So much dead code removed... :(", Color.cyan)
+	var text := "Actions: "
+	if turn_left:
+		text += "left, "
+	if turn_right:
+		text += "right, "
+	if pitch_up:
+		text += "up, "
+	if pitch_down:
+		text += "down, "
+	if move_forward:
+		text += "forward, "
+	if move_back:
+		text += "back, "
+	Debug.draw_text(visual_translation, text, Color.cyan)
 
 
 func _voxel_body_hit(_voxel_body):
