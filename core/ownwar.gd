@@ -5,8 +5,6 @@ const Action := preload("map/action.gd")
 const Maps := preload("maps.gd")
 const GameMaster := preload("map/game_master.gd")
 
-const Unit := preload("unit/unit.gd")
-const Structure := preload("unit/structure.gd")
 const Vehicle := preload("res://vehicles/vehicle.gd")
 
 const Block := preload("block/block.gd")

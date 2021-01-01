@@ -65,16 +65,6 @@ _global_script_classes=[ {
 "path": "res://core/map/game_master.gd"
 }, {
 "base": "",
-"class": "OwnWar_Structure",
-"language": "GDScript",
-"path": "res://core/unit/structure.gd"
-}, {
-"base": "Spatial",
-"class": "OwnWar_Unit",
-"language": "GDScript",
-"path": "res://core/unit/unit.gd"
-}, {
-"base": "",
 "class": "OwnWar_Vehicle",
 "language": "GDScript",
 "path": "res://vehicles/vehicle.gd"
@@ -96,8 +86,6 @@ _global_script_class_icons={
 "OptionButtonPreset": "",
 "OwnWar": "",
 "OwnWar_GameMaster": "",
-"OwnWar_Structure": "",
-"OwnWar_Unit": "",
 "OwnWar_Vehicle": "",
 "Util": ""
 }

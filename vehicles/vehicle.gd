@@ -1,5 +1,5 @@
 tool
-extends OwnWar_Unit
+extends Spatial
 class_name OwnWar_Vehicle
 
 
@@ -34,8 +34,6 @@ func load_from_file(path: String) -> int:
 
 	for body in voxel_bodies:
 		body.queue_free()
-	max_cost = 0
-	max_health = 0
 
 	var data = parse_json(file.get_as_text())
 	data = Compatibility.convert_vehicle_data(data)
@@ -74,12 +72,10 @@ func load_from_file(path: String) -> int:
 	for body in voxel_bodies:
 		body.fix_physics()
 		body.init_blocks(self, meta)
-		max_cost += body.max_cost
 	var center_of_mass_0 = voxel_bodies[0].center_of_mass
 	for body in voxel_bodies:
 		body.translate(-center_of_mass_0)
 	var new_name = path.get_file()
-	unit_name = "vehicle_" + new_name.substr(0, len(new_name) - 5)
 	return OK
 
 
@@ -218,18 +214,13 @@ func get_file_path() -> String:
 
 
 func debug_draw() -> void:
-	var msg := "\nSpace: "
-	for id in get_take_matter_list():
-		msg += str(id) + ": " + str(get_matter_space(id)) + ", "
-	msg += "\nHas: "
-	for id in get_take_matter_list():
-		msg += str(id) + ": " + str(get_matter_count(id)) + ", "
-	Debug.draw_text(translation, msg, Color.cyan)
+	Debug.draw_text(translation, "So much dead code removed... :(", Color.cyan)
 
 
 func _voxel_body_hit(_voxel_body):
-	if get_cost() * 4 < max_cost:
-		destroy()
+	if get_cost() * 4 < max_cost and not is_queued_for_deletion():
+		get_parent().remove_child(self)
+		queue_free()
 
 
 static func path_to_name(path: String) -> String:

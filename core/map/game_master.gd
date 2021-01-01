@@ -2,7 +2,6 @@ extends Node
 class_name OwnWar_GameMaster
 
 
-const Unit := preload("../unit/unit.gd")
 const Vehicle := preload("res://vehicles/vehicle.gd")
 const Compatibility := preload("../compatibility.gd")
 const Maps := preload("../maps.gd")
@@ -52,7 +51,7 @@ func get_units(team: String, unit_filter = null) -> Array:
 		return []
 
 
-func get_unit_by_uid(uid: int):# -> Unit:
+func get_unit_by_uid(uid: int):
 	for u in get_tree().get_nodes_in_group("units"):
 		if u.uid == uid:
 			return u
@@ -138,11 +137,7 @@ func _load_game(data: Dictionary) -> void:
 	for uid in units_data:
 		var u_d: Dictionary = units_data[uid]
 		var u_name: String = u_d["name"]
-		var u: Unit
-		if u_name.begins_with("vehicle_"):
-			u = Vehicle.new()
-		else:
-			u = Unit.get_unit(u_d["name"]).instance()
+		var u := Vehicle.new()
 		if u_name.begins_with("vehicle_"):
 			u.unit_name = u_name
 		u.game_master = self
@@ -205,8 +200,7 @@ static func get_game_master(node: Node) -> Node:# -> GameMaster:
 
 
 func _node_added(node: Node) -> void:
-	#if node is Unit:
-	var unit := node as Unit
+	var unit := node as Vehicle
 	if not _loading_game and unit != null:
 		assert(unit.uid == -1)
 		unit.uid = uid_counter
