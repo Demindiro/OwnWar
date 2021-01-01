@@ -1,20 +1,12 @@
 extends Reference
 
 
-const PowerManager := preload("res://plugins/power_manager/power_manager.gd")
-
 var _wheels := []
-var _power_manager: PowerManager
-
-
-func init(vehicle: OwnWar.Vehicle) -> void:
-	_power_manager = vehicle.get_manager("power")
 
 
 func set_drive_forward(drive):
 	drive = clamp(drive, -1, 1)
 	for wheel in _wheels:
-		_power_manager.reserve_power(wheel, abs(wheel.max_power * drive))
 		wheel.set_drive(drive)
 
 
@@ -46,7 +38,6 @@ func deserialize_json(_data: Dictionary) -> void:
 
 func _wheel_destroyed(wheel):
 	_wheels.erase(wheel)
-	_power_manager.unreserve_power(wheel)
 
 
 func _wheel_readded(wheel):
