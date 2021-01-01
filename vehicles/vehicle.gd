@@ -12,17 +12,13 @@ const VoxelMesh := preload("voxel_mesh.gd")
 const MANAGERS := {}
 var max_cost: int
 var voxel_bodies := []
-var managers := {}
 export var _file := "" setget load_from_file, get_file_path
 
 
-func _physics_process(delta):
+func _physics_process(_delta: float) -> void:
 	if not Engine.editor_hint:
 		if len(voxel_bodies) > 0:
 			global_transform = voxel_bodies[0].global_transform
-			for manager_name in managers:
-				if managers[manager_name].has_method("process"):
-					managers[manager_name].process(delta)
 
 
 func load_from_file(path: String) -> int:
@@ -102,96 +98,6 @@ func get_cost():
 
 func get_linear_velocity():
 	return voxel_bodies[0].linear_velocity
-
-
-func serialize_json() -> Dictionary:
-	var b_list := []
-	b_list.resize(len(voxel_bodies))
-	for i in range(len(voxel_bodies)):
-		b_list[i] = {}
-		for crd in voxel_bodies[i].blocks:
-			var b: VoxelBody.BodyBlock = voxel_bodies[i].blocks[crd]
-			var d := {
-					"name": Block.get_block_by_id(b.id).name,
-					"health": b.health,
-					"rotation": b.rotation,
-					"color": var2str(b.color),
-				}
-			if b.node != null and b.node.has_method("serialize_json"):
-				# warning-ignore:unsafe_method_access
-				d["meta"] = b.node.serialize_json()
-			b_list[i]["%d,%d,%d" % crd] = d
-
-	var m_list := {}
-	for m in managers:
-		m_list[m] = managers[m].serialize_json()
-
-	var vb_transform_list := []
-	var vb_linear_vel_list := []
-	var vb_angular_vel_list := []
-	for vb in voxel_bodies:
-		vb_transform_list.append(var2str(vb.global_transform))
-		vb_linear_vel_list.append(var2str(vb.linear_velocity))
-		vb_angular_vel_list.append(var2str(vb.angular_velocity))
-
-	return {
-			"blocks": b_list,
-			"managers": m_list,
-			"voxel_body_transforms": vb_transform_list,
-			"voxel_body_linear_velocities": vb_linear_vel_list,
-			"voxel_body_angular_velocities": vb_angular_vel_list,
-		}
-
-
-func deserialize_json(data: Dictionary) -> void:
-	max_cost = 0
-	voxel_bodies = []
-
-	var conv_table := Compatibility.get_block_name_mapping(Vector3(0, 10, 0),
-			load("res://core/ownwar.gd").VERSION)
-
-	for vb_data in data["blocks"]:
-		var vb := VoxelBody.new()
-		for k in vb_data:
-			var crd := Array(k.split(","))
-			assert(len(crd) == 3 and crd[0].is_valid_integer() and \
-					crd[1].is_valid_integer() and crd[2].is_valid_integer())
-			var b_data: Dictionary = vb_data[k]
-			var x := int(crd[0])
-			var y := int(crd[1])
-			var z := int(crd[2])
-			var b_name: String = b_data["name"]
-			b_name = conv_table.get(b_name, b_name)
-			vb.spawn_block(x, y, z, b_data["rotation"],
-					Block.get_block(b_name),
-					str2var(b_data["color"]))
-		add_child(vb)
-		voxel_bodies.append(vb)
-
-	for body in voxel_bodies:
-		body.fix_physics()
-		max_cost += body.max_cost
-	var center_of_mass_0 = voxel_bodies[0].center_of_mass
-	for body in voxel_bodies:
-		body.translate(-center_of_mass_0)
-	for body in voxel_bodies:
-		body.init_blocks(self, {})
-
-	for i in range(len(voxel_bodies)):
-		voxel_bodies[i].global_transform = str2var(data["voxel_body_transforms"][i])
-		voxel_bodies[i].linear_velocity = str2var(data["voxel_body_linear_velocities"][i])
-		voxel_bodies[i].angular_velocity = str2var(data["voxel_body_angular_velocities"][i])
-
-	for i in range(len(voxel_bodies)):
-		for crd in voxel_bodies[i].blocks:
-			var meta = data["blocks"][i]["%d,%d,%d" % crd].get("meta")
-			if meta != null:
-				assert(voxel_bodies[i].blocks[crd] != null)
-				voxel_bodies[i].blocks[crd].node.deserialize_json(meta)
-
-	for m in data["managers"]:
-		assert(m in managers)
-		managers[m].deserialize_json(data["managers"][m])
 
 
 func get_aabb() -> AABB:
