@@ -1,7 +1,6 @@
 class_name OwnWar
 
 
-const Action := preload("map/action.gd")
 const Maps := preload("maps.gd")
 const GameMaster := preload("map/game_master.gd")
 
