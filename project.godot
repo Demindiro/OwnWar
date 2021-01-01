@@ -64,7 +64,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/map/game_master.gd"
 }, {
-"base": "",
+"base": "Spatial",
 "class": "OwnWar_Vehicle",
 "language": "GDScript",
 "path": "res://vehicles/vehicle.gd"
@@ -119,7 +119,7 @@ window/size/test_height=810
 
 [editor_plugins]
 
-enabled=PoolStringArray( "godot-plugin-refresher", "own_war_editor_plugin", "zylann.hterrain" )
+enabled=PoolStringArray( "godot-plugin-refresher", "zylann.hterrain" )
 
 [gdnative]
 
