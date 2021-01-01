@@ -1,9 +1,6 @@
 class_name OwnWar
 
 
-const Maps := preload("maps.gd")
-const GameMaster := preload("map/game_master.gd")
-
 const Vehicle := preload("res://vehicles/vehicle.gd")
 
 const Block := preload("block/block.gd")
