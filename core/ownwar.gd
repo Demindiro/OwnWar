@@ -1,26 +1,16 @@
 class_name OwnWar
 
 
-const Action := preload("map/action.gd")
-const Maps := preload("maps.gd")
-const GameMaster := preload("map/game_master.gd")
-
-const Unit := preload("unit/unit.gd")
-const Structure := preload("unit/structure.gd")
-const Ghost := preload("unit/ghost.gd")
-const Vehicle := preload("unit/vehicle.gd")
-
-const Matter := preload("matter.gd")
+const Vehicle := preload("res://vehicles/vehicle.gd")
 
 const Block := preload("block/block.gd")
-const VoxelBody := preload("voxel_body.gd")
-const VoxelMesh := preload("voxel_mesh.gd")
+const VoxelBody := preload("res://vehicles/voxel_body.gd")
+const VoxelMesh := preload("res://vehicles/voxel_mesh.gd")
 
-const Plugin := preload("plugin/loader.gd")
 const Compatibility := preload("compatibility.gd")
 
 
-const VERSION := Vector3(0, 16, 0)
+const VERSION := Vector3(0, 17, 0)
 const COLLISION_MASK_TERRAIN := 1 << (8 - 1)
 const COLLISION_MASK_UNIT := 1 << (19 - 1)
 const COLLISION_MASK_STRUCTURE := 1 << (20 - 1)

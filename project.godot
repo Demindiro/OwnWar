@@ -59,30 +59,10 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/ownwar.gd"
 }, {
-"base": "Node",
-"class": "OwnWar_GameMaster",
-"language": "GDScript",
-"path": "res://core/map/game_master.gd"
-}, {
-"base": "",
-"class": "OwnWar_Ghost",
-"language": "GDScript",
-"path": "res://core/unit/ghost.gd"
-}, {
-"base": "",
-"class": "OwnWar_Structure",
-"language": "GDScript",
-"path": "res://core/unit/structure.gd"
-}, {
 "base": "Spatial",
-"class": "OwnWar_Unit",
-"language": "GDScript",
-"path": "res://core/unit/unit.gd"
-}, {
-"base": "",
 "class": "OwnWar_Vehicle",
 "language": "GDScript",
-"path": "res://core/unit/vehicle.gd"
+"path": "res://vehicles/vehicle.gd"
 }, {
 "base": "Reference",
 "class": "Util",
@@ -100,10 +80,6 @@ _global_script_class_icons={
 "ObjectCache": "",
 "OptionButtonPreset": "",
 "OwnWar": "",
-"OwnWar_GameMaster": "",
-"OwnWar_Ghost": "",
-"OwnWar_Structure": "",
-"OwnWar_Unit": "",
 "OwnWar_Vehicle": "",
 "Util": ""
 }
@@ -137,7 +113,7 @@ window/size/test_height=810
 
 [editor_plugins]
 
-enabled=PoolStringArray( "godot-plugin-refresher", "own_war_editor_plugin", "zylann.hterrain" )
+enabled=PoolStringArray( "godot-plugin-refresher", "zylann.hterrain" )
 
 [gdnative]
 

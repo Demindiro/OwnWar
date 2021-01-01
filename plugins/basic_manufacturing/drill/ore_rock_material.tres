@@ -1,7 +1,0 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=2]
-
-[ext_resource path="res://plugins/basic_manufacturing/drill/ore.shader" type="Shader" id=1]
-
-[resource]
-shader = ExtResource( 1 )
-shader_param/albedo_color = Vector3( 0.2598, 0.2598, 0.2598 )

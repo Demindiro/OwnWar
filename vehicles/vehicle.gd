@@ -1,0 +1,270 @@
+tool
+extends Spatial
+class_name OwnWar_Vehicle
+
+
+const Block := preload("res://core/block/block.gd")
+const Compatibility := preload("res://core/compatibility.gd")
+const VoxelBody := preload("voxel_body.gd")
+const VoxelMesh := preload("voxel_mesh.gd")
+
+
+const MANAGERS := {}
+var max_cost: int
+var voxel_bodies := []
+var managers := {}
+export var _file := "" setget load_from_file, get_file_path
+
+
+func _physics_process(delta):
+	if not Engine.editor_hint:
+		if len(voxel_bodies) > 0:
+			global_transform = voxel_bodies[0].global_transform
+			for manager_name in managers:
+				if managers[manager_name].has_method("process"):
+					managers[manager_name].process(delta)
+
+
+func load_from_file(path: String) -> int:
+	_file = path
+	var file := File.new()
+	var err = file.open(path, File.READ)
+	if err != OK:
+		return err
+
+	for body in voxel_bodies:
+		body.queue_free()
+
+	var data = parse_json(file.get_as_text())
+	data = Compatibility.convert_vehicle_data(data)
+
+	_file = path
+
+	if Engine.editor_hint:
+		return _load_from_file_editor(data)
+
+	for key in data["blocks"]:
+		var components = Util.decode_vec3i(key)
+		var x = components[0]
+		var y = components[1]
+		var z = components[2]
+		var name = data["blocks"][key][0]
+		var rotation = data["blocks"][key][1]
+		var color := Util.decode_color(data["blocks"][key][2])
+		var layer = data["blocks"][key][3]
+		if len(voxel_bodies) <= layer:
+			voxel_bodies.resize(layer + 1)
+		if voxel_bodies[layer] == null:
+			voxel_bodies[layer] = VoxelBody.new()
+			add_child(voxel_bodies[layer])
+			voxel_bodies[layer].connect("hit", self, "_voxel_body_hit")
+		voxel_bodies[layer].spawn_block(x, y, z, rotation, Block.get_block(name), color)
+
+	var meta = {}
+	for key in data["meta"]:
+		var components = key.split(',')
+		assert(len(components) == 3)
+		var x = int(components[0])
+		var y = int(components[1])
+		var z = int(components[2])
+		meta[[x, y, z]] = data["meta"][key]
+
+	for body in voxel_bodies:
+		body.fix_physics()
+		body.init_blocks(self, meta)
+	var center_of_mass_0 = voxel_bodies[0].center_of_mass
+	for body in voxel_bodies:
+		body.translate(-center_of_mass_0)
+	var new_name = path.get_file()
+	return OK
+
+
+func get_blocks(block_name):
+	var id = Block.get_block(block_name).id
+	return get_blocks_by_id(id)
+
+
+func get_blocks_by_id(id):
+	var filtered_blocks = []
+	for body in voxel_bodies:
+		for block in body.blocks.values():
+			if block.id == id:
+				filtered_blocks.append(block)
+	return filtered_blocks
+
+
+func get_cost():
+	var cost = 0
+	for body in voxel_bodies:
+		cost += body.cost
+	return cost
+
+
+func get_linear_velocity():
+	return voxel_bodies[0].linear_velocity
+
+
+func serialize_json() -> Dictionary:
+	var b_list := []
+	b_list.resize(len(voxel_bodies))
+	for i in range(len(voxel_bodies)):
+		b_list[i] = {}
+		for crd in voxel_bodies[i].blocks:
+			var b: VoxelBody.BodyBlock = voxel_bodies[i].blocks[crd]
+			var d := {
+					"name": Block.get_block_by_id(b.id).name,
+					"health": b.health,
+					"rotation": b.rotation,
+					"color": var2str(b.color),
+				}
+			if b.node != null and b.node.has_method("serialize_json"):
+				# warning-ignore:unsafe_method_access
+				d["meta"] = b.node.serialize_json()
+			b_list[i]["%d,%d,%d" % crd] = d
+
+	var m_list := {}
+	for m in managers:
+		m_list[m] = managers[m].serialize_json()
+
+	var vb_transform_list := []
+	var vb_linear_vel_list := []
+	var vb_angular_vel_list := []
+	for vb in voxel_bodies:
+		vb_transform_list.append(var2str(vb.global_transform))
+		vb_linear_vel_list.append(var2str(vb.linear_velocity))
+		vb_angular_vel_list.append(var2str(vb.angular_velocity))
+
+	return {
+			"blocks": b_list,
+			"managers": m_list,
+			"voxel_body_transforms": vb_transform_list,
+			"voxel_body_linear_velocities": vb_linear_vel_list,
+			"voxel_body_angular_velocities": vb_angular_vel_list,
+		}
+
+
+func deserialize_json(data: Dictionary) -> void:
+	max_cost = 0
+	voxel_bodies = []
+
+	var conv_table := Compatibility.get_block_name_mapping(Vector3(0, 10, 0),
+			load("res://core/ownwar.gd").VERSION)
+
+	for vb_data in data["blocks"]:
+		var vb := VoxelBody.new()
+		for k in vb_data:
+			var crd := Array(k.split(","))
+			assert(len(crd) == 3 and crd[0].is_valid_integer() and \
+					crd[1].is_valid_integer() and crd[2].is_valid_integer())
+			var b_data: Dictionary = vb_data[k]
+			var x := int(crd[0])
+			var y := int(crd[1])
+			var z := int(crd[2])
+			var b_name: String = b_data["name"]
+			b_name = conv_table.get(b_name, b_name)
+			vb.spawn_block(x, y, z, b_data["rotation"],
+					Block.get_block(b_name),
+					str2var(b_data["color"]))
+		add_child(vb)
+		voxel_bodies.append(vb)
+
+	for body in voxel_bodies:
+		body.fix_physics()
+		max_cost += body.max_cost
+	var center_of_mass_0 = voxel_bodies[0].center_of_mass
+	for body in voxel_bodies:
+		body.translate(-center_of_mass_0)
+	for body in voxel_bodies:
+		body.init_blocks(self, {})
+
+	for i in range(len(voxel_bodies)):
+		voxel_bodies[i].global_transform = str2var(data["voxel_body_transforms"][i])
+		voxel_bodies[i].linear_velocity = str2var(data["voxel_body_linear_velocities"][i])
+		voxel_bodies[i].angular_velocity = str2var(data["voxel_body_angular_velocities"][i])
+
+	for i in range(len(voxel_bodies)):
+		for crd in voxel_bodies[i].blocks:
+			var meta = data["blocks"][i]["%d,%d,%d" % crd].get("meta")
+			if meta != null:
+				assert(voxel_bodies[i].blocks[crd] != null)
+				voxel_bodies[i].blocks[crd].node.deserialize_json(meta)
+
+	for m in data["managers"]:
+		assert(m in managers)
+		managers[m].deserialize_json(data["managers"][m])
+
+
+func get_aabb() -> AABB:
+	var aabb := AABB()
+	for vb in voxel_bodies:
+		for crd in vb.blocks:
+			aabb.position = Vector3(crd[0], crd[1], crd[2])
+			aabb.size = Vector3.ONE
+			break
+	for vb in voxel_bodies:
+		for crd in vb.blocks:
+			var v := Vector3(crd[0], crd[1], crd[2])
+			aabb = aabb.expand(v).expand(v + Vector3.ONE)
+	print("AABB  ", aabb)
+	return aabb
+
+
+func get_file_path() -> String:
+	return _file
+
+
+func debug_draw() -> void:
+	Debug.draw_text(translation, "So much dead code removed... :(", Color.cyan)
+
+
+func _voxel_body_hit(_voxel_body):
+	if get_cost() * 4 < max_cost and not is_queued_for_deletion():
+		get_parent().remove_child(self)
+		queue_free()
+
+
+static func path_to_name(path: String) -> String:
+	assert(path.ends_with(Global.FILE_EXTENSION))
+	return path.substr(0, len(path) - len(Global.FILE_EXTENSION)).capitalize()
+
+
+static func name_to_path(p_name: String) -> String:
+	return p_name.to_lower().replace(' ', '_') + '.json'
+
+
+static func add_manager(p_name: String, script: GDScript):
+	assert(not p_name in MANAGERS)
+	MANAGERS[p_name] = script
+
+
+func _load_from_file_editor(data: Dictionary) -> int:
+	var vm_inst: MeshInstance = null
+	for c in get_children():
+		if c is MeshInstance and c.name == "_Editor_VoxelMesh":
+			vm_inst = c
+			break
+	if vm_inst == null:
+		vm_inst = MeshInstance.new()
+		vm_inst.name = "_Editor_VoxelMesh"
+		add_child(vm_inst)
+	var vm := VoxelMesh.new()
+	vm_inst.mesh = vm
+
+	# TODO center of mass isn't accurate
+	var com := Vector3.ZERO
+	var count := 0.0
+	var cube := CubeMesh.new()
+	cube.size = Vector3.ONE * Block.BLOCK_SCALE
+	for key in data["blocks"]:
+		var components = Util.decode_vec3i(key)
+		var x = components[0]
+		var y = components[1]
+		var z = components[2]
+		var color := Util.decode_color(data["blocks"][key][2])
+		vm.add_mesh(cube, color, [x, y, z], 0)
+		com = (com * count + Vector3(x, y, z)) / (count + 1.0)
+		count += 1.0
+	vm.generate()
+	vm_inst.transform.origin = -com * Block.BLOCK_SCALE
+
+	return OK

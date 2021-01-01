@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://blocks/mainframe/terminal.png" type="Texture" id=2]
+
+
+[node name="Mainframe" type="Spatial"]
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform( 0.0376, 0, 0, 0, 0.0376, 0, 0, 0, 1, -0.0225279, -4.62309e-06, 0.112167 )
+double_sided = false
+texture = ExtResource( 2 )
