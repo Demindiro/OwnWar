@@ -1,6 +1,13 @@
 tool
-class_name Vehicle
-extends Unit
+extends "unit.gd"
+class_name OwnWar_Vehicle
+
+
+const Block := preload("../block/block.gd")
+const HUDAction := preload("../map/action.gd")
+const Compatibility := preload("../compatibility.gd")
+const VoxelBody := preload("../voxel_body.gd")
+const VoxelMesh := preload("../voxel_mesh.gd")
 
 
 const MANAGERS := {}
@@ -8,9 +15,9 @@ var max_cost: int
 var voxel_bodies := []
 var actions := []
 var managers := {}
-export var _file := "" setget load_from_file
-var _object_to_actions_map := {}
+export var _file := "" setget load_from_file, get_file_path
 var _info := []
+var _show_feedback_functions := []
 var _matter_handlers_count := []
 var _matter_handlers_space := []
 var _matter_handlers_needs := []
@@ -118,6 +125,7 @@ func take_matter(id: int, amount: int) -> int:
 
 
 func load_from_file(path: String) -> int:
+	_file = path
 	var file := File.new()
 	var err = file.open(path, File.READ)
 	if err != OK:
@@ -178,13 +186,8 @@ func get_actions():
 	return actions
 
 
-func add_action(object, human_name, flags, function, arguments):
-	var action = [human_name, flags, "do_action", [[object, function] + arguments]]
+func add_action(action: HUDAction) -> void:
 	actions.append(action)
-	if object in _object_to_actions_map:
-		_object_to_actions_map[object].append(action)
-	else:
-		_object_to_actions_map[object] = [action]
 
 
 func do_action(flags, arg0, arg1 = null):
@@ -328,7 +331,7 @@ func deserialize_json(data: Dictionary) -> void:
 	voxel_bodies = []
 
 	var conv_table := Compatibility.get_block_name_mapping(Vector3(0, 10, 0),
-			Constants.VERSION)
+			load("res://core/ownwar.gd").VERSION)
 
 	for vb_data in data["blocks"]:
 		var vb := VoxelBody.new()
@@ -372,6 +375,44 @@ func deserialize_json(data: Dictionary) -> void:
 	for m in data["managers"]:
 		assert(m in managers)
 		managers[m].deserialize_json(data["managers"][m])
+
+
+func get_aabb() -> AABB:
+	var aabb := AABB()
+	for vb in voxel_bodies:
+		for crd in vb.blocks:
+			aabb.position = Vector3(crd[0], crd[1], crd[2])
+			aabb.size = Vector3.ONE
+			break
+	for vb in voxel_bodies:
+		for crd in vb.blocks:
+			var v := Vector3(crd[0], crd[1], crd[2])
+			aabb = aabb.expand(v).expand(v + Vector3.ONE)
+	print("AABB  ", aabb)
+	return aabb
+
+
+func get_file_path() -> String:
+	return _file
+
+
+func add_feedback_function(function: FuncRef) -> void:
+	_show_feedback_functions.append(function)
+
+
+func show_feedback(hud: Control) -> void:
+	for function in _show_feedback_functions:
+		function.call_func(hud)
+
+
+func debug_draw() -> void:
+	var msg := "\nSpace: "
+	for id in get_take_matter_list():
+		msg += str(id) + ": " + str(get_matter_space(id)) + ", "
+	msg += "\nHas: "
+	for id in get_take_matter_list():
+		msg += str(id) + ": " + str(get_matter_count(id)) + ", "
+	Debug.draw_text(translation, msg, Color.cyan)
 
 
 func _voxel_body_hit(_voxel_body):

@@ -53,3 +53,7 @@ func _on_Name_text_changed(new_text):
 			path_box.text = "Will be saved as '%s'" % path
 		else:
 			path_box.text = "Invalid filename ('%s')" % path
+
+
+func _on_LoadVehicle_load_vehicle(path: String) -> void:
+	set_full_path(path)

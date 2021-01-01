@@ -10,7 +10,7 @@ var finished := true
 
 
 func _set_generator():
-	var dir: String = get_script().get_path().get_base_dir()
+	var dir: String = Util.get_script_dir(self) 
 	# https://github.com/godotengine/godot/issues/35832
 	var dir_bb := dir.get_base_dir().get_base_dir()
 	# warning-ignore:unsafe_method_access

@@ -1,4 +1,4 @@
-extends GameMaster
+extends OwnWar.GameMaster
 
 
 var _time_until_next := 0.0

@@ -67,13 +67,13 @@ var _loader_callback_arguments: Array
 
 
 func _init():
-	print("Game version %s" % [Constants.VERSION])
-	Block.add_block(preload("block/debug/vane.tres"))
+	print("Game version %s" % [OwnWar.VERSION])
+	OwnWar.Block.add_block(preload("block/debug/vane.tres"))
 # warning-ignore:return_value_discarded
-	Matter.add_matter("material", 1_000_000)
+	OwnWar.Matter.add_matter("material", 1_000_000)
 # warning-ignore:return_value_discarded
-	Matter.add_matter("fuel", 100_000)
-	Plugin.load_plugins()
+	OwnWar.Matter.add_matter("fuel", 100_000)
+	OwnWar.Plugin.load_plugins()
 
 
 func _process(_delta):
@@ -170,7 +170,12 @@ func _load_scene():
 						_loader_callback_arguments.push_front(instance)
 					fr.call_funcv(_loader_callback_arguments)
 				# Allow any heavy scene stuff to load first (Heightmap terrain)
+				var was_paused := get_tree().paused
+				if not was_paused:
+					get_tree().paused = true
 				yield(get_tree(), "idle_frame")
+				if not was_paused:
+					get_tree().paused = false
 				tree.current_scene.queue_free()
 				tree.current_scene = instance
 			else:

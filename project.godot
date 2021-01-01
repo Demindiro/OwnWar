@@ -9,40 +9,25 @@
 config_version=4
 
 _global_script_classes=[ {
-"base": "Reference",
-"class": "AI",
+"base": "FreeCamera",
+"class": "AABBCamera",
 "language": "GDScript",
-"path": "res://plugins/mainframe/ai/ai.gd"
+"path": "res://addons/aabb_camera.gd"
 }, {
-"base": "Resource",
-"class": "Block",
+"base": "GridContainer",
+"class": "FlowContainer",
 "language": "GDScript",
-"path": "res://core/block/block.gd"
+"path": "res://addons/flowcontainer.gd"
 }, {
-"base": "Resource",
-"class": "Compatibility",
+"base": "Camera",
+"class": "FollowCamera",
 "language": "GDScript",
-"path": "res://core/compatibility.gd"
-}, {
-"base": "Object",
-"class": "Constants",
-"language": "GDScript",
-"path": "res://core/constants.gd"
+"path": "res://core/camera/tracker.gd"
 }, {
 "base": "Camera",
 "class": "FreeCamera",
 "language": "GDScript",
-"path": "res://core/camera/free_camera.gd"
-}, {
-"base": "Node",
-"class": "GameMaster",
-"language": "GDScript",
-"path": "res://core/map/game_master.gd"
-}, {
-"base": "Unit",
-"class": "Ghost",
-"language": "GDScript",
-"path": "res://plugins/basic_manufacturing/ghost.gd"
+"path": "res://addons/free_camera.gd"
 }, {
 "base": "ResourceFormatLoader",
 "class": "HTerrainDataLoader",
@@ -54,20 +39,10 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/zylann.hterrain/hterrain_resource_saver.gd"
 }, {
-"base": "Reference",
-"class": "Maps",
-"language": "GDScript",
-"path": "res://core/maps.gd"
-}, {
 "base": "Object",
 "class": "MaterialCache",
 "language": "GDScript",
 "path": "res://core/material_cache.gd"
-}, {
-"base": "Reference",
-"class": "Matter",
-"language": "GDScript",
-"path": "res://core/matter.gd"
 }, {
 "base": "Object",
 "class": "ObjectCache",
@@ -80,68 +55,57 @@ _global_script_classes=[ {
 "path": "res://addons/option_button_preset.gd"
 }, {
 "base": "Reference",
-"class": "Plugin",
+"class": "OwnWar",
 "language": "GDScript",
-"path": "res://core/plugin.gd"
+"path": "res://core/ownwar.gd"
 }, {
-"base": "Unit",
-"class": "Structure",
+"base": "Node",
+"class": "OwnWar_GameMaster",
+"language": "GDScript",
+"path": "res://core/map/game_master.gd"
+}, {
+"base": "",
+"class": "OwnWar_Ghost",
+"language": "GDScript",
+"path": "res://core/unit/ghost.gd"
+}, {
+"base": "",
+"class": "OwnWar_Structure",
 "language": "GDScript",
 "path": "res://core/unit/structure.gd"
 }, {
 "base": "Spatial",
-"class": "Unit",
+"class": "OwnWar_Unit",
 "language": "GDScript",
 "path": "res://core/unit/unit.gd"
+}, {
+"base": "",
+"class": "OwnWar_Vehicle",
+"language": "GDScript",
+"path": "res://core/unit/vehicle.gd"
 }, {
 "base": "Reference",
 "class": "Util",
 "language": "GDScript",
 "path": "res://addons/util.gd"
-}, {
-"base": "Unit",
-"class": "Vehicle",
-"language": "GDScript",
-"path": "res://core/unit/vehicle.gd"
-}, {
-"base": "VehicleBody",
-"class": "VoxelBody",
-"language": "GDScript",
-"path": "res://core/voxel_body.gd"
-}, {
-"base": "ArrayMesh",
-"class": "VoxelMesh",
-"language": "GDScript",
-"path": "res://core/voxel_mesh.gd"
-}, {
-"base": "VehicleWheel",
-"class": "Wheel",
-"language": "GDScript",
-"path": "res://plugins/wheel/wheel.gd"
 } ]
 _global_script_class_icons={
-"AI": "",
-"Block": "",
-"Compatibility": "",
-"Constants": "",
+"AABBCamera": "",
+"FlowContainer": "",
+"FollowCamera": "",
 "FreeCamera": "",
-"GameMaster": "",
-"Ghost": "",
 "HTerrainDataLoader": "",
 "HTerrainDataSaver": "",
-"Maps": "",
 "MaterialCache": "",
-"Matter": "",
 "ObjectCache": "",
 "OptionButtonPreset": "",
-"Plugin": "",
-"Structure": "",
-"Unit": "",
-"Util": "",
-"Vehicle": "",
-"VoxelBody": "",
-"VoxelMesh": "",
-"Wheel": ""
+"OwnWar": "",
+"OwnWar_GameMaster": "",
+"OwnWar_Ghost": "",
+"OwnWar_Structure": "",
+"OwnWar_Unit": "",
+"OwnWar_Vehicle": "",
+"Util": ""
 }
 
 [application]
@@ -154,6 +118,7 @@ config/icon="res://icon.png"
 
 Global="*res://core/global.gd"
 Debug="*res://core/debug.gd"
+OwnWar_Thumbnail="*res://core/thumbnail/thumbnail.gd"
 
 [debug]
 
@@ -365,9 +330,50 @@ designer_configure={
 "events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":87,"unicode":0,"echo":false,"script":null)
  ]
 }
+designer_snap_faces={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":70,"unicode":0,"echo":false,"script":null)
+ ]
+}
+designer_vehicle_up={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777235,"unicode":0,"echo":false,"script":null)
+ ]
+}
+designer_vehicle_down={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777236,"unicode":0,"echo":false,"script":null)
+ ]
+}
+designer_vehicle_left={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777231,"unicode":0,"echo":false,"script":null)
+ ]
+}
+designer_vehicle_right={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777233,"unicode":0,"echo":false,"script":null)
+ ]
+}
+designer_vehicle_back={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777234,"unicode":0,"echo":false,"script":null)
+ ]
+}
+designer_vehicle_forward={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777232,"unicode":0,"echo":false,"script":null)
+ ]
+}
+designer_vehicle_rotate={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777230,"unicode":0,"echo":false,"script":null)
+ ]
+}
 
 [layer_names]
 
+3d_render/layer_8="hand item"
 3d_physics/layer_8="Terrain"
 3d_physics/layer_10="Drone sensors"
 

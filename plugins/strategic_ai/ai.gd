@@ -11,13 +11,13 @@ var _units := []
 # matter = resources in literally every other game
 var _matter_index := PoolIntArray()
 var _matter_needs_index := PoolIntArray()
-onready var _material_id := Matter.get_matter_id("material")
-onready var _fuel_id := Matter.get_matter_id("fuel")
+onready var _material_id := OwnWar.Matter.get_matter_id("material")
+onready var _fuel_id := OwnWar.Matter.get_matter_id("fuel")
 
 
 func _ready() -> void:
-	_matter_index.resize(Matter.get_matter_types_count())
-	_matter_needs_index.resize(Matter.get_matter_types_count())
+	_matter_index.resize(OwnWar.Matter.get_matter_types_count())
+	_matter_needs_index.resize(OwnWar.Matter.get_matter_types_count())
 	process_mode = Timer.TIMER_PROCESS_PHYSICS
 	wait_time = 1.0
 	autostart = true
@@ -28,7 +28,7 @@ func _ready() -> void:
 func _ai_process() -> void:
 	_units = get_tree().get_nodes_in_group("units_" + name)
 	for u in _units:
-		assert(u is Unit)
+		assert(u is OwnWar.Unit)
 	_index_matter()
 	_index_matter_needs()
 	for id in range(len(_matter_index)):
@@ -49,11 +49,11 @@ func _attack_any() -> void:
 	# Find all vehicles with a mainframe
 	var vehicle_candidates := []
 	for u in _units:
-		if u is Vehicle and len(u.get_blocks("mainframe")) > 0:
+		if u is OwnWar.Vehicle and len(u.get_blocks("mainframe")) > 0:
 			vehicle_candidates.append(u)
 	# Find the vehicle <-> enemy unit pair with the least distance between them
-	var enemy_unit: Unit
-	var vehicle: Vehicle
+	var enemy_unit: OwnWar.Unit
+	var vehicle: OwnWar.Vehicle
 	var distance2 := INF
 	for eu in get_tree().get_nodes_in_group("units"):
 		if eu.team != name:
@@ -69,7 +69,7 @@ func _attack_any() -> void:
 		# Drive towards and fire at the enemy
 		var eu_org := enemy_unit.global_transform.origin
 		var v_org := vehicle.global_transform.origin
-		var offset := (eu_org - v_org).normalized() * 15.0
+		var offset := (eu_org - v_org).normalized() * 50.0
 		var waypoint := eu_org - offset
 		var mainframe: Mainframe = vehicle.get_blocks("mainframe")[0].node
 		mainframe.set_waypoint(0, waypoint)
@@ -167,8 +167,8 @@ func _find_best_storage_pod(matter_id: int) -> BM.StoragePod:
 	return best
 
 
-func _find_closest_unit(position: Vector3, unit_type: GDScript = Unit) -> Unit:
-	var closest_unit: Unit = null
+func _find_closest_unit(position: Vector3, unit_type: GDScript = OwnWar.Unit) -> OwnWar.Unit:
+	var closest_unit: OwnWar.Unit = null
 	var distance2 := INF
 	for u in _units:
 		if u is unit_type:
@@ -213,11 +213,11 @@ func _get_closest_ore() -> BM.Ore:
 
 
 # Get any vehicle that needs certain matter
-func _get_vehicle_with_needs(matter_id: int) -> Vehicle:
-	var vehicle: Vehicle = null
+func _get_vehicle_with_needs(matter_id: int) -> OwnWar.Vehicle:
+	var vehicle: OwnWar.Vehicle = null
 	var amount := 0
 	for u in _units:
-		if u is Vehicle:
+		if u is OwnWar.Vehicle:
 			var a: int = u.needs_matter(matter_id)
 			if a > amount:
 				vehicle = u
@@ -245,7 +245,7 @@ func _produce_munition(id: int, amount: int) -> void:
 
 
 func _supply_munition() -> void:
-	var id := Matter.get_matter_id("160mm AP")
+	var id := OwnWar.Matter.get_matter_id("160mm AP")
 	if _matter_index[id] > 0:
 		var vehicle := _get_vehicle_with_needs(id)
 		if vehicle != null:
@@ -254,7 +254,7 @@ func _supply_munition() -> void:
 				var task := WorkerDrone.TaskPut.new(vehicle, id, true)
 				worker.add_task(task, true)
 	else:
-		_debug("No %s available" % Matter.get_matter_name(id))
+		_debug("No %s available" % OwnWar.Matter.get_matter_name(id))
 
 
 func _supply_fuel() -> void:
@@ -266,7 +266,7 @@ func _supply_fuel() -> void:
 				var task := WorkerDrone.TaskPut.new(vehicle, _fuel_id, true)
 				worker.add_task(task, true)
 	else:
-		_debug("No %s available" % Matter.get_matter_name(_fuel_id))
+		_debug("No %s available" % OwnWar.Matter.get_matter_name(_fuel_id))
 
 
 func _debug(message: String) -> void:

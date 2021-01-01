@@ -5,10 +5,9 @@
 [ext_resource path="res://plugins/basic_manufacturing/drill/ore_rock_mesh.tres" type="ArrayMesh" id=3]
 [ext_resource path="res://plugins/basic_manufacturing/drill/ore_collision_shape.tres" type="Shape" id=4]
 
-
-
 [node name="Ore" type="StaticBody"]
 script = ExtResource( 1 )
+max_material = 10000
 
 [node name="Icosphere018" type="MeshInstance" parent="."]
 transform = Transform( 0.11384, 0.000447905, 0.336827, -0.00470236, -0.160884, 0.00341285, 0.278793, -0.00289651, -0.137479, 0.517759, -0.181675, 0.689313 )

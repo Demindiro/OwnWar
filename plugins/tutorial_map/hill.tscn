@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=2]
+[gd_scene load_steps=32 format=2]
 
 [ext_resource path="res://plugins/basic_manufacturing/drill/ore.tscn" type="PackedScene" id=1]
 [ext_resource path="res://core/map/hud.tscn" type="PackedScene" id=2]
@@ -9,15 +9,12 @@
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform.tscn" type="PackedScene" id=7]
 [ext_resource path="res://plugins/basic_manufacturing/drill/drill.tscn" type="PackedScene" id=8]
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=9]
-[ext_resource path="res://core/map/game_master.gd" type="Script" id=10]
+[ext_resource path="res://plugins/tutorial_map/hill.gd" type="Script" id=10]
 [ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=11]
-[ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod_ghost.tscn" type="PackedScene" id=12]
-[ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform_ghost.tscn" type="PackedScene" id=13]
-[ext_resource path="res://core/camera/free_camera.gd" type="Script" id=14]
+[ext_resource path="res://core/map/gui.tscn" type="PackedScene" id=12]
+[ext_resource path="res://addons/free_camera.gd" type="Script" id=14]
 [ext_resource path="res://plugins/tutorial_map/hill_data/data.hterrain" type="Resource" id=15]
 [ext_resource path="res://addons/tiles/grass/grass_0.png" type="Texture" id=16]
-[ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory_ghost.tscn" type="PackedScene" id=17]
-[ext_resource path="res://plugins/basic_manufacturing/refinery/refinery_ghost.tscn" type="PackedScene" id=18]
 [ext_resource path="res://plugins/tutorial_map/water/water.tres" type="Material" id=19]
 [ext_resource path="res://addons/tiles/sand/IMG_8938 Seamless Normal.jpg" type="Texture" id=20]
 [ext_resource path="res://addons/tiles/sand/IMG_8938 Seamless.jpg" type="Texture" id=21]
@@ -25,7 +22,6 @@
 [ext_resource path="res://addons/map_detail/grass/grass_02/diffus.tga" type="Texture" id=23]
 [ext_resource path="res://addons/map_detail/grass/grass.obj" type="ArrayMesh" id=24]
 [ext_resource path="res://addons/zylann.hterrain/tools/icons/icon_detail_layer_node.svg" type="Texture" id=25]
-[ext_resource path="res://plugins/basic_manufacturing/roboport/roboport_ghost.tscn" type="PackedScene" id=26]
 [ext_resource path="res://plugins/tutorial_map/evil_ai.gd" type="Script" id=27]
 [ext_resource path="res://plugins/tutorial_map/map.gd" type="Script" id=28]
 [ext_resource path="res://plugins/tutorial_map/victory.gd" type="Script" id=29]
@@ -36,11 +32,8 @@
 [ext_resource path="res://plugins/tutorial_map/evil_ai_trigger_shape.tres" type="Shape" id=34]
 [ext_resource path="res://core/unit/unit_group.tscn" type="PackedScene" id=35]
 
-
-
 [node name="Hill" type="Node"]
 script = ExtResource( 10 )
-victory_screen = NodePath("Victory")
 map_name = "tutorial_hill"
 
 [node name="EvilAI_script" type="Node" parent="."]
@@ -125,16 +118,16 @@ material/0 = ExtResource( 32 )
 [node name="Ores" type="Node" parent="Map"]
 
 [node name="Ore" parent="Map/Ores" instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 207.102, 0.0835114, 217.925 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 207, 0, 218 )
 
 [node name="Ore2" parent="Map/Ores" instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 244.295, 0.210837, 255.474 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 244.5, 0, 255.5 )
 
 [node name="Ore3" parent="Map/Ores" instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 312.708, 30.1831, 566.548 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 312.5, 29.9688, 566.5 )
 
 [node name="Ore4" parent="Map/Ores" instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 438.814, 30.591, 547.43 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 439, 30.4765, 547.5 )
 
 [node name="Player" parent="." instance=ExtResource( 35 )]
 
@@ -153,13 +146,6 @@ team = "Player"
 [node name="Drone" parent="Player" instance=ExtResource( 11 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 215.335, 4.11692, 356.776 )
 team = "Player"
-ghosts = {
-"Munition Factory": ExtResource( 17 ),
-"Refinery": ExtResource( 18 ),
-"Roboport": ExtResource( 26 ),
-"Spawn Platform": ExtResource( 13 ),
-"Storage Pod": ExtResource( 12 )
-}
 
 [node name="EvilAI" parent="." instance=ExtResource( 35 )]
 
@@ -178,13 +164,6 @@ team = "EvilAI"
 [node name="Drone" parent="EvilAI" instance=ExtResource( 11 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 810.656, 2.9553, 820.223 )
 team = "EvilAI"
-ghosts = {
-"Munition Factory": ExtResource( 17 ),
-"Refinery": ExtResource( 18 ),
-"Roboport": ExtResource( 26 ),
-"Spawn Platform": ExtResource( 13 ),
-"Storage Pod": ExtResource( 12 )
-}
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = ExtResource( 5 )
@@ -231,6 +210,17 @@ text = "Exit"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="GUI" parent="." instance=ExtResource( 12 )]
+pause_mode = 2
+visible = false
+[connection signal="load_game" from="." to="EvilAI_script" method="_on_Hill_load_game"]
+[connection signal="save_game" from="." to="EvilAI_script" method="_on_Hill_save_game"]
+[connection signal="unit_added" from="." to="EvilAI_script" method="_on_Hill_unit_added"]
 [connection signal="body_entered" from="EvilAI_script/Area" to="EvilAI_script" method="_on_Area_body_entered"]
 [connection signal="body_exited" from="EvilAI_script/Area" to="EvilAI_script" method="_on_Area_body_exited"]
 [connection signal="pressed" from="Victory/Exit" to="Victory" method="_on_Exit_pressed"]
+[connection signal="cancel" from="GUI" to="." method="_on_GUI_cancel"]
+[connection signal="exit" from="GUI" to="." method="_on_GUI_exit"]
+[connection signal="restart" from="GUI" to="." method="_on_GUI_restart"]
+[connection signal="save" from="GUI" to="." method="save_game"]

@@ -1,4 +1,4 @@
-extends Structure
+extends OwnWar_Structure
 
 
 signal spawned(unit)
@@ -6,7 +6,8 @@ var worker = load("res://plugins/worker_drone/drone.tscn")
 var material = 0 setget set_material
 var queued_vehicle = null
 var queued_vehicle_name
-onready var _material_id = Matter.get_matter_id("material")
+var queued_vehicle_path := ""
+onready var _material_id := OwnWar.Matter.get_matter_id("material")
 onready var _indicator_material: Spatial = $IndicatorMaterial
 onready var _indicator_vehicle_material: SpatialMaterial
 onready var _interaction_port: Spatial = $InteractionPort
@@ -30,14 +31,28 @@ func _notification(notification):
 
 func get_info():
 	var info = .get_info()
-	info["Material"] = "%d / %d" % [material, _get_needed_material()]
 	if queued_vehicle != null:
+		info["Material"] = "%d / %d" % [material, queued_vehicle.get_cost()]
 		info["Queued"] = queued_vehicle_name
+	else:
+		info["Material"] = "%d" % material
 	return info
 
 
 func get_actions():
-	var actions = [["Spawn Drone", Action.INPUT_NONE, "spawn_worker", []]]
+	var drone_texture := ImageTexture.new()
+	var actions = [
+		OwnWar.Action.new(
+			"Spawn Drone",
+			drone_texture,
+			Action.INPUT_NONE,
+			funcref(self, "spawn_worker")
+		)
+	]
+	OwnWar_Thumbnail.get_unit_thumbnail_async(
+		"worker",
+		funcref(drone_texture, "create_from_image")
+	)
 	var directory = Directory.new()
 	var err = directory.open(Global.DIRECTORY_USER_VEHICLES)
 	if err == OK:
@@ -46,9 +61,22 @@ func get_actions():
 		while file_name != "":
 			if not directory.current_is_dir() and \
 					file_name.ends_with(Global.FILE_EXTENSION):
-				var action_name = "Spawn " + Vehicle.path_to_name(file_name)
+				var action_name = "Spawn " + OwnWar.Vehicle.path_to_name(file_name)
 				var path = directory.get_current_dir() + '/' + file_name
-				actions.append([action_name, 0, "spawn_vehicle", [path]])
+				var texture := ImageTexture.new()
+				actions.append(
+					OwnWar.Action.new(
+						action_name,
+						texture,
+						Action.INPUT_NONE,
+						funcref(self, "spawn_vehicle"),
+						[path]
+					)
+				)
+				OwnWar_Thumbnail.get_vehicle_thumbnail_async(
+					path,
+					funcref(texture, "create_from_image")
+				)
 			file_name = directory.get_next()
 	else:
 		Global.error(err)
@@ -57,6 +85,10 @@ func get_actions():
 
 func get_interaction_port() -> Vector3:
 	return _interaction_port.global_transform.origin
+
+
+func is_busy() -> bool:
+	return queued_vehicle != null
 
 
 func spawn_worker(_flags):
@@ -72,10 +104,10 @@ func spawn_worker(_flags):
 	return queued_vehicle
 
 
-func spawn_vehicle(_flags, path):
+func spawn_vehicle(_flags: int, path: String) -> void:
 	if queued_vehicle != null:
 		queued_vehicle.free()
-	queued_vehicle = Vehicle.new()
+	queued_vehicle = OwnWar.Vehicle.new()
 	var err = queued_vehicle.load_from_file(path)
 	if err != OK:
 		Global.error("Failed to spawn vehicle from '%s'" % path, err)
@@ -83,13 +115,12 @@ func spawn_vehicle(_flags, path):
 		queued_vehicle = null
 		_indicator_vehicle_material.albedo_color = Color.red
 	else:
-		queued_vehicle.global_transform = global_transform
 		queued_vehicle.translate(Vector3.UP * 5)
 		queued_vehicle.rotate_y(PI)
 		_indicator_vehicle_material.albedo_color = Color.orange
-		queued_vehicle_name = Vehicle.path_to_name(path.get_file())
+		queued_vehicle_name = OwnWar.Vehicle.path_to_name(path.get_file())
+		queued_vehicle_path = path
 	emit_signal("need_matter", _material_id, _get_needed_material())
-	return queued_vehicle
 
 
 func set_material(p_material):
@@ -141,7 +172,11 @@ func put_matter(id: int, amount: int) -> int:
 		set_material(material + amount)
 		if material >= queued_vehicle.get_cost():
 			queued_vehicle.team = team
-			GameMaster.get_game_master(self).add_child(queued_vehicle)
+			queued_vehicle.transform = global_transform
+			queued_vehicle.translate(Vector3.UP * 5.0)
+			# Rotate 180° because I cba to fix it properly
+			queued_vehicle.rotate_y(PI)
+			OwnWar.GameMaster.get_game_master(self).add_child(queued_vehicle)
 			emit_signal("spawned", queued_vehicle)
 			var remainder = material - queued_vehicle.get_cost()
 			queued_vehicle = null
@@ -161,7 +196,8 @@ func serialize_json() -> Dictionary:
 			data["queued"] = "worker"
 		else:
 			data["queued"] = "vehicle"
-		data["queued_data"] = queued_vehicle.serialize_json()
+			assert(queued_vehicle_path != "")
+			data["queued_path"] = queued_vehicle_path
 	return data
 
 
@@ -169,11 +205,23 @@ func deserialize_json(data: Dictionary) -> void:
 	material = data["material"]
 	var queued_type: String = data.get("queued", "")
 	if queued_type != "":
+		_indicator_vehicle_material.albedo_color = Color.orange
 		if queued_type == "worker":
 			queued_vehicle = worker.instance()
 		elif queued_type == "vehicle":
-			queued_vehicle = Vehicle.new()
-		queued_vehicle.deserialize_json(data["queued_data"])
+			queued_vehicle = OwnWar.Vehicle.new()
+			queued_vehicle_path = data["queued_path"]
+			var e: int = queued_vehicle.load_from_file(queued_vehicle_path)
+			assert(e == OK)
+			if e != OK:
+				push_error("Failed to load vehicle from %s: %d" % [
+					queued_vehicle_path, e
+				])
+				_indicator_vehicle_material.albedo_color = Color.red
+				queued_vehicle = null
+				queued_vehicle_path = ""
+	else:
+		_indicator_vehicle_material.albedo_color = Color.green
 
 
 func _get_needed_material():

@@ -1,4 +1,6 @@
-const PLUGIN_ID := "basic_manufacturing"
+extends OwnWar.Plugin.Interface
+
+
 const PLUGIN_VERSION := Vector3(0, 0, 1)
 const MIN_VERSION := Vector3(0, 12, 0)
 const PLUGIN_DEPENDENCIES := {"worker_drone": Vector3(0, 0, 1)}
@@ -12,7 +14,8 @@ const Refinery := preload("refinery/refinery.gd")
 const Roboport := preload("roboport/roboport.gd")
 
 
-static func pre_init(_plugin_path: String):
+func pre_init():
+	var Unit := OwnWar.Unit
 	Unit.add_unit("drill", preload("drill/drill.tscn"))
 	Unit.add_unit("munitions_factory", preload("munitions_factory/munitions_factory.tscn"))
 	Unit.add_unit("storage_pod", preload("storage_pod/storage_pod.tscn"))
@@ -28,22 +31,14 @@ static func pre_init(_plugin_path: String):
 	Unit.add_unit("roboport_drone", preload("roboport/roboport_drone.tscn"))
 
 
-static func init(_plugin_path: String):
-	pass
-
-
-static func post_init(_plugin_path: String):
-	pass
-
-
-static func save_game(game_master: GameMaster) -> Dictionary:
+func save_game(game_master: OwnWar.GameMaster) -> Dictionary:
 	var s_ores := []
 	for ore in game_master.get_tree().get_nodes_in_group("ores"):
 		s_ores.append([var2str(ore.transform), ore.material])
 	return {"ores": s_ores}
 
 
-static func load_game(game_master: GameMaster, data: Dictionary) -> void:
+func load_game(game_master: OwnWar.GameMaster, data: Dictionary) -> void:
 	for s in data["ores"]:
 		var found := false
 		var transform: Transform = str2var(s[0])

@@ -1,39 +1,18 @@
 extends Control
 
 
-const WAYPOINT_MIN_RADIUS = 100
-const WAYPOINT_MAX_RADIUS = 200
-onready var _timer: Timer = $"../Timer"
 onready var _version: Label = $Main/Version
-onready var _vehicle: Vehicle = $"../Vehicle"
 onready var _button_campaign: Control = $Campaign
 onready var _button_plugins: Control = $Plugins
 onready var _button_saves: Control = $Saves
+onready var _background := $"../Background"
 
 
 func _ready():
-	call_deferred("_ready_deferred")
-
-
-func _ready_deferred():
-	randomize()
-	for p in ["chassis_blocks", "power_manager", "engine", "movement_manager",
-			"wheel"]:
-		if not Plugin.is_plugin_enabled(p):
-			print("Missing plugin %s" % p)
-			return
-	call_deferred("_on_Timer_timeout")
-	_timer.start()
-	_version.text = Util.version_vector_to_str(Constants.VERSION)
-
-
-func _on_Timer_timeout():
-	var angle = randf() * PI * 2
-	var distance = rand_range(WAYPOINT_MIN_RADIUS, WAYPOINT_MAX_RADIUS)
-	var mainframes = _vehicle.get_blocks("mainframe")
-	for mainframe in mainframes:
-		mainframe.node.ai.waypoints = [Vector3(distance * cos(angle), 0, distance * sin(angle))]
-		break
+	_version.text = Util.version_vector_to_str(OwnWar.VERSION)
+	var bg := OwnWar.get_random_main_menu_background()
+	if bg != null:
+		_background.add_child(bg.instance())
 
 
 func _on_Campaign_pressed():

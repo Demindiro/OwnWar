@@ -1,10 +1,10 @@
-[gd_scene load_steps=23 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
 [ext_resource path="res://plugins/campaign_abcd/map_data/data.hterrain" type="Resource" id=2]
 [ext_resource path="res://addons/tiles/sand/IMG_8938 Seamless Normal.jpg" type="Texture" id=3]
 [ext_resource path="res://addons/tiles/sand/IMG_8938 Seamless.jpg" type="Texture" id=4]
-[ext_resource path="res://core/camera/free_camera.gd" type="Script" id=5]
+[ext_resource path="res://addons/free_camera.gd" type="Script" id=5]
 [ext_resource path="res://plugins/basic_manufacturing/spawn_platform/spawn_platform.tscn" type="PackedScene" id=6]
 [ext_resource path="res://plugins/campaign_abcd/map.gd" type="Script" id=7]
 [ext_resource path="res://plugins/campaign_abcd/environment.tres" type="Environment" id=8]
@@ -17,6 +17,7 @@
 [ext_resource path="res://plugins/basic_manufacturing/roboport/roboport.tscn" type="PackedScene" id=15]
 [ext_resource path="res://core/unit/unit_group.tscn" type="PackedScene" id=16]
 [ext_resource path="res://core/map/hud.tscn" type="PackedScene" id=17]
+[ext_resource path="res://core/map/gui.tscn" type="PackedScene" id=18]
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery.tscn" type="PackedScene" id=19]
 [ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory.tscn" type="PackedScene" id=21]
 [ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=25]
@@ -62,7 +63,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 372, 776, 21.5 )
 [node name="Roboport" parent="Player" instance=ExtResource( 15 )]
 transform = Transform( 0.965887, 0.0216502, 0.258056, -0.0122448, 0.999203, -0.0379987, -0.258673, 0.0335426, 0.965382, 306.511, 0.618528, 224.017 )
 team = "Player"
-type_flags = 1
 _radius2 = 4000.0
 
 [node name="Arend" parent="." instance=ExtResource( 16 )]
@@ -107,7 +107,6 @@ team = "Arend"
 [node name="Roboport" parent="Arend/HQ" instance=ExtResource( 15 )]
 transform = Transform( -0.866025, -7.45058e-09, 0.5, -0.0771884, 0.988012, -0.133694, -0.494006, -0.154377, -0.855644, 3174.5, 17.0565, 489.423 )
 team = "Arend"
-type_flags = 1
 
 [node name="StoragePod" parent="Arend/HQ" instance=ExtResource( 11 )]
 transform = Transform( 0.999952, 0.00976201, 0.000247852, -0.00976516, 0.99963, 0.02538, 0, -0.0253812, 0.999678, 3308.01, 4.24086, 547.967 )
@@ -128,7 +127,6 @@ team = "Arend"
 [node name="Roboport2" parent="Arend/HQ" instance=ExtResource( 15 )]
 transform = Transform( -0.866528, -0.0155757, 0.498885, 0.0254044, 0.996842, 0.0752478, -0.498482, 0.0778783, -0.863395, 3357.99, 2.45835, 579.039 )
 team = "Arend"
-type_flags = 1
 
 [node name="X" type="Node" parent="Arend"]
 
@@ -143,7 +141,6 @@ team = "Arend"
 [node name="Roboport" parent="Arend/X" instance=ExtResource( 15 )]
 transform = Transform( -0.00648454, -0.0756745, -0.997112, 0.0851298, 0.993471, -0.0759519, 0.996349, -0.0853764, -4.37722e-08, 2546.96, 1.5192, 640.957 )
 team = "Arend"
-type_flags = 1
 
 [node name="Refinery" parent="Arend/X" instance=ExtResource( 19 )]
 transform = Transform( -0.999973, 0.0073846, -8.14907e-05, 0.00738505, 0.999912, -0.0110461, -8.73988e-08, -0.0110464, -0.999939, 2502.51, 1.1066, 640.989 )
@@ -173,7 +170,6 @@ team = "Arend"
 [node name="Roboport" parent="Arend/Z" instance=ExtResource( 15 )]
 transform = Transform( 0.999512, -0.0312345, 0.00012195, 0.0312348, 0.999504, -0.00390241, 0, 0.00390431, 0.999992, 3380.48, 4.95089, 1391.5 )
 team = "Arend"
-type_flags = 1
 
 [node name="Refinery" parent="Arend/Z" instance=ExtResource( 19 )]
 transform = Transform( -0.00137023, 0.023391, -0.999725, -0.0584614, 0.998015, 0.0234311, 0.998289, 0.0584774, -4.35393e-08, 3343.52, 5.24805, 1392.06 )
@@ -762,3 +758,11 @@ environment = ExtResource( 8 )
 
 [node name="HUD" parent="." instance=ExtResource( 17 )]
 camera = NodePath("../FreeCamera")
+
+[node name="GUI" parent="." instance=ExtResource( 18 )]
+pause_mode = 2
+visible = false
+[connection signal="cancel" from="GUI" to="." method="_on_GUI_cancel"]
+[connection signal="exit" from="GUI" to="." method="_on_GUI_exit"]
+[connection signal="restart" from="GUI" to="." method="_on_GUI_restart"]
+[connection signal="save" from="GUI" to="." method="save_game"]

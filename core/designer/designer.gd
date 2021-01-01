@@ -3,6 +3,24 @@ extends Node
 
 const MetaEditor := preload("meta_editor.gd")
 
+class Block:
+	var name: String
+	var rotation: int
+	var node: Spatial
+	var color: Color
+	var layer: int
+
+	func _init(p_name: String, p_rotation: int, p_node: Spatial, p_color: Color,
+		p_layer: int) -> void:
+		name = p_name
+		rotation = p_rotation
+		node = p_node
+		color = p_color
+		layer = p_layer
+
+	func to_array() -> Array:
+		return [name, rotation, node, color, layer]
+
 
 const GRID_SIZE = 25
 const SCALE = 4
@@ -10,7 +28,7 @@ export var enabled := true
 export var main_menu: PackedScene
 export var test_map: PackedScene
 export var material: SpatialMaterial setget set_material
-var selected_block: Block
+var selected_block: OwnWar.Block
 var blocks := {}
 var meta := {}
 var _rotation := 0
@@ -18,12 +36,14 @@ var mirror := false
 var ray_voxel_valid := false
 var selected_layer := 0 setget set_layer
 var view_layer := -1 setget set_view_layer
+var _snap_face := true
 onready var ray := preload("res://addons/voxel_raycast.gd").new()
 onready var _floor_origin: Spatial = $Floor/Origin
 onready var _floor_origin_ghost: MeshInstance = $Floor/Origin/Ghost
 onready var _floor_mirror: Spatial = $Floor/Mirror
 onready var _camera: FreeCamera = $Camera
-onready var _camera_mesh: MeshInstance = $Camera/MeshInstance
+onready var _camera_mesh: MeshInstance = $Camera/Box/Viewport/Camera/Mesh
+onready var _camera_mesh_camera: Camera = $Camera/Box/Viewport/Camera
 onready var _gui_menu: Control = $GUI/Menu
 onready var _gui_inventory: Control = $GUI/Inventory
 onready var _gui_save_vehicle: Control = $GUI/SaveVehicle
@@ -45,12 +65,12 @@ func _exit_tree():
 
 
 func _ready():
-	select_block(Block.get_block_by_id(1).name)
+	select_block(OwnWar.Block.get_block_by_id(1).name)
 	set_enabled(true) # Disable UIs
 	_floor_mirror.visible = mirror
 
 
-func _input(event):
+func _input(event: InputEvent) -> void:
 	if not _camera.enabled:
 		return
 	if event is InputEventMouseButton and event.is_pressed():
@@ -62,9 +82,26 @@ func _input(event):
 			_rotation += 1
 			if _rotation >= 24:
 				_rotation = 0
+	if event.is_action_pressed("designer_snap_faces"):
+		_snap_face = not _snap_face
+	elif event.is_action_pressed("designer_vehicle_up"):
+		_move_vehicle(Vector3.UP)
+	elif event.is_action_pressed("designer_vehicle_down"):
+		_move_vehicle(Vector3.DOWN)
+	elif event.is_action_pressed("designer_vehicle_left"):
+		_move_vehicle(Vector3.RIGHT)
+	elif event.is_action_pressed("designer_vehicle_right"):
+		_move_vehicle(Vector3.LEFT)
+	elif event.is_action_pressed("designer_vehicle_back"):
+		_move_vehicle(Vector3.FORWARD)
+	elif event.is_action_pressed("designer_vehicle_forward"):
+		_move_vehicle(Vector3.BACK)
+	elif event.is_action_pressed("designer_vehicle_rotate"):
+		_rotate_vehicle()
 
 
 func _process(_delta):
+	_camera_mesh_camera.transform = _camera.transform
 	highlight_face()
 	process_actions()
 
@@ -94,6 +131,7 @@ func process_actions():
 	elif Input.is_action_just_pressed("designer_place_block"):
 		if ray_voxel_valid and not Input.is_action_pressed("designer_release_cursor"):
 			var coordinate = _v2a(_a2v(ray.voxel) + _a2v(ray.get_normal()))
+			_snap_face(_a2v(ray.get_normal()))
 			place_block(selected_block, coordinate, _rotation, selected_layer)
 			if mirror:
 				coordinate = [] + coordinate
@@ -101,7 +139,7 @@ func process_actions():
 				var mirror_x = (GRID_SIZE - 1) / 2
 				var delta = coordinate[0] - mirror_x
 				coordinate[0] = mirror_x - delta
-				var m_block: Block = selected_block.mirror_block
+				var m_block: OwnWar.Block = selected_block.mirror_block
 				place_block(m_block, coordinate, m_block \
 						.get_mirror_rotation(_rotation), selected_layer)
 	elif Input.is_action_just_pressed("designer_remove_block"):
@@ -127,7 +165,7 @@ func process_actions():
 		_camera.enabled = true
 	elif Input.is_action_just_pressed("designer_configure"):
 		if ray_voxel_valid and ray.voxel in blocks:
-			var block = Block.get_block(blocks[ray.voxel][0])
+			var block = OwnWar.Block.get_block(blocks[ray.voxel].name)
 			if len(block.meta) > 0:
 				var meta_data = meta[ray.voxel] if ray.voxel in meta else block.meta
 				set_enabled(false)
@@ -155,13 +193,19 @@ func place_block(block, coordinate, rotation, layer):
 	for child in Util.get_children_recursive(node):
 		if child is GeometryInstance and not child is Sprite3D:
 			child.material_override = material
-	blocks[coordinate] = [block.name, rotation, node, material.albedo_color, layer]
+	blocks[coordinate] = Block.new(
+		block.name,
+		rotation,
+		node,
+		material.albedo_color,
+		layer
+	)
 	return true
 
 
 func remove_block(coordinate):
 	if coordinate in blocks:
-		var node = blocks[coordinate][2]
+		var node = blocks[coordinate].node
 		node.queue_free()
 		# warning-ignore:return_value_discarded
 		blocks.erase(coordinate)
@@ -170,7 +214,7 @@ func remove_block(coordinate):
 
 
 func select_block(name):
-	selected_block = Block.get_block(name)
+	selected_block = OwnWar.Block.get_block(name)
 	for child in _camera_mesh.get_children():
 		child.queue_free()
 	for child in _floor_origin_ghost.get_children():
@@ -212,6 +256,7 @@ func highlight_face():
 			ray_hits_block = false
 		else:
 			var direction = ray.get_normal()
+			_snap_face(_a2v(direction))
 			var place_at = _v2a(_a2v(ray.voxel) + _a2v(direction))
 			var x = _a2v(direction)
 			var y = Vector3.RIGHT.cross(x)
@@ -225,7 +270,8 @@ func highlight_face():
 					and not place_at in blocks:
 				ray_voxel_valid = true
 				_floor_origin_ghost.translation = _a2v(place_at)
-				_floor_origin_ghost.transform.basis = selected_block.get_basis(_rotation)
+				_floor_origin_ghost.transform.basis = selected_block \
+					.get_basis(_rotation)
 				_floor_origin_ghost.scale_object_local(Vector3.ONE * SCALE)
 			else:
 				ray_voxel_valid = false
@@ -237,10 +283,10 @@ func highlight_face():
 
 func save_vehicle(var path):
 	var data := {}
-	data['game_version'] = Util.version_vector_to_str(Constants.VERSION)
+	data['game_version'] = Util.version_vector_to_str(OwnWar.VERSION)
 	data['blocks'] = {}
 	for coordinate in blocks:
-		var block_data = blocks[coordinate].duplicate()
+		var block_data = blocks[coordinate].to_array()
 		block_data.remove(2)
 		data['blocks']["%d,%d,%d" % coordinate] = block_data
 
@@ -264,7 +310,7 @@ func load_vehicle(path):
 		Global.error("Failed to open file '%s'" % path, err)
 	else:
 		var data = parse_json(file.get_as_text())
-		data = Compatibility.convert_vehicle_data(data)
+		data = OwnWar.Compatibility.convert_vehicle_data(data)
 		for child in _floor_origin.get_children():
 			if child.name != "Ghost":
 				child.queue_free()
@@ -275,14 +321,18 @@ func load_vehicle(path):
 			assert(len(key_components) == 3)
 			for i in range(3):
 				coordinate[i] = int(key_components[i])
-			var block = Block.get_block(data['blocks'][key][0])
+			var block = OwnWar.Block.get_block(data['blocks'][key][0])
 			var color_components = data["blocks"][key][2].split_floats(",")
 			var color = Color(color_components[0], color_components[1],
 					color_components[2], color_components[3])
 			_on_ColorPicker_pick_color(color)
 			place_block(block, coordinate, data['blocks'][key][1], data["blocks"][key][3])
 
-		meta = data["meta"]
+		meta = {}
+		for crd in data["meta"]:
+			var crd_arr: Array = crd.split(",")
+			var c := [int(crd[0]), int(crd[1]), int(crd[2])]
+			meta[c] = data["meta"][crd]
 
 		print("Loaded vehicle from '%s'" % path)
 
@@ -314,17 +364,68 @@ func set_view_layer(p_view_layer: int):
 	view_layer = p_view_layer
 	for coordinate in blocks:
 		var block = blocks[coordinate]
-		block[2].visible = view_layer < 0 or block[4] == view_layer
+		block.node.visible = view_layer < 0 or block[4] == view_layer
+
+
+func _snap_face(direction: Vector3) -> void:
+	if _snap_face:
+		var dir := OwnWar.Block.axis_to_direction(direction)
+		assert(dir != -1)
+		_rotation &= 0b11
+		_rotation |= dir
+
+
+func _move_vehicle(direction: Vector3) -> void:
+	var aabb := _get_vehicle_aabb()
+	aabb.position += direction
+	if AABB(Vector3.ZERO, Vector3.ONE * GRID_SIZE).encloses(aabb):
+		var dict := {}
+		for crd in blocks:
+			var b: Block = blocks[crd]
+			dict[_v2a(_a2v(crd) + direction)] = b
+			b.node.translation += direction
+		blocks = dict
+
+
+func _rotate_vehicle() -> void:
+	var aabb := _get_vehicle_aabb()
+	var center := aabb.position + (aabb.size / 2.0).round()
+	var lower := aabb.position - center
+	lower = Vector3(-lower.z, lower.y, lower.x)
+	aabb.position = lower + center
+	aabb.size = Vector3(-aabb.size.z, aabb.size.y, aabb.size.x)
+	aabb = aabb.abs()
+	if AABB(Vector3.ZERO, Vector3.ONE * GRID_SIZE).encloses(aabb):
+		var dict := {}
+		for crd in blocks:
+			var b: Block = blocks[crd]
+			lower = _a2v(crd) - center
+			lower = Vector3(-lower.z, lower.y, lower.x)
+			dict[_v2a(lower + center)] = b
+			b.node.translation = lower + center
+			b.node.rotate_y(-PI / 2.0)
+			b.rotation = OwnWar.Block.basis_to_rotation(b.node.transform.basis)
+		blocks = dict
+
+
+func _get_vehicle_aabb() -> AABB:
+	var aabb: AABB
+	for crd in blocks:
+		aabb = AABB(_a2v(crd), Vector3.ZERO)
+		break
+	for crd in blocks:
+		aabb = aabb.expand(_a2v(crd))
+	return aabb
 
 
 # Vector3i in Godot 4...
 # Gib Godot 4 pls (> °-°)>
-func _v2a(v):
-	v.round()
+func _v2a(v: Vector3) -> Array:
+	v = v.round()
 	return [int(v.x), int(v.y), int(v.z)]
 
 
-func _a2v(a):
+func _a2v(a: Array) -> Vector3:
 	return Vector3(a[0], a[1], a[2])
 
 

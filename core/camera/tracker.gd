@@ -1,4 +1,5 @@
 extends Camera
+class_name FollowCamera
 
 
 export(NodePath) var node_path
@@ -6,7 +7,7 @@ export(float) var max_distance = 50
 export(float) var height = 10
 
 
-func _process(_delta):
+func _process(delta: float) -> void:
 	var node = get_node_or_null(node_path)
 	if node != null:
 		var move_position = node.translation + Vector3.UP * height
@@ -14,7 +15,10 @@ func _process(_delta):
 		var basis_move = get_basis(move_position)
 		var move_distance = (move_position - translation).length() - max_distance
 		var move = basis_move * Vector3.FORWARD * move_distance
-		transform = Transform(basis_look, translation + move)
+		transform = Transform(
+			transform.basis.slerp(basis_look, delta * 3.0),
+			translation.linear_interpolate(translation + move, delta * 2.0)
+		)
 
 
 func get_basis(position):

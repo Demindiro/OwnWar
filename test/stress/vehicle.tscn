@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=2]
 
-[ext_resource path="res://core/camera/free_camera.gd" type="Script" id=2]
+[ext_resource path="res://addons/free_camera.gd" type="Script" id=2]
 [ext_resource path="res://test/stress/vehicle.gd" type="Script" id=3]
 [ext_resource path="res://test/fps.tscn" type="PackedScene" id=4]
 [ext_resource path="res://test/draw_calls.tscn" type="PackedScene" id=5]

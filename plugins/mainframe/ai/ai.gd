@@ -1,5 +1,3 @@
-class_name AI
-
 extends Reference
 
 # AI Interface

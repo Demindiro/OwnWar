@@ -1,5 +1,13 @@
-class_name GameMaster
 extends Node
+class_name OwnWar_GameMaster
+
+
+const Unit := preload("../unit/unit.gd")
+const Vehicle := preload("../unit/vehicle.gd")
+const Compatibility := preload("../compatibility.gd")
+const Maps := preload("../maps.gd")
+const Plugin := preload("../plugin/loader.gd")
+
 
 signal unit_added(unit)
 # "unused" (see line 177)
@@ -66,8 +74,8 @@ func game_end():
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 
-func save_game(p_name: String) -> int:
-	print("Saving game as %s" % p_name)
+func save_game(path: String) -> int:
+	print("Saving game as %s" % path)
 	var start_time := OS.get_ticks_msec()
 	var s_units := {}
 	for u in get_tree().get_nodes_in_group("units"):
@@ -84,17 +92,22 @@ func save_game(p_name: String) -> int:
 		s_units[var2str(u.uid)] = u_data
 
 	var s_plugins := {}
-	for plugin in Plugin.get_all_plugins():
-		if Plugin.get_disable_reason(plugin.PLUGIN_ID) == Plugin.PluginState.NONE:
-			s_plugins[plugin.PLUGIN_ID] = plugin.save_game(self)
-			assert(s_plugins[plugin.PLUGIN_ID] is Dictionary)
+	var plugins := Plugin.get_all_plugins()
+	for id in plugins:
+		var p: Plugin.PluginState = plugins[id]
+		if p.disable_reason == Plugin.PluginState.NONE:
+			var data := p.singleton.save_game(self)
+			assert(data is Dictionary)
+			if len(data) > 0:
+				s_plugins[id] = data
 
+	var game_version: Vector3 = load("res://core/ownwar.gd").VERSION
 	var data := {
 			"map_name": map_name,
 			"units": s_units,
 			"plugin_data": s_plugins,
 			"uid_counter": uid_counter,
-			"game_version": Util.version_vector_to_str(Constants.VERSION),
+			"game_version": Util.version_vector_to_str(game_version),
 		}
 	emit_signal("save_game", data)
 	print("Serializing time %d msec" % (OS.get_ticks_msec() - start_time))
@@ -105,12 +118,12 @@ func save_game(p_name: String) -> int:
 
 	var e := Util.create_dirs("user://game_saves")
 	if e == OK:
-		e = OK if Util.write_file_text("user://game_saves".plus_file(p_name) + \
-				".json", json, true) else FAILED
+		e = OK if Util.write_file_text(path, json, true) else FAILED
 		if e == OK:
 			print("Saved game")
 		else:
-			print("Error saving game %d" % e)
+			assert(false)
+			push_error("Error saving game %d" % e)
 	else:
 		print("Error creating directory %d" %e)
 	return e
@@ -159,7 +172,7 @@ func _load_game(data: Dictionary) -> void:
 
 	for plugin_name in data["plugin_data"]:
 		var plugin = Plugin.get_plugin(plugin_name)
-		plugin.load_game(self, data["plugin_data"][plugin_name])
+		plugin.singleton.load_game(self, data["plugin_data"][plugin_name])
 
 	for unit in get_tree().get_nodes_in_group("units"):
 		unit.deserialize_json(units_data[var2str(unit.uid)]["data"])
@@ -196,6 +209,7 @@ static func load_game(path: String) -> int:
 static func get_game_master(node: Node) -> Node:# -> GameMaster:
 	if Engine.editor_hint:
 		return null
+	assert(node.get_tree() != null)
 	for child in node.get_tree().root.get_children():
 		if child.has_method("get_game_master"):
 			return child

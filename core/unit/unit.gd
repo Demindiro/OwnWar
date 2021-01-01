@@ -1,5 +1,5 @@
-class_name Unit
 extends Spatial
+class_name OwnWar_Unit
 
 
 signal destroyed(unit)
@@ -24,17 +24,12 @@ enum Action {
 
 	SUBACTION = 0x100,
 }
-enum TypeFlags {
-	DEFAULT = 0x0,
-	GHOST = 0x2,
-}
 const UNITS := {}
+const REVERSE_UNITS := {}
 export var max_health := 10
 export var team := ""
 # warning-ignore:unused_class_variable
 export var unit_name := "unit"
-# warning-ignore:unused_class_variable
-export var type_flags := TypeFlags.DEFAULT
 # warning-ignore:unused_class_variable
 var uid := -1
 onready var health := max_health
@@ -56,12 +51,10 @@ func projectile_hit(_origin: Vector3, _direction: Vector3, damage: int):
 
 
 func get_actions() -> Array:
-	# Return format: [human_name, flags, function_name, [args...]]
-	# If INPUT_TOGGLE is specified, append a bool to indicate on/off
 	return []
 
 
-func show_feedback():
+func show_feedback(_hud: Control) -> void:
 	pass
 
 
@@ -69,16 +62,13 @@ func hide_feedback():
 	pass
 
 
-func show_action_feedback(_function: String, _viewport: Viewport, _arguments: Array) -> void:
-	pass
-
-
-func hide_action_feedback() -> void:
-	pass
-
-
 func get_info():
-	return {
+	if health >= (1 << 60):
+		return {
+			"Health": "A lot"
+		}
+	else:
+		return {
 			"Health": str(health) + " / " + str(max_health)
 		}
 

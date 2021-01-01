@@ -146,6 +146,10 @@ func add_ammo_rack(ammo_rack: AmmoRack) -> void:
 				if munition.gauge == gauge:
 					_vehicle.add_matter_put(id)
 					_vehicle.add_matter_take(id)
+		else:
+			for id in Munition.get_munition_ids():
+				_vehicle.add_matter_put(id)
+				_vehicle.add_matter_take(id)
 	_max_volume_by_gauge[gauge] += ammo_rack.max_volume
 	var e := ammo_rack.connect("tree_exited", self, "_ammo_rack_destroyed", [ammo_rack])
 	assert(e == OK)
@@ -160,7 +164,7 @@ func add_weapon(weapon: Node) -> void:
 func serialize_json() -> Dictionary:
 	var m_list := {}
 	for id in _munitions_count:
-		m_list[Matter.get_matter_name(id)] = _munitions_count[id]
+		m_list[OwnWar.Matter.get_matter_name(id)] = _munitions_count[id]
 	return {
 			"munition": m_list
 		}
@@ -170,7 +174,7 @@ func deserialize_json(data: Dictionary) -> void:
 	_munitions_count = {}
 	_gauge_to_munitions = {}
 	for name in data["munition"]:
-		var m = put_munition(Matter.get_matter_id(name), data["munition"][name])
+		var m = put_munition(OwnWar.Matter.get_matter_id(name), data["munition"][name])
 		assert(m == 0)
 
 
@@ -187,7 +191,7 @@ func get_info(info: Dictionary) -> void:
 	var max_volume: int = Util.sum(_max_volume_by_gauge.values())
 	var total_volume := 0
 	for id in _munitions_count:
-		total_volume += _munitions_count[id] * Matter.get_matter_volume(id)
+		total_volume += _munitions_count[id] * OwnWar.Matter.get_matter_volume(id)
 	# warning-ignore:integer_division
 	var fraction = 100 * total_volume / max_volume
 	info["Ammo capacity"] = "%d%%" % fraction

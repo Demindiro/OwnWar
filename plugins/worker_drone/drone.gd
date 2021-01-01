@@ -1,4 +1,4 @@
-extends Unit
+extends OwnWar_Unit
 
 
 class Task:
@@ -17,7 +17,7 @@ class Task:
 		assert(false)
 		return {}
 
-	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+	static func deserialize(game_master: OwnWar.GameMaster, state: Dictionary) -> Task:
 		match state["task"]:
 			"PUT": return TaskPut.deserialize(game_master, state)
 			"TAKE": return TaskTake.deserialize(game_master, state)
@@ -37,10 +37,10 @@ class Task:
 
 class TaskPut:
 	extends Task
-	var unit: Unit
+	var unit: OwnWar.Unit
 	var matter_id: int
 
-	func _init(p_unit: Unit, p_matter_id: int, p_oneshot := false):
+	func _init(p_unit: OwnWar.Unit, p_matter_id: int, p_oneshot := false):
 		unit = p_unit
 		matter_id = p_matter_id
 		oneshot = p_oneshot
@@ -51,23 +51,23 @@ class TaskPut:
 	func serialize() -> Dictionary:
 		var s := ._serialize("PUT")
 		s["target"] = unit.uid
-		s["matter"] = Matter.get_matter_name(matter_id)
+		s["matter"] = OwnWar.Matter.get_matter_name(matter_id)
 		return s
 
-	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+	static func deserialize(game_master: OwnWar.GameMaster, state: Dictionary) -> Task:
 		return TaskPut.new(
 				game_master.get_unit_by_uid(state["target"]),
-				Matter.get_matter_id(state["matter"]),
+				OwnWar.Matter.get_matter_id(state["matter"]),
 				state.get("oneshot", false)
 			)
 
 
 class TaskTake:
 	extends Task
-	var unit: Unit
+	var unit: OwnWar.Unit
 	var matter_id: int
 
-	func _init(p_unit: Unit, p_matter_id: int, p_oneshot := false):
+	func _init(p_unit: OwnWar.Unit, p_matter_id: int, p_oneshot := false):
 		unit = p_unit
 		matter_id = p_matter_id
 		oneshot = p_oneshot
@@ -78,23 +78,23 @@ class TaskTake:
 	func serialize() -> Dictionary:
 		var s := ._serialize("TAKE")
 		s["target"] = unit.uid
-		s["matter"] = Matter.get_matter_name(matter_id)
+		s["matter"] = OwnWar.Matter.get_matter_name(matter_id)
 		return s
 
-	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+	static func deserialize(game_master: OwnWar.GameMaster, state: Dictionary) -> Task:
 		return TaskTake.new(
 				game_master.get_unit_by_uid(state["target"]),
-				Matter.get_matter_id(state["matter"]),
+				OwnWar.Matter.get_matter_id(state["matter"]),
 				state.get("oneshot", false)
 			)
 
 
 class TaskPutOnly:
 	extends Task
-	var unit: Unit
+	var unit: OwnWar.Unit
 	var matter_id: int
 
-	func _init(p_unit: Unit, p_matter_id: int, p_oneshot := false):
+	func _init(p_unit: OwnWar.Unit, p_matter_id: int, p_oneshot := false):
 		unit = p_unit
 		matter_id = p_matter_id
 		oneshot = p_oneshot
@@ -105,23 +105,23 @@ class TaskPutOnly:
 	func serialize() -> Dictionary:
 		var s := ._serialize("PUT_ONLY")
 		s["target"] = unit.uid
-		s["matter"] = Matter.get_matter_name(matter_id)
+		s["matter"] = OwnWar.Matter.get_matter_name(matter_id)
 		return s
 
-	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+	static func deserialize(game_master: OwnWar.GameMaster, state: Dictionary) -> Task:
 		return TaskPutOnly.new(
 				game_master.get_unit_by_uid(state["target"]),
-				Matter.get_matter_id(state["matter"]),
+				OwnWar.Matter.get_matter_id(state["matter"]),
 				state.get("oneshot", false)
 			)
 
 
 class TaskTakeOnly:
 	extends Task
-	var unit: Unit
+	var unit: OwnWar.Unit
 	var matter_id: int
 
-	func _init(p_unit: Unit, p_matter_id: int, p_oneshot := false):
+	func _init(p_unit: OwnWar.Unit, p_matter_id: int, p_oneshot := false):
 		unit = p_unit
 		matter_id = p_matter_id
 		oneshot = p_oneshot
@@ -132,22 +132,23 @@ class TaskTakeOnly:
 	func serialize() -> Dictionary:
 		var s := ._serialize("TAKE_ONLY")
 		s["target"] = unit.uid
-		s["matter"] = Matter.get_matter_name(matter_id)
+		s["matter"] = OwnWar.Matter.get_matter_name(matter_id)
 		return s
 
-	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+	static func deserialize(game_master: OwnWar.GameMaster, state: Dictionary) -> Task:
 		return TaskTakeOnly.new(
 				game_master.get_unit_by_uid(state["target"]),
-				Matter.get_matter_id(state["matter"]),
+				OwnWar.Matter.get_matter_id(state["matter"]),
 				state.get("oneshot", false)
 			)
 
 
 class TaskBuild:
 	extends Task
-	var unit: Unit
+	var unit: OwnWar.Unit
+	var built_unit: OwnWar.Unit
 
-	func _init(p_unit: Unit, p_oneshot := false):
+	func _init(p_unit: OwnWar.Unit, p_oneshot := false):
 		unit = p_unit
 		oneshot = p_oneshot
 
@@ -159,7 +160,7 @@ class TaskBuild:
 		s["target"] = unit.uid
 		return s
 
-	static func deserialize(game_master: GameMaster, state: Dictionary) -> Task:
+	static func deserialize(game_master: OwnWar.GameMaster, state: Dictionary) -> Task:
 		return TaskBuild.new(
 				game_master.get_unit_by_uid(state["target"]),
 				state.get("oneshot", false)
@@ -182,7 +183,7 @@ class TaskGoto:
 		s["waypoint"] = var2str(coordinate)
 		return s
 
-	static func deserialize(_game_master: GameMaster, state: Dictionary) -> Task:
+	static func deserialize(_game_master: OwnWar.GameMaster, state: Dictionary) -> Task:
 		return TaskGoto.new(
 				str2var(state["waypoint"]),
 				state.get("oneshot", false)
@@ -193,7 +194,12 @@ signal task_completed(task)
 const SPEED = 20.0
 const INTERACTION_DISTANCE = 6.0
 const INTERACTION_DISTANCE_2 = INTERACTION_DISTANCE * INTERACTION_DISTANCE
-export(PackedScene) var drill_ghost
+const GOTO_ICON := preload("res://addons/hud/obituary_triple_arrow_to_point.tres")
+const BUILD_ICON := preload("res://addons/hud/obituary_hammer.tres")
+const PUT_ICON := preload("res://addons/hud/obituary_triple_arrow_to_point.tres")
+const PUT_ONLY_ICON := preload("res://addons/hud/obituary_arrow_to_point.tres")
+const CLEAR_TASKS_ICON := preload("res://addons/hud/obituary_cancel_cloud.tres")
+const GOTO_CURSOR := preload("res://addons/hud/obituary_triple_arrow_to_point_16x16.tres")
 export(int) var cost = 20
 var ghosts := {}
 var tasks = []
@@ -205,15 +211,16 @@ onready var rotors = [
 		$ArmRB/Rotor,
 	]
 const _MAX_VOLUME := 20_000_000
-var _task_cached_unit: Unit
+var _task_cached_unit: OwnWar.Unit
 var _matter_id := -1
 var _matter_count := 0
-onready var _material_id: int = Matter.get_matter_id("material")
+var _desired_velocity := Vector3.ZERO
+onready var _material_id: int = OwnWar.Matter.get_matter_id("material")
 onready var _raycast: RayCast = $RayCast
 
 
 func _init() -> void:
-	var d := Unit.get_all_units()
+	var d := OwnWar.Unit.get_all_units()
 	for k in d:
 		if k.ends_with("_ghost"):
 			ghosts[k.substr(0, len(k) - 6)] = d[k]
@@ -224,110 +231,184 @@ func _process(delta):
 		rotor.rotate_object_local(Vector3.UP, delta * 50)
 
 
-func _physics_process(delta):
+func _physics_process(_delta):
+	_desired_velocity = Vector3.ZERO
 	if len(tasks) == 0:
 		return
 	var task: Task = tasks[0]
 	if task is TaskGoto:
 		var t: TaskGoto = task
-		if move_towards(t.coordinate, delta):
+		if move_towards(t.coordinate):
 			current_task_completed()
 	elif task is TaskBuild:
 		var t: TaskBuild = task
 		if _matter_id == _material_id and _matter_count > 0:
 			if translation.distance_squared_to(t.unit.translation) <= INTERACTION_DISTANCE_2:
 				if last_build_frame + Engine.iterations_per_second < Engine.get_physics_frames():
-					var u: Ghost = t.unit
+					var u: OwnWar.Ghost = t.unit
 					_matter_count -= 1
 					_matter_count += u.add_build_progress(1)
 					last_build_frame = Engine.get_physics_frames()
 			else:
-				move_towards(t.unit.translation, delta)
+				move_towards(t.unit.translation)
 		elif _matter_count == 0:
-			if _take_matter_from_any(_material_id, [], delta) < 0:
+			if _take_matter_from_any(_material_id, []) < 0:
 				current_task_completed()
 		else:
-			if _put_matter_in_any(_matter_id, [], delta) < 0:
+			if _put_matter_in_any(_matter_id, []) < 0:
 				current_task_completed()
 	elif task is TaskPut:
 		var t: TaskPut = task
 		var id: int = t.matter_id
-		var unit: Unit = t.unit
+		var unit: OwnWar.Unit = t.unit
 		if unit.get_matter_space(id) == 0:
 			current_task_completed()
 		elif _matter_id == id or _matter_count == 0:
 			_matter_id = id
 			if _matter_count > 0:
-				if _put_matter(id, unit, delta):
+				if _put_matter(id, unit):
 					current_task_completed()
 			else:
-				if _take_matter_from_any(id, [unit], delta) < 0:
+				if _take_matter_from_any(id, [unit]) < 0:
 					current_task_completed()
 		else:
-			if _put_matter_in_any(_matter_id, [unit], delta) < 0:
+			if _put_matter_in_any(_matter_id, [unit]) < 0:
 				current_task_completed()
 	elif task is TaskTake:
 		var t: TaskTake = task
 		var id: int = t.matter_id
-		var unit: Unit = t.unit
+		var unit: OwnWar.Unit = t.unit
 		if unit.get_matter_count(id) == 0:
 			current_task_completed()
 		elif _matter_id == id or _matter_count == 0:
 			_matter_id = id
 			# warning-ignore:integer_division
-			if _matter_count < _MAX_VOLUME / Matter.get_matter_volume(id):
-				if _take_matter(id, unit, delta):
+			if _matter_count < _MAX_VOLUME / OwnWar.Matter.get_matter_volume(id):
+				if _take_matter(id, unit):
 					current_task_completed()
 			else:
-				if _put_matter_in_any(id, [unit], delta) < 0:
+				if _put_matter_in_any(id, [unit]) < 0:
 					current_task_completed()
 		else:
-			if _put_matter_in_any(_matter_id, [unit], delta) < 0:
+			if _put_matter_in_any(_matter_id, [unit]) < 0:
 				current_task_completed()
 	elif task is TaskPutOnly:
 		var t: TaskPutOnly = task
 		var id: int = t.matter_id
-		var unit: Unit = t.unit
+		var unit: OwnWar.Unit = t.unit
 		if unit.get_matter_space(id) == 0:
 			current_task_completed()
 		elif _matter_id == id and _matter_count > 0:
-			if _put_matter(id, unit, delta):
+			if _put_matter(id, unit):
 				current_task_completed()
 		else:
 			current_task_completed()
 	elif task is TaskTakeOnly:
 		var t: TaskTakeOnly = task
 		var id: int = t.matter_id
-		var unit: Unit = t.unit
+		var unit: OwnWar.Unit = t.unit
 		if unit.get_matter_count(id) == 0:
 			current_task_completed()
 		elif _matter_id == id or _matter_count == 0:
-			if _take_matter(id, unit, delta):
+			if _take_matter(id, unit):
 				current_task_completed()
 		else:
 			current_task_completed()
 
 
+func _integrate_forces(state: PhysicsDirectBodyState) -> void:
+	state.linear_velocity = _desired_velocity
+	var move_direction := _desired_velocity.normalized()
+	var self_direction := transform.basis.z
+	state.angular_velocity = move_direction.cross(self_direction) * 5
+
+
 func get_actions():
+	var goto_action := OwnWar.Action.new(
+		"Set waypoint",
+		GOTO_ICON,
+		Action.INPUT_COORDINATE,
+		funcref(self, "set_waypoint")
+	)
+	var take_action := OwnWar.Action.new(
+		"Take",
+		PUT_ICON,
+		Action.INPUT_OWN_UNITS,
+		funcref(self, "take_matter_from"),
+		[false]
+	)
+	var put_action := OwnWar.Action.new(
+		"Put",
+		PUT_ICON,
+		Action.INPUT_OWN_UNITS,
+		funcref(self, "put_matter_in"),
+		[false]
+	)
+	var take_only_action := OwnWar.Action.new(
+		"Take only",
+		PUT_ONLY_ICON,
+		Action.INPUT_OWN_UNITS,
+		funcref(self, "take_matter_from"),
+		[true]
+	)
+	var put_only_action := OwnWar.Action.new(
+		"Put only",
+		PUT_ONLY_ICON,
+		Action.INPUT_OWN_UNITS,
+		funcref(self, "put_matter_in"),
+		[true]
+	)
+	var build_action := OwnWar.Action.new(
+		"Build",
+		BUILD_ICON,
+		Action.SUBACTION,
+		funcref(self, "get_build_actions")
+	)
+	var clear_action := OwnWar.Action.new(
+		"Clear tasks",
+		CLEAR_TASKS_ICON,
+		Action.INPUT_NONE,
+		funcref(self, "clear_tasks")
+	)
+	take_action.flip_y = true
+	take_only_action.flip_y = true
+	goto_action.cursor = GOTO_CURSOR
 	return [
-			["Set waypoint", Action.INPUT_COORDINATE, "set_waypoint", []],
-			["Take", Action.INPUT_OWN_UNITS, "take_matter_from", [false]],
-			["Put", Action.INPUT_OWN_UNITS, "put_matter_in", [false]],
-			["Take only", Action.INPUT_OWN_UNITS, "take_matter_from", [true]],
-			["Put only", Action.INPUT_OWN_UNITS, "put_matter_in", [true]],
-			["Build", Action.SUBACTION, "get_build_actions", []],
-			["Clear tasks", Action.INPUT_NONE, "clear_tasks", []],
-		]
+		goto_action,
+		take_action,
+		put_action,
+		take_only_action,
+		put_only_action,
+		build_action,
+		clear_action,
+	]
 
 
 func get_build_actions(_flags):
+	var A := OwnWar.Action
 	var actions = [
-			["Build", Action.INPUT_OWN_UNITS, "build", []],
-			["Build drill", Action.INPUT_COORDINATE, "build_drill", []],
-		]
+		A.new(
+			"Build",
+			null,
+			Action.INPUT_OWN_UNITS,
+			funcref(self, "build")
+		),
+	]
 	for ghost_name in ghosts:
-		actions += [["Build " + ghost_name, Action.INPUT_COORDINATE | Action.INPUT_SCROLL,
-				"build_ghost", [ghost_name]]]
+		var tex := ImageTexture.new()
+		var a := A.new(
+			"Build " + ghost_name,
+			tex,
+			Action.INPUT_COORDINATE | Action.INPUT_SCROLL,
+			funcref(self, "build_ghost"),
+			[ghost_name]
+		)
+		OwnWar_Thumbnail.get_unit_thumbnail_async(
+			ghost_name,
+			funcref(tex, "create_from_image")
+		)
+		a.feedback = funcref(self, "build_ghost_feedback")
+		actions.append(a)
 	return actions
 
 
@@ -337,10 +418,10 @@ func get_info():
 	info["Current task"] = task_string
 	info["Total tasks"] = str(len(tasks))
 	if _matter_count > 0:
-		info["Matter type"] = Matter.get_matter_name(_matter_id)
-		info["Matter count"] = "%d / %d" % [_matter_count,
+		info["OwnWar.Matter type"] = OwnWar.Matter.get_matter_name(_matter_id)
+		info["OwnWar.Matter count"] = "%d / %d" % [_matter_count,
 # warning-ignore:integer_division
-				_MAX_VOLUME / Matter.get_matter_volume(_matter_id)]
+				_MAX_VOLUME / OwnWar.Matter.get_matter_volume(_matter_id)]
 	return info
 
 
@@ -349,8 +430,13 @@ func add_task(task: Task, force_append: bool) -> void:
 		clear_tasks(0)
 	if not task is TaskGoto:
 		# warning-ignore:unsafe_property_access
-		task.unit.connect("destroyed", self, "_unit_destroyed", [task],
+		var e: int = task.unit.connect("destroyed", self, "_unit_destroyed", [],
 				CONNECT_REFERENCE_COUNTED)
+		assert(e == OK)
+	if task is TaskBuild:
+		# warning-ignore:unsafe_property_access
+		var e: int = task.unit.connect("built", self, "_ghost_built", [task])
+		assert(e == OK)
 	tasks.append(task)
 
 
@@ -358,66 +444,61 @@ func set_waypoint(flags, coordinate):
 	add_task(TaskGoto.new(coordinate), flags & 0x1 > 0)
 
 
-func move_towards(position, delta):
-	var distance = position - translation
-	var distance_xz = Vector3(distance.x, 0, distance.z)
-	var distance_xz_length2 = distance_xz.length_squared()
-	var speed = SPEED if distance_xz_length2 > SPEED * SPEED * delta * delta else \
-			sqrt(distance_xz_length2) / delta
-	var velocity_direction = distance_xz.normalized()
+func move_towards(position: Vector3) -> bool:
+	var distance := position - translation
+	var distance_xz := Vector3(distance.x, 0, distance.z)
+	var distance_xz_length2 := distance_xz.length_squared()
+	var velocity_direction := distance_xz.normalized()
 	var height := translation.y - _raycast.get_collision_point().y if \
 			_raycast.is_colliding() else 5.0
 	if height < 1:
 		velocity_direction = (velocity_direction + Vector3.UP).normalized()
 	elif height > 4:
 		velocity_direction = (velocity_direction + Vector3.DOWN).normalized()
-	if distance_xz_length2 > 1e-5:
-		var kb: KinematicBody = self as Spatial
-		# warning-ignore:return_value_discarded
-		kb.move_and_slide(velocity_direction * speed, Vector3.UP,
-				false, 4, PI / 4, false)
-		return false
+	var delta := Engine.get_physics_interpolation_fraction()
+	var estimated_travel := (velocity_direction * SPEED * delta).length_squared()
+	var fraction: float
+	if estimated_travel == 0:
+		fraction = 1.0
 	else:
+		fraction = sqrt(distance.length_squared() / estimated_travel)
+	var speed := SPEED * clamp(fraction, 0, 1)
+	if distance_xz_length2 <= 1e-2:
 		return true
+	else:
+		_desired_velocity = velocity_direction * speed
+		return false
 
 
 func build(flags, units):
 	var force_append = flags & 0x1 > 0
 	for ghost in units:
-		if ghost is Ghost:
+		if ghost is OwnWar.Ghost:
 			var t := TaskBuild.new(ghost)
 			add_task(t, force_append)
-			ghost.connect("built", self, "_ghost_built", [t])
 			force_append = true
 
 
-func build_ghost(flags, position, scroll, ghost_name):
+func build_ghost(flags: int, position: Vector3, scroll: int, ghost_name: String
+	) -> void:
 	var ghost = ghosts[ghost_name].instance()
-	ghost.transform = Transform(Basis.IDENTITY.rotated(Vector3.UP, scroll * PI / 8), position)
 	ghost.team = team
 	game_master.add_child(ghost)
+	ghost.snap_transform(position, scroll)
 	var t := TaskBuild.new(ghost)
 	add_task(t, flags & 0x1 > 0)
-	ghost.connect("built", self, "_ghost_built", [t])
 
 
-func build_drill(flags, coordinate):
-	var closest_ore = null
-	var max_distance = 3.0
-	for ore in game_master.get_tree().get_nodes_in_group("ores"):
-		var distance = (ore.translation - coordinate).length()
-		if ore.drill == null and distance < max_distance:
-			closest_ore = ore
-			max_distance = distance
-	if closest_ore != null:
-		var ghost = drill_ghost.instance()
-		ghost.translation = closest_ore.translation + Vector3.UP * 1.4
-		ghost.init_arguments = [closest_ore]
-		ghost.team = team
-		game_master.add_child(ghost)
-		var t := TaskBuild.new(ghost)
-		add_task(t, flags & 0x1 > 0)
-		ghost.connect("built", self, "_ghost_built", [t])
+func build_ghost_feedback(_hud: Control, _flags: int, position: Vector3,
+	scroll: int, ghost_name: String) -> void:
+	# This is absolutely terrible, but I don't really care since it shouldn't
+	# impact performance much anyways
+	var ghost: OwnWar.Ghost = ghosts[ghost_name].instance()
+	get_tree().root.add_child(ghost)
+	ghost.enable_preview_mode()
+	ghost.snap_transform(position, scroll)
+	yield(get_tree(), "idle_frame")
+	ghost.free()
 
 
 func put_matter_in(flags, units, only):
@@ -449,7 +530,7 @@ func clear_tasks(_flags):
 		if not task is TaskGoto:
 			task.unit.disconnect("destroyed", self, "_unit_destroyed")
 		if task is TaskBuild:
-			task.unit.disconnect("built", self, "emit_signal")
+			task.unit.disconnect("built", self, "_ghost_built")
 	tasks = []
 
 
@@ -472,7 +553,7 @@ func debug_draw():
 		var position
 		if task is TaskGoto:
 			color = Color.green
-			position = task.coordinate + Vector3.UP * Block.BLOCK_SCALE
+			position = task.coordinate + Vector3.UP * OwnWar.Block.BLOCK_SCALE
 		elif task is TaskBuild:
 			color = Color.orange
 			position = task.unit.translation
@@ -506,52 +587,107 @@ func deserialize_json(data: Dictionary) -> void:
 		add_task(Task.deserialize(game_master, t_d), 1)
 	var c_uid: int = data.get("cached_unit", -1)
 	if c_uid >= 0:
-		var gm: GameMaster = game_master
+		var gm: OwnWar.GameMaster = game_master
 		_set_cached_unit(gm.get_unit_by_uid(c_uid))
 
 
-func _ghost_built(task: Task):
+func show_feedback(hud: Control) -> void:
+	var cam := get_tree().root.get_camera()
+	var font := hud.get_font("font")
+	var index := 1
+	var color := Color(1, 1, 1, 0.5)
+	for task in tasks:
+		var icon: Texture = null
+		var icon_pos: Vector2
+		var str_pos: Vector2
+		var flip_y := false
+		if task is TaskGoto:
+			var t: TaskGoto = task
+			var rel_pos := t.coordinate - cam.translation
+			if cam.transform.basis.z.dot(rel_pos) < 0:
+				var pos := cam.unproject_position(t.coordinate)
+				icon = GOTO_ICON
+				icon_pos = pos - Vector2(32, 32 + 27)
+				str_pos = pos + Vector2(20, 2)
+		elif task is TaskPut or task is TaskTake or task is TaskPutOnly or \
+			task is TaskTakeOnly or task is TaskBuild:
+			var unit: OwnWar.Unit = task.unit
+			var rel_pos := unit.translation - cam.translation
+			if cam.transform.basis.z.dot(rel_pos) < 0:
+				var pos := cam.unproject_position(unit.translation)
+				if task is TaskPut:
+					icon = PUT_ICON
+				elif task is TaskTake:
+					icon = PUT_ICON
+					flip_y = true
+				elif task is TaskPutOnly:
+					icon = PUT_ONLY_ICON
+				elif task is TaskPutOnly:
+					icon = PUT_ONLY_ICON
+					flip_y = true
+				elif task is TaskBuild:
+					icon = BUILD_ICON
+				else:
+					assert(false)
+				icon_pos = pos - Vector2(32, 32 + 27)
+				str_pos = pos + Vector2(20, 2)
+		else:
+			assert(false)
+		if icon != null:
+			hud.draw_texture_rect(
+				icon,
+				Rect2(icon_pos, Vector2(64, -64 if flip_y else 64)),
+				false,
+				color
+			)
+			hud.draw_string(font, str_pos, str(index), color)
+			index += 1
+
+
+
+func _ghost_built(ghost: OwnWar.Unit, task: TaskBuild):
+	task.built_unit = ghost
 	emit_signal("task_completed", task)
 
 
-func _unit_destroyed(_unit, task):
-	while true:
-		var index = tasks.find_last(task)
-		if index < 0:
-			break
-		tasks.remove(index)
-		if index == 0:
-			_task_cached_unit = null
+func _unit_destroyed(unit):
+	for i in range(len(tasks) - 1, -1, -1):
+		var task: Task = tasks[i]
+		# warning-ignore:unsafe_property_access
+		if not task is TaskGoto and task.unit == unit:
+			tasks.remove(i)
+			if i == 0:
+				_task_cached_unit = null
 
 
-func _put_matter(id: int, unit: Unit, delta: float) -> bool:
+func _put_matter(id: int, unit: OwnWar.Unit) -> bool:
 	if translation.distance_squared_to(unit.translation) <= INTERACTION_DISTANCE_2:
 		_matter_count = unit.put_matter(id, _matter_count)
 		return true
 	else:
-		move_towards(unit.translation, delta)
+		move_towards(unit.translation)
 		return false
 
 
-func _take_matter(id: int, unit: Unit, delta: float) -> bool:
+func _take_matter(id: int, unit: OwnWar.Unit) -> bool:
 	assert(id == _matter_id or _matter_count == 0)
 # warning-ignore:integer_division
-	var matter_space := _MAX_VOLUME / Matter.get_matter_volume(id) - _matter_count
+	var matter_space := _MAX_VOLUME / OwnWar.Matter.get_matter_volume(id) - _matter_count
 	assert(matter_space != 0 or _matter_count != 0)
 	if translation.distance_squared_to(unit.translation) <= INTERACTION_DISTANCE_2:
 		_matter_count += unit.take_matter(id, matter_space)
 		_matter_id = id
 		return true
 	else:
-		move_towards(unit.translation, delta)
+		move_towards(unit.translation)
 		return false
 
 
-func _put_matter_in_any(id: int, exclude: Array, delta: float) -> int:
+func _put_matter_in_any(id: int, exclude: Array) -> int:
 	assert(_matter_count > 0 and id == _matter_id)
 	if _task_cached_unit == null:
 		var closest_distance2 := INF
-		var gm: GameMaster = game_master
+		var gm: OwnWar.GameMaster = game_master
 		for unit in gm.get_units(team):
 			if not unit in exclude:
 				if unit.takes_matter(id) > 0:
@@ -560,18 +696,18 @@ func _put_matter_in_any(id: int, exclude: Array, delta: float) -> int:
 						_task_cached_unit = unit
 						closest_distance2 = d
 	if _task_cached_unit != null:
-		if _put_matter(id, _task_cached_unit, delta):
+		if _put_matter(id, _task_cached_unit):
 			_task_cached_unit = null
 			return 1
 		return 0
 	return -1
 
 
-func _take_matter_from_any(id: int, exclude: Array, delta: float) -> int:
+func _take_matter_from_any(id: int, exclude: Array) -> int:
 	assert(_matter_count == 0)
 	if _task_cached_unit == null:
 		var closest_distance2 := INF
-		var gm: GameMaster = game_master
+		var gm: OwnWar.GameMaster = game_master
 		for unit in gm.get_units(team):
 			if not unit in exclude and unit.provides_matter(id) > 0:
 				var d := translation.distance_squared_to(unit.translation)
@@ -579,14 +715,14 @@ func _take_matter_from_any(id: int, exclude: Array, delta: float) -> int:
 					_task_cached_unit = unit
 					closest_distance2 = d
 	if _task_cached_unit != null:
-		if _take_matter(id, _task_cached_unit, delta):
+		if _take_matter(id, _task_cached_unit):
 			_task_cached_unit = null
 			return 1
 		return 0
 	return -1
 
 
-func _set_cached_unit(unit: Unit) -> void:
+func _set_cached_unit(unit: OwnWar.Unit) -> void:
 	if _task_cached_unit != null:
 		_task_cached_unit.disconnect("destroyed", self, "_set_cached_unit")
 	if unit != null:

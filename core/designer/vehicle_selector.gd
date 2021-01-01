@@ -28,8 +28,8 @@ func scan_directory():
 
 
 func name_to_path(name):
-	return Vehicle.name_to_path(name)
+	return OwnWar.Vehicle.name_to_path(name)
 
 
 func path_to_name(path):
-	return Vehicle.path_to_name(path)
+	return OwnWar.Vehicle.path_to_name(path)

@@ -1,10 +1,10 @@
-extends Unit
+extends OwnWar_Unit
 
 
 const Tasks := preload("tasks.gd")
 signal task_completed()
 var task: Tasks.Task
-var dump_target: Unit
+var dump_target: OwnWar.Unit
 var matter_count := 0
 var matter_id := -1
 const _MAX_VOLUME := 30_000_000
@@ -25,7 +25,7 @@ func _physics_process(_delta: float) -> void:
 		pass
 	elif task is Tasks.Transport:
 		var tr_task: Tasks.Transport = task
-		var target: Unit = null
+		var target: OwnWar.Unit = null
 		if tr_task.matter_id != matter_id and matter_count != 0:
 			assert(dump_target != null)
 			target = dump_target
@@ -35,7 +35,7 @@ func _physics_process(_delta: float) -> void:
 				dump_target = null
 		if target == null:
 # warning-ignore:integer_division
-			var matter_space := _MAX_VOLUME / Matter.get_matter_volume(
+			var matter_space := _MAX_VOLUME / OwnWar.Matter.get_matter_volume(
 					tr_task.matter_id) - matter_count
 			if _task_step == 0 and (matter_count == 0 if tr_task is Tasks.Fill \
 					else matter_space > 0):
@@ -63,23 +63,23 @@ func _integrate_forces(state: PhysicsDirectBodyState):
 func get_info() -> Dictionary:
 	var info: Dictionary = .get_info()
 	if matter_count > 0:
-		info["Matter type"] = Matter.get_matter_name(matter_id)
+		info["OwnWar.Matter type"] = OwnWar.Matter.get_matter_name(matter_id)
 # warning-ignore:integer_division
-		var m_vol := Matter.get_matter_volume(matter_id)
-		info["Matter count"] = "%d / %d" % [matter_count, _MAX_VOLUME / m_vol]
+		var m_vol := OwnWar.Matter.get_matter_volume(matter_id)
+		info["OwnWar.Matter count"] = "%d / %d" % [matter_count, _MAX_VOLUME / m_vol]
 	if task == null:
 		info["Task"] = "None"
 	elif task is Tasks.Transport:
 		var tr_task: Tasks.Transport = task
 		info["Task"] = "Transport"
-		var matter_space = Matter.get_matter_volume(tr_task.matter_id) - \
+		var matter_space = OwnWar.Matter.get_matter_volume(tr_task.matter_id) - \
 				matter_count
 		if tr_task.matter_id != matter_id and matter_count != 0:
-			info["Dump"] = Matter.get_matter_name(matter_id)
+			info["Dump"] = OwnWar.Matter.get_matter_name(matter_id)
 		elif matter_count > 0 if tr_task is Tasks.Fill else matter_space == 0:
-			info["Empty"] = Matter.get_matter_name(tr_task.matter_id)
+			info["Empty"] = OwnWar.Matter.get_matter_name(tr_task.matter_id)
 		else:
-			info["Fill"] = Matter.get_matter_name(tr_task.matter_id)
+			info["Fill"] = OwnWar.Matter.get_matter_name(tr_task.matter_id)
 	else:
 		assert(false)
 	return info
@@ -142,7 +142,7 @@ func serialize_json() -> Dictionary:
 func deserialize_json(data: Dictionary) -> void:
 	matter_id = data["matter_id"]
 	matter_count = data["matter_count"]
-	var gm: GameMaster = game_master
+	var gm: OwnWar.GameMaster = game_master
 	match data["task"]:
 		"NONE":
 			task = null
@@ -167,8 +167,8 @@ func deserialize_json(data: Dictionary) -> void:
 
 func _move_towards(target_node: Spatial) -> void:
 	var target: Vector3
-	if target_node is Unit:
-		var u: Unit = target_node
+	if target_node is OwnWar.Unit:
+		var u: OwnWar.Unit = target_node
 		target = u.get_interaction_port()
 	elif target_node is Spatial:
 		target = target_node.translation
@@ -215,10 +215,10 @@ func _task_completed() -> void:
 	_task_step = 0
 
 
-func _take_matter(unit: Unit) -> bool:
+func _take_matter(unit: OwnWar.Unit) -> bool:
 	var task_tr: Tasks.Transport = task
 	assert(task_tr.matter_id == matter_id or matter_count == 0)
-	var m_vol := Matter.get_matter_volume(task_tr.matter_id)
+	var m_vol := OwnWar.Matter.get_matter_volume(task_tr.matter_id)
 # warning-ignore:integer_division
 	var matter_space := _MAX_VOLUME / m_vol - matter_count
 	var proj_pos = Plane(transform.basis.y, 0).project(unit.get_interaction_port() \
@@ -230,7 +230,7 @@ func _take_matter(unit: Unit) -> bool:
 	return false
 
 
-func _put_matter(unit: Unit) -> bool:
+func _put_matter(unit: OwnWar.Unit) -> bool:
 	var proj_pos = Plane(transform.basis.y, 0).project(unit.get_interaction_port() - translation)
 	if proj_pos.length_squared() < 9:
 		matter_count = unit.put_matter(matter_id, matter_count)

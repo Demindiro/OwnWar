@@ -1,4 +1,4 @@
-extends "res://block/chassis/variant/complex/edge_b.gd"
+extends "../complex/edge_b.gd"
 
 
 var _blacklist = [

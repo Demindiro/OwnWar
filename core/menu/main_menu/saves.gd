@@ -3,10 +3,17 @@ extends "res://core/menu/dialog/independent_panel.gd"
 
 
 var _saves_hash := 0
+var _timer: SceneTreeTimer
 
 
 func _ready() -> void:
 	_refresh_save_list()
+
+
+func _exit_tree() -> void:
+	if _timer != null:
+		_timer.disconnect("timeout", self, "_refresh_save_list")
+		_timer = null
 
 
 func _refresh_save_list() -> void:
@@ -22,11 +29,12 @@ func _refresh_save_list() -> void:
 			assert(e == OK)
 			$VBoxContainer.add_child(button)
 		_saves_hash = h
-# warning-ignore:return_value_discarded
-	get_tree().create_timer(1.0, true).connect("timeout", self, "_refresh_save_list")
+	_timer = get_tree().create_timer(1.0, true)
+	var e := _timer.connect("timeout", self, "_refresh_save_list")
+	assert(e == OK)
 
 
 func _load_game(path: String) -> void:
-	var e := GameMaster.load_game(path)
+	var e := OwnWar.GameMaster.load_game(path)
 	if e != OK:
 		Global.error("Failed to load game %d", e)

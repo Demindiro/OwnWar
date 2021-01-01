@@ -1,8 +1,8 @@
-[gd_scene load_steps=23 format=2]
+[gd_scene load_steps=29 format=2]
 
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=1]
 [ext_resource path="res://core/designer/meta_editor.gd" type="Script" id=2]
-[ext_resource path="res://core/camera/free_camera.gd" type="Script" id=3]
+[ext_resource path="res://addons/aabb_camera.gd" type="Script" id=3]
 [ext_resource path="res://core/designer/block_layer.gd" type="Script" id=4]
 [ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=5]
 [ext_resource path="res://core/designer/mirror_line_material.tres" type="Material" id=6]
@@ -22,6 +22,17 @@
 [ext_resource path="res://core/designer/color_picker.gd" type="Script" id=20]
 [ext_resource path="res://core/designer/designer.gd" type="Script" id=21]
 [ext_resource path="res://core/designer/block_base_material.tres" type="Material" id=22]
+[ext_resource path="res://core/thumbnail/mock_cube.tres" type="CubeMesh" id=23]
+[ext_resource path="res://addons/flowcontainer.gd" type="Script" id=24]
+[ext_resource path="res://core/designer/ellipsis.png" type="Texture" id=25]
+
+[sub_resource type="SpatialMaterial" id=1]
+
+[sub_resource type="ProceduralSky" id=2]
+
+[sub_resource type="Environment" id=3]
+background_mode = 2
+background_sky = SubResource( 2 )
 
 [node name="Designer" type="Node"]
 pause_mode = 2
@@ -32,30 +43,63 @@ material = ExtResource( 22 )
 
 [node name="Lights" type="Node" parent="."]
 
+[node name="TempLightFix" type="DirectionalLight" parent="Lights"]
+transform = Transform( -0.707107, 0.353553, -0.612373, 0, 0.866026, 0.5, 0.707107, 0.353553, -0.612373, 0, 16.9646, 0 )
+light_energy = 0.5
+light_indirect_energy = 0.5
+
 [node name="SW" type="DirectionalLight" parent="Lights"]
 transform = Transform( -0.707107, 0.353553, -0.612372, 0, 0.866025, 0.5, 0.707107, 0.353553, -0.612372, 0, 16.9646, 0 )
+visible = false
 
 [node name="NW" type="DirectionalLight" parent="Lights"]
 transform = Transform( 0.707107, -0.353553, 0.612373, 0, 0.866025, 0.5, -0.707107, -0.353553, 0.612372, 0, 16.9646, 0 )
+visible = false
 
 [node name="Camera" type="Camera" parent="."]
-transform = Transform( -1, 0, -3.25841e-07, -1.62921e-07, 0.866025, 0.5, 2.82187e-07, 0.5, -0.866025, -0.112284, 5.09171, -11.6802 )
+process_priority = -1
+transform = Transform( -1, -1.42109e-13, -3.25842e-07, -1.62921e-07, 0.866025, 0.5, 2.82187e-07, 0.5, -0.866025, 10, 5.09171, 0 )
+cull_mask = 1
 script = ExtResource( 3 )
+speed = 10.0
+angular_speed = 0.01
 always_capture = true
+aabb = AABB( -10, 0.55, -10, 45, 30, 45 )
 
-[node name="MeshInstance" type="MeshInstance" parent="Camera"]
-pause_mode = 1
-transform = Transform( 2.98872, -0.0583399, 2.65785, 1.28558, 3.53209, -1.36808, -2.32699, 1.87642, 2.65785, 2, -1, -2 )
+[node name="Box" type="ViewportContainer" parent="Camera"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+stretch = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
-[node name="Floor" type="Sprite3D" parent="."]
+[node name="Viewport" type="Viewport" parent="Camera/Box"]
+size = Vector2( 1920, 1080 )
+transparent_bg = true
+handle_input_locally = false
+render_target_update_mode = 3
+gui_disable_input = true
+
+[node name="Camera" type="Camera" parent="Camera/Box/Viewport"]
+transform = Transform( -1, -1.42109e-13, -3.25842e-07, -1.62921e-07, 0.866025, 0.5, 2.82187e-07, 0.5, -0.866025, -0.112284, 5.09171, -11.6802 )
+cull_mask = 2147483776
+
+[node name="Mesh" type="MeshInstance" parent="Camera/Box/Viewport/Camera"]
 pause_mode = 1
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 )
-axis = 1
-transparent = false
-double_sided = false
+transform = Transform( 0.945729, -0.0479753, 0.321394, 0.163176, 0.925416, -0.34202, -0.281015, 0.375902, 0.883022, 0.675385, -0.287656, -0.690228 )
+layers = 128
+mesh = ExtResource( 23 )
+material/0 = SubResource( 1 )
+
+[node name="Floor" type="Spatial" parent="."]
+pause_mode = 1
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5, 0, 12.5 )
 script = ExtResource( 16 )
 
 [node name="Origin" type="Spatial" parent="Floor"]
+pause_mode = 1
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.5, -12 )
 
 [node name="Ghost" type="MeshInstance" parent="Floor/Origin"]
 transform = Transform( 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, -1 )
@@ -66,7 +110,7 @@ double_sided = false
 texture = ExtResource( 10 )
 
 [node name="Mirror" type="MeshInstance" parent="Floor"]
-transform = Transform( 0.5, 0, 0, 0, -3.25841e-07, 1, 0, -2, -1.62921e-07, 0, 0.001, 0 )
+transform = Transform( 0.5, 0, 0, 0, -1.09278e-06, 1, 0, -25, -4.37114e-08, 0, 0.001, 0 )
 mesh = ExtResource( 11 )
 material/0 = ExtResource( 6 )
 
@@ -201,7 +245,6 @@ margin_bottom = 296.629
 text = "Exit"
 
 [node name="Inventory" parent="GUI" instance=ExtResource( 5 )]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 40.0
@@ -209,6 +252,38 @@ margin_top = 40.0
 margin_right = -40.0
 margin_bottom = -40.0
 title = "Inventory"
+
+[node name="ViewportContainer" type="ViewportContainer" parent="GUI/Inventory"]
+modulate = Color( 1, 1, 1, 0.498039 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+stretch = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Viewport" type="Viewport" parent="GUI/Inventory/ViewportContainer"]
+pause_mode = 1
+size = Vector2( 1840, 1000 )
+own_world = true
+transparent_bg = true
+handle_input_locally = false
+msaa = 4
+usage = 3
+render_target_update_mode = 3
+gui_disable_input = true
+
+[node name="Camera" type="Camera" parent="GUI/Inventory/ViewportContainer/Viewport"]
+transform = Transform( 0.642788, -0.323744, 0.694272, 0, 0.906308, 0.422618, -0.766044, -0.271654, 0.582563, 0.6838, 0.4475, 0.572 )
+fov = 30.0
+
+[node name="DirectionalLight" type="DirectionalLight" parent="GUI/Inventory/ViewportContainer/Viewport"]
+transform = Transform( 0.866025, -0.17101, 0.469846, 0, 0.939693, 0.34202, -0.5, -0.296198, 0.813798, 0, 0, 0 )
+
+[node name="MeshInstance" type="MeshInstance" parent="GUI/Inventory/ViewportContainer/Viewport"]
+pause_mode = 1
+mesh = ExtResource( 23 )
+material/0 = null
 
 [node name="Inventory" type="VBoxContainer" parent="GUI/Inventory"]
 anchor_right = 1.0
@@ -221,76 +296,50 @@ script = ExtResource( 9 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-category_button_template = NodePath("../../Inventory/Inventory/HBoxContainer2/HBoxContainer/Categories/VBoxContainer/Template")
-block_button_template = NodePath("../../Inventory/Inventory/HBoxContainer2/HBoxContainer/Blocks/GridContainer/Template")
-preview_mesh = NodePath("../../Inventory/Inventory/HBoxContainer2/HBoxContainer2/ViewportContainer/Viewport/Camera/MeshInstance")
+category_button_template = NodePath("HBoxContainer/Categories/VBoxContainer/Template")
+block_button_template = NodePath("HBoxContainer/Blocks/GridContainer/Template")
+preview_mesh = NodePath("../ViewportContainer/Viewport/MeshInstance")
+_thumbnail_placeholder = ExtResource( 25 )
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="GUI/Inventory/Inventory"]
+[node name="HBoxContainer" type="HBoxContainer" parent="GUI/Inventory/Inventory"]
 margin_right = 1760.0
 margin_bottom = 920.0
+size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="GUI/Inventory/Inventory/HBoxContainer2"]
-margin_right = 878.0
-margin_bottom = 920.0
-size_flags_horizontal = 3
-
-[node name="Categories" type="ScrollContainer" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer"]
+[node name="Categories" type="ScrollContainer" parent="GUI/Inventory/Inventory/HBoxContainer"]
 margin_right = 150.0
 margin_bottom = 920.0
 size_flags_vertical = 3
 scroll_horizontal_enabled = false
 
-[node name="VBoxContainer" type="VBoxContainer" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer/Categories"]
+[node name="VBoxContainer" type="VBoxContainer" parent="GUI/Inventory/Inventory/HBoxContainer/Categories"]
 margin_right = 150.0
 margin_bottom = 920.0
 size_flags_vertical = 3
 
-[node name="Template" type="Button" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer/Categories/VBoxContainer"]
+[node name="Template" type="Button" parent="GUI/Inventory/Inventory/HBoxContainer/Categories/VBoxContainer"]
 margin_right = 150.0
 margin_bottom = 41.6293
 rect_min_size = Vector2( 150, 0 )
 text = "Category"
 
-[node name="Blocks" type="ScrollContainer" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer"]
+[node name="Blocks" type="ScrollContainer" parent="GUI/Inventory/Inventory/HBoxContainer"]
 margin_left = 154.0
-margin_right = 304.0
-margin_bottom = 920.0
-scroll_horizontal_enabled = false
-
-[node name="GridContainer" type="GridContainer" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer/Blocks"]
-margin_right = 150.0
-margin_bottom = 41.0
-
-[node name="Template" type="Button" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer/Blocks/GridContainer"]
-margin_right = 150.0
-margin_bottom = 41.6293
-rect_min_size = Vector2( 150, 0 )
-text = "Block"
-
-[node name="HBoxContainer2" type="HBoxContainer" parent="GUI/Inventory/Inventory/HBoxContainer2"]
-margin_left = 882.0
 margin_right = 1760.0
 margin_bottom = 920.0
 size_flags_horizontal = 3
 
-[node name="ViewportContainer" type="ViewportContainer" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer2"]
-margin_right = 878.0
+[node name="GridContainer" type="GridContainer" parent="GUI/Inventory/Inventory/HBoxContainer/Blocks"]
+margin_right = 1606.0
 margin_bottom = 920.0
-size_flags_horizontal = 3
-stretch = true
+size_flags_horizontal = 15
+size_flags_vertical = 15
+custom_constants/vseparation = 8
+custom_constants/hseparation = 8
+script = ExtResource( 24 )
 
-[node name="Viewport" type="Viewport" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer2/ViewportContainer"]
-size = Vector2( 878, 920 )
-handle_input_locally = false
-render_target_update_mode = 0
-
-[node name="Camera" type="Camera" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer2/ViewportContainer/Viewport"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 42.9181, 16.5937, 0 )
-
-[node name="MeshInstance" type="MeshInstance" parent="GUI/Inventory/Inventory/HBoxContainer2/HBoxContainer2/ViewportContainer/Viewport/Camera"]
-pause_mode = 1
-transform = Transform( 2.71817, 0.145894, 2.93091, 1.28558, 3.53209, -1.36808, -2.63796, 1.87165, 2.35332, 0, 0, -2 )
+[node name="Template" type="TextureButton" parent="GUI/Inventory/Inventory/HBoxContainer/Blocks/GridContainer"]
 
 [node name="SaveVehicle" parent="GUI" instance=ExtResource( 5 )]
 visible = false
@@ -520,6 +569,9 @@ columns = 2
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource( 3 )
 [connection signal="item_selected" from="HUD/BlockLayer" to="." method="_on_BlockLayer_item_selected"]
 [connection signal="item_selected" from="HUD/BlockLayerView" to="." method="_on_BlockLayerView_item_selected"]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Continue" to="." method="set_enabled" binds= [ true ]]
@@ -529,9 +581,13 @@ __meta__ = {
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Load" to="GUI/LoadVehicle" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Exit" to="." method="_on_Exit_pressed"]
 [connection signal="hide" from="GUI/Inventory" to="." method="set_enabled" binds= [ true ]]
+[connection signal="save_vehicle" from="GUI/SaveVehicle" to="." method="save_vehicle"]
+[connection signal="text_changed" from="GUI/SaveVehicle/VBoxContainer/Name" to="GUI/SaveVehicle" method="_on_Name_text_changed"]
 [connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Cancel" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Save" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/SaveVehicle/VBoxContainer/HBoxContainer/Save" to="GUI/SaveVehicle" method="_on_Save_pressed"]
+[connection signal="load_vehicle" from="GUI/LoadVehicle" to="." method="_on_LoadVehicle_load_vehicle"]
+[connection signal="load_vehicle" from="GUI/LoadVehicle" to="GUI/SaveVehicle" method="_on_LoadVehicle_load_vehicle"]
 [connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Cancel" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Load" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Load" to="GUI/LoadVehicle" method="_on_Load_pressed"]

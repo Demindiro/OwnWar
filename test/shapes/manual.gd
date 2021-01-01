@@ -1,7 +1,7 @@
 extends "res://test/shapes/shapes.gd"
 
 
-export(String, FILE, "*.json") var data_path := "res://block/chassis/shapes.json"
+export(String, FILE, "*.json") var data_path := "res://plugins/chassis_blocks/shapes.json"
 var data: Dictionary
 var rotation := 0
 var mirror := 0
@@ -40,7 +40,7 @@ func save_data():
 
 
 func update():
-	transform = Transform(Block.rotation_to_basis(rotation), Vector3.ZERO)
+	transform = Transform(OwnWar.Block.rotation_to_basis(rotation), Vector3.ZERO)
 	transform = transform.scaled(Vector3.ONE * 2)
 	transform = transform.translated(-Vector3.ONE / 2)
 	.update()
@@ -72,7 +72,10 @@ func update_mirror():
 		mirror_transform = Transform.FLIP_X * transform
 		flip_faces = true
 	else:
-		mirror_transform = Transform(Block.rotation_to_basis(mirror), Vector3.ZERO) * transform
+		mirror_transform = Transform(
+			OwnWar.Block.rotation_to_basis(mirror),
+			Vector3.ZERO
+		) * transform
 	$MirrorInstance.mesh = generator.get_mesh(meshes[variant_index], mirror_transform, flip_faces)
 
 

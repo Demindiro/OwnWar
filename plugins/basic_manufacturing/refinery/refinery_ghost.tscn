@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=2]
 
-[ext_resource path="res://plugins/basic_manufacturing/ghost.gd" type="Script" id=1]
+[ext_resource path="res://core/unit/ghost.gd" type="Script" id=1]
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery.tscn" type="PackedScene" id=2]
 [ext_resource path="res://plugins/basic_manufacturing/refinery/tank_ghost_mesh.tres" type="CylinderMesh" id=3]
 [ext_resource path="res://plugins/basic_manufacturing/ghost_material.tres" type="Material" id=4]

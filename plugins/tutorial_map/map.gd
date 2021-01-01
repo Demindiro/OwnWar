@@ -3,7 +3,7 @@ const BM := preload("res://plugins/basic_manufacturing/plugin.gd")
 const WorkerDrone := preload("res://plugins/worker_drone/drone.gd")
 
 export(PackedScene) var drone_scene
-onready var game_master: GameMaster = GameMaster.get_game_master(self)
+onready var game_master := OwnWar.GameMaster.get_game_master(self)
 var _drone_spawn_transform
 onready var _player_drill: BM.Drill = $"../Player/Drill"
 onready var _player_drone: WorkerDrone = $"../Player/Drone"
@@ -14,7 +14,7 @@ onready var _ore: BM.Ore = $Ores/Ore
 
 
 func _ready():
-	var material_id := Matter.get_matter_id("material")
+	var material_id := OwnWar.Matter.get_matter_id("material")
 	_player_drill.init(_ore)
 	var m := _player_storage_pod.put_matter(material_id, 500)
 	assert(m == 0)

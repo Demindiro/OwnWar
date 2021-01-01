@@ -1,9 +1,11 @@
 tool
-extends Structure
+extends OwnWar_Structure
 
 
 const Drone := preload("roboport_drone.gd")
 const Tasks := preload("tasks.gd")
+const RADIUS_ICON := preload("res://addons/hud/obituary_octa_circles.tres")
+const RADIUS_CURSOR := preload("res://addons/hud/obituary_octa_circles_16x16.tres")
 export var drone_scene: PackedScene
 export var drone_limit := 10
 export var _radius2 := 100.0 * 100.0
@@ -23,7 +25,7 @@ onready var _spawn_point: Transform = ($SpawnPoint as Spatial).global_transform
 
 func _ready():
 	if not Engine.editor_hint:
-		var types_count := Matter.get_matter_types_count()
+		var types_count := OwnWar.Matter.get_matter_types_count()
 		_providers.resize(types_count)
 		_takers.resize(types_count)
 		_needs_provider.resize(types_count)
@@ -40,16 +42,22 @@ func _exit_tree():
 
 func _process(_delta: float) -> void:
 	if Engine.editor_hint:
-		show_feedback()
+		show_feedback(null)
 	else:
 		set_process(false)
 
 
 func get_actions() -> Array:
 	var actions := .get_actions()
-	actions += [
-			["Set Coverage", Action.INPUT_COORDINATE, "set_coverage_radius", []]
-		]
+	var set_cov := OwnWar.Action.new(
+		"Set Coverage",
+		RADIUS_ICON,
+		Action.INPUT_COORDINATE,
+		funcref(self, "set_coverage_radius")
+	)
+	set_cov.feedback = funcref(self, "set_coverage_radius_feedback")
+	set_cov.cursor = RADIUS_CURSOR
+	actions.append(set_cov)
 	return actions
 
 func get_info() -> Dictionary:
@@ -60,7 +68,7 @@ func get_info() -> Dictionary:
 	return info
 
 
-func show_feedback():
+func show_feedback(_hud: Control) -> void:
 	if _immediate_geometry == null:
 		_immediate_geometry = ImmediateGeometry.new()
 		var mat := SpatialMaterial.new()
@@ -77,18 +85,14 @@ func hide_feedback():
 		_immediate_geometry = null
 
 
-func show_action_feedback(function: String, viewport: Viewport, arguments: Array) -> void:
-	match function:
-		"set_coverage_radius":
-			var position: Vector3 = arguments[1]
-			var projected_position := Plane(transform.basis.y, 0).project(position)
-			_draw_circle(translation.distance_to(projected_position))
-		_:
-			.show_action_feedback(function, viewport, arguments)
-
-
 func set_coverage_radius(_flags: int, position: Vector3) -> void:
 	_set_radius2(translation.distance_squared_to(position))
+
+
+func set_coverage_radius_feedback(viewport: Viewport, _flags: int,
+	position: Vector3) -> void:
+	var projected_position := Plane(transform.basis.y, 0).project(position)
+	_draw_circle(translation.distance_to(projected_position))
 
 
 func assign_tasks() -> void:
@@ -111,7 +115,7 @@ func serialize_json() -> Dictionary:
 func deserialize_json(data: Dictionary) -> void:
 	_drones = []
 	for d_uid in data["drones"]:
-		var gm: GameMaster = game_master
+		var gm: OwnWar.GameMaster = game_master
 		_drones.append(gm.get_unit_by_uid(d_uid))
 	_spawn_timer = get_tree().create_timer(data["spawn_timer"], false)
 	_set_radius2(data["radius2"])
@@ -180,7 +184,7 @@ func _draw_circle(radius: float) -> void:
 		# NOTE: raycast tests against large bodies are very inaccurate because
 		# reasons (https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=3524)
 		var result := space_state.intersect_ray(v + Vector3.UP * 1000,
-				v + Vector3.DOWN * 1000, [], Constants.COLLISION_MASK_TERRAIN)
+				v + Vector3.DOWN * 1000, [], OwnWar.COLLISION_MASK_TERRAIN)
 		if len(result) > 0:
 			v = result.position + Vector3.UP * 0.025
 		_immediate_geometry.add_vertex(to_local(v))
@@ -196,19 +200,19 @@ func _set_radius2(radius2: float) -> void:
 		unit.disconnect("take_matter", self, "_on_take_matter")
 		unit.disconnect("dump_matter", self, "_on_dump_matter")
 	_units = []
-	for i in range(Matter.get_matter_types_count()):
+	for i in range(OwnWar.Matter.get_matter_types_count()):
 		_providers[i] = []
 		_takers[i] = []
 		_needs_provider[i] = []
 		_needs_taker[i] = []
-	var gm: GameMaster = game_master
-	for unit in gm.get_units(team, Structure):
+	var gm: OwnWar.GameMaster = game_master
+	for unit in gm.get_units(team, OwnWar.Structure):
 		if translation.distance_squared_to(unit.translation) < radius2:
 			_add_unit(unit)
 	assign_tasks()
 
 
-func _on_need_matter(id: int, amount: int, unit: Unit):
+func _on_need_matter(id: int, amount: int, unit: OwnWar.Unit):
 	if amount > 0:
 		var provider := _get_nearest(unit, _providers[id])
 		if provider != null:
@@ -220,7 +224,7 @@ func _on_need_matter(id: int, amount: int, unit: Unit):
 	assign_tasks()
 
 
-func _on_provide_matter(id: int, amount: int, unit: Unit):
+func _on_provide_matter(id: int, amount: int, unit: OwnWar.Unit):
 	if amount > 0:
 		if not unit in _providers[id]:
 			_add_matter_provider(unit, id)
@@ -229,7 +233,7 @@ func _on_provide_matter(id: int, amount: int, unit: Unit):
 	assign_tasks()
 
 
-func _on_take_matter(id: int, amount: int, unit: Unit):
+func _on_take_matter(id: int, amount: int, unit: OwnWar.Unit):
 	if amount > 0:
 		if not unit in _takers[id]:
 			_add_matter_taker(unit, id)
@@ -238,7 +242,7 @@ func _on_take_matter(id: int, amount: int, unit: Unit):
 	assign_tasks()
 
 
-func _on_dump_matter(id: int, amount: int, unit: Unit):
+func _on_dump_matter(id: int, amount: int, unit: OwnWar.Unit):
 	if amount > 0:
 		var taker := _get_nearest(unit, _takers[id])
 		if taker != null:
@@ -292,8 +296,9 @@ func _task_completed(drone: Drone) -> void:
 	assign_tasks()
 
 
-func _get_nearest(unit: Unit, unit_list: Array, matter_id := -1, matter_count := 0) -> Unit:
-	var provider: Unit
+func _get_nearest(unit: OwnWar.Unit, unit_list: Array, matter_id := -1,
+	matter_count := 0) -> OwnWar.Unit:
+	var provider: OwnWar.Unit
 	var shortest_distance := INF
 	for prov in unit_list:
 		if prov.get_matter_space(matter_id) >= matter_count:
@@ -304,14 +309,14 @@ func _get_nearest(unit: Unit, unit_list: Array, matter_id := -1, matter_count :=
 	return provider
 
 
-func _unit_added(unit: Unit) -> void:
-	if unit is Structure and \
+func _unit_added(unit: OwnWar.Unit) -> void:
+	if unit is OwnWar.Structure and \
 			unit.team == team and \
 			unit.translation.distance_squared_to(translation) < _radius2:
 		_add_unit(unit)
 
 
-func _add_unit(unit: Structure) -> void:
+func _add_unit(unit: OwnWar.Structure) -> void:
 	if unit in _units:
 		return
 	_units.append(unit)
@@ -345,21 +350,21 @@ func _add_unit(unit: Structure) -> void:
 			_add_matter_provider(unit, id)
 
 
-func _add_matter_provider(unit: Structure, id: int) -> void:
+func _add_matter_provider(unit: OwnWar.Structure, id: int) -> void:
 	_providers[id].append(unit)
 	for needer in _needs_provider[id]:
 		_add_task(Tasks.Fill.new(unit, needer, id))
 	_needs_provider[id] = []
 
 
-func _add_matter_taker(unit: Structure, id: int) -> void:
+func _add_matter_taker(unit: OwnWar.Structure, id: int) -> void:
 	_takers[id].append(unit)
 	for needer in _needs_taker[id]:
 		_add_task(Tasks.Empty.new(needer, unit, id))
 	_needs_taker[id] = []
 
 
-func _remove_unit(unit: Structure) -> void:
+func _remove_unit(unit: OwnWar.Structure) -> void:
 	unit.disconnect("message", self, "_get_message")
 	unit.disconnect("destroyed", self, "_unit_destroyed")
 	for id in unit.get_take_matter_list():
@@ -383,7 +388,7 @@ func _add_task(task: Tasks.Task) -> void:
 	assign_tasks()
 
 
-func _remove_task(task: GDScript, unit: Unit) -> void:
+func _remove_task(task: GDScript, unit: OwnWar.Unit) -> void:
 	# cba with the range() syntax
 	var i := len(_tasks) - 1
 	while i >= 0:
@@ -397,3 +402,43 @@ func _remove_task(task: GDScript, unit: Unit) -> void:
 func debug_draw():
 	for drone in _drones:
 		Debug.draw_line(translation, drone.translation, Color.orange)
+	var uid_str := str(uid)
+	for u in _units:
+		var unit: OwnWar.Unit = u
+		var msg := "Roboport UID: %s" % uid_str
+		var prepended := false
+
+		for i in len(_providers):
+			if unit in _providers[i]:
+				if not prepended:
+					msg += "\nProvides: "
+					prepended = true
+				msg += str(i) + ", "
+
+		prepended = false
+		for i in len(_takers):
+			if unit in _takers[i]:
+				if not prepended:
+					msg += "\nTakes: "
+					prepended = true
+				msg += str(i) + ", "
+
+		prepended = false
+		for t in _tasks:
+			var task := t as Tasks.Fill
+			if task != null and task.to == unit:
+				if not prepended:
+					msg += "\nNeeds: "
+					prepended = true
+				msg += str(task.matter_id) + ", "
+
+		prepended = false
+		for t in _tasks:
+			var task := t as Tasks.Empty
+			if task != null and task.from == unit:
+				if not prepended:
+					msg += "\nDumps: "
+					prepended = true
+				msg += str(task.matter_id) + ", "
+
+		Debug.draw_text(unit.translation, msg, Color.orange)

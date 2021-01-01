@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=2]
+[gd_scene load_steps=25 format=2]
 
 [ext_resource path="res://plugins/worker_drone/drone.tscn" type="PackedScene" id=1]
 [ext_resource path="res://plugins/designer_map/floor_mesh.tres" type="PlaneMesh" id=2]
@@ -8,21 +8,17 @@
 [ext_resource path="res://core/block/debug/vane.obj" type="ArrayMesh" id=6]
 [ext_resource path="res://plugins/basic_manufacturing/storage_pod/storage_pod.tscn" type="PackedScene" id=7]
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=8]
-[ext_resource path="res://core/shortcut/ui_accept.tres" type="ShortCut" id=9]
+[ext_resource path="res://plugins/designer_map/environment.tres" type="Environment" id=9]
 [ext_resource path="res://core/map/game_master.gd" type="Script" id=10]
-[ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=11]
-[ext_resource path="res://core/camera/free_camera.gd" type="Script" id=14]
-[ext_resource path="res://core/designer/load_vehicle.gd" type="Script" id=15]
+[ext_resource path="res://core/map/gui.tscn" type="PackedScene" id=12]
+[ext_resource path="res://addons/free_camera.gd" type="Script" id=14]
 [ext_resource path="res://plugins/basic_manufacturing/munitions_factory/munitions_factory.tscn" type="PackedScene" id=16]
 [ext_resource path="res://plugins/basic_manufacturing/refinery/refinery.tscn" type="PackedScene" id=17]
 [ext_resource path="res://plugins/basic_manufacturing/roboport/roboport.tscn" type="PackedScene" id=21]
-[ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=22]
-[ext_resource path="res://plugins/designer_map/menu.gd" type="Script" id=23]
 [ext_resource path="res://plugins/designer_map/pill_material.tres" type="Material" id=24]
 [ext_resource path="res://plugins/designer_map/pill_mesh.tres" type="CapsuleMesh" id=25]
 [ext_resource path="res://plugins/designer_map/map.gd" type="Script" id=26]
 [ext_resource path="res://plugins/designer_map/pill_shape.tres" type="Shape" id=27]
-[ext_resource path="res://plugins/designer_map/gui.gd" type="Script" id=28]
 [ext_resource path="res://plugins/designer_map/wall_shape.tres" type="Shape" id=29]
 [ext_resource path="res://plugins/designer_map/floor_material.tres" type="Material" id=30]
 [ext_resource path="res://plugins/designer_map/floor_shape.tres" type="Shape" id=31]
@@ -121,7 +117,7 @@ directional_shadow_depth_range = 1
 [node name="Player" parent="." instance=ExtResource( 33 )]
 
 [node name="SpawnPlatform" parent="Player" instance=ExtResource( 3 )]
-transform = Transform( -1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, -27, 0, 0 )
+transform = Transform( -1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, -27, -3.05176e-05, 0 )
 max_health = 2305843009213693952
 team = "Player"
 
@@ -170,163 +166,32 @@ camera = NodePath("../Camera")
 anchor_left = 1.0
 anchor_right = 1.0
 margin_left = -162.842
-margin_top = 56.0561
+margin_top = 20.1889
 margin_right = -15.842
-margin_bottom = 98.0561
+margin_bottom = 62.1889
 focus_mode = 0
 theme = ExtResource( 8 )
 text = "Player"
 items = [ "Player", null, false, 1, null, "Enemy", null, false, 2, null ]
 selected = 0
 script = ExtResource( 32 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 options = PoolStringArray( "Player", "Enemy" )
 
-[node name="GUI" type="ColorRect" parent="."]
+[node name="GUI" parent="." instance=ExtResource( 12 )]
 pause_mode = 2
 visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme = ExtResource( 8 )
-color = Color( 0, 0, 0, 0.392157 )
-script = ExtResource( 28 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="Main" parent="GUI" instance=ExtResource( 11 )]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -160.0
-margin_top = -190.0
-margin_right = 160.0
-margin_bottom = 190.0
-script = ExtResource( 23 )
-
-[node name="VBoxContainer" type="VBoxContainer" parent="GUI/Main"]
-margin_left = 40.0
-margin_top = 40.0
-margin_right = 305.0
-custom_constants/separation = 10
-alignment = 1
-__meta__ = {
-"_edit_use_anchors_": false,
-"_editor_description_": ""
-}
-
-[node name="Continue" type="Button" parent="GUI/Main/VBoxContainer"]
-margin_right = 265.0
-margin_bottom = 41.6293
-text = "Continue"
-
-[node name="Save" type="Button" parent="GUI/Main/VBoxContainer"]
-margin_top = 51.0
-margin_right = 265.0
-margin_bottom = 92.6293
-text = "Save"
-
-[node name="Restart" type="Button" parent="GUI/Main/VBoxContainer"]
-margin_top = 102.0
-margin_right = 265.0
-margin_bottom = 143.629
-text = "Restart"
-
-[node name="Designer" type="Button" parent="GUI/Main/VBoxContainer"]
-margin_top = 204.0
-margin_right = 265.0
-margin_bottom = 245.629
-text = "Designer"
-
-[node name="Exit" type="Button" parent="GUI/Main/VBoxContainer"]
-margin_top = 255.0
-margin_right = 265.0
-margin_bottom = 296.629
-text = "Exit"
-
-[node name="LoadVehicle" parent="GUI" instance=ExtResource( 11 )]
-visible = false
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -160.0
-margin_top = -190.0
-margin_right = 160.0
-margin_bottom = 190.0
-script = ExtResource( 15 )
-
-[node name="VBoxContainer" type="VBoxContainer" parent="GUI/LoadVehicle"]
-margin_left = 40.0
-margin_top = 40.0
-margin_right = 305.0
-margin_bottom = 347.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Name" type="Label" parent="GUI/LoadVehicle/VBoxContainer"]
-margin_right = 265.0
-margin_bottom = 20.0
-
-[node name="PanelContainer" type="PanelContainer" parent="GUI/LoadVehicle/VBoxContainer"]
-margin_top = 30.0
-margin_right = 265.0
-margin_bottom = 256.0
-size_flags_vertical = 3
-
-[node name="ScrollContainer" type="ScrollContainer" parent="GUI/LoadVehicle/VBoxContainer/PanelContainer"]
-margin_left = 16.0
-margin_top = 11.0
-margin_right = 249.0
-margin_bottom = 215.0
-size_flags_horizontal = 3
-scroll_horizontal_enabled = false
-
-[node name="Files" type="VBoxContainer" parent="GUI/LoadVehicle/VBoxContainer/PanelContainer/ScrollContainer"]
-margin_right = 233.0
-margin_bottom = 41.0
-size_flags_horizontal = 3
-
-[node name="Template" type="Button" parent="GUI/LoadVehicle/VBoxContainer/PanelContainer/ScrollContainer/Files"]
-margin_right = 233.0
-margin_bottom = 41.6293
-size_flags_horizontal = 3
-text = "Vehicle name"
-align = 0
-
-[node name="HBoxContainer" type="HBoxContainer" parent="GUI/LoadVehicle/VBoxContainer"]
-margin_top = 266.0
-margin_right = 265.0
-margin_bottom = 307.0
-size_flags_horizontal = 3
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Cancel" type="Button" parent="GUI/LoadVehicle/VBoxContainer/HBoxContainer"]
-margin_right = 130.0
-margin_bottom = 41.6293
-size_flags_horizontal = 3
-shortcut = ExtResource( 22 )
-text = "Cancel"
-
-[node name="Load" type="Button" parent="GUI/LoadVehicle/VBoxContainer/HBoxContainer"]
-margin_left = 134.0
-margin_right = 265.0
-margin_bottom = 41.6293
-size_flags_horizontal = 3
-shortcut = ExtResource( 9 )
-text = "Load"
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource( 9 )
 [connection signal="load_game" from="." to="HUD" method="_on_Designer_load_game"]
 [connection signal="load_game" from="." to="Map" method="_on_Designer_load_game"]
 [connection signal="save_game" from="." to="HUD" method="_on_Designer_save_game"]
 [connection signal="save_game" from="." to="Map" method="_on_Designer_save_game"]
 [connection signal="item_selected" from="HUD/ChangeTeam" to="HUD/ChangeTeam" method="_on_ChangeTeam_item_selected"]
-[connection signal="pressed" from="GUI/Main/VBoxContainer/Continue" to="GUI/Main" method="_on_Continue_pressed"]
-[connection signal="pressed" from="GUI/Main/VBoxContainer/Save" to="." method="save_game" binds= [ "_designer" ]]
-[connection signal="pressed" from="GUI/Main/VBoxContainer/Restart" to="GUI/Main" method="_on_Restart_pressed"]
-[connection signal="pressed" from="GUI/Main/VBoxContainer/Designer" to="GUI/Main" method="_on_Designer_pressed"]
-[connection signal="pressed" from="GUI/Main/VBoxContainer/Exit" to="GUI/Main" method="_on_Exit_pressed"]
-[connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Cancel" to="GUI" method="set_enabled" binds= [ false ]]
-[connection signal="pressed" from="GUI/LoadVehicle/VBoxContainer/HBoxContainer/Load" to="GUI/LoadVehicle" method="_on_Load_pressed"]
+[connection signal="cancel" from="GUI" to="Map" method="_on_GUI_cancel"]
+[connection signal="exit" from="GUI" to="Map" method="_on_GUI_exit"]
+[connection signal="restart" from="GUI" to="Map" method="_on_GUI_restart"]
+[connection signal="save" from="GUI" to="." method="save_game"]

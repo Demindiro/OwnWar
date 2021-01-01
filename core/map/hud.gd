@@ -1,86 +1,107 @@
 extends Control
 
 
+class ActionGroup:
+	var input_name: String
+	var button: BaseButton
+	var actions: Array
+
+	func _init(p_input_name: String, p_button: BaseButton, p_actions: Array
+		) -> void:
+		input_name = p_input_name
+		button = p_button
+		actions = p_actions
+
+	func get_input_flags() -> int:
+		return actions[0].input_flags
+
+	func get_thumbnail() -> Texture:
+		return actions[0].thumbnail
+
+	func get_name() -> String:
+		return actions[0].name
+
+
 const SHORTCUT_PREFIX = "campaign_shortcut_"
 const SHORTCUT_COUNT = 10
+const SELECTED_UNIT_ICON := preload("res://addons/crosshairs/image0063.png")
+const FLIP_Y_MATERIAL := preload("flip_y.tres")
+const HOVER_MATERIAL := preload("hover.tres")
+const CLICK_MATERIAL := preload("click.tres")
+const PRESSED_MATERIAL := preload("click.tres")
 export var team := "Player"
 export var camera: NodePath
 var selected_units = [] setget set_selected_units
-onready var game_master = GameMaster.get_game_master(self)
+onready var game_master = OwnWar.GameMaster.get_game_master(self)
 
 var _selecting_units = false
 var _mouse_position_start
 var _last_mouse_position
 var _units_teams_mask
-var _action_input_name
-var _action_button
-var _action
+var _current_action: ActionGroup
 var _append_action = false
 var _scroll = 0
 var _unit_info_index = 0
 onready var _camera: Camera = get_node(camera)
-onready var _action_button_template := find_node("Template")
-onready var _fps_label: Label = $FPS
-onready var _drawcalls_label: Label = $DrawCalls
+onready var _actions: Control = $Box/Actions
 
 
 func _ready():
-	_action_button_template.get_parent().remove_child(_action_button_template)
 	assert(_camera != null)
 
 
 func _process(_delta):
-	if len(selected_units) > 0 or _selecting_units:
-		update()
-	_fps_label.text = "FPS: " + str(Engine.get_frames_per_second())
-	var draw_calls = get_tree().root.get_render_info(Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME)
-	_drawcalls_label.text = "Draw calls: " + str(draw_calls)
 	set_unit_info()
-	show_feedback()
-	show_action_feedback()
+	update()
 
 
 func _unhandled_input(event):
 	if event.is_action("campaign_append_action"):
 		_append_action = event.pressed
-	elif event.is_action("campaign_debug"):
+		get_tree().set_input_as_handled()
+	if event.is_action_pressed("campaign_debug"):
 		if event.pressed:
 			Debug.visible = not Debug.visible
-	elif event.is_action("ui_cancel"):
-		if _action_button != null:
+		get_tree().set_input_as_handled()
+	if event.is_action_pressed("ui_cancel"):
+		if _current_action != null:
 			if event.pressed:
 				clear_action_button()
+			get_tree().set_input_as_handled()
 
 
 func _gui_input(event):
 	if event.is_action("campaign_primary"):
-		match _action_input_name:
-			"coordinate":
-				if not event.pressed:
-					var origin = _camera.project_ray_origin(event.position)
-					var normal = _camera.project_ray_normal(event.position)
-					var space_state = _camera.get_world().direct_space_state
-					var result = space_state.intersect_ray(origin, origin + normal * 1000)
-					if len(result) > 0:
-						send_coordinate(result.position)
-			"units":
-				if event.pressed:
-					_selecting_units = true
-					_mouse_position_start = _last_mouse_position
-				else:
-					_selecting_units = false
-					var units = get_selected_units(_units_teams_mask)
-					send_units(units)
-			_:
-				if event.pressed:
-					_selecting_units = true
-					_mouse_position_start = _last_mouse_position
-				else:
-					_selecting_units = false
-					set_selected_units(get_selected_units(PoolStringArray([team])))
-					filter_units()
-					_unit_info_index = 0
-					set_unit_info()
+		if _current_action != null:
+			match _current_action.input_name:
+				"coordinate":
+					if not event.pressed:
+						var origin = _camera.project_ray_origin(event.position)
+						var normal = _camera.project_ray_normal(event.position)
+						var space_state = _camera.get_world().direct_space_state
+						var result = space_state.intersect_ray(origin, origin + normal * 1000)
+						if len(result) > 0:
+							send_coordinate(result.position)
+				"units":
+					if event.pressed:
+						_selecting_units = true
+						_mouse_position_start = _last_mouse_position
+					else:
+						_selecting_units = false
+						var units = get_selected_units(_units_teams_mask)
+						send_units(units)
+				_:
+					assert(false)
+		else:
+			if event.pressed:
+				_selecting_units = true
+				_mouse_position_start = _last_mouse_position
+			else:
+				_selecting_units = false
+				set_selected_units(get_selected_units(PoolStringArray([team])))
+				filter_units()
+				_unit_info_index = 0
+				set_unit_info()
 		update()
 	elif event.is_action("campaign_scroll_up"):
 		if event.pressed:
@@ -95,22 +116,20 @@ func _gui_input(event):
 
 
 func _draw():
+	show_feedback()
+	show_action_feedback()
 	for unit in selected_units:
 		if (unit.translation - _camera.translation).dot(-_camera.transform.basis.z) > 0:
 			var position = _camera.unproject_position(unit.translation)
-			var rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
-			draw_rect(rect, Color.orange, false, 2)
-#		if unit is Vehicle and unit.ai.target != null and \
-#				(unit.ai.target.translation - _camera.translation).dot(-_camera.transform.basis.z) > 0:
-#			var position = _camera.unproject_position(unit.ai.target.translation)
-#			var rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
-#			draw_rect(rect, Color.red, false, 2)
+			var rect = Rect2(position - Vector2.ONE * 32, Vector2.ONE * 64)
+			draw_texture_rect(SELECTED_UNIT_ICON, rect, false, Color.orange)
 	if _selecting_units:
 		var rect = Rect2(_mouse_position_start, _last_mouse_position - _mouse_position_start)
+		#draw_texture_rect(SELECTED_UNIT_ICON, rect, false, Color.purple)
 		draw_rect(rect, Color.purple, false, 2)
 		var units
 		var color
-		if _action_input_name == null:
+		if _current_action == null:
 			units = get_selected_units(PoolStringArray([team]))
 			color = Color.green
 		else:
@@ -118,18 +137,12 @@ func _draw():
 			color = Color.red
 		for unit in units:
 			var position = _camera.unproject_position(unit.translation)
-			rect = Rect2(position - Vector2.ONE * 25, Vector2.ONE * 50)
-			draw_rect(rect, color, false, 2)
-
-
-func _notification(notification):
-	match notification:
-		NOTIFICATION_PREDELETE:
-			_action_button_template.free()
+			rect = Rect2(position - Vector2.ONE * 32, Vector2.ONE * 64)
+			draw_texture_rect(SELECTED_UNIT_ICON, rect, false, color)
 
 
 func filter_units():
-	for child in $Actions.get_children():
+	for child in _actions.get_children():
 		child.queue_free()
 
 	if len(selected_units) == 0:
@@ -137,7 +150,7 @@ func filter_units():
 
 	var unique_units = {}
 	for unit in selected_units:
-		unique_units[unit.unit_name] = null
+		unique_units[unit.unit_name] = unit
 
 	if len(unique_units) == 1:
 		set_action_buttons(selected_units[0].unit_name)
@@ -145,20 +158,34 @@ func filter_units():
 
 	var shortcut_index = 0
 	for unit_name in unique_units:
-		var button = _action_button_template.duplicate()
-		button.text = unit_name
-		button.connect("pressed", self, "set_action_buttons", [unit_name])
+		var button := TextureButton.new()
+		var unit: OwnWar.Unit = unique_units[unit_name]
+		var tex := ImageTexture.new()
+		if unit is OwnWar.Vehicle:
+			var v: OwnWar.Vehicle = unit
+			var _imm := OwnWar_Thumbnail.get_vehicle_thumbnail_async(
+				v.get_file_path(),
+				funcref(tex, "create_from_image")
+			)
+		else:
+			var _imm := OwnWar_Thumbnail.get_unit_thumbnail_async(
+				unit_name,
+				funcref(tex, "create_from_image")
+			)
+		button.texture_normal = tex
+		var e := button.connect("pressed", self, "set_action_buttons", [unit_name])
+		assert(e == OK)
 		if shortcut_index < SHORTCUT_COUNT:
 			var input_event = InputEventAction.new()
 			input_event.action = SHORTCUT_PREFIX + str(shortcut_index)
 			button.shortcut = ShortCut.new()
 			button.shortcut.shortcut = input_event
-			button.text += " (" + str((shortcut_index + 1) % 10) + ")"
 			shortcut_index += 1
-		$Actions.add_child(button)
+		_actions.add_child(button)
 
 
-func set_action_buttons(unit_name, sub_action = null, arguments = null):
+func set_action_buttons(unit_name: String, sub_action: FuncRef = null,
+		arguments := []) -> void:
 	var filtered_units = []
 	for unit in selected_units:
 		if unit.unit_name == unit_name:
@@ -166,127 +193,223 @@ func set_action_buttons(unit_name, sub_action = null, arguments = null):
 	set_selected_units(filtered_units)
 
 	clear_action_button()
-	for child in $Actions.get_children():
+	for child in _actions.get_children():
 		child.queue_free()
 
 	if len(selected_units) == 0:
 		return
 
+	# Get and group actions first
+	var unit_actions := []
+	for unit in selected_units:
+		if sub_action == null:
+			unit_actions.append(unit.get_actions())
+		else:
+			var act = sub_action.call_funcv([get_modifier_flags()] + arguments)
+			unit_actions.append(act)
+
+	var action_groups := []
+	for i in range(len(unit_actions[0])):
+		var a := []
+		for act in unit_actions:
+			a.append(act[i])
+		action_groups.append(ActionGroup.new("", null, a))
+
 	var unit = selected_units[0]
 	var shortcut_index = 0
-	for action in unit.get_actions() if sub_action == null else \
-			unit.callv(sub_action, [get_modifier_flags()] + arguments):
-#		var action_name = action[0]
-#		var action_flags = action[1]
-		var action_function = action[2]
-		var action_arguments = action[3] if len(action) > 3 else []
-		var action_pressed = action[4] if len(action) > 4 else false
-
-		var button = _action_button_template.duplicate()
-		button.text = action[0]
-		if action[1] & Unit.Action.SUBACTION:
-			button.connect("pressed", self, "set_action_buttons",
-					[unit_name, action_function, action_arguments])
-		elif action[1] & Unit.Action.INPUT_COORDINATE:
-			button.connect("pressed", self, "get_coordinate", [button, action])
+	for ag in action_groups:
+		var action_group: ActionGroup = ag
+		var button := TextureButton.new()
+		button.enabled_focus_mode = BaseButton.FOCUS_NONE
+		if action_group.get_thumbnail() != null:
+			button.texture_normal = action_group.get_thumbnail()
+			if action_group.actions[0].flip_y:
+				button.material = FLIP_Y_MATERIAL
+		else:
+			button.texture_normal = preload("../designer/ellipsis.png")
+		if true:
+			var e := button.connect(
+				"mouse_entered",
+				self,
+				"_action_mouse_entered",
+				[button, action_group.actions[0].flip_y]
+			)
+			assert(e == OK)
+			e = button.connect(
+				"mouse_exited",
+				self,
+				"_action_mouse_exited",
+				[button, action_group.actions[0].flip_y]
+			)
+			assert(e == OK)
+			e = button.connect(
+				"button_down",
+				self,
+				"_action_down",
+				[button, action_group.actions[0].flip_y]
+			)
+			assert(e == OK)
+			e = button.connect(
+				"button_up",
+				self,
+				"_action_up",
+				[button, action_group.actions[0].flip_y]
+			)
+			assert(e == OK)
+		button.rect_min_size = Vector2(96, 96)
+		button.hint_tooltip = action_group.get_name()
+		action_group.button = button
+		var input_flags := action_group.get_input_flags()
+		if input_flags & OwnWar.Unit.Action.SUBACTION:
+			action_group.input_name = "sub_action"
+			var e := button.connect(
+				"pressed",
+				self,
+				"set_action_buttons",
+				[
+					unit_name,
+					action_group.actions[0].function,
+					action_group.actions[0].arguments
+				]
+			)
+			assert(e == OK)
+		elif input_flags & OwnWar.Unit.Action.INPUT_COORDINATE:
+			action_group.input_name = "coordinate"
+			var e := button.connect(
+				"pressed",
+				self,
+				"get_coordinate",
+				[action_group]
+			)
+			assert(e == OK)
 			button.toggle_mode = true
-		elif action[1] & Unit.Action.INPUT_UNITS:
-			if action[1] & Unit.Action.INPUT_ENEMY_UNITS:
+		elif input_flags & OwnWar.Unit.Action.INPUT_UNITS:
+			action_group.input_name = "units"
+			if input_flags & OwnWar.Unit.Action.INPUT_ENEMY_UNITS:
 				_units_teams_mask = []
 				for t in game_master.teams:
 					if t != team:
 						_units_teams_mask.append(t)
 			else:
 				_units_teams_mask = [team]
-			button.connect("pressed", self, "get_units", [button, action])
+			var e := button.connect(
+				"pressed",
+				self,
+				"get_units",
+				[action_group]
+			)
+			assert(e == OK)
 			button.toggle_mode = true
-		elif action[1] & Unit.Action.INPUT_TOGGLE:
-			button.connect("pressed", self, "send_toggle", [button, action])
+		elif input_flags & OwnWar.Unit.Action.INPUT_TOGGLE:
+			action_group.input_name = "toggle"
+			var e := button.connect(
+				"pressed",
+				self,
+				"send_toggle",
+				[action_group]
+			)
+			assert(e == OK)
 			button.toggle_mode = true
-			button.pressed = action_pressed
+			button.pressed = action_group.actions[0].pressed
 		else:
-			button.connect("pressed", self, "send_plain", [action])
+			action_group.input_name = "plain"
+			var e := button.connect(
+				"pressed",
+				self,
+				"send_plain",
+				[action_group]
+			)
+			assert(e == OK)
 
 		if shortcut_index < SHORTCUT_COUNT:
 			var input_event = InputEventAction.new()
 			input_event.action = SHORTCUT_PREFIX + str(shortcut_index)
 			button.shortcut = ShortCut.new()
 			button.shortcut.shortcut = input_event
-			button.text += " (" + str((shortcut_index + 1) % 10) + ")"
+			#button.text += " (" + str((shortcut_index + 1) % 10) + ")"
 			shortcut_index += 1
 
-		$Actions.add_child(button)
+		_actions.add_child(button)
 
-	var button = _action_button_template.duplicate()
-	var input_event = InputEventAction.new()
+	var button := Button.new()
+	var input_event := InputEventAction.new()
 	input_event.action = SHORTCUT_PREFIX + "cancel"
-	button.text = "Cancel (X)"
+	button.text = "X"
 	button.shortcut = ShortCut.new()
 	button.shortcut.shortcut = input_event
 	if sub_action == null:
-		button.connect("pressed", self, "clear_units")
+		var e := button.connect("pressed", self, "clear_units")
+		assert(e == OK)
 	else:
-		button.connect("pressed", self, "set_action_buttons", [unit.unit_name])
-	$Actions.add_child(button)
+		var e := button.connect("pressed", self, "set_action_buttons", [unit.unit_name])
+		assert(e == OK)
+	_actions.add_child(button)
 
 
-func get_coordinate(button, action):
-	if button == _action_button:
+func get_coordinate(action_group: ActionGroup) -> void:
+	assert(action_group != null)
+	if action_group == _current_action:
 		clear_action_button()
 		return
 	clear_action_button()
-	_action_input_name = "coordinate"
-	_action_button = button
-	_action = action
-	button.pressed = true
+	_current_action = action_group
+	_current_action.button.pressed = true
+	var cursor: Texture = action_group.actions[0].cursor
+	if cursor != null:
+		Input.set_custom_mouse_cursor(cursor, 0, cursor.get_size() / 2.0)
 
 
-func get_units(button, action):
-	if button == _action_button:
+func get_units(action_group: ActionGroup) -> void:
+	assert(action_group != null)
+	if action_group == _current_action:
 		clear_action_button()
 		return
 	clear_action_button()
-	_action_input_name = "units"
-	_action_button = button
-	_action = action
-	button.pressed = true
+	_current_action = action_group
+	_current_action.button.pressed = true
+	var cursor: Texture = action_group.actions[0].cursor
+	if cursor != null:
+		Input.set_custom_mouse_cursor(cursor, 0, cursor.get_size() / 2.0)
 
 
-func send_coordinate(coordinate):
-	for unit in selected_units:
+func send_coordinate(coordinate: Vector3) -> void:
+	for a in _current_action.actions:
+		var action: OwnWar.Action = a
 		var arguments = [get_modifier_flags(), coordinate]
-		if _action[1] & Unit.Action.INPUT_SCROLL:
+		if action.input_flags & OwnWar.Unit.Action.INPUT_SCROLL:
 			arguments += [_scroll]
-		arguments += _action[3]
-		unit.callv(_action[2], arguments)
+		arguments += action.arguments
+		action.function.call_funcv(arguments)
 	clear_action_button()
 
 
-func send_units(units):
-	for unit in selected_units:
-		var arguments = [get_modifier_flags(), units] + _action[3]
-		unit.callv(_action[2], arguments)
+func send_units(units: Array) -> void:
+	for a in _current_action.actions:
+		var action: OwnWar.Action = a
+		var arguments = [get_modifier_flags(), units] + action.arguments
+		action.function.call_funcv(arguments)
 	clear_action_button()
 
 
-func send_toggle(button, action):
-	for unit in selected_units:
-		var arguments = [get_modifier_flags(), button.pressed] + action[3]
-		unit.callv(action[2], arguments)
+func send_toggle(action_group: ActionGroup) -> void:
+	for action in action_group.actions:
+		var arguments = [get_modifier_flags(), action_group.button.pressed] + \
+			action.arguments
+		action.function.call_funcv(arguments)
 
 
-func send_plain(action):
-	for unit in selected_units:
-		var arguments = [get_modifier_flags()] + action[3]
-		unit.callv(action[2], arguments)
+func send_plain(action_group: ActionGroup) -> void:
+	for action in action_group.actions:
+		var arguments = [get_modifier_flags()] + action.arguments
+		action.function.call_funcv(arguments)
 
 
 func clear_action_button():
-	if _action_button:
-		_action_button.pressed = false
-	_action_input_name = null
-	_action_button = null
-	_action = null
+	if _current_action != null:
+		_current_action.button.pressed = false
+		_action_up(_current_action.button, _current_action.actions[0].flip_y)
+		_current_action = null
+	Input.set_custom_mouse_cursor(null)
 
 
 func get_selected_units(teams_mask: PoolStringArray) -> Array:
@@ -360,43 +483,72 @@ func clear_units():
 
 func show_feedback():
 	for unit in selected_units:
-		unit.show_feedback()
+		unit.show_feedback(self)
 
 
 func show_action_feedback():
-	match _action_input_name:
-		"coordinate":
-			var origin = _camera.project_ray_origin(_last_mouse_position)
-			var normal = _camera.project_ray_normal(_last_mouse_position)
-			var space_state = _camera.get_world().direct_space_state
-			var result = space_state.intersect_ray(origin, origin + \
-					normal * 1_000_000)
-			if len(result) > 0:
-				for unit in selected_units:
-					var arguments = [get_modifier_flags(), result.position]
-					if _action[1] & Unit.Action.INPUT_SCROLL:
-						arguments += [_scroll]
-					arguments += _action[3]
-					unit.show_action_feedback(_action[2], _camera.get_viewport(), arguments)
-		"units":
-			for unit in selected_units:
-				unit.hide_action_feedback()
-#			if event.pressed:
-#				_selecting_units = true
-#				_mouse_position_start = _last_mouse_position
-#			else:
-#				_selecting_units = false
-#				var units = get_selected_units(_units_teams_mask)
-#				send_units(units)
-		_:
-			for unit in selected_units:
-				unit.hide_action_feedback()
+	if _current_action != null:
+		match _current_action.input_name:
+			"coordinate":
+				var origin = _camera.project_ray_origin(_last_mouse_position)
+				var normal = _camera.project_ray_normal(_last_mouse_position)
+				var space_state = _camera.get_world().direct_space_state
+				var result = space_state.intersect_ray(origin, origin + \
+						normal * 1_000_000)
+				if len(result) > 0:
+					for a in _current_action.actions:
+						var action: OwnWar.Action = a
+						if action.feedback != null:
+							var arguments := [
+								self,
+								get_modifier_flags(),
+								result.position,
+							]
+							if action.input_flags & OwnWar.Unit.Action.INPUT_SCROLL:
+								arguments += [_scroll]
+							arguments += action.arguments
+							action.feedback.call_funcv(arguments)
+			"units":
+				pass
+			_:
+				assert(false)
 
 
 func _unit_destroyed(unit):
 	selected_units.erase(unit)
 	set_action_buttons(selected_units)
 	update()
+
+
+func _action_mouse_entered(button: BaseButton, flip_y: bool) -> void:
+	assert(button != null)
+	if not button.pressed:
+		HOVER_MATERIAL.set_shader_param("flip_y", flip_y)
+		button.material = HOVER_MATERIAL
+
+
+func _action_mouse_exited(button: BaseButton, flip_y: bool) -> void:
+	assert(button != null)
+	if not button.pressed:
+		if flip_y:
+			button.material = FLIP_Y_MATERIAL
+		else:
+			button.material = null
+
+
+func _action_down(button: BaseButton, flip_y: bool) -> void:
+	assert(button != null)
+	HOVER_MATERIAL.set_shader_param("flip_y", flip_y)
+	button.material = CLICK_MATERIAL
+
+
+func _action_up(button: BaseButton, flip_y: bool) -> void:
+	assert(button != null)
+	if not button.pressed:
+		if flip_y:
+			button.material = FLIP_Y_MATERIAL
+		else:
+			button.material = null
 
 
 func _on_Designer_load_game(data):

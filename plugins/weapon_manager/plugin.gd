@@ -1,4 +1,6 @@
-const PLUGIN_ID := "weapon_manager"
+extends OwnWar.Plugin.Interface
+
+
 const PLUGIN_VERSION := Vector3(0, 0, 1)
 const MIN_VERSION := Vector3(0, 12, 0)
 const PLUGIN_DEPENDENCIES := {}
@@ -9,25 +11,17 @@ const Weapon := preload("weapon.gd")
 const Projectile := preload("projectile.gd")
 
 
-static func pre_init(_plugin_path: String):
-	Block.add_block(preload("ammo_rack.tres"))
-	Vehicle.add_manager("weapon", preload("weapon_manager.gd"))
+func pre_init():
+	OwnWar.Block.add_block(preload("ammo_rack.tres"))
+	OwnWar.Vehicle.add_manager("weapon", preload("weapon_manager.gd"))
 
 
-static func init(_plugin_path: String):
-	pass
-
-
-static func post_init(_plugin_path: String):
-	pass
-
-
-static func save_game(game_master: GameMaster) -> Dictionary:
+func save_game(game_master: OwnWar.GameMaster) -> Dictionary:
 	var s := []
 	for p in game_master.get_tree().get_nodes_in_group("projectiles"):
 		assert(Munition.is_munition(p.munition_id))
 		var d := {
-				"name": Matter.get_matter_name(p.munition_id),
+				"name": OwnWar.Matter.get_matter_name(p.munition_id),
 				"transform": var2str(p.transform),
 				"velocity": var2str(p.linear_velocity),
 				"damage": p.damage,
@@ -38,9 +32,9 @@ static func save_game(game_master: GameMaster) -> Dictionary:
 	return {"projectiles": s}
 
 
-static func load_game(game_master: GameMaster, data: Dictionary) -> void:
+func load_game(game_master: OwnWar.GameMaster, data: Dictionary) -> void:
 	for s in data["projectiles"]:
-		var id := Matter.get_matter_id(s["name"])
+		var id := OwnWar.Matter.get_matter_id(s["name"])
 		var munition: Munition = Munition.get_munition(id)
 		var shell: Projectile = munition.shell.instance()
 		shell.transform = str2var(s["transform"])

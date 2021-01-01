@@ -7,7 +7,7 @@ var _wheels := []
 var _power_manager: PowerManager
 
 
-func init(vehicle: Vehicle) -> void:
+func init(vehicle: OwnWar.Vehicle) -> void:
 	_power_manager = vehicle.get_manager("power")
 
 
@@ -15,6 +15,7 @@ func set_drive_forward(drive):
 	drive = clamp(drive, -1, 1)
 	for wheel in _wheels:
 		_power_manager.reserve_power(wheel, abs(wheel.max_power * drive))
+		wheel.set_drive(drive)
 
 
 func set_drive_yaw(drive):

@@ -1,5 +1,3 @@
-class_name Block
-
 extends Resource
 
 
@@ -78,7 +76,7 @@ func get_mirror_rotation(rotation: int) -> int:
 	return mirror_rotation_map[rotation]
 
 
-static func add_block(block: Block):
+static func add_block(block):
 	if block.name in _NAME_TO_BLOCK:
 		assert(false)
 		push_error("Block name is already registered: '%s'" % block.name)
@@ -159,6 +157,22 @@ static func orthogonal_index_to_rotation(index: int) -> int:
 			return i
 	assert(false)
 	return -1
+
+
+static func axis_to_direction(axis: Vector3) -> int:
+	# Matching is fine, because round() rounds to whole integers, which can be
+	# represented in memory without any loss of precisision
+	axis = axis.round()
+	var d := -1
+	match axis:
+		Vector3.UP: d = 0
+		Vector3.DOWN: d = 1
+		Vector3.RIGHT: d = 2
+		Vector3.LEFT: d = 3
+		Vector3.BACK: d = 4
+		Vector3.FORWARD: d = 5
+		_: assert(false)
+	return d << 2
 
 
 func __set_mirror_block(block: Resource):

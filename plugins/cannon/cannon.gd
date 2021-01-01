@@ -8,7 +8,7 @@ export var projectile_velocity := 1000.0
 export var inaccuracy := 0.01
 export var gauge := -1
 export var recoil_impulse := NAN
-var _voxel_body: VoxelBody
+var _voxel_body: OwnWar.VoxelBody
 var _desired_direction := Vector3.FORWARD
 var _time_of_last_shot := 0.0
 var _rel_offset: Vector3

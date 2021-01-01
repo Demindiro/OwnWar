@@ -38,7 +38,7 @@ static func get_munition(p_id: int) -> Resource:# -> Munition:
 static func add_munition(m) -> int:
 	# Ammo containers generally pack munition in a square pattern
 	var volume: int = get_volume_by_gauge(m.gauge)
-	var m_id := Matter.add_matter(m.human_name, volume)
+	var m_id := OwnWar.Matter.add_matter(m.human_name, volume)
 	_ID_TO_MUNITION[m_id] = m
 	m.id = m_id
 	return m_id

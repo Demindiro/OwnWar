@@ -2,9 +2,9 @@ extends MeshInstance
 
 
 func _ready():
-	var voxel_mesh := VoxelMesh.new()
-	var block_cube := Global.blocks["cube_b_1_1-1-1-1-1-1-1-1-1-1-1-1"] as Block
-	var block_edge := Global.blocks["edge_b_1_1-1-1-1-1-1-1"] as Block
+	var voxel_mesh := OwnWar.VoxelMesh.new()
+	var block_cube := Global.blocks["cube_b_1_1-1-1-1-1-1-1-1-1-1-1-1"] as OwnWar.Block
+	var block_edge := Global.blocks["edge_b_1_1-1-1-1-1-1-1"] as OwnWar.Block
 	voxel_mesh.add_block(block_cube, Color.white, [0, 0, 0], 0)
 	voxel_mesh.add_block(block_cube, Color.white, [0, 2, 0], 0)
 	voxel_mesh.add_block(block_cube, Color.red, [4, 2, 5], 0)

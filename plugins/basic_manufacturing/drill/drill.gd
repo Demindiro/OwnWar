@@ -1,4 +1,4 @@
-extends Structure
+extends OwnWar_Structure
 
 
 const Ore := preload("ore.gd")
@@ -6,13 +6,13 @@ const MAX_MATERIAL := 100
 var ore: Ore
 var material := 0
 var _time_until_next := 0.0
-onready var _material_id: int = Matter.get_matter_id("material")
+onready var _material_id: int = OwnWar.Matter.get_matter_id("material")
 
 
 func _physics_process(delta: float) -> void:
 	_time_until_next += delta
 	if _time_until_next >= 0.0:
-		if material < MAX_MATERIAL:
+		if material < MAX_MATERIAL and ore != null:
 			material += ore.take_material(1)
 			emit_signal("dump_matter", _material_id, material)
 			_time_until_next = 0.0
@@ -73,7 +73,7 @@ func serialize_json() -> Dictionary:
 			"time_until_next": _time_until_next,
 		}
 	if ore != null:
-		data["ore_translation"] = ore.translation
+		data["ore_translation"] = var2str(ore.translation)
 	return data
 
 
@@ -85,8 +85,9 @@ func deserialize_json(data: Dictionary) -> void:
 		_time_until_next = data["time_until_next"]
 	var ore_translation = data.get("ore_translation")
 	if ore_translation != null:
+		var ot: Vector3 = str2var(ore_translation)
 		for o in get_tree().get_nodes_in_group("ores"):
-			if o.translation == ore_translation:
+			if o.translation == ot:
 				ore = o
 				break
 		assert(ore != null)
