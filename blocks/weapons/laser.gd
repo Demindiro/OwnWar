@@ -103,6 +103,23 @@ func fire():
 		assert(not is_nan(recoil_impulse))
 		Util.add_impulse(s, g_trans.origin, -g_trans.basis.z * recoil_impulse)
 		_time_of_last_shot = current_time
+		var state := get_world().get_direct_space_state()
+		var dmg := damage
+		var ignore := []
+		while dmg > 0:
+			var result := state.intersect_ray(
+				g_trans.origin,
+				g_trans.origin + g_trans.basis.z * 10000,
+				ignore
+			)
+			if len(result) > 0:
+				var body = result["collider"]
+				if body.has_method("projectile_hit"):
+					var pos: Vector3 = result["position"]
+					dmg = body.projectile_hit(pos, g_trans.basis.z * 10000, dmg)
+					ignore.append(body)
+					continue
+			break
 		emit_signal("fired")
 
 

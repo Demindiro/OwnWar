@@ -120,6 +120,12 @@ func load_from_file(path: String) -> int:
 	for body in voxel_bodies:
 		wheels += body.wheels
 		weapons += body.weapons
+	for w in wheels:
+		var e: int = w.connect("tree_exited", self, "_erase_from", [wheels, w])
+		assert(e == OK)
+	for w in weapons:
+		var e: int = w.connect("tree_exited", self, "_erase_from", [weapons, w])
+		assert(e == OK)
 
 	var physics_bodies := []
 	for child in Util.get_children_recursive(self):
@@ -247,3 +253,7 @@ func _load_from_file_editor(data: Dictionary) -> int:
 	vm_inst.transform.origin = -com * Block.BLOCK_SCALE
 
 	return OK
+
+
+func _erase_from(array: Array, item) -> void:
+	array.erase(item)
