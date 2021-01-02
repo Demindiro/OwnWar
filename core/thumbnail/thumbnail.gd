@@ -18,7 +18,8 @@ static func get_block_thumbnail_async(name: String, callback: FuncRef,
 
 static func get_vehicle_thumbnail_async(path: String, callback: FuncRef,
 	arguments := []) -> bool:
-	if _try_get_thumbnail(_get_vehicle_path(path), callback, arguments):
+	var mod_time := File.new().get_modified_time(path)
+	if _try_get_thumbnail(_get_vehicle_path(path), callback, arguments, mod_time):
 		return true
 	else:
 		OwnWar_Thumbnail._create_vehicle_thumbnail(path, callback, arguments)
@@ -42,9 +43,9 @@ static func _get_vehicle_path(path: String) -> String:
 		.plus_file(path.sha1_text() + ".png")
 
 
-static func _try_get_thumbnail(path: String, callback: FuncRef, arguments: Array
-	) -> bool:
-	if File.new().file_exists(path):
+static func _try_get_thumbnail(path: String, callback: FuncRef, arguments: Array,
+	created_after := 0) -> bool:
+	if File.new().file_exists(path) and File.new().get_modified_time(path) >= created_after:
 		var img := Image.new()
 		var e := img.load(path)
 		assert(e == OK)
@@ -97,7 +98,7 @@ func _create_vehicle_thumbnail(p_path: String, callback: FuncRef, arguments: Arr
 	var path := _get_vehicle_path(p_path)
 	var vehicle := OwnWar.Vehicle.new()
 	vehicle.transform = Transform.IDENTITY
-	var e := vehicle.load_from_file(p_path)
+	var e := vehicle.load_from_file(p_path, true)
 	assert(e == OK)
 	if e != OK:
 		push_error("Failed to load vehicle from %s: %d" % [p_path, e])

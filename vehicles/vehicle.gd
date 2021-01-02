@@ -66,7 +66,7 @@ func get_visual_origin() -> Vector3:
 	return voxel_bodies[0].get_visual_transform().origin
 
 
-func load_from_file(path: String) -> int:
+func load_from_file(path: String, thumbnail_mode := false) -> int:
 	_file = path
 	var file := File.new()
 	var err = file.open(path, File.READ)
@@ -127,15 +127,24 @@ func load_from_file(path: String) -> int:
 		var e: int = w.connect("tree_exited", self, "_erase_from", [weapons, w])
 		assert(e == OK)
 
-	var physics_bodies := []
-	for child in Util.get_children_recursive(self):
-		if child is PhysicsBody:
-			physics_bodies.append(child)
-	for a in physics_bodies:
-		for b in physics_bodies:
-			a.add_collision_exception_with(b)
+	if not thumbnail_mode:
+		var physics_bodies := []
+		for child in Util.get_children_recursive(self):
+			if child is PhysicsBody:
+				physics_bodies.append(child)
+		for a in physics_bodies:
+			for b in physics_bodies:
+				a.add_collision_exception_with(b)
+	else:
+		for child in Util.get_children_recursive(self):
+			if child is RigidBody:
+				child.axis_lock_angular_x = true
+				child.axis_lock_angular_y = true
+				child.axis_lock_angular_z = true
+				child.axis_lock_linear_x = true
+				child.axis_lock_linear_y = true
+				child.axis_lock_linear_z = true
 
-	var new_name = path.get_file()
 	return OK
 
 
@@ -175,7 +184,6 @@ func get_aabb() -> AABB:
 		for crd in vb.blocks:
 			var v := Vector3(crd[0], crd[1], crd[2])
 			aabb = aabb.expand(v).expand(v + Vector3.ONE)
-	print("AABB  ", aabb)
 	return aabb
 
 
