@@ -99,6 +99,21 @@ func _input(event: InputEvent) -> void:
 		_move_vehicle(Vector3.BACK)
 	elif event.is_action_pressed("designer_vehicle_rotate"):
 		_rotate_vehicle()
+	elif event.is_action_pressed("designer_layer_next"):
+		view_layer += 1
+		selected_layer = view_layer
+		if view_layer > 3:
+			view_layer = -1
+			selected_layer = 0
+		set_layer(selected_layer)
+		set_view_layer(view_layer)
+	elif event.is_action_pressed("designer_layer_previous"):
+		view_layer -= 1
+		if view_layer < -1:
+			view_layer = 3
+		selected_layer = 0 if view_layer == -1 else view_layer
+		set_layer(selected_layer)
+		set_view_layer(view_layer)
 
 
 func _process(_delta):
@@ -361,6 +376,7 @@ func set_material(p_material: SpatialMaterial):
 
 func set_layer(p_layer: int):
 	selected_layer = p_layer
+	_hud_block_layer.select(p_layer)
 
 
 func set_view_layer(p_view_layer: int):
@@ -368,6 +384,7 @@ func set_view_layer(p_view_layer: int):
 	for coordinate in blocks:
 		var block = blocks[coordinate]
 		block.node.visible = view_layer < 0 or block.layer == view_layer
+	_hud_block_layer_view.select(p_view_layer + 1)
 
 
 func _snap_face(direction: Vector3) -> void:
@@ -455,7 +472,6 @@ func _on_BlockLayer_item_selected(index):
 	set_layer(index)
 	if view_layer != selected_layer and view_layer >= 0:
 		set_view_layer(index)
-		_hud_block_layer_view.select(index + 1)
 
 
 func _on_BlockLayerView_item_selected(index):
@@ -463,7 +479,6 @@ func _on_BlockLayerView_item_selected(index):
 	set_view_layer(index)
 	if index >= 0:
 		set_layer(index)
-		_hud_block_layer.select(index)
 
 
 func _on_MetaEditor_meta_changed(meta_data):
