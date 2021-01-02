@@ -15,6 +15,12 @@ ambient_light_energy = 0.2
 
 [node name="Designer" type="Node"]
 script = ExtResource( 6 )
+spawn_point/0 = NodePath("SpawnPoints/Center")
+spawn_point/1 = NodePath("SpawnPoints/-X-Y")
+spawn_point/2 = NodePath("SpawnPoints/X-Y")
+spawn_point/3 = NodePath("SpawnPoints/-XY")
+spawn_point/4 = NodePath("SpawnPoints/XY")
+spawn_point/5 = null
 
 [node name="HUD" parent="." instance=ExtResource( 4 )]
 mouse_filter = 2
@@ -25,7 +31,7 @@ camera_zoom_min = 1.0
 camera_offset = Vector3( 0, 2, 0 )
 
 [node name="Camera" type="Camera" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0682526, 2.32457, 7.83551 )
+transform = Transform( -1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, -0.0682526, 2.32457, 7.83551 )
 far = 2000.0
 
 [node name="HTerrain" type="Spatial" parent="."]
@@ -61,5 +67,19 @@ transform = Transform( 0.866025, 0.25, -0.433013, 0, 0.866025, 0.5, 0.5, -0.4330
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource( 2 )
 
-[node name="SpawnPoint" type="Spatial" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0 )
+[node name="SpawnPoints" type="Node" parent="."]
+
+[node name="Center" type="Spatial" parent="SpawnPoints"]
+transform = Transform( -1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, 0, 1, 0 )
+
+[node name="-X-Y" type="Spatial" parent="SpawnPoints"]
+transform = Transform( 0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -25, 1, -29 )
+
+[node name="X-Y" type="Spatial" parent="SpawnPoints"]
+transform = Transform( 0.852593, 0, 0.522576, 0, 1, 0, -0.522576, 0, 0.852593, 35, 1, -37 )
+
+[node name="-XY" type="Spatial" parent="SpawnPoints"]
+transform = Transform( -0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, -0.866025, -25, 1, 39 )
+
+[node name="XY" type="Spatial" parent="SpawnPoints"]
+transform = Transform( -0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, -0.965926, 27, 1, 44 )
