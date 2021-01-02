@@ -40,7 +40,6 @@ var _voxel_mesh := VoxelMesh.new()
 var _voxel_mesh_instance := MeshInstance.new()
 onready var visual_translation := translation
 onready var _prev_transform := transform
-onready var _next_transform := transform
 
 
 func _init():
@@ -60,15 +59,14 @@ func _process(_delta: float) -> void:
 	if _voxel_mesh.dirty:
 		_voxel_mesh.generate()
 	var frac := Engine.get_physics_interpolation_fraction()
-	var trf := _prev_transform.interpolate_with(_next_transform, frac)
+	var trf := _prev_transform.interpolate_with(transform, frac)
 	_voxel_mesh_instance.transform = trf
 	_voxel_mesh_instance.translation -= trf.basis * center_of_mass
 	visual_translation = trf.origin
 
 
 func _physics_process(_delta: float) -> void:
-	_prev_transform = _next_transform
-	_next_transform = transform
+	_prev_transform = transform
 
 
 func debug_draw():

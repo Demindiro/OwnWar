@@ -17,7 +17,6 @@ onready var _joint: Generic6DOFJoint = get_node("Generic6DOFJoint")
 func _physics_process(delta: float) -> void:
 	var curr_dir := (_aim_pos - global_transform.origin).normalized()
 	var error := curr_dir.dot(global_transform.basis.z)
-	print(error)
 	var side := -sign(curr_dir.dot(global_transform.basis.y))
 	var angle_diff := acos(clamp(error, -1.0, 1.0))
 	var max_turn := max_turn_speed * delta
