@@ -134,6 +134,14 @@ func load_from_file(path: String) -> int:
 		wheels += body.wheels
 		weapons += body.weapons
 
+	var physics_bodies := []
+	for child in Util.get_children_recursive(self):
+		if child is PhysicsBody:
+			physics_bodies.append(child)
+	for a in physics_bodies:
+		for b in physics_bodies:
+			a.add_collision_exception_with(b)
+
 	var new_name = path.get_file()
 	return OK
 
