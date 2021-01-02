@@ -2,10 +2,10 @@ extends "../weapons/weapon.gd"
 
 
 signal destroyed()
-var connected = false
-var joint
-var body_a
-var body_b
+var connected := false
+var joint: HingeJoint
+var body_a: PhysicsBody
+var body_b: PhysicsBody
 var other_connector
 var max_turn_speed := PI
 var _desired_direction := Vector3(0, 0, 1)
@@ -58,7 +58,7 @@ func _physics_process(delta: float) -> void:
 	var max_turn := max_turn_speed * delta
 	# Multiply by 0.5 because I'm doing something wrong (idk what tho :/)
 	var turn_rate := max_turn_speed * min(1.0, angle_diff / max_turn * 0.5)
-	joint.set("angular_motor_x/target_velocity", turn_rate * side)
+	joint.set("motor/target_velocity", turn_rate * side)
 
 
 
@@ -103,15 +103,15 @@ func get_connecting_coordinate(coordinate):
 func _create_joint(p_body_a, p_body_b):
 	body_a = p_body_a
 	body_b = p_body_b
-	joint = Generic6DOFJoint.new()
+	joint = HingeJoint.new()
 	add_child(joint)
 	joint.transform = Transform.IDENTITY
-	joint.rotate_z(PI/ 2)
+	joint.rotate_x(-PI/ 2)
 	joint.set("nodes/node_a", joint.get_path_to(body_a))
 	joint.set("nodes/node_b", joint.get_path_to(body_b))
-	joint.set("angular_limit_x/enabled", false)
-	joint.set("angular_motor_x/enabled", true)
-	joint.set("angular_motor_x/force_limit", 1500.0)
+	joint.set("angular_limit/enable", false)
+	joint.set("motor/enable", true)
+	joint.set("motor/max_impulse", 1500.0)
 
 
 func _other_connector_destroyed():

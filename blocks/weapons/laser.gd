@@ -13,8 +13,8 @@ var _aim_pos := Vector3()
 var _interpolation_dirty := true
 var _curr_transform := transform
 var _prev_transform := transform
-onready var _projectile_spawn: Spatial = $ProjectileSpawn
-onready var _joint: Generic6DOFJoint = get_node("Generic6DOFJoint")
+onready var _projectile_spawn: Spatial = get_node("ProjectileSpawn")
+onready var _joint: HingeJoint = get_node("Joint")
 onready var _visual: Spatial = get_node("Visual")
 
 
@@ -44,7 +44,7 @@ func _physics_process(delta: float) -> void:
 	var max_turn := max_turn_speed * delta
 	# Multiply by 0.5 because I'm doing something wrong (idk what tho :/)
 	var turn_rate := max_turn_speed * min(1.0, angle_diff / max_turn * 0.5)
-	_joint.set("angular_motor_x/target_velocity", turn_rate * side)
+	_joint.set("motor/target_velocity", turn_rate * side)
 	if _interpolation_dirty:
 		_prev_transform = _curr_transform
 		_curr_transform = transform
@@ -85,8 +85,9 @@ func debug_draw():
 
 
 func init(_coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
+	_joint = get_node("Joint")
 	set_as_toplevel(true)
-	$Generic6DOFJoint.set("nodes/node_b", $Generic6DOFJoint.get_path_to(voxel_body))
+	_joint.set("nodes/node_b", _joint.get_path_to(voxel_body))
 	_voxel_body = voxel_body
 
 
