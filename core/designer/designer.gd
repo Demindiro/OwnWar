@@ -364,7 +364,7 @@ func set_view_layer(p_view_layer: int):
 	view_layer = p_view_layer
 	for coordinate in blocks:
 		var block = blocks[coordinate]
-		block.node.visible = view_layer < 0 or block[4] == view_layer
+		block.node.visible = view_layer < 0 or block.layer == view_layer
 
 
 func _snap_face(direction: Vector3) -> void:

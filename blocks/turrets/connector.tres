@@ -4,13 +4,11 @@
 [ext_resource path="res://blocks/turrets/connector.obj" type="ArrayMesh" id=2]
 [ext_resource path="res://blocks/turrets/connector.tscn" type="PackedScene" id=3]
 
-
-
 [resource]
 script = ExtResource( 1 )
 name = "turret_connector"
 human_name = "Turret Connector"
-category = "joints"
+category = "turrets"
 mesh = ExtResource( 2 )
 scene = ExtResource( 3 )
 mass = 1

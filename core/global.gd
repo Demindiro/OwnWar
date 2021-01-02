@@ -72,6 +72,7 @@ func _init():
 	preload("res://blocks/chassis/chassis.gd").load_blocks()
 	OwnWar.Block.add_block(preload("res://blocks/wheels/big-wheel/wheel.tres"))
 	OwnWar.Block.add_block(preload("res://blocks/mainframe/mainframe.tres"))
+	OwnWar.Block.add_block(preload("res://blocks/turrets/connector.tres"))
 
 
 

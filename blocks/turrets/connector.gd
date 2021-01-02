@@ -1,4 +1,4 @@
-extends "../weapon_manager/weapon.gd"
+extends "../weapons/weapon.gd"
 
 
 signal destroyed()
@@ -28,7 +28,7 @@ func init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
 					var e := connect("destroyed", other_connector, "_other_connector_destroyed")
 					assert(e == OK)
 					other_connector.connect("destroyed", self, "_other_connector_destroyed")
-					.init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta)
+					#init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta)
 					return
 				if other_connector != null:
 					print(other_connector)
