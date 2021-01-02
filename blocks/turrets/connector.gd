@@ -7,7 +7,9 @@ var joint
 var body_a
 var body_b
 var other_connector
+var max_turn_speed := PI
 var _desired_direction := Vector3(0, 0, 1)
+var _voxel_body: OwnWar.VoxelBody
 
 
 func init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
@@ -33,9 +35,10 @@ func init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
 				if other_connector != null:
 					print(other_connector)
 				other_connector = null
+				_voxel_body = voxel_body
 
 
-func _physics_process(_delta):
+func _physics_process(delta: float) -> void:
 	if joint == null:
 		return
 	if other_connector == null:
@@ -43,20 +46,20 @@ func _physics_process(_delta):
 		joint.queue_free()
 		joint = null
 		return
-	var other_forward = other_connector.global_transform.basis.z
-	var self_normal = global_transform.basis.y
-	var t = -self_normal.dot(other_forward) / self_normal.length_squared()
-	var projected_other_forward = (other_forward + t * self_normal).normalized()
-	var abs_desired_direction = global_transform.basis * _desired_direction
-	var error = 1.0 - projected_other_forward.dot(abs_desired_direction)
-	var direction = -projected_other_forward \
-			.cross(abs_desired_direction) \
-			.dot(self_normal)
-	if error > 1e-2 and abs(direction) < 1e-5:
-		direction = 1.0
-	var turn_rate = 0 if error < 1e-10 else direction * PI * 20
-	turn_rate = clamp(turn_rate, -PI / 2, PI / 2)
-	joint.set("angular_motor_x/target_velocity", turn_rate)
+	var other_transform: Transform = other_connector.global_transform
+	var other_forward := other_transform.basis.z
+	var other_right := other_transform.basis.x
+	var plane := Plane(other_transform.basis.y, 0)
+	var projected_other_forward := plane.project(other_forward).normalized()
+	var abs_desired_direction := global_transform.basis * _desired_direction
+	var error := projected_other_forward.dot(abs_desired_direction)
+	var side = sign(other_right.dot(abs_desired_direction))
+	var angle_diff := acos(clamp(error, -1.0, 1.0))
+	var max_turn := max_turn_speed * delta
+	# Multiply by 0.5 because I'm doing something wrong (idk what tho :/)
+	var turn_rate := max_turn_speed * min(1.0, angle_diff / max_turn * 0.5)
+	joint.set("angular_motor_x/target_velocity", turn_rate * side)
+
 
 
 func _notification(what):
@@ -82,7 +85,7 @@ func set_angle(angle):
 	_desired_direction = Vector3.BACK.rotated(Vector3.UP, angle)
 
 
-func aim_at(position: Vector3, _velocity := Vector3.ZERO):
+func aim_at(position: Vector3):
 	var rel_pos = to_local(position)
 	var self_normal = Vector3.UP
 	var t = -self_normal.dot(rel_pos) / self_normal.length_squared()

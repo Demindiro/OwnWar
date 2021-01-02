@@ -1,4 +1,5 @@
 extends Spatial
+class_name OwnWar_Weapon
 
 
 func fire() -> bool:
