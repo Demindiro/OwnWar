@@ -382,8 +382,15 @@ func set_layer(p_layer: int):
 func set_view_layer(p_view_layer: int):
 	view_layer = p_view_layer
 	for coordinate in blocks:
-		var block = blocks[coordinate]
-		block.node.visible = view_layer < 0 or block.layer == view_layer
+		var block: Block = blocks[coordinate]
+		var color := block.color
+		if view_layer != -1 and block.layer != view_layer:
+			color.a *= 0.1
+		var material := MaterialCache.get_material(color)
+		block.node.material_override = material
+		for child in Util.get_children_recursive(block.node):
+			if child is GeometryInstance and not child is Sprite3D:
+				child.material_override = material
 	_hud_block_layer_view.select(p_view_layer + 1)
 
 

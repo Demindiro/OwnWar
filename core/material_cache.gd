@@ -10,5 +10,7 @@ static func get_material(color: Color) -> Material:
 	if material == null:
 		material = SpatialMaterial.new()
 		material.albedo_color = color
+		if color.a < 0.99999:
+			material.flags_transparent = true
 		_CACHE[color] = material
 	return material
