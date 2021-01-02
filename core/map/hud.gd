@@ -5,7 +5,7 @@ export var camera: NodePath
 export var camera_rotate_speed := 1.0
 export(float, 0.1, 10.0) var camera_zoom_speed := 1.0
 export(float, 0.0, 100.0) var camera_zoom_min := 5.0
-export(float, 0.0, 100.0) var camera_zoom_max := 50.0
+export(float, 0.0, 100.0) var camera_zoom_max := 10.0
 export var camera_offset := Vector3()
 export var camera_radius := 0.00
 var player_vehicle: OwnWar_Vehicle setget set_player_vehicle
@@ -89,6 +89,8 @@ func _set_camera() -> void:
 	_camera_ray.force_raycast_update()
 	if _camera_ray.is_colliding():
 		player_vehicle.aim_at = _camera_ray.get_collision_point()
+	else:
+		player_vehicle.aim_at = _camera.transform * Vector3(0, 0, -10000000000)
 
 
 func set_player_vehicle(p_vehicle) -> void:
