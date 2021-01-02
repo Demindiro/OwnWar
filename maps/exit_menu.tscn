@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=1]
-[ext_resource path="res://core/map/exit_menu.gd" type="Script" id=2]
+[ext_resource path="res://maps/exit_menu.gd" type="Script" id=2]
 [ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=3]
 
 [node name="ExitMenu" instance=ExtResource( 1 )]

@@ -7,7 +7,6 @@ export(float, 0.1, 10.0) var camera_zoom_speed := 1.0
 export(float, 0.0, 100.0) var camera_zoom_min := 5.0
 export(float, 0.0, 100.0) var camera_zoom_max := 10.0
 export var camera_offset := Vector3()
-export var camera_radius := 0.00
 var player_vehicle: OwnWar_Vehicle setget set_player_vehicle
 
 var _camera_pan := 0.0
@@ -16,15 +15,11 @@ var _camera_ray := RayCast.new()
 var _camera_terrain_ray := RayCast.new()
 onready var _camera_zoom := (camera_zoom_min + camera_zoom_max) / 2
 onready var _camera: Camera = get_node(camera)
+onready var _gui: Control = get_node("../GUI")
 
 
 func _ready() -> void:
-	if Input.is_action_pressed("combat_release_cursor"):
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-		mouse_filter = MOUSE_FILTER_PASS
-	else:
-		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-		mouse_filter = MOUSE_FILTER_IGNORE
+	set_mouse_mode()
 	_camera_ray.cast_to = Vector3(0, 0, -100000)
 	_camera.add_child(_camera_ray)
 	_camera_ray.transform = Transform.IDENTITY
@@ -35,6 +30,8 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _gui.visible:
+		return
 	var mouse_event := event as InputEventMouseMotion
 	if mouse_event != null:
 		_camera_pan -= mouse_event.relative.x * camera_rotate_speed / 100
@@ -49,12 +46,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_camera_zoom = min(camera_zoom_max, _camera_zoom + camera_zoom_speed)
 		get_tree().set_input_as_handled()
 	elif event.is_action("combat_release_cursor"):
-		if event.is_pressed():
-			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-			mouse_filter = MOUSE_FILTER_PASS
-		else:
-			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-			mouse_filter = MOUSE_FILTER_IGNORE
+		set_mouse_mode()
 	elif event.is_action("combat_turn_left"):
 		player_vehicle.turn_left = event.is_pressed()
 	elif event.is_action("combat_turn_right"):
@@ -69,6 +61,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		player_vehicle.move_back = event.is_pressed()
 	elif event.is_action("combat_fire"):
 		player_vehicle.fire = event.is_pressed()
+	elif event.is_action_pressed("ui_cancel"):
+		_gui.visible = true
+		set_mouse_mode()
+
 
 
 func _process(_delta: float) -> void:
@@ -105,3 +101,12 @@ func set_player_vehicle(p_vehicle) -> void:
 		var aabb := player_vehicle.get_aabb()
 		camera_offset.y = aabb.size.y * 1.5 * OwnWar.Block.BLOCK_SCALE
 		camera_offset.z = aabb.size.z * 0.5 * OwnWar.Block.BLOCK_SCALE
+
+
+func set_mouse_mode() -> void:
+	if _gui.visible or Input.is_action_pressed("combat_release_cursor"):
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		mouse_filter = MOUSE_FILTER_PASS
+	else:
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		mouse_filter = MOUSE_FILTER_IGNORE
