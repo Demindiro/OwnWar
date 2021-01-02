@@ -32,6 +32,7 @@ var cost := 0
 var max_cost := 0
 var max_health := 0
 var wheels := []
+var weapons := []
 var _debug_hits := []
 var _raycast := preload("res://addons/voxel_raycast.gd").new()
 var _collision_shape: CollisionShape
@@ -145,6 +146,8 @@ func spawn_block(x: int, y: int, z: int, r: int, block: Block, color: Color) -> 
 	end_position.z = float(z) if end_position.z < z else end_position.z
 	if node is VehicleWheel:
 		wheels.append(node)
+	elif node is OwnWar_Weapon:
+		weapons.append(node)
 
 
 func coordinate_to_vector(coordinate):

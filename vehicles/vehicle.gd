@@ -13,12 +13,14 @@ const MANAGERS := {}
 var max_cost: int
 var voxel_bodies := []
 var wheels := []
+var weapons := []
 var turn_left := false
 var turn_right := false
 var pitch_up := false
 var pitch_down := false
 var move_forward := false
 var move_back := false
+var aim_at := Vector3()
 onready var visual_translation := translation
 export var _file := "" setget load_from_file, get_file_path
 var _server_mode := OS.has_feature("Server")
@@ -39,6 +41,7 @@ func _physics_process(_delta: float) -> void:
 				total_mass += body.mass
 				avg_pos /= total_mass
 			translation = avg_pos
+
 		var drive_yaw := 0.0
 		var drive_forward := 0.0
 		var drive_brake := 0.0
@@ -59,6 +62,9 @@ func _physics_process(_delta: float) -> void:
 			wheel.steering = drive_yaw * wheel.max_angle
 			wheel.engine_force = wheel.max_power * drive_forward
 			wheel.brake = drive_brake * wheel.max_brake
+
+		for weapon in weapons:
+			weapon.aim_at(aim_at)
 
 
 func _process(_delta: float) -> void:
@@ -126,6 +132,7 @@ func load_from_file(path: String) -> int:
 
 	for body in voxel_bodies:
 		wheels += body.wheels
+		weapons += body.weapons
 
 	var new_name = path.get_file()
 	return OK
