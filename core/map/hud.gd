@@ -71,7 +71,7 @@ func _process(_delta: float) -> void:
 func _set_camera() -> void:
 	var basis := Basis(Vector3(0, 1, 0), _camera_pan) * \
 		Basis(Vector3(1, 0, 0), _camera_tilt)
-	var origin := player_vehicle.visual_translation + \
+	var origin := player_vehicle.get_visual_origin() + \
 		basis * (Vector3(0, 0, _camera_zoom) + camera_offset)
 	_camera.transform = Transform(basis, origin)
 	if _camera_ray.is_colliding():

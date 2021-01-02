@@ -38,8 +38,9 @@ var _raycast := preload("res://addons/voxel_raycast.gd").new()
 var _collision_shape: CollisionShape
 var _voxel_mesh := VoxelMesh.new()
 var _voxel_mesh_instance := MeshInstance.new()
-onready var visual_translation := translation
-onready var _prev_transform := transform
+var _interpolation_dirty := true
+var _curr_transform := transform
+var _prev_transform := transform
 
 
 func _init():
@@ -58,15 +59,21 @@ func _init():
 func _process(_delta: float) -> void:
 	if _voxel_mesh.dirty:
 		_voxel_mesh.generate()
+	if _interpolation_dirty:
+		_prev_transform = _curr_transform
+		_curr_transform = transform
+		_interpolation_dirty = false
 	var frac := Engine.get_physics_interpolation_fraction()
 	var trf := _prev_transform.interpolate_with(transform, frac)
 	_voxel_mesh_instance.transform = trf
 	_voxel_mesh_instance.translation -= trf.basis * center_of_mass
-	visual_translation = trf.origin
 
 
 func _physics_process(_delta: float) -> void:
-	_prev_transform = transform
+	if _interpolation_dirty:
+		_prev_transform = _curr_transform
+		_curr_transform = transform
+	_interpolation_dirty = true
 
 
 func debug_draw():
@@ -74,6 +81,10 @@ func debug_draw():
 		var position = Vector3(hit[0][0], hit[0][1], hit[0][2]) + Vector3.ONE / 2
 		Debug.draw_point(to_global(position * Block.BLOCK_SCALE - center_of_mass),
 				hit[1], 0.55 * Block.BLOCK_SCALE)
+
+
+func get_visual_transform() -> Transform:
+	return _voxel_mesh_instance.transform.translated(center_of_mass)
 
 
 func fix_physics():

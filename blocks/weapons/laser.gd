@@ -10,9 +10,11 @@ export var max_turn_speed := PI / 2
 var _voxel_body: OwnWar.VoxelBody
 var _time_of_last_shot := 0.0
 var _aim_pos := Vector3()
+var _interpolation_dirty := true
+var _curr_transform := transform
+var _prev_transform := transform
 onready var _projectile_spawn: Spatial = $ProjectileSpawn
 onready var _joint: Generic6DOFJoint = get_node("Generic6DOFJoint")
-onready var _prev_transform := global_transform
 onready var _visual: Spatial = get_node("Visual")
 
 
@@ -25,13 +27,16 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
+	if _interpolation_dirty:
+		_prev_transform = _curr_transform
+		_curr_transform = global_transform
+		_interpolation_dirty = false
 	var frac := Engine.get_physics_interpolation_fraction()
 	var trf := _prev_transform.interpolate_with(transform, frac)
 	_visual.transform = trf
 
 
 func _physics_process(delta: float) -> void:
-	_prev_transform = global_transform
 	var curr_dir := (_aim_pos - global_transform.origin).normalized()
 	var error := curr_dir.dot(global_transform.basis.z)
 	var side := -sign(curr_dir.dot(global_transform.basis.y))
@@ -40,6 +45,10 @@ func _physics_process(delta: float) -> void:
 	# Multiply by 0.5 because I'm doing something wrong (idk what tho :/)
 	var turn_rate := max_turn_speed * min(1.0, angle_diff / max_turn * 0.5)
 	_joint.set("angular_motor_x/target_velocity", turn_rate * side)
+	if _interpolation_dirty:
+		_prev_transform = _curr_transform
+		_curr_transform = transform
+	_interpolation_dirty = true
 
 
 func debug_draw():

@@ -21,7 +21,7 @@ var pitch_down := false
 var move_forward := false
 var move_back := false
 var aim_at := Vector3()
-onready var visual_translation := translation
+var fire := false
 export var _file := "" setget load_from_file, get_file_path
 var _server_mode := OS.has_feature("Server")
 
@@ -33,14 +33,7 @@ func _init() -> void:
 func _physics_process(_delta: float) -> void:
 	if not Engine.editor_hint:
 		if not _server_mode and len(voxel_bodies) > 0:
-			transform.basis = voxel_bodies[0].transform.basis
-			var avg_pos := Vector3()
-			var total_mass := 0.0
-			for body in voxel_bodies:
-				avg_pos = avg_pos * total_mass + body.translation * body.mass
-				total_mass += body.mass
-				avg_pos /= total_mass
-			translation = avg_pos
+			transform = voxel_bodies[0].transform
 
 		var drive_yaw := 0.0
 		var drive_forward := 0.0
@@ -67,16 +60,8 @@ func _physics_process(_delta: float) -> void:
 			weapon.aim_at(aim_at)
 
 
-func _process(_delta: float) -> void:
-	if len(voxel_bodies) > 0:
-		transform.basis = voxel_bodies[0].transform.basis
-		var avg_pos := Vector3()
-		var total_mass := 0.0
-		for body in voxel_bodies:
-			avg_pos = avg_pos * total_mass + body.visual_translation * body.mass
-			total_mass += body.mass
-			avg_pos /= total_mass
-		visual_translation = avg_pos
+func get_visual_origin() -> Vector3:
+	return voxel_bodies[0].get_visual_transform().origin
 
 
 func load_from_file(path: String) -> int:
@@ -204,7 +189,7 @@ func debug_draw() -> void:
 		text += "forward, "
 	if move_back:
 		text += "back, "
-	Debug.draw_text(visual_translation, text, Color.cyan)
+	Debug.draw_text(get_visual_origin(), text, Color.cyan)
 
 
 func _voxel_body_hit(_voxel_body):
