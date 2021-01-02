@@ -47,8 +47,6 @@ onready var _camera_mesh: MeshInstance = $Camera/Box/Viewport/Camera/Mesh
 onready var _camera_mesh_camera: Camera = $Camera/Box/Viewport/Camera
 onready var _gui_menu: Control = $GUI/Menu
 onready var _gui_inventory: Control = $GUI/Inventory
-onready var _gui_save_vehicle: Control = $GUI/SaveVehicle
-onready var _gui_load_vehicle: Control = $GUI/LoadVehicle
 onready var _gui_color_picker: Control = $GUI/ColorPicker
 onready var _gui_meta_editor: MetaEditor = $GUI/MetaEditor
 onready var _hud_block_layer: OptionButton = $HUD/BlockLayer
@@ -62,6 +60,7 @@ func _enter_tree():
 
 
 func _exit_tree():
+	save_vehicle()
 	get_tree().paused = false
 
 
@@ -70,7 +69,7 @@ func _ready():
 	set_enabled(true) # Disable UIs
 	_floor_mirror.visible = mirror
 	if vehicle_path != "":
-		call_deferred("load_vehicle", vehicle_path)
+		call_deferred("load_vehicle")
 
 
 func _input(event: InputEvent) -> void:
@@ -129,8 +128,6 @@ func set_enabled(var p_enabled):
 	if p_enabled:
 		_gui_menu.visible = false
 		_gui_inventory.visible = false
-		_gui_save_vehicle.visible = false
-		_gui_load_vehicle.visible = false
 		_gui_color_picker.visible = false
 		_gui_meta_editor.visible = false
 	_camera.enabled = enabled
@@ -299,7 +296,7 @@ func highlight_face():
 	csgbox_mat.albedo_color = Color.green if ray_voxel_valid else Color.red
 
 
-func save_vehicle(var path):
+func save_vehicle() -> void:
 	var data := {}
 	data['game_version'] = Util.version_vector_to_str(OwnWar.VERSION)
 	data['blocks'] = {}
@@ -313,20 +310,19 @@ func save_vehicle(var path):
 		data["meta"]["%d,%d,%d" % coordinate] = meta[coordinate]
 
 	var file := File.new()
-	var err = file.open(path, File.WRITE)
+	var err = file.open(vehicle_path, File.WRITE)
 	if err != OK:
-		Global.error("Failed to open file '%s'" % path, err)
+		Global.error("Failed to open file '%s'" % vehicle_path, err)
 	else:
 		file.store_string(to_json(data))
-		print("Saved vehicle as '%s'" % path)
-		vehicle_path = path
+		print("Saved vehicle as '%s'" % vehicle_path)
 
 
-func load_vehicle(path):
+func load_vehicle() -> void:
 	var file := File.new()
-	var err = file.open(path, File.READ)
+	var err := file.open(vehicle_path, File.READ)
 	if err != OK:
-		Global.error("Failed to open file '%s'" % path, err)
+		Global.error("Failed to open file '%s'" % vehicle_path, err)
 	else:
 		var data = parse_json(file.get_as_text())
 		data = OwnWar.Compatibility.convert_vehicle_data(data)
@@ -353,8 +349,7 @@ func load_vehicle(path):
 			var c := [int(crd[0]), int(crd[1]), int(crd[2])]
 			meta[c] = data["meta"][crd]
 
-		print("Loaded vehicle from '%s'" % path)
-		vehicle_path = path
+		print("Loaded vehicle from '%s'" % vehicle_path)
 
 
 func set_material(p_material: SpatialMaterial):
@@ -464,11 +459,6 @@ func _on_Exit_pressed():
 
 func _on_Test_pressed():
 	Global.goto_scene(test_map)
-
-
-func _on_LoadVehicle_load_vehicle(path):
-	load_vehicle(path)
-	set_enabled(true)
 
 
 func _on_ColorPicker_pick_color(color):
