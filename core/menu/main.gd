@@ -21,6 +21,7 @@ func _on_Exit_pressed():
 
 
 func goto_designer(vehicle_path: String) -> void:
+	assert(vehicle_path != "")
 	var scene = load("res://core/designer/designer.tscn").instance()
 	scene.vehicle_path = vehicle_path
 	queue_free()

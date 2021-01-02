@@ -65,11 +65,15 @@ func _exit_tree():
 
 
 func _ready():
+	assert(vehicle_path != "")
 	select_block(OwnWar.Block.get_block_by_id(1).name)
 	set_enabled(true) # Disable UIs
 	_floor_mirror.visible = mirror
-	if vehicle_path != "":
+	if File.new().file_exists(vehicle_path):
 		call_deferred("load_vehicle")
+	else:
+		# Save it to create a "slot"
+		save_vehicle()
 
 
 func _input(event: InputEvent) -> void:

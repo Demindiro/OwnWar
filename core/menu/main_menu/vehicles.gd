@@ -3,6 +3,7 @@ extends PanelContainer
 
 export var add_texture: Texture
 onready var _box: Control = get_node("Box/Box")
+onready var _new_vehicle_gui: Control = get_node("../NewVehicle")
 
 
 func _ready() -> void:
@@ -25,7 +26,7 @@ func _ready() -> void:
 	assert(e == OK)
 	e = btn.connect("button_down", self, "_button_down", [btn])
 	assert(e == OK)
-	e = btn.connect("pressed", get_parent(), "goto_designer", [""])
+	e = btn.connect("pressed", _new_vehicle_gui, "activate")
 	assert(e == OK)
 	btn.set_meta("mouse_inside", false)
 	_box.add_child(btn)

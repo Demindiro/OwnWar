@@ -395,6 +395,10 @@ __meta__ = {
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource( 3 )
+
+[node name="SaveTimer" type="Timer" parent="."]
+wait_time = 60.0
+autostart = true
 [connection signal="item_selected" from="HUD/BlockLayer" to="." method="_on_BlockLayer_item_selected"]
 [connection signal="item_selected" from="HUD/BlockLayerView" to="." method="_on_BlockLayerView_item_selected"]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Continue" to="." method="set_enabled" binds= [ true ]]
@@ -405,3 +409,4 @@ environment = SubResource( 3 )
 [connection signal="pick_color" from="GUI/ColorPicker" to="." method="_on_ColorPicker_pick_color"]
 [connection signal="hide" from="GUI/MetaEditor" to="." method="set_enabled" binds= [ true ]]
 [connection signal="meta_changed" from="GUI/MetaEditor" to="." method="_on_MetaEditor_meta_changed"]
+[connection signal="timeout" from="SaveTimer" to="." method="save_vehicle"]
