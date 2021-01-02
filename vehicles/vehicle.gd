@@ -58,6 +58,8 @@ func _physics_process(_delta: float) -> void:
 
 		for weapon in weapons:
 			weapon.aim_at(aim_at)
+			if fire:
+				weapon.fire()
 
 
 func get_visual_origin() -> Vector3:
@@ -189,6 +191,8 @@ func debug_draw() -> void:
 		text += "forward, "
 	if move_back:
 		text += "back, "
+	if fire:
+		text += "fire, "
 	Debug.draw_text(get_visual_origin(), text, Color.cyan)
 
 

@@ -73,6 +73,15 @@ func debug_draw():
 		curr_dir,
 		Color.blue
 	)
+	var current_time := float(Engine.get_physics_frames()) / Engine.iterations_per_second
+	Debug.draw_text(
+		_visual.transform.origin,
+		"Reload: %.3f / %.3f" % [
+			min(current_time - _time_of_last_shot, reload_time),
+			reload_time,
+		],
+		Color.red
+	)
 
 
 func init(_coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):

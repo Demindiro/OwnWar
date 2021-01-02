@@ -67,6 +67,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		player_vehicle.move_forward = event.is_pressed()
 	elif event.is_action("combat_move_back"):
 		player_vehicle.move_back = event.is_pressed()
+	elif event.is_action("combat_fire"):
+		player_vehicle.fire = event.is_pressed()
 
 
 func _process(_delta: float) -> void:
