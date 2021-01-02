@@ -8,7 +8,7 @@ export var damage := 1000.0
 export var recoil_impulse := 1000.0
 export var max_turn_speed := PI / 2
 var _voxel_body: OwnWar.VoxelBody
-var _time_of_last_shot := 0.0
+var _time_of_last_shot := -INF
 var _aim_pos := Vector3()
 var _interpolation_dirty := true
 var _curr_transform := transform
