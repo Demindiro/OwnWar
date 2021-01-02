@@ -81,5 +81,6 @@ func _set_camera() -> void:
 func set_player_vehicle(p_vehicle) -> void:
 	player_vehicle = p_vehicle
 	if _camera_ray != null:
-		for body in p_vehicle.voxel_bodies:
-			_camera_ray.add_exception(body)
+		for body in Util.get_children_recursive(player_vehicle):
+			if body is PhysicsBody:
+				_camera_ray.add_exception(body)
