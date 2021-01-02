@@ -7,10 +7,11 @@ export(float, 0.1, 10.0) var camera_zoom_speed := 1.0
 export(float, 0.0, 100.0) var camera_zoom_min := 5.0
 export(float, 0.0, 100.0) var camera_zoom_max := 50.0
 export var camera_offset := Vector3()
-var player_vehicle: OwnWar_Vehicle
+var player_vehicle: OwnWar_Vehicle setget set_player_vehicle
 
 var _camera_pan := 0.0
 var _camera_tilt := 0.0
+var _camera_ray := RayCast.new()
 onready var _camera_zoom := (camera_zoom_min + camera_zoom_max) / 2
 onready var _camera: Camera = get_node(camera)
 
@@ -22,6 +23,10 @@ func _ready() -> void:
 	else:
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 		mouse_filter = MOUSE_FILTER_IGNORE
+	_camera_ray.cast_to = Vector3(0, 0, -100000)
+	_camera_ray.enabled = true
+	_camera.add_child(_camera_ray)
+	_camera_ray.transform = Transform.IDENTITY
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -69,3 +74,12 @@ func _set_camera() -> void:
 	var origin := player_vehicle.visual_translation + \
 		basis * (Vector3(0, 0, _camera_zoom) + camera_offset)
 	_camera.transform = Transform(basis, origin)
+	if _camera_ray.is_colliding():
+		player_vehicle.aim_at = _camera_ray.get_collision_point()
+
+
+func set_player_vehicle(p_vehicle) -> void:
+	player_vehicle = p_vehicle
+	if _camera_ray != null:
+		for body in p_vehicle.voxel_bodies:
+			_camera_ray.add_exception(body)
