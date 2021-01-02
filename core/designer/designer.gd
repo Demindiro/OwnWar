@@ -37,6 +37,7 @@ var ray_voxel_valid := false
 var selected_layer := 0 setget set_layer
 var view_layer := -1 setget set_view_layer
 var _snap_face := true
+var _path := ""
 onready var ray := preload("res://addons/voxel_raycast.gd").new()
 onready var _floor_origin: Spatial = $Floor/Origin
 onready var _floor_origin_ghost: MeshInstance = $Floor/Origin/Ghost
@@ -301,6 +302,7 @@ func save_vehicle(var path):
 	else:
 		file.store_string(to_json(data))
 		print("Saved vehicle as '%s'" % path)
+		_path = path
 
 
 func load_vehicle(path):
@@ -335,6 +337,7 @@ func load_vehicle(path):
 			meta[c] = data["meta"][crd]
 
 		print("Loaded vehicle from '%s'" % path)
+		_path = path
 
 
 func set_material(p_material: SpatialMaterial):
@@ -465,3 +468,14 @@ func _on_BlockLayerView_item_selected(index):
 
 func _on_MetaEditor_meta_changed(meta_data):
 	meta[ray.voxel] = meta_data.duplicate()
+
+
+func _on_Designer_pressed() -> void:
+	var scene = preload("res://maps/designer/designer.tscn").instance()
+	if _path != "":
+		scene.vehicle_path = _path
+	queue_free()
+	var tree := get_tree()
+	tree.root.remove_child(self)
+	tree.root.add_child(scene)
+	tree.current_scene = scene

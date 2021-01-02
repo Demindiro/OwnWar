@@ -2,7 +2,7 @@ tool
 extends Node
 
 
-var _vehicle_path := "user://vehicles/tank.json"
+var vehicle_path := "user://vehicles/tank.json"
 onready var _hud := get_node("HUD")
 var _spawn_points := []
 var _spawn_point_index := 0
@@ -54,16 +54,16 @@ func _get_property_list() -> Array:
 func _ready() -> void:
 	if not Engine.editor_hint:
 		var vehicle := OwnWar_Vehicle.new()
-		var e := vehicle.load_from_file(_vehicle_path)
+		var e := vehicle.load_from_file(vehicle_path)
 		assert(e == OK)
 		vehicle.transform = get_node(_spawn_points[_spawn_point_index]).transform
 		add_child(vehicle)
 		_hud.player_vehicle = vehicle
 		_spawn_point_index += 1
 		_spawn_point_index %= len(_spawn_points)
-		spawn_vehicle(_vehicle_path)
-		spawn_vehicle(_vehicle_path)
-		spawn_vehicle(_vehicle_path)
+		spawn_vehicle(vehicle_path)
+		spawn_vehicle(vehicle_path)
+		spawn_vehicle(vehicle_path)
 
 
 func spawn_vehicle(path: String) -> void:

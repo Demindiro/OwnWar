@@ -74,4 +74,5 @@ static func goto_main_menu(tree: SceneTree) -> void:
 
 
 static func is_in_designer(tree: SceneTree) -> bool:
-	return tree.current_scene.filename == "res://core/designer/designer.tscn"
+	return tree.current_scene != null and \
+		tree.current_scene.filename == "res://core/designer/designer.tscn"

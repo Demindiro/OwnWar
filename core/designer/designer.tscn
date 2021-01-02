@@ -193,7 +193,6 @@ __meta__ = {
 }
 
 [node name="Menu" parent="GUI" instance=ExtResource( 5 )]
-visible = false
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -220,16 +219,22 @@ shortcut = ExtResource( 13 )
 text = "Continue"
 
 [node name="Save" type="Button" parent="GUI/Menu/VBoxContainer"]
-margin_top = 102.0
+margin_top = 51.0
 margin_right = 265.0
-margin_bottom = 143.629
+margin_bottom = 92.6293
 text = "Save"
 
 [node name="Load" type="Button" parent="GUI/Menu/VBoxContainer"]
+margin_top = 102.0
+margin_right = 265.0
+margin_bottom = 143.629
+text = "Load"
+
+[node name="Test" type="Button" parent="GUI/Menu/VBoxContainer"]
 margin_top = 153.0
 margin_right = 265.0
 margin_bottom = 194.629
-text = "Load"
+text = "Test"
 
 [node name="Settings" type="Button" parent="GUI/Menu/VBoxContainer"]
 margin_top = 204.0
@@ -578,6 +583,7 @@ environment = SubResource( 3 )
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Save" to="GUI/SaveVehicle" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Load" to="GUI/Menu" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Load" to="GUI/LoadVehicle" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="GUI/Menu/VBoxContainer/Test" to="." method="_on_Designer_pressed"]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Exit" to="." method="_on_Exit_pressed"]
 [connection signal="hide" from="GUI/Inventory" to="." method="set_enabled" binds= [ true ]]
 [connection signal="save_vehicle" from="GUI/SaveVehicle" to="." method="save_vehicle"]
