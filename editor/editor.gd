@@ -23,7 +23,7 @@ class Block:
 
 
 const GRID_SIZE = 25
-const SCALE = 4
+const SCALE := 1 / OwnWar.Block.BLOCK_SCALE
 export var enabled := true
 export var main_menu: PackedScene
 export var test_map: PackedScene
@@ -41,7 +41,7 @@ var _snap_face := true
 onready var ray := preload("res://addons/voxel_raycast.gd").new()
 onready var _floor_origin: Spatial = $Floor/Origin
 onready var _floor_origin_ghost: MeshInstance = $Floor/Origin/Ghost
-onready var _floor_mirror: Spatial = $Floor/Mirror
+onready var _floor = get_node("Floor")
 onready var _camera: FreeCamera = $Camera
 onready var _camera_mesh: MeshInstance = $Camera/Box/Viewport/Camera/Mesh
 onready var _camera_mesh_camera: Camera = $Camera/Box/Viewport/Camera
@@ -51,8 +51,7 @@ onready var _gui_color_picker: Control = $GUI/ColorPicker
 onready var _gui_meta_editor: MetaEditor = $GUI/MetaEditor
 onready var _hud_block_layer: OptionButton = $HUD/BlockLayer
 onready var _hud_block_layer_view: OptionButton = $HUD/BlockLayerView
-onready var _block_face_highlighter: Spatial = $BlockFaceHighlighter
-onready var _block_face_highlighter_csgbox: CSGBox = $BlockFaceHighlighter/CSGBox
+onready var _block_face_highlighter: Spatial = get_node("BlockFaceHighlighter")
 
 
 func _enter_tree():
@@ -65,11 +64,13 @@ func _exit_tree():
 
 
 func _ready():
-	assert(vehicle_path != "")
+	# I'm too lazy for a proper debugging solution
+	if vehicle_path == "" and OS.is_debug_build():
+		vehicle_path = "user://vehicles/tank.json"
 	get_tree().paused = false # To be sure because ??????
 	select_block(OwnWar.Block.get_block_by_id(1).name)
 	set_enabled(true) # Disable UIs
-	_floor_mirror.visible = mirror
+	_floor.enable_mirror(mirror)
 	if File.new().file_exists(vehicle_path):
 		call_deferred("load_vehicle")
 	else:
@@ -175,7 +176,7 @@ func process_actions():
 				remove_block(coordinate)
 	elif Input.is_action_just_pressed("designer_mirror"):
 		mirror = not mirror
-		_floor_mirror.visible = mirror
+		_floor.enable_mirror(mirror)
 	elif Input.is_action_just_pressed("designer_open_colorpicker"):
 		set_enabled(false)
 		_gui_color_picker.visible = true
@@ -297,8 +298,7 @@ func highlight_face():
 				ray_voxel_valid = false
 	_floor_origin_ghost.visible = ray_voxel_valid
 	_block_face_highlighter.visible = ray_hits_block
-	var csgbox_mat: SpatialMaterial = _block_face_highlighter_csgbox.material
-	csgbox_mat.albedo_color = Color.green if ray_voxel_valid else Color.red
+	_block_face_highlighter.set_color(Color.green if ray_voxel_valid else Color.red)
 
 
 func save_vehicle() -> void:

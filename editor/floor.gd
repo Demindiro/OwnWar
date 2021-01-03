@@ -1,13 +1,14 @@
-tool
-extends Spatial
+extends MeshInstance
 
 
-const GRID_SIZE = preload("editor.gd").GRID_SIZE
 onready var _origin: Spatial = $Origin
-onready var _mirror: Spatial = $Mirror
 
 
-func _ready() -> void:
-	_origin.translation = -Vector3(1, 0, 1) * (GRID_SIZE / 2.0 - 0.5) + Vector3.UP / 2
+func set_grid_size(size: int) -> void:
+	_origin.translation = -Vector3(1, 0, 1) * (size / 2.0 - 0.5) + Vector3.UP / 2
 	translation = -_origin.translation + Vector3(0.5, 0.5, 0.5)
-	_mirror.scale.y = GRID_SIZE
+	# TODO set material params
+
+
+func enable_mirror(enable: bool) -> void:
+	material_override.set_shader_param("enable_mirror", enable)

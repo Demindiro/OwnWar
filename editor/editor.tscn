@@ -1,18 +1,17 @@
-[gd_scene load_steps=26 format=2]
+[gd_scene load_steps=27 format=2]
 
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=1]
 [ext_resource path="res://editor/meta_editor.gd" type="Script" id=2]
 [ext_resource path="res://addons/aabb_camera.gd" type="Script" id=3]
 [ext_resource path="res://editor/block_layer.gd" type="Script" id=4]
 [ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=5]
-[ext_resource path="res://editor/mirror_line_material.tres" type="Material" id=6]
 [ext_resource path="res://addons/crosshairs/image0018.png" type="Texture" id=7]
 [ext_resource path="res://editor/floor_material.tres" type="Material" id=8]
 [ext_resource path="res://editor/inventory.gd" type="Script" id=9]
-[ext_resource path="res://editor/mirror_line_mesh.tres" type="QuadMesh" id=11]
+[ext_resource path="res://editor/block_face_highlighter_material.tres" type="Material" id=10]
+[ext_resource path="res://editor/block_face_highlighter.gd" type="Script" id=12]
 [ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=13]
 [ext_resource path="res://core/menu/main_menu/main.tscn" type="PackedScene" id=14]
-[ext_resource path="res://editor/blockface_highlighter_material.tres" type="Material" id=15]
 [ext_resource path="res://editor/floor.gd" type="Script" id=16]
 [ext_resource path="res://editor/block_layer_view.gd" type="Script" id=19]
 [ext_resource path="res://editor/color_picker.gd" type="Script" id=20]
@@ -25,7 +24,16 @@
 [sub_resource type="SpatialMaterial" id=1]
 
 [sub_resource type="PlaneMesh" id=4]
-size = Vector2( 25, 25 )
+custom_aabb = AABB( 0, 0, 0, 25, 0, 25 )
+size = Vector2( 1, 1 )
+
+[sub_resource type="QuadMesh" id=7]
+size = Vector2( 1.25, 1.25 )
+
+[sub_resource type="CylinderMesh" id=8]
+top_radius = 0.001
+bottom_radius = 0.5
+height = 1.0
 
 [sub_resource type="ProceduralSky" id=5]
 
@@ -59,8 +67,6 @@ process_priority = -1
 transform = Transform( -1, -1.42109e-13, -3.25842e-07, -1.62921e-07, 0.866025, 0.5, 2.82187e-07, 0.5, -0.866025, 10, 5.09171, 0 )
 cull_mask = 1
 script = ExtResource( 3 )
-speed = 10.0
-angular_speed = 0.01
 always_capture = true
 actions = PoolStringArray( "designer_move_left", "designer_move_right", "designer_move_forward", "designer_move_back", "designer_move_up", "designer_move_down" )
 aabb = AABB( -10, 0.55, -10, 45, 30, 45 )
@@ -81,6 +87,7 @@ render_target_update_mode = 3
 gui_disable_input = true
 
 [node name="Camera" type="Camera" parent="Camera/Box/Viewport"]
+process_priority = 1
 transform = Transform( -1, -1.42109e-13, -3.25842e-07, -1.62921e-07, 0.866025, 0.5, 2.82187e-07, 0.5, -0.866025, -0.112284, 5.09171, -11.6802 )
 cull_mask = 2147483776
 
@@ -91,43 +98,33 @@ layers = 128
 mesh = ExtResource( 23 )
 material/0 = SubResource( 1 )
 
-[node name="Floor" type="Spatial" parent="."]
-pause_mode = 1
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5, 0, 12.5 )
-script = ExtResource( 16 )
-
-[node name="Floor" type="MeshInstance" parent="Floor"]
+[node name="Floor" type="MeshInstance" parent="."]
 material_override = ExtResource( 8 )
 mesh = SubResource( 4 )
 material/0 = null
+script = ExtResource( 16 )
 
 [node name="Origin" type="Spatial" parent="Floor"]
 pause_mode = 1
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.5, -12 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.5, 0.5 )
 
 [node name="Ghost" type="MeshInstance" parent="Floor/Origin"]
 transform = Transform( 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, -1 )
 
-[node name="Mirror" type="MeshInstance" parent="Floor"]
-transform = Transform( 0.5, 0, 0, 0, -1.09278e-06, 1, 0, -25, -4.37114e-08, 0, 0.001, 0 )
-visible = false
-mesh = ExtResource( 11 )
-material/0 = ExtResource( 6 )
-
 [node name="BlockFaceHighlighter" type="Spatial" parent="."]
+transform = Transform( -4.37114e-08, 4.37114e-08, -1, 1, -4.37114e-08, -4.37114e-08, -4.37114e-08, -1, -4.37114e-08, 0.5, 0, 0.5 )
+script = ExtResource( 12 )
 
-[node name="CSGBox" type="CSGBox" parent="BlockFaceHighlighter"]
-transform = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 0, 0, 0 )
-width = 1.01
-height = 1.01
-depth = 0.1
-material = ExtResource( 15 )
+[node name="Mesh" type="MeshInstance" parent="BlockFaceHighlighter"]
+transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0.001, 0, 0 )
+material_override = ExtResource( 10 )
+mesh = SubResource( 7 )
+material/0 = null
 
-[node name="CSGBox" type="CSGBox" parent="BlockFaceHighlighter/CSGBox"]
-operation = 2
-width = 0.75
-height = 0.75
-depth = 3.0
+[node name="MagicDebuggingConeOfLife" type="MeshInstance" parent="BlockFaceHighlighter"]
+visible = false
+mesh = SubResource( 8 )
+material/0 = null
 
 [node name="HUD" type="Control" parent="."]
 anchor_right = 1.0

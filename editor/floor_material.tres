@@ -5,8 +5,11 @@
 
 [resource]
 shader = ExtResource( 2 )
+shader_param/enable_mirror = false
 shader_param/grid_size = 25
 shader_param/edge_size = 0.1
 shader_param/cell_color = Color( 0.0823529, 0.0784314, 0.0784314, 1 )
 shader_param/edge_color = Color( 0.87451, 0.886275, 0.886275, 1 )
+shader_param/mirror_color = Color( 1, 0, 0, 1 )
+shader_param/mirror_offset = 0.1
 shader_param/albedo_texture = ExtResource( 1 )
