@@ -2,7 +2,7 @@ tool
 extends Spatial
 
 
-const GRID_SIZE = preload("designer.gd").GRID_SIZE
+const GRID_SIZE = preload("editor.gd").GRID_SIZE
 var _sprite := Sprite3D.new()
 onready var _origin: Spatial = $Origin
 onready var _mirror: Spatial = $Mirror

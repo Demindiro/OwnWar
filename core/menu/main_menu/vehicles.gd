@@ -23,7 +23,7 @@ func generate_vehicle_list() -> void:
 		var btn := TextureButton.new()
 		if not OwnWar_Thumbnail.get_vehicle_thumbnail_async(path,
 			funcref(self, "_set_thumbnail"), [btn, path]):
-			btn.texture_normal = preload("res://core/designer/ellipsis.png")
+			btn.texture_normal = preload("res://editor/ellipsis.png")
 		Util.assert_connect(btn, "mouse_entered", self, "_button_mouse_entered", [btn])
 		Util.assert_connect(btn, "mouse_exited", self, "_button_mouse_exited", [btn])
 		Util.assert_connect(btn, "focus_entered", self, "emit_signal", ["select_vehicle", path])

@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/ellipsis.png-18ee8eb2b8bb769e25207eda5b7ea02f.stex"
+path="res://.import/ellipsis.png-757f883d98f90e52ebf70f0f3078a2f8.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://core/designer/ellipsis.png"
-dest_files=[ "res://.import/ellipsis.png-18ee8eb2b8bb769e25207eda5b7ea02f.stex" ]
+source_file="res://editor/ellipsis.png"
+dest_files=[ "res://.import/ellipsis.png-757f883d98f90e52ebf70f0f3078a2f8.stex" ]
 
 [params]
 

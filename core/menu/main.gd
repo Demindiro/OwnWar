@@ -12,7 +12,7 @@ func goto_editor(vehicle_path := "") -> void:
 	if vehicle_path == "":
 		vehicle_path = _selected_vehicle_path
 	if vehicle_path != "":
-		var scene = load("res://core/designer/designer.tscn").instance()
+		var scene = load("res://editor/editor.tscn").instance()
 		scene.vehicle_path = vehicle_path
 		queue_free()
 		var tree := get_tree()

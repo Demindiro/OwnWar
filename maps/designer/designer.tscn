@@ -22,7 +22,7 @@ ambient_light_energy = 0.2
 
 [node name="Designer" type="Node"]
 script = ExtResource( 6 )
-designer_scene_path = "res://core/designer/designer.tscn"
+designer_scene_path = "res://editor/editor.tscn"
 spawn_point/0 = NodePath("SpawnPoints/Center")
 spawn_point/1 = NodePath("SpawnPoints/-X-Y")
 spawn_point/2 = NodePath("SpawnPoints/X-Y")
