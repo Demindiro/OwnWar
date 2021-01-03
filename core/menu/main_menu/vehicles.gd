@@ -6,6 +6,9 @@ onready var _box: Control = get_node("Box/Box")
 onready var _new_vehicle_gui: Control = get_node("../NewVehicle")
 
 
+signal select_vehicle(path)
+
+
 func _ready() -> void:
 	for path in Util.iterate_dir("user://vehicles", "json"):
 		path = "user://vehicles".plus_file(path)
@@ -13,6 +16,17 @@ func _ready() -> void:
 		if not OwnWar_Thumbnail.get_vehicle_thumbnail_async(path,
 			funcref(self, "_set_thumbnail"), [btn, path]):
 			btn.texture_normal = preload("res://core/designer/ellipsis.png")
+		var e := btn.connect("mouse_entered", self, "_button_mouse_entered", [btn])
+		assert(e == OK)
+		e = btn.connect("mouse_exited", self, "_button_mouse_exited", [btn])
+		assert(e == OK)
+		e = btn.connect("button_up", self, "_button_up", [btn])
+		assert(e == OK)
+		e = btn.connect("button_down", self, "_button_down", [btn])
+		assert(e == OK)
+		e = btn.connect("pressed", self, "emit_signal", ["select_vehicle", path])
+		assert(e == OK)
+		btn.set_meta("mouse_inside", false)
 		_box.add_child(btn)
 	var btn := TextureButton.new()
 	btn.texture_normal = add_texture
@@ -36,17 +50,6 @@ func _set_thumbnail(image: Image, btn: TextureButton, path: String) -> void:
 	var tex := ImageTexture.new()
 	tex.create_from_image(image)
 	btn.texture_normal = tex
-	var e := btn.connect("mouse_entered", self, "_button_mouse_entered", [btn])
-	assert(e == OK)
-	e = btn.connect("mouse_exited", self, "_button_mouse_exited", [btn])
-	assert(e == OK)
-	e = btn.connect("button_up", self, "_button_up", [btn])
-	assert(e == OK)
-	e = btn.connect("button_down", self, "_button_down", [btn])
-	assert(e == OK)
-	e = btn.connect("pressed", get_parent(), "goto_designer", [path])
-	assert(e == OK)
-	btn.set_meta("mouse_inside", false)
 
 
 func _button_mouse_entered(node: Control) -> void:
