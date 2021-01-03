@@ -66,6 +66,7 @@ func _exit_tree():
 
 func _ready():
 	assert(vehicle_path != "")
+	get_tree().paused = false # To be sure because ??????
 	select_block(OwnWar.Block.get_block_by_id(1).name)
 	set_enabled(true) # Disable UIs
 	_floor_mirror.visible = mirror
