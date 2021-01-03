@@ -1,19 +1,24 @@
-[gd_scene load_steps=19 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=1]
 [ext_resource path="res://core/menu/main_menu/vehicles.gd" type="Script" id=2]
 [ext_resource path="res://addons/crosshairs/image0013.png" type="Texture" id=3]
+[ext_resource path="res://core/menu/main_menu/vehicle_info.gd" type="Script" id=4]
 [ext_resource path="res://core/menu/main_menu/vehicle_preview.gd" type="Script" id=5]
 [ext_resource path="res://core/menu/main_menu/floor_mirror.gd" type="Script" id=6]
 [ext_resource path="res://core/menu/main_menu/new_vehicle.gd" type="Script" id=7]
 [ext_resource path="res://core/menu/main.gd" type="Script" id=8]
-[ext_resource path="res://core/menu/font_small.tres" type="DynamicFont" id=10]
-[ext_resource path="res://core/menu/button/button.tscn" type="PackedScene" id=11]
-[ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=12]
 
 [sub_resource type="Environment" id=1]
+ss_reflections_max_steps = 256
+ss_reflections_fade_out = 0.0358969
+ss_reflections_roughness = false
 
-[sub_resource type="PlaneShape" id=2]
+[sub_resource type="HeightMapShape" id=2]
+margin = 0.001
+map_width = 21
+map_depth = 21
+map_data = PoolRealArray( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
 
 [sub_resource type="ViewportTexture" id=3]
 
@@ -52,14 +57,15 @@ __meta__ = {
 [node name="VehiclePreview" type="ViewportContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 4.0
-margin_right = 4.0
-focus_mode = 1
 stretch = true
 script = ExtResource( 5 )
 __meta__ = {
+"_edit_lock_": true,
 "_edit_use_anchors_": false
 }
+camera_input_zoom_speed = 0.3333
+camera_zoom_min = 2.0
+camera_zoom_max = 10.0
 
 [node name="Viewport" type="Viewport" parent="VehiclePreview"]
 size = Vector2( 1920, 1080 )
@@ -72,8 +78,11 @@ environment = SubResource( 1 )
 
 [node name="Origin" type="Spatial" parent="VehiclePreview/Viewport"]
 
+[node name="CameraOrigin" type="Spatial" parent="VehiclePreview/Viewport"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0 )
+
 [node name="Camera" type="Camera" parent="VehiclePreview/Viewport"]
-transform = Transform( 1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 5, 9 )
+transform = Transform( 1, 0, 0, 0, 0.808962, 0.587862, 0, -0.587862, 0.808962, -3.19289, 5, 7.26596 )
 
 [node name="Room" type="StaticBody" parent="VehiclePreview/Viewport"]
 
@@ -81,6 +90,7 @@ transform = Transform( 1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0
 shape = SubResource( 2 )
 
 [node name="Floor" type="MeshInstance" parent="VehiclePreview/Viewport/Room"]
+process_priority = 1
 transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0.00875664, -3.57628e-07, 0.0065856 )
 layers = 1024
 material_override = SubResource( 4 )
@@ -102,13 +112,13 @@ gui_disable_input = true
 gui_snap_controls_to_pixels = false
 
 [node name="Camera" type="Camera" parent="VehiclePreview/Viewport/Room/Viewport"]
-transform = Transform( 0, 1, 0, 0, 0, -1, -1, 0, 0, 0, -5, 9 )
+transform = Transform( 0, 1, 0, 0, 0, -1, -1, 0, 0, -3.19289, -5, 7.26596 )
 keep_aspect = 0
 cull_mask = 1
 environment = SubResource( 8 )
 projection = 2
 size = 20.0
-frustum_offset = Vector2( 9, 0 )
+frustum_offset = Vector2( 7.26596, 3.19289 )
 near = 5.0
 
 [node name="-XY" type="SpotLight" parent="VehiclePreview/Viewport"]
@@ -131,44 +141,9 @@ transform = Transform( -0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, 0.
 light_energy = 0.3
 spot_range = 106.0
 
-[node name="Main" parent="." instance=ExtResource( 12 )]
-margin_left = 40.733
-margin_top = 44.3442
-margin_right = 40.733
-margin_bottom = 254.344
-title = "Own War"
-
-[node name="Version" type="Label" parent="Main"]
-margin_left = 220.401
-margin_top = -12.6697
-margin_right = 311.401
-margin_bottom = 16.3303
-custom_fonts/font = ExtResource( 10 )
-text = "0.0.0"
-align = 1
-valign = 1
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Main"]
-margin_left = 40.0
-margin_top = 40.0
-margin_right = 305.0
-custom_constants/separation = 10
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Settings" parent="Main/VBoxContainer" instance=ExtResource( 11 )]
-margin_right = 265.0
-text = "Settings"
-
-[node name="Exit" parent="Main/VBoxContainer" instance=ExtResource( 11 )]
-margin_top = 51.0
-margin_right = 265.0
-margin_bottom = 92.6293
-text = "Exit"
+[node name="InputTimer" type="Timer" parent="VehiclePreview"]
+wait_time = 20.0
+one_shot = true
 
 [node name="Vehicles" type="PanelContainer" parent="."]
 anchor_top = 0.8
@@ -221,6 +196,12 @@ align = 1
 margin_top = 30.0
 margin_right = 736.0
 margin_bottom = 143.0
+focus_neighbour_left = NodePath("../Create")
+focus_neighbour_top = NodePath("../Create")
+focus_neighbour_right = NodePath("../Create")
+focus_neighbour_bottom = NodePath("../Create")
+focus_next = NodePath("../Create")
+focus_previous = NodePath("../Create")
 size_flags_vertical = 7
 align = 1
 placeholder_text = "Name"
@@ -229,10 +210,204 @@ placeholder_text = "Name"
 margin_top = 153.0
 margin_right = 736.0
 margin_bottom = 194.629
+focus_neighbour_left = NodePath("../Name")
+focus_neighbour_top = NodePath("../Name")
+focus_neighbour_right = NodePath("../Name")
+focus_neighbour_bottom = NodePath("../Name")
+focus_next = NodePath("../Name")
+focus_previous = NodePath("../Name")
 text = "Create"
-[connection signal="pressed" from="Main/VBoxContainer/Settings" to="." method="_on_Settings_pressed"]
-[connection signal="pressed" from="Main/VBoxContainer/Exit" to="." method="_on_Exit_pressed"]
+
+[node name="VehicleInfo" type="PanelContainer" parent="."]
+anchor_left = 0.8
+anchor_right = 1.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = 196.0
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Box" type="MarginContainer" parent="VehicleInfo"]
+margin_left = 16.0
+margin_top = 11.0
+margin_right = 348.0
+margin_bottom = 165.0
+custom_constants/margin_top = 5
+custom_constants/margin_bottom = 5
+
+[node name="Box" type="VBoxContainer" parent="VehicleInfo/Box"]
+margin_top = 5.0
+margin_right = 332.0
+margin_bottom = 149.0
+size_flags_horizontal = 3
+size_flags_vertical = 9
+
+[node name="Name" type="LineEdit" parent="VehicleInfo/Box/Box"]
+margin_right = 332.0
+margin_bottom = 42.0
+placeholder_text = "Name"
+caret_blink = true
+
+[node name="Box" type="GridContainer" parent="VehicleInfo/Box/Box"]
+margin_top = 52.0
+margin_right = 332.0
+margin_bottom = 144.0
+size_flags_horizontal = 3
+size_flags_vertical = 9
+columns = 2
+
+[node name="CostName" type="Label" parent="VehicleInfo/Box/Box/Box"]
+margin_right = 164.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Cost"
+
+[node name="CostValue" type="Label" parent="VehicleInfo/Box/Box/Box"]
+margin_left = 168.0
+margin_right = 332.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+
+[node name="BlocksName" type="Label" parent="VehicleInfo/Box/Box/Box"]
+margin_top = 24.0
+margin_right = 164.0
+margin_bottom = 44.0
+size_flags_horizontal = 3
+text = "Blocks"
+
+[node name="BlocksValue" type="Label" parent="VehicleInfo/Box/Box/Box"]
+margin_left = 168.0
+margin_top = 24.0
+margin_right = 332.0
+margin_bottom = 44.0
+size_flags_horizontal = 3
+
+[node name="MassName" type="Label" parent="VehicleInfo/Box/Box/Box"]
+margin_top = 48.0
+margin_right = 164.0
+margin_bottom = 68.0
+size_flags_horizontal = 3
+text = "Mass"
+
+[node name="MassValue" type="Label" parent="VehicleInfo/Box/Box/Box"]
+margin_left = 168.0
+margin_top = 48.0
+margin_right = 332.0
+margin_bottom = 68.0
+size_flags_horizontal = 3
+
+[node name="SizeName" type="Label" parent="VehicleInfo/Box/Box/Box"]
+margin_top = 72.0
+margin_right = 164.0
+margin_bottom = 92.0
+size_flags_horizontal = 3
+text = "Size"
+
+[node name="SizeValue" type="Label" parent="VehicleInfo/Box/Box/Box"]
+margin_left = 168.0
+margin_top = 72.0
+margin_right = 332.0
+margin_bottom = 92.0
+size_flags_horizontal = 3
+
+[node name="QuickActions" type="HBoxContainer" parent="."]
+anchor_right = 1.0
+margin_left = 20.0
+margin_top = 20.0
+margin_right = -20.0
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Left" type="HBoxContainer" parent="QuickActions"]
+margin_right = 881.0
+margin_bottom = 41.0
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="Exit" type="Button" parent="QuickActions/Left"]
+margin_right = 141.454
+margin_bottom = 41.6293
+text = "Exit game"
+
+[node name="Settings" type="Button" parent="QuickActions/Left"]
+margin_left = 145.0
+margin_right = 273.454
+margin_bottom = 41.6293
+text = "Settings"
+
+[node name="Right" type="HBoxContainer" parent="QuickActions/Left"]
+margin_left = 277.0
+margin_right = 277.0
+margin_bottom = 41.0
+alignment = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Middle" type="HBoxContainer" parent="QuickActions"]
+margin_left = 885.0
+margin_right = 994.0
+margin_bottom = 41.0
+size_flags_vertical = 0
+alignment = 1
+
+[node name="Battle" type="Button" parent="QuickActions/Middle"]
+margin_right = 109.454
+margin_bottom = 41.6293
+text = "Battle"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Right" type="HBoxContainer" parent="QuickActions"]
+margin_left = 998.0
+margin_right = 1880.0
+margin_bottom = 41.0
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="Left" type="HBoxContainer" parent="QuickActions/Right"]
+size_flags_horizontal = 0
+size_flags_vertical = 0
+alignment = 2
+
+[node name="Edit" type="Button" parent="QuickActions/Right"]
+margin_left = 4.0
+margin_right = 78.4545
+margin_bottom = 41.6293
+text = "Edit"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Create" type="Button" parent="QuickActions/Right"]
+margin_left = 82.0
+margin_right = 194.454
+margin_bottom = 41.6293
+text = "Create"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="refresh_vehicle_list" from="." to="Vehicles" method="generate_vehicle_list"]
+[connection signal="vehicle_rename_failed" from="." to="VehicleInfo" method="set_vehicle_name"]
+[connection signal="loaded_vehicle" from="VehiclePreview" to="VehicleInfo" method="set_vehicle"]
+[connection signal="timeout" from="VehiclePreview/InputTimer" to="VehiclePreview" method="input_timeout"]
 [connection signal="select_vehicle" from="Vehicles" to="VehiclePreview" method="set_preview"]
-[connection signal="create_vehicle" from="NewVehicle" to="." method="goto_designer"]
-[connection signal="focus_exited" from="NewVehicle/Box/Name" to="NewVehicle" method="set_visible" binds= [ false ]]
-[connection signal="pressed" from="NewVehicle/Box/Create" to="NewVehicle" method="goto_designer"]
+[connection signal="select_vehicle" from="Vehicles" to="." method="set_selected_vehicle"]
+[connection signal="create_vehicle" from="NewVehicle" to="." method="goto_editor"]
+[connection signal="focus_exited" from="NewVehicle/Box/Name" to="NewVehicle" method="focus_lost"]
+[connection signal="gui_input" from="NewVehicle/Box/Name" to="NewVehicle" method="name_gui_input"]
+[connection signal="text_changed" from="NewVehicle/Box/Name" to="NewVehicle" method="on_name_changed"]
+[connection signal="text_entered" from="NewVehicle/Box/Name" to="NewVehicle" method="goto_editor"]
+[connection signal="focus_exited" from="NewVehicle/Box/Create" to="NewVehicle" method="focus_lost"]
+[connection signal="pressed" from="NewVehicle/Box/Create" to="NewVehicle" method="goto_editor"]
+[connection signal="new_vehicle_name" from="VehicleInfo" to="." method="rename_vehicle"]
+[connection signal="focus_exited" from="VehicleInfo/Box/Box/Name" to="VehicleInfo" method="edit_name"]
+[connection signal="text_entered" from="VehicleInfo/Box/Box/Name" to="VehicleInfo" method="edit_name"]
+[connection signal="pressed" from="QuickActions/Left/Exit" to="." method="exit_game"]
+[connection signal="pressed" from="QuickActions/Right/Edit" to="." method="goto_editor"]
+[connection signal="pressed" from="QuickActions/Right/Create" to="NewVehicle" method="activate"]

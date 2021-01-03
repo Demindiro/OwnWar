@@ -26,6 +26,12 @@ static func get_vehicle_thumbnail_async(path: String, callback: FuncRef,
 		return false
 
 
+static func move_vehicle_thumbnail(from: String, to: String) -> void:
+	from = _get_vehicle_path(from)
+	to = _get_vehicle_path(to)
+	var _e := Directory.new().rename(from, to)
+
+
 static func _get_block_path(name: String) -> String:
 	return _THUMBNAIL_DIRECTORY \
 		.plus_file(_BLOCK_DIRECTORY) \

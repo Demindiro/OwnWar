@@ -16,6 +16,7 @@ const COLLISION_MASK_UNIT := 1 << (19 - 1)
 const COLLISION_MASK_STRUCTURE := 1 << (20 - 1)
 const _MAIN_MENU := "res://core/menu/main_menu/main.tscn"
 const _MAIN_MENU_SCENES := PoolStringArray()
+const VEHICLE_DIRECTORY := "user://vehicles"
 
 
 static func add_main_menu_background(path: String) -> void:

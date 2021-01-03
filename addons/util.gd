@@ -262,3 +262,10 @@ static func humanize_file_name(name: String) -> String:
 
 static func filenamize_human_name(name: String) -> String:
 	return name.replace(" ", "_").to_lower()
+
+
+# Just a connect but with an assert appended
+static func assert_connect(from: Object, p_signal: String, to: Object,
+	method: String, arguments := []) -> void:
+	var e := from.connect(p_signal, to, method, arguments)
+	assert(e == OK)

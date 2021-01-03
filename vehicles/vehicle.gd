@@ -49,8 +49,9 @@ func _physics_process(_delta: float) -> void:
 		if not move_forward and not move_back:
 			drive_brake = 1.0
 			# Reduce brake to prevent jitter
-			if voxel_bodies[0].linear_velocity.length_squared() < 1.0:
-				drive_brake = 0.2
+			if len(voxel_bodies) > 0:
+				if voxel_bodies[0].linear_velocity.length_squared() < 1.0:
+					drive_brake = 0.2
 		for wheel in wheels:
 			wheel.steering = drive_yaw * wheel.max_angle
 			wheel.engine_force = wheel.max_power * drive_forward
@@ -113,9 +114,10 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 	for body in voxel_bodies:
 		body.fix_physics()
 		body.init_blocks(self, meta)
-	var center_of_mass_0 = voxel_bodies[0].center_of_mass
-	for body in voxel_bodies:
-		body.translate(-center_of_mass_0)
+	if len(voxel_bodies) > 0:
+		var center_of_mass_0 = voxel_bodies[0].center_of_mass
+		for body in voxel_bodies:
+			body.translate(-center_of_mass_0)
 
 	for body in voxel_bodies:
 		wheels += body.wheels
@@ -185,6 +187,20 @@ func get_aabb() -> AABB:
 			var v := Vector3(crd[0], crd[1], crd[2])
 			aabb = aabb.expand(v).expand(v + Vector3.ONE)
 	return aabb
+
+
+func get_block_count() -> int:
+	var c := 0
+	for b in voxel_bodies:
+		c += len(b.blocks)
+	return c
+
+
+func get_mass() -> float:
+	var c := 0.0
+	for b in voxel_bodies:
+		c += b.mass
+	return c
 
 
 func get_file_path() -> String:
