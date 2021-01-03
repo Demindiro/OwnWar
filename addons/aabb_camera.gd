@@ -20,10 +20,14 @@ func _ready():
 
 
 func _process(_delta: float) -> void:
+	call_deferred("_post_process")
+
+
+func _post_process() -> void:
 	translation = Vector3(
-		max(aabb.position.x, min(aabb.end.x, translation.x)),
-		max(aabb.position.y, min(aabb.end.y, translation.y)),
-		max(aabb.position.z, min(aabb.end.z, translation.z))
+		clamp(translation.x, aabb.position.x, aabb.end.x),
+		clamp(translation.y, aabb.position.y, aabb.end.y),
+		clamp(translation.z, aabb.position.z, aabb.end.z)
 	)
 	if Engine.editor_hint:
 		var ig: ImmediateGeometry = $_imm_geometry
