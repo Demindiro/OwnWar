@@ -25,7 +25,7 @@ func init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
 
 func _ready() -> void:
 	set_physics_process(_body_a != null)
-	set_physics_process_internal(_body_a != null)
+	#set_physics_process_internal(_body_a != null)
 	if _body_a != null:
 		_body_b.add_child(_body_b_mount)
 		_body_b_mount.global_transform = global_transform
@@ -39,7 +39,7 @@ func _physics_process(delta: float) -> void:
 	var angle_diff := curr_dir.angle_to(proj_pos.normalized())
 	var side := sign(g_trf.basis.x.dot(proj_pos))
 	var max_turn := max_turn_speed * delta
-	var turn_rate := max_turn_speed * min(1.0, angle_diff / max_turn * 0.15)
+	var turn_rate := max_turn_speed * min(1.0, angle_diff / max_turn * 0.5)
 	_joint.set("angular_motor_z/target_velocity", turn_rate * side)
 
 
@@ -115,8 +115,8 @@ func _create_joint(body_a: PhysicsBody, body_b: PhysicsBody, vehicle: OwnWar_Veh
 			i = j
 			break
 	assert(i >= 0)
-	_joint.set("solver/priority", 7 - i)
-	process_priority = -i
+	#_joint.set("solver/priority", 7 - i)
+	#process_priority = -i
 
 
 func _remove_joint() -> void:

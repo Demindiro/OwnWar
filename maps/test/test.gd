@@ -3,8 +3,8 @@ extends Node
 
 
 var designer_scene_path: String
-#var vehicle_path := "user://vehicles/crane.json"
-var vehicle_path := "user://vehicles/chicken.json"
+var vehicle_path := "user://vehicles/crane.json"
+#var vehicle_path := "user://vehicles/chicken.json"
 onready var _hud := get_node("HUD")
 var _spawn_points := []
 var _spawn_point_index := 0
