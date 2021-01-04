@@ -1,32 +1,32 @@
 [gd_scene load_steps=16 format=2]
 
-[ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
-[ext_resource path="res://maps/designer/rect.svg" type="Texture" id=2]
-[ext_resource path="res://core/menu/font.tres" type="DynamicFont" id=3]
-[ext_resource path="res://maps/hud.tscn" type="PackedScene" id=4]
-[ext_resource path="res://maps/designer/map_data/data.hterrain" type="Resource" id=5]
-[ext_resource path="res://maps/designer/designer.gd" type="Script" id=6]
+[ext_resource path="res://core/menu/font.tres" type="DynamicFont" id=1]
+[ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=2]
+[ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=3]
+[ext_resource path="res://maps/test/map_data/data.hterrain" type="Resource" id=4]
+[ext_resource path="res://core/menu/menu/panel.tres" type="StyleBox" id=5]
+[ext_resource path="res://maps/test/rect.svg" type="Texture" id=6]
 [ext_resource path="res://maps/gui.gd" type="Script" id=7]
-[ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=8]
-[ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=9]
+[ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=8]
+[ext_resource path="res://core/menu/menu/panel_edge.png" type="Texture" id=9]
 [ext_resource path="res://maps/exit_menu.gd" type="Script" id=10]
-[ext_resource path="res://core/menu/menu/panel_edge.png" type="Texture" id=11]
-[ext_resource path="res://core/menu/menu/panel.tres" type="StyleBox" id=12]
+[ext_resource path="res://maps/hud.tscn" type="PackedScene" id=11]
+[ext_resource path="res://maps/test/test.gd" type="Script" id=12]
 [ext_resource path="res://addons/backgrounds/AllSkyFree_Sky_ColdSunset_Equirect.png" type="Texture" id=13]
 
-[sub_resource type="PanoramaSky" id=3]
+[sub_resource type="PanoramaSky" id=1]
 panorama = ExtResource( 13 )
 
 [sub_resource type="Environment" id=2]
 background_mode = 2
-background_sky = SubResource( 3 )
+background_sky = SubResource( 1 )
 ambient_light_energy = 0.2
 tonemap_mode = 2
 
-[node name="Designer" type="Node"]
-script = ExtResource( 6 )
+[node name="Test" type="Node"]
+script = ExtResource( 12 )
 designer_scene_path = "res://editor/editor.tscn"
-spawn_point/0 = NodePath("SpawnPoints/Center")
+spawn_point/0 = NodePath("../Test/SpawnPoints/Center")
 spawn_point/1 = NodePath("SpawnPoints/-X-Y")
 spawn_point/2 = NodePath("SpawnPoints/X-Y")
 spawn_point/3 = NodePath("SpawnPoints/-XY")
@@ -38,11 +38,11 @@ far = 2000.0
 
 [node name="HTerrain" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -128.25, 0, -128.25 )
-script = ExtResource( 1 )
+script = ExtResource( 3 )
 ambient_wind = 0.0
 lod_scale = 2.0
 map_scale = Vector3( 0.5, 0.5, 0.5 )
-_terrain_data = ExtResource( 5 )
+_terrain_data = ExtResource( 4 )
 chunk_size = 32
 collision_enabled = true
 collision_layer = 1
@@ -54,7 +54,7 @@ shader_params/u_ground_uv_scale = 1.0
 shader_params/u_depth_blending = true
 shader_params/u_triplanar = false
 shader_params/u_tile_reduction = Plane( 0, 0, 0, 0 )
-ground/albedo_bump_0 = ExtResource( 2 )
+ground/albedo_bump_0 = ExtResource( 6 )
 ground/normal_roughness_0 = null
 ground/albedo_bump_1 = null
 ground/normal_roughness_1 = null
@@ -71,24 +71,24 @@ environment = SubResource( 2 )
 
 [node name="SpawnPoints" type="Node" parent="."]
 
-[node name="Center" type="Spatial" parent="SpawnPoints"]
+[node name="Center" type="Position3D" parent="SpawnPoints"]
 transform = Transform( -1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, 0, 1, 0 )
 
-[node name="-X-Y" type="Spatial" parent="SpawnPoints"]
+[node name="-X-Y" type="Position3D" parent="SpawnPoints"]
 transform = Transform( 0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -25, 1, -29 )
 
-[node name="X-Y" type="Spatial" parent="SpawnPoints"]
+[node name="X-Y" type="Position3D" parent="SpawnPoints"]
 transform = Transform( 0.852593, 0, 0.522576, 0, 1, 0, -0.522576, 0, 0.852593, 35, 1, -37 )
 
-[node name="-XY" type="Spatial" parent="SpawnPoints"]
+[node name="-XY" type="Position3D" parent="SpawnPoints"]
 transform = Transform( -0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, -0.866025, -25, 1, 39 )
 
-[node name="XY" type="Spatial" parent="SpawnPoints"]
+[node name="XY" type="Position3D" parent="SpawnPoints"]
 transform = Transform( -0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, -0.965926, 27, 1, 44 )
 
-[node name="HUD" parent="." instance=ExtResource( 4 )]
+[node name="HUD" parent="." instance=ExtResource( 11 )]
 mouse_filter = 2
-camera = NodePath("../Camera")
+camera = NodePath("../../Test/Camera")
 camera_rotate_speed = 0.75
 camera_zoom_speed = 0.75
 camera_zoom_min = 1.0
@@ -116,7 +116,7 @@ margin_left = -161.634
 margin_top = -180.557
 margin_right = -161.634
 margin_bottom = -180.557
-theme = ExtResource( 8 )
+theme = ExtResource( 2 )
 script = ExtResource( 10 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -127,7 +127,7 @@ title = "Menu"
 anchor_right = 1.0
 anchor_bottom = 1.0
 rect_min_size = Vector2( 320, 380 )
-custom_styles/panel = ExtResource( 12 )
+custom_styles/panel = ExtResource( 5 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -138,7 +138,7 @@ margin_left = -25.0
 margin_top = -25.0
 margin_right = 0.0400085
 margin_bottom = 344.0
-texture = ExtResource( 11 )
+texture = ExtResource( 9 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -148,7 +148,7 @@ margin_left = 11.0
 margin_top = -25.0
 margin_right = 196.0
 margin_bottom = 25.0
-custom_fonts/font = ExtResource( 3 )
+custom_fonts/font = ExtResource( 1 )
 text = "Menu"
 valign = 1
 autowrap = true
@@ -169,7 +169,7 @@ __meta__ = {
 [node name="Continue" type="Button" parent="GUI/ExitMenu/Box"]
 margin_right = 262.0
 margin_bottom = 41.6293
-shortcut = ExtResource( 9 )
+shortcut = ExtResource( 8 )
 text = "Continue"
 
 [node name="Restart" type="Button" parent="GUI/ExitMenu/Box"]

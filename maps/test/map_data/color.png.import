@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/splat.png-24c8ceecdf549e04320a8f04ad77494a.stex"
+path="res://.import/color.png-14bb3b12fd97e5e8359531762ada2f6c.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://maps/designer/map_data/splat.png"
-dest_files=[ "res://.import/splat.png-24c8ceecdf549e04320a8f04ad77494a.stex" ]
+source_file="res://maps/test/map_data/color.png"
+dest_files=[ "res://.import/color.png-14bb3b12fd97e5e8359531762ada2f6c.stex" ]
 
 [params]
 
@@ -23,7 +23,7 @@ flags/repeat=0
 flags/filter=true
 flags/mipmaps=false
 flags/anisotropic=false
-flags/srgb=0
+flags/srgb=2
 process/fix_alpha_border=false
 process/premult_alpha=false
 process/HDR_as_SRGB=false
