@@ -44,7 +44,6 @@ onready var _floor_origin_ghost: MeshInstance = $Floor/Origin/Ghost
 onready var _floor = get_node("Floor")
 onready var _camera: FreeCamera = $Camera
 onready var _camera_mesh: MeshInstance = $Camera/Box/Viewport/Camera/Mesh
-onready var _camera_mesh_camera: Camera = $Camera/Box/Viewport/Camera
 onready var _gui_menu: Control = $GUI/Menu
 onready var _gui_inventory: Control = $GUI/Inventory
 onready var _gui_color_picker: Control = $GUI/ColorPicker
@@ -124,7 +123,7 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(_delta):
-	_camera_mesh_camera.transform = _camera.transform
+	#_camera_mesh_camera.transform = _camera.transform
 	highlight_face()
 	process_actions()
 

@@ -1,14 +1,16 @@
-[gd_scene load_steps=27 format=2]
+[gd_scene load_steps=29 format=2]
 
 [ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=1]
 [ext_resource path="res://editor/meta_editor.gd" type="Script" id=2]
 [ext_resource path="res://addons/aabb_camera.gd" type="Script" id=3]
 [ext_resource path="res://editor/block_layer.gd" type="Script" id=4]
 [ext_resource path="res://core/menu/dialog/independent_panel.tscn" type="PackedScene" id=5]
+[ext_resource path="res://editor/garage_todo_text.png" type="Texture" id=6]
 [ext_resource path="res://addons/crosshairs/image0018.png" type="Texture" id=7]
 [ext_resource path="res://editor/floor_material.tres" type="Material" id=8]
 [ext_resource path="res://editor/inventory.gd" type="Script" id=9]
 [ext_resource path="res://editor/block_face_highlighter_material.tres" type="Material" id=10]
+[ext_resource path="res://editor/editor_environment.tres" type="Environment" id=11]
 [ext_resource path="res://editor/block_face_highlighter.gd" type="Script" id=12]
 [ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=13]
 [ext_resource path="res://core/menu/main_menu/main.tscn" type="PackedScene" id=14]
@@ -23,23 +25,23 @@
 
 [sub_resource type="SpatialMaterial" id=1]
 
+[sub_resource type="SpatialMaterial" id=2]
+params_cull_mode = 1
+
+[sub_resource type="CubeMesh" id=3]
+size = Vector3( 45.5, 31.5, 45.5 )
+
 [sub_resource type="PlaneMesh" id=4]
 custom_aabb = AABB( 0, 0, 0, 25, 0, 25 )
 size = Vector2( 1, 1 )
 
-[sub_resource type="QuadMesh" id=7]
+[sub_resource type="QuadMesh" id=5]
 size = Vector2( 1.25, 1.25 )
 
-[sub_resource type="CylinderMesh" id=8]
+[sub_resource type="CylinderMesh" id=6]
 top_radius = 0.001
 bottom_radius = 0.5
 height = 1.0
-
-[sub_resource type="ProceduralSky" id=5]
-
-[sub_resource type="Environment" id=6]
-background_mode = 2
-background_sky = SubResource( 5 )
 
 [node name="Designer" type="Node"]
 pause_mode = 2
@@ -64,12 +66,19 @@ visible = false
 
 [node name="Camera" type="Camera" parent="."]
 process_priority = -1
-transform = Transform( -1, -1.42109e-13, -3.25842e-07, -1.62921e-07, 0.866025, 0.5, 2.82187e-07, 0.5, -0.866025, 10, 5.09171, 0 )
+transform = Transform( -1, -1.5632e-13, -3.25842e-07, -1.62921e-07, 0.866025, 0.5, 2.82187e-07, 0.5, -0.866025, 10, 5.09171, 0 )
 cull_mask = 1
+far = 200.0
 script = ExtResource( 3 )
+speed = 10.0
+angular_speed = 0.01
 always_capture = true
 actions = PoolStringArray( "designer_move_left", "designer_move_right", "designer_move_forward", "designer_move_back", "designer_move_up", "designer_move_down" )
 aabb = AABB( -10, 0.55, -10, 45, 30, 45 )
+
+[node name="RT" type="RemoteTransform" parent="Camera"]
+transform = Transform( -1, -1.62921e-07, 2.82187e-07, -1.42109e-13, 0.866025, 0.5, -3.25842e-07, 0.5, -0.866025, 10, -4.40955, -2.54585 )
+remote_path = NodePath("../Box/Viewport/Camera")
 
 [node name="Box" type="ViewportContainer" parent="Camera"]
 anchor_right = 1.0
@@ -88,7 +97,7 @@ gui_disable_input = true
 
 [node name="Camera" type="Camera" parent="Camera/Box/Viewport"]
 process_priority = 1
-transform = Transform( -1, -1.42109e-13, -3.25842e-07, -1.62921e-07, 0.866025, 0.5, 2.82187e-07, 0.5, -0.866025, -0.112284, 5.09171, -11.6802 )
+transform = Transform( 1, 5.68434e-14, -1.13687e-13, -1.98952e-13, 1, -2.98023e-08, 3.41061e-13, 2.98023e-08, 1, 9.53674e-07, 9.53674e-07, -2.6226e-06 )
 cull_mask = 2147483776
 
 [node name="Mesh" type="MeshInstance" parent="Camera/Box/Viewport/Camera"]
@@ -97,6 +106,49 @@ transform = Transform( 0.945729, -0.0479753, 0.321394, 0.163176, 0.925416, -0.34
 layers = 128
 mesh = ExtResource( 23 )
 material/0 = SubResource( 1 )
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource( 11 )
+
+[node name="Room" type="Spatial" parent="."]
+
+[node name="BoxOfClaustrophobia" type="MeshInstance" parent="Room"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5, 15, 12.5 )
+visible = false
+material_override = SubResource( 2 )
+mesh = SubResource( 3 )
+material/0 = null
+
+[node name="Lights" type="Node" parent="Room"]
+
+[node name="-X-Y" type="SpotLight" parent="Room/Lights"]
+transform = Transform( -0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, 0.5, -0.5, -9.75, 30.5, -10 )
+light_energy = 0.3
+spot_range = 92.2871
+
+[node name="-XY" type="SpotLight" parent="Room/Lights"]
+transform = Transform( 0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, -0.5, 0.5, -9.75, 30.5, 34.75 )
+light_energy = 0.3
+spot_range = 92.2871
+
+[node name="X-Y" type="SpotLight" parent="Room/Lights"]
+transform = Transform( 0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 35, 30.5, 34.75 )
+light_energy = 0.3
+spot_range = 92.2871
+
+[node name="XY" type="SpotLight" parent="Room/Lights"]
+transform = Transform( -0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, 0.5, -0.5, 35, 30.5, -10 )
+light_energy = 0.3
+spot_range = 92.2871
+
+[node name="Sun" type="SpotLight" parent="Room/Lights"]
+transform = Transform( 0.873613, 0, 0.486621, 0, 1, 0, -0.486621, 0, 0.873613, 44.375, 0, 75.75 )
+spot_range = 161.345
+spot_angle = 41.5913
+
+[node name="TODO text" type="Sprite3D" parent="Room"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 12.2097, 6.5, -13.3234 )
+texture = ExtResource( 6 )
 
 [node name="Floor" type="MeshInstance" parent="."]
 material_override = ExtResource( 8 )
@@ -118,12 +170,12 @@ script = ExtResource( 12 )
 [node name="Mesh" type="MeshInstance" parent="BlockFaceHighlighter"]
 transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0.001, 0, 0 )
 material_override = ExtResource( 10 )
-mesh = SubResource( 7 )
+mesh = SubResource( 5 )
 material/0 = null
 
 [node name="MagicDebuggingConeOfLife" type="MeshInstance" parent="BlockFaceHighlighter"]
 visible = false
-mesh = SubResource( 8 )
+mesh = SubResource( 6 )
 material/0 = null
 
 [node name="HUD" type="Control" parent="."]
@@ -286,9 +338,9 @@ script = ExtResource( 9 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-category_button_template = NodePath("HBoxContainer/Categories/VBoxContainer/Template")
-block_button_template = NodePath("HBoxContainer/Blocks/GridContainer/Template")
-preview_mesh = NodePath("../ViewportContainer/Viewport/MeshInstance")
+category_button_template = NodePath("../../../../Designer/GUI/Inventory/Inventory/HBoxContainer/Categories/VBoxContainer/Template")
+block_button_template = NodePath("../../../../Designer/GUI/Inventory/Inventory/HBoxContainer/Blocks/GridContainer/Template")
+preview_mesh = NodePath("../../../../Designer/GUI/Inventory/ViewportContainer/Viewport/MeshInstance")
 _thumbnail_placeholder = ExtResource( 25 )
 
 [node name="HBoxContainer" type="HBoxContainer" parent="GUI/Inventory/Inventory"]
@@ -393,9 +445,6 @@ columns = 2
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource( 6 )
 
 [node name="SaveTimer" type="Timer" parent="."]
 wait_time = 60.0

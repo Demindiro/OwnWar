@@ -66,3 +66,7 @@ assets:
     author: sbed
     source: https://opengameart.org/content/obituary-kill-or-death-icons
     license: cc-by 3.0, cc-by-sa 3.0
+  - asset: addons/backgrounds/AllSkyFree_Sky_AnotherPlanet_Equirect.png
+    author: Richard Whitelock
+    source: https://github.com/rpgwhitelock/AllSkyFree_Godot
+    license: MIT
