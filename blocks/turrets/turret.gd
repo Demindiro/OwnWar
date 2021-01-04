@@ -1,7 +1,7 @@
 extends "../weapons/weapon.gd"
 
 
-var max_turn_speed := PI
+var max_turn_speed := PI / 2
 #var _desired_direction := Vector3(0, 0, 1)
 var _body_a: OwnWar.VoxelBody
 var _body_b: OwnWar.VoxelBody
@@ -25,7 +25,7 @@ func init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
 
 func _ready() -> void:
 	set_physics_process(_body_a != null)
-	#set_physics_process_internal(_body_a != null)
+	set_physics_process_internal(_body_a != null)
 	if _body_a != null:
 		_body_b.add_child(_body_b_mount)
 		_body_b_mount.global_transform = global_transform
@@ -34,9 +34,8 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	var g_trf := _body_b_mount.global_transform
 	var plane := Plane(g_trf.basis.y, 0)
-	var proj_pos := plane.project(_aim_pos) - g_trf.origin
-	var curr_dir := g_trf.basis.z
-	var angle_diff := curr_dir.angle_to(proj_pos.normalized())
+	var proj_pos := plane.project(_aim_pos - g_trf.origin)
+	var angle_diff := abs(g_trf.basis.z.angle_to(proj_pos.normalized()))
 	var side := sign(g_trf.basis.x.dot(proj_pos))
 	var max_turn := max_turn_speed * delta
 	var turn_rate := max_turn_speed * min(1.0, angle_diff / max_turn * 0.5)
@@ -64,12 +63,11 @@ func _notification(what: int) -> void:
 
 
 func debug_draw():
+	if not is_inside_tree():
+		return
 	Debug.draw_line(global_transform.origin, \
 			global_transform.origin + global_transform.basis.z * 10.0)
 	Debug.draw_line(global_transform.origin, _aim_pos, Color.red)
-	#Debug.draw_line(global_transform.origin, \
-	#		global_transform.origin + global_transform.basis * _desired_direction * 20.0,
-	#		Color.red)
 	Debug.draw_line(global_transform.origin,
 			global_transform.origin + global_transform.basis.z * 20.0)
 	var bbmt := _body_b_mount.global_transform
@@ -82,14 +80,14 @@ func debug_draw():
 	Debug.draw_line(bbmt.origin,
 			bbmt.origin + bbmt.basis.z * 5.0,
 			Color.blue)
+	var g_trf := _body_b_mount.global_transform
+	var plane := Plane(g_trf.basis.y, 0)
+	var proj_pos := plane.project(_aim_pos - g_trf.origin).normalized()
+	Debug.draw_point(proj_pos * 5.0 + g_trf.origin, Color.cyan, 0.1)
 
 
 func aim_at(position: Vector3):
 	_aim_pos = position
-#	var rel_pos = to_local(position)
-#	var self_normal = Vector3.UP
-#	var t = -self_normal.dot(rel_pos) / self_normal.length_squared()
-#	_desired_direction = (rel_pos + t * self_normal).normalized()
 
 
 func get_connecting_coordinate(coordinate):
@@ -115,8 +113,9 @@ func _create_joint(body_a: PhysicsBody, body_b: PhysicsBody, vehicle: OwnWar_Veh
 			i = j
 			break
 	assert(i >= 0)
-	#_joint.set("solver/priority", 7 - i)
-	#process_priority = -i
+	_joint.set("solver/priority", 7 - i)
+	process_priority = -i
+	_compensation.process_priority = -i - 1
 
 
 func _remove_joint() -> void:
