@@ -3,7 +3,8 @@ extends Node
 
 
 var designer_scene_path: String
-var vehicle_path := "user://vehicles/crane.json"
+#var vehicle_path := "user://vehicles/crane.json"
+var vehicle_path := "user://vehicles/chicken.json"
 onready var _hud := get_node("HUD")
 var _spawn_points := []
 var _spawn_point_index := 0
@@ -94,6 +95,7 @@ func _ready() -> void:
 		_hud.player_vehicle = vehicle
 		_spawn_point_index += 1
 		_spawn_point_index %= len(_spawn_points)
+		return
 		spawn_vehicle(vehicle_path)
 		spawn_vehicle(vehicle_path)
 		spawn_vehicle(vehicle_path)

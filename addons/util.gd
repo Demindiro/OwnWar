@@ -269,3 +269,99 @@ static func assert_connect(from: Object, p_signal: String, to: Object,
 	method: String, arguments := []) -> void:
 	var e := from.connect(p_signal, to, method, arguments)
 	assert(e == OK)
+
+
+const Math_SQRT12 := 0.7071067811865475244008443621048490
+const epsilon := 0.01
+const epsilon2 := 0.1
+# TODO: make a PR to expose the built-in equivalent to GDScript
+static func get_rotation_axis_angle(basis: Basis) -> Plane:
+	# Basis::get_rotation_axis_angle
+	var m := basis.orthonormalized()
+	var det := m.determinant()
+	if det < 0:
+		m = m.scaled(Vector3(-1, -1, -1))
+
+	# Basis::get_axis_angle
+	var angle: float
+	var x: float
+	var y: float
+	var z: float
+
+	if abs(basis.y.x - basis.x.y) < epsilon and \
+		abs(basis.z.x - basis.x.z) < epsilon and \
+		abs(basis.z.y - basis.y.z) < epsilon:
+		# singularity found
+		if abs(basis.y.x + basis.x.y) < epsilon2 and \
+			 abs(basis.z.x + basis.x.z) < epsilon2 and \
+			 abs(basis.z.y + basis.y.z) < epsilon2 and \
+			 abs(basis.x.x + basis.y.y + basis.z.z - 3) < epsilon2:
+			return Plane(0, 1, 0, 0)
+		angle = PI
+		var xx := (basis.x.x + 1) / 2
+		var yy := (basis.y.y + 1) / 2
+		var zz := (basis.z.z + 1) / 2
+		var xy := (basis.y.x + basis.x.y) / 4
+		var xz := (basis.z.x + basis.x.z) / 4
+		var yz := (basis.z.y + basis.y.z) / 4
+		if xx > yy and xx > zz:
+			if xx < epsilon:
+				x = 0
+				y = Math_SQRT12
+				z = Math_SQRT12
+			else:
+				x = sqrt(xx)
+				y = xy / x
+				z = xz / x
+		elif yy > zz:
+			if yy < epsilon:
+				x = Math_SQRT12
+				y = 0
+				z = Math_SQRT12
+			else:
+				y = sqrt(yy)
+				x = xy / y
+				z = yz / y
+		else:
+			if zz < epsilon:
+				x = Math_SQRT12
+				y = Math_SQRT12
+				z = 0
+			else:
+				z = sqrt(zz)
+				x = xz / z
+				y = yz / z
+		return Plane(x, y, z, angle)
+	var s := sqrt(
+		(basis.y.z - basis.z.y) * (basis.y.z - basis.z.y) + \
+		(basis.z.x - basis.x.z) * (basis.z.x - basis.x.z) + \
+		(basis.x.y - basis.y.x) * (basis.x.y - basis.y.x)
+	)
+
+	angle = acos((basis.x.x + basis.y.y + basis.z.z - 1) / 2)
+	if angle < 0:
+		s = -s
+	x = (basis.z.y - basis.y.z) / s
+	y = (basis.x.z - basis.z.x) / s
+	z = (basis.y.x - basis.x.y) / s
+
+	return Plane(x, y, z, angle)
+
+
+# Same as above except without the redundant axis calcs
+static func get_rotation_angle(basis: Basis) -> float:
+	var m := basis.orthonormalized()
+	var det := m.determinant()
+	if det < 0:
+		m = m.scaled(Vector3(-1, -1, -1))
+
+	if abs(basis.y.x - basis.x.y) < epsilon and \
+		abs(basis.z.x - basis.x.z) < epsilon and \
+		abs(basis.z.y - basis.y.z) < epsilon:
+		if abs(basis.y.x + basis.x.y) < epsilon2 and \
+			 abs(basis.z.x + basis.x.z) < epsilon2 and \
+			 abs(basis.z.y + basis.y.z) < epsilon2 and \
+			 abs(basis.x.x + basis.y.y + basis.z.z - 3) < epsilon2:
+			return 0.0
+		return PI
+	return acos((basis.x.x + basis.y.y + basis.z.z - 1) / 2)

@@ -3,7 +3,6 @@
 [ext_resource path="res://core/block/block.gd" type="Script" id=1]
 [ext_resource path="res://blocks/weapons/railgun/railgun.tscn" type="PackedScene" id=2]
 
-
 [resource]
 script = ExtResource( 1 )
 name = "railgun"
