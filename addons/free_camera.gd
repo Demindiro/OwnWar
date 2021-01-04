@@ -33,6 +33,7 @@ export var actions := PoolStringArray([
 	"camera_up",
 	"camera_down"
 ])
+export var limit_tilt := true
 
 var _rot_x := 0.0
 var _rot_y := 0.0
@@ -51,6 +52,8 @@ func _input(event):
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 			_rot_x -= event.relative.x * angular_speed
 			_rot_y -= event.relative.y * angular_speed
+			if limit_tilt:
+				_rot_y = clamp(_rot_y, -PI / 2, PI / 2)
 			transform.basis = Basis()
 			rotate_object_local(Vector3(0, 1, 0), _rot_x)
 			rotate_object_local(Vector3(1, 0, 0), _rot_y)
