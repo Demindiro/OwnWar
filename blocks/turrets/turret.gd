@@ -63,7 +63,7 @@ func _notification(what: int) -> void:
 
 
 func debug_draw():
-	if not is_inside_tree():
+	if not is_inside_tree() or not _body_b_mount.is_inside_tree():
 		return
 	Debug.draw_line(global_transform.origin, \
 			global_transform.origin + global_transform.basis.z * 10.0)
