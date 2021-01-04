@@ -10,6 +10,7 @@
 [ext_resource path="res://core/menu/main.gd" type="Script" id=8]
 
 [sub_resource type="Environment" id=1]
+tonemap_mode = 2
 ss_reflections_max_steps = 256
 ss_reflections_fade_out = 0.0358969
 ss_reflections_roughness = false
