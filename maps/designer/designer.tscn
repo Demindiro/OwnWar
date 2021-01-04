@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
 [ext_resource path="res://maps/designer/rect.svg" type="Texture" id=2]
@@ -12,12 +12,14 @@
 [ext_resource path="res://maps/exit_menu.gd" type="Script" id=10]
 [ext_resource path="res://core/menu/menu/panel_edge.png" type="Texture" id=11]
 [ext_resource path="res://core/menu/menu/panel.tres" type="StyleBox" id=12]
+[ext_resource path="res://addons/backgrounds/AllSkyFree_Sky_ColdSunset_Equirect.png" type="Texture" id=13]
 
-[sub_resource type="ProceduralSky" id=1]
+[sub_resource type="PanoramaSky" id=3]
+panorama = ExtResource( 13 )
 
 [sub_resource type="Environment" id=2]
 background_mode = 2
-background_sky = SubResource( 1 )
+background_sky = SubResource( 3 )
 ambient_light_energy = 0.2
 tonemap_mode = 2
 
