@@ -95,6 +95,7 @@ camera_zoom_min = 1.0
 camera_offset = Vector3( 0, 2, 0 )
 
 [node name="GUI" type="ColorRect" parent="."]
+visible = false
 anchor_left = 0.000695229
 anchor_right = 1.0007
 anchor_bottom = 1.0
