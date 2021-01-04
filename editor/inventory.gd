@@ -88,9 +88,9 @@ func _block_container_init(var category):
 		if not OwnWar_Thumbnail.get_block_thumbnail_async(block_name,
 			funcref(self, "_block_set_thumbnail"), [node]):
 			_block_set_thumbnail(_thumbnail_placeholder, node)
-		node.connect("mouse_entered", self, "show_block", [block_name])
-		node.connect("pressed", _designer, "select_block", [block_name])
-		node.connect("pressed", _designer, "set_enabled", [true])
+		Util.assert_connect(node, "mouse_entered", self, "show_block", [block_name])
+		Util.assert_connect(node, "pressed", _designer, "select_block", [block_name])
+		Util.assert_connect(node, "pressed", _designer, "set_enabled", [true])
 		_block_container.add_child(node)
 
 
