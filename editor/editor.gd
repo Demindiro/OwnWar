@@ -489,7 +489,7 @@ func _on_MetaEditor_meta_changed(meta_data):
 
 
 func _on_Designer_pressed() -> void:
-	var scene = preload("res://maps/designer/designer.tscn").instance()
+	var scene = preload("res://maps/test/test.tscn").instance()
 	if vehicle_path != "":
 		scene.vehicle_path = vehicle_path
 	queue_free()

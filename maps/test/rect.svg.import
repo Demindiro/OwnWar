@@ -2,7 +2,7 @@
 
 importer="texture"
 type="StreamTexture"
-path.s3tc="res://.import/rect.svg-474d63c9bf91ca94c00a7acb54cf0fb7.s3tc.stex"
+path.s3tc="res://.import/rect.svg-5a16ef6b13a5d4d16f17064eef52dfaf.s3tc.stex"
 metadata={
 "imported_formats": [ "s3tc" ],
 "vram_texture": true
@@ -10,8 +10,8 @@ metadata={
 
 [deps]
 
-source_file="res://maps/designer/rect.svg"
-dest_files=[ "res://.import/rect.svg-474d63c9bf91ca94c00a7acb54cf0fb7.s3tc.stex" ]
+source_file="res://maps/test/rect.svg"
+dest_files=[ "res://.import/rect.svg-5a16ef6b13a5d4d16f17064eef52dfaf.s3tc.stex" ]
 
 [params]
 
