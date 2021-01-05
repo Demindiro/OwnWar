@@ -395,8 +395,8 @@ __meta__ = {
 }
 [connection signal="loaded_vehicle" from="VehiclePreview" to="VehicleInfo" method="set_vehicle"]
 [connection signal="timeout" from="VehiclePreview/InputTimer" to="VehiclePreview" method="input_timeout"]
-[connection signal="select_vehicle" from="Vehicles" to="VehiclePreview" method="set_preview"]
 [connection signal="select_vehicle" from="Vehicles" to="." method="set_selected_vehicle"]
+[connection signal="select_vehicle" from="Vehicles" to="VehiclePreview" method="set_preview"]
 [connection signal="create_vehicle" from="NewVehicle" to="." method="goto_editor"]
 [connection signal="focus_exited" from="NewVehicle/Box/Name" to="NewVehicle" method="focus_lost"]
 [connection signal="gui_input" from="NewVehicle/Box/Name" to="NewVehicle" method="name_gui_input"]

@@ -14,7 +14,7 @@ dest_files=[ "res://.import/AllSkyFree_Sky_ColdSunset_Equirect.png-178c2eb274ba3
 
 [params]
 
-compress/mode=3
+compress/mode=0
 compress/lossy_quality=0.7
 compress/hdr_mode=0
 compress/bptc_ldr=0

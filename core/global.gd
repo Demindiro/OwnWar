@@ -66,6 +66,12 @@ var _loader_callback
 var _loader_callback_arguments: Array
 
 
+# Improve loading speeds with this one trick!
+var _editor := preload("res://editor/editor.tscn")
+var _main := preload("res://core/menu/main_menu/main.tscn")
+var _test := preload("res://maps/test/test.tscn")
+
+
 func _init():
 	print("Game version %s" % [OwnWar.VERSION])
 	OwnWar_Block.add_block(preload("block/debug/vane.tres"))

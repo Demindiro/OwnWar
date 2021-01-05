@@ -2,7 +2,6 @@
 
 [ext_resource path="res://addons/wheels/tire_d.png" type="Texture" id=1]
 
-
 [sub_resource type="SpatialMaterial" id=1]
 resource_name = "RubberTire"
 albedo_texture = ExtResource( 1 )
