@@ -59,6 +59,21 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/ownwar.gd"
 }, {
+"base": "Resource",
+"class": "OwnWar_Block",
+"language": "GDScript",
+"path": "res://blocks/block.gd"
+}, {
+"base": "Node",
+"class": "OwnWar_BlockInstance",
+"language": "GDScript",
+"path": "res://blocks/block_instance.gd"
+}, {
+"base": "Spatial",
+"class": "OwnWar_SetColor",
+"language": "GDScript",
+"path": "res://blocks/set_color.gd"
+}, {
 "base": "Spatial",
 "class": "OwnWar_Vehicle",
 "language": "GDScript",
@@ -90,6 +105,9 @@ _global_script_class_icons={
 "ObjectCache": "",
 "OptionButtonPreset": "",
 "OwnWar": "",
+"OwnWar_Block": "",
+"OwnWar_BlockInstance": "",
+"OwnWar_SetColor": "",
 "OwnWar_Vehicle": "",
 "OwnWar_Weapon": "",
 "PhysicsJointCompensationNode": "",
@@ -110,7 +128,6 @@ OwnWar_Thumbnail="*res://core/thumbnail/thumbnail.gd"
 
 [debug]
 
-gdscript/warnings/unused_class_variable=true
 gdscript/warnings/unsafe_property_access=true
 gdscript/warnings/unsafe_method_access=true
 gdscript/warnings/unsafe_cast=true

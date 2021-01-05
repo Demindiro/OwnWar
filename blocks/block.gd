@@ -1,4 +1,5 @@
 extends Resource
+class_name OwnWar_Block
 
 
 const ROTATION_TO_ORTHOGONAL_INDEX = [0, 16, 10, 22, 2, 18, 8, 20, 3, 19, 9, 21,
@@ -6,33 +7,24 @@ const ROTATION_TO_ORTHOGONAL_INDEX = [0, 16, 10, 22, 2, 18, 8, 20, 3, 19, 9, 21,
 const BLOCK_SCALE := 0.25
 const _NAME_TO_BLOCK = {}
 const _ID_TO_BLOCK = []
-export(String) var name: String
-# warning-ignore:unused_class_variable
-export(String) var human_name: String
-# warning-ignore:unused_class_variable
-export(String) var category: String = "other"
-# warning-ignore:unused_class_variable
-export(Mesh) var mesh: Mesh
-# warning-ignore:unused_class_variable
-export(Material) var material: Material
-# warning-ignore:unused_class_variable
-export(PackedScene) var scene: PackedScene
-# warning-ignore:unused_class_variable
-export(int) var mass: int = 1
-# warning-ignore:unused_class_variable
-export(int) var health: int = 100
-# warning-ignore:unused_class_variable
-export(int) var cost: int = 1
-# warning-ignore:unused_class_variable
-export(Vector3) var size: Vector3 = Vector3.ONE
-export(int) var mirror_rotation_offset := 0 setget set_mirror_rotation_offset
-# warning-ignore:unused_class_variable
-export var meta := {}
-#export(Block) var mirror_block: Block
-#export(Resource) var mirror_block
+
+export var name: String
+export var human_name: String
+export var revision := 0 # Used for things like e.g. thumbnail generation
+export var category := "other"
+export var mesh: Mesh
+export var instance: PackedScene setget set_instance
+export var health := 100
+export var mass := 1.0
+export var cost := 1
+export var aabb := AABB(Vector3(), Vector3.ONE)
+export var mirror_rotation_offset := 0 setget set_mirror_rotation_offset
 export var __mirror_block_name: String
+
+var server_node: Spatial
+var client_node: Spatial
+var editor_node: Spatial
 var mirror_block: Resource setget __set_mirror_block, __get_mirror_block
-# warning-ignore:unused_class_variable
 var id: int
 var mirror_rotation_map: PoolIntArray
 
@@ -74,6 +66,27 @@ func get_basis(rotation: int) -> Basis:
 
 func get_mirror_rotation(rotation: int) -> int:
 	return mirror_rotation_map[rotation]
+
+
+func set_instance(p_instance: PackedScene) -> void:
+	var node: OwnWar_BlockInstance = p_instance.instance()
+	if node.server_node != NodePath():
+		server_node = node.get_node(node.server_node)
+		assert(server_node != null)
+	if node.client_node != NodePath():
+		client_node = node.get_node(node.client_node)
+		assert(client_node != null)
+	if node.editor_node != NodePath():
+		editor_node = node.get_node(node.editor_node)
+		assert(editor_node != null)
+	if server_node != null:
+		node.remove_child(server_node)
+	if client_node != null and node.has_node(node.client_node):
+		node.remove_child(client_node)
+	if editor_node != null and node.has_node(node.editor_node):
+		node.remove_child(editor_node)
+	node.free()
+	instance = p_instance
 
 
 static func add_block(block):

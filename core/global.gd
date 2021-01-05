@@ -68,14 +68,14 @@ var _loader_callback_arguments: Array
 
 func _init():
 	print("Game version %s" % [OwnWar.VERSION])
-	OwnWar.Block.add_block(preload("block/debug/vane.tres"))
+	OwnWar_Block.add_block(preload("block/debug/vane.tres"))
 	preload("res://blocks/chassis/chassis.gd").load_blocks()
-	OwnWar.Block.add_block(preload("res://blocks/wheels/big-wheel/wheel.tres"))
-	OwnWar.Block.add_block(preload("res://blocks/mainframe/mainframe.tres"))
-	OwnWar.Block.add_block(preload("res://blocks/turrets/turret_1x1.tres"))
-	OwnWar.Block.add_block(preload("res://blocks/turrets/turret_2x2.tres"))
-	OwnWar.Block.add_block(preload("res://blocks/turrets/turret_3x3.tres"))
-	OwnWar.Block.add_block(preload("res://blocks/weapons/railgun/railgun.tres"))
+	OwnWar_Block.add_block(preload("res://blocks/wheels/big-wheel/wheel.tres"))
+	OwnWar_Block.add_block(preload("res://blocks/mainframe/mainframe.tres"))
+	OwnWar_Block.add_block(preload("res://blocks/turrets/turret_1x1.tres"))
+	OwnWar_Block.add_block(preload("res://blocks/turrets/turret_2x2.tres"))
+	OwnWar_Block.add_block(preload("res://blocks/turrets/turret_3x3.tres"))
+	#OwnWar_Block.add_block(preload("res://blocks/weapons/railgun/railgun.tres"))
 
 
 

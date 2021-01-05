@@ -15,29 +15,29 @@ static func load_blocks() -> void:
 			var rotation = block_data["rotation"]
 			var mirror = block_data["mirror"]
 			var transform = Transform(
-				OwnWar.Block.rotation_to_basis(rotation),
+				OwnWar_Block.rotation_to_basis(rotation),
 				Vector3.ZERO
 			)
-			transform = transform.scaled(Vector3.ONE * OwnWar.Block.BLOCK_SCALE)
+			transform = transform.scaled(Vector3.ONE * OwnWar_Block.BLOCK_SCALE)
 			transform = transform.translated(-Vector3.ONE / 2)
 
 			generator.start(2)
 			generator.set_indices(indices)
 
-			var block = OwnWar.Block.new()
+			var block = OwnWar_Block.new()
 			block.name = generator.get_name()
 			block.human_name = block_name
 			block.category = "chassis"
 			block.mesh = generator.get_mesh(generator.get_result(), transform)
-			OwnWar.Block.add_block(block)
+			OwnWar_Block.add_block(block)
 			if mirror < 0:
-				var mirror_block = OwnWar.Block.new()
+				var mirror_block = OwnWar_Block.new()
 				var mirror_transform = Transform.FLIP_X * transform
 				mirror_block.name = block.name + "_m"
 				mirror_block.human_name = block.human_name + " (M)"
 				mirror_block.category = "chassis"
 				mirror_block.mesh = generator.get_mesh(generator.get_result(), mirror_transform, true)
-				OwnWar.Block.add_block(mirror_block)
+				OwnWar_Block.add_block(mirror_block)
 				mirror_block.mirror_block = block
 				block.mirror_block = mirror_block
 			else:

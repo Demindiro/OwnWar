@@ -3,7 +3,6 @@ extends Spatial
 class_name OwnWar_Vehicle
 
 
-const Block := preload("res://core/block/block.gd")
 const Compatibility := preload("res://core/compatibility.gd")
 const VoxelBody := preload("voxel_body.gd")
 const VoxelMesh := preload("voxel_mesh.gd")
@@ -100,7 +99,7 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 			voxel_bodies[layer] = VoxelBody.new()
 			add_child(voxel_bodies[layer])
 			voxel_bodies[layer].connect("hit", self, "_voxel_body_hit")
-		voxel_bodies[layer].spawn_block(x, y, z, rotation, Block.get_block(name), color)
+		voxel_bodies[layer].spawn_block(x, y, z, rotation, OwnWar_Block.get_block(name), color)
 
 	var meta = {}
 	for key in data["meta"]:
@@ -151,7 +150,7 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 
 
 func get_blocks(block_name):
-	var id = Block.get_block(block_name).id
+	var id = OwnWar_Block.get_block(block_name).id
 	return get_blocks_by_id(id)
 
 
@@ -265,7 +264,7 @@ func _load_from_file_editor(data: Dictionary) -> int:
 	var com := Vector3.ZERO
 	var count := 0.0
 	var cube := CubeMesh.new()
-	cube.size = Vector3.ONE * Block.BLOCK_SCALE
+	cube.size = Vector3.ONE * OwnWar_Block.BLOCK_SCALE
 	for key in data["blocks"]:
 		var components = Util.decode_vec3i(key)
 		var x = components[0]
@@ -276,7 +275,7 @@ func _load_from_file_editor(data: Dictionary) -> int:
 		com = (com * count + Vector3(x, y, z)) / (count + 1.0)
 		count += 1.0
 	vm.generate()
-	vm_inst.transform.origin = -com * Block.BLOCK_SCALE
+	vm_inst.transform.origin = -com * OwnWar_Block.BLOCK_SCALE
 
 	return OK
 

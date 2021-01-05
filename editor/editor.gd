@@ -23,12 +23,12 @@ class Block:
 
 
 const GRID_SIZE = 25
-const SCALE := 1 / OwnWar.Block.BLOCK_SCALE
+const SCALE := 1 / OwnWar_Block.BLOCK_SCALE
 export var enabled := true
 export var main_menu: PackedScene
 export var test_map: PackedScene
 export var material: SpatialMaterial setget set_material
-var selected_block: OwnWar.Block
+var selected_block: OwnWar_Block
 var blocks := {}
 var meta := {}
 var vehicle_path := ""
@@ -67,7 +67,7 @@ func _ready():
 	if vehicle_path == "" and OS.is_debug_build():
 		vehicle_path = "user://vehicles/tank.json"
 	get_tree().paused = false # To be sure because ??????
-	select_block(OwnWar.Block.get_block_by_id(1).name)
+	select_block(OwnWar_Block.get_block_by_id(1).name)
 	set_enabled(true) # Disable UIs
 	_floor.enable_mirror(mirror)
 	if File.new().file_exists(vehicle_path):
@@ -159,7 +159,7 @@ func process_actions():
 				var mirror_x = (GRID_SIZE - 1) / 2
 				var delta = coordinate[0] - mirror_x
 				coordinate[0] = mirror_x - delta
-				var m_block: OwnWar.Block = selected_block.mirror_block
+				var m_block: OwnWar_Block = selected_block.mirror_block
 				place_block(m_block, coordinate, m_block \
 						.get_mirror_rotation(_rotation), selected_layer)
 	elif Input.is_action_just_pressed("designer_remove_block"):
@@ -185,7 +185,7 @@ func process_actions():
 		_camera.enabled = true
 	elif Input.is_action_just_pressed("designer_configure"):
 		if ray_voxel_valid and ray.voxel in blocks:
-			var block = OwnWar.Block.get_block(blocks[ray.voxel].name)
+			var block = OwnWar_Block.get_block(blocks[ray.voxel].name)
 			if len(block.meta) > 0:
 				var meta_data = meta[ray.voxel] if ray.voxel in meta else block.meta
 				set_enabled(false)
@@ -199,24 +199,23 @@ func place_block(block, coordinate, rotation, layer):
 			return false
 	if coordinate in blocks:
 		return false
-	var node = MeshInstance.new()
-	node.mesh = block.mesh
-	node.material_override = block.material
-	if block.scene != null:
-		var scene = block.scene.instance()
-		node.add_child(scene)
-	_floor_origin.add_child(node)
-	node.translation = _a2v(coordinate)
-	node.transform.basis = block.get_basis(rotation)
-	node.scale_object_local(Vector3.ONE * SCALE)
-	node.material_override = material
-	for child in Util.get_children_recursive(node):
-		if child is GeometryInstance and not child is Sprite3D:
-			child.material_override = material
+	var mi := MeshInstance.new()
+	var node: Spatial = null
+	mi.mesh = block.mesh
+	if block.editor_node != null:
+		node = block.editor_node.duplicate()
+		mi.add_child(node)
+	_floor_origin.add_child(mi)
+	mi.translation = _a2v(coordinate)
+	mi.transform.basis = block.get_basis(rotation)
+	mi.scale_object_local(Vector3.ONE * SCALE)
+	mi.material_override = material
+	if node != null and node.has_method("set_color"):
+		node.set_color(material.albedo_color)
 	blocks[coordinate] = Block.new(
 		block.name,
 		rotation,
-		node,
+		mi,
 		material.albedo_color,
 		layer
 	)
@@ -234,31 +233,29 @@ func remove_block(coordinate):
 
 
 func select_block(name):
-	selected_block = OwnWar.Block.get_block(name)
+	selected_block = OwnWar_Block.get_block(name)
 	for child in _camera_mesh.get_children():
 		child.queue_free()
 	for child in _floor_origin_ghost.get_children():
 		child.queue_free()
 	_camera_mesh.mesh = selected_block.mesh
 	_floor_origin_ghost.mesh = selected_block.mesh
-	if selected_block.scene != null:
-		_camera_mesh.add_child(selected_block.scene.instance())
-		var node = selected_block.scene.instance()
-		_floor_origin_ghost.add_child(node)
-		for child in Util.get_children_recursive(node):
-			if child is MeshInstance:
-				if child.material_override != null:
-					child.material_override = child.material_override.duplicate()
-					child.material_override.flags_transparent = true
-					child.material_override.albedo_color.a *= 0.2
-				else:
-					child.material_override = _floor_origin_ghost.material_override
-			elif child is Sprite3D:
-				child.opacity *= 0.2
+	if selected_block.editor_node != null:
+		var camera_node: Spatial = selected_block.editor_node.duplicate()
+		var ghost_node: Spatial = selected_block.editor_node.duplicate()
+		_camera_mesh.add_child(camera_node)
+		_floor_origin_ghost.add_child(ghost_node)
+		for child in Util.get_children_recursive(camera_node):
+			var vi := child as VisualInstance
+			if vi != null:
+				vi.layers = 1 << 7 # TODO don't hardcode this
+		var color := material.albedo_color
+		if selected_block.editor_node.has_method("set_color"):
+			camera_node.set_color(color)
+			ghost_node.set_color(color)
+		if selected_block.editor_node.has_method("set_transparency"):
+			ghost_node.set_transparency(0.5)
 	_camera_mesh.material_override = material
-	for child in Util.get_children_recursive(_camera_mesh):
-		if child is GeometryInstance and not child is Sprite3D:
-			child.material_override = material
 
 
 func highlight_face():
@@ -340,7 +337,7 @@ func load_vehicle() -> void:
 			assert(len(key_components) == 3)
 			for i in range(3):
 				coordinate[i] = int(key_components[i])
-			var block = OwnWar.Block.get_block(data['blocks'][key][0])
+			var block = OwnWar_Block.get_block(data['blocks'][key][0])
 			var color_components = data["blocks"][key][2].split_floats(",")
 			var color = Color(color_components[0], color_components[1],
 					color_components[2], color_components[3])
@@ -364,15 +361,17 @@ func set_material(p_material: SpatialMaterial):
 	material = p_material
 	var ghost_material := material.duplicate() as SpatialMaterial
 	ghost_material.flags_transparent = true
-	ghost_material.albedo_color.a *= 0.6
+	ghost_material.albedo_color.a *= 0.5
 	_floor_origin_ghost.material_override = ghost_material
 	_camera_mesh.material_override = material
-	for child in Util.get_children_recursive(_floor_origin_ghost):
-		if child is GeometryInstance and not child is Sprite3D:
-			child.material_override = ghost_material
-	for child in Util.get_children_recursive(_camera_mesh):
-		if child is GeometryInstance and not child is Sprite3D:
-			child.material_override = material
+	for node in _floor_origin_ghost.get_children():
+		if node.has_method("set_color"):
+			node.set_color(material.albedo_color)
+	for node in _camera_mesh.get_children():
+		if node.has_method("set_color"):
+			var color := material.albedo_color
+			color.a *= 0.5
+			node.set_color(color)
 
 
 func set_layer(p_layer: int):
@@ -389,15 +388,15 @@ func set_view_layer(p_view_layer: int):
 			color.a *= 0.1
 		var material := MaterialCache.get_material(color)
 		block.node.material_override = material
-		for child in Util.get_children_recursive(block.node):
-			if child is GeometryInstance and not child is Sprite3D:
-				child.material_override = material
+		for node in block.node.get_children():
+			if node.has_method("set_color"):
+				node.set_color(color)
 	_hud_block_layer_view.select(p_view_layer + 1)
 
 
 func _snap_face(direction: Vector3) -> void:
 	if _snap_face:
-		var dir := OwnWar.Block.axis_to_direction(direction)
+		var dir := OwnWar_Block.axis_to_direction(direction)
 		assert(dir != -1)
 		_rotation &= 0b11
 		_rotation |= dir
@@ -432,7 +431,7 @@ func _rotate_vehicle() -> void:
 			dict[_v2a(lower + center)] = b
 			b.node.translation = lower + center
 			b.node.rotate_y(-PI / 2.0)
-			b.rotation = OwnWar.Block.basis_to_rotation(b.node.transform.basis)
+			b.rotation = OwnWar_Block.basis_to_rotation(b.node.transform.basis)
 		blocks = dict
 
 

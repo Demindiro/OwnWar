@@ -1,24 +1,28 @@
 extends VehicleBody
 
 
-const Block := preload("res://core/block/block.gd")
 const VoxelMesh := preload("voxel_mesh.gd")
 
 
 class BodyBlock:
-	const Block := preload("res://core/block/block.gd")
 
 	var id: int
 	var health: int
-	var node: Spatial
+	var server_node: Spatial
+	var client_node: Spatial
 	var rotation: int
 	var color: Color
+	var prev_transform: Transform
+	var curr_transform: Transform
+	var interpolate_dirty := false
 
-	func _init(block: Block, p_node: Spatial, p_rotation: int, p_color: Color) \
-			-> void:
+	func _init(block: OwnWar_Block, p_rotation: int, p_color: Color) -> void:
 		id = block.id
 		health = block.health
-		node = p_node
+		if block.server_node != null:
+			server_node = block.server_node.duplicate()
+		if block.client_node != null:
+			client_node = block.client_node.duplicate()
 		rotation = p_rotation
 		color = p_color
 
@@ -41,6 +45,7 @@ var _voxel_mesh_instance := MeshInstance.new()
 var _interpolation_dirty := true
 var _curr_transform := transform
 var _prev_transform := transform
+var _interpolate_blocks := []
 
 
 func _init():
@@ -67,6 +72,16 @@ func _process(_delta: float) -> void:
 	var trf := _prev_transform.interpolate_with(transform, frac)
 	_voxel_mesh_instance.transform = trf
 	_voxel_mesh_instance.translation -= trf.basis * center_of_mass
+	for block in _interpolate_blocks:
+		var bb: BodyBlock = block
+		if bb.interpolate_dirty:
+			bb.prev_transform = bb.curr_transform
+			bb.curr_transform = bb.server_node.global_transform
+			bb.interpolate_dirty = false
+		bb.client_node.global_transform = bb.prev_transform.interpolate_with(
+			bb.curr_transform,
+			Engine.get_physics_interpolation_fraction()
+		)
 
 
 func _physics_process(_delta: float) -> void:
@@ -74,13 +89,20 @@ func _physics_process(_delta: float) -> void:
 		_prev_transform = _curr_transform
 		_curr_transform = transform
 	_interpolation_dirty = true
+	for block in _interpolate_blocks:
+		var bb: BodyBlock = block
+		if bb.interpolate_dirty:
+			bb.prev_transform = bb.curr_transform
+			bb.curr_transform = bb.server_node.global_transform
+			bb.interpolate_dirty = false
+		bb.interpolate_dirty = true
 
 
 func debug_draw():
 	for hit in _debug_hits:
 		var position = Vector3(hit[0][0], hit[0][1], hit[0][2]) + Vector3.ONE / 2
-		Debug.draw_point(to_global(position * Block.BLOCK_SCALE - center_of_mass),
-				hit[1], 0.55 * Block.BLOCK_SCALE)
+		Debug.draw_point(to_global(position * OwnWar_Block.BLOCK_SCALE - center_of_mass),
+				hit[1], 0.55 * OwnWar_Block.BLOCK_SCALE)
 
 
 func get_visual_transform() -> Transform:
@@ -96,7 +118,7 @@ func fix_physics():
 
 func projectile_hit(origin: Vector3, direction: Vector3, damage: int) -> int:
 	var local_origin := to_local(origin) + center_of_mass
-	local_origin /= Block.BLOCK_SCALE
+	local_origin /= OwnWar_Block.BLOCK_SCALE
 	var local_direction := to_local(origin + direction) - to_local(origin)
 	_raycast.start(local_origin, local_direction, 25, 25, 25)
 	_debug_hits = []
@@ -112,7 +134,7 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int) -> int:
 				_voxel_mesh.remove_block(_raycast.voxel)
 				# warning-ignore:return_value_discarded
 				blocks.erase(key)
-				cost -= Block.get_block_by_id(block.id).cost
+				cost -= OwnWar_Block.get_block_by_id(block.id).cost
 			else:
 				block.health -= damage
 				damage = 0
@@ -124,58 +146,59 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int) -> int:
 	return damage
 
 
-func spawn_block(x: int, y: int, z: int, r: int, block: Block, color: Color) -> void:
-	var basis := Block.rotation_to_basis(r)
-	var node: Spatial = null
+func spawn_block(x: int, y: int, z: int, r: int, block: OwnWar_Block, color: Color) -> void:
+	var basis := OwnWar_Block.rotation_to_basis(r)
 	var position = Vector3(x, y, z) + Vector3.ONE / 2
 	_voxel_mesh.add_block(block, color, [x, y, z], r)
-	if block.scene != null:
-		node = block.scene.instance()
-		node.transform = Transform(basis, position * Block.BLOCK_SCALE)
-		add_child(node)
-		var material = MaterialCache.get_material(color)
-		for child in get_children_recursive(node) + [node]:
-			if child is GeometryInstance and not child is Sprite3D:
-				var set_override := true
-				if child is MeshInstance:
-					for i in range(child.get_surface_material_count()):
-						if child.get_surface_material(i) != null:
-							set_override = false
-							break
-				if set_override:
-					child.material_override = material
+	var bb := BodyBlock.new(block, r, color)
+	if bb.server_node != null:
+		bb.server_node.transform = Transform(basis, position * OwnWar_Block.BLOCK_SCALE)
+		add_child(bb.server_node)
+	if bb.client_node != null:
+		bb.client_node.transform = Transform(basis, position * OwnWar_Block.BLOCK_SCALE)
+		bb.prev_transform = bb.client_node.transform
+		bb.curr_transform = bb.client_node.transform
+		add_child(bb.client_node)
+		if bb.client_node.has_method("set_color"):
+			bb.client_node.set_color(color)
+		if bb.server_node == null:
+			bb.server_node = Spatial.new()
+			bb.server_node.transform = bb.client_node.transform
+			add_child(bb.server_node)
+		bb.client_node.set_as_toplevel(true)
+		_interpolate_blocks.push_back(bb)
+	blocks[[x, y, z]] = bb
 	max_cost += block.cost
 	max_health += block.health
-	blocks[[x, y, z]] = BodyBlock.new(block, node, r, color)
 	start_position.x = float(x) if start_position.x > x else start_position.x
 	start_position.y = float(y) if start_position.y > y else start_position.y
 	start_position.z = float(z) if start_position.z > z else start_position.z
 	end_position.x = float(x) if end_position.x < x else end_position.x
 	end_position.y = float(y) if end_position.y < y else end_position.y
 	end_position.z = float(z) if end_position.z < z else end_position.z
-	if node is VehicleWheel:
-		wheels.append(node)
-	elif node is OwnWar_Weapon:
-		weapons.append(node)
+	if bb.server_node is VehicleWheel:
+		wheels.append(bb.server_node)
+	elif bb.server_node is OwnWar_Weapon:
+		weapons.append(bb.server_node)
 
 
 func coordinate_to_vector(coordinate):
 	var position = Vector3(coordinate[0], coordinate[1], coordinate[2])
-	position *= Block.BLOCK_SCALE
+	position *= OwnWar_Block.BLOCK_SCALE
 	return position - center_of_mass
 
 
 func init_blocks(vehicle, meta):
 	for coordinate in blocks:
 		var block: BodyBlock = blocks[coordinate]
-		if block.node == null:
+		if block.server_node == null:
 			continue
 		var meta_data = meta.get(coordinate)
-		if block.node.has_method("init"):
+		if block.server_node.has_method("init"):
 			# warning-ignore:unsafe_method_access
-			block.node.init(coordinate, block, -1, self, vehicle, meta_data)
+			block.server_node.init(coordinate, block, -1, self, vehicle, meta_data)
 		else:
-			for child in block.node.get_children():
+			for child in block.server_node.get_children():
 				if child.has_method("init"):
 					child.init(coordinate, block, -1, self, vehicle, meta_data)
 
@@ -184,9 +207,9 @@ func _set_collision_box(start: Vector3, end: Vector3) -> void:
 	end += Vector3.ONE
 	var center := (start + end) / 2
 	var extents := (end - start) / 2
-	_collision_shape.transform.origin = center * Block.BLOCK_SCALE
+	_collision_shape.transform.origin = center * OwnWar_Block.BLOCK_SCALE
 	var shape: BoxShape = _collision_shape.shape
-	shape.extents = extents * Block.BLOCK_SCALE
+	shape.extents = extents * OwnWar_Block.BLOCK_SCALE
 
 
 func _correct_mass() -> void:
@@ -194,13 +217,13 @@ func _correct_mass() -> void:
 	center_of_mass = Vector3.ZERO
 	for coordinate in blocks:
 		var block: BodyBlock = blocks[coordinate]
-		var block_mass: float = Block.get_block_by_id(block.id).mass
+		var block_mass: float = OwnWar_Block.get_block_by_id(block.id).mass
 		center_of_mass += Vector3(coordinate[0], coordinate[1], coordinate[2]) * block_mass
 		total_mass += block_mass
 	assert(total_mass > 0)
 	center_of_mass /= total_mass
 	center_of_mass += Vector3.ONE * 0.5
-	center_of_mass *= Block.BLOCK_SCALE
+	center_of_mass *= OwnWar_Block.BLOCK_SCALE
 	for child in get_children():
 		child.translation -= center_of_mass
 		if child is VehicleWheel:
