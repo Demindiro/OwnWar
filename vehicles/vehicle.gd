@@ -224,6 +224,8 @@ func debug_draw() -> void:
 	if fire:
 		text += "fire, "
 	Debug.draw_text(get_visual_origin(), text, Color.cyan)
+	for b in voxel_bodies:
+		Debug.draw_point(b.translation, Color.purple, 0.2)
 
 
 func _voxel_body_hit(_voxel_body):

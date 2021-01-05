@@ -87,7 +87,10 @@ static func add_block(block):
 
 
 static func get_block(p_name: String):# -> Block:
-	assert(p_name in _NAME_TO_BLOCK)
+	# TODO
+	if not p_name in _NAME_TO_BLOCK:
+		return _NAME_TO_BLOCK["cube_b_1_1-1-1-1-1-1-1-1-1-1-1-1"]
+	#assert(p_name in _NAME_TO_BLOCK)
 	return _NAME_TO_BLOCK[p_name]
 
 
