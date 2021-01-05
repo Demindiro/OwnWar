@@ -8,15 +8,18 @@ class BodyBlock:
 
 	var id: int
 	var health: int
-	var node: Spatial
+	var server_node: Spatial
+	var client_node: Spatial
 	var rotation: int
 	var color: Color
 
-	func _init(block: OwnWar_Block, p_node: Spatial, p_rotation: int, p_color: Color) \
-			-> void:
+	func _init(block: OwnWar_Block, p_rotation: int, p_color: Color) -> void:
 		id = block.id
 		health = block.health
-		node = p_node
+		if block.server_node != null:
+			server_node = block.server_node.duplicate()
+		if block.client_node != null:
+			client_node = block.client_node.duplicate()
 		rotation = p_rotation
 		color = p_color
 
@@ -124,15 +127,17 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int) -> int:
 
 func spawn_block(x: int, y: int, z: int, r: int, block: OwnWar_Block, color: Color) -> void:
 	var basis := OwnWar_Block.rotation_to_basis(r)
-	var node: Spatial = null
 	var position = Vector3(x, y, z) + Vector3.ONE / 2
 	_voxel_mesh.add_block(block, color, [x, y, z], r)
-	if block.server_node != null:
-		node = block.server_node.duplicate()
-		node.transform = Transform(basis, position * OwnWar_Block.BLOCK_SCALE)
-		add_child(node)
+	var bb := BodyBlock.new(block, r, color)
+	if bb.server_node != null:
+		bb.server_node.transform = Transform(basis, position * OwnWar_Block.BLOCK_SCALE)
+		add_child(bb.server_node)
+	if bb.client_node != null:
+		bb.client_node.transform = Transform(basis, position * OwnWar_Block.BLOCK_SCALE)
+		add_child(bb.client_node)
 		var material = MaterialCache.get_material(color)
-		for child in get_children_recursive(node) + [node]:
+		for child in get_children_recursive(bb.client_node) + [bb.client_node]:
 			if child is GeometryInstance and not child is Sprite3D:
 				var set_override := true
 				if child is MeshInstance:
@@ -142,19 +147,19 @@ func spawn_block(x: int, y: int, z: int, r: int, block: OwnWar_Block, color: Col
 							break
 				if set_override:
 					child.material_override = material
+	blocks[[x, y, z]] = bb
 	max_cost += block.cost
 	max_health += block.health
-	blocks[[x, y, z]] = BodyBlock.new(block, node, r, color)
 	start_position.x = float(x) if start_position.x > x else start_position.x
 	start_position.y = float(y) if start_position.y > y else start_position.y
 	start_position.z = float(z) if start_position.z > z else start_position.z
 	end_position.x = float(x) if end_position.x < x else end_position.x
 	end_position.y = float(y) if end_position.y < y else end_position.y
 	end_position.z = float(z) if end_position.z < z else end_position.z
-	if node is VehicleWheel:
-		wheels.append(node)
-	elif node is OwnWar_Weapon:
-		weapons.append(node)
+	if bb.server_node is VehicleWheel:
+		wheels.append(bb.server_node)
+	elif bb.server_node is OwnWar_Weapon:
+		weapons.append(bb.server_node)
 
 
 func coordinate_to_vector(coordinate):
@@ -166,14 +171,14 @@ func coordinate_to_vector(coordinate):
 func init_blocks(vehicle, meta):
 	for coordinate in blocks:
 		var block: BodyBlock = blocks[coordinate]
-		if block.node == null:
+		if block.server_node == null:
 			continue
 		var meta_data = meta.get(coordinate)
-		if block.node.has_method("init"):
+		if block.server_node.has_method("init"):
 			# warning-ignore:unsafe_method_access
-			block.node.init(coordinate, block, -1, self, vehicle, meta_data)
+			block.server_node.init(coordinate, block, -1, self, vehicle, meta_data)
 		else:
-			for child in block.node.get_children():
+			for child in block.server_node.get_children():
 				if child.has_method("init"):
 					child.init(coordinate, block, -1, self, vehicle, meta_data)
 
