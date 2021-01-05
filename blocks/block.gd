@@ -13,7 +13,7 @@ export var human_name: String
 export var revision := 0 # Used for things like e.g. thumbnail generation
 export var category := "other"
 export var mesh: Mesh
-export var instance: PackedScene
+export var instance: PackedScene setget set_instance
 export var health := 100
 export var mass := 1.0
 export var cost := 1
@@ -21,6 +21,9 @@ export var aabb := AABB(Vector3(), Vector3.ONE)
 export var mirror_rotation_offset := 0 setget set_mirror_rotation_offset
 export var __mirror_block_name: String
 
+var server_node: Spatial
+var client_node: Spatial
+var editor_node: Spatial
 var mirror_block: Resource setget __set_mirror_block, __get_mirror_block
 var id: int
 var mirror_rotation_map: PoolIntArray
@@ -63,6 +66,23 @@ func get_basis(rotation: int) -> Basis:
 
 func get_mirror_rotation(rotation: int) -> int:
 	return mirror_rotation_map[rotation]
+
+
+func set_instance(p_instance: PackedScene) -> void:
+	var node: OwnWar_BlockInstance = p_instance.instance()
+	if node.client_node != NodePath():
+		client_node = node.get_node(node.client_node)
+		assert(client_node != null)
+		node.remove_child(client_node)
+	if node.server_node != NodePath():
+		server_node = node.get_node(node.server_node)
+		assert(server_node != null)
+		node.remove_child(server_node)
+	if node.editor_node != NodePath():
+		editor_node = node.get_node(node.editor_node)
+		assert(editor_node != null)
+		node.remove_child(editor_node)
+	instance = p_instance
 
 
 static func add_block(block):
