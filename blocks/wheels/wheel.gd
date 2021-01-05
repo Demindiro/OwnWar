@@ -1,9 +1,7 @@
 extends VehicleWheel
 
 
-# warning-ignore:unused_class_variable
 export var max_power := 300.0
-# warning-ignore:unused_class_variable
 export var max_angle := 0.0
 export var max_brake := 8.0
 var _interpolation_dirty := true

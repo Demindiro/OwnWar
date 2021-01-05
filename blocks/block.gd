@@ -8,32 +8,21 @@ const BLOCK_SCALE := 0.25
 const _NAME_TO_BLOCK = {}
 const _ID_TO_BLOCK = []
 export(String) var name: String
-# warning-ignore:unused_class_variable
 export(String) var human_name: String
-# warning-ignore:unused_class_variable
 export(String) var category: String = "other"
-# warning-ignore:unused_class_variable
 export(Mesh) var mesh: Mesh
-# warning-ignore:unused_class_variable
 export(Material) var material: Material
-# warning-ignore:unused_class_variable
 export(PackedScene) var scene: PackedScene
-# warning-ignore:unused_class_variable
 export(int) var mass: int = 1
-# warning-ignore:unused_class_variable
 export(int) var health: int = 100
-# warning-ignore:unused_class_variable
 export(int) var cost: int = 1
-# warning-ignore:unused_class_variable
 export(Vector3) var size: Vector3 = Vector3.ONE
 export(int) var mirror_rotation_offset := 0 setget set_mirror_rotation_offset
-# warning-ignore:unused_class_variable
 export var meta := {}
 #export(Block) var mirror_block: Block
 #export(Resource) var mirror_block
 export var __mirror_block_name: String
 var mirror_block: Resource setget __set_mirror_block, __get_mirror_block
-# warning-ignore:unused_class_variable
 var id: int
 var mirror_rotation_map: PoolIntArray
 
