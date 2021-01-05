@@ -163,6 +163,7 @@ func spawn_block(x: int, y: int, z: int, r: int, block: OwnWar_Block, color: Col
 			bb.client_node.set_color(color)
 		if bb.server_node == null:
 			bb.server_node = Spatial.new()
+			bb.server_node.transform = bb.client_node.transform
 			add_child(bb.server_node)
 		bb.client_node.set_as_toplevel(true)
 		_interpolate_blocks.push_back(bb)
