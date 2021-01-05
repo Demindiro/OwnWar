@@ -12,6 +12,9 @@ class BodyBlock:
 	var client_node: Spatial
 	var rotation: int
 	var color: Color
+	var prev_transform: Transform
+	var curr_transform: Transform
+	var interpolate_dirty := false
 
 	func _init(block: OwnWar_Block, p_rotation: int, p_color: Color) -> void:
 		id = block.id
@@ -42,6 +45,7 @@ var _voxel_mesh_instance := MeshInstance.new()
 var _interpolation_dirty := true
 var _curr_transform := transform
 var _prev_transform := transform
+var _interpolate_blocks := []
 
 
 func _init():
@@ -68,6 +72,16 @@ func _process(_delta: float) -> void:
 	var trf := _prev_transform.interpolate_with(transform, frac)
 	_voxel_mesh_instance.transform = trf
 	_voxel_mesh_instance.translation -= trf.basis * center_of_mass
+	for block in _interpolate_blocks:
+		var bb: BodyBlock = block
+		if bb.interpolate_dirty:
+			bb.prev_transform = bb.curr_transform
+			bb.curr_transform = bb.server_node.global_transform
+			bb.interpolate_dirty = false
+		bb.client_node.global_transform = bb.prev_transform.interpolate_with(
+			bb.curr_transform,
+			Engine.get_physics_interpolation_fraction()
+		)
 
 
 func _physics_process(_delta: float) -> void:
@@ -75,6 +89,13 @@ func _physics_process(_delta: float) -> void:
 		_prev_transform = _curr_transform
 		_curr_transform = transform
 	_interpolation_dirty = true
+	for block in _interpolate_blocks:
+		var bb: BodyBlock = block
+		if bb.interpolate_dirty:
+			bb.prev_transform = bb.curr_transform
+			bb.curr_transform = bb.server_node.global_transform
+			bb.interpolate_dirty = false
+		bb.interpolate_dirty = true
 
 
 func debug_draw():
@@ -135,6 +156,8 @@ func spawn_block(x: int, y: int, z: int, r: int, block: OwnWar_Block, color: Col
 		add_child(bb.server_node)
 	if bb.client_node != null:
 		bb.client_node.transform = Transform(basis, position * OwnWar_Block.BLOCK_SCALE)
+		bb.prev_transform = bb.client_node.transform
+		bb.curr_transform = bb.client_node.transform
 		add_child(bb.client_node)
 		var material = MaterialCache.get_material(color)
 		for child in get_children_recursive(bb.client_node) + [bb.client_node]:
@@ -147,6 +170,11 @@ func spawn_block(x: int, y: int, z: int, r: int, block: OwnWar_Block, color: Col
 							break
 				if set_override:
 					child.material_override = material
+		if bb.server_node == null:
+			bb.server_node = Spatial.new()
+			add_child(bb.server_node)
+		bb.client_node.set_as_toplevel(true)
+		_interpolate_blocks.push_back(bb)
 	blocks[[x, y, z]] = bb
 	max_cost += block.cost
 	max_health += block.health
