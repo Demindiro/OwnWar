@@ -99,8 +99,8 @@ func set_player_vehicle(p_vehicle) -> void:
 				_camera_ray.add_exception(body)
 				_camera_terrain_ray.add_exception(body)
 		var aabb := player_vehicle.get_aabb()
-		camera_offset.y = aabb.size.y * 1.5 * OwnWar.Block.BLOCK_SCALE
-		camera_offset.z = aabb.size.z * 0.5 * OwnWar.Block.BLOCK_SCALE
+		camera_offset.y = aabb.size.y * 1.5 * OwnWar_Block.BLOCK_SCALE
+		camera_offset.z = aabb.size.z * 0.5 * OwnWar_Block.BLOCK_SCALE
 
 
 func set_mouse_mode() -> void:

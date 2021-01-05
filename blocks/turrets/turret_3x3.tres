@@ -1,6 +1,6 @@
 [gd_resource type="Resource" load_steps=4 format=2]
 
-[ext_resource path="res://core/block/block.gd" type="Script" id=1]
+[ext_resource path="res://blocks/block.gd" type="Script" id=1]
 [ext_resource path="res://blocks/turrets/turret_3x3.tscn" type="PackedScene" id=2]
 [ext_resource path="res://blocks/turrets/turret_base_3x3.obj" type="ArrayMesh" id=3]
 

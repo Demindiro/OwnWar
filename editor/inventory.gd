@@ -48,7 +48,7 @@ func show_category(var category):
 
 
 func show_block(var block_name):
-	var block = OwnWar.Block.get_block(block_name)
+	var block = OwnWar_Block.get_block(block_name)
 	_preview_mesh.mesh = block.mesh
 	_preview_mesh.material_override = block.material
 	_preview_mesh.transform = Transform.IDENTITY
@@ -84,7 +84,7 @@ func _block_container_init(var category):
 		_block_container.remove_child(child)
 	for block_name in categories[category]:
 		var node: TextureButton = _block_button_template.duplicate()
-		#node.text = OwnWar.Block.get_block(block_name).human_name
+		#node.text = OwnWar_Block.get_block(block_name).human_name
 		if not OwnWar_Thumbnail.get_block_thumbnail_async(block_name,
 			funcref(self, "_block_set_thumbnail"), [node]):
 			_block_set_thumbnail(_thumbnail_placeholder, node)
@@ -103,7 +103,7 @@ func _block_set_thumbnail(img, button: TextureButton) -> void:
 
 
 func _get_categories():
-	for block in OwnWar.Block.get_all_blocks():
+	for block in OwnWar_Block.get_all_blocks():
 		if not block.category in categories:
 			categories[block.category] = []
 		categories[block.category].append(block.name)

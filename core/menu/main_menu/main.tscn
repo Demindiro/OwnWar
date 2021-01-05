@@ -393,8 +393,6 @@ text = "Create"
 __meta__ = {
 "_edit_use_anchors_": false
 }
-[connection signal="refresh_vehicle_list" from="." to="Vehicles" method="generate_vehicle_list"]
-[connection signal="vehicle_rename_failed" from="." to="VehicleInfo" method="set_vehicle_name"]
 [connection signal="loaded_vehicle" from="VehiclePreview" to="VehicleInfo" method="set_vehicle"]
 [connection signal="timeout" from="VehiclePreview/InputTimer" to="VehiclePreview" method="input_timeout"]
 [connection signal="select_vehicle" from="Vehicles" to="." method="set_selected_vehicle"]
@@ -406,7 +404,6 @@ __meta__ = {
 [connection signal="text_entered" from="NewVehicle/Box/Name" to="NewVehicle" method="goto_editor"]
 [connection signal="focus_exited" from="NewVehicle/Box/Create" to="NewVehicle" method="focus_lost"]
 [connection signal="pressed" from="NewVehicle/Box/Create" to="NewVehicle" method="goto_editor"]
-[connection signal="new_vehicle_name" from="VehicleInfo" to="." method="rename_vehicle"]
 [connection signal="focus_exited" from="VehicleInfo/Box/Box/Name" to="VehicleInfo" method="edit_name"]
 [connection signal="text_entered" from="VehicleInfo/Box/Box/Name" to="VehicleInfo" method="edit_name"]
 [connection signal="pressed" from="QuickActions/Left/Exit" to="." method="exit_game"]

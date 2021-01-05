@@ -1,4 +1,5 @@
 extends Resource
+class_name OwnWar_Block
 
 
 const ROTATION_TO_ORTHOGONAL_INDEX = [0, 16, 10, 22, 2, 18, 8, 20, 3, 19, 9, 21,

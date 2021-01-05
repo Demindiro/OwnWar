@@ -1,12 +1,10 @@
 extends VehicleBody
 
 
-const Block := preload("res://core/block/block.gd")
 const VoxelMesh := preload("voxel_mesh.gd")
 
 
 class BodyBlock:
-	const Block := preload("res://core/block/block.gd")
 
 	var id: int
 	var health: int
@@ -14,7 +12,7 @@ class BodyBlock:
 	var rotation: int
 	var color: Color
 
-	func _init(block: Block, p_node: Spatial, p_rotation: int, p_color: Color) \
+	func _init(block: OwnWar_Block, p_node: Spatial, p_rotation: int, p_color: Color) \
 			-> void:
 		id = block.id
 		health = block.health
@@ -79,8 +77,8 @@ func _physics_process(_delta: float) -> void:
 func debug_draw():
 	for hit in _debug_hits:
 		var position = Vector3(hit[0][0], hit[0][1], hit[0][2]) + Vector3.ONE / 2
-		Debug.draw_point(to_global(position * Block.BLOCK_SCALE - center_of_mass),
-				hit[1], 0.55 * Block.BLOCK_SCALE)
+		Debug.draw_point(to_global(position * OwnWar_Block.BLOCK_SCALE - center_of_mass),
+				hit[1], 0.55 * OwnWar_Block.BLOCK_SCALE)
 
 
 func get_visual_transform() -> Transform:
@@ -96,7 +94,7 @@ func fix_physics():
 
 func projectile_hit(origin: Vector3, direction: Vector3, damage: int) -> int:
 	var local_origin := to_local(origin) + center_of_mass
-	local_origin /= Block.BLOCK_SCALE
+	local_origin /= OwnWar_Block.BLOCK_SCALE
 	var local_direction := to_local(origin + direction) - to_local(origin)
 	_raycast.start(local_origin, local_direction, 25, 25, 25)
 	_debug_hits = []
@@ -112,7 +110,7 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int) -> int:
 				_voxel_mesh.remove_block(_raycast.voxel)
 				# warning-ignore:return_value_discarded
 				blocks.erase(key)
-				cost -= Block.get_block_by_id(block.id).cost
+				cost -= OwnWar_Block.get_block_by_id(block.id).cost
 			else:
 				block.health -= damage
 				damage = 0
@@ -124,14 +122,14 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int) -> int:
 	return damage
 
 
-func spawn_block(x: int, y: int, z: int, r: int, block: Block, color: Color) -> void:
-	var basis := Block.rotation_to_basis(r)
+func spawn_block(x: int, y: int, z: int, r: int, block: OwnWar_Block, color: Color) -> void:
+	var basis := OwnWar_Block.rotation_to_basis(r)
 	var node: Spatial = null
 	var position = Vector3(x, y, z) + Vector3.ONE / 2
 	_voxel_mesh.add_block(block, color, [x, y, z], r)
 	if block.scene != null:
 		node = block.scene.instance()
-		node.transform = Transform(basis, position * Block.BLOCK_SCALE)
+		node.transform = Transform(basis, position * OwnWar_Block.BLOCK_SCALE)
 		add_child(node)
 		var material = MaterialCache.get_material(color)
 		for child in get_children_recursive(node) + [node]:
@@ -161,7 +159,7 @@ func spawn_block(x: int, y: int, z: int, r: int, block: Block, color: Color) -> 
 
 func coordinate_to_vector(coordinate):
 	var position = Vector3(coordinate[0], coordinate[1], coordinate[2])
-	position *= Block.BLOCK_SCALE
+	position *= OwnWar_Block.BLOCK_SCALE
 	return position - center_of_mass
 
 
@@ -184,9 +182,9 @@ func _set_collision_box(start: Vector3, end: Vector3) -> void:
 	end += Vector3.ONE
 	var center := (start + end) / 2
 	var extents := (end - start) / 2
-	_collision_shape.transform.origin = center * Block.BLOCK_SCALE
+	_collision_shape.transform.origin = center * OwnWar_Block.BLOCK_SCALE
 	var shape: BoxShape = _collision_shape.shape
-	shape.extents = extents * Block.BLOCK_SCALE
+	shape.extents = extents * OwnWar_Block.BLOCK_SCALE
 
 
 func _correct_mass() -> void:
@@ -194,13 +192,13 @@ func _correct_mass() -> void:
 	center_of_mass = Vector3.ZERO
 	for coordinate in blocks:
 		var block: BodyBlock = blocks[coordinate]
-		var block_mass: float = Block.get_block_by_id(block.id).mass
+		var block_mass: float = OwnWar_Block.get_block_by_id(block.id).mass
 		center_of_mass += Vector3(coordinate[0], coordinate[1], coordinate[2]) * block_mass
 		total_mass += block_mass
 	assert(total_mass > 0)
 	center_of_mass /= total_mass
 	center_of_mass += Vector3.ONE * 0.5
-	center_of_mass *= Block.BLOCK_SCALE
+	center_of_mass *= OwnWar_Block.BLOCK_SCALE
 	for child in get_children():
 		child.translation -= center_of_mass
 		if child is VehicleWheel:

@@ -3,7 +3,6 @@ class_name OwnWar
 
 const Vehicle := preload("res://vehicles/vehicle.gd")
 
-const Block := preload("block/block.gd")
 const VoxelBody := preload("res://vehicles/voxel_body.gd")
 const VoxelMesh := preload("res://vehicles/voxel_mesh.gd")
 

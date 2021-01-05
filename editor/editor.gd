@@ -23,12 +23,12 @@ class Block:
 
 
 const GRID_SIZE = 25
-const SCALE := 1 / OwnWar.Block.BLOCK_SCALE
+const SCALE := 1 / OwnWar_Block.BLOCK_SCALE
 export var enabled := true
 export var main_menu: PackedScene
 export var test_map: PackedScene
 export var material: SpatialMaterial setget set_material
-var selected_block: OwnWar.Block
+var selected_block: OwnWar_Block
 var blocks := {}
 var meta := {}
 var vehicle_path := ""
@@ -67,7 +67,7 @@ func _ready():
 	if vehicle_path == "" and OS.is_debug_build():
 		vehicle_path = "user://vehicles/tank.json"
 	get_tree().paused = false # To be sure because ??????
-	select_block(OwnWar.Block.get_block_by_id(1).name)
+	select_block(OwnWar_Block.get_block_by_id(1).name)
 	set_enabled(true) # Disable UIs
 	_floor.enable_mirror(mirror)
 	if File.new().file_exists(vehicle_path):
@@ -159,7 +159,7 @@ func process_actions():
 				var mirror_x = (GRID_SIZE - 1) / 2
 				var delta = coordinate[0] - mirror_x
 				coordinate[0] = mirror_x - delta
-				var m_block: OwnWar.Block = selected_block.mirror_block
+				var m_block: OwnWar_Block = selected_block.mirror_block
 				place_block(m_block, coordinate, m_block \
 						.get_mirror_rotation(_rotation), selected_layer)
 	elif Input.is_action_just_pressed("designer_remove_block"):
@@ -185,7 +185,7 @@ func process_actions():
 		_camera.enabled = true
 	elif Input.is_action_just_pressed("designer_configure"):
 		if ray_voxel_valid and ray.voxel in blocks:
-			var block = OwnWar.Block.get_block(blocks[ray.voxel].name)
+			var block = OwnWar_Block.get_block(blocks[ray.voxel].name)
 			if len(block.meta) > 0:
 				var meta_data = meta[ray.voxel] if ray.voxel in meta else block.meta
 				set_enabled(false)
@@ -234,7 +234,7 @@ func remove_block(coordinate):
 
 
 func select_block(name):
-	selected_block = OwnWar.Block.get_block(name)
+	selected_block = OwnWar_Block.get_block(name)
 	for child in _camera_mesh.get_children():
 		child.queue_free()
 	for child in _floor_origin_ghost.get_children():
@@ -340,7 +340,7 @@ func load_vehicle() -> void:
 			assert(len(key_components) == 3)
 			for i in range(3):
 				coordinate[i] = int(key_components[i])
-			var block = OwnWar.Block.get_block(data['blocks'][key][0])
+			var block = OwnWar_Block.get_block(data['blocks'][key][0])
 			var color_components = data["blocks"][key][2].split_floats(",")
 			var color = Color(color_components[0], color_components[1],
 					color_components[2], color_components[3])
@@ -397,7 +397,7 @@ func set_view_layer(p_view_layer: int):
 
 func _snap_face(direction: Vector3) -> void:
 	if _snap_face:
-		var dir := OwnWar.Block.axis_to_direction(direction)
+		var dir := OwnWar_Block.axis_to_direction(direction)
 		assert(dir != -1)
 		_rotation &= 0b11
 		_rotation |= dir
@@ -432,7 +432,7 @@ func _rotate_vehicle() -> void:
 			dict[_v2a(lower + center)] = b
 			b.node.translation = lower + center
 			b.node.rotate_y(-PI / 2.0)
-			b.rotation = OwnWar.Block.basis_to_rotation(b.node.transform.basis)
+			b.rotation = OwnWar_Block.basis_to_rotation(b.node.transform.basis)
 		blocks = dict
 
 
