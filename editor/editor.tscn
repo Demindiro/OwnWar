@@ -74,6 +74,7 @@ speed = 10.0
 angular_speed = 0.01
 always_capture = true
 actions = PoolStringArray( "designer_move_left", "designer_move_right", "designer_move_forward", "designer_move_back", "designer_move_up", "designer_move_down" )
+limit_tilt = true
 aabb = AABB( -10, 0.55, -10, 45, 30, 45 )
 
 [node name="RT" type="RemoteTransform" parent="Camera"]

@@ -201,8 +201,8 @@ func place_block(block, coordinate, rotation, layer):
 		return false
 	var node = MeshInstance.new()
 	node.mesh = block.mesh
-	if block.instance != null:
-		var scene = block.instance.instance()
+	if block.editor_node != null:
+		var scene = block.editor_node.duplicate()
 		node.add_child(scene)
 	_floor_origin.add_child(node)
 	node.translation = _a2v(coordinate)
