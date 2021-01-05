@@ -199,23 +199,23 @@ func place_block(block, coordinate, rotation, layer):
 			return false
 	if coordinate in blocks:
 		return false
-	var node = MeshInstance.new()
-	node.mesh = block.mesh
+	var mi := MeshInstance.new()
+	var node: Spatial = null
+	mi.mesh = block.mesh
 	if block.editor_node != null:
-		var scene = block.editor_node.duplicate()
-		node.add_child(scene)
-	_floor_origin.add_child(node)
-	node.translation = _a2v(coordinate)
-	node.transform.basis = block.get_basis(rotation)
-	node.scale_object_local(Vector3.ONE * SCALE)
-	node.material_override = material
-	for child in Util.get_children_recursive(node):
-		if child is GeometryInstance and not child is Sprite3D:
-			child.material_override = material
+		node = block.editor_node.duplicate()
+		mi.add_child(node)
+	_floor_origin.add_child(mi)
+	mi.translation = _a2v(coordinate)
+	mi.transform.basis = block.get_basis(rotation)
+	mi.scale_object_local(Vector3.ONE * SCALE)
+	mi.material_override = material
+	if node != null and node.has_method("set_color"):
+		node.set_color(material.albedo_color)
 	blocks[coordinate] = Block.new(
 		block.name,
 		rotation,
-		node,
+		mi,
 		material.albedo_color,
 		layer
 	)
@@ -242,27 +242,20 @@ func select_block(name):
 	_floor_origin_ghost.mesh = selected_block.mesh
 	if selected_block.editor_node != null:
 		var camera_node: Spatial = selected_block.editor_node.duplicate()
+		var ghost_node: Spatial = selected_block.editor_node.duplicate()
 		_camera_mesh.add_child(camera_node)
+		_floor_origin_ghost.add_child(ghost_node)
 		for child in Util.get_children_recursive(camera_node):
 			var vi := child as VisualInstance
 			if vi != null:
 				vi.layers = 1 << 7 # TODO don't hardcode this
-		var node: Spatial = selected_block.editor_node.duplicate()
-		_floor_origin_ghost.add_child(node)
-		for child in Util.get_children_recursive(node):
-			if child is MeshInstance:
-				if child.material_override != null:
-					child.material_override = child.material_override.duplicate()
-					child.material_override.flags_transparent = true
-					child.material_override.albedo_color.a *= 0.2
-				else:
-					child.material_override = _floor_origin_ghost.material_override
-			elif child is Sprite3D:
-				child.opacity *= 0.2
+		var color := material.albedo_color
+		if selected_block.editor_node.has_method("set_color"):
+			camera_node.set_color(color)
+			ghost_node.set_color(color)
+		if selected_block.editor_node.has_method("set_transparency"):
+			ghost_node.set_transparency(0.5)
 	_camera_mesh.material_override = material
-	for child in Util.get_children_recursive(_camera_mesh):
-		if child is GeometryInstance and not child is Sprite3D:
-			child.material_override = material
 
 
 func highlight_face():
@@ -368,15 +361,17 @@ func set_material(p_material: SpatialMaterial):
 	material = p_material
 	var ghost_material := material.duplicate() as SpatialMaterial
 	ghost_material.flags_transparent = true
-	ghost_material.albedo_color.a *= 0.6
+	ghost_material.albedo_color.a *= 0.5
 	_floor_origin_ghost.material_override = ghost_material
 	_camera_mesh.material_override = material
-	for child in Util.get_children_recursive(_floor_origin_ghost):
-		if child is GeometryInstance and not child is Sprite3D:
-			child.material_override = ghost_material
-	for child in Util.get_children_recursive(_camera_mesh):
-		if child is GeometryInstance and not child is Sprite3D:
-			child.material_override = material
+	for node in _floor_origin_ghost.get_children():
+		if node.has_method("set_color"):
+			node.set_color(material.albedo_color)
+	for node in _camera_mesh.get_children():
+		if node.has_method("set_color"):
+			var color := material.albedo_color
+			color.a *= 0.5
+			node.set_color(color)
 
 
 func set_layer(p_layer: int):
@@ -393,9 +388,9 @@ func set_view_layer(p_view_layer: int):
 			color.a *= 0.1
 		var material := MaterialCache.get_material(color)
 		block.node.material_override = material
-		for child in Util.get_children_recursive(block.node):
-			if child is GeometryInstance and not child is Sprite3D:
-				child.material_override = material
+		for node in block.node.get_children():
+			if node.has_method("set_color"):
+				node.set_color(color)
 	_hud_block_layer_view.select(p_view_layer + 1)
 
 

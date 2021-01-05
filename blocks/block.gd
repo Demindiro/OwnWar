@@ -70,14 +70,14 @@ func get_mirror_rotation(rotation: int) -> int:
 
 func set_instance(p_instance: PackedScene) -> void:
 	var node: OwnWar_BlockInstance = p_instance.instance()
-	if node.client_node != NodePath():
-		client_node = node.get_node(node.client_node)
-		assert(client_node != null)
-		node.remove_child(client_node)
 	if node.server_node != NodePath():
 		server_node = node.get_node(node.server_node)
 		assert(server_node != null)
 		node.remove_child(server_node)
+	if node.client_node != NodePath():
+		client_node = node.get_node(node.client_node)
+		assert(client_node != null)
+		node.remove_child(client_node)
 	if node.editor_node != NodePath():
 		editor_node = node.get_node(node.editor_node)
 		assert(editor_node != null)

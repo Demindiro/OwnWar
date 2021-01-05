@@ -159,17 +159,8 @@ func spawn_block(x: int, y: int, z: int, r: int, block: OwnWar_Block, color: Col
 		bb.prev_transform = bb.client_node.transform
 		bb.curr_transform = bb.client_node.transform
 		add_child(bb.client_node)
-		var material = MaterialCache.get_material(color)
-		for child in get_children_recursive(bb.client_node) + [bb.client_node]:
-			if child is GeometryInstance and not child is Sprite3D:
-				var set_override := true
-				if child is MeshInstance:
-					for i in range(child.get_surface_material_count()):
-						if child.get_surface_material(i) != null:
-							set_override = false
-							break
-				if set_override:
-					child.material_override = material
+		if bb.client_node.has_method("set_color"):
+			bb.client_node.set_color(color)
 		if bb.server_node == null:
 			bb.server_node = Spatial.new()
 			add_child(bb.server_node)

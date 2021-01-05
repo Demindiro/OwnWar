@@ -7,11 +7,18 @@
 script = ExtResource( 1 )
 server_node = NodePath("")
 client_node = NodePath("It\'s a UNIX system!")
-editor_node = NodePath("It\'s a UNIX system!")
+editor_node = NodePath("It\'s also a UNIX system!")
 
 [node name="It\'s a UNIX system!" type="Spatial" parent="."]
 
 [node name="Code" type="Sprite3D" parent="It\'s a UNIX system!"]
+transform = Transform( 0.0376, 0, 0, 0, 0.0376, 0, 0, 0, 1, -0.0225279, -4.62309e-06, 0.112167 )
+double_sided = false
+texture = ExtResource( 2 )
+
+[node name="It\'s also a UNIX system!" type="Spatial" parent="."]
+
+[node name="Code" type="Sprite3D" parent="It\'s also a UNIX system!"]
 transform = Transform( 0.0376, 0, 0, 0, 0.0376, 0, 0, 0, 1, -0.0225279, -4.62309e-06, 0.112167 )
 double_sided = false
 texture = ExtResource( 2 )
