@@ -50,14 +50,13 @@ func show_category(var category):
 func show_block(var block_name):
 	var block = OwnWar_Block.get_block(block_name)
 	_preview_mesh.mesh = block.mesh
-	_preview_mesh.material_override = block.material
 	_preview_mesh.transform = Transform.IDENTITY
 	_preview_mesh.scale = \
-		Vector3.ONE / max(block.size.x, max(block.size.y, block.size.z))
+		Vector3.ONE / max(block.aabb.size.x, max(block.aabb.size.y, block.aabb.size.z))
 	for child in _preview_mesh.get_children():
 		child.queue_free()
-	if block.scene != null:
-		_preview_mesh.add_child(block.scene.instance())
+	if block.editor_node != null:
+		_preview_mesh.add_child(block.editor_node.duplicate())
 
 
 func _resolve_node_paths():
