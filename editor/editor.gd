@@ -201,9 +201,8 @@ func place_block(block, coordinate, rotation, layer):
 		return false
 	var node = MeshInstance.new()
 	node.mesh = block.mesh
-	node.material_override = block.material
-	if block.scene != null:
-		var scene = block.scene.instance()
+	if block.instance != null:
+		var scene = block.instance.instance()
 		node.add_child(scene)
 	_floor_origin.add_child(node)
 	node.translation = _a2v(coordinate)
@@ -241,9 +240,9 @@ func select_block(name):
 		child.queue_free()
 	_camera_mesh.mesh = selected_block.mesh
 	_floor_origin_ghost.mesh = selected_block.mesh
-	if selected_block.scene != null:
-		_camera_mesh.add_child(selected_block.scene.instance())
-		var node = selected_block.scene.instance()
+	if selected_block.instance != null:
+		_camera_mesh.add_child(selected_block.instance.instance())
+		var node = selected_block.instance.instance()
 		_floor_origin_ghost.add_child(node)
 		for child in Util.get_children_recursive(node):
 			if child is MeshInstance:

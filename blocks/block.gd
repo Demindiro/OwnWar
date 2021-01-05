@@ -7,21 +7,20 @@ const ROTATION_TO_ORTHOGONAL_INDEX = [0, 16, 10, 22, 2, 18, 8, 20, 3, 19, 9, 21,
 const BLOCK_SCALE := 0.25
 const _NAME_TO_BLOCK = {}
 const _ID_TO_BLOCK = []
-export(String) var name: String
-export(String) var human_name: String
-export(String) var category: String = "other"
-export(Mesh) var mesh: Mesh
-export(Material) var material: Material
-export(PackedScene) var scene: PackedScene
-export(int) var mass: int = 1
-export(int) var health: int = 100
-export(int) var cost: int = 1
-export(Vector3) var size: Vector3 = Vector3.ONE
-export(int) var mirror_rotation_offset := 0 setget set_mirror_rotation_offset
-export var meta := {}
-#export(Block) var mirror_block: Block
-#export(Resource) var mirror_block
+
+export var name: String
+export var human_name: String
+export var revision := 0 # Used for things like e.g. thumbnail generation
+export var category := "other"
+export var mesh: Mesh
+export var instance: PackedScene
+export var health := 100
+export var mass := 1.0
+export var cost := 1
+export var aabb := AABB(Vector3(), Vector3.ONE)
+export var mirror_rotation_offset := 0 setget set_mirror_rotation_offset
 export var __mirror_block_name: String
+
 var mirror_block: Resource setget __set_mirror_block, __get_mirror_block
 var id: int
 var mirror_rotation_map: PoolIntArray

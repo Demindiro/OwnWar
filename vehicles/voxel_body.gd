@@ -127,8 +127,8 @@ func spawn_block(x: int, y: int, z: int, r: int, block: OwnWar_Block, color: Col
 	var node: Spatial = null
 	var position = Vector3(x, y, z) + Vector3.ONE / 2
 	_voxel_mesh.add_block(block, color, [x, y, z], r)
-	if block.scene != null:
-		node = block.scene.instance()
+	if block.instance != null:
+		node = block.instance.instance()
 		node.transform = Transform(basis, position * OwnWar_Block.BLOCK_SCALE)
 		add_child(node)
 		var material = MaterialCache.get_material(color)
