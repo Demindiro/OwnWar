@@ -1,7 +1,8 @@
-[gd_resource type="Resource" load_steps=3 format=2]
+[gd_resource type="Resource" load_steps=4 format=2]
 
 [ext_resource path="res://blocks/block.gd" type="Script" id=1]
 [ext_resource path="res://blocks/mainframe/mainframe.obj" type="ArrayMesh" id=2]
+[ext_resource path="res://blocks/mainframe/mainframe.tscn" type="PackedScene" id=3]
 
 [resource]
 script = ExtResource( 1 )
@@ -10,6 +11,7 @@ human_name = "Mainframe"
 revision = 0
 category = "Control"
 mesh = ExtResource( 2 )
+instance = ExtResource( 3 )
 health = 100
 mass = 1.0
 cost = 1
