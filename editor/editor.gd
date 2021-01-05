@@ -240,9 +240,14 @@ func select_block(name):
 		child.queue_free()
 	_camera_mesh.mesh = selected_block.mesh
 	_floor_origin_ghost.mesh = selected_block.mesh
-	if selected_block.instance != null:
-		_camera_mesh.add_child(selected_block.instance.instance())
-		var node = selected_block.instance.instance()
+	if selected_block.editor_node != null:
+		var camera_node: Spatial = selected_block.editor_node.duplicate()
+		_camera_mesh.add_child(camera_node)
+		for child in Util.get_children_recursive(camera_node):
+			var vi := child as VisualInstance
+			if vi != null:
+				vi.layers = 1 << 7 # TODO don't hardcode this
+		var node: Spatial = selected_block.editor_node.duplicate()
 		_floor_origin_ghost.add_child(node)
 		for child in Util.get_children_recursive(node):
 			if child is MeshInstance:
