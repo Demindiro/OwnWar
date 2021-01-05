@@ -73,15 +73,19 @@ func set_instance(p_instance: PackedScene) -> void:
 	if node.server_node != NodePath():
 		server_node = node.get_node(node.server_node)
 		assert(server_node != null)
-		node.remove_child(server_node)
 	if node.client_node != NodePath():
 		client_node = node.get_node(node.client_node)
 		assert(client_node != null)
-		node.remove_child(client_node)
 	if node.editor_node != NodePath():
 		editor_node = node.get_node(node.editor_node)
 		assert(editor_node != null)
+	if server_node != null:
+		node.remove_child(server_node)
+	if client_node != null and node.has_node(node.client_node):
+		node.remove_child(client_node)
+	if editor_node != null and node.has_node(node.editor_node):
 		node.remove_child(editor_node)
+	node.free()
 	instance = p_instance
 
 
