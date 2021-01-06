@@ -72,14 +72,12 @@ func _create_block_thumbnail(name: String, callback: FuncRef, arguments: Array
 	var block: OwnWar_Block = OwnWar_Block.get_block(name)
 	print("Generating block thumbnail for ", block.name)
 	var path := _get_block_path(block.name)
-	mi.scale = Vector3.ONE / max(block.size.x, max(block.size.y, block.size.z))
+	mi.scale = Vector3.ONE / max(block.aabb.size.x, max(block.aabb.size.y, block.aabb.size.z))
 	mi.mesh = block.mesh
-	var scene: Spatial
-	if block.scene != null:
-		scene = block.scene.instance()
-		scene.propagate_call("set_script", [null], true)
-		scene.transform = mi.transform
-		tn.add_child(scene)
+	if block.editor_node != null:
+		var node: Spatial = block.editor_node.duplicate()
+		node.transform = mi.transform
+		tn.add_child(node)
 	yield(VisualServer, "frame_post_draw")
 	yield(VisualServer, "frame_post_draw")
 	var img := tn.get_texture().get_data()
