@@ -107,7 +107,6 @@ func set_transparency(alpha: float) -> void:
 			mi.mesh = mi.mesh.duplicate()
 			for i in mi.mesh.get_surface_count():
 				var base_mat := mi.mesh.surface_get_material(i)
-				print(mi.mesh.surface_get_material(i))
 				assert(base_mat != null, "base_mat is null. Check if the node has already been added")
 				assert(base_mat is SpatialMaterial, "TODO: handle other material types")
 				var color := (base_mat as SpatialMaterial).albedo_color

@@ -130,6 +130,7 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 		var vb := VoxelBody.new()
 		add_child(vb)
 		vb.connect("hit", self, "_voxel_body_hit")
+		vb.transform = Transform()
 		vb.aabb = vb_aabbs[layer]
 		for bd in vb_data_blocks[layer]:
 			var pos: Vector3 = bd[0]
@@ -143,9 +144,10 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 		body.fix_physics()
 		body.init_blocks(self)
 	if len(voxel_bodies) > 0:
-		var center_of_mass_0 = voxel_bodies[0].center_of_mass
+		var center_of_mass_0: Vector3 = voxel_bodies[0].center_of_mass
+		var position_0: Vector3 = voxel_bodies[0].aabb.position
 		for body in voxel_bodies:
-			body.translate(-center_of_mass_0)
+			body.translate(-center_of_mass_0 - position_0 * OwnWar_Block.BLOCK_SCALE)
 
 	for body in voxel_bodies:
 		wheels += body.wheels

@@ -18,7 +18,6 @@ func init(coordinate: Vector3, voxel_body: OwnWar.VoxelBody, vehicle: OwnWar_Veh
 	for body in vehicle.voxel_bodies:
 		if body != voxel_body:
 			var other_id: int = body.get_block_id(connecting_coordinate)
-			print(other_id)
 			if other_id > 0:
 				_create_joint(voxel_body, body, vehicle)
 
