@@ -17,8 +17,8 @@ static func get_material(color: Color, base_material: Material = null) -> Materi
 			sm.albedo_color = color
 			if color.a < 0.999:
 				sm.flags_transparent = true
-			print(color, " -> ", sm.flags_transparent)
 		else:
 			assert(false, "TODO handle other material types somehow")
 		dict[color] = material
+	assert(material != null)
 	return material

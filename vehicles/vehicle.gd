@@ -67,52 +67,76 @@ func get_visual_origin() -> Vector3:
 
 
 func load_from_file(path: String, thumbnail_mode := false) -> int:
-	_file = path
 	var file := File.new()
-	var err = file.open(path, File.READ)
+	var err := file.open_compressed(path, File.READ, File.COMPRESSION_GZIP)
 	if err != OK:
 		return err
+	_file = path
 
 	for body in voxel_bodies:
 		body.queue_free()
 
-	var data = parse_json(file.get_as_text())
-	data = Compatibility.convert_vehicle_data(data)
-
-	_file = path
-
 	if Engine.editor_hint:
-		return _load_from_file_editor(data)
+		assert(false, "TODO loading from editor")
 
-	for key in data["blocks"]:
-		var components = Util.decode_vec3i(key)
-		var x = components[0]
-		var y = components[1]
-		var z = components[2]
-		var name = data["blocks"][key][0]
-		var rotation = data["blocks"][key][1]
-		var color := Util.decode_color(data["blocks"][key][2])
-		var layer = data["blocks"][key][3]
-		if len(voxel_bodies) <= layer:
-			voxel_bodies.resize(layer + 1)
-		if voxel_bodies[layer] == null:
-			voxel_bodies[layer] = VoxelBody.new()
-			add_child(voxel_bodies[layer])
-			voxel_bodies[layer].connect("hit", self, "_voxel_body_hit")
-		voxel_bodies[layer].spawn_block(x, y, z, rotation, OwnWar_Block.get_block(name), color)
+	var vb_data_blocks := {}
+	var MAGIC := 493279249 # Totally random, not derived from a name
+	var REVISION := 0
+	var magic := file.get_32()
+	if magic != MAGIC:
+		print("Magic is wrong! ", magic)
+		assert(false)
+		return ERR_INVALID_DATA
+	var revision := file.get_16()
+	if revision != REVISION:
+		print("Revision doesn't match!")
+		assert(false)
+		return ERR_INVALID_DATA
+	var layer_count := file.get_8()
+	for _i in layer_count:
+		var layer := file.get_8()
+		var aabb := AABB()
+		aabb.position.x = file.get_8()
+		aabb.position.y = file.get_8()
+		aabb.position.z = file.get_8()
+		aabb.size.x = file.get_8()
+		aabb.size.y = file.get_8()
+		aabb.size.z = file.get_8()
+		var size := file.get_32()
+		for _j in size:
+			var color := Color()
+			var x := file.get_8()
+			var y := file.get_8()
+			var z := file.get_8()
+			var id := file.get_16()
+			var rot := file.get_8()
+			color.r8 = file.get_8()
+			color.g8 = file.get_8()
+			color.b8 = file.get_8()
+			var vb = vb_data_blocks.get(layer)
+			var arr := [Vector3(x, y, z), OwnWar_Block.get_block_by_id(id), rot, color]
+			if vb == null:
+				vb_data_blocks[layer] = [arr]
+			else:
+				vb.push_back(arr)
 
-	var meta = {}
-	for key in data["meta"]:
-		var components = key.split(',')
-		assert(len(components) == 3)
-		var x = int(components[0])
-		var y = int(components[1])
-		var z = int(components[2])
-		meta[[x, y, z]] = data["meta"][key]
+	voxel_bodies = []
+
+	for layer in vb_data_blocks:
+		var vb := VoxelBody.new()
+		add_child(vb)
+		vb.connect("hit", self, "_voxel_body_hit")
+		for bd in vb_data_blocks[layer]:
+			var pos: Vector3 = bd[0]
+			var blk: OwnWar_Block = bd[1]
+			var rot: int = bd[2]
+			var clr: Color = bd[3]
+			vb.spawn_block(int(pos.x), int(pos.y), int(pos.z), rot, blk, clr)
+		voxel_bodies.push_back(vb)
 
 	for body in voxel_bodies:
 		body.fix_physics()
-		body.init_blocks(self, meta)
+		body.init_blocks(self, {})
 	if len(voxel_bodies) > 0:
 		var center_of_mass_0 = voxel_bodies[0].center_of_mass
 		for body in voxel_bodies:
