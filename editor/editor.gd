@@ -35,6 +35,7 @@ export var material: SpatialMaterial setget set_material
 var selected_block: OwnWar_Block
 var blocks := {}
 var meta := {}
+var vehicle_name := ""
 var vehicle_path := ""
 var _rotation := 0
 var mirror := false
@@ -68,8 +69,12 @@ func _exit_tree():
 
 func _ready():
 	# I'm too lazy for a proper debugging solution
-	if vehicle_path == "" and OS.is_debug_build():
-		vehicle_path = "user://vehicles/tank.json"
+	if vehicle_path == "":
+		if vehicle_name == "" and OS.is_debug_build():
+			vehicle_name = "tank"
+		else:
+			assert(false, "vehicle_name is empty")
+		vehicle_path = OwnWar.get_vehicle_path(vehicle_name)
 	get_tree().paused = false # To be sure because ??????
 	select_block(OwnWar_Block.get_block_by_id(1).name)
 	set_enabled(true) # Disable UIs
@@ -357,7 +362,7 @@ func save_vehicle() -> void:
 			file.store_8(b.color.r8)
 			file.store_8(b.color.g8)
 			file.store_8(b.color.b8)
-	print("Saved vehicle as '%s'" % vehicle_path)
+	print("Saved vehicle as %s" % vehicle_path)
 
 
 func load_vehicle() -> void:
@@ -366,7 +371,7 @@ func load_vehicle() -> void:
 	var file := File.new()
 	var err = file.open_compressed(vehicle_path, File.READ, File.COMPRESSION_GZIP)
 	if err != OK:
-		Global.error("Failed to open file '%s'" % vehicle_path, err)
+		Global.error("Failed to open file %s: %s" % [vehicle_path, Global.ERROR_TO_STRING[err]])
 	else:
 		for child in _floor_origin.get_children():
 			if child.name != "Ghost":
@@ -404,7 +409,7 @@ func load_vehicle() -> void:
 				color.g8 = file.get_8()
 				color.b8 = file.get_8()
 				place_block(OwnWar_Block.get_block_by_id(id), [x, y, z], rot, color, layer)
-		print("Loaded vehicle from '%s'" % vehicle_path)
+		print("Loaded vehicle from %s" % vehicle_path)
 
 
 func set_material(p_material: SpatialMaterial):
@@ -544,8 +549,8 @@ func _on_MetaEditor_meta_changed(meta_data):
 
 func _on_Designer_pressed() -> void:
 	var scene = preload("res://maps/test/test.tscn").instance()
-	if vehicle_path != "":
-		scene.vehicle_path = vehicle_path
+	if vehicle_name != "":
+		scene.vehicle_name = vehicle_name
 	queue_free()
 	var tree := get_tree()
 	tree.root.remove_child(self)

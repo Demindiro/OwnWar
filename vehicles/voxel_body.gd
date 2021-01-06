@@ -31,7 +31,6 @@ signal hit(voxel_body)
 var start_position := Vector3.ONE * INF
 var end_position := Vector3.ONE * -INF
 var center_of_mass := Vector3.ZERO
-var blocks := {}
 var cost := 0
 var max_cost := 0
 var max_health := 0
@@ -46,6 +45,11 @@ var _interpolation_dirty := true
 var _curr_transform := transform
 var _prev_transform := transform
 var _interpolate_blocks := []
+var _block_health := PoolIntArray()
+var _block_health_alt := PoolIntArray()
+var _block_nodes := []
+var aabb := AABB()
+var blocks := {}
 
 
 func _init():

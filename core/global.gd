@@ -7,7 +7,6 @@ const SCENE_MENU_MAIN = "res://core/menu/main_menu/main.tscn"
 const SCENE_DESIGNER = "res://core/designer/designer.tscn"
 const SCENE_LOADING = "res://core/menu/loading_screen.tscn"
 const DIRECTORY_USER_VEHICLES = "user://vehicles"
-const FILE_EXTENSION = ".json"
 const ERROR_TO_STRING = [
 		"No errors",
 		"Generic",

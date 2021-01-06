@@ -1,8 +1,6 @@
 class_name OwnWar
 
 
-const Vehicle := preload("res://vehicles/vehicle.gd")
-
 const VoxelBody := preload("res://vehicles/voxel_body.gd")
 const VoxelMesh := preload("res://vehicles/voxel_mesh.gd")
 
@@ -16,6 +14,7 @@ const COLLISION_MASK_STRUCTURE := 1 << (20 - 1)
 const _MAIN_MENU := "res://core/menu/main_menu/main.tscn"
 const _MAIN_MENU_SCENES := PoolStringArray()
 const VEHICLE_DIRECTORY := "user://vehicles"
+const VEHICLE_EXTENSION := "owv.gz"
 
 
 static func add_main_menu_background(path: String) -> void:
@@ -76,3 +75,12 @@ static func goto_main_menu(tree: SceneTree) -> void:
 static func is_in_designer(tree: SceneTree) -> bool:
 	return tree.current_scene != null and \
 		tree.current_scene.filename == "res://core/designer/designer.tscn"
+
+
+static func get_vehicle_path(name: String) -> String:
+	var f := Util.filenamize_human_name(name)
+	return VEHICLE_DIRECTORY.plus_file(f) + "." + VEHICLE_EXTENSION
+
+
+static func get_vehicle_name(path: String) -> String:
+	return Util.humanize_filename(len(path) - len("." + VEHICLE_EXTENSION))

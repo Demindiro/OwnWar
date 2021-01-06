@@ -393,7 +393,6 @@ text = "Create"
 __meta__ = {
 "_edit_use_anchors_": false
 }
-[connection signal="loaded_vehicle" from="VehiclePreview" to="VehicleInfo" method="set_vehicle"]
 [connection signal="timeout" from="VehiclePreview/InputTimer" to="VehiclePreview" method="input_timeout"]
 [connection signal="select_vehicle" from="Vehicles" to="." method="set_selected_vehicle"]
 [connection signal="select_vehicle" from="Vehicles" to="VehiclePreview" method="set_preview"]

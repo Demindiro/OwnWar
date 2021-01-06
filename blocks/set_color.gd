@@ -113,7 +113,6 @@ func set_transparency(alpha: float) -> void:
 				var color := (base_mat as SpatialMaterial).albedo_color
 				color.a *= alpha
 				var mat := MaterialCache.get_material(color, base_mat)
-				mi.mesh.surface_set_material(i, mat)
 		else:
 			var sprite := node as Sprite3D
 			if sprite != null:
