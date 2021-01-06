@@ -15,3 +15,7 @@
 addons/backgrounds/AllSkyFree_Sky_AnotherPlanet_Equirect.png filter=lfs diff=lfs merge=lfs -text
 addons/backgrounds/AllSkyFree_Sky_ClearBlueSky_Equirect.png filter=lfs diff=lfs merge=lfs -text
 addons/backgrounds/AllSkyFree_Sky_ColdSunset_Equirect.png filter=lfs diff=lfs merge=lfs -text
+blocks/weapons/fixed_laser.blend filter=lfs diff=lfs merge=lfs -text
+blocks/weapons/lasers/fixed_laser.mtl filter=lfs diff=lfs merge=lfs -text
+blocks/weapons/lasers/fixed_laser.obj filter=lfs diff=lfs merge=lfs -text
+addons/lasers/480872__c3sabertooth__blaster-multiple.wav filter=lfs diff=lfs merge=lfs -text

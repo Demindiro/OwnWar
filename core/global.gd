@@ -80,7 +80,7 @@ func _init():
 	OwnWar_Block.add_block(preload("res://blocks/turrets/turret_1x1.tres"))
 	OwnWar_Block.add_block(preload("res://blocks/turrets/turret_2x2.tres"))
 	OwnWar_Block.add_block(preload("res://blocks/turrets/turret_3x3.tres"))
-	#OwnWar_Block.add_block(preload("res://blocks/weapons/railgun/railgun.tres"))
+	OwnWar_Block.add_block(preload("res://blocks/weapons/lasers/fixed_laser.tres"))
 
 
 

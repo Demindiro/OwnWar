@@ -21,6 +21,9 @@ var move_forward := false
 var move_back := false
 var aim_at := Vector3()
 var fire := false
+var avg_delay_between_shots := 0.0
+var fireable_weapon_count := 0
+var delay_until_next_fire := 0.0
 export var _file := "" setget load_from_file, get_file_path
 var _server_mode := OS.has_feature("Server")
 
@@ -29,7 +32,7 @@ func _init() -> void:
 	set_process(not _server_mode)
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if not Engine.editor_hint:
 		if not _server_mode and len(voxel_bodies) > 0:
 			transform = voxel_bodies[0].transform
@@ -58,8 +61,17 @@ func _physics_process(_delta: float) -> void:
 
 		for weapon in weapons:
 			weapon.aim_at(aim_at)
-			if fire:
-				weapon.fire()
+		if fire:
+			if delay_until_next_fire <= 0.0:
+				for weapon in weapons:
+					if weapon.fire():
+						if -delay_until_next_fire > avg_delay_between_shots:
+							delay_until_next_fire = avg_delay_between_shots
+						else:
+							delay_until_next_fire += avg_delay_between_shots
+						if delay_until_next_fire > delta:
+							break
+		delay_until_next_fire -= delta
 
 
 func get_visual_origin() -> Vector3:
@@ -158,6 +170,13 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 	for w in weapons:
 		var e: int = w.connect("tree_exited", self, "_erase_from", [weapons, w])
 		assert(e == OK)
+		if w.time_between_shots >= 0.0:
+			avg_delay_between_shots = avg_delay_between_shots * fireable_weapon_count + \
+				w.time_between_shots
+			fireable_weapon_count += 1
+			avg_delay_between_shots /= fireable_weapon_count
+	if fireable_weapon_count > 0:
+		avg_delay_between_shots /= fireable_weapon_count
 
 	if not thumbnail_mode:
 		var physics_bodies := []
