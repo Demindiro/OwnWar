@@ -84,6 +84,16 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://blocks/weapons/weapon.gd"
 }, {
+"base": "OwnWar_Weapon",
+"class": "OwnWar_WeaponLaser",
+"language": "GDScript",
+"path": "res://blocks/weapons/lasers/laser_server.gd"
+}, {
+"base": "Spatial",
+"class": "OwnWar_WeaponLaserClient",
+"language": "GDScript",
+"path": "res://blocks/weapons/lasers/laser_client.gd"
+}, {
 "base": "Spatial",
 "class": "PhysicsJointCompensationNode",
 "language": "GDScript",
@@ -110,6 +120,8 @@ _global_script_class_icons={
 "OwnWar_SetColor": "",
 "OwnWar_Vehicle": "",
 "OwnWar_Weapon": "",
+"OwnWar_WeaponLaser": "",
+"OwnWar_WeaponLaserClient": "",
 "PhysicsJointCompensationNode": "",
 "Util": ""
 }

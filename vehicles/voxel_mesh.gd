@@ -17,6 +17,9 @@ var _remove_list_positions := []
 
 
 func add_block(block: OwnWar_Block, color: Color, coordinate: Array, rotation: int) -> void:
+	assert(coordinate[0] is int)
+	assert(coordinate[1] is int)
+	assert(coordinate[2] is int)
 	var mesh := block.mesh
 	if mesh == null:
 		return
@@ -24,6 +27,9 @@ func add_block(block: OwnWar_Block, color: Color, coordinate: Array, rotation: i
 
 
 func add_mesh(mesh: Mesh, color: Color, coordinate: Array, rotation: int) -> void:
+	assert(coordinate[0] is int)
+	assert(coordinate[1] is int)
+	assert(coordinate[2] is int)
 	for i in range(mesh.get_surface_count()):
 #		var material := mesh.surface_get_material(i)
 #		var material := MaterialCache.get_material(color)
@@ -42,6 +48,9 @@ func add_mesh(mesh: Mesh, color: Color, coordinate: Array, rotation: int) -> voi
 
 
 func remove_block(coordinate: Array) -> void:
+	assert(coordinate[0] is int)
+	assert(coordinate[1] is int)
+	assert(coordinate[2] is int)
 	_remove_list_positions.append(coordinate)
 	dirty = true
 

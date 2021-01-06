@@ -25,6 +25,7 @@ var max_cost := 0
 var max_health := 0
 var wheels := []
 var weapons := []
+var team := -1
 var _debug_hits := []
 var _raycast := preload("res://addons/voxel_raycast.gd").new()
 var _collision_shape: CollisionShape
@@ -38,7 +39,8 @@ var _interpolate_blocks := []
 var _block_ids := PoolIntArray()
 var _block_health := PoolIntArray()
 var _block_health_alt := PoolIntArray()
-var _block_nodes := []
+var _block_server_nodes := []
+var _block_client_nodes := []
 var _block_reverse_index := []
 
 var aabb := AABB() setget set_aabb
@@ -114,14 +116,22 @@ func fix_physics():
 	global_transform = Transform(Basis(), center_of_mass + aabb.position * OwnWar_Block.BLOCK_SCALE)
 
 
-func projectile_hit(origin: Vector3, direction: Vector3, damage: int) -> int:
+func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 	var local_origin := to_local(origin) + center_of_mass
 	local_origin /= OwnWar_Block.BLOCK_SCALE
 	var local_direction := to_local(origin + direction) - to_local(origin)
-	_raycast.start(local_origin, local_direction, 25, 25, 25)
+	_raycast.start(local_origin, local_direction, aabb.size.x, aabb.size.y, aabb.size.z)
 	_debug_hits = []
+	if _raycast.finished:
+		return damage
+	if _raycast.x >= aabb.size.x or _raycast.y >= aabb.size.y or _raycast.z >= aabb.size.z:
+		# TODO fix the raycast algorithm
+		_raycast.step()
 	while not _raycast.finished:
 		var key := [_raycast.x, _raycast.y, _raycast.z]
+		assert(_raycast.x < aabb.size.x)
+		assert(_raycast.y < aabb.size.y)
+		assert(_raycast.z < aabb.size.z)
 		var index := int(
 			_raycast.x * aabb.size.y * aabb.size.z + \
 			_raycast.y * aabb.size.z + \
@@ -134,11 +144,17 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int) -> int:
 				var alt_index := val & 0x7fff
 				var hp := _block_health_alt[alt_index]
 				assert(hp >= 0)
-				if hp < damage:
-					_debug_hits.append([key, Color.orange])
-					var node: Spatial = _block_nodes[alt_index]
+				if hp <= damage:
+					damage -= hp
+					_block_health_alt[alt_index] = 0
+					var node: Spatial = _block_server_nodes[alt_index]
 					if node != null:
 						node.queue_free()
+						_block_server_nodes[alt_index] = null
+					node = _block_client_nodes[alt_index]
+					if node != null:
+						node.queue_free()
+						_block_client_nodes[alt_index] = null
 					_voxel_mesh.remove_block(_raycast.voxel)
 					cost -= OwnWar_Block.get_block_by_id(_block_ids[index]).cost
 					for i in _block_reverse_index[alt_index]:
@@ -149,7 +165,7 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int) -> int:
 					break
 			else:
 				var hp := val
-				if hp < damage:
+				if hp <= damage:
 					damage -= hp
 					_voxel_mesh.remove_block(_raycast.voxel)
 					cost -= OwnWar_Block.get_block_by_id(_block_ids[index]).cost
@@ -163,6 +179,28 @@ func projectile_hit(origin: Vector3, direction: Vector3, damage: int) -> int:
 		_raycast.step()
 	emit_signal("hit", self)
 	return damage
+
+
+func can_ray_pass_through(origin: Vector3, direction: Vector3) -> bool:
+	var local_origin := to_local(origin) + center_of_mass
+	local_origin /= OwnWar_Block.BLOCK_SCALE
+	var local_direction := to_local(origin + direction) - to_local(origin)
+	_raycast.start(local_origin, local_direction, aabb.size.x, aabb.size.y, aabb.size.z)
+	if _raycast.finished:
+		return true
+	if _raycast.x >= aabb.size.x or _raycast.y >= aabb.size.y or _raycast.z >= aabb.size.z:
+		# TODO fix the raycast algorithm
+		_raycast.step()
+	while not _raycast.finished:
+		var index := int(
+			_raycast.x * aabb.size.y * aabb.size.z + \
+			_raycast.y * aabb.size.z + \
+			_raycast.z
+		)
+		if _block_health[index] != 0:
+			return false
+		_raycast.step()
+	return true
 
 
 func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color) -> void:
@@ -191,8 +229,14 @@ func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color) -
 			bb.server_node = Spatial.new()
 			bb.server_node.transform = bb.client_node.transform
 			add_child(bb.server_node)
+		if "server_node" in bb.client_node:
+			bb.client_node.server_node = bb.server_node
 		bb.client_node.set_as_toplevel(true)
 		_interpolate_blocks.push_back(bb)
+		var e := bb.client_node.connect("tree_exiting", self, "_remove_interpolator", [bb])
+		assert(e == OK)
+		e = bb.server_node.connect("tree_exiting", self, "_remove_interpolator", [bb])
+		assert(e == OK)
 	var index := int(position.x * aabb.size.y * aabb.size.z + position.y * aabb.size.z + position.z)
 	if bb.server_node == null:
 		_block_health[index] = block.health
@@ -200,14 +244,14 @@ func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color) -
 		var index_alt := len(_block_health_alt)
 		assert(index_alt < (1 << 16), "Alt index out of bounds")
 		_block_health_alt.push_back(block.health)
-		_block_nodes.push_back(bb.server_node)
+		_block_server_nodes.push_back(bb.server_node)
+		_block_client_nodes.push_back(bb.client_node)
 		_block_reverse_index.push_back(PoolIntArray([index]))
 		_block_health[index] = index_alt | 0x8000
 		if bb.server_node is VehicleWheel:
 			wheels.append(bb.server_node)
 		elif bb.server_node is OwnWar_Weapon:
 			weapons.append(bb.server_node)
-		_interpolate_blocks.push_back(bb)
 	_block_ids[index] = block.id
 	max_cost += block.cost
 	max_health += block.health
@@ -223,16 +267,19 @@ func init_blocks(vehicle) -> void:
 	var sx := int(aabb.size.x)
 	var sy := int(aabb.size.y)
 	var sz := int(aabb.size.z)
-	for index_alt in len(_block_nodes):
+	for index_alt in len(_block_server_nodes):
 		# TODO what about multi-voxel blocks?
 		var index: int = _block_reverse_index[index_alt][0]
-		var node = _block_nodes[index_alt]
-		if node != null and node.has_method("init"):
-			var z := index % sz
-			var y := (index / sz) % sy
-			var x := index / sz / sy
-			assert(x < sx and y < sy and z < sz)
-			node.init(Vector3(x, y, z) + aabb.position, self, vehicle)
+		var node = _block_server_nodes[index_alt]
+		if node != null:
+			if "team" in node:
+				node.team = team
+			if node.has_method("init"):
+				var z := index % sz
+				var y := (index / sz) % sy
+				var x := index / sz / sy
+				assert(x < sx and y < sy and z < sz)
+				node.init(Vector3(x, y, z) + aabb.position, self, vehicle)
 
 
 func _correct_mass() -> void:
@@ -264,6 +311,11 @@ func _correct_mass() -> void:
 				angle = -PI - angle
 			child.max_angle = angle
 	mass = total_mass
+
+
+func _remove_interpolator(interp: InterpolationData) -> void:
+	assert(interp != null)
+	_interpolate_blocks.erase(interp)
 
 
 # REEEEEEE https://github.com/godotengine/godot/issues/16105

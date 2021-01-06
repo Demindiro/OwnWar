@@ -1,0 +1,19 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/fixed_laser.obj-fe5b3f3c226aec67a9c476bfe422f39d.mesh"
+
+[deps]
+
+files=[ "res://.import/fixed_laser.obj-fe5b3f3c226aec67a9c476bfe422f39d.mesh" ]
+
+source_file="res://blocks/weapons/lasers/fixed_laser.obj"
+dest_files=[ "res://.import/fixed_laser.obj-fe5b3f3c226aec67a9c476bfe422f39d.mesh", "res://.import/fixed_laser.obj-fe5b3f3c226aec67a9c476bfe422f39d.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+offset_mesh=Vector3( 0, 0, 0 )
+optimize_mesh=true
