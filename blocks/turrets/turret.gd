@@ -11,15 +11,14 @@ onready var _joint: Generic6DOFJoint = get_node("Joint")
 onready var _compensation: PhysicsJointCompensationNode = get_node("Compensation")
 
 
-func init(coordinate, _block_data, _rotation, voxel_body, vehicle, _meta):
+func init(coordinate: Vector3, voxel_body: OwnWar.VoxelBody, vehicle: OwnWar_Vehicle) -> void:
 	_joint = get_node("Joint")
 	_compensation = get_node("Compensation")
-	var connecting_coordinate = get_connecting_coordinate(coordinate)
+	var connecting_coordinate := coordinate + transform.basis.y.round()
 	for body in vehicle.voxel_bodies:
 		if body != voxel_body:
-			var other_block: OwnWar.VoxelBody.BodyBlock = \
-				body.blocks.get(connecting_coordinate)
-			if other_block != null:
+			var other_id: int = body.get_block_id(connecting_coordinate)
+			if other_id > 0:
 				_create_joint(voxel_body, body, vehicle)
 
 
@@ -88,14 +87,6 @@ func debug_draw():
 
 func aim_at(position: Vector3):
 	_aim_pos = position
-
-
-func get_connecting_coordinate(coordinate):
-	var up = transform.basis.y.round()
-	var x = int(up.x)
-	var y = int(up.y)
-	var z = int(up.z)
-	return [coordinate[0] + x, coordinate[1] + y, coordinate[2] + z]
 
 
 func _create_joint(body_a: PhysicsBody, body_b: PhysicsBody, vehicle: OwnWar_Vehicle) -> void:

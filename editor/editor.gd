@@ -4,14 +4,18 @@ extends Node
 const MetaEditor := preload("meta_editor.gd")
 
 class Block:
+	var id: int
+	var position: Vector3
 	var name: String
 	var rotation: int
 	var node: Spatial
 	var color: Color
 	var layer: int
 
-	func _init(p_name: String, p_rotation: int, p_node: Spatial, p_color: Color,
-		p_layer: int) -> void:
+	func _init(p_id: int, p_position: Array, p_name: String, p_rotation: int,
+		p_node: Spatial, p_color: Color, p_layer: int) -> void:
+		id = p_id
+		position = Vector3(p_position[0], p_position[1], p_position[2])
 		name = p_name
 		rotation = p_rotation
 		node = p_node
@@ -31,6 +35,7 @@ export var material: SpatialMaterial setget set_material
 var selected_block: OwnWar_Block
 var blocks := {}
 var meta := {}
+var vehicle_name := ""
 var vehicle_path := ""
 var _rotation := 0
 var mirror := false
@@ -64,8 +69,12 @@ func _exit_tree():
 
 func _ready():
 	# I'm too lazy for a proper debugging solution
-	if vehicle_path == "" and OS.is_debug_build():
-		vehicle_path = "user://vehicles/tank.json"
+	if vehicle_path == "":
+		if vehicle_name == "" and OS.is_debug_build():
+			vehicle_name = "tank"
+		else:
+			assert(false, "vehicle_name is empty")
+		vehicle_path = OwnWar.get_vehicle_path(vehicle_name)
 	get_tree().paused = false # To be sure because ??????
 	select_block(OwnWar_Block.get_block_by_id(1).name)
 	set_enabled(true) # Disable UIs
@@ -152,7 +161,8 @@ func process_actions():
 		if ray_voxel_valid and not Input.is_action_pressed("designer_release_cursor"):
 			var coordinate = _v2a(_a2v(ray.voxel) + _a2v(ray.get_normal()))
 			_snap_face(_a2v(ray.get_normal()))
-			place_block(selected_block, coordinate, _rotation, selected_layer)
+			place_block(selected_block, coordinate, _rotation,
+				material.albedo_color, selected_layer)
 			if mirror:
 				coordinate = [] + coordinate
 				# warning-ignore:integer_division
@@ -160,8 +170,8 @@ func process_actions():
 				var delta = coordinate[0] - mirror_x
 				coordinate[0] = mirror_x - delta
 				var m_block: OwnWar_Block = selected_block.mirror_block
-				place_block(m_block, coordinate, m_block \
-						.get_mirror_rotation(_rotation), selected_layer)
+				place_block(m_block, coordinate, m_block.get_mirror_rotation(_rotation),
+					material.albedo_color, selected_layer)
 	elif Input.is_action_just_pressed("designer_remove_block"):
 		if not ray.finished and not Input.is_action_pressed("designer_release_cursor"):
 			var coordinate = [] + ray.voxel
@@ -193,7 +203,8 @@ func process_actions():
 				_gui_meta_editor.visible = true
 
 
-func place_block(block, coordinate, rotation, layer):
+func place_block(block: OwnWar_Block, coordinate: Array, rotation: int,
+	color: Color, layer: int) -> bool:
 	for c in coordinate:
 		if c < 0 or c >= GRID_SIZE:
 			return false
@@ -209,14 +220,17 @@ func place_block(block, coordinate, rotation, layer):
 	mi.translation = _a2v(coordinate)
 	mi.transform.basis = block.get_basis(rotation)
 	mi.scale_object_local(Vector3.ONE * SCALE)
-	mi.material_override = material
+	mi.material_override = SpatialMaterial.new()
+	mi.material_override.albedo_color = color
 	if node != null and node.has_method("set_color"):
-		node.set_color(material.albedo_color)
+		node.set_color(color)
 	blocks[coordinate] = Block.new(
+		block.id,
+		coordinate,
 		block.name,
 		rotation,
 		mi,
-		material.albedo_color,
+		color,
 		layer
 	)
 	return true
@@ -298,59 +312,104 @@ func highlight_face():
 
 
 func save_vehicle() -> void:
-	var data := {}
-	data['game_version'] = Util.version_vector_to_str(OwnWar.VERSION)
-	data['blocks'] = {}
-	for coordinate in blocks:
-		var block_data = blocks[coordinate].to_array()
-		block_data.remove(2)
-		data['blocks']["%d,%d,%d" % coordinate] = block_data
-
-	data["meta"] = {}
-	for coordinate in meta:
-		data["meta"]["%d,%d,%d" % coordinate] = meta[coordinate]
-
+	var MAGIC := 493279249 # Totally random, not derived from a name
+	var REVISION := 0
 	var file := File.new()
-	var err = file.open(vehicle_path, File.WRITE)
+	var err := Util.create_dirs(vehicle_path.get_base_dir())
 	if err != OK:
-		Global.error("Failed to open file '%s'" % vehicle_path, err)
-	else:
-		file.store_string(to_json(data))
-		print("Saved vehicle as '%s'" % vehicle_path)
+		print("Failed to create directory %s: %s" % [
+			vehicle_path.get_base_dir(),
+			Global.ERROR_TO_STRING[err]
+		])
+		assert(false)
+		return
+	err = file.open_compressed(vehicle_path, File.WRITE, File.COMPRESSION_GZIP)
+	if err != OK:
+		print("Failed to open file %s: %s" % [vehicle_path, Global.ERROR_TO_STRING[err]])
+		assert(false)
+		return
+	file.store_32(MAGIC)
+	file.store_16(REVISION)
+	var by_layer := {}
+	for crd in blocks:
+		var b: Block = blocks[crd]
+		var arr = by_layer.get(b.layer)
+		if arr == null:
+			assert(len(by_layer) < 255, "Layer count must remain below 256")
+			by_layer[b.layer] = [b]
+		else:
+			arr.push_back(b)
+	file.store_8(len(by_layer))
+	for layer in by_layer:
+		file.store_8(layer)
+		var list: Array = by_layer[layer]
+		var aabb := AABB(list[0].position, Vector3.ONE)
+		for b in list:
+			aabb = aabb.expand(b.position).expand(b.position + Vector3.ONE)
+		file.store_8(int(aabb.position.x))
+		file.store_8(int(aabb.position.y))
+		file.store_8(int(aabb.position.z))
+		file.store_8(int(aabb.size.x))
+		file.store_8(int(aabb.size.y))
+		file.store_8(int(aabb.size.z))
+		file.store_32(len(list))
+		for b in list:
+			file.store_8(int(b.position.x))
+			file.store_8(int(b.position.y))
+			file.store_8(int(b.position.z))
+			file.store_16(b.id)
+			file.store_8(b.rotation)
+			file.store_8(b.color.r8)
+			file.store_8(b.color.g8)
+			file.store_8(b.color.b8)
+	print("Saved vehicle as %s" % vehicle_path)
 
 
 func load_vehicle() -> void:
+	var MAGIC := 493279249 # Totally random, not derived from a name
+	var REVISION := 0
 	var file := File.new()
-	var err := file.open(vehicle_path, File.READ)
+	var err = file.open_compressed(vehicle_path, File.READ, File.COMPRESSION_GZIP)
 	if err != OK:
-		Global.error("Failed to open file '%s'" % vehicle_path, err)
+		Global.error("Failed to open file %s: %s" % [vehicle_path, Global.ERROR_TO_STRING[err]])
 	else:
-		var data = parse_json(file.get_as_text())
-		data = OwnWar.Compatibility.convert_vehicle_data(data)
 		for child in _floor_origin.get_children():
 			if child.name != "Ghost":
 				child.queue_free()
 		blocks.clear()
-		for key in data['blocks']:
-			var coordinate = [null, null, null]
-			var key_components = key.split(',')
-			assert(len(key_components) == 3)
-			for i in range(3):
-				coordinate[i] = int(key_components[i])
-			var block = OwnWar_Block.get_block(data['blocks'][key][0])
-			var color_components = data["blocks"][key][2].split_floats(",")
-			var color = Color(color_components[0], color_components[1],
-					color_components[2], color_components[3])
-			_on_ColorPicker_pick_color(color)
-			place_block(block, coordinate, data['blocks'][key][1], data["blocks"][key][3])
-
-		meta = {}
-		for crd in data["meta"]:
-			var crd_arr: Array = crd.split(",")
-			var c := [int(crd[0]), int(crd[1]), int(crd[2])]
-			meta[c] = data["meta"][crd]
-
-		print("Loaded vehicle from '%s'" % vehicle_path)
+		var magic := file.get_32()
+		if magic != MAGIC:
+			print("Magic is wrong! ", magic)
+			assert(false)
+			return
+		var revision := file.get_16()
+		if revision != REVISION:
+			print("Revision doesn't match!")
+			assert(false)
+			return
+		var layer_count := file.get_8()
+		for _i in layer_count:
+			var layer := file.get_8()
+			var aabb := AABB()
+			aabb.position.x = file.get_8()
+			aabb.position.y = file.get_8()
+			aabb.position.z = file.get_8()
+			aabb.size.x = file.get_8()
+			aabb.size.y = file.get_8()
+			aabb.size.z = file.get_8()
+			var size := file.get_32()
+			for _j in size:
+				var color := Color()
+				var x := file.get_8()
+				var y := file.get_8()
+				var z := file.get_8()
+				var id := file.get_16()
+				var rot := file.get_8()
+				color.r8 = file.get_8()
+				color.g8 = file.get_8()
+				color.b8 = file.get_8()
+				place_block(OwnWar_Block.get_block_by_id(id), [x, y, z], rot, color, layer)
+		print("Loaded vehicle from %s" % vehicle_path)
 
 
 func set_material(p_material: SpatialMaterial):
@@ -411,6 +470,7 @@ func _move_vehicle(direction: Vector3) -> void:
 			var b: Block = blocks[crd]
 			dict[_v2a(_a2v(crd) + direction)] = b
 			b.node.translation += direction
+			b.position += direction
 		blocks = dict
 
 
@@ -429,6 +489,7 @@ func _rotate_vehicle() -> void:
 			lower = _a2v(crd) - center
 			lower = Vector3(-lower.z, lower.y, lower.x)
 			dict[_v2a(lower + center)] = b
+			b.position = lower + center
 			b.node.translation = lower + center
 			b.node.rotate_y(-PI / 2.0)
 			b.rotation = OwnWar_Block.basis_to_rotation(b.node.transform.basis)
@@ -489,8 +550,7 @@ func _on_MetaEditor_meta_changed(meta_data):
 
 func _on_Designer_pressed() -> void:
 	var scene = preload("res://maps/test/test.tscn").instance()
-	if vehicle_path != "":
-		scene.vehicle_path = vehicle_path
+	scene.vehicle_path = vehicle_path
 	queue_free()
 	var tree := get_tree()
 	tree.root.remove_child(self)

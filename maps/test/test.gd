@@ -3,8 +3,8 @@ extends Node
 
 
 var designer_scene_path: String
-var vehicle_path := "user://vehicles/crane.json"
-#var vehicle_path := "user://vehicles/chicken.json"
+var vehicle_name := "tank"
+var vehicle_path := ""
 onready var _hud := get_node("HUD")
 var _spawn_points := []
 var _spawn_point_index := 0
@@ -87,6 +87,9 @@ func _get_property_list() -> Array:
 
 func _ready() -> void:
 	if not Engine.editor_hint:
+		if vehicle_path == "":
+			assert(vehicle_name != "")
+			vehicle_path = OwnWar.get_vehicle_path(vehicle_name)
 		var vehicle := OwnWar_Vehicle.new()
 		var e := vehicle.load_from_file(vehicle_path)
 		assert(e == OK)
@@ -95,7 +98,6 @@ func _ready() -> void:
 		_hud.player_vehicle = vehicle
 		_spawn_point_index += 1
 		_spawn_point_index %= len(_spawn_points)
-		return
 		spawn_vehicle(vehicle_path)
 		spawn_vehicle(vehicle_path)
 		spawn_vehicle(vehicle_path)

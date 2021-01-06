@@ -15,9 +15,7 @@ func _ready() -> void:
 
 func goto_editor(_signals_pls_i_no_want_text_sadface = null) -> void:
 	if _name_gui.text != "":
-		var path := Util.filenamize_human_name(_name_gui.text)
-		path = "user://vehicles".plus_file(path) + ".json"
-		emit_signal("create_vehicle", path)
+		emit_signal("create_vehicle", OwnWar.get_vehicle_path(_name_gui.text))
 
 
 func activate() -> void:

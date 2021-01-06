@@ -67,56 +67,87 @@ func get_visual_origin() -> Vector3:
 
 
 func load_from_file(path: String, thumbnail_mode := false) -> int:
-	_file = path
 	var file := File.new()
-	var err = file.open(path, File.READ)
+	var err := file.open_compressed(path, File.READ, File.COMPRESSION_GZIP)
 	if err != OK:
 		return err
+	_file = path
 
 	for body in voxel_bodies:
 		body.queue_free()
 
-	var data = parse_json(file.get_as_text())
-	data = Compatibility.convert_vehicle_data(data)
-
-	_file = path
-
 	if Engine.editor_hint:
-		return _load_from_file_editor(data)
+		assert(false, "TODO loading from editor")
 
-	for key in data["blocks"]:
-		var components = Util.decode_vec3i(key)
-		var x = components[0]
-		var y = components[1]
-		var z = components[2]
-		var name = data["blocks"][key][0]
-		var rotation = data["blocks"][key][1]
-		var color := Util.decode_color(data["blocks"][key][2])
-		var layer = data["blocks"][key][3]
-		if len(voxel_bodies) <= layer:
-			voxel_bodies.resize(layer + 1)
-		if voxel_bodies[layer] == null:
-			voxel_bodies[layer] = VoxelBody.new()
-			add_child(voxel_bodies[layer])
-			voxel_bodies[layer].connect("hit", self, "_voxel_body_hit")
-		voxel_bodies[layer].spawn_block(x, y, z, rotation, OwnWar_Block.get_block(name), color)
+	var vb_data_blocks := {}
+	var vb_aabbs := {}
+	var MAGIC := 493279249 # Totally random, not derived from a name
+	var REVISION := 0
+	var magic := file.get_32()
+	if magic != MAGIC:
+		print("Magic is wrong! ", magic)
+		assert(false)
+		return ERR_INVALID_DATA
+	var revision := file.get_16()
+	if revision != REVISION:
+		print("Revision doesn't match!")
+		assert(false)
+		return ERR_INVALID_DATA
+	var layer_count := file.get_8()
+	for _i in layer_count:
+		var layer := file.get_8()
+		if layer in vb_data_blocks:
+			print("File data corrupt: double layer %d" % layer)
+			assert(false, "File data corrupt: double layer %d" % layer)
+			return ERR_INVALID_DATA
+		var aabb := AABB()
+		aabb.position.x = file.get_8()
+		aabb.position.y = file.get_8()
+		aabb.position.z = file.get_8()
+		aabb.size.x = file.get_8()
+		aabb.size.y = file.get_8()
+		aabb.size.z = file.get_8()
+		vb_aabbs[layer] = aabb
+		var vb := []
+		vb_data_blocks[layer] = vb
+		var size := file.get_32()
+		for _j in size:
+			var color := Color()
+			var x := file.get_8()
+			var y := file.get_8()
+			var z := file.get_8()
+			var id := file.get_16()
+			var rot := file.get_8()
+			color.r8 = file.get_8()
+			color.g8 = file.get_8()
+			color.b8 = file.get_8()
+			var arr := [Vector3(x, y, z), OwnWar_Block.get_block_by_id(id), rot, color]
+			vb.push_back(arr)
 
-	var meta = {}
-	for key in data["meta"]:
-		var components = key.split(',')
-		assert(len(components) == 3)
-		var x = int(components[0])
-		var y = int(components[1])
-		var z = int(components[2])
-		meta[[x, y, z]] = data["meta"][key]
+	voxel_bodies = []
+
+	for layer in vb_data_blocks:
+		var vb := VoxelBody.new()
+		add_child(vb)
+		vb.connect("hit", self, "_voxel_body_hit")
+		vb.transform = Transform()
+		vb.aabb = vb_aabbs[layer]
+		for bd in vb_data_blocks[layer]:
+			var pos: Vector3 = bd[0]
+			var blk: OwnWar_Block = bd[1]
+			var rot: int = bd[2]
+			var clr: Color = bd[3]
+			vb.spawn_block(pos, rot, blk, clr)
+		voxel_bodies.push_back(vb)
 
 	for body in voxel_bodies:
 		body.fix_physics()
-		body.init_blocks(self, meta)
+		body.init_blocks(self)
 	if len(voxel_bodies) > 0:
-		var center_of_mass_0 = voxel_bodies[0].center_of_mass
+		var center_of_mass_0: Vector3 = voxel_bodies[0].center_of_mass
+		var position_0: Vector3 = voxel_bodies[0].aabb.position
 		for body in voxel_bodies:
-			body.translate(-center_of_mass_0)
+			body.translate(-center_of_mass_0 - position_0 * OwnWar_Block.BLOCK_SCALE)
 
 	for body in voxel_bodies:
 		wheels += body.wheels
@@ -175,16 +206,11 @@ func get_linear_velocity():
 
 
 func get_aabb() -> AABB:
-	var aabb := AABB()
+	if len(voxel_bodies) == 0:
+		return AABB()
+	var aabb: AABB = voxel_bodies[0].aabb
 	for vb in voxel_bodies:
-		for crd in vb.blocks:
-			aabb.position = Vector3(crd[0], crd[1], crd[2])
-			aabb.size = Vector3.ONE
-			break
-	for vb in voxel_bodies:
-		for crd in vb.blocks:
-			var v := Vector3(crd[0], crd[1], crd[2])
-			aabb = aabb.expand(v).expand(v + Vector3.ONE)
+		aabb = aabb.merge(vb.aabb)
 	return aabb
 
 
@@ -231,15 +257,6 @@ func _voxel_body_hit(_voxel_body):
 	if get_cost() * 4 < max_cost and not is_queued_for_deletion():
 		get_parent().remove_child(self)
 		queue_free()
-
-
-static func path_to_name(path: String) -> String:
-	assert(path.ends_with(Global.FILE_EXTENSION))
-	return path.substr(0, len(path) - len(Global.FILE_EXTENSION)).capitalize()
-
-
-static func name_to_path(p_name: String) -> String:
-	return p_name.to_lower().replace(' ', '_') + '.json'
 
 
 static func add_manager(p_name: String, script: GDScript):

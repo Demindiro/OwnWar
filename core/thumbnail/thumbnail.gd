@@ -7,9 +7,9 @@ const _VEHICLE_DIRECTORY := "vehicles"
 const _UNIT_DIRECTORY := "units"
 
 
-static func get_block_thumbnail_async(name: String, callback: FuncRef,
-	arguments := []) -> bool:
-	if _try_get_thumbnail(_get_block_path(name), callback, arguments):
+static func get_block_thumbnail_async(name: String, callback: FuncRef, arguments := []) -> bool:
+	var block: OwnWar_Block = OwnWar_Block.get_block(name)
+	if _try_get_thumbnail(_get_block_path(name, block.revision), callback, arguments):
 		return true
 	else:
 		OwnWar_Thumbnail._create_block_thumbnail(name, callback, arguments)
@@ -32,7 +32,7 @@ static func move_vehicle_thumbnail(from: String, to: String) -> void:
 	var _e := Directory.new().rename(from, to)
 
 
-static func _get_block_path(name: String) -> String:
+static func _get_block_path(name: String, revision: int) -> String:
 	return _THUMBNAIL_DIRECTORY \
 		.plus_file(_BLOCK_DIRECTORY) \
 		.plus_file(name + ".png")
@@ -61,8 +61,7 @@ static func _try_get_thumbnail(path: String, callback: FuncRef, arguments: Array
 		return false
 
 
-func _create_block_thumbnail(name: String, callback: FuncRef, arguments: Array
-	) -> void:
+func _create_block_thumbnail(name: String, callback: FuncRef, arguments: Array) -> void:
 	while get_child_count() > 16:
 		# Cap to 16 to prevent lag when loading a large amount of thumbnails
 		yield(get_tree(), "idle_frame")
@@ -71,15 +70,13 @@ func _create_block_thumbnail(name: String, callback: FuncRef, arguments: Array
 	var mi: MeshInstance = tn.get_child(0)
 	var block: OwnWar_Block = OwnWar_Block.get_block(name)
 	print("Generating block thumbnail for ", block.name)
-	var path := _get_block_path(block.name)
-	mi.scale = Vector3.ONE / max(block.size.x, max(block.size.y, block.size.z))
+	var path := _get_block_path(block.name, block.revision)
+	mi.scale = Vector3.ONE / max(block.aabb.size.x, max(block.aabb.size.y, block.aabb.size.z))
 	mi.mesh = block.mesh
-	var scene: Spatial
-	if block.scene != null:
-		scene = block.scene.instance()
-		scene.propagate_call("set_script", [null], true)
-		scene.transform = mi.transform
-		tn.add_child(scene)
+	if block.editor_node != null:
+		var node: Spatial = block.editor_node.duplicate()
+		node.transform = mi.transform
+		tn.add_child(node)
 	yield(VisualServer, "frame_post_draw")
 	yield(VisualServer, "frame_post_draw")
 	var img := tn.get_texture().get_data()
@@ -102,7 +99,7 @@ func _create_vehicle_thumbnail(p_path: String, callback: FuncRef, arguments: Arr
 	tn.get_child(0).free()
 	print("Generating vehicle thumbnail for ", p_path)
 	var path := _get_vehicle_path(p_path)
-	var vehicle := OwnWar.Vehicle.new()
+	var vehicle := OwnWar_Vehicle.new()
 	vehicle.transform = Transform.IDENTITY
 	var e := vehicle.load_from_file(p_path, true)
 	assert(e == OK)
