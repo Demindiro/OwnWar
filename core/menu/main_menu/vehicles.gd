@@ -18,7 +18,7 @@ func _ready() -> void:
 func generate_vehicle_list() -> void:
 	Util.free_children(_box)
 	var prev_btn: BaseButton = null
-	for path in Util.iterate_dir("user://vehicles", "json"):
+	for path in Util.iterate_dir("user://vehicles", "gz"):
 		path = "user://vehicles".plus_file(path)
 		var btn := TextureButton.new()
 		if not OwnWar_Thumbnail.get_vehicle_thumbnail_async(path,

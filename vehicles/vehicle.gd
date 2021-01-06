@@ -80,6 +80,7 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 		assert(false, "TODO loading from editor")
 
 	var vb_data_blocks := {}
+	var vb_aabbs := {}
 	var MAGIC := 493279249 # Totally random, not derived from a name
 	var REVISION := 0
 	var magic := file.get_32()
@@ -95,6 +96,10 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 	var layer_count := file.get_8()
 	for _i in layer_count:
 		var layer := file.get_8()
+		if layer in vb_data_blocks:
+			print("File data corrupt: double layer %d" % layer)
+			assert(false, "File data corrupt: double layer %d" % layer)
+			return ERR_INVALID_DATA
 		var aabb := AABB()
 		aabb.position.x = file.get_8()
 		aabb.position.y = file.get_8()
@@ -102,6 +107,9 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 		aabb.size.x = file.get_8()
 		aabb.size.y = file.get_8()
 		aabb.size.z = file.get_8()
+		vb_aabbs[layer] = aabb
+		var vb := []
+		vb_data_blocks[layer] = vb
 		var size := file.get_32()
 		for _j in size:
 			var color := Color()
@@ -113,12 +121,8 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 			color.r8 = file.get_8()
 			color.g8 = file.get_8()
 			color.b8 = file.get_8()
-			var vb = vb_data_blocks.get(layer)
 			var arr := [Vector3(x, y, z), OwnWar_Block.get_block_by_id(id), rot, color]
-			if vb == null:
-				vb_data_blocks[layer] = [arr]
-			else:
-				vb.push_back(arr)
+			vb.push_back(arr)
 
 	voxel_bodies = []
 
@@ -126,17 +130,18 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 		var vb := VoxelBody.new()
 		add_child(vb)
 		vb.connect("hit", self, "_voxel_body_hit")
+		vb.aabb = vb_aabbs[layer]
 		for bd in vb_data_blocks[layer]:
 			var pos: Vector3 = bd[0]
 			var blk: OwnWar_Block = bd[1]
 			var rot: int = bd[2]
 			var clr: Color = bd[3]
-			vb.spawn_block(int(pos.x), int(pos.y), int(pos.z), rot, blk, clr)
+			vb.spawn_block(pos, rot, blk, clr)
 		voxel_bodies.push_back(vb)
 
 	for body in voxel_bodies:
 		body.fix_physics()
-		body.init_blocks(self, {})
+		body.init_blocks(self)
 	if len(voxel_bodies) > 0:
 		var center_of_mass_0 = voxel_bodies[0].center_of_mass
 		for body in voxel_bodies:
@@ -199,16 +204,11 @@ func get_linear_velocity():
 
 
 func get_aabb() -> AABB:
-	var aabb := AABB()
+	if len(voxel_bodies) == 0:
+		return AABB()
+	var aabb: AABB = voxel_bodies[0].aabb
 	for vb in voxel_bodies:
-		for crd in vb.blocks:
-			aabb.position = Vector3(crd[0], crd[1], crd[2])
-			aabb.size = Vector3.ONE
-			break
-	for vb in voxel_bodies:
-		for crd in vb.blocks:
-			var v := Vector3(crd[0], crd[1], crd[2])
-			aabb = aabb.expand(v).expand(v + Vector3.ONE)
+		aabb = aabb.merge(vb.aabb)
 	return aabb
 
 
