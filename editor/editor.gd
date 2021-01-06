@@ -483,6 +483,7 @@ func _rotate_vehicle() -> void:
 			lower = _a2v(crd) - center
 			lower = Vector3(-lower.z, lower.y, lower.x)
 			dict[_v2a(lower + center)] = b
+			b.position = lower + center
 			b.node.translation = lower + center
 			b.node.rotate_y(-PI / 2.0)
 			b.rotation = OwnWar_Block.basis_to_rotation(b.node.transform.basis)
