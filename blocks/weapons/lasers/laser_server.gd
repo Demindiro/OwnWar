@@ -8,6 +8,7 @@ signal fired(at)
 export var damage := 100
 export var inaccuracy := 0.05
 var fire_timer: SceneTreeTimer = null
+var team: int
 onready var _ray: RayCast = get_node("Ray")
 
 
@@ -25,7 +26,13 @@ func fire() -> bool:
 				var collider := _ray.get_collider()
 				var body := collider as OwnWar.VoxelBody
 				if body != null:
-					dmg = body.apply_damage(at, global_transform.basis * dir, dmg)
+					if body.team == team:
+						if not body.can_ray_pass_through(at, global_transform * dir):
+							break
+					else:
+						dmg = body.apply_damage(at, global_transform.basis * dir, dmg)
+						if dmg == 0:
+							break
 				else:
 					break
 				_ray.add_exception(collider)

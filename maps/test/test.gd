@@ -91,6 +91,7 @@ func _ready() -> void:
 			assert(vehicle_name != "")
 			vehicle_path = OwnWar.get_vehicle_path(vehicle_name)
 		var vehicle := OwnWar_Vehicle.new()
+		vehicle.team = 0
 		var e := vehicle.load_from_file(vehicle_path)
 		assert(e == OK)
 		vehicle.transform = get_node(_spawn_points[_spawn_point_index]).transform
@@ -105,6 +106,7 @@ func _ready() -> void:
 
 func spawn_vehicle(path: String) -> void:
 	var vehicle := OwnWar_Vehicle.new()
+	vehicle.team = 1
 	var e := vehicle.load_from_file(path)
 	assert(e == OK)
 	vehicle.transform = get_node(_spawn_points[_spawn_point_index]).transform

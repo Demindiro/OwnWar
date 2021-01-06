@@ -25,6 +25,7 @@ var max_cost := 0
 var max_health := 0
 var wheels := []
 var weapons := []
+var team := -1
 var _debug_hits := []
 var _raycast := preload("res://addons/voxel_raycast.gd").new()
 var _collision_shape: CollisionShape
@@ -180,6 +181,28 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 	return damage
 
 
+func can_ray_pass_through(origin: Vector3, direction: Vector3) -> bool:
+	var local_origin := to_local(origin) + center_of_mass
+	local_origin /= OwnWar_Block.BLOCK_SCALE
+	var local_direction := to_local(origin + direction) - to_local(origin)
+	_raycast.start(local_origin, local_direction, aabb.size.x, aabb.size.y, aabb.size.z)
+	if _raycast.finished:
+		return true
+	if _raycast.x >= aabb.size.x or _raycast.y >= aabb.size.y or _raycast.z >= aabb.size.z:
+		# TODO fix the raycast algorithm
+		_raycast.step()
+	while not _raycast.finished:
+		var index := int(
+			_raycast.x * aabb.size.y * aabb.size.z + \
+			_raycast.y * aabb.size.z + \
+			_raycast.z
+		)
+		if _block_health[index] != 0:
+			return false
+		_raycast.step()
+	return true
+
+
 func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color) -> void:
 	position -= aabb.position
 	assert(position.x >= 0, "Position out of bounds (Corrupt data?)")
@@ -248,12 +271,15 @@ func init_blocks(vehicle) -> void:
 		# TODO what about multi-voxel blocks?
 		var index: int = _block_reverse_index[index_alt][0]
 		var node = _block_server_nodes[index_alt]
-		if node != null and node.has_method("init"):
-			var z := index % sz
-			var y := (index / sz) % sy
-			var x := index / sz / sy
-			assert(x < sx and y < sy and z < sz)
-			node.init(Vector3(x, y, z) + aabb.position, self, vehicle)
+		if node != null:
+			if "team" in node:
+				node.team = team
+			if node.has_method("init"):
+				var z := index % sz
+				var y := (index / sz) % sy
+				var x := index / sz / sy
+				assert(x < sx and y < sy and z < sz)
+				node.init(Vector3(x, y, z) + aabb.position, self, vehicle)
 
 
 func _correct_mass() -> void:

@@ -9,6 +9,7 @@ const VoxelMesh := preload("voxel_mesh.gd")
 
 
 const MANAGERS := {}
+var team := -1
 var max_cost: int
 var voxel_bodies := []
 var wheels := []
@@ -79,6 +80,7 @@ func get_visual_origin() -> Vector3:
 
 
 func load_from_file(path: String, thumbnail_mode := false) -> int:
+	assert(team >= 0)
 	var file := File.new()
 	var err := file.open_compressed(path, File.READ, File.COMPRESSION_GZIP)
 	if err != OK:
@@ -140,6 +142,7 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 
 	for layer in vb_data_blocks:
 		var vb := VoxelBody.new()
+		vb.team = team
 		add_child(vb)
 		vb.connect("hit", self, "_voxel_body_hit")
 		vb.transform = Transform()
