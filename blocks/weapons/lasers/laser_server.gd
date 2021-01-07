@@ -32,6 +32,11 @@ func fire() -> bool:
 					else:
 						dmg = body.apply_damage(at, global_transform.basis * dir, dmg)
 						if dmg == 0:
+							var pos := body.last_hit_position
+							pos += Vector3(0.5, 0.5, 0.5)
+							pos *= OwnWar_Block.BLOCK_SCALE
+							pos -= body.center_of_mass
+							at = body.to_global(pos)
 							break
 				else:
 					break

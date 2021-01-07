@@ -26,6 +26,7 @@ var max_health := 0
 var wheels := []
 var weapons := []
 var team := -1
+var last_hit_position := Vector3()
 var _debug_hits := []
 var _raycast := preload("res://addons/voxel_raycast.gd").new()
 var _collision_shape: CollisionShape
@@ -177,6 +178,7 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 		else:
 			_debug_hits.append([key, Color.yellow])
 		_raycast.step()
+	last_hit_position = Vector3(_raycast.x, _raycast.y, _raycast.z)
 	emit_signal("hit", self)
 	return damage
 
