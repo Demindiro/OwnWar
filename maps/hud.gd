@@ -74,16 +74,17 @@ func _process(_delta: float) -> void:
 func _set_camera() -> void:
 	var basis := Basis(Vector3(0, 1, 0), _camera_pan) * \
 		Basis(Vector3(1, 0, 0), _camera_tilt)
-	var from := player_vehicle.get_visual_origin()
-	var to := from + basis * Vector3(0, 0, _camera_zoom)
-	_camera_terrain_ray.transform = Transform(
-		Basis.IDENTITY,
-		to - _camera_terrain_ray.cast_to
-	)
+	var pos := player_vehicle.get_visual_origin()
+	pos += basis * (Vector3(0, 0, _camera_zoom) + camera_offset)
+	_camera_terrain_ray.translation = pos + Vector3(0, 500, 0)
 	_camera_terrain_ray.force_raycast_update()
 	if _camera_terrain_ray.is_colliding():
-		to = _camera_terrain_ray.get_collision_point()
-	_camera.transform = Transform(basis, to + basis * camera_offset)
+		var r_pos := _camera_terrain_ray.get_collision_point()
+		var r_normal := _camera_terrain_ray.get_collision_normal()
+		var rel_pos := r_pos - pos
+		if rel_pos.length_squared() < 0.25 or rel_pos.dot(r_normal) > 0:
+			pos = r_pos + Vector3(0, 0.5, 0)
+	_camera.transform = Transform(basis, pos)
 	_camera_ray.force_raycast_update()
 	if _camera_ray.is_colliding():
 		player_vehicle.aim_at = _camera_ray.get_collision_point()
