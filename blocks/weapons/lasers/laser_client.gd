@@ -17,6 +17,7 @@ func set_server_node(value: OwnWar_WeaponLaser) -> void:
 func _on_fired(at: Vector3) -> void:
 	var node: Spatial = laser_ray.instance()
 	get_tree().current_scene.add_child(node)
-	node.translation = fire_point.global_transform.origin
+	var g_pos := fire_point.global_transform.origin
+	node.translation = g_pos
 	node.look_at(at, Vector3.UP)
-	node.scale = Vector3(1, 1, fire_point.translation.distance_to(at))
+	node.scale = Vector3(1, 1, g_pos.distance_to(at))
