@@ -72,6 +72,7 @@ func generate() -> void:
 			i += 1
 		if len(list) == 0:
 			remove_materials.append(material)
+			_remove_surface_array(material)
 		elif array_dirty:
 			_remove_surface_array(material)
 			var array := []
