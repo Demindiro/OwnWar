@@ -26,6 +26,7 @@ func set_preview(path: String) -> void:
 	if _vehicle != null:
 		_vehicle.queue_free()
 	_vehicle = OwnWar_Vehicle.new()
+	_vehicle.team = 0
 	var e := _vehicle.load_from_file(path)
 	assert(e == OK)
 	_vehicle.transform = _origin.transform

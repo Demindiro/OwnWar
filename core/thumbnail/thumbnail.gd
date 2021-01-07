@@ -100,6 +100,7 @@ func _create_vehicle_thumbnail(p_path: String, callback: FuncRef, arguments: Arr
 	print("Generating vehicle thumbnail for ", p_path)
 	var path := _get_vehicle_path(p_path)
 	var vehicle := OwnWar_Vehicle.new()
+	vehicle.team = 0
 	vehicle.transform = Transform.IDENTITY
 	var e := vehicle.load_from_file(p_path, true)
 	assert(e == OK)
