@@ -27,6 +27,7 @@ var fireable_weapon_count := 0
 var delay_until_next_fire := 0.0
 export var _file := "" setget load_from_file, get_file_path
 var _server_mode := OS.has_feature("Server")
+var _mainframe_count := 0
 
 
 func _init() -> void:
@@ -80,7 +81,7 @@ func get_visual_origin() -> Vector3:
 
 
 func load_from_file(path: String, thumbnail_mode := false) -> int:
-	assert(team >= 0)
+	#assert(team >= 0)
 	var file := File.new()
 	var err := file.open_compressed(path, File.READ, File.COMPRESSION_GZIP)
 	if err != OK:

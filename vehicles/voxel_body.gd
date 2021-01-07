@@ -26,6 +26,7 @@ var max_health := 0
 var wheels := []
 var weapons := []
 var team := -1
+var aabb := AABB() setget set_aabb
 var last_hit_position := Vector3()
 var _debug_hits := []
 var _raycast := preload("res://addons/voxel_raycast.gd").new()
@@ -44,7 +45,9 @@ var _block_server_nodes := []
 var _block_client_nodes := []
 var _block_reverse_index := []
 
-var aabb := AABB() setget set_aabb
+var _destroyed_blocks := PoolIntArray()
+
+onready var _mainframe_id: int = OwnWar_Block.get_block("mainframe").id
 
 
 func _init():
@@ -95,6 +98,7 @@ func _physics_process(_delta: float) -> void:
 			bb.curr_transform = bb.server_node.global_transform
 			bb.interpolate_dirty = false
 		bb.interpolate_dirty = true
+	call_deferred("_destroy_disconnected_blocks")
 
 
 func debug_draw():
@@ -160,6 +164,9 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 					cost -= OwnWar_Block.get_block_by_id(_block_ids[index]).cost
 					for i in _block_reverse_index[alt_index]:
 						_block_health[i] = 0
+					_destroyed_blocks.push_back(alt_index)
+					if _block_ids[index] == _mainframe_id:
+						get_parent()._mainframe_count -= 1
 				else:
 					_block_health_alt[alt_index] = hp - damage
 					damage = 0
@@ -171,6 +178,10 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 					_voxel_mesh.remove_block(_raycast.voxel)
 					cost -= OwnWar_Block.get_block_by_id(_block_ids[index]).cost
 					_block_health[index] = 0
+					_destroyed_blocks.push_back(index)
+					# Don't do the check in release builds as a small optimization, but keep an
+					# assert just in case things change (e.g. mainframe has no server_node anymore).
+					assert(_block_ids[index] != _mainframe_id)
 				else:
 					_block_health[index] -= damage
 					damage = 0
@@ -235,9 +246,7 @@ func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color) -
 			bb.client_node.server_node = bb.server_node
 		bb.client_node.set_as_toplevel(true)
 		_interpolate_blocks.push_back(bb)
-		var e := bb.client_node.connect("tree_exiting", self, "_remove_interpolator", [bb])
-		assert(e == OK)
-		e = bb.server_node.connect("tree_exiting", self, "_remove_interpolator", [bb])
+		var e := bb.server_node.connect("tree_exiting", self, "_remove_interpolator", [bb])
 		assert(e == OK)
 	var index := int(position.x * aabb.size.y * aabb.size.z + position.y * aabb.size.z + position.z)
 	if bb.server_node == null:
@@ -257,6 +266,8 @@ func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color) -
 	_block_ids[index] = block.id
 	max_cost += block.cost
 	max_health += block.health
+	if block.name == "mainframe":
+		get_parent()._mainframe_count += 1
 
 
 func coordinate_to_vector(coordinate):
@@ -317,7 +328,187 @@ func _correct_mass() -> void:
 
 func _remove_interpolator(interp: InterpolationData) -> void:
 	assert(interp != null)
+	if interp.client_node != null:
+		# queue_free is necessary to prevent the debug build from crashing.
+		# I should report this as a bug but I don't have time to create a reproduction so... TODO
+		interp.client_node.queue_free()
+		interp.client_node = null
 	_interpolate_blocks.erase(interp)
+
+
+func _destroy_disconnected_blocks() -> void:
+	if get_parent()._mainframe_count == 0:
+		get_parent().queue_free()
+		return
+	var sx := int(aabb.size.x)
+	var sy := int(aabb.size.y)
+	var sz := int(aabb.size.z)
+	for index_wtf in _destroyed_blocks:
+		# wdym it has no set type???
+		var index: int = index_wtf
+		var x := index / sz / sy
+		var y := index / sz % sy
+		var z := index % sz
+		var xpi := index + sy * sz
+		var xni := index - sy * sz
+		var ypi := index + sz
+		var yni := index - sz
+		var zpi := index + 1
+		var zni := index - 1
+		var connect_mask := 0
+		var connect_count := 0
+		if x < sx - 1 and _block_health[xpi] != 0:
+			connect_mask |= 1
+			connect_count += 1
+		if x > 0 and _block_health[xni] != 0:
+			connect_mask |= 2
+			connect_count += 1
+		if y < sy - 1 and _block_health[ypi] != 0:
+			connect_mask |= 4
+			connect_count += 1
+		if y > 0 and _block_health[yni] != 0:
+			connect_mask |= 8
+			connect_count += 1
+		if z < sz - 1 and _block_health[zpi] != 0:
+			connect_mask |= 16
+			connect_count += 1
+		if z > 0 and _block_health[zni] != 0:
+			connect_mask |= 32
+			connect_count += 1
+		# 0 = there is nothing anyways
+		# 1 = there is only one connecting, which must have been connected to
+		# the core, otherwise this block would already have been destroyed
+		# >2 = we must check because any of the neighbours may have become
+		# disconnected
+		if connect_count > 1:
+			for mi in 6:
+				var m: int = connect_mask & (1 << mi)
+				if m:
+					var i: int
+					var xi := x
+					var yi := y
+					var zi := z
+					match m:
+						1:
+							i = xpi; xi += 1
+						2:
+							i = xni; xi -= 1
+						4:
+							i = ypi; yi += 1
+						8:
+							i = yni; yi -= 1
+						16:
+							i = zpi; zi += 1
+						32:
+							i = zni; zi -= 1
+						_: assert(false)
+					var marks := BitMap.new()
+					marks.create(Vector2(sx, sy * sz))
+					var core_found := _mark_connected_blocks(i, xi, yi, zi, marks)
+					if core_found:
+						# Destroy all non-marked blocks
+						if connect_mask & 1 and _block_health[xpi] and \
+							not marks.get_bit(Vector2(x + 1, y * sz + z)):
+							_destroy_connected_blocks(xpi, x + 1, y, z)
+						if connect_mask & 2 and _block_health[xni] and \
+							not marks.get_bit(Vector2(x - 1, y * sz + z)):
+							_destroy_connected_blocks(xni, x - 1, y, z)
+						if connect_mask & 4 and _block_health[ypi] and \
+							not marks.get_bit(Vector2(x, (y + 1) * sz + z)):
+							_destroy_connected_blocks(ypi, x, y + 1, z)
+						if connect_mask & 8 and _block_health[yni] and \
+							not marks.get_bit(Vector2(x, (y - 1) * sz + z)):
+							_destroy_connected_blocks(yni, x, y - 1, z)
+						if connect_mask & 16 and _block_health[zpi] and \
+							not marks.get_bit(Vector2(x, y * sz + z + 1)):
+							_destroy_connected_blocks(zpi, x, y, z + 1)
+						if connect_mask & 32 and _block_health[zni] and \
+							not marks.get_bit(Vector2(x, y * sz + z - 1)):
+							_destroy_connected_blocks(zni, x, y, z - 1)
+						break
+					else:
+						# Destroy the marked blocks
+						_destroy_connected_blocks(i, xi, yi, zi)
+	_destroyed_blocks.resize(0)
+
+
+func _mark_connected_blocks(index: int, x: int, y: int, z: int, bitmap: BitMap, found := false) -> bool:
+	var sx := int(aabb.size.x)
+	var sy := int(aabb.size.y)
+	var sz := int(aabb.size.z)
+	bitmap.set_bit(Vector2(x, y * sz + z), 1)
+	found = found or _block_ids[index] == _mainframe_id
+	if x < sx - 1:
+		var i := index + sy * sz
+		var xi := x + 1
+		if not bitmap.get_bit(Vector2(xi, y * sz + z)) and _block_health[i]:
+			found = _mark_connected_blocks(i, xi, y, z, bitmap, found)
+	if x > 0:
+		var i := index - sy * sz
+		var xi := x - 1
+		if not bitmap.get_bit(Vector2(xi, y * sz + z)) and _block_health[i]:
+			found = _mark_connected_blocks(i, xi, y, z, bitmap, found)
+	if y < sy - 1:
+		var i := index + sz
+		var yi := y + 1
+		if not bitmap.get_bit(Vector2(x, yi * sz + z)) and _block_health[i]:
+			found = _mark_connected_blocks(i, x, yi, z, bitmap, found)
+	if y > 0:
+		var i := index - sz
+		var yi := y - 1
+		if not bitmap.get_bit(Vector2(x, yi * sz + z)) and _block_health[i]:
+			found = _mark_connected_blocks(i, x, yi, z, bitmap, found)
+	if z < sz - 1:
+		var i := index + 1
+		var zi := z + 1
+		if not bitmap.get_bit(Vector2(x, y * sz + zi)) and _block_health[i]:
+			found = _mark_connected_blocks(i, x, y, zi, bitmap, found)
+	if z > 0:
+		var i := index - 1
+		var zi := z - 1
+		if not bitmap.get_bit(Vector2(x, y * sz + zi)) and _block_health[i]:
+			found = _mark_connected_blocks(i, x, y, zi, bitmap, found)
+	return found
+
+
+func _destroy_connected_blocks(index: int, x: int, y: int, z: int) -> void:
+	if _block_ids[index] == _mainframe_id:
+		return
+	_voxel_mesh.remove_block([x, y, z])
+	if _block_health[index] & 0x8000:
+		var i := _block_health[index] & 0x7fff
+		_block_health_alt[i] = 0
+		if _block_server_nodes[i] != null:
+			_block_server_nodes[i].queue_free()
+			_block_server_nodes[i] = null
+	_block_health[index] = 0
+	var sx := int(aabb.size.x)
+	var sy := int(aabb.size.y)
+	var sz := int(aabb.size.z)
+	if x < sx - 1:
+		var i := index + sy * sz
+		if _block_health[i]:
+			_destroy_connected_blocks(i, x + 1, y, z)
+	if x > 0:
+		var i := index - sy * sz
+		if _block_health[i]:
+			_destroy_connected_blocks(i, x - 1, y, z)
+	if y < sy - 1:
+		var i := index + sz
+		if _block_health[i]:
+			_destroy_connected_blocks(i, x, y + 1, z)
+	if y > 0:
+		var i := index - sz
+		if _block_health[i]:
+			_destroy_connected_blocks(i, x, y - 1, z)
+	if z < sz - 1:
+		var i := index + 1
+		if _block_health[i]:
+			_destroy_connected_blocks(i, x, y, z + 1)
+	if z > 0:
+		var i := index - 1
+		if _block_health[i]:
+			_destroy_connected_blocks(i, x, y, z - 1)
 
 
 # REEEEEEE https://github.com/godotengine/godot/issues/16105

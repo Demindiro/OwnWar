@@ -6,10 +6,8 @@
 [ext_resource path="res://addons/free_camera.gd" type="Script" id=4]
 [ext_resource path="res://test/unit/vehicle/doomray.gd" type="Script" id=5]
 
-
 [node name="Damage" type="Node"]
 script = ExtResource( 1 )
-map_name = "_"
 
 [node name="DoomRay" type="RayCast" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.900848, 3.84292, 0 )
@@ -26,8 +24,7 @@ shape = ExtResource( 2 )
 [node name="Vehicle" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0304327, 1.68157, -1.39083 )
 script = ExtResource( 3 )
-max_health = 0
-_file = "res://plugins/tutorial_map/vehicles/tank.json"
+_file = "user://vehicles/test.owv.gz"
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 0.258819, 0.620885, 0.739942, -0.408218, -0.623963, 0.666355, 0.875426, -0.474523, 0.091963, 2.05, 7.95, -24.45 )
@@ -35,3 +32,4 @@ transform = Transform( 0.258819, 0.620885, 0.739942, -0.408218, -0.623963, 0.666
 [node name="FreeCamera" type="Camera" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.49736, 3.37349 )
 script = ExtResource( 4 )
+actions = PoolStringArray( "designer_move_left", "designer_move_right", "designer_move_forward", "designer_move_back", "designer_move_up", "designer_move_down" )
