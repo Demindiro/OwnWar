@@ -80,7 +80,7 @@ func get_visual_origin() -> Vector3:
 
 
 func load_from_file(path: String, thumbnail_mode := false) -> int:
-	assert(team >= 0)
+	#assert(team >= 0)
 	var file := File.new()
 	var err := file.open_compressed(path, File.READ, File.COMPRESSION_GZIP)
 	if err != OK:
@@ -92,6 +92,9 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 
 	if Engine.editor_hint:
 		assert(false, "TODO loading from editor")
+
+	var has_mainframe := false
+	var mainframe_id: int = OwnWar_Block.get_block("mainframe").id
 
 	var vb_data_blocks := {}
 	var vb_aabbs := {}
@@ -137,6 +140,15 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 			color.b8 = file.get_8()
 			var arr := [Vector3(x, y, z), OwnWar_Block.get_block_by_id(id), rot, color]
 			vb.push_back(arr)
+			if id == mainframe_id:
+				if has_mainframe:
+					print("Refusing to load vehicle with more than one mainframe")
+					return ERR_INVALID_DATA
+				has_mainframe = true
+
+	if not has_mainframe:
+		print("Refusing to load vehicle with no mainframes")
+		return ERR_INVALID_DATA
 
 	voxel_bodies = []
 
@@ -144,7 +156,10 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 		var vb := VoxelBody.new()
 		vb.team = team
 		add_child(vb)
-		vb.connect("hit", self, "_voxel_body_hit")
+		var e := vb.connect("hit", self, "_voxel_body_hit")
+		assert(e == OK)
+		e = vb.connect("tree_exiting", self, "_erase_from", [voxel_bodies, vb])
+		assert(e == OK)
 		vb.transform = Transform()
 		vb.aabb = vb_aabbs[layer]
 		for bd in vb_data_blocks[layer]:

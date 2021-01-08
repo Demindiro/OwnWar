@@ -25,5 +25,8 @@ func _apply_damage() -> void:
 	var damage := 1000
 	if is_colliding():
 		var collider := get_collider()
-		if collider.has_method("projectile_hit"):
-			collider.projectile_hit(translation, cast_to, damage)
+		if collider == null:
+			# I don't get it but ok, probably a bug?
+			return
+		if collider.has_method("apply_damage"):
+			collider.apply_damage(translation, cast_to, damage)

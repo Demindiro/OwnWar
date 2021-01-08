@@ -20,6 +20,7 @@ func init(coordinate: Vector3, voxel_body: OwnWar.VoxelBody, vehicle: OwnWar_Veh
 			var other_id: int = body.get_block_id(connecting_coordinate)
 			if other_id > 0:
 				_create_joint(voxel_body, body, vehicle)
+				_anchor_bodies(coordinate, connecting_coordinate)
 
 
 func _ready() -> void:
@@ -28,6 +29,12 @@ func _ready() -> void:
 	if _body_a != null:
 		_body_b.add_child(_body_b_mount)
 		_body_b_mount.global_transform = global_transform
+		var e := _body_b_mount.connect("tree_exiting", self, "set", ["_body_b_mount", null])
+		assert(e == OK)
+		e = _body_b.connect("tree_exiting", self, "set_physics_process", [false])
+		assert(e == OK)
+		e = _body_b.connect("tree_exiting", self, "set_physics_process_internal", [false])
+		assert(e == OK)
 
 
 func _physics_process(delta: float) -> void:
@@ -62,7 +69,7 @@ func _notification(what: int) -> void:
 
 
 func debug_draw():
-	if not is_inside_tree() or not _body_b_mount.is_inside_tree():
+	if not is_inside_tree() or _body_b_mount == null or not _body_b_mount.is_inside_tree():
 		return
 	Debug.draw_line(global_transform.origin, \
 			global_transform.origin + global_transform.basis.z * 10.0)
@@ -107,6 +114,22 @@ func _create_joint(body_a: PhysicsBody, body_b: PhysicsBody, vehicle: OwnWar_Veh
 	_joint.set("solver/priority", 7 - i)
 	process_priority = -i
 	_compensation.process_priority = -i - 1
+
+
+func _anchor_bodies(coordinate: Vector3, connecting_coordinate: Vector3) -> void:
+	var e := connect("tree_exiting", _body_a, "remove_anchor", [coordinate, _body_b])
+	assert(e == OK)
+	e = connect("tree_exiting", _body_b, "remove_anchor", [connecting_coordinate, _body_a])
+	assert(e == OK)
+	# Make sure we don't pass a freed object to remove_anchor by disconnecting the signal
+	# It looks a bit confusing but it should also be the fastest method of doing it
+	e = _body_a.connect("tree_exiting", self, "disconnect", ["tree_exiting", _body_b, "remove_anchor"])
+	assert(e == OK)
+	e = _body_b.connect("tree_exiting", self, "disconnect", ["tree_exiting", _body_a, "remove_anchor"])
+	assert(e == OK)
+	_body_a.add_anchor(coordinate, _body_b)
+	_body_b.add_anchor(connecting_coordinate, _body_a)
+
 
 
 func _remove_joint() -> void:
