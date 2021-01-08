@@ -138,6 +138,9 @@ func fix_physics():
 
 
 func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
+	var sx := int(aabb.size.x)
+	var sy := int(aabb.size.y)
+	var sz := int(aabb.size.z)
 	var local_origin := to_local(origin) + center_of_mass
 	local_origin /= OwnWar_Block.BLOCK_SCALE
 	var local_direction := to_local(origin + direction) - to_local(origin)
@@ -145,7 +148,8 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 	_debug_hits = []
 	if _raycast.finished:
 		return damage
-	if _raycast.x >= aabb.size.x or _raycast.y >= aabb.size.y or _raycast.z >= aabb.size.z:
+	if _raycast.x >= sx or _raycast.y >= sy or _raycast.z >= sz or \
+		_raycast.x < 0 or _raycast.y < 0 or _raycast.z < 0:
 		# TODO fix the raycast algorithm
 		_raycast.step()
 	while not _raycast.finished:
@@ -153,11 +157,15 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 		assert(_raycast.x < aabb.size.x)
 		assert(_raycast.y < aabb.size.y)
 		assert(_raycast.z < aabb.size.z)
+		assert(_raycast.x >= 0)
+		assert(_raycast.y >= 0)
+		assert(_raycast.z >= 0)
 		var index := int(
 			_raycast.x * aabb.size.y * aabb.size.z + \
 			_raycast.y * aabb.size.z + \
 			_raycast.z
 		)
+		assert(index >= 0)
 		var val := _block_health[index]
 		if val != 0:
 			if not server_mode:
