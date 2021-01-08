@@ -117,7 +117,7 @@ func _exit_tree() -> void:
 		node.translation = translation
 		# This is potentially a really bad idea and may need to be capped
 		node.amount = 4 * block_count
-		get_tree().root.add_child(node)
+		get_tree().current_scene.add_child(node)
 
 
 func debug_draw():
@@ -172,7 +172,7 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 				_debug_hits.append([key, Color.orange])
 				var node: Spatial = DESTROY_BLOCK_EFFECT_SCENE.instance()
 				node.translation = to_global(pos * OwnWar_Block.BLOCK_SCALE - center_of_mass)
-				get_tree().root.add_child(node)
+				get_tree().current_scene.add_child(node)
 			if val & 0x8000:
 				var alt_index := val & 0x7fff
 				assert(alt_index >= 0)
@@ -587,7 +587,7 @@ func _destroy_connected_blocks(index: int, x: int, y: int, z: int) -> void:
 		pos *= OwnWar_Block.BLOCK_SCALE
 		pos -= center_of_mass
 		node.translation = to_global(pos)
-		get_tree().root.add_child(node)
+		get_tree().current_scene.add_child(node)
 		block_count -= 1
 	_voxel_mesh.remove_block([x, y, z])
 	if _block_health[index] & 0x8000:
