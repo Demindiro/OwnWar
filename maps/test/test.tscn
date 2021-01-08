@@ -192,6 +192,7 @@ text = "Editor"
 [connection signal="cancel" from="GUI" to="GUI" method="set_visible" binds= [ false ]]
 [connection signal="exit" from="GUI" to="." method="exit"]
 [connection signal="hide" from="GUI" to="HUD" method="set_mouse_mode"]
+[connection signal="restart" from="GUI" to="." method="restart"]
 [connection signal="cancel" from="GUI/ExitMenu" to="GUI" method="_on_ExitMenu_cancel"]
 [connection signal="exit" from="GUI/ExitMenu" to="GUI" method="_on_ExitMenu_exit"]
 [connection signal="restart" from="GUI/ExitMenu" to="GUI" method="_on_ExitMenu_restart"]

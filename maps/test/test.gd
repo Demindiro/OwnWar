@@ -123,3 +123,7 @@ func exit() -> void:
 	tree.root.remove_child(self)
 	tree.root.add_child(scene)
 	tree.current_scene = scene
+
+
+func restart() -> void:
+	get_tree().reload_current_scene()
