@@ -117,7 +117,7 @@ func _exit_tree() -> void:
 		node.translation = translation
 		# This is potentially a really bad idea and may need to be capped
 		node.amount = 4 * block_count
-		get_tree().current_scene.add_child(node)
+		get_tree().current_scene.call_deferred("add_child", node)
 
 
 func debug_draw():
@@ -502,7 +502,8 @@ func _destroy_disconnected_blocks() -> void:
 		# >2 = we must check because any of the neighbours may have become
 		# disconnected
 		if connect_count > 1:
-			for mi in 6:
+			var mi := 0
+			while mi < 6:
 				var m: int = connect_mask & (1 << mi)
 				if m:
 					var i: int
@@ -532,8 +533,29 @@ func _destroy_disconnected_blocks() -> void:
 					var marks := BitMap.new()
 					marks.create(Vector2(sx, sy * sz))
 					var anchor_found := _mark_connected_blocks(i, xi, yi, zi, marks)
-					if not anchor_found:
+					if anchor_found:
+						while mi < 5:
+							mi += 1
+							m = connect_mask & (1 << mi)
+							if m:
+								xi = x
+								yi = y
+								zi = z
+								match m:
+									1: xi += 1
+									2: xi -= 1
+									4: yi += 1
+									8: yi -= 1
+									16: zi += 1
+									32: zi -= 1
+									_: assert(false)
+								if not marks.get_bit(Vector2(xi, yi * sz + zi)):
+									# Substract because there is an addition later
+									mi -= 1
+									break
+					else:
 						_destroy_connected_blocks(i, xi, yi, zi)
+				mi += 1
 	_destroyed_blocks.resize(0)
 
 
