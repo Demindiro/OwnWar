@@ -27,7 +27,6 @@ var fireable_weapon_count := 0
 var delay_until_next_fire := 0.0
 export var _file := "" setget load_from_file, get_file_path
 var _server_mode := OS.has_feature("Server")
-var _mainframe_count := 0
 
 
 func _init() -> void:
@@ -94,6 +93,9 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 	if Engine.editor_hint:
 		assert(false, "TODO loading from editor")
 
+	var has_mainframe := false
+	var mainframe_id: int = OwnWar_Block.get_block("mainframe").id
+
 	var vb_data_blocks := {}
 	var vb_aabbs := {}
 	var MAGIC := 493279249 # Totally random, not derived from a name
@@ -138,6 +140,15 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 			color.b8 = file.get_8()
 			var arr := [Vector3(x, y, z), OwnWar_Block.get_block_by_id(id), rot, color]
 			vb.push_back(arr)
+			if id == mainframe_id:
+				if has_mainframe:
+					print("Refusing to load vehicle with more than one mainframe")
+					return ERR_INVALID_DATA
+				has_mainframe = true
+
+	if not has_mainframe:
+		print("Refusing to load vehicle with no mainframes")
+		return ERR_INVALID_DATA
 
 	voxel_bodies = []
 
@@ -145,7 +156,10 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 		var vb := VoxelBody.new()
 		vb.team = team
 		add_child(vb)
-		vb.connect("hit", self, "_voxel_body_hit")
+		var e := vb.connect("hit", self, "_voxel_body_hit")
+		assert(e == OK)
+		e = vb.connect("tree_exiting", self, "_erase_from", [voxel_bodies, vb])
+		assert(e == OK)
 		vb.transform = Transform()
 		vb.aabb = vb_aabbs[layer]
 		for bd in vb_data_blocks[layer]:

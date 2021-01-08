@@ -49,6 +49,9 @@ var _block_health_alt := PoolIntArray()
 var _block_server_nodes := []
 var _block_client_nodes := []
 var _block_reverse_index := []
+var _block_anchors := {}
+var _block_has_mainframe := false
+var _block_anchor_destroyed := false
 
 var _destroyed_blocks := PoolIntArray()
 
@@ -144,7 +147,7 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 	var local_origin := to_local(origin) + center_of_mass
 	local_origin /= OwnWar_Block.BLOCK_SCALE
 	var local_direction := to_local(origin + direction) - to_local(origin)
-	_raycast.start(local_origin, local_direction, aabb.size.x, aabb.size.y, aabb.size.z)
+	_raycast.start(local_origin, local_direction, sx, sy, sz)
 	_debug_hits = []
 	if _raycast.finished:
 		return damage
@@ -153,28 +156,22 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 		# TODO fix the raycast algorithm
 		_raycast.step()
 	while not _raycast.finished:
-		var key := [_raycast.x, _raycast.y, _raycast.z]
-		assert(_raycast.x < aabb.size.x)
-		assert(_raycast.y < aabb.size.y)
-		assert(_raycast.z < aabb.size.z)
+		var key: Array = _raycast.voxel
+		var pos := Vector3(_raycast.x, _raycast.y, _raycast.z)
+		assert(_raycast.x < sx)
+		assert(_raycast.y < sy)
+		assert(_raycast.z < sz)
 		assert(_raycast.x >= 0)
 		assert(_raycast.y >= 0)
 		assert(_raycast.z >= 0)
-		var index := int(
-			_raycast.x * aabb.size.y * aabb.size.z + \
-			_raycast.y * aabb.size.z + \
-			_raycast.z
-		)
+		var index := _raycast.x * sz * sy + _raycast.y * sz + _raycast.z
 		assert(index >= 0)
 		var val := _block_health[index]
 		if val != 0:
 			if not server_mode:
 				_debug_hits.append([key, Color.orange])
 				var node: Spatial = DESTROY_BLOCK_EFFECT_SCENE.instance()
-				var pos := Vector3(_raycast.x, _raycast.y, _raycast.z)
-				pos *= OwnWar_Block.BLOCK_SCALE
-				pos -= center_of_mass
-				node.translation = to_global(pos)
+				node.translation = to_global(pos * OwnWar_Block.BLOCK_SCALE - center_of_mass)
 				get_tree().root.add_child(node)
 			if val & 0x8000:
 				var alt_index := val & 0x7fff
@@ -197,9 +194,11 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 					for i in _block_reverse_index[alt_index]:
 						_block_health[i] = 0
 						block_count -= 1
+						_block_anchor_destroyed = _block_anchor_destroyed or _block_anchors.erase(i)
 					_destroyed_blocks.push_back(index)
 					if _block_ids[index] == _mainframe_id:
-						get_parent()._mainframe_count -= 1
+						assert(_block_has_mainframe)
+						get_parent().queue_free()
 				else:
 					_block_health_alt[alt_index] = hp - damage
 					damage = 0
@@ -215,6 +214,7 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 					# Don't do the check in release builds as a small optimization, but keep an
 					# assert just in case things change (e.g. mainframe has no server_node anymore).
 					assert(_block_ids[index] != _mainframe_id)
+					_block_anchor_destroyed = _block_anchor_destroyed or _block_anchors.erase(index)
 					block_count -= 1
 				else:
 					_block_health[index] -= damage
@@ -229,21 +229,20 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 
 
 func can_ray_pass_through(origin: Vector3, direction: Vector3) -> bool:
+	var sx := int(aabb.size.x)
+	var sy := int(aabb.size.y)
+	var sz := int(aabb.size.z)
 	var local_origin := to_local(origin) + center_of_mass
 	local_origin /= OwnWar_Block.BLOCK_SCALE
 	var local_direction := to_local(origin + direction) - to_local(origin)
-	_raycast.start(local_origin, local_direction, aabb.size.x, aabb.size.y, aabb.size.z)
+	_raycast.start(local_origin, local_direction, sx, sy, sz)
 	if _raycast.finished:
 		return true
-	if _raycast.x >= aabb.size.x or _raycast.y >= aabb.size.y or _raycast.z >= aabb.size.z:
+	if _raycast.x >= sx or _raycast.y >= sy or _raycast.z >= sz:
 		# TODO fix the raycast algorithm
 		_raycast.step()
 	while not _raycast.finished:
-		var index := int(
-			_raycast.x * aabb.size.y * aabb.size.z + \
-			_raycast.y * aabb.size.z + \
-			_raycast.z
-		)
+		var index := _raycast.x * sy * sz + _raycast.y * sz + _raycast.z
 		if _block_health[index] != 0:
 			return false
 		_raycast.step()
@@ -251,13 +250,16 @@ func can_ray_pass_through(origin: Vector3, direction: Vector3) -> bool:
 
 
 func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color) -> void:
+	var sx := int(aabb.size.x)
+	var sy := int(aabb.size.y)
+	var sz := int(aabb.size.z)
 	position -= aabb.position
 	assert(position.x >= 0, "Position out of bounds (Corrupt data?)")
 	assert(position.y >= 0, "Position out of bounds (Corrupt data?)")
 	assert(position.z >= 0, "Position out of bounds (Corrupt data?)")
-	assert(position.x < aabb.size.x, "Position out of bounds (Corrupt data?)")
-	assert(position.y < aabb.size.y, "Position out of bounds (Corrupt data?)")
-	assert(position.z < aabb.size.z, "Position out of bounds (Corrupt data?)")
+	assert(position.x < sx, "Position out of bounds (Corrupt data?)")
+	assert(position.y < sy, "Position out of bounds (Corrupt data?)")
+	assert(position.z < sz, "Position out of bounds (Corrupt data?)")
 	var basis := OwnWar_Block.rotation_to_basis(r)
 	var pos := position + Vector3.ONE / 2
 	_voxel_mesh.add_block(block, color, [int(position.x), int(position.y), int(position.z)], r)
@@ -282,7 +284,7 @@ func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color) -
 		_interpolate_blocks.push_back(bb)
 		var e := bb.server_node.connect("tree_exiting", self, "_remove_interpolator", [bb])
 		assert(e == OK)
-	var index := int(position.x * aabb.size.y * aabb.size.z + position.y * aabb.size.z + position.z)
+	var index := int(position.x * sy * sz + position.y * sz + position.z)
 	if bb.server_node == null:
 		_block_health[index] = block.health
 	else:
@@ -300,9 +302,10 @@ func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color) -
 	_block_ids[index] = block.id
 	max_cost += block.cost
 	max_health += block.health
-	if block.name == "mainframe":
-		get_parent()._mainframe_count += 1
 	block_count += 1
+	if block.name == "mainframe":
+		assert(not _block_has_mainframe, "Body already has a mainframe!")
+		_block_has_mainframe = true
 
 
 func coordinate_to_vector(coordinate):
@@ -328,6 +331,65 @@ func init_blocks(vehicle) -> void:
 				var x := index / sz / sy
 				assert(x < sx and y < sy and z < sz)
 				node.init(Vector3(x, y, z) + aabb.position, self, vehicle)
+
+
+func add_anchor(coordinate: Vector3, body: VehicleBody) -> void:
+	assert(body != null)
+	coordinate -= aabb.position
+	assert(coordinate.x >= 0)
+	assert(coordinate.y >= 0)
+	assert(coordinate.z >= 0)
+	assert(coordinate.x < aabb.size.x)
+	assert(coordinate.y < aabb.size.y)
+	assert(coordinate.z < aabb.size.z)
+	var index := int(
+		coordinate.x * aabb.size.z * aabb.size.y + \
+		coordinate.y * aabb.size.z + \
+		coordinate.z
+	)
+	var arr = _block_anchors.get(index)
+	if arr == null:
+		_block_anchors[index] = [body]
+	else:
+		arr.push_back(body)
+	if not body.is_connected("tree_exiting", self, "_remove_anchored_body"):
+		var e := body.connect("tree_exiting", self, "_remove_anchored_body", [body])
+		assert(e == OK)
+
+
+func remove_anchor(coordinate: Vector3, body: VehicleBody) -> void:
+	assert(body != null)
+	coordinate -= aabb.position
+	assert(coordinate.x >= 0)
+	assert(coordinate.y >= 0)
+	assert(coordinate.z >= 0)
+	assert(coordinate.x < aabb.size.x)
+	assert(coordinate.y < aabb.size.y)
+	assert(coordinate.z < aabb.size.z)
+	var index := int(
+		coordinate.x * aabb.size.z * aabb.size.y + \
+		coordinate.y * aabb.size.z + \
+		coordinate.z
+	)
+	var arr = _block_anchors.get(index)
+	if arr != null:
+		arr.erase(body)
+		if len(arr) == 0:
+			var _e := _block_anchors.erase(index)
+	_block_anchor_destroyed = true
+
+
+func _remove_anchored_body(body) -> void:
+	for index in _block_anchors:
+		var arr: Array = _block_anchors[index]
+		while true:
+			var i := arr.find_last(body)
+			if i < 0:
+				break
+			arr.remove(i)
+		if len(arr) == 0:
+			_block_anchors.erase(index)
+	_block_anchor_destroyed = true
 
 
 func _correct_mass() -> void:
@@ -371,14 +433,38 @@ func _remove_interpolator(interp: InterpolationData) -> void:
 	_interpolate_blocks.erase(interp)
 
 
+func _is_connected_to_mainframe(marks := []) -> bool:
+	marks.push_back(self)
+	for index in _block_anchors:
+		for body in _block_anchors[index]:
+			if body in marks:
+				continue
+			if body._block_has_mainframe or body._is_connected_to_mainframe(marks):
+				return true
+	return false
+
+
 func _destroy_disconnected_blocks() -> void:
-	if get_parent()._mainframe_count == 0:
-		get_parent().queue_free()
+	if get_parent().is_queued_for_deletion():
 		return
+	if is_queued_for_deletion():
+		assert(false) # Just checking...
+		return
+	if not _block_has_mainframe:
+		if len(_block_anchors) == 0:
+			queue_free()
+			return
+		elif _block_anchor_destroyed:
+			var m := []
+			if not _is_connected_to_mainframe(m):
+				queue_free()
+				return
+			_block_anchor_destroyed = false
 	var sx := int(aabb.size.x)
 	var sy := int(aabb.size.y)
 	var sz := int(aabb.size.z)
 	for index_wtf in _destroyed_blocks:
+		assert(index_wtf >= 0)
 		# wdym it has no set type???
 		var index: int = index_wtf
 		var x := index / sz / sy
@@ -445,30 +531,8 @@ func _destroy_disconnected_blocks() -> void:
 					assert(zi < sz)
 					var marks := BitMap.new()
 					marks.create(Vector2(sx, sy * sz))
-					var core_found := _mark_connected_blocks(i, xi, yi, zi, marks)
-					if core_found:
-						# Destroy all non-marked blocks
-						if connect_mask & 1 and _block_health[xpi] and \
-							not marks.get_bit(Vector2(x + 1, y * sz + z)):
-							_destroy_connected_blocks(xpi, x + 1, y, z)
-						if connect_mask & 2 and _block_health[xni] and \
-							not marks.get_bit(Vector2(x - 1, y * sz + z)):
-							_destroy_connected_blocks(xni, x - 1, y, z)
-						if connect_mask & 4 and _block_health[ypi] and \
-							not marks.get_bit(Vector2(x, (y + 1) * sz + z)):
-							_destroy_connected_blocks(ypi, x, y + 1, z)
-						if connect_mask & 8 and _block_health[yni] and \
-							not marks.get_bit(Vector2(x, (y - 1) * sz + z)):
-							_destroy_connected_blocks(yni, x, y - 1, z)
-						if connect_mask & 16 and _block_health[zpi] and \
-							not marks.get_bit(Vector2(x, y * sz + z + 1)):
-							_destroy_connected_blocks(zpi, x, y, z + 1)
-						if connect_mask & 32 and _block_health[zni] and \
-							not marks.get_bit(Vector2(x, y * sz + z - 1)):
-							_destroy_connected_blocks(zni, x, y, z - 1)
-						break
-					else:
-						# Destroy the marked blocks
+					var anchor_found := _mark_connected_blocks(i, xi, yi, zi, marks)
+					if not anchor_found:
 						_destroy_connected_blocks(i, xi, yi, zi)
 	_destroyed_blocks.resize(0)
 
@@ -478,7 +542,11 @@ func _mark_connected_blocks(index: int, x: int, y: int, z: int, bitmap: BitMap, 
 	var sy := int(aabb.size.y)
 	var sz := int(aabb.size.z)
 	bitmap.set_bit(Vector2(x, y * sz + z), 1)
-	found = found or _block_ids[index] == _mainframe_id
+	if not found:
+		if _block_has_mainframe:
+			found = _block_ids[index] == _mainframe_id
+		else:
+			found = index in _block_anchors
 	if x < sx - 1:
 		var i := index + sy * sz
 		var xi := x + 1
@@ -513,8 +581,6 @@ func _mark_connected_blocks(index: int, x: int, y: int, z: int, bitmap: BitMap, 
 
 
 func _destroy_connected_blocks(index: int, x: int, y: int, z: int) -> void:
-	if _block_ids[index] == _mainframe_id:
-		return
 	if not server_mode:
 		var node: Spatial = DESTROY_BLOCK_EFFECT_SCENE.instance()
 		var pos := Vector3(x, y, z)
