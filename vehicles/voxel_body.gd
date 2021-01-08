@@ -147,6 +147,7 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 			_debug_hits.append([key, Color.orange])
 			if val & 0x8000:
 				var alt_index := val & 0x7fff
+				assert(alt_index >= 0)
 				var hp := _block_health_alt[alt_index]
 				assert(hp >= 0)
 				if hp <= damage:
@@ -164,7 +165,7 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 					cost -= OwnWar_Block.get_block_by_id(_block_ids[index]).cost
 					for i in _block_reverse_index[alt_index]:
 						_block_health[i] = 0
-					_destroyed_blocks.push_back(alt_index)
+					_destroyed_blocks.push_back(index)
 					if _block_ids[index] == _mainframe_id:
 						get_parent()._mainframe_count -= 1
 				else:
@@ -402,6 +403,12 @@ func _destroy_disconnected_blocks() -> void:
 						32:
 							i = zni; zi -= 1
 						_: assert(false)
+					assert(xi >= 0)
+					assert(yi >= 0)
+					assert(zi >= 0)
+					assert(xi < sx)
+					assert(yi < sy)
+					assert(zi < sz)
 					var marks := BitMap.new()
 					marks.create(Vector2(sx, sy * sz))
 					var core_found := _mark_connected_blocks(i, xi, yi, zi, marks)
