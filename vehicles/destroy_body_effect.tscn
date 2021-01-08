@@ -1,0 +1,40 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://addons/breaking/41348__datasoundsample__glass-shatter.wav" type="AudioStream" id=1]
+
+[sub_resource type="CubeMesh" id=1]
+size = Vector3( 0.05, 0.05, 0.08 )
+
+[node name="Block Destroyed Effect" type="CPUParticles"]
+emitting = false
+amount = 300
+lifetime = 0.5
+one_shot = true
+explosiveness = 0.9
+randomness = 0.19
+lifetime_randomness = 0.6
+mesh = SubResource( 1 )
+emission_shape = 1
+emission_sphere_radius = 1.0
+flag_align_y = true
+flag_rotate_y = true
+spread = 180.0
+gravity = Vector3( 0, -2, 0 )
+initial_velocity = 20.0
+initial_velocity_random = 0.5
+angular_velocity = 180.0
+angular_velocity_random = 0.51
+angle_random = 1.0
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 5.0
+one_shot = true
+autostart = true
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource( 1 )
+unit_size = 2.0
+pitch_scale = 0.15
+autoplay = true
+[connection signal="ready" from="." to="." method="set_emitting" binds= [ true ]]
+[connection signal="timeout" from="Timer" to="." method="queue_free"]

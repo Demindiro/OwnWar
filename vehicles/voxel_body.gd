@@ -19,10 +19,15 @@ class InterpolationData:
 
 
 signal hit(voxel_body)
+
+const DESTROY_BLOCK_EFFECT_SCENE := preload("destroy_block_effect.tscn")
+const DESTROY_BODY_EFFECT_SCENE := preload("destroy_body_effect.tscn")
+
 var center_of_mass := Vector3.ZERO
 var cost := 0
 var max_cost := 0
 var max_health := 0
+var block_count := 0
 var wheels := []
 var weapons := []
 var team := -1
@@ -46,6 +51,8 @@ var _block_client_nodes := []
 var _block_reverse_index := []
 
 var _destroyed_blocks := PoolIntArray()
+
+var server_mode := OS.has_feature("Server")
 
 onready var _mainframe_id: int = OwnWar_Block.get_block("mainframe").id
 
@@ -101,6 +108,15 @@ func _physics_process(_delta: float) -> void:
 	call_deferred("_destroy_disconnected_blocks")
 
 
+func _exit_tree() -> void:
+	if not server_mode:
+		var node: CPUParticles = DESTROY_BODY_EFFECT_SCENE.instance()
+		node.translation = translation
+		# This is potentially a really bad idea and may need to be capped
+		node.amount = 4 * block_count
+		get_tree().root.add_child(node)
+
+
 func debug_draw():
 	for hit in _debug_hits:
 		var position = Vector3(hit[0][0], hit[0][1], hit[0][2]) + Vector3.ONE / 2
@@ -144,7 +160,14 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 		)
 		var val := _block_health[index]
 		if val != 0:
-			_debug_hits.append([key, Color.orange])
+			if not server_mode:
+				_debug_hits.append([key, Color.orange])
+				var node: Spatial = DESTROY_BLOCK_EFFECT_SCENE.instance()
+				var pos := Vector3(_raycast.x, _raycast.y, _raycast.z)
+				pos *= OwnWar_Block.BLOCK_SCALE
+				pos -= center_of_mass
+				node.translation = to_global(pos)
+				get_tree().root.add_child(node)
 			if val & 0x8000:
 				var alt_index := val & 0x7fff
 				assert(alt_index >= 0)
@@ -165,6 +188,7 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 					cost -= OwnWar_Block.get_block_by_id(_block_ids[index]).cost
 					for i in _block_reverse_index[alt_index]:
 						_block_health[i] = 0
+						block_count -= 1
 					_destroyed_blocks.push_back(index)
 					if _block_ids[index] == _mainframe_id:
 						get_parent()._mainframe_count -= 1
@@ -183,6 +207,7 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 					# Don't do the check in release builds as a small optimization, but keep an
 					# assert just in case things change (e.g. mainframe has no server_node anymore).
 					assert(_block_ids[index] != _mainframe_id)
+					block_count -= 1
 				else:
 					_block_health[index] -= damage
 					damage = 0
@@ -269,6 +294,7 @@ func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color) -
 	max_health += block.health
 	if block.name == "mainframe":
 		get_parent()._mainframe_count += 1
+	block_count += 1
 
 
 func coordinate_to_vector(coordinate):
@@ -481,6 +507,14 @@ func _mark_connected_blocks(index: int, x: int, y: int, z: int, bitmap: BitMap, 
 func _destroy_connected_blocks(index: int, x: int, y: int, z: int) -> void:
 	if _block_ids[index] == _mainframe_id:
 		return
+	if not server_mode:
+		var node: Spatial = DESTROY_BLOCK_EFFECT_SCENE.instance()
+		var pos := Vector3(x, y, z)
+		pos *= OwnWar_Block.BLOCK_SCALE
+		pos -= center_of_mass
+		node.translation = to_global(pos)
+		get_tree().root.add_child(node)
+		block_count -= 1
 	_voxel_mesh.remove_block([x, y, z])
 	if _block_health[index] & 0x8000:
 		var i := _block_health[index] & 0x7fff
