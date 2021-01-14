@@ -23,6 +23,7 @@ onready var _camera_origin: Spatial = get_node("Viewport/CameraOrigin")
 
 
 func set_preview(path: String) -> void:
+	return # TODO temporary to reduce error spam in console about networks.
 	if _vehicle != null:
 		_vehicle.queue_free()
 	_vehicle = OwnWar_Vehicle.new()
@@ -31,7 +32,7 @@ func set_preview(path: String) -> void:
 	assert(e == OK)
 	_vehicle.transform = _origin.transform
 	_vehicle.translation.y += (_vehicle.get_aabb().size.y / 2) * OwnWar_Block.BLOCK_SCALE
-	_vehicle.aim_at = _vehicle.translation + Vector3(0, 0, 10000000000)
+	_vehicle.controller.aim_at = _vehicle.translation + Vector3(0, 0, 10000000000)
 	_viewport.add_child(_vehicle)
 	emit_signal("loaded_vehicle", _vehicle)
 

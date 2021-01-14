@@ -1,9 +1,8 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://blocks/block_instance.gd" type="Script" id=1]
 [ext_resource path="res://blocks/mainframe/terminal.png" type="Texture" id=2]
 [ext_resource path="res://blocks/set_color.gd" type="Script" id=3]
-[ext_resource path="res://blocks/anchor.gd" type="Script" id=4]
 
 [node name="Mainframe" type="Node"]
 script = ExtResource( 1 )
@@ -11,7 +10,6 @@ client_node = NodePath("It\'s a UNIX system!")
 editor_node = NodePath("It\'s a UNIX system!")
 
 [node name="Server" type="Spatial" parent="."]
-script = ExtResource( 4 )
 
 [node name="It\'s a UNIX system!" type="Spatial" parent="."]
 script = ExtResource( 3 )

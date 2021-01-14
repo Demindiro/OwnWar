@@ -14,42 +14,52 @@ var max_cost: int
 var voxel_bodies := []
 var wheels := []
 var weapons := []
-var turn_left := false
-var turn_right := false
-var pitch_up := false
-var pitch_down := false
-var move_forward := false
-var move_back := false
-var aim_at := Vector3()
-var fire := false
+
 var avg_delay_between_shots := 0.0
 var fireable_weapon_count := 0
 var delay_until_next_fire := 0.0
 export var _file := "" setget load_from_file, get_file_path
-var _server_mode := OS.has_feature("Server")
+var data: PoolByteArray
+var _last_seq_id := 0
+
+var controller := OwnWar_VehicleController.new()
+var collisions_with_player := 0
+var accept_server_physics := true
+var accept_server_physics_timer: SceneTreeTimer = null
+
+onready var server_mode := get_tree().is_network_server()
+onready var headless := OS.has_feature("Server")
 
 
 func _init() -> void:
-	set_process(not _server_mode)
+	set_process(not server_mode)
+
+
+func _ready() -> void:
+	set_physics_process(get_tree().network_peer != null)
+	add_child(controller)
 
 
 func _physics_process(delta: float) -> void:
 	if not Engine.editor_hint:
-		if not _server_mode and len(voxel_bodies) > 0:
-			transform = voxel_bodies[0].transform
+		if not server_mode:
+			for vb in voxel_bodies:
+				if vb != null:
+					transform = vb.transform
+					break
 
 		var drive_yaw := 0.0
 		var drive_forward := 0.0
 		var drive_brake := 0.0
-		if turn_left:
+		if controller.turn_left:
 			drive_yaw += 0.3
-		if turn_right:
+		if controller.turn_right:
 			drive_yaw -= 0.3
-		if move_forward:
+		if controller.move_forward:
 			drive_forward += 1.0
-		if move_back:
+		if controller.move_back:
 			drive_forward -= 1.0
-		if not move_forward and not move_back:
+		if not controller.move_forward and not controller.move_back:
 			drive_brake = 1.0
 			# Reduce brake to prevent jitter
 			if len(voxel_bodies) > 0:
@@ -61,22 +71,98 @@ func _physics_process(delta: float) -> void:
 			wheel.brake = drive_brake * wheel.max_brake
 
 		for weapon in weapons:
-			weapon.aim_at(aim_at)
-		if fire:
-			if delay_until_next_fire <= 0.0:
+			weapon.aim_at(controller.aim_at)
+		if controller.fire:
+			#if delay_until_next_fire <= 0.0:
 				for weapon in weapons:
 					if weapon.fire():
 						if -delay_until_next_fire > avg_delay_between_shots:
 							delay_until_next_fire = avg_delay_between_shots
 						else:
 							delay_until_next_fire += avg_delay_between_shots
-						if delay_until_next_fire > delta:
-							break
+						#if delay_until_next_fire > delta:
+						#	break
 		delay_until_next_fire -= delta
+
+		var state := PoolVector3Array()
+		for body in voxel_bodies:
+			if body == null:
+				state.push_back(Vector3())
+				state.push_back(Vector3())
+				state.push_back(Vector3())
+				state.push_back(Vector3())
+				continue
+			var trf: Transform = body.transform
+			var q := trf.basis.get_rotation_quat()
+			if q.w < 0:
+				q = -q
+			assert(q.w >= 0)
+			state.push_back(Vector3(q.x, q.y, q.z))
+			state.push_back(trf.origin)
+			state.push_back(body.linear_velocity)
+			state.push_back(body.angular_velocity)
+		if server_mode:
+			rpc_unreliable_id(-OwnWar_NetInfo.disable_broadcast_id, "sync_physics",
+				Engine.get_physics_frames(), state)
+		elif controller.is_network_master():
+			rpc_unreliable_id(1, "apply_client_physics", Engine.get_physics_frames(), state)
+
+
+puppet func sync_physics(seq_id: int, state: PoolVector3Array) -> void:
+	if controller.is_network_master():
+		return
+	if seq_id <= _last_seq_id:
+		return
+	_last_seq_id = seq_id
+	assert(len(voxel_bodies) * 4 == len(state))
+	for i in len(voxel_bodies):
+		var body: OwnWar.VoxelBody = voxel_bodies[i]
+		if body == null:
+			# Can happen due to packets being late / out of order
+			continue
+		i *= 4
+		var q := state[i]
+		# q.length_squared() is sometimes slightly larger than 1, hence max(0, ...)
+		var trf := Transform(Quat(q.x, q.y, q.z, sqrt(max(0, 1 - q.length_squared()))))
+		trf.origin = state[i + 1]
+		body.transform = trf
+		body.linear_velocity = state[i + 2]
+		body.angular_velocity = state[i + 3]
+
+
+# TODO verify client input
+master func apply_client_physics(seq_id: int, state: PoolVector3Array) -> void:
+	if get_tree().get_rpc_sender_id() != controller.get_network_master():
+		assert(false, "A client tried to override another client's input")
+		return
+	if seq_id <= _last_seq_id:
+		return
+	_last_seq_id = seq_id
+	assert(len(voxel_bodies) * 4 == len(state))
+	for i in len(voxel_bodies):
+		var body: OwnWar.VoxelBody = voxel_bodies[i]
+		if body == null:
+			continue
+		i *= 4
+		var q := state[i]
+		# q.length_squared() is sometimes slightly larger than 1, hence max(0, ...)
+		var trf := Transform(Quat(q.x, q.y, q.z, sqrt(max(0, 1 - q.length_squared()))))
+		trf.origin = state[i + 1]
+		body.transform = trf
+		body.linear_velocity = state[i + 2]
+		body.angular_velocity = state[i + 3]
+
+
+# TODO apply server correction
+puppet func override_physics(state: PoolVector3Array) -> void:
+	pass
 
 
 func get_visual_origin() -> Vector3:
-	return voxel_bodies[0].get_visual_transform().origin
+	for vb in voxel_bodies:
+		if vb != null:
+			return vb.get_visual_transform().origin
+	return translation
 
 
 func load_from_file(path: String, thumbnail_mode := false) -> int:
@@ -87,8 +173,13 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 		return err
 	_file = path
 
+	return load_from_data(file.get_buffer(file.get_len()), thumbnail_mode)
+
+
+func load_from_data(data: PoolByteArray, thumbnail_mode := false, state := []) -> int:
 	for body in voxel_bodies:
-		body.queue_free()
+		if body != null:
+			body.queue_free()
 
 	if Engine.editor_hint:
 		assert(false, "TODO loading from editor")
@@ -96,48 +187,52 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 	var has_mainframe := false
 	var mainframe_id: int = OwnWar_Block.get_block("mainframe").id
 
+	var spb := StreamPeerBuffer.new()
+	spb.data_array = data
+	self.data = data
+
 	var vb_data_blocks := {}
 	var vb_aabbs := {}
 	var MAGIC := 493279249 # Totally random, not derived from a name
 	var REVISION := 0
-	var magic := file.get_32()
+	var magic := spb.get_u32()
 	if magic != MAGIC:
 		print("Magic is wrong! ", magic)
 		assert(false)
 		return ERR_INVALID_DATA
-	var revision := file.get_16()
+	var revision := spb.get_u16()
 	if revision != REVISION:
 		print("Revision doesn't match!")
 		assert(false)
 		return ERR_INVALID_DATA
-	var layer_count := file.get_8()
+	var layer_count := spb.get_u8()
 	for _i in layer_count:
-		var layer := file.get_8()
+		var layer := spb.get_u8()
 		if layer in vb_data_blocks:
 			print("File data corrupt: double layer %d" % layer)
 			assert(false, "File data corrupt: double layer %d" % layer)
 			return ERR_INVALID_DATA
 		var aabb := AABB()
-		aabb.position.x = file.get_8()
-		aabb.position.y = file.get_8()
-		aabb.position.z = file.get_8()
-		aabb.size.x = file.get_8()
-		aabb.size.y = file.get_8()
-		aabb.size.z = file.get_8()
+		aabb.position.x = spb.get_u8()
+		aabb.position.y = spb.get_u8()
+		aabb.position.z = spb.get_u8()
+		aabb.size.x = spb.get_u8()
+		aabb.size.y = spb.get_u8()
+		aabb.size.z = spb.get_u8()
 		vb_aabbs[layer] = aabb
 		var vb := []
 		vb_data_blocks[layer] = vb
-		var size := file.get_32()
+		var size := spb.get_32()
 		for _j in size:
 			var color := Color()
-			var x := file.get_8()
-			var y := file.get_8()
-			var z := file.get_8()
-			var id := file.get_16()
-			var rot := file.get_8()
-			color.r8 = file.get_8()
-			color.g8 = file.get_8()
-			color.b8 = file.get_8()
+			var x := spb.get_u8()
+			var y := spb.get_u8()
+			var z := spb.get_u8()
+			var id := spb.get_u16()
+			var rot := spb.get_u8()
+			color.r8 = spb.get_u8()
+			color.g8 = spb.get_u8()
+			color.b8 = spb.get_u8()
 			var arr := [Vector3(x, y, z), OwnWar_Block.get_block_by_id(id), rot, color]
 			vb.push_back(arr)
 			if id == mainframe_id:
@@ -153,12 +248,17 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 	voxel_bodies = []
 
 	for layer in vb_data_blocks:
+		if layer >= len(voxel_bodies):
+			voxel_bodies.resize(layer + 1)
+		if len(state) > 0 and (len(state) <= layer or state[layer] == null):
+			continue
 		var vb := VoxelBody.new()
 		vb.team = team
+		vb.id = layer
 		add_child(vb)
 		var e := vb.connect("hit", self, "_voxel_body_hit")
 		assert(e == OK)
-		e = vb.connect("tree_exiting", self, "_erase_from", [voxel_bodies, vb])
+		e = vb.connect("destroyed", self, "_remove_voxel_body", [layer])
 		assert(e == OK)
 		vb.transform = Transform()
 		vb.aabb = vb_aabbs[layer]
@@ -167,21 +267,29 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 			var blk: OwnWar_Block = bd[1]
 			var rot: int = bd[2]
 			var clr: Color = bd[3]
-			vb.spawn_block(pos, rot, blk, clr)
-		voxel_bodies.push_back(vb)
+			if len(state) > 0:
+				vb.spawn_block(pos, rot, blk, clr, state[layer])
+			else:
+				vb.spawn_block(pos, rot, blk, clr)
+			vb.name = "VoxelBody %d" % layer
+		voxel_bodies[layer] = vb
 
 	for body in voxel_bodies:
-		body.fix_physics()
-		body.init_blocks(self)
-	if len(voxel_bodies) > 0:
-		var center_of_mass_0: Vector3 = voxel_bodies[0].center_of_mass
-		var position_0: Vector3 = voxel_bodies[0].aabb.position
+		if body != null:
+			body.fix_physics()
+			body.init_blocks(self)
+	for vb in voxel_bodies:
+		var center_of_mass_0: Vector3 = vb.center_of_mass
+		var position_0: Vector3 = vb.aabb.position
 		for body in voxel_bodies:
-			body.translate(-center_of_mass_0 - position_0 * OwnWar_Block.BLOCK_SCALE)
+			if body != null:
+				body.translate(-center_of_mass_0 - position_0 * OwnWar_Block.BLOCK_SCALE)
+		break
 
 	for body in voxel_bodies:
-		wheels += body.wheels
-		weapons += body.weapons
+		if body != null:
+			wheels += body.wheels
+			weapons += body.weapons
 	for w in wheels:
 		var e: int = w.connect("tree_exited", self, "_erase_from", [wheels, w])
 		assert(e == OK)
@@ -217,6 +325,16 @@ func load_from_file(path: String, thumbnail_mode := false) -> int:
 	return OK
 
 
+func serialize_state() -> Array:
+	var vb_data := []
+	for vb in voxel_bodies:
+		if vb != null:
+			if vb.id >= len(vb_data):
+				vb_data.resize(vb.id + 1)
+			vb_data[vb.id] = [vb._block_health, vb._block_health_alt]
+	return vb_data
+
+
 func get_blocks(block_name):
 	var id = OwnWar_Block.get_block(block_name).id
 	return get_blocks_by_id(id)
@@ -225,43 +343,53 @@ func get_blocks(block_name):
 func get_blocks_by_id(id):
 	var filtered_blocks = []
 	for body in voxel_bodies:
-		for block in body.blocks.values():
-			if block.id == id:
-				filtered_blocks.append(block)
+		if body != null:
+			for block in body.blocks.values():
+				if block.id == id:
+					filtered_blocks.append(block)
 	return filtered_blocks
 
 
 func get_cost():
 	var cost = 0
 	for body in voxel_bodies:
-		cost += body.cost
+		if body != null:
+			cost += body.cost
 	return cost
 
 
 func get_linear_velocity():
-	return voxel_bodies[0].linear_velocity
+	for vb in voxel_bodies:
+		if vb != null:
+			return vb.linear_velocity
+	return Vector3()
 
 
 func get_aabb() -> AABB:
-	if len(voxel_bodies) == 0:
-		return AABB()
-	var aabb: AABB = voxel_bodies[0].aabb
+	var aabb := AABB()
 	for vb in voxel_bodies:
-		aabb = aabb.merge(vb.aabb)
+		if vb != null:
+			aabb = vb.aabb
+			break
+	for vb in voxel_bodies:
+		if vb != null:
+			aabb = aabb.merge(vb.aabb)
 	return aabb
 
 
 func get_block_count() -> int:
 	var c := 0
 	for b in voxel_bodies:
-		c += len(b.blocks)
+		if b != null:
+			c += b.block_count
 	return c
 
 
 func get_mass() -> float:
 	var c := 0.0
 	for b in voxel_bodies:
-		c += b.mass
+		if b != null:
+			c += b.mass
 	return c
 
 
@@ -271,23 +399,24 @@ func get_file_path() -> String:
 
 func debug_draw() -> void:
 	var text := "Actions: "
-	if turn_left:
+	if controller.turn_left:
 		text += "left, "
-	if turn_right:
+	if controller.turn_right:
 		text += "right, "
-	if pitch_up:
+	if controller.pitch_up:
 		text += "up, "
-	if pitch_down:
+	if controller.pitch_down:
 		text += "down, "
-	if move_forward:
+	if controller.move_forward:
 		text += "forward, "
-	if move_back:
+	if controller.move_back:
 		text += "back, "
-	if fire:
+	if controller.fire:
 		text += "fire, "
 	Debug.draw_text(get_visual_origin(), text, Color.cyan)
 	for b in voxel_bodies:
-		Debug.draw_point(b.translation, Color.purple, 0.2)
+		if b != null:
+			Debug.draw_point(b.translation, Color.purple, 0.2)
 
 
 func _voxel_body_hit(_voxel_body):
@@ -336,3 +465,8 @@ func _load_from_file_editor(data: Dictionary) -> int:
 
 func _erase_from(array: Array, item) -> void:
 	array.erase(item)
+
+
+
+func _remove_voxel_body(index: int) -> void:
+	voxel_bodies[index] = null

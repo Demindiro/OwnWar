@@ -19,6 +19,7 @@ class InterpolationData:
 
 
 signal hit(voxel_body)
+signal destroyed()
 
 const DESTROY_BLOCK_EFFECT_SCENE := preload("destroy_block_effect.tscn")
 const DESTROY_BODY_EFFECT_SCENE := preload("destroy_body_effect.tscn")
@@ -33,6 +34,7 @@ var weapons := []
 var team := -1
 var aabb := AABB() setget set_aabb
 var last_hit_position := Vector3()
+var id := -1
 var _debug_hits := []
 var _raycast := preload("res://addons/voxel_raycast.gd").new()
 var _collision_shape: CollisionShape
@@ -51,11 +53,9 @@ var _block_client_nodes := []
 var _block_reverse_index := []
 var _block_anchors := {}
 var _block_has_mainframe := false
-var _block_anchor_destroyed := false
 
-var _destroyed_blocks := PoolIntArray()
-
-var server_mode := OS.has_feature("Server")
+onready var server_mode := get_tree().multiplayer.is_network_server()
+onready var headless := OS.has_feature("Server")
 
 onready var _mainframe_id: int = OwnWar_Block.get_block("mainframe").id
 
@@ -108,11 +108,10 @@ func _physics_process(_delta: float) -> void:
 			bb.curr_transform = bb.server_node.global_transform
 			bb.interpolate_dirty = false
 		bb.interpolate_dirty = true
-	call_deferred("_destroy_disconnected_blocks")
 
 
 func _exit_tree() -> void:
-	if not server_mode:
+	if not headless:
 		var node: CPUParticles = DESTROY_BODY_EFFECT_SCENE.instance()
 		node.translation = translation
 		# This is potentially a really bad idea and may need to be capped
@@ -125,6 +124,15 @@ func debug_draw():
 		var position = Vector3(hit[0][0], hit[0][1], hit[0][2]) + Vector3.ONE / 2
 		Debug.draw_point(to_global(position * OwnWar_Block.BLOCK_SCALE - center_of_mass),
 				hit[1], 0.55 * OwnWar_Block.BLOCK_SCALE)
+	for ii in _block_anchors:
+		var i:int = ii
+		var sy := int(aabb.size.y)
+		var sz := int(aabb.size.z)
+		var x := i / sz / sy
+		var y := i / sz % sy
+		var z := i % sz
+		Debug.draw_point(to_global(Vector3(x + 0.5, y + 0.5, z + 0.5) * OwnWar_Block.BLOCK_SCALE - center_of_mass),
+			Color.green, 0.15)
 
 
 func get_visual_transform() -> Transform:
@@ -141,13 +149,21 @@ func fix_physics():
 
 
 func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
-	var sx := int(aabb.size.x)
-	var sy := int(aabb.size.y)
-	var sz := int(aabb.size.z)
+	assert(is_network_master(), "This shouldn't be called on the client ever, use the local version")
 	var local_origin := to_local(origin) + center_of_mass
 	local_origin /= OwnWar_Block.BLOCK_SCALE
 	var local_direction := to_local(origin + direction) - to_local(origin)
-	_raycast.start(local_origin, local_direction, sx, sy, sz)
+	return apply_damage_local(local_origin, local_direction, damage)
+
+
+puppet func apply_damage_local(origin: Vector3, direction: Vector3, damage: int) -> int:
+	if is_network_master():
+		rpc_id(-OwnWar_NetInfo.disable_broadcast_id, "apply_damage_local", origin, direction, damage)
+	var block_anchor_destroyed := false
+	var sx := int(aabb.size.x)
+	var sy := int(aabb.size.y)
+	var sz := int(aabb.size.z)
+	_raycast.start(origin, direction, sx, sy, sz)
 	_debug_hits = []
 	if _raycast.finished:
 		return damage
@@ -155,6 +171,7 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 		_raycast.x < 0 or _raycast.y < 0 or _raycast.z < 0:
 		# TODO fix the raycast algorithm
 		_raycast.step()
+	var destroyed_blocks := PoolIntArray()
 	while not _raycast.finished:
 		var key: Array = _raycast.voxel
 		var pos := Vector3(_raycast.x, _raycast.y, _raycast.z)
@@ -168,7 +185,7 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 		assert(index >= 0)
 		var val := _block_health[index]
 		if val != 0:
-			if not server_mode:
+			if not headless:
 				_debug_hits.append([key, Color.orange])
 				var node: Spatial = DESTROY_BLOCK_EFFECT_SCENE.instance()
 				node.translation = to_global(pos * OwnWar_Block.BLOCK_SCALE - center_of_mass)
@@ -180,10 +197,20 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 				assert(hp >= 0)
 				if hp <= damage:
 					damage -= hp
+					for i in _block_reverse_index[alt_index]:
+						_block_health[i] = 0
+						block_count -= 1
+						if i in _block_anchors:
+							remove_all_anchors(index, _raycast.x, _raycast.y, _raycast.z)
+							block_anchor_destroyed = true
+					assert(_verify_block_count())
 					_block_health_alt[alt_index] = 0
 					var node: Spatial = _block_server_nodes[alt_index]
 					if node != null:
+						assert(not node.is_queued_for_deletion())
 						node.queue_free()
+						if node.has_method("destroy"):
+							node.destroy()
 						_block_server_nodes[alt_index] = null
 					node = _block_client_nodes[alt_index]
 					if node != null:
@@ -191,11 +218,7 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 						_block_client_nodes[alt_index] = null
 					_voxel_mesh.remove_block(_raycast.voxel)
 					cost -= OwnWar_Block.get_block_by_id(_block_ids[index]).cost
-					for i in _block_reverse_index[alt_index]:
-						_block_health[i] = 0
-						block_count -= 1
-						_block_anchor_destroyed = _block_anchor_destroyed or _block_anchors.erase(i)
-					_destroyed_blocks.push_back(index)
+					destroyed_blocks.push_back(index)
 					if _block_ids[index] == _mainframe_id:
 						assert(_block_has_mainframe)
 						get_parent().queue_free()
@@ -207,15 +230,18 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 				var hp := val
 				if hp <= damage:
 					damage -= hp
+					_block_health[index] = 0
+					block_count -= 1
+					assert(_verify_block_count())
+					if index in _block_anchors:
+						remove_all_anchors(index, _raycast.x, _raycast.y, _raycast.z)
+						block_anchor_destroyed = true
 					_voxel_mesh.remove_block(_raycast.voxel)
 					cost -= OwnWar_Block.get_block_by_id(_block_ids[index]).cost
-					_block_health[index] = 0
-					_destroyed_blocks.push_back(index)
+					destroyed_blocks.push_back(index)
 					# Don't do the check in release builds as a small optimization, but keep an
 					# assert just in case things change (e.g. mainframe has no server_node anymore).
 					assert(_block_ids[index] != _mainframe_id)
-					_block_anchor_destroyed = _block_anchor_destroyed or _block_anchors.erase(index)
-					block_count -= 1
 				else:
 					_block_health[index] -= damage
 					damage = 0
@@ -225,6 +251,7 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 		_raycast.step()
 	last_hit_position = Vector3(_raycast.x, _raycast.y, _raycast.z)
 	emit_signal("hit", self)
+	_destroy_disconnected_blocks(destroyed_blocks, block_anchor_destroyed)
 	return damage
 
 
@@ -249,7 +276,7 @@ func can_ray_pass_through(origin: Vector3, direction: Vector3) -> bool:
 	return true
 
 
-func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color) -> void:
+func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color, state := []) -> void:
 	var sx := int(aabb.size.x)
 	var sy := int(aabb.size.y)
 	var sz := int(aabb.size.z)
@@ -260,14 +287,27 @@ func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color) -
 	assert(position.x < sx, "Position out of bounds (Corrupt data?)")
 	assert(position.y < sy, "Position out of bounds (Corrupt data?)")
 	assert(position.z < sz, "Position out of bounds (Corrupt data?)")
+	var index := int(position.x * sy * sz + position.y * sz + position.z)
+	_block_ids[index] = block.id
+	if len(state) > 0 and state[0][index] == 0:
+		# Include client node because of implicit spatial (may be removed in the future because of
+		# this)
+		if block.server_node != null or block.client_node != null:
+			_block_health_alt.push_back(0)
+			_block_server_nodes.push_back(null)
+			_block_client_nodes.push_back(null)
+			_block_reverse_index.push_back(PoolIntArray([index]))
+		return
+	_voxel_mesh.add_block(block, color, [int(position.x), int(position.y), int(position.z)], r)
 	var basis := OwnWar_Block.rotation_to_basis(r)
 	var pos := position + Vector3.ONE / 2
-	_voxel_mesh.add_block(block, color, [int(position.x), int(position.y), int(position.z)], r)
 	var bb := InterpolationData.new(block)
 	if bb.server_node != null:
+		bb.server_node.name = "S %d" % index
 		bb.server_node.transform = Transform(basis, pos * OwnWar_Block.BLOCK_SCALE)
 		add_child(bb.server_node)
 	if bb.client_node != null:
+		bb.client_node.name = "C %d" % index
 		bb.client_node.transform = Transform(basis, pos * OwnWar_Block.BLOCK_SCALE)
 		bb.prev_transform = bb.client_node.transform
 		bb.curr_transform = bb.client_node.transform
@@ -276,6 +316,7 @@ func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color) -
 			bb.client_node.set_color(color)
 		if bb.server_node == null:
 			bb.server_node = Spatial.new()
+			bb.server_node.name = "Sc %d" % index
 			bb.server_node.transform = bb.client_node.transform
 			add_child(bb.server_node)
 		if "server_node" in bb.client_node:
@@ -284,11 +325,11 @@ func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color) -
 		_interpolate_blocks.push_back(bb)
 		var e := bb.server_node.connect("tree_exiting", self, "_remove_interpolator", [bb])
 		assert(e == OK)
-	var index := int(position.x * sy * sz + position.y * sz + position.z)
+	var index_alt := -1
 	if bb.server_node == null:
 		_block_health[index] = block.health
 	else:
-		var index_alt := len(_block_health_alt)
+		index_alt = len(_block_health_alt)
 		assert(index_alt < (1 << 16), "Alt index out of bounds")
 		_block_health_alt.push_back(block.health)
 		_block_server_nodes.push_back(bb.server_node)
@@ -299,10 +340,20 @@ func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color) -
 			wheels.append(bb.server_node)
 		elif bb.server_node is OwnWar_Weapon:
 			weapons.append(bb.server_node)
-	_block_ids[index] = block.id
 	max_cost += block.cost
-	max_health += block.health
+	if len(state) == 0:
+		max_health += block.health
+	else:
+		if state[0][index] & 0x8000:
+			var i: int = state[0][index] & 0x7fff
+			assert(index_alt == i)
+			_block_health_alt[i] = state[1][i]
+		else:
+			assert(index_alt < 0)
+			_block_health[index] = state[0][index]
+			max_cost += _block_health[index]
 	block_count += 1
+	assert(_verify_block_count())
 	if block.name == "mainframe":
 		assert(not _block_has_mainframe, "Body already has a mainframe!")
 		_block_has_mainframe = true
@@ -352,34 +403,100 @@ func add_anchor(coordinate: Vector3, body: VehicleBody) -> void:
 		_block_anchors[index] = [body]
 	else:
 		arr.push_back(body)
-	if not body.is_connected("tree_exiting", self, "_remove_anchored_body"):
-		var e := body.connect("tree_exiting", self, "_remove_anchored_body", [body])
+	if not body.is_connected("destroyed", self, "_remove_anchored_body"):
+		var e := body.connect("destroyed", self, "_remove_anchored_body", [body])
 		assert(e == OK)
 
 
 func remove_anchor(coordinate: Vector3, body: VehicleBody) -> void:
 	assert(body != null)
 	coordinate -= aabb.position
+	var x := int(coordinate.x)
+	var y := int(coordinate.y)
+	var z := int(coordinate.z)
+	var sx := int(aabb.size.x)
+	var sy := int(aabb.size.y)
+	var sz := int(aabb.size.z)
 	assert(coordinate.x >= 0)
 	assert(coordinate.y >= 0)
 	assert(coordinate.z >= 0)
 	assert(coordinate.x < aabb.size.x)
 	assert(coordinate.y < aabb.size.y)
 	assert(coordinate.z < aabb.size.z)
-	var index := int(
-		coordinate.x * aabb.size.z * aabb.size.y + \
-		coordinate.y * aabb.size.z + \
-		coordinate.z
-	)
+	var index := x * sz * sy + y * sz + z
 	var arr = _block_anchors.get(index)
 	if arr != null:
 		arr.erase(body)
 		if len(arr) == 0:
 			var _e := _block_anchors.erase(index)
-	_block_anchor_destroyed = true
+		else:
+			# There are still anchors present, so it isn't disconnected
+			return
+	else:
+		# The anchor was already removed, nothing to do here
+		return
+	var connect_count := 0
+	if x < sx - 1 and _block_health[index + sy * sz] != 0:
+		connect_count += 1
+	if x > 0 and _block_health[index - sy * sz] != 0:
+		connect_count += 1
+	if y < sy - 1 and _block_health[index + sz] != 0:
+		connect_count += 1
+	if y > 0 and _block_health[index - sz] != 0:
+		connect_count += 1
+	if z < sz - 1 and _block_health[index + 1] != 0:
+		connect_count += 1
+	if z > 0 and _block_health[index - 1] != 0:
+		connect_count += 1
+	if connect_count == 0:
+		_voxel_mesh.remove_block([x, y, z])
+		var val := _block_health[index]
+		if val != 0:
+			_block_health[index] = 0
+			block_count -= 1
+			assert(_verify_block_count())
+			if block_count == 0:
+				queue_free()
+				emit_signal("destroyed")
+			elif val & 0x8000:
+				var i := val & 0x7fff
+				_block_health_alt[i] = 0
+				var node = _block_server_nodes[i]
+				if node != null:
+					assert(not node.is_queued_for_deletion())
+					node.queue_free()
+					if node.has_method("destroy"):
+						node.destroy()
+					_block_server_nodes[i] = null
+	else:
+		_destroy_disconnected_blocks(PoolIntArray([index]), true, true)
+
+
+func remove_all_anchors(index: int, x: int, y: int, z: int) -> void:
+	var sx := int(aabb.size.x)
+	var sy := int(aabb.size.y)
+	var sz := int(aabb.size.z)
+	var e := _block_anchors.erase(index)
+	assert(e)
+	var connect_count := 0
+	if x < sx - 1 and _block_health[index + sy * sz] != 0:
+		connect_count += 1
+	if x > 0 and _block_health[index - sy * sz] != 0:
+		connect_count += 1
+	if y < sy - 1 and _block_health[index + sz] != 0:
+		connect_count += 1
+	if y > 0 and _block_health[index - sz] != 0:
+		connect_count += 1
+	if z < sz - 1 and _block_health[index + 1] != 0:
+		connect_count += 1
+	if z > 0 and _block_health[index - 1] != 0:
+		connect_count += 1
+	if connect_count > 0:
+		_destroy_disconnected_blocks(PoolIntArray([index]), true, true)
 
 
 func _remove_anchored_body(body) -> void:
+	var indices := PoolIntArray()
 	for index in _block_anchors:
 		var arr: Array = _block_anchors[index]
 		while true:
@@ -388,8 +505,10 @@ func _remove_anchored_body(body) -> void:
 				break
 			arr.remove(i)
 		if len(arr) == 0:
-			_block_anchors.erase(index)
-	_block_anchor_destroyed = true
+			indices.push_back(index)
+	for i in indices:
+		var _e := _block_anchors.erase(i)
+	_destroy_disconnected_blocks(PoolIntArray(), true)
 
 
 func _correct_mass() -> void:
@@ -444,26 +563,27 @@ func _is_connected_to_mainframe(marks := []) -> bool:
 	return false
 
 
-func _destroy_disconnected_blocks() -> void:
+func _destroy_disconnected_blocks(destroyed_blocks: PoolIntArray, block_anchor_destroyed: bool,
+	force_check := false) -> void:
 	if get_parent().is_queued_for_deletion():
 		return
 	if is_queued_for_deletion():
-		assert(false) # Just checking...
 		return
 	if not _block_has_mainframe:
 		if len(_block_anchors) == 0:
 			queue_free()
+			emit_signal("destroyed")
 			return
-		elif _block_anchor_destroyed:
+		elif block_anchor_destroyed:
 			var m := []
 			if not _is_connected_to_mainframe(m):
 				queue_free()
+				emit_signal("destroyed")
 				return
-			_block_anchor_destroyed = false
 	var sx := int(aabb.size.x)
 	var sy := int(aabb.size.y)
 	var sz := int(aabb.size.z)
-	for index_wtf in _destroyed_blocks:
+	for index_wtf in destroyed_blocks:
 		assert(index_wtf >= 0)
 		# wdym it has no set type???
 		var index: int = index_wtf
@@ -501,7 +621,7 @@ func _destroy_disconnected_blocks() -> void:
 		# the core, otherwise this block would already have been destroyed
 		# >2 = we must check because any of the neighbours may have become
 		# disconnected
-		if connect_count > 1:
+		if force_check or connect_count > 1:
 			var mi := 0
 			while mi < 6:
 				var m: int = connect_mask & (1 << mi)
@@ -556,7 +676,9 @@ func _destroy_disconnected_blocks() -> void:
 					else:
 						_destroy_connected_blocks(i, xi, yi, zi)
 				mi += 1
-	_destroyed_blocks.resize(0)
+		if block_count == 0:
+			emit_signal("destroyed")
+			queue_free()
 
 
 func _mark_connected_blocks(index: int, x: int, y: int, z: int, bitmap: BitMap, found := false) -> bool:
@@ -603,22 +725,29 @@ func _mark_connected_blocks(index: int, x: int, y: int, z: int, bitmap: BitMap, 
 
 
 func _destroy_connected_blocks(index: int, x: int, y: int, z: int) -> void:
-	if not server_mode:
+	if not headless:
 		var node: Spatial = DESTROY_BLOCK_EFFECT_SCENE.instance()
 		var pos := Vector3(x, y, z)
 		pos *= OwnWar_Block.BLOCK_SCALE
 		pos -= center_of_mass
 		node.translation = to_global(pos)
 		get_tree().current_scene.add_child(node)
-		block_count -= 1
 	_voxel_mesh.remove_block([x, y, z])
-	if _block_health[index] & 0x8000:
-		var i := _block_health[index] & 0x7fff
-		_block_health_alt[i] = 0
-		if _block_server_nodes[i] != null:
-			_block_server_nodes[i].queue_free()
-			_block_server_nodes[i] = null
-	_block_health[index] = 0
+	var val := _block_health[index]
+	if val != 0:
+		_block_health[index] = 0
+		block_count -= 1
+		assert(_verify_block_count())
+		if val & 0x8000:
+			var i := val & 0x7fff
+			_block_health_alt[i] = 0
+			var node = _block_server_nodes[i]
+			if node != null:
+				assert(not node.is_queued_for_deletion())
+				node.queue_free()
+				if node.has_method("destroy"):
+					node.destroy()
+				_block_server_nodes[i] = null
 	var sx := int(aabb.size.x)
 	var sy := int(aabb.size.y)
 	var sz := int(aabb.size.z)
@@ -676,3 +805,13 @@ func set_aabb(value: AABB) -> void:
 	for i in size:
 		_block_health[i] = 0
 		_block_ids[i] = 0
+
+
+func _verify_block_count() -> bool:
+	var c := 0
+	for v in _block_health:
+		if v != 0:
+			c += 1
+	if block_count != c:
+		printt("Mismatch!", block_count, c)
+	return block_count == c

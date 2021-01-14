@@ -13,6 +13,8 @@ onready var _ray: RayCast = get_node("Ray")
 
 
 func fire() -> bool:
+	if not is_network_master():
+		return false
 	if fire_timer == null:
 		var dmg := damage
 		var at: Vector3
@@ -30,6 +32,7 @@ func fire() -> bool:
 						if not body.can_ray_pass_through(at, global_transform * dir):
 							break
 					else:
+						assert(get_tree().is_network_server())
 						dmg = body.apply_damage(at, global_transform.basis * dir, dmg)
 						if dmg == 0:
 							var pos := body.last_hit_position
@@ -45,12 +48,16 @@ func fire() -> bool:
 				at = global_transform * _ray.cast_to
 				break
 		_ray.clear_exceptions()
-		emit_signal("fired", at)
+		rpc_unreliable_id(-OwnWar_NetInfo.disable_broadcast_id, "fired_feedback", at)
 		fire_timer = get_tree().create_timer(time_between_shots, false)
 		var e := fire_timer.connect("timeout", self, "set", ["fire_timer", null])
 		assert(e == OK)
 		return true
 	return false
+
+
+puppetsync func fired_feedback(at: Vector3) -> void:
+	emit_signal("fired", at)
 
 
 func _exit_tree() -> void:

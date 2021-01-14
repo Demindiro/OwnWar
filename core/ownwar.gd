@@ -11,24 +11,10 @@ const VERSION := Vector3(0, 17, 0)
 const COLLISION_MASK_TERRAIN := 1 << (8 - 1)
 const COLLISION_MASK_UNIT := 1 << (19 - 1)
 const COLLISION_MASK_STRUCTURE := 1 << (20 - 1)
-const _MAIN_MENU := "res://core/menu/main_menu/main.tscn"
-const _MAIN_MENU_SCENES := PoolStringArray()
+const MAIN_MENU := "res://core/menu/main_menu/main.tscn"
 const VEHICLE_DIRECTORY := "user://vehicles"
 const VEHICLE_EXTENSION := "owv.gz"
-
-
-static func add_main_menu_background(path: String) -> void:
-	assert(path.is_abs_path())
-	assert(File.new().file_exists(path))
-	_MAIN_MENU_SCENES.append(path)
-
-
-static func get_random_main_menu_background() -> PackedScene:
-	if len(_MAIN_MENU_SCENES) == 0:
-		return null
-	var i := randi() % len(_MAIN_MENU_SCENES)
-	var ret: PackedScene = load(_MAIN_MENU_SCENES[i])
-	return ret
+const NET_COMPRESSION := NetworkedMultiplayerENet.COMPRESS_RANGE_CODER
 
 
 static func snap_transform(node) -> void:
@@ -68,7 +54,7 @@ static func snap_transform(node) -> void:
 
 
 static func goto_main_menu(tree: SceneTree) -> void:
-	tree.change_scene(_MAIN_MENU)
+	tree.change_scene(MAIN_MENU)
 	tree.paused = false
 
 

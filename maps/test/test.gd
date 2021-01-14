@@ -85,6 +85,15 @@ func _get_property_list() -> Array:
 	return props
 
 
+func _enter_tree() -> void:
+	# Dummy network until I figure out how to do RPC in singleplayer properly
+	# This is a security risk btw, we shouldn't listen on random ports, let alone
+	# one that is bound to 0.0.0.0
+	var n := NetworkedMultiplayerENet.new()
+	n.create_server(59798)
+	get_tree().network_peer = n
+
+
 func _ready() -> void:
 	if not Engine.editor_hint:
 		if vehicle_path == "":
@@ -102,6 +111,10 @@ func _ready() -> void:
 		spawn_vehicle(vehicle_path)
 		spawn_vehicle(vehicle_path)
 		spawn_vehicle(vehicle_path)
+
+
+func _exit_tree() -> void:
+	get_tree().network_peer = null
 
 
 func spawn_vehicle(path: String) -> void:

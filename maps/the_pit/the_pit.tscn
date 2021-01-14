@@ -1,0 +1,167 @@
+[gd_scene load_steps=16 format=2]
+
+[ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
+[ext_resource path="res://maps/the_pit/map_data/data.hterrain" type="Resource" id=2]
+[ext_resource path="res://addons/backgrounds/AllSkyFree_Sky_ClearBlueSky_Equirect.png" type="Texture" id=3]
+[ext_resource path="res://addons/tiles/sand/savanna_cliff_a.png" type="Texture" id=4]
+[ext_resource path="res://addons/tiles/sand/savanna_dirt_rocks_a.png" type="Texture" id=5]
+[ext_resource path="res://addons/tiles/sand/savanna_dirt_a.png" type="Texture" id=6]
+[ext_resource path="res://addons/free_camera.gd" type="Script" id=7]
+[ext_resource path="res://maps/the_pit/the_pit.gd" type="Script" id=8]
+[ext_resource path="res://maps/hud.tscn" type="PackedScene" id=9]
+[ext_resource path="res://maps/the_pit/gui.gd" type="Script" id=10]
+[ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=11]
+[ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=12]
+
+[sub_resource type="BoxShape" id=1]
+extents = Vector3( 200, 1000, 1000 )
+
+[sub_resource type="PanoramaSky" id=2]
+panorama = ExtResource( 3 )
+
+[sub_resource type="Environment" id=3]
+background_mode = 2
+background_sky = SubResource( 2 )
+
+[node name="The Pit" type="Node"]
+process_priority = -10
+script = ExtResource( 8 )
+
+[node name="Environment" type="Node" parent="."]
+
+[node name="HTerrain" type="Spatial" parent="Environment"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -255.5, 0, -255.5 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+ambient_wind = 0.0
+lod_scale = 2.0
+map_scale = Vector3( 1, 1, 1 )
+_terrain_data = ExtResource( 2 )
+chunk_size = 32
+collision_enabled = true
+collision_layer = 1
+collision_mask = 1
+shader_type = "Classic4Lite"
+custom_shader = null
+custom_globalmap_shader = null
+shader_params/u_ground_uv_scale = 20
+shader_params/u_depth_blending = false
+shader_params/u_triplanar = true
+shader_params/u_tile_reduction = Plane( 1, 1, 1, 1 )
+ground/albedo_bump_0 = ExtResource( 5 )
+ground/normal_roughness_0 = null
+ground/albedo_bump_1 = ExtResource( 6 )
+ground/normal_roughness_1 = null
+ground/albedo_bump_2 = null
+ground/normal_roughness_2 = null
+ground/albedo_bump_3 = ExtResource( 4 )
+ground/normal_roughness_3 = null
+
+[node name="Walls" type="StaticBody" parent="Environment"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="X" type="CollisionShape" parent="Environment/Walls"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 455.5, 0, 0 )
+shape = SubResource( 1 )
+
+[node name="-X" type="CollisionShape" parent="Environment/Walls"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -455.5, 0, 0 )
+shape = SubResource( 1 )
+
+[node name="Y" type="CollisionShape" parent="Environment/Walls"]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 25.8253, 6.30453, 506.477 )
+shape = SubResource( 1 )
+
+[node name="-Y" type="CollisionShape" parent="Environment/Walls"]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 1.99105e-05, 0, -455.5 )
+shape = SubResource( 1 )
+
+[node name="Roof" type="CollisionShape" parent="Environment/Walls"]
+transform = Transform( -4.37114e-08, 0, -1, -1, -5.96046e-08, 4.37114e-08, -5.96046e-08, 1, 1.77636e-15, 0, 1000, 0 )
+shape = SubResource( 1 )
+
+[node name="DirectionalLight" type="DirectionalLight" parent="Environment"]
+transform = Transform( 0.866025, 0.25, -0.433013, 0, 0.866025, 0.5, 0.5, -0.433013, 0.75, 0, 55, 0 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+environment = SubResource( 3 )
+
+[node name="Spawn Points" type="Node" parent="."]
+
+[node name="Position3D" type="Position3D" parent="Spawn Points"]
+transform = Transform( -0.278067, 0.248612, 0.927831, 0, 0.965926, -0.258819, -0.960561, -0.0719691, -0.268592, -91.3194, 13.4028, 41.6737 )
+
+[node name="Position3D2" type="Position3D" parent="Spawn Points"]
+transform = Transform( 0.855862, 2.26375e-08, 0.517204, -8.12518e-09, 1, -3.03236e-08, -0.517204, 2.17504e-08, 0.855862, -66.2348, 13.4028, -92.7232 )
+
+[node name="Position3D3" type="Position3D" parent="Spawn Points"]
+transform = Transform( 0.721094, 2.26375e-08, -0.692837, -3.13933e-08, 1, 9.35593e-16, 0.692837, 2.17504e-08, 0.721094, 55.9942, 13.4028, -113.66 )
+
+[node name="Position3D4" type="Position3D" parent="Spawn Points"]
+transform = Transform( -0.692837, 2.26375e-08, -0.721094, 5.31481e-16, 1, 3.13933e-08, 0.721094, 2.17504e-08, -0.692837, 82.672, 18.4028, 28.2274 )
+
+[node name="FreeCamera" type="Camera" parent="."]
+far = 1000.0
+script = ExtResource( 7 )
+speed = 100.0
+actions = PoolStringArray( "designer_move_left", "designer_move_right", "designer_move_forward", "designer_move_back", "designer_move_up", "designer_move_down" )
+
+[node name="HUDCamera" type="Camera" parent="."]
+far = 1000.0
+
+[node name="HUD" parent="." instance=ExtResource( 9 )]
+camera = NodePath("../HUDCamera")
+
+[node name="GUI" type="ColorRect" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+focus_mode = 2
+theme = ExtResource( 11 )
+color = Color( 0, 0, 0, 0.4 )
+script = ExtResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Box" type="VBoxContainer" parent="GUI"]
+anchor_left = 0.3
+anchor_right = 0.3
+anchor_bottom = 1.0
+margin_left = -161.0
+margin_right = 161.0
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Continue" type="Button" parent="GUI/Box"]
+margin_top = 468.0
+margin_right = 322.0
+margin_bottom = 509.629
+shortcut = ExtResource( 12 )
+text = "Continue"
+
+[node name="Settings" type="Button" parent="GUI/Box"]
+margin_top = 519.0
+margin_right = 322.0
+margin_bottom = 560.629
+text = "Settings"
+
+[node name="Exit" type="Button" parent="GUI/Box"]
+margin_top = 570.0
+margin_right = 322.0
+margin_bottom = 611.629
+text = "Exit"
+[connection signal="visibility_changed" from="GUI" to="HUD" method="set_mouse_mode"]
+[connection signal="visibility_changed" from="GUI" to="HUD" method="poll_input"]
+[connection signal="visibility_changed" from="GUI" to="GUI" method="grab_focus"]
+[connection signal="pressed" from="GUI/Box/Continue" to="GUI" method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="GUI/Box/Exit" to="GUI" method="goto_main_menu"]
