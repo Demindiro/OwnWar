@@ -1,18 +1,18 @@
-[gd_scene load_steps=33 format=2]
+[gd_scene load_steps=35 format=2]
 
-[ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=1]
+[ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://start_menu/vehicles.gd" type="Script" id=2]
 [ext_resource path="res://addons/crosshairs/image0013.png" type="Texture" id=3]
 [ext_resource path="res://start_menu/vehicle_info.gd" type="Script" id=4]
 [ext_resource path="res://start_menu/vehicle_preview.gd" type="Script" id=5]
 [ext_resource path="res://start_menu/floor_mirror.gd" type="Script" id=6]
 [ext_resource path="res://start_menu/new_vehicle.gd" type="Script" id=7]
-[ext_resource path="res://core/menu/main.gd" type="Script" id=8]
+[ext_resource path="res://start_menu/main.gd" type="Script" id=8]
 [ext_resource path="res://addons/hud/obituary_hexa_circles.tres" type="Texture" id=9]
 [ext_resource path="res://start_menu/blur_material.tres" type="Material" id=10]
 [ext_resource path="res://icon.png" type="Texture" id=11]
 [ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=12]
-[ext_resource path="res://start_menu/error.gd" type="Script" id=13]
+[ext_resource path="res://ui/font_big.tres" type="DynamicFont" id=13]
 [ext_resource path="res://start_menu/shortcut_main_menu_battle.tres" type="ShortCut" id=14]
 [ext_resource path="res://start_menu/shortcut_main_menu_settings.tres" type="ShortCut" id=15]
 [ext_resource path="res://start_menu/shortcut_main_menu_edit.tres" type="ShortCut" id=16]
@@ -24,8 +24,8 @@
 [ext_resource path="res://addons/hud/obituary_hammer.tres" type="Texture" id=22]
 [ext_resource path="res://addons/hud/obituary_cancel_cloud.tres" type="Texture" id=23]
 [ext_resource path="res://start_menu/lobby.gd" type="Script" id=24]
-
-
+[ext_resource path="res://ui/font_title.tres" type="DynamicFont" id=25]
+[ext_resource path="res://ui/font_big_title.tres" type="DynamicFont" id=26]
 
 [sub_resource type="Environment" id=1]
 tonemap_mode = 2
@@ -175,14 +175,14 @@ __meta__ = {
 add_texture = ExtResource( 3 )
 
 [node name="Box" type="ScrollContainer" parent="Vehicles"]
-margin_left = 16.0
-margin_top = 11.0
-margin_right = 1904.0
-margin_bottom = 205.0
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 1916.0
+margin_bottom = 212.0
 scroll_vertical_enabled = false
 
 [node name="Box" type="HBoxContainer" parent="Vehicles/Box"]
-margin_right = 1888.0
+margin_right = 1912.0
 size_flags_horizontal = 3
 
 [node name="NewVehicle" type="PanelContainer" parent="."]
@@ -242,93 +242,90 @@ anchor_left = 0.8
 anchor_right = 1.0
 margin_top = 20.0
 margin_right = -20.0
-margin_bottom = 196.0
 script = ExtResource( 4 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+_gui_name = NodePath("Box/Name")
+_gui_cost = NodePath("Box/Box/Cost value")
+_gui_blocks = NodePath("Box/Box/Blocks value")
+_gui_mass = NodePath("Box/Box/Mass value")
+_gui_size = NodePath("Box/Box/Size value")
 
-[node name="Box" type="MarginContainer" parent="VehicleInfo"]
-margin_left = 16.0
-margin_top = 11.0
-margin_right = 348.0
-margin_bottom = 165.0
-custom_constants/margin_top = 5
-custom_constants/margin_bottom = 5
-
-[node name="Box" type="VBoxContainer" parent="VehicleInfo/Box"]
-margin_top = 5.0
-margin_right = 332.0
-margin_bottom = 149.0
+[node name="Box" type="VBoxContainer" parent="VehicleInfo"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 360.0
+margin_bottom = 139.0
 size_flags_horizontal = 3
 size_flags_vertical = 9
 
-[node name="Name" type="LineEdit" parent="VehicleInfo/Box/Box"]
-margin_right = 332.0
-margin_bottom = 42.0
+[node name="Name" type="LineEdit" parent="VehicleInfo/Box"]
+margin_right = 356.0
+margin_bottom = 29.0
 placeholder_text = "Name"
 caret_blink = true
 
-[node name="Box" type="GridContainer" parent="VehicleInfo/Box/Box"]
-margin_top = 52.0
-margin_right = 332.0
-margin_bottom = 144.0
+[node name="Box" type="GridContainer" parent="VehicleInfo/Box"]
+margin_top = 39.0
+margin_right = 356.0
+margin_bottom = 135.0
 size_flags_horizontal = 3
 size_flags_vertical = 9
 columns = 2
 
-[node name="CostName" type="Label" parent="VehicleInfo/Box/Box/Box"]
-margin_right = 164.0
-margin_bottom = 20.0
+[node name="Cost name" type="Label" parent="VehicleInfo/Box/Box"]
+margin_right = 176.0
+margin_bottom = 21.0
 size_flags_horizontal = 3
 text = "Cost"
 
-[node name="CostValue" type="Label" parent="VehicleInfo/Box/Box/Box"]
-margin_left = 168.0
-margin_right = 332.0
-margin_bottom = 20.0
+[node name="Cost value" type="Label" parent="VehicleInfo/Box/Box"]
+margin_left = 180.0
+margin_right = 356.0
+margin_bottom = 21.0
 size_flags_horizontal = 3
 
-[node name="BlocksName" type="Label" parent="VehicleInfo/Box/Box/Box"]
-margin_top = 24.0
-margin_right = 164.0
-margin_bottom = 44.0
+[node name="Blocks name" type="Label" parent="VehicleInfo/Box/Box"]
+margin_top = 25.0
+margin_right = 176.0
+margin_bottom = 46.0
 size_flags_horizontal = 3
 text = "Blocks"
 
-[node name="BlocksValue" type="Label" parent="VehicleInfo/Box/Box/Box"]
-margin_left = 168.0
-margin_top = 24.0
-margin_right = 332.0
-margin_bottom = 44.0
+[node name="Blocks value" type="Label" parent="VehicleInfo/Box/Box"]
+margin_left = 180.0
+margin_top = 25.0
+margin_right = 356.0
+margin_bottom = 46.0
 size_flags_horizontal = 3
 
-[node name="MassName" type="Label" parent="VehicleInfo/Box/Box/Box"]
-margin_top = 48.0
-margin_right = 164.0
-margin_bottom = 68.0
+[node name="Mass name" type="Label" parent="VehicleInfo/Box/Box"]
+margin_top = 50.0
+margin_right = 176.0
+margin_bottom = 71.0
 size_flags_horizontal = 3
 text = "Mass"
 
-[node name="MassValue" type="Label" parent="VehicleInfo/Box/Box/Box"]
-margin_left = 168.0
-margin_top = 48.0
-margin_right = 332.0
-margin_bottom = 68.0
+[node name="Mass value" type="Label" parent="VehicleInfo/Box/Box"]
+margin_left = 180.0
+margin_top = 50.0
+margin_right = 356.0
+margin_bottom = 71.0
 size_flags_horizontal = 3
 
-[node name="SizeName" type="Label" parent="VehicleInfo/Box/Box/Box"]
-margin_top = 72.0
-margin_right = 164.0
-margin_bottom = 92.0
+[node name="Size name" type="Label" parent="VehicleInfo/Box/Box"]
+margin_top = 75.0
+margin_right = 176.0
+margin_bottom = 96.0
 size_flags_horizontal = 3
 text = "Size"
 
-[node name="SizeValue" type="Label" parent="VehicleInfo/Box/Box/Box"]
-margin_left = 168.0
-margin_top = 72.0
-margin_right = 332.0
-margin_bottom = 92.0
+[node name="Size value" type="Label" parent="VehicleInfo/Box/Box"]
+margin_left = 180.0
+margin_top = 75.0
+margin_right = 356.0
+margin_bottom = 96.0
 size_flags_horizontal = 3
 
 [node name="QuickActions" type="HBoxContainer" parent="."]
@@ -336,70 +333,62 @@ anchor_right = 1.0
 margin_left = 20.0
 margin_top = 20.0
 margin_right = -20.0
+custom_constants/separation = 10
 alignment = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Left" type="HBoxContainer" parent="QuickActions"]
-margin_right = 881.0
-margin_bottom = 41.0
+margin_right = 859.0
+margin_bottom = 34.0
 size_flags_horizontal = 3
 size_flags_vertical = 0
+alignment = 2
 
 [node name="Exit" type="Button" parent="QuickActions/Left"]
-margin_right = 141.454
-margin_bottom = 41.6293
-text = "Exit game"
+margin_left = 698.0
+margin_right = 751.0
+margin_bottom = 34.0
+custom_fonts/font = ExtResource( 13 )
+text = "Exit"
 
 [node name="Settings" type="Button" parent="QuickActions/Left"]
-margin_left = 145.0
-margin_right = 273.454
-margin_bottom = 41.6293
+margin_left = 755.0
+margin_right = 859.0
+margin_bottom = 34.0
+custom_fonts/font = ExtResource( 13 )
 shortcut = ExtResource( 15 )
 text = "Settings"
 
-[node name="Right" type="HBoxContainer" parent="QuickActions/Left"]
-margin_left = 277.0
-margin_right = 277.0
-margin_bottom = 41.0
-alignment = 2
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
 [node name="Middle" type="HBoxContainer" parent="QuickActions"]
-margin_left = 885.0
-margin_right = 994.0
-margin_bottom = 41.0
+margin_left = 869.0
+margin_right = 1010.0
+margin_bottom = 47.0
 size_flags_vertical = 0
 alignment = 1
 
-[node name="Battle" type="Button" parent="QuickActions/Middle"]
-margin_right = 109.454
-margin_bottom = 41.6293
+[node name="Servers" type="Button" parent="QuickActions/Middle"]
+margin_right = 141.0
+margin_bottom = 47.0
+custom_fonts/font = ExtResource( 26 )
 shortcut = ExtResource( 14 )
-text = "Battle"
+text = "Servers"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Right" type="HBoxContainer" parent="QuickActions"]
-margin_left = 998.0
+margin_left = 1020.0
 margin_right = 1880.0
-margin_bottom = 41.0
+margin_bottom = 34.0
 size_flags_horizontal = 3
 size_flags_vertical = 0
 
-[node name="Left" type="HBoxContainer" parent="QuickActions/Right"]
-size_flags_horizontal = 0
-size_flags_vertical = 0
-alignment = 2
-
 [node name="Edit" type="Button" parent="QuickActions/Right"]
-margin_left = 4.0
-margin_right = 78.4545
-margin_bottom = 41.6293
+margin_right = 53.0
+margin_bottom = 34.0
+custom_fonts/font = ExtResource( 13 )
 shortcut = ExtResource( 16 )
 text = "Edit"
 __meta__ = {
@@ -407,9 +396,10 @@ __meta__ = {
 }
 
 [node name="Create" type="Button" parent="QuickActions/Right"]
-margin_left = 82.0
-margin_right = 194.454
-margin_bottom = 41.6293
+margin_left = 57.0
+margin_right = 141.0
+margin_bottom = 34.0
+custom_fonts/font = ExtResource( 13 )
 shortcut = ExtResource( 17 )
 text = "Create"
 __meta__ = {
@@ -417,6 +407,7 @@ __meta__ = {
 }
 
 [node name="Server menu" type="ColorRect" parent="."]
+visible = false
 self_modulate = Color( 0.584314, 0.584314, 0.584314, 1 )
 material = ExtResource( 10 )
 anchor_right = 1.0
@@ -437,14 +428,13 @@ __meta__ = {
 }
 
 [node name="Box" type="VBoxContainer" parent="Server menu/Box"]
-margin_left = 136.0
-margin_right = 536.0
+margin_right = 300.0
 margin_bottom = 864.0
 
 [node name="Manual connect" type="VBoxContainer" parent="Server menu/Box/Box"]
-margin_right = 400.0
-margin_bottom = 287.0
-rect_min_size = Vector2( 400, 0 )
+margin_right = 300.0
+margin_bottom = 217.0
+rect_min_size = Vector2( 300, 0 )
 script = ExtResource( 19 )
 no_connection_icon = ExtResource( 23 )
 empty_address_icon = ExtResource( 22 )
@@ -455,55 +445,50 @@ _password = NodePath("../../../../Server menu/Box/Box/Manual connect/Password")
 _status = NodePath("../../../../Server menu/Box/Box/Status")
 
 [node name="Title" type="Label" parent="Server menu/Box/Box/Manual connect"]
-margin_right = 400.0
-margin_bottom = 20.0
-text = "Manual connect"
+margin_right = 300.0
+margin_bottom = 31.0
+custom_fonts/font = ExtResource( 25 )
+text = "Manual Connect"
 align = 1
 
-[node name="Padding top" type="Control" parent="Server menu/Box/Box/Manual connect"]
-margin_top = 30.0
-margin_right = 400.0
-margin_bottom = 50.0
-rect_min_size = Vector2( 0, 20 )
-
 [node name="Host" type="LineEdit" parent="Server menu/Box/Box/Manual connect"]
-margin_top = 60.0
-margin_right = 400.0
-margin_bottom = 102.0
-placeholder_text = "address"
+margin_top = 41.0
+margin_right = 300.0
+margin_bottom = 70.0
+placeholder_text = "Address"
 
 [node name="Port" type="SpinBox" parent="Server menu/Box/Box/Manual connect"]
-margin_top = 112.0
-margin_right = 400.0
-margin_bottom = 154.0
+margin_top = 80.0
+margin_right = 300.0
+margin_bottom = 109.0
 min_value = 1.0
 max_value = 65535.0
 value = 39983.0
-prefix = "port"
+prefix = "Port"
 
 [node name="Password" type="LineEdit" parent="Server menu/Box/Box/Manual connect"]
-margin_top = 164.0
-margin_right = 400.0
-margin_bottom = 206.0
+margin_top = 119.0
+margin_right = 300.0
+margin_bottom = 148.0
 secret = true
 placeholder_text = "Password (optional)"
 
 [node name="Padding bottom" type="Control" parent="Server menu/Box/Box/Manual connect"]
-margin_top = 216.0
-margin_right = 400.0
-margin_bottom = 236.0
+margin_top = 158.0
+margin_right = 300.0
+margin_bottom = 178.0
 rect_min_size = Vector2( 0, 20 )
 
 [node name="Connect" type="Button" parent="Server menu/Box/Box/Manual connect"]
-margin_top = 246.0
-margin_right = 400.0
-margin_bottom = 287.629
+margin_top = 188.0
+margin_right = 300.0
+margin_bottom = 217.0
 text = "Connect"
 
 [node name="Status" type="VBoxContainer" parent="Server menu/Box/Box"]
 process_priority = 1
-margin_top = 297.0
-margin_right = 400.0
+margin_top = 227.0
+margin_right = 300.0
 margin_bottom = 864.0
 size_flags_vertical = 3
 custom_constants/separation = 30
@@ -513,30 +498,31 @@ _error = NodePath("../../../../Server menu/Box/Box/Status/Error")
 _icon = NodePath("../../../../Server menu/Box/Box/Status/Icon")
 
 [node name="Error" type="Label" parent="Server menu/Box/Box/Status"]
-margin_top = 421.0
-margin_right = 400.0
-margin_bottom = 441.0
+margin_top = 490.0
+margin_right = 300.0
+margin_bottom = 511.0
 autowrap = true
 
 [node name="Icon" type="TextureRect" parent="Server menu/Box/Box/Status"]
-margin_top = 471.0
-margin_right = 400.0
-margin_bottom = 567.0
+margin_top = 541.0
+margin_right = 300.0
+margin_bottom = 637.0
 rect_min_size = Vector2( 0, 96 )
-rect_pivot_offset = Vector2( 200, 48 )
+rect_pivot_offset = Vector2( 150, 48 )
 stretch_mode = 4
 script = ExtResource( 20 )
 
 [node name="Left separator" type="VSeparator" parent="Server menu/Box"]
-margin_left = 540.0
-margin_right = 564.0
+margin_left = 304.0
+margin_right = 328.0
 margin_bottom = 864.0
 
 [node name="Lobby" type="VBoxContainer" parent="Server menu/Box"]
-margin_left = 568.0
-margin_right = 968.0
+margin_left = 332.0
+margin_right = 1204.0
 margin_bottom = 864.0
 rect_min_size = Vector2( 400, 0 )
+size_flags_horizontal = 3
 script = ExtResource( 24 )
 failed_connect_icon = ExtResource( 23 )
 loading_icon = ExtResource( 9 )
@@ -549,115 +535,110 @@ _description = NodePath("Description/Box/Text")
 _status = NodePath("../Box/Status")
 
 [node name="Title" type="Label" parent="Server menu/Box/Lobby"]
-margin_right = 400.0
-margin_bottom = 20.0
+margin_right = 872.0
+margin_bottom = 31.0
+custom_fonts/font = ExtResource( 25 )
 text = "Lobby"
 align = 1
 
-[node name="Padding top" type="Control" parent="Server menu/Box/Lobby"]
-margin_top = 30.0
-margin_right = 400.0
-margin_bottom = 50.0
-rect_min_size = Vector2( 0, 20 )
-
 [node name="Filter" type="LineEdit" parent="Server menu/Box/Lobby"]
-margin_top = 60.0
-margin_right = 400.0
-margin_bottom = 102.0
+margin_top = 41.0
+margin_right = 872.0
+margin_bottom = 70.0
 placeholder_text = "Filter"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="List" type="PanelContainer" parent="Server menu/Box/Lobby"]
-margin_top = 112.0
-margin_right = 400.0
-margin_bottom = 619.0
+margin_top = 80.0
+margin_right = 872.0
+margin_bottom = 629.0
 size_flags_vertical = 3
 
 [node name="Box" type="ScrollContainer" parent="Server menu/Box/Lobby/List"]
-margin_left = 16.0
-margin_top = 11.0
-margin_right = 384.0
-margin_bottom = 496.0
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 868.0
+margin_bottom = 545.0
 
 [node name="Box" type="VBoxContainer" parent="Server menu/Box/Lobby/List/Box"]
-margin_right = 368.0
-margin_bottom = 485.0
+margin_right = 864.0
+margin_bottom = 541.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Info" type="GridContainer" parent="Server menu/Box/Lobby"]
-margin_top = 629.0
-margin_right = 400.0
-margin_bottom = 673.0
+margin_top = 639.0
+margin_right = 872.0
+margin_bottom = 685.0
 custom_constants/hseparation = 20
 columns = 2
 
 [node name="Map label" type="Label" parent="Server menu/Box/Lobby/Info"]
-margin_right = 152.0
-margin_bottom = 20.0
+margin_right = 107.0
+margin_bottom = 21.0
 text = "Map	"
 
 [node name="Map value" type="Label" parent="Server menu/Box/Lobby/Info"]
-margin_left = 172.0
-margin_right = 172.0
-margin_bottom = 20.0
+margin_left = 127.0
+margin_right = 127.0
+margin_bottom = 21.0
 
 [node name="Max players label" type="Label" parent="Server menu/Box/Lobby/Info"]
-margin_top = 24.0
-margin_right = 152.0
-margin_bottom = 44.0
+margin_top = 25.0
+margin_right = 107.0
+margin_bottom = 46.0
 text = "Max players"
 
 [node name="Max players value" type="Label" parent="Server menu/Box/Lobby/Info"]
-margin_left = 172.0
-margin_top = 24.0
-margin_right = 172.0
-margin_bottom = 44.0
+margin_left = 127.0
+margin_top = 25.0
+margin_right = 127.0
+margin_bottom = 46.0
 
 [node name="Description" type="PanelContainer" parent="Server menu/Box/Lobby"]
-margin_top = 683.0
-margin_right = 400.0
-margin_bottom = 783.0
+margin_top = 695.0
+margin_right = 872.0
+margin_bottom = 795.0
 rect_min_size = Vector2( 0, 100 )
 
 [node name="Box" type="ScrollContainer" parent="Server menu/Box/Lobby/Description"]
-margin_left = 16.0
-margin_top = 11.0
-margin_right = 384.0
-margin_bottom = 89.0
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 868.0
+margin_bottom = 96.0
 scroll_horizontal_enabled = false
 
 [node name="Text" type="Label" parent="Server menu/Box/Lobby/Description/Box"]
-margin_right = 368.0
-margin_bottom = 78.0
+margin_right = 864.0
+margin_bottom = 92.0
 size_flags_horizontal = 3
 size_flags_vertical = 7
 autowrap = true
 
 [node name="Padding bottom" type="Control" parent="Server menu/Box/Lobby"]
-margin_top = 793.0
-margin_right = 400.0
-margin_bottom = 813.0
+margin_top = 805.0
+margin_right = 872.0
+margin_bottom = 825.0
 rect_min_size = Vector2( 0, 20 )
 
 [node name="Connect" type="Button" parent="Server menu/Box/Lobby"]
-margin_top = 823.0
-margin_right = 400.0
-margin_bottom = 864.629
+margin_top = 835.0
+margin_right = 872.0
+margin_bottom = 864.0
 text = "Connect"
 
 [node name="Right separator" type="VSeparator" parent="Server menu/Box"]
-margin_left = 972.0
-margin_right = 996.0
+margin_left = 1208.0
+margin_right = 1232.0
 margin_bottom = 864.0
 
 [node name="Self host" type="VBoxContainer" parent="Server menu/Box"]
-margin_left = 1000.0
-margin_right = 1400.0
+margin_left = 1236.0
+margin_right = 1536.0
 margin_bottom = 864.0
-rect_min_size = Vector2( 400, 0 )
+rect_min_size = Vector2( 300, 0 )
 script = ExtResource( 18 )
 no_selection_error_icon = ExtResource( 22 )
 _map_selection = NodePath("../../../Server menu/Box/Self host/Map selection/Box/Box")
@@ -673,33 +654,28 @@ _status = NodePath("../../../Server menu/Box/Box/Status")
 maps = PoolStringArray( "res://maps/the_pit/the_pit.tscn" )
 
 [node name="Title" type="Label" parent="Server menu/Box/Self host"]
-margin_right = 400.0
-margin_bottom = 20.0
+margin_right = 300.0
+margin_bottom = 31.0
+custom_fonts/font = ExtResource( 25 )
 text = "Host"
 align = 1
 
-[node name="Padding top" type="Control" parent="Server menu/Box/Self host"]
-margin_top = 30.0
-margin_right = 400.0
-margin_bottom = 50.0
-rect_min_size = Vector2( 0, 20 )
-
 [node name="Map selection" type="PanelContainer" parent="Server menu/Box/Self host"]
-margin_top = 60.0
-margin_right = 400.0
-margin_bottom = 405.0
+margin_top = 41.0
+margin_right = 300.0
+margin_bottom = 477.0
 size_flags_vertical = 3
 
 [node name="Box" type="ScrollContainer" parent="Server menu/Box/Self host/Map selection"]
-margin_left = 16.0
-margin_top = 11.0
-margin_right = 384.0
-margin_bottom = 334.0
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 296.0
+margin_bottom = 432.0
 size_flags_vertical = 3
 
 [node name="Box" type="VBoxContainer" parent="Server menu/Box/Self host/Map selection/Box"]
-margin_right = 368.0
-margin_bottom = 323.0
+margin_right = 292.0
+margin_bottom = 428.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
@@ -713,68 +689,68 @@ texture = ExtResource( 11 )
 stretch_mode = 6
 
 [node name="Name" type="LineEdit" parent="Server menu/Box/Self host"]
-margin_top = 415.0
-margin_right = 400.0
-margin_bottom = 457.0
+margin_top = 487.0
+margin_right = 300.0
+margin_bottom = 516.0
 placeholder_text = "Name"
 
 [node name="Description" type="TextEdit" parent="Server menu/Box/Self host"]
-margin_top = 467.0
-margin_right = 400.0
-margin_bottom = 567.0
-rect_min_size = Vector2( 0, 100 )
+margin_top = 526.0
+margin_right = 300.0
+margin_bottom = 616.0
+rect_min_size = Vector2( 0, 90 )
 text = "Description"
 wrap_enabled = true
 
 [node name="List in lobby" type="CheckBox" parent="Server menu/Box/Self host"]
-margin_top = 577.0
-margin_right = 400.0
-margin_bottom = 597.0
+margin_top = 626.0
+margin_right = 300.0
+margin_bottom = 647.0
 pressed = true
 text = "List in lobby"
 
 [node name="Use UPNP" type="CheckBox" parent="Server menu/Box/Self host"]
-margin_top = 607.0
-margin_right = 400.0
-margin_bottom = 627.0
+margin_top = 657.0
+margin_right = 300.0
+margin_bottom = 678.0
 pressed = true
 text = "Use UPNP"
 
 [node name="Port" type="SpinBox" parent="Server menu/Box/Self host"]
-margin_top = 637.0
-margin_right = 400.0
-margin_bottom = 679.0
+margin_top = 688.0
+margin_right = 300.0
+margin_bottom = 717.0
 min_value = 1.0
 max_value = 65535.0
 value = 39983.0
-prefix = "port"
+prefix = "Port"
 
 [node name="Max players" type="SpinBox" parent="Server menu/Box/Self host"]
-margin_top = 689.0
-margin_right = 400.0
-margin_bottom = 731.0
+margin_top = 727.0
+margin_right = 300.0
+margin_bottom = 756.0
 size_flags_horizontal = 3
 max_value = 32.0
 value = 10.0
 prefix = "Max players"
 
 [node name="Password" type="LineEdit" parent="Server menu/Box/Self host"]
-margin_top = 741.0
-margin_right = 400.0
-margin_bottom = 783.0
+margin_top = 766.0
+margin_right = 300.0
+margin_bottom = 795.0
 secret = true
 placeholder_text = "Password (blank for none)"
 
 [node name="Padding bottom" type="Control" parent="Server menu/Box/Self host"]
-margin_top = 793.0
-margin_right = 400.0
-margin_bottom = 813.0
+margin_top = 805.0
+margin_right = 300.0
+margin_bottom = 825.0
 rect_min_size = Vector2( 0, 20 )
 
 [node name="Start server" type="Button" parent="Server menu/Box/Self host"]
-margin_top = 823.0
-margin_right = 400.0
-margin_bottom = 864.629
+margin_top = 835.0
+margin_right = 300.0
+margin_bottom = 864.0
 text = "Start server"
 
 [node name="Cancel" type="Button" parent="Server menu"]
@@ -782,8 +758,8 @@ anchor_left = 0.98
 anchor_top = 0.02
 anchor_right = 0.98
 anchor_bottom = 0.02
-margin_left = -64.0
-margin_bottom = -64.0
+margin_left = -40.0
+margin_bottom = 40.0
 shortcut = ExtResource( 12 )
 text = "x"
 __meta__ = {
@@ -798,46 +774,6 @@ color = Color( 0, 0, 0, 0.254902 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="Error" type="Popup" parent="."]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -161.0
-margin_top = -80.0
-margin_right = 161.0
-margin_bottom = 80.0
-script = ExtResource( 13 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-_text_node = NodePath("Text/Box/Text")
-
-[node name="Text" type="PanelContainer" parent="Error"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Box" type="ScrollContainer" parent="Error/Text"]
-margin_left = 16.0
-margin_top = 11.0
-margin_right = 306.0
-margin_bottom = 149.0
-scroll_horizontal_enabled = false
-
-[node name="Text" type="Label" parent="Error/Text/Box"]
-margin_right = 290.0
-margin_bottom = 365.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test"
-autowrap = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
 [connection signal="timeout" from="VehiclePreview/InputTimer" to="VehiclePreview" method="input_timeout"]
 [connection signal="focus_exited" from="NewVehicle/Box/Name" to="NewVehicle" method="focus_lost"]
 [connection signal="gui_input" from="NewVehicle/Box/Name" to="NewVehicle" method="name_gui_input"]
@@ -845,10 +781,10 @@ __meta__ = {
 [connection signal="text_entered" from="NewVehicle/Box/Name" to="NewVehicle" method="goto_editor"]
 [connection signal="focus_exited" from="NewVehicle/Box/Create" to="NewVehicle" method="focus_lost"]
 [connection signal="pressed" from="NewVehicle/Box/Create" to="NewVehicle" method="goto_editor"]
-[connection signal="focus_exited" from="VehicleInfo/Box/Box/Name" to="VehicleInfo" method="edit_name"]
-[connection signal="text_entered" from="VehicleInfo/Box/Box/Name" to="VehicleInfo" method="edit_name"]
+[connection signal="focus_exited" from="VehicleInfo/Box/Name" to="VehicleInfo" method="edit_name"]
+[connection signal="text_entered" from="VehicleInfo/Box/Name" to="VehicleInfo" method="edit_name"]
 [connection signal="pressed" from="QuickActions/Left/Exit" to="." method="exit_game"]
-[connection signal="pressed" from="QuickActions/Middle/Battle" to="Server menu" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="QuickActions/Middle/Servers" to="Server menu" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="QuickActions/Right/Edit" to="." method="goto_editor"]
 [connection signal="pressed" from="QuickActions/Right/Create" to="NewVehicle" method="activate"]
 [connection signal="pressed" from="Server menu/Box/Box/Manual connect/Connect" to="Server menu/Box/Box/Manual connect" method="launch"]
@@ -857,5 +793,3 @@ __meta__ = {
 [connection signal="toggled" from="Server menu/Box/Self host/List in lobby" to="Server menu/Box/Self host/Description" method="set_visible"]
 [connection signal="pressed" from="Server menu/Box/Self host/Start server" to="Server menu/Box/Self host" method="launch"]
 [connection signal="pressed" from="Server menu/Cancel" to="Server menu" method="set_visible" binds= [ false ]]
-[connection signal="about_to_show" from="Error" to="Darken background" method="set_visible" binds= [ true ]]
-[connection signal="popup_hide" from="Error" to="Darken background" method="set_visible" binds= [ false ]]

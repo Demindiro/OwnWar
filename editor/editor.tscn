@@ -1,6 +1,6 @@
 [gd_scene load_steps=29 format=2]
 
-[ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=1]
+[ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://editor/meta_editor.gd" type="Script" id=2]
 [ext_resource path="res://addons/aabb_camera.gd" type="Script" id=3]
 [ext_resource path="res://editor/block_layer.gd" type="Script" id=4]
@@ -22,8 +22,6 @@
 [ext_resource path="res://core/thumbnail/mock_cube.tres" type="CubeMesh" id=23]
 [ext_resource path="res://addons/flowcontainer.gd" type="Script" id=24]
 [ext_resource path="res://editor/ellipsis.png" type="Texture" id=25]
-
-
 
 [sub_resource type="SpatialMaterial" id=1]
 
@@ -267,26 +265,26 @@ __meta__ = {
 
 [node name="Continue" type="Button" parent="GUI/Menu/VBoxContainer"]
 margin_right = 265.0
-margin_bottom = 41.6293
+margin_bottom = 29.0
 shortcut = ExtResource( 13 )
 text = "Continue"
 
 [node name="Test" type="Button" parent="GUI/Menu/VBoxContainer"]
-margin_top = 51.0
+margin_top = 39.0
 margin_right = 265.0
-margin_bottom = 92.6293
+margin_bottom = 68.0
 text = "Test"
 
 [node name="Settings" type="Button" parent="GUI/Menu/VBoxContainer"]
-margin_top = 102.0
+margin_top = 78.0
 margin_right = 265.0
-margin_bottom = 143.629
+margin_bottom = 107.0
 text = "Settings"
 
 [node name="Exit" type="Button" parent="GUI/Menu/VBoxContainer"]
-margin_top = 153.0
+margin_top = 117.0
 margin_right = 265.0
-margin_bottom = 194.629
+margin_bottom = 146.0
 text = "Exit"
 
 [node name="Inventory" parent="GUI" instance=ExtResource( 5 )]
@@ -365,7 +363,7 @@ size_flags_vertical = 3
 
 [node name="Template" type="Button" parent="GUI/Inventory/Inventory/HBoxContainer/Categories/VBoxContainer"]
 margin_right = 150.0
-margin_bottom = 41.6293
+margin_bottom = 29.0
 rect_min_size = Vector2( 150, 0 )
 text = "Category"
 

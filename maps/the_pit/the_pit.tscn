@@ -10,8 +10,9 @@
 [ext_resource path="res://maps/the_pit/the_pit.gd" type="Script" id=8]
 [ext_resource path="res://maps/hud.tscn" type="PackedScene" id=9]
 [ext_resource path="res://maps/the_pit/gui.gd" type="Script" id=10]
-[ext_resource path="res://core/menu/theme/theme.tres" type="Theme" id=11]
+[ext_resource path="res://ui/theme.tres" type="Theme" id=11]
 [ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=12]
+
 
 [sub_resource type="BoxShape" id=1]
 extents = Vector3( 200, 1000, 1000 )

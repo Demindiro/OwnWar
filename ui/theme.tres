@@ -1,14 +1,27 @@
-[gd_resource type="Theme" load_steps=10 format=2]
+[gd_resource type="Theme" load_steps=16 format=2]
 
 [ext_resource path="res://core/menu/progress_bar.tres" type="StyleBox" id=1]
-[ext_resource path="res://core/menu/font.tres" type="DynamicFont" id=2]
+[ext_resource path="res://ui/font.tres" type="DynamicFont" id=2]
 [ext_resource path="res://core/menu/button/button.tres" type="StyleBox" id=3]
 [ext_resource path="res://core/menu/button/button_hover.tres" type="StyleBox" id=4]
 [ext_resource path="res://core/menu/button/button_pressed.tres" type="StyleBox" id=5]
-[ext_resource path="res://core/menu/panel/subpanel.tres" type="StyleBox" id=6]
 [ext_resource path="res://core/menu/button/button_focus.tres" type="StyleBox" id=7]
 [ext_resource path="res://core/menu/button/button_disabled.tres" type="StyleBox" id=8]
 [ext_resource path="res://core/menu/blank.tres" type="StyleBox" id=9]
+[ext_resource path="res://ui/transparent_black_panel.tres" type="StyleBox" id=10]
+[ext_resource path="res://ui/semisolid_white_panel.tres" type="StyleBox" id=11]
+[ext_resource path="res://ui/semisolid_lightgray_panel.tres" type="StyleBox" id=12]
+[ext_resource path="res://ui/semisolid_gray_panel.tres" type="StyleBox" id=13]
+[ext_resource path="res://ui/semisolid_darkgray_panel.tres" type="StyleBox" id=14]
+
+[sub_resource type="StreamTexture" id=1]
+flags = 4
+
+[sub_resource type="StyleBoxTexture" id=2]
+texture = SubResource( 1 )
+region_rect = Rect2( 24.1578, 11.5503, 157.441, 39.7948 )
+margin_left = 26.6366
+margin_top = 9.03742
 
 [resource]
 default_font = ExtResource( 2 )
@@ -18,11 +31,11 @@ Button/colors/font_color_hover = Color( 0.988235, 0.988235, 0.988235, 1 )
 Button/colors/font_color_pressed = Color( 1, 1, 1, 1 )
 Button/constants/hseparation = 2
 Button/fonts/font = null
-Button/styles/disabled = null
-Button/styles/focus = null
-Button/styles/hover = ExtResource( 4 )
-Button/styles/normal = ExtResource( 3 )
-Button/styles/pressed = ExtResource( 5 )
+Button/styles/disabled = ExtResource( 14 )
+Button/styles/focus = ExtResource( 12 )
+Button/styles/hover = ExtResource( 12 )
+Button/styles/normal = ExtResource( 13 )
+Button/styles/pressed = ExtResource( 11 )
 CheckBox/colors/font_color = Color( 1, 1, 1, 1 )
 CheckBox/colors/font_color_disabled = Color( 1, 1, 1, 1 )
 CheckBox/colors/font_color_hover = Color( 1, 1, 1, 1 )
@@ -186,9 +199,9 @@ LineEdit/colors/selection_color = Color( 0.784314, 0.784314, 0.784314, 0.486275 
 LineEdit/constants/minimum_spaces = 12
 LineEdit/fonts/font = null
 LineEdit/icons/clear = null
-LineEdit/styles/focus = null
-LineEdit/styles/normal = ExtResource( 6 )
-LineEdit/styles/read_only = null
+LineEdit/styles/focus = ExtResource( 10 )
+LineEdit/styles/normal = ExtResource( 10 )
+LineEdit/styles/read_only = ExtResource( 10 )
 LinkButton/colors/font_color = Color( 0, 0, 0, 1 )
 LinkButton/colors/font_color_hover = Color( 0, 0, 0, 1 )
 LinkButton/colors/font_color_pressed = Color( 0, 0, 0, 1 )
@@ -223,9 +236,9 @@ OptionButton/styles/focus = ExtResource( 7 )
 OptionButton/styles/hover = ExtResource( 4 )
 OptionButton/styles/normal = ExtResource( 3 )
 OptionButton/styles/pressed = ExtResource( 5 )
-Panel/styles/panel = ExtResource( 6 )
-PanelContainer/styles/panel = ExtResource( 6 )
-PopupDialog/styles/panel = ExtResource( 6 )
+Panel/styles/panel = ExtResource( 10 )
+PanelContainer/styles/panel = ExtResource( 10 )
+PopupDialog/styles/panel = SubResource( 2 )
 PopupMenu/colors/font_color = Color( 1, 1, 1, 1 )
 PopupMenu/colors/font_color_accel = Color( 0, 0, 0, 1 )
 PopupMenu/colors/font_color_disabled = Color( 0, 0, 0, 1 )
@@ -241,7 +254,7 @@ PopupMenu/icons/unchecked = null
 PopupMenu/styles/hover = null
 PopupMenu/styles/labeled_separator_left = null
 PopupMenu/styles/labeled_separator_right = null
-PopupMenu/styles/panel = ExtResource( 6 )
+PopupMenu/styles/panel = SubResource( 2 )
 PopupMenu/styles/panel_disabled = null
 PopupMenu/styles/separator = null
 PopupPanel/styles/panel = null
@@ -342,10 +355,10 @@ TextEdit/icons/fold = null
 TextEdit/icons/folded = null
 TextEdit/icons/space = null
 TextEdit/icons/tab = null
-TextEdit/styles/completion = ExtResource( 6 )
-TextEdit/styles/focus = ExtResource( 6 )
-TextEdit/styles/normal = ExtResource( 6 )
-TextEdit/styles/read_only = ExtResource( 6 )
+TextEdit/styles/completion = ExtResource( 10 )
+TextEdit/styles/focus = ExtResource( 10 )
+TextEdit/styles/normal = ExtResource( 10 )
+TextEdit/styles/read_only = ExtResource( 10 )
 ToolButton/colors/font_color = Color( 0, 0, 0, 1 )
 ToolButton/colors/font_color_disabled = Color( 0, 0, 0, 1 )
 ToolButton/colors/font_color_hover = Color( 0, 0, 0, 1 )

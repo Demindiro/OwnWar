@@ -1,11 +1,12 @@
 [gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://core/menu/button/button.tres" type="StyleBox" id=1]
-[ext_resource path="res://core/menu/font.tres" type="DynamicFont" id=2]
+[ext_resource path="res://ui/font.tres" type="DynamicFont" id=2]
 [ext_resource path="res://core/menu/button/button_disabled.tres" type="StyleBox" id=3]
 [ext_resource path="res://core/menu/button/button_pressed.tres" type="StyleBox" id=4]
 [ext_resource path="res://core/menu/button/button_hover.tres" type="StyleBox" id=5]
 [ext_resource path="res://core/menu/button/button_focus.tres" type="StyleBox" id=6]
+
 
 [node name="MenuButton" type="Button"]
 margin_right = 113.454
