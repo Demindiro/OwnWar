@@ -55,6 +55,7 @@ static func _try_get_thumbnail(path: String, callback: FuncRef, arguments: Array
 		var img := Image.new()
 		var e := img.load(path)
 		assert(e == OK)
+		img.fix_alpha_edges()
 		callback.call_funcv([img] + arguments)
 		return true
 	else:
@@ -120,6 +121,7 @@ func _create_vehicle_thumbnail(p_path: String, callback: FuncRef, arguments: Arr
 	yield(VisualServer, "frame_post_draw")
 	var img := tn.get_texture().get_data()
 	img.convert(Image.FORMAT_RGBA8)
+	img.fix_alpha_edges()
 	e = Util.create_dirs(_THUMBNAIL_DIRECTORY.plus_file(_VEHICLE_DIRECTORY))
 	assert(e == OK)
 	e = img.save_png(path)

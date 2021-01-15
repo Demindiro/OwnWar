@@ -3,6 +3,7 @@ extends Control
 
 signal refresh_vehicle_list()
 signal vehicle_rename_failed()
+signal vehicle_renamed(from, to)
 
 
 var _selected_vehicle_path := ""
@@ -24,10 +25,6 @@ func goto_editor(vehicle_path := "") -> void:
 
 
 func rename_vehicle(from: String, to: String) -> void:
-	from = Util.filenamize_human_name(from) + ".json"
-	to = Util.filenamize_human_name(to) + ".json"
-	from = OwnWar.VEHICLE_DIRECTORY.plus_file(from)
-	to = OwnWar.VEHICLE_DIRECTORY.plus_file(to)
 	var dir := Directory.new()
 	if dir.file_exists(to):
 		print("Refusing to move %s to %s as the destination already exists" % [to, from])
@@ -37,7 +34,7 @@ func rename_vehicle(from: String, to: String) -> void:
 	assert(e == OK)
 	print("Renamed %s to %s" % [from, to])
 	OwnWar_Thumbnail.move_vehicle_thumbnail(from, to)
-	emit_signal("refresh_vehicle_list")
+	emit_signal("vehicle_renamed", from, to)
 
 
 func exit_game() -> void:

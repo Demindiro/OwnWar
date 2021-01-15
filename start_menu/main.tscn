@@ -244,97 +244,6 @@ focus_next = NodePath("../Name")
 focus_previous = NodePath("../Name")
 text = "Create"
 
-[node name="VehicleInfo" type="PanelContainer" parent="."]
-anchor_left = 0.8
-anchor_right = 1.0
-margin_top = 20.0
-margin_right = -20.0
-script = ExtResource( 4 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-_gui_name = NodePath("Box/Name")
-_gui_cost = NodePath("Box/Box/Cost value")
-_gui_blocks = NodePath("Box/Box/Blocks value")
-_gui_mass = NodePath("Box/Box/Mass value")
-_gui_size = NodePath("Box/Box/Size value")
-
-[node name="Box" type="VBoxContainer" parent="VehicleInfo"]
-margin_left = 4.0
-margin_top = 4.0
-margin_right = 360.0
-margin_bottom = 139.0
-size_flags_horizontal = 3
-size_flags_vertical = 9
-
-[node name="Name" type="LineEdit" parent="VehicleInfo/Box"]
-margin_right = 356.0
-margin_bottom = 29.0
-placeholder_text = "Name"
-caret_blink = true
-
-[node name="Box" type="GridContainer" parent="VehicleInfo/Box"]
-margin_top = 39.0
-margin_right = 356.0
-margin_bottom = 135.0
-size_flags_horizontal = 3
-size_flags_vertical = 9
-columns = 2
-
-[node name="Cost name" type="Label" parent="VehicleInfo/Box/Box"]
-margin_right = 176.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-text = "Cost"
-
-[node name="Cost value" type="Label" parent="VehicleInfo/Box/Box"]
-margin_left = 180.0
-margin_right = 356.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-
-[node name="Blocks name" type="Label" parent="VehicleInfo/Box/Box"]
-margin_top = 25.0
-margin_right = 176.0
-margin_bottom = 46.0
-size_flags_horizontal = 3
-text = "Blocks"
-
-[node name="Blocks value" type="Label" parent="VehicleInfo/Box/Box"]
-margin_left = 180.0
-margin_top = 25.0
-margin_right = 356.0
-margin_bottom = 46.0
-size_flags_horizontal = 3
-
-[node name="Mass name" type="Label" parent="VehicleInfo/Box/Box"]
-margin_top = 50.0
-margin_right = 176.0
-margin_bottom = 71.0
-size_flags_horizontal = 3
-text = "Mass"
-
-[node name="Mass value" type="Label" parent="VehicleInfo/Box/Box"]
-margin_left = 180.0
-margin_top = 50.0
-margin_right = 356.0
-margin_bottom = 71.0
-size_flags_horizontal = 3
-
-[node name="Size name" type="Label" parent="VehicleInfo/Box/Box"]
-margin_top = 75.0
-margin_right = 176.0
-margin_bottom = 96.0
-size_flags_horizontal = 3
-text = "Size"
-
-[node name="Size value" type="Label" parent="VehicleInfo/Box/Box"]
-margin_left = 180.0
-margin_top = 75.0
-margin_right = 356.0
-margin_bottom = 96.0
-size_flags_horizontal = 3
-
 [node name="QuickActions" type="HBoxContainer" parent="."]
 anchor_right = 1.0
 margin_left = 20.0
@@ -412,6 +321,98 @@ text = "Create"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="Vehicle info" type="PanelContainer" parent="."]
+anchor_left = 0.8
+anchor_right = 1.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = 163.0
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+_gui_name = NodePath("../Vehicle info/Box/Name")
+_gui_cost = NodePath("../Vehicle info/Box/Box/Cost value")
+_gui_blocks = NodePath("../Vehicle info/Box/Box/Blocks value")
+_gui_mass = NodePath("../Vehicle info/Box/Box/Mass value")
+_gui_size = NodePath("../Vehicle info/Box/Box/Size value")
+
+[node name="Box" type="VBoxContainer" parent="Vehicle info"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 360.0
+margin_bottom = 139.0
+size_flags_horizontal = 3
+size_flags_vertical = 9
+
+[node name="Name" type="LineEdit" parent="Vehicle info/Box"]
+margin_right = 356.0
+margin_bottom = 29.0
+placeholder_text = "Name"
+caret_blink = true
+
+[node name="Box" type="GridContainer" parent="Vehicle info/Box"]
+margin_top = 39.0
+margin_right = 356.0
+margin_bottom = 135.0
+size_flags_horizontal = 3
+size_flags_vertical = 9
+columns = 2
+
+[node name="Cost name" type="Label" parent="Vehicle info/Box/Box"]
+margin_right = 176.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "Cost"
+
+[node name="Cost value" type="Label" parent="Vehicle info/Box/Box"]
+margin_left = 180.0
+margin_right = 356.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+
+[node name="Blocks name" type="Label" parent="Vehicle info/Box/Box"]
+margin_top = 25.0
+margin_right = 176.0
+margin_bottom = 46.0
+size_flags_horizontal = 3
+text = "Blocks"
+
+[node name="Blocks value" type="Label" parent="Vehicle info/Box/Box"]
+margin_left = 180.0
+margin_top = 25.0
+margin_right = 356.0
+margin_bottom = 46.0
+size_flags_horizontal = 3
+
+[node name="Mass name" type="Label" parent="Vehicle info/Box/Box"]
+margin_top = 50.0
+margin_right = 176.0
+margin_bottom = 71.0
+size_flags_horizontal = 3
+text = "Mass"
+
+[node name="Mass value" type="Label" parent="Vehicle info/Box/Box"]
+margin_left = 180.0
+margin_top = 50.0
+margin_right = 356.0
+margin_bottom = 71.0
+size_flags_horizontal = 3
+
+[node name="Size name" type="Label" parent="Vehicle info/Box/Box"]
+margin_top = 75.0
+margin_right = 176.0
+margin_bottom = 96.0
+size_flags_horizontal = 3
+text = "Size"
+
+[node name="Size value" type="Label" parent="Vehicle info/Box/Box"]
+margin_left = 180.0
+margin_top = 75.0
+margin_right = 356.0
+margin_bottom = 96.0
+size_flags_horizontal = 3
 
 [node name="Server menu" type="ColorRect" parent="."]
 visible = false
@@ -782,6 +783,9 @@ color = Color( 0, 0, 0, 0.254902 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+[connection signal="vehicle_renamed" from="." to="Vehicle list" method="on_vehicle_renamed"]
+[connection signal="vehicle_renamed" from="." to="Vehicle info" method="on_vehicle_renamed"]
+[connection signal="loaded_vehicle" from="Vehicle preview" to="Vehicle info" method="set_vehicle"]
 [connection signal="timeout" from="Vehicle preview/InputTimer" to="Vehicle preview" method="input_timeout"]
 [connection signal="select_vehicle" from="Vehicle list" to="." method="select_vehicle"]
 [connection signal="select_vehicle" from="Vehicle list" to="Vehicle preview" method="set_preview"]
@@ -792,12 +796,13 @@ __meta__ = {
 [connection signal="text_entered" from="New vehicle/Box/Name" to="New vehicle" method="goto_editor"]
 [connection signal="focus_exited" from="New vehicle/Box/Create" to="New vehicle" method="focus_lost"]
 [connection signal="pressed" from="New vehicle/Box/Create" to="New vehicle" method="goto_editor"]
-[connection signal="focus_exited" from="VehicleInfo/Box/Name" to="VehicleInfo" method="edit_name"]
-[connection signal="text_entered" from="VehicleInfo/Box/Name" to="VehicleInfo" method="edit_name"]
 [connection signal="pressed" from="QuickActions/Left/Exit" to="." method="exit_game"]
 [connection signal="pressed" from="QuickActions/Middle/Servers" to="Server menu" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="QuickActions/Right/Edit" to="." method="goto_editor"]
 [connection signal="pressed" from="QuickActions/Right/Create" to="New vehicle" method="activate"]
+[connection signal="new_vehicle_path" from="Vehicle info" to="." method="rename_vehicle"]
+[connection signal="focus_exited" from="Vehicle info/Box/Name" to="Vehicle info" method="edit_name"]
+[connection signal="text_entered" from="Vehicle info/Box/Name" to="Vehicle info" method="edit_name"]
 [connection signal="pressed" from="Server menu/Box/Box/Manual connect/Connect" to="Server menu/Box/Box/Manual connect" method="launch"]
 [connection signal="pressed" from="Server menu/Box/Lobby/Connect" to="Server menu/Box/Lobby" method="launch"]
 [connection signal="toggled" from="Server menu/Box/Self host/List in lobby" to="Server menu/Box/Self host/Name" method="set_visible"]

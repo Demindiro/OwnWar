@@ -44,3 +44,15 @@ func _set_thumbnail(image: Image, btn: Card, path: String) -> void:
 	tex.create_from_image(image)
 	btn.icon.texture = tex
 	btn.name_s.text = Util.humanize_file_name(path.get_file().get_basename())
+
+
+func on_vehicle_renamed(from: String, to: String) -> void:
+	var from_name := OwnWar.get_vehicle_name(from)
+	for child in _box.get_children():
+		if child.name_s.text == from_name:
+			child.name_s.text = OwnWar.get_vehicle_name(to) 
+			child.disconnect("pressed", self, "emit_signal")
+			var e: int = child.connect("pressed", self, "emit_signal", ["select_vehicle", to])
+			assert(e == OK)
+			return
+	assert(false, "Item not found!")

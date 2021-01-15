@@ -5,6 +5,9 @@ class_name OwnWar_VehiclePreview
 var voxel_mesh := OwnWar_VoxelMesh.new()
 var mesh_instance := MeshInstance.new()
 var aabb := AABB()
+var cost := 0
+var mass := 0.0
+var block_count := 0
 
 
 func _ready() -> void:
@@ -79,6 +82,9 @@ func load_from_data(data: PoolByteArray) -> int:
 				aabb.size = Vector3.ONE
 			else:
 				aabb = aabb.expand(Vector3(x, y, z)).expand(Vector3(x + 1, y + 1, z + 1))
+			block_count += 1
+			cost += blk.cost
+			mass += blk.mass
 
 	# TODO should we center based on AABB or editor grid size?
 	mesh_instance.translation -= Vector3(25, 25, 25) * OwnWar_Block.BLOCK_SCALE / 2

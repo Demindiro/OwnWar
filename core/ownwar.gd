@@ -69,4 +69,6 @@ static func get_vehicle_path(name: String) -> String:
 
 
 static func get_vehicle_name(path: String) -> String:
-	return Util.humanize_filename(len(path) - len("." + VEHICLE_EXTENSION))
+	path = path.get_file()
+	path = path.substr(0, len(path) - 1 - len(VEHICLE_EXTENSION))
+	return Util.humanize_file_name(path)
