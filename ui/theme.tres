@@ -1,10 +1,11 @@
-[gd_resource type="Theme" load_steps=16 format=2]
+[gd_resource type="Theme" load_steps=18 format=2]
 
 [ext_resource path="res://core/menu/progress_bar.tres" type="StyleBox" id=1]
 [ext_resource path="res://ui/font.tres" type="DynamicFont" id=2]
 [ext_resource path="res://core/menu/button/button.tres" type="StyleBox" id=3]
 [ext_resource path="res://core/menu/button/button_hover.tres" type="StyleBox" id=4]
 [ext_resource path="res://core/menu/button/button_pressed.tres" type="StyleBox" id=5]
+[ext_resource path="res://ui/transparent_vscroll_black_panel.tres" type="StyleBox" id=6]
 [ext_resource path="res://core/menu/button/button_focus.tres" type="StyleBox" id=7]
 [ext_resource path="res://core/menu/button/button_disabled.tres" type="StyleBox" id=8]
 [ext_resource path="res://core/menu/blank.tres" type="StyleBox" id=9]
@@ -13,6 +14,7 @@
 [ext_resource path="res://ui/semisolid_lightgray_panel.tres" type="StyleBox" id=12]
 [ext_resource path="res://ui/semisolid_gray_panel.tres" type="StyleBox" id=13]
 [ext_resource path="res://ui/semisolid_darkgray_panel.tres" type="StyleBox" id=14]
+[ext_resource path="res://ui/transparent_hscroll_black_panel.tres" type="StyleBox" id=15]
 
 [sub_resource type="StreamTexture" id=1]
 flags = 4
@@ -147,11 +149,11 @@ HScrollBar/icons/decrement = null
 HScrollBar/icons/decrement_highlight = null
 HScrollBar/icons/increment = null
 HScrollBar/icons/increment_highlight = null
-HScrollBar/styles/grabber = null
-HScrollBar/styles/grabber_highlight = null
-HScrollBar/styles/grabber_pressed = null
-HScrollBar/styles/scroll = null
-HScrollBar/styles/scroll_focus = null
+HScrollBar/styles/grabber = ExtResource( 13 )
+HScrollBar/styles/grabber_highlight = ExtResource( 12 )
+HScrollBar/styles/grabber_pressed = ExtResource( 11 )
+HScrollBar/styles/scroll = ExtResource( 15 )
+HScrollBar/styles/scroll_focus = ExtResource( 15 )
 HSeparator/constants/separation = 4
 HSeparator/styles/separator = null
 HSlider/icons/grabber = null
@@ -417,11 +419,11 @@ VScrollBar/icons/decrement = null
 VScrollBar/icons/decrement_highlight = null
 VScrollBar/icons/increment = null
 VScrollBar/icons/increment_highlight = null
-VScrollBar/styles/grabber = null
-VScrollBar/styles/grabber_highlight = null
-VScrollBar/styles/grabber_pressed = null
-VScrollBar/styles/scroll = null
-VScrollBar/styles/scroll_focus = null
+VScrollBar/styles/grabber = ExtResource( 13 )
+VScrollBar/styles/grabber_highlight = ExtResource( 12 )
+VScrollBar/styles/grabber_pressed = ExtResource( 11 )
+VScrollBar/styles/scroll = ExtResource( 6 )
+VScrollBar/styles/scroll_focus = ExtResource( 6 )
 VSeparator/constants/separation = 24
 VSeparator/styles/separator = null
 VSlider/icons/grabber = null

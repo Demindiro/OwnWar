@@ -188,7 +188,7 @@ __meta__ = {
 
 [node name="Box" type="HBoxContainer" parent="Vehicle list/Box"]
 margin_right = 1920.0
-margin_bottom = 152.0
+margin_bottom = 130.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 alignment = 1
@@ -569,6 +569,7 @@ margin_left = 4.0
 margin_top = 4.0
 margin_right = 868.0
 margin_bottom = 545.0
+scroll_horizontal_enabled = false
 
 [node name="Box" type="VBoxContainer" parent="Server menu/Box/Lobby/List/Box"]
 margin_right = 864.0

@@ -10,7 +10,11 @@ margin_bottom = 140.0
 rect_min_size = Vector2( 140, 140 )
 size_flags_vertical = 0
 theme = ExtResource( 1 )
+toggle_mode = true
 script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 _icon = NodePath("Box/Icon")
 _name = NodePath("Box/Name")
 
