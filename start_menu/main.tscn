@@ -784,6 +784,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 [connection signal="timeout" from="VehiclePreview/InputTimer" to="VehiclePreview" method="input_timeout"]
+[connection signal="select_vehicle" from="Vehicle list" to="." method="select_vehicle"]
 [connection signal="select_vehicle" from="Vehicle list" to="VehiclePreview" method="set_preview"]
 [connection signal="focus_exited" from="NewVehicle/Box/Name" to="NewVehicle" method="focus_lost"]
 [connection signal="gui_input" from="NewVehicle/Box/Name" to="NewVehicle" method="name_gui_input"]

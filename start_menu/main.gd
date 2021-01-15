@@ -11,6 +11,7 @@ var _selected_vehicle_path := ""
 func goto_editor(vehicle_path := "") -> void:
 	if vehicle_path == "":
 		vehicle_path = _selected_vehicle_path
+	if vehicle_path == "":
 		assert(false, "No vehicle selected")
 	if vehicle_path != "":
 		var scene = load("res://editor/editor.tscn").instance()
@@ -20,10 +21,6 @@ func goto_editor(vehicle_path := "") -> void:
 		tree.root.remove_child(self)
 		tree.root.add_child(scene)
 		tree.current_scene = scene
-
-
-func set_selected_vehicle(path: String) -> void:
-	_selected_vehicle_path = path
 
 
 func rename_vehicle(from: String, to: String) -> void:
@@ -45,3 +42,8 @@ func rename_vehicle(from: String, to: String) -> void:
 
 func exit_game() -> void:
 	get_tree().quit()
+
+
+func select_vehicle(path: String) -> void:
+	print("oigerijreiojgeriojg")
+	_selected_vehicle_path = path

@@ -19,8 +19,8 @@ onready var gui_mass: Label = get_node(_gui_mass)
 onready var gui_size: Label = get_node(_gui_size)
 
 
-func set_vehicle(vehicle: OwnWar_Vehicle) -> void:
-	set_vehicle_name(Util.humanize_file_name(vehicle.get_file_path().get_file()))
+func set_vehicle(path: String, vehicle: OwnWar_VehiclePreview) -> void:
+	set_vehicle_name(Util.humanize_file_name(path.get_file()))
 	gui_cost.text = str(vehicle.get_cost())
 	gui_blocks.text = str(vehicle.get_block_count())
 	gui_mass.text = str(vehicle.get_mass())

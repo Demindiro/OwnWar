@@ -1,4 +1,5 @@
 extends ArrayMesh
+class_name OwnWar_VoxelMesh
 
 
 class SubMesh:

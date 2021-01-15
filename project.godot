@@ -90,6 +90,16 @@ _global_script_classes=[ {
 "path": "res://vehicles/vehicle_controller.gd"
 }, {
 "base": "Spatial",
+"class": "OwnWar_VehiclePreview",
+"language": "GDScript",
+"path": "res://vehicles/vehicle_preview.gd"
+}, {
+"base": "ArrayMesh",
+"class": "OwnWar_VoxelMesh",
+"language": "GDScript",
+"path": "res://vehicles/voxel_mesh.gd"
+}, {
+"base": "Spatial",
 "class": "OwnWar_Weapon",
 "language": "GDScript",
 "path": "res://blocks/weapons/weapon.gd"
@@ -126,6 +136,8 @@ _global_script_class_icons={
 "OwnWar_SetColor": "",
 "OwnWar_Vehicle": "",
 "OwnWar_VehicleController": "",
+"OwnWar_VehiclePreview": "",
+"OwnWar_VoxelMesh": "",
 "OwnWar_Weapon": "",
 "OwnWar_WeaponLaser": "",
 "OwnWar_WeaponLaserClient": "",

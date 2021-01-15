@@ -25,7 +25,8 @@ func generate_vehicle_list() -> void:
 		path = "user://vehicles".plus_file(path)
 		var btn: Card = card_template.instance()
 		OwnWar_Thumbnail.call_deferred("get_vehicle_thumbnail_async", path, funcref(self, "_set_thumbnail"), [btn, path])
-		Util.assert_connect(btn, "pressed", self, "emit_signal", ["select_vehicle", path])
+		var e := btn.connect("pressed", self, "emit_signal", ["select_vehicle", path])
+		assert(e == OK)
 		btn.group = _button_group
 		_box.add_child(btn)
 		prev_btn = btn

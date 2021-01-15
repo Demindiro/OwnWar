@@ -99,22 +99,18 @@ func _create_vehicle_thumbnail(p_path: String, callback: FuncRef, arguments: Arr
 	tn.get_child(0).free()
 	print("Generating vehicle thumbnail for ", p_path)
 	var path := _get_vehicle_path(p_path)
-	var vehicle := OwnWar_Vehicle.new()
-	vehicle.team = 0
-	vehicle.transform = Transform.IDENTITY
-	var e := vehicle.load_from_file(p_path, true)
+	var vehicle := OwnWar_VehiclePreview.new()
+	var e := vehicle.load_from_file(p_path)
 	assert(e == OK)
 	if e != OK:
 		push_error("Failed to load vehicle from %s: %d" % [p_path, e])
 		return
-	var aabb := vehicle.get_aabb()
+	var aabb := vehicle.aabb
 	var camera: Camera = tn.get_node("Spatial/Camera")
 	var size := max(aabb.size.x, max(aabb.size.y, aabb.size.z))
+	vehicle.translation.y += aabb.size.y * OwnWar_Block.BLOCK_SCALE
 	# 1.5 has been derived by trial and error
 	camera.translate(Vector3.BACK * size / 1.5)
-	# It seems set_physics_process_internal doesn't actually affect RigidBodies
-	for vb in vehicle.voxel_bodies:
-		vb.mode = RigidBody.MODE_KINEMATIC
 	vehicle.propagate_call("set_process", [false], true)
 	vehicle.propagate_call("set_process_internal", [false], true)
 	vehicle.propagate_call("set_physics_process", [false], true)

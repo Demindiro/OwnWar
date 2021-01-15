@@ -91,7 +91,7 @@ puppet func sync_vehicle(data: PoolByteArray, name: String, team: int, \
 	vehicle.team = team
 	vehicle.name = name
 	vehicle.transform = transform
-	var e := vehicle.load_from_data(data, false, state)
+	var e := vehicle.load_from_data(data, state)
 	assert(e == OK)
 	vehicle.add_to_group("vehicles")
 	vehicle.controller.set_network_master(master_id)

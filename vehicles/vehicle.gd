@@ -18,7 +18,6 @@ var weapons := []
 var avg_delay_between_shots := 0.0
 var fireable_weapon_count := 0
 var delay_until_next_fire := 0.0
-export var _file := "" setget load_from_file, get_file_path
 var data: PoolByteArray
 var _last_seq_id := 0
 
@@ -165,24 +164,20 @@ func get_visual_origin() -> Vector3:
 	return translation
 
 
-func load_from_file(path: String, thumbnail_mode := false) -> int:
+func load_from_file(path: String) -> int:
 	#assert(team >= 0)
 	var file := File.new()
 	var err := file.open_compressed(path, File.READ, File.COMPRESSION_GZIP)
 	if err != OK:
 		return err
-	_file = path
 
-	return load_from_data(file.get_buffer(file.get_len()), thumbnail_mode)
+	return load_from_data(file.get_buffer(file.get_len()))
 
 
-func load_from_data(data: PoolByteArray, thumbnail_mode := false, state := []) -> int:
+func load_from_data(data: PoolByteArray, state := []) -> int:
 	for body in voxel_bodies:
 		if body != null:
 			body.queue_free()
-
-	if Engine.editor_hint:
-		assert(false, "TODO loading from editor")
 
 	var has_mainframe := false
 	var mainframe_id: int = OwnWar_Block.get_block("mainframe").id
@@ -304,23 +299,13 @@ func load_from_data(data: PoolByteArray, thumbnail_mode := false, state := []) -
 	if fireable_weapon_count > 0:
 		avg_delay_between_shots /= fireable_weapon_count
 
-	if not thumbnail_mode:
-		var physics_bodies := []
-		for child in Util.get_children_recursive(self):
-			if child is PhysicsBody:
-				physics_bodies.append(child)
-		for a in physics_bodies:
-			for b in physics_bodies:
-				a.add_collision_exception_with(b)
-	else:
-		for child in Util.get_children_recursive(self):
-			if child is RigidBody:
-				child.axis_lock_angular_x = true
-				child.axis_lock_angular_y = true
-				child.axis_lock_angular_z = true
-				child.axis_lock_linear_x = true
-				child.axis_lock_linear_y = true
-				child.axis_lock_linear_z = true
+	var physics_bodies := []
+	for child in Util.get_children_recursive(self):
+		if child is PhysicsBody:
+			physics_bodies.append(child)
+	for a in physics_bodies:
+		for b in physics_bodies:
+			a.add_collision_exception_with(b)
 
 	return OK
 
@@ -393,10 +378,6 @@ func get_mass() -> float:
 	return c
 
 
-func get_file_path() -> String:
-	return _file
-
-
 func debug_draw() -> void:
 	var text := "Actions: "
 	if controller.turn_left:
@@ -430,42 +411,8 @@ static func add_manager(p_name: String, script: GDScript):
 	MANAGERS[p_name] = script
 
 
-func _load_from_file_editor(data: Dictionary) -> int:
-	var vm_inst: MeshInstance = null
-	for c in get_children():
-		if c is MeshInstance and c.name == "_Editor_VoxelMesh":
-			vm_inst = c
-			break
-	if vm_inst == null:
-		vm_inst = MeshInstance.new()
-		vm_inst.name = "_Editor_VoxelMesh"
-		add_child(vm_inst)
-	var vm := VoxelMesh.new()
-	vm_inst.mesh = vm
-
-	# TODO center of mass isn't accurate
-	var com := Vector3.ZERO
-	var count := 0.0
-	var cube := CubeMesh.new()
-	cube.size = Vector3.ONE * OwnWar_Block.BLOCK_SCALE
-	for key in data["blocks"]:
-		var components = Util.decode_vec3i(key)
-		var x = components[0]
-		var y = components[1]
-		var z = components[2]
-		var color := Util.decode_color(data["blocks"][key][2])
-		vm.add_mesh(cube, color, [x, y, z], 0)
-		com = (com * count + Vector3(x, y, z)) / (count + 1.0)
-		count += 1.0
-	vm.generate()
-	vm_inst.transform.origin = -com * OwnWar_Block.BLOCK_SCALE
-
-	return OK
-
-
 func _erase_from(array: Array, item) -> void:
 	array.erase(item)
-
 
 
 func _remove_voxel_body(index: int) -> void:
