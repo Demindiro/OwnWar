@@ -90,7 +90,7 @@ func _enter_tree() -> void:
 	# This is a security risk btw, we shouldn't listen on random ports, let alone
 	# one that is bound to 0.0.0.0
 	var n := NetworkedMultiplayerENet.new()
-	n.create_server(59798)
+	n.create_server(59799)
 	get_tree().network_peer = n
 
 

@@ -20,6 +20,7 @@ panorama = ExtResource( 13 )
 [sub_resource type="Environment" id=2]
 background_mode = 2
 background_sky = SubResource( 1 )
+background_sky_orientation = Basis( 0.939693, 0, -0.34202, 0, 1, 0, 0.34202, 0, 0.939693 )
 ambient_light_energy = 0.2
 tonemap_mode = 2
 
@@ -51,7 +52,7 @@ shader_type = "Classic4Lite"
 custom_shader = null
 custom_globalmap_shader = null
 shader_params/u_ground_uv_scale = 1.0
-shader_params/u_depth_blending = true
+shader_params/u_depth_blending = false
 shader_params/u_triplanar = false
 shader_params/u_tile_reduction = Plane( 0, 0, 0, 0 )
 ground/albedo_bump_0 = ExtResource( 6 )
@@ -64,7 +65,10 @@ ground/albedo_bump_3 = null
 ground/normal_roughness_3 = null
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
-transform = Transform( 0.866025, 0.25, -0.433013, 0, 0.866025, 0.5, 0.5, -0.433013, 0.75, 0, 86, 0 )
+transform = Transform( 0.939693, 0.172899, -0.2951, 0, 0.862814, 0.505522, 0.34202, -0.475035, 0.81078, 0, 84, 0 )
+layers = 0
+shadow_bias = 0.0
+shadow_reverse_cull_face = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource( 2 )
