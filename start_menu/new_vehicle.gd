@@ -6,7 +6,7 @@ onready var _button_gui: BaseButton = get_node("Box/Create")
 onready var _box_gui: Control = get_node("Box")
 
 
-signal create_vehicle(name)
+signal create_vehicle(path)
 
 
 func _ready() -> void:
