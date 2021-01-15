@@ -1,14 +1,14 @@
 [gd_resource type="Resource" load_steps=3 format=2]
 
 [ext_resource path="res://blocks/block.gd" type="Script" id=1]
-[ext_resource path="res://core/block/debug/vane.obj" type="ArrayMesh" id=2]
+[ext_resource path="res://blocks/debug/vane.obj" type="ArrayMesh" id=2]
 
 [resource]
 script = ExtResource( 1 )
 name = "vane"
 human_name = "Vane"
 revision = 0
-category = "debugging"
+category = "Other"
 mesh = ExtResource( 2 )
 health = 100
 mass = 1.0

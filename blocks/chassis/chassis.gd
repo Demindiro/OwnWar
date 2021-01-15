@@ -27,7 +27,7 @@ static func load_blocks() -> void:
 			var block = OwnWar_Block.new()
 			block.name = generator.get_name()
 			block.human_name = block_name
-			block.category = "chassis"
+			block.category = "Structural"
 			block.mesh = generator.get_mesh(generator.get_result(), transform)
 			OwnWar_Block.add_block(block)
 			if mirror < 0:
@@ -35,7 +35,7 @@ static func load_blocks() -> void:
 				var mirror_transform = Transform.FLIP_X * transform
 				mirror_block.name = block.name + "_m"
 				mirror_block.human_name = block.human_name + " (M)"
-				mirror_block.category = "chassis"
+				mirror_block.category = "Structural"
 				mirror_block.mesh = generator.get_mesh(generator.get_result(), mirror_transform, true)
 				OwnWar_Block.add_block(mirror_block)
 				mirror_block.mirror_block = block

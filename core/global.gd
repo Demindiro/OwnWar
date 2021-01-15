@@ -72,7 +72,7 @@ var _loader_callback_arguments: Array
 
 func _init():
 	print("Game version %s" % [OwnWar.VERSION])
-	OwnWar_Block.add_block(preload("block/debug/vane.tres"))
+	OwnWar_Block.add_block(preload("res://blocks/debug/vane.tres"))
 	preload("res://blocks/chassis/chassis.gd").load_blocks()
 	OwnWar_Block.add_block(preload("res://blocks/wheels/big-wheel/wheel.tres"))
 	OwnWar_Block.add_block(preload("res://blocks/mainframe/mainframe.tres"))
