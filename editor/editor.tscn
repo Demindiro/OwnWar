@@ -49,21 +49,6 @@ script = ExtResource( 21 )
 main_menu = ExtResource( 14 )
 material = ExtResource( 22 )
 
-[node name="Lights" type="Node" parent="."]
-
-[node name="TempLightFix" type="DirectionalLight" parent="Lights"]
-transform = Transform( -0.707107, 0.353553, -0.612373, 0, 0.866026, 0.499999, 0.707107, 0.353553, -0.612373, 0, 16.9646, 0 )
-light_energy = 0.5
-light_indirect_energy = 0.5
-
-[node name="SW" type="DirectionalLight" parent="Lights"]
-transform = Transform( -0.707107, 0.353553, -0.612372, 0, 0.866025, 0.5, 0.707107, 0.353553, -0.612372, 0, 16.9646, 0 )
-visible = false
-
-[node name="NW" type="DirectionalLight" parent="Lights"]
-transform = Transform( 0.707107, -0.353553, 0.612373, 0, 0.866025, 0.5, -0.707107, -0.353553, 0.612372, 0, 16.9646, 0 )
-visible = false
-
 [node name="Camera" type="Camera" parent="."]
 process_priority = -1
 transform = Transform( -1, -1.5632e-13, -3.25842e-07, -1.62921e-07, 0.866025, 0.5, 2.82187e-07, 0.5, -0.866025, 10, 5.09171, 0 )
@@ -124,26 +109,31 @@ material/0 = null
 
 [node name="-X-Y" type="SpotLight" parent="Room/Lights"]
 transform = Transform( -0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, 0.5, -0.5, -9.75, 30.5, -10 )
+layers = 1048575
 light_energy = 0.3
 spot_range = 92.2871
 
 [node name="-XY" type="SpotLight" parent="Room/Lights"]
 transform = Transform( 0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, -0.5, 0.5, -9.75, 30.5, 34.75 )
-light_energy = 0.3
+layers = 1048575
+light_energy = 0.5
 spot_range = 92.2871
 
 [node name="X-Y" type="SpotLight" parent="Room/Lights"]
 transform = Transform( 0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 35, 30.5, 34.75 )
+layers = 1048575
 light_energy = 0.3
 spot_range = 92.2871
 
 [node name="XY" type="SpotLight" parent="Room/Lights"]
 transform = Transform( -0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, 0.5, -0.5, 35, 30.5, -10 )
+layers = 1048575
 light_energy = 0.3
 spot_range = 92.2871
 
 [node name="Sun" type="SpotLight" parent="Room/Lights"]
 transform = Transform( 0.873613, 0, 0.486621, 0, 1, 0, -0.486621, 0, 0.873613, 44.375, 0, 75.75 )
+layers = 1048575
 spot_range = 161.345
 spot_angle = 41.5913
 
