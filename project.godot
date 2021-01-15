@@ -72,7 +72,7 @@ _global_script_classes=[ {
 "base": "Popup",
 "class": "OwnWar_ErrorPopup",
 "language": "GDScript",
-"path": "res://core/menu/main_menu/error.gd"
+"path": "res://start_menu/error.gd"
 }, {
 "base": "Spatial",
 "class": "OwnWar_SetColor",
@@ -135,7 +135,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Own War"
-run/main_scene="res://core/menu/main_menu/main.tscn"
+run/main_scene="res://start_menu/main.tscn"
 config/icon="res://icon.png"
 
 [autoload]

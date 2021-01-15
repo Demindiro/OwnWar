@@ -13,7 +13,7 @@
 [ext_resource path="res://editor/editor_environment.tres" type="Environment" id=11]
 [ext_resource path="res://editor/block_face_highlighter.gd" type="Script" id=12]
 [ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=13]
-[ext_resource path="res://core/menu/main_menu/main.tscn" type="PackedScene" id=14]
+[ext_resource path="res://start_menu/main.tscn" type="PackedScene" id=14]
 [ext_resource path="res://editor/floor.gd" type="Script" id=16]
 [ext_resource path="res://editor/block_layer_view.gd" type="Script" id=19]
 [ext_resource path="res://editor/color_picker.gd" type="Script" id=20]
@@ -22,6 +22,8 @@
 [ext_resource path="res://core/thumbnail/mock_cube.tres" type="CubeMesh" id=23]
 [ext_resource path="res://addons/flowcontainer.gd" type="Script" id=24]
 [ext_resource path="res://editor/ellipsis.png" type="Texture" id=25]
+
+
 
 [sub_resource type="SpatialMaterial" id=1]
 
