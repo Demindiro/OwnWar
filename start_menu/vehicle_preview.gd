@@ -1,4 +1,4 @@
-extends ViewportContainer
+extends Control
 
 
 signal loaded_vehicle(vehicle)
@@ -15,11 +15,10 @@ export(float, 0.1, 20.0) var camera_zoom_max := 15.0
 export(float, 0.0, 1.0) var camera_floor_offset := 0.3
 var _vehicle: OwnWar_VehiclePreview = null
 var _auto_pan := true
-onready var _viewport: Viewport = get_node("Viewport")
-onready var _camera: Camera = get_node("Viewport/Camera")
-onready var _origin: Spatial = get_node("Viewport/Origin")
+onready var _camera: Camera = get_node("Camera")
+onready var _origin: Spatial = get_node("Origin")
 onready var _input_timer: Timer = get_node("InputTimer")
-onready var _camera_origin: Spatial = get_node("Viewport/CameraOrigin")
+onready var _camera_origin: Spatial = get_node("CameraOrigin")
 
 
 func set_preview(path: String) -> void:
@@ -30,7 +29,7 @@ func set_preview(path: String) -> void:
 	assert(e == OK)
 	_vehicle.transform = _origin.transform
 	_vehicle.translation.y += 25 * OwnWar_Block.BLOCK_SCALE / 2
-	_viewport.add_child(_vehicle)
+	add_child(_vehicle)
 	emit_signal("loaded_vehicle", _vehicle)
 
 

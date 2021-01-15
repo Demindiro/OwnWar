@@ -4,7 +4,7 @@ extends MeshInstance
 
 onready var floor_cam: Camera = $"../Viewport/Camera"
 onready var floor_viewport: Viewport = $"../Viewport"
-onready var parent_viewport: Viewport = $"../.."
+onready var parent_viewport: Viewport = get_tree().root
 
 
 func _ready() -> void:
@@ -14,6 +14,9 @@ func _ready() -> void:
 
 func _process(_delta) -> void:
 	var main_cam := parent_viewport.get_camera()
+	if main_cam == null:
+		# Goddamnit Godot
+		return
 
 	var cam_pos := main_cam.translation
 	var proj_pos := Vector3(cam_pos.x, 0, cam_pos.z)

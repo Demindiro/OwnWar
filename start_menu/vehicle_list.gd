@@ -8,7 +8,6 @@ export var card_template: PackedScene
 var _button_group := ButtonGroup.new()
 
 onready var _box: Control = get_node("Box/Box")
-onready var _new_vehicle_gui: Control = get_node("../NewVehicle")
 
 
 signal select_vehicle(path)
@@ -19,7 +18,7 @@ func _ready() -> void:
 
 
 func generate_vehicle_list() -> void:
-	#Util.free_children(_box)
+	Util.free_children(_box)
 	var prev_btn: Card = null
 	for path in Util.iterate_dir("user://vehicles", "gz"):
 		path = "user://vehicles".plus_file(path)
