@@ -112,7 +112,7 @@ transform = Transform( -0.692837, 2.26375e-08, -0.721094, 5.31481e-16, 1, 3.1393
 far = 1000.0
 script = ExtResource( 7 )
 speed = 100.0
-actions = PoolStringArray( "designer_move_left", "designer_move_right", "designer_move_forward", "designer_move_back", "designer_move_up", "designer_move_down" )
+actions = PoolStringArray( "editor_move_left", "editor_move_right", "editor_move_forward", "editor_move_back", "editor_move_up", "editor_move_down" )
 
 [node name="HUDCamera" type="Camera" parent="."]
 far = 1000.0

@@ -23,7 +23,7 @@ func _ready():
 func _unhandled_input(event):
 	if not visible:
 		return
-	if event.is_action("ui_cancel") or event.is_action("designer_open_colorpicker"):
+	if event.is_action("ui_cancel") or event.is_action("editor_open_colorpicker"):
 		if event.pressed:
 			_escape_pressed = true
 		elif _escape_pressed:

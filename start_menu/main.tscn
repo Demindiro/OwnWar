@@ -1,7 +1,8 @@
-[gd_scene load_steps=35 format=2]
+[gd_scene load_steps=36 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://start_menu/vehicle_list.gd" type="Script" id=2]
+[ext_resource path="res://settings/settings.tscn" type="PackedScene" id=3]
 [ext_resource path="res://start_menu/vehicle_info.gd" type="Script" id=4]
 [ext_resource path="res://start_menu/vehicle_preview.gd" type="Script" id=5]
 [ext_resource path="res://start_menu/floor_mirror.gd" type="Script" id=6]
@@ -775,6 +776,31 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="Settings" type="ColorRect" parent="."]
+visible = false
+material = ExtResource( 10 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+focus_mode = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Settings" parent="Settings" instance=ExtResource( 3 )]
+
+[node name="Cancel" type="Button" parent="Settings"]
+anchor_left = 0.98
+anchor_top = 0.02
+anchor_right = 0.98
+anchor_bottom = 0.02
+margin_left = -40.0
+margin_bottom = 40.0
+shortcut = ExtResource( 12 )
+text = "x"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="Darken background" type="ColorRect" parent="."]
 visible = false
 anchor_right = 1.0
@@ -787,8 +813,8 @@ __meta__ = {
 [connection signal="vehicle_renamed" from="." to="Vehicle info" method="on_vehicle_renamed"]
 [connection signal="loaded_vehicle" from="Vehicle preview" to="Vehicle info" method="set_vehicle"]
 [connection signal="timeout" from="Vehicle preview/InputTimer" to="Vehicle preview" method="input_timeout"]
-[connection signal="select_vehicle" from="Vehicle list" to="." method="select_vehicle"]
 [connection signal="select_vehicle" from="Vehicle list" to="Vehicle preview" method="set_preview"]
+[connection signal="select_vehicle" from="Vehicle list" to="." method="select_vehicle"]
 [connection signal="create_vehicle" from="New vehicle" to="." method="goto_editor"]
 [connection signal="focus_exited" from="New vehicle/Box/Name" to="New vehicle" method="focus_lost"]
 [connection signal="gui_input" from="New vehicle/Box/Name" to="New vehicle" method="name_gui_input"]
@@ -797,6 +823,7 @@ __meta__ = {
 [connection signal="focus_exited" from="New vehicle/Box/Create" to="New vehicle" method="focus_lost"]
 [connection signal="pressed" from="New vehicle/Box/Create" to="New vehicle" method="goto_editor"]
 [connection signal="pressed" from="QuickActions/Left/Exit" to="." method="exit_game"]
+[connection signal="pressed" from="QuickActions/Left/Settings" to="Settings" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="QuickActions/Middle/Servers" to="Server menu" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="QuickActions/Right/Edit" to="." method="goto_editor"]
 [connection signal="pressed" from="QuickActions/Right/Create" to="New vehicle" method="activate"]
@@ -805,7 +832,11 @@ __meta__ = {
 [connection signal="text_entered" from="Vehicle info/Box/Name" to="Vehicle info" method="edit_name"]
 [connection signal="pressed" from="Server menu/Box/Box/Manual connect/Connect" to="Server menu/Box/Box/Manual connect" method="launch"]
 [connection signal="pressed" from="Server menu/Box/Lobby/Connect" to="Server menu/Box/Lobby" method="launch"]
-[connection signal="toggled" from="Server menu/Box/Self host/List in lobby" to="Server menu/Box/Self host/Name" method="set_visible"]
 [connection signal="toggled" from="Server menu/Box/Self host/List in lobby" to="Server menu/Box/Self host/Description" method="set_visible"]
+[connection signal="toggled" from="Server menu/Box/Self host/List in lobby" to="Server menu/Box/Self host/Name" method="set_visible"]
 [connection signal="pressed" from="Server menu/Box/Self host/Start server" to="Server menu/Box/Self host" method="launch"]
 [connection signal="pressed" from="Server menu/Cancel" to="Server menu" method="set_visible" binds= [ false ]]
+[connection signal="focus_entered" from="Settings" to="Settings" method="set_visible" binds= [ false ]]
+[connection signal="visibility_changed" from="Settings" to="Settings/Settings" method="set_visible" binds= [ true ]]
+[connection signal="hide" from="Settings/Settings" to="Settings" method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="Settings/Cancel" to="Settings" method="set_visible" binds= [ false ]]

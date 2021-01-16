@@ -11,5 +11,5 @@ func _ready():
 
 
 func _input(event):
-	if event.is_action_released("designer_release_cursor"):
+	if event.is_action_released("editor_release_cursor"):
 		get_popup().hide()

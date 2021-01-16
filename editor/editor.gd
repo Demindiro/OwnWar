@@ -90,31 +90,31 @@ func _input(event: InputEvent) -> void:
 	if not _camera.enabled:
 		return
 	if event is InputEventMouseButton and event.is_pressed():
-		if event.is_action("designer_rotate_down"):
+		if event.is_action("editor_rotate_down"):
 			_rotation -= 1
 			if _rotation < 0:
 				_rotation = 23
-		elif event.is_action("designer_rotate_up"):
+		elif event.is_action("editor_rotate_up"):
 			_rotation += 1
 			if _rotation >= 24:
 				_rotation = 0
-	if event.is_action_pressed("designer_snap_faces"):
+	if event.is_action_pressed("editor_snap_faces"):
 		_snap_face = not _snap_face
-	elif event.is_action_pressed("designer_vehicle_up"):
+	elif event.is_action_pressed("editor_vehicle_up"):
 		_move_vehicle(Vector3.UP)
-	elif event.is_action_pressed("designer_vehicle_down"):
+	elif event.is_action_pressed("editor_vehicle_down"):
 		_move_vehicle(Vector3.DOWN)
-	elif event.is_action_pressed("designer_vehicle_left"):
+	elif event.is_action_pressed("editor_vehicle_left"):
 		_move_vehicle(Vector3.RIGHT)
-	elif event.is_action_pressed("designer_vehicle_right"):
+	elif event.is_action_pressed("editor_vehicle_right"):
 		_move_vehicle(Vector3.LEFT)
-	elif event.is_action_pressed("designer_vehicle_back"):
+	elif event.is_action_pressed("editor_vehicle_back"):
 		_move_vehicle(Vector3.FORWARD)
-	elif event.is_action_pressed("designer_vehicle_forward"):
+	elif event.is_action_pressed("editor_vehicle_forward"):
 		_move_vehicle(Vector3.BACK)
-	elif event.is_action_pressed("designer_vehicle_rotate"):
+	elif event.is_action_pressed("editor_vehicle_rotate"):
 		_rotate_vehicle()
-	elif event.is_action_pressed("designer_layer_next"):
+	elif event.is_action_pressed("editor_layer_next"):
 		view_layer += 1
 		selected_layer = view_layer
 		if view_layer > 3:
@@ -122,7 +122,7 @@ func _input(event: InputEvent) -> void:
 			selected_layer = 0
 		set_layer(selected_layer)
 		set_view_layer(view_layer)
-	elif event.is_action_pressed("designer_layer_previous"):
+	elif event.is_action_pressed("editor_layer_previous"):
 		view_layer -= 1
 		if view_layer < -1:
 			view_layer = 3
@@ -154,11 +154,11 @@ func process_actions():
 	if Input.is_action_just_pressed("ui_cancel"):
 		set_enabled(false)
 		_gui_menu.visible = true
-	elif Input.is_action_pressed("designer_open_inventory"):
+	elif Input.is_action_pressed("editor_open_inventory"):
 		set_enabled(false)
 		_gui_inventory.visible = true
-	elif Input.is_action_just_pressed("designer_place_block"):
-		if ray_voxel_valid and not Input.is_action_pressed("designer_release_cursor"):
+	elif Input.is_action_just_pressed("editor_place_block"):
+		if ray_voxel_valid and not Input.is_action_pressed("editor_release_cursor"):
 			var coordinate = _v2a(_a2v(ray.voxel) + _a2v(ray.get_normal()))
 			_snap_face(_a2v(ray.get_normal()))
 			place_block(selected_block, coordinate, _rotation,
@@ -172,8 +172,8 @@ func process_actions():
 				var m_block: OwnWar_Block = selected_block.mirror_block
 				place_block(m_block, coordinate, m_block.get_mirror_rotation(_rotation),
 					material.albedo_color, selected_layer)
-	elif Input.is_action_just_pressed("designer_remove_block"):
-		if not ray.finished and not Input.is_action_pressed("designer_release_cursor"):
+	elif Input.is_action_just_pressed("editor_remove_block"):
+		if not ray.finished and not Input.is_action_pressed("editor_release_cursor"):
 			var coordinate = [] + ray.voxel
 			remove_block(coordinate)
 			if mirror:
@@ -183,17 +183,17 @@ func process_actions():
 				var delta = coordinate[0] - mirror_x
 				coordinate[0] = mirror_x - delta
 				remove_block(coordinate)
-	elif Input.is_action_just_pressed("designer_mirror"):
+	elif Input.is_action_just_pressed("editor_mirror"):
 		mirror = not mirror
 		_floor.enable_mirror(mirror)
-	elif Input.is_action_just_pressed("designer_open_colorpicker"):
+	elif Input.is_action_just_pressed("editor_open_colorpicker"):
 		set_enabled(false)
 		_gui_color_picker.visible = true
-	elif Input.is_action_just_pressed("designer_release_cursor"):
+	elif Input.is_action_just_pressed("editor_release_cursor"):
 		_camera.enabled = false
-	elif Input.is_action_just_released("designer_release_cursor"):
+	elif Input.is_action_just_released("editor_release_cursor"):
 		_camera.enabled = true
-	elif Input.is_action_just_pressed("designer_configure"):
+	elif Input.is_action_just_pressed("editor_configure"):
 		if ray_voxel_valid and ray.voxel in blocks:
 			var block = OwnWar_Block.get_block(blocks[ray.voxel].name)
 			if len(block.meta) > 0:

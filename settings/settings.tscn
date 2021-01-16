@@ -1,0 +1,240 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://ui/theme.tres" type="Theme" id=1]
+[ext_resource path="res://settings/keybinds.gd" type="Script" id=2]
+
+[node name="Settings" type="TabContainer"]
+anchor_left = 0.05
+anchor_top = 0.05
+anchor_right = 0.95
+anchor_bottom = 0.95
+theme = ExtResource( 1 )
+custom_constants/top_margin = 20
+custom_constants/side_margin = 20
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Sound" type="ScrollContainer" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 33.0
+margin_right = -4.0
+margin_bottom = -4.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Box" type="MarginContainer" parent="Sound"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 200
+custom_constants/margin_top = 50
+custom_constants/margin_left = 200
+custom_constants/margin_bottom = 50
+
+[node name="Box" type="VBoxContainer" parent="Sound/Box"]
+margin_left = 200.0
+margin_top = 50.0
+margin_right = 1520.0
+margin_bottom = 885.0
+custom_constants/separation = 16
+
+[node name="Master" type="HBoxContainer" parent="Sound/Box/Box"]
+margin_right = 1320.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+custom_constants/separation = 40
+
+[node name="Name" type="Label" parent="Sound/Box/Box/Master"]
+margin_right = 248.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "Master"
+align = 2
+
+[node name="Slider" type="HSlider" parent="Sound/Box/Box/Master"]
+margin_left = 288.0
+margin_right = 1032.0
+margin_bottom = 16.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+step = 0.1
+value = 50.0
+
+[node name="Value" type="Control" parent="Sound/Box/Box/Master"]
+margin_left = 1072.0
+margin_right = 1320.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+
+[node name="Music" type="HBoxContainer" parent="Sound/Box/Box"]
+margin_top = 37.0
+margin_right = 1320.0
+margin_bottom = 58.0
+size_flags_horizontal = 3
+custom_constants/separation = 40
+
+[node name="Name" type="Label" parent="Sound/Box/Box/Music"]
+margin_right = 248.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "Music"
+align = 2
+
+[node name="Slider" type="HSlider" parent="Sound/Box/Box/Music"]
+margin_left = 288.0
+margin_right = 1032.0
+margin_bottom = 16.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+step = 0.1
+value = 50.0
+
+[node name="Value" type="Control" parent="Sound/Box/Box/Music"]
+margin_left = 1072.0
+margin_right = 1320.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+
+[node name="Effects" type="HBoxContainer" parent="Sound/Box/Box"]
+margin_top = 74.0
+margin_right = 1320.0
+margin_bottom = 95.0
+size_flags_horizontal = 3
+custom_constants/separation = 40
+
+[node name="Name" type="Label" parent="Sound/Box/Box/Effects"]
+margin_right = 248.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "Effects"
+align = 2
+
+[node name="Slider" type="HSlider" parent="Sound/Box/Box/Effects"]
+margin_left = 288.0
+margin_right = 1032.0
+margin_bottom = 16.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+step = 0.1
+value = 50.0
+
+[node name="Value" type="Control" parent="Sound/Box/Box/Effects"]
+margin_left = 1072.0
+margin_right = 1320.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+
+[node name="UI" type="HBoxContainer" parent="Sound/Box/Box"]
+margin_top = 111.0
+margin_right = 1320.0
+margin_bottom = 132.0
+size_flags_horizontal = 3
+custom_constants/separation = 40
+
+[node name="Name" type="Label" parent="Sound/Box/Box/UI"]
+margin_right = 248.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "UI"
+align = 2
+
+[node name="Slider" type="HSlider" parent="Sound/Box/Box/UI"]
+margin_left = 288.0
+margin_right = 1032.0
+margin_bottom = 16.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+step = 0.1
+value = 50.0
+
+[node name="Value" type="Control" parent="Sound/Box/Box/UI"]
+margin_left = 1072.0
+margin_right = 1320.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+
+[node name="Graphics" type="ScrollContainer" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 33.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="Box" type="MarginContainer" parent="Graphics"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 200
+custom_constants/margin_top = 50
+custom_constants/margin_left = 200
+custom_constants/margin_bottom = 50
+
+[node name="Box" type="VBoxContainer" parent="Graphics/Box"]
+margin_left = 200.0
+margin_top = 50.0
+margin_right = 1520.0
+margin_bottom = 885.0
+custom_constants/separation = 16
+
+[node name="Master" type="HBoxContainer" parent="Graphics/Box/Box"]
+margin_right = 1320.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+custom_constants/separation = 40
+
+[node name="Name" type="Label" parent="Graphics/Box/Box/Master"]
+margin_right = 248.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "Master"
+align = 2
+
+[node name="Slider" type="HSlider" parent="Graphics/Box/Box/Master"]
+margin_left = 288.0
+margin_right = 1032.0
+margin_bottom = 16.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+step = 0.1
+value = 50.0
+
+[node name="Value" type="Control" parent="Graphics/Box/Box/Master"]
+margin_left = 1072.0
+margin_right = 1320.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+
+[node name="Keybinds" type="ScrollContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 33.0
+margin_right = -4.0
+margin_bottom = -4.0
+follow_focus = true
+script = ExtResource( 2 )
+_list = NodePath("../Keybinds/Box/Box")
+
+[node name="Box" type="MarginContainer" parent="Keybinds"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 200
+custom_constants/margin_top = 50
+custom_constants/margin_left = 200
+custom_constants/margin_bottom = 50
+
+[node name="Box" type="VBoxContainer" parent="Keybinds/Box"]
+margin_left = 200.0
+margin_top = 50.0
+margin_right = 1520.0
+margin_bottom = 885.0

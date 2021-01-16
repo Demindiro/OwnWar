@@ -32,4 +32,4 @@ transform = Transform( 0.258819, 0.620885, 0.739942, -0.408218, -0.623963, 0.666
 [node name="FreeCamera" type="Camera" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.49736, 3.37349 )
 script = ExtResource( 4 )
-actions = PoolStringArray( "designer_move_left", "designer_move_right", "designer_move_forward", "designer_move_back", "designer_move_up", "designer_move_down" )
+actions = PoolStringArray( "editor_move_left", "editor_move_right", "editor_move_forward", "editor_move_back", "editor_move_up", "editor_move_down" )

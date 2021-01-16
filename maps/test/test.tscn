@@ -26,7 +26,7 @@ tonemap_mode = 2
 
 [node name="Test" type="Node"]
 script = ExtResource( 12 )
-designer_scene_path = "res://editor/editor.tscn"
+editor_scene_path = "res://editor/editor.tscn"
 spawn_point/0 = NodePath("SpawnPoints/Center")
 spawn_point/1 = NodePath("SpawnPoints/-X-Y")
 spawn_point/2 = NodePath("SpawnPoints/X-Y")

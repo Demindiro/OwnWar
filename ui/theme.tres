@@ -1,6 +1,5 @@
-[gd_resource type="Theme" load_steps=18 format=2]
+[gd_resource type="Theme" load_steps=20 format=2]
 
-[ext_resource path="res://core/menu/progress_bar.tres" type="StyleBox" id=1]
 [ext_resource path="res://ui/font.tres" type="DynamicFont" id=2]
 [ext_resource path="res://core/menu/button/button.tres" type="StyleBox" id=3]
 [ext_resource path="res://core/menu/button/button_hover.tres" type="StyleBox" id=4]
@@ -15,6 +14,9 @@
 [ext_resource path="res://ui/semisolid_gray_panel.tres" type="StyleBox" id=13]
 [ext_resource path="res://ui/semisolid_darkgray_panel.tres" type="StyleBox" id=14]
 [ext_resource path="res://ui/transparent_hscroll_black_panel.tres" type="StyleBox" id=15]
+[ext_resource path="res://ui/transparent_white_panel.tres" type="StyleBox" id=16]
+[ext_resource path="res://ui/transparent_gray_panel.tres" type="StyleBox" id=17]
+[ext_resource path="res://ui/font_big.tres" type="DynamicFont" id=18]
 
 [sub_resource type="StreamTexture" id=1]
 flags = 4
@@ -107,8 +109,8 @@ FileDialog/icons/folder = null
 FileDialog/icons/parent_folder = null
 FileDialog/icons/reload = null
 FileDialog/icons/toggle_hidden = null
-Fonts/fonts/large = null
-Fonts/fonts/normal = null
+Fonts/fonts/large = ExtResource( 18 )
+Fonts/fonts/normal = ExtResource( 2 )
 GraphEdit/colors/activity = Color( 0, 0, 0, 1 )
 GraphEdit/colors/grid_major = Color( 0, 0, 0, 1 )
 GraphEdit/colors/grid_minor = Color( 0, 0, 0, 1 )
@@ -160,9 +162,9 @@ HSlider/icons/grabber = null
 HSlider/icons/grabber_disabled = null
 HSlider/icons/grabber_highlight = null
 HSlider/icons/tick = null
-HSlider/styles/grabber_area = null
-HSlider/styles/grabber_area_highlight = null
-HSlider/styles/slider = null
+HSlider/styles/grabber_area = ExtResource( 12 )
+HSlider/styles/grabber_area_highlight = ExtResource( 11 )
+HSlider/styles/slider = ExtResource( 15 )
 HSplitContainer/constants/autohide = 1
 HSplitContainer/constants/separation = 12
 HSplitContainer/icons/grabber = null
@@ -263,8 +265,8 @@ PopupPanel/styles/panel = null
 ProgressBar/colors/font_color = Color( 1, 1, 1, 1 )
 ProgressBar/colors/font_color_shadow = Color( 0, 0, 0, 1 )
 ProgressBar/fonts/font = null
-ProgressBar/styles/bg = ExtResource( 1 )
-ProgressBar/styles/fg = null
+ProgressBar/styles/bg = ExtResource( 15 )
+ProgressBar/styles/fg = ExtResource( 16 )
 RichTextLabel/colors/default_color = Color( 0, 0, 0, 1 )
 RichTextLabel/colors/font_color_selected = Color( 0, 0, 0, 1 )
 RichTextLabel/colors/font_color_shadow = Color( 0, 0, 0, 1 )
@@ -284,9 +286,9 @@ RichTextLabel/styles/focus = null
 RichTextLabel/styles/normal = null
 ScrollContainer/styles/bg = null
 SpinBox/icons/updown = null
-TabContainer/colors/font_color_bg = Color( 0, 0, 0, 1 )
-TabContainer/colors/font_color_disabled = Color( 0, 0, 0, 1 )
-TabContainer/colors/font_color_fg = Color( 0, 0, 0, 1 )
+TabContainer/colors/font_color_bg = Color( 1, 1, 1, 1 )
+TabContainer/colors/font_color_disabled = Color( 1, 1, 1, 1 )
+TabContainer/colors/font_color_fg = Color( 1, 1, 1, 1 )
 TabContainer/constants/hseparation = 4
 TabContainer/constants/label_valign_bg = 2
 TabContainer/constants/label_valign_fg = 0
@@ -299,13 +301,13 @@ TabContainer/icons/increment = null
 TabContainer/icons/increment_highlight = null
 TabContainer/icons/menu = null
 TabContainer/icons/menu_highlight = null
-TabContainer/styles/panel = null
-TabContainer/styles/tab_bg = null
-TabContainer/styles/tab_disabled = null
-TabContainer/styles/tab_fg = null
-Tabs/colors/font_color_bg = Color( 0, 0, 0, 1 )
-Tabs/colors/font_color_disabled = Color( 0, 0, 0, 1 )
-Tabs/colors/font_color_fg = Color( 0, 0, 0, 1 )
+TabContainer/styles/panel = ExtResource( 10 )
+TabContainer/styles/tab_bg = ExtResource( 10 )
+TabContainer/styles/tab_disabled = ExtResource( 17 )
+TabContainer/styles/tab_fg = ExtResource( 16 )
+Tabs/colors/font_color_bg = Color( 1, 1, 1, 1 )
+Tabs/colors/font_color_disabled = Color( 1, 1, 1, 1 )
+Tabs/colors/font_color_fg = Color( 1, 1, 1, 1 )
 Tabs/constants/hseparation = 4
 Tabs/constants/label_valign_bg = 2
 Tabs/constants/label_valign_fg = 0
@@ -430,9 +432,9 @@ VSlider/icons/grabber = null
 VSlider/icons/grabber_disabled = null
 VSlider/icons/grabber_highlight = null
 VSlider/icons/tick = null
-VSlider/styles/grabber_area = null
-VSlider/styles/grabber_area_highlight = null
-VSlider/styles/slider = null
+VSlider/styles/grabber_area = ExtResource( 12 )
+VSlider/styles/grabber_area_highlight = ExtResource( 11 )
+VSlider/styles/slider = ExtResource( 10 )
 VSplitContainer/constants/autohide = 1
 VSplitContainer/constants/separation = 12
 VSplitContainer/icons/grabber = null
