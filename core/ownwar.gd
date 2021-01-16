@@ -15,6 +15,7 @@ const MAIN_MENU := "res://start_menu/main.tscn"
 const VEHICLE_DIRECTORY := "user://vehicles"
 const VEHICLE_EXTENSION := "owv.gz"
 const NET_COMPRESSION := NetworkedMultiplayerENet.COMPRESS_RANGE_CODER
+const SETTINGS_FILE := "user://settings.cfg"
 
 
 static func snap_transform(node) -> void:

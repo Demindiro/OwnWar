@@ -11,6 +11,11 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+value = 0.0
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+exp_edit = false
 
 [node name="Name" type="Label" parent="."]
 margin_top = 3.0
@@ -27,7 +32,6 @@ margin_bottom = 21.0
 size_flags_horizontal = 3
 size_flags_vertical = 1
 size_flags_stretch_ratio = 3.0
-step = 0.1
 
 [node name="Value" type="Label" parent="."]
 margin_left = 1072.0
@@ -35,3 +39,4 @@ margin_top = 3.0
 margin_right = 1320.0
 margin_bottom = 17.0
 size_flags_horizontal = 3
+text = "0"

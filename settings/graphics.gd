@@ -19,10 +19,22 @@ func _ready():
 	floor_mirror.pressed = OwnWar_Settings.enable_floor_mirror
 	var e := msaa.connect("item_selected", OwnWar_Settings, "set_msaa")
 	assert(e == OK)
+	e = msaa.connect("item_selected", self, "_save")
+	assert(e == OK)
 	e = shadows.connect("toggled", OwnWar_Settings, "set_enable_shadows")
 	assert(e == OK)
-	e = shadow_filter_mode.connect("item_selected", OwnWar_Settings, "set_shadow_filter_mdoe")
+	e = shadows.connect("toggled", self, "_save")
+	assert(e == OK)
+	e = shadow_filter_mode.connect("item_selected", OwnWar_Settings, "set_shadow_filter_mode")
+	assert(e == OK)
+	e = shadow_filter_mode.connect("item_selected", self, "_save")
 	assert(e == OK)
 	e = floor_mirror.connect("toggled", OwnWar_Settings, "set_enable_floor_mirror")
 	assert(e == OK)
+	e = floor_mirror.connect("toggled", self, "_save")
+	assert(e == OK)
 	shadow_filter_mode.get_parent().visible = OwnWar_Settings.enable_shadows
+
+
+func _save(_argsplzsadface = null) -> void:
+	OwnWar_Settings.call_deferred("save_settings")
