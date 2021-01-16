@@ -79,6 +79,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://blocks/set_color.gd"
 }, {
+"base": "Node",
+"class": "OwnWar_Settings_Applier",
+"language": "GDScript",
+"path": "res://settings/applier.gd"
+}, {
 "base": "Spatial",
 "class": "OwnWar_Vehicle",
 "language": "GDScript",
@@ -134,6 +139,7 @@ _global_script_class_icons={
 "OwnWar_BlockInstance": "",
 "OwnWar_ErrorPopup": "",
 "OwnWar_SetColor": "",
+"OwnWar_Settings_Applier": "",
 "OwnWar_Vehicle": "",
 "OwnWar_VehicleController": "",
 "OwnWar_VehiclePreview": "",
@@ -157,6 +163,7 @@ Debug="*res://core/debug.gd"
 OwnWar_Thumbnail="*res://core/thumbnail/thumbnail.gd"
 OwnWar_NetInfo="*res://maps/net_info.gd"
 OwnWar_Lobby="*res://lobby/lobby.gd"
+OwnWar_Settings="*res://settings/autoload.gd"
 
 [debug]
 

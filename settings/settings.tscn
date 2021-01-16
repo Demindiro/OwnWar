@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://settings/keybinds.gd" type="Script" id=2]
 [ext_resource path="res://settings/slider.tscn" type="PackedScene" id=3]
 [ext_resource path="res://settings/sound.gd" type="Script" id=4]
+[ext_resource path="res://addons/option_button_preset.gd" type="Script" id=5]
+[ext_resource path="res://settings/graphics.gd" type="Script" id=6]
 
 [node name="Settings" type="TabContainer"]
 anchor_left = 0.05
@@ -46,6 +48,7 @@ margin_bottom = 885.0
 custom_constants/separation = 16
 
 [node name="Master" parent="Sound/Box/Box" instance=ExtResource( 3 )]
+value = 0.0
 min_value = -50.0
 max_value = 10.0
 step = 0.1
@@ -54,6 +57,7 @@ exp_edit = true
 [node name="Music" parent="Sound/Box/Box" instance=ExtResource( 3 )]
 margin_top = 37.0
 margin_bottom = 58.0
+value = 0.0
 min_value = -50.0
 max_value = 10.0
 step = 0.1
@@ -62,6 +66,7 @@ exp_edit = true
 [node name="Effects" parent="Sound/Box/Box" instance=ExtResource( 3 )]
 margin_top = 74.0
 margin_bottom = 95.0
+value = 0.0
 min_value = -50.0
 max_value = 10.0
 step = 0.1
@@ -70,6 +75,7 @@ exp_edit = true
 [node name="UI" parent="Sound/Box/Box" instance=ExtResource( 3 )]
 margin_top = 111.0
 margin_bottom = 132.0
+value = 0.0
 min_value = -50.0
 max_value = 10.0
 step = 0.1
@@ -83,6 +89,11 @@ margin_left = 4.0
 margin_top = 33.0
 margin_right = -4.0
 margin_bottom = -4.0
+script = ExtResource( 6 )
+_msaa = NodePath("Box/Box/Box/MSAA/Value")
+_shadows = NodePath("Box/Box/Box/Shadows/CheckButton")
+_shadow_filter_mode = NodePath("Box/Box/Box/Shadow filter mode/Value")
+_floor_mirror = NodePath("Box/Box/Box/Enable floor mirror/Enable floor mirror")
 
 [node name="Box" type="MarginContainer" parent="Graphics"]
 margin_right = 1720.0
@@ -94,40 +105,102 @@ custom_constants/margin_top = 50
 custom_constants/margin_left = 200
 custom_constants/margin_bottom = 50
 
-[node name="Box" type="VBoxContainer" parent="Graphics/Box"]
+[node name="Box" type="CenterContainer" parent="Graphics/Box"]
 margin_left = 200.0
 margin_top = 50.0
 margin_right = 1520.0
-margin_bottom = 885.0
+margin_bottom = 220.0
+size_flags_vertical = 0
+
+[node name="Box" type="VBoxContainer" parent="Graphics/Box/Box"]
+margin_left = 460.0
+margin_right = 860.0
+margin_bottom = 170.0
+rect_min_size = Vector2( 400, 0 )
 custom_constants/separation = 16
 
-[node name="Master" type="HBoxContainer" parent="Graphics/Box/Box"]
-margin_right = 1320.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-custom_constants/separation = 40
+[node name="MSAA" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_right = 400.0
+margin_bottom = 29.0
+alignment = 1
 
-[node name="Name" type="Label" parent="Graphics/Box/Box/Master"]
-margin_right = 248.0
-margin_bottom = 21.0
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/MSAA"]
+margin_top = 4.0
+margin_right = 296.0
+margin_bottom = 25.0
 size_flags_horizontal = 3
-text = "Master"
+text = "Anti-aliasing (MSAA)"
+
+[node name="Value" type="OptionButton" parent="Graphics/Box/Box/Box/MSAA"]
+margin_left = 300.0
+margin_right = 400.0
+margin_bottom = 29.0
+rect_min_size = Vector2( 100, 0 )
+text = "Disabled"
 align = 2
+items = [ "Disabled", null, false, 1, null, "x2", null, false, 2, null, "x4", null, false, 3, null, "x8", null, false, 4, null, "x16", null, false, 5, null ]
+selected = 0
+script = ExtResource( 5 )
+options = PoolStringArray( "Disabled", "x2", "x4", "x8", "x16" )
 
-[node name="Slider" type="HSlider" parent="Graphics/Box/Box/Master"]
-margin_left = 288.0
-margin_right = 1032.0
-margin_bottom = 16.0
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 3.0
-step = 0.1
-value = 50.0
+[node name="Shadows" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_top = 45.0
+margin_right = 400.0
+margin_bottom = 77.0
 
-[node name="Value" type="Control" parent="Graphics/Box/Box/Master"]
-margin_left = 1072.0
-margin_right = 1320.0
-margin_bottom = 21.0
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/Shadows"]
+margin_top = 5.0
+margin_right = 332.0
+margin_bottom = 26.0
 size_flags_horizontal = 3
+text = "Shadows"
+
+[node name="CheckButton" type="CheckButton" parent="Graphics/Box/Box/Box/Shadows"]
+margin_left = 336.0
+margin_right = 400.0
+margin_bottom = 32.0
+
+[node name="Shadow filter mode" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_top = 93.0
+margin_right = 400.0
+margin_bottom = 122.0
+alignment = 1
+
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/Shadow filter mode"]
+margin_top = 4.0
+margin_right = 296.0
+margin_bottom = 25.0
+size_flags_horizontal = 3
+text = "Shadow filter mode"
+
+[node name="Value" type="OptionButton" parent="Graphics/Box/Box/Box/Shadow filter mode"]
+margin_left = 300.0
+margin_right = 400.0
+margin_bottom = 29.0
+rect_min_size = Vector2( 100, 0 )
+text = "Disabled"
+align = 2
+items = [ "Disabled", null, false, 1, null, "PCF5", null, false, 2, null, "PCF13", null, false, 3, null ]
+selected = 0
+script = ExtResource( 5 )
+options = PoolStringArray( "Disabled", "PCF5", "PCF13" )
+
+[node name="Enable floor mirror" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_top = 138.0
+margin_right = 400.0
+margin_bottom = 170.0
+
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/Enable floor mirror"]
+margin_top = 5.0
+margin_right = 332.0
+margin_bottom = 26.0
+size_flags_horizontal = 3
+text = "Enable floor mirror"
+
+[node name="Enable floor mirror" type="CheckButton" parent="Graphics/Box/Box/Box/Enable floor mirror"]
+margin_left = 336.0
+margin_right = 400.0
+margin_bottom = 32.0
 
 [node name="Keybinds" type="ScrollContainer" parent="."]
 visible = false
@@ -160,3 +233,5 @@ margin_bottom = 885.0
 [connection signal="value_changed" from="Sound/Box/Box/Music" to="Sound" method="set_bus_volume" binds= [ "Music" ]]
 [connection signal="value_changed" from="Sound/Box/Box/Effects" to="Sound" method="set_bus_volume" binds= [ "Effects" ]]
 [connection signal="value_changed" from="Sound/Box/Box/UI" to="Sound" method="set_bus_volume" binds= [ "UI" ]]
+[connection signal="toggled" from="Graphics/Box/Box/Box/Shadows/CheckButton" to="Graphics/Box/Box/Box/Shadow filter mode" method="set_visible"]
+[connection signal="item_selected" from="Graphics/Box/Box/Box/Shadow filter mode/Value" to="Graphics" method="set_shadow_filter_mode"]

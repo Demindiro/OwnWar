@@ -1,12 +1,7 @@
-[gd_resource type="Theme" load_steps=20 format=2]
+[gd_resource type="Theme" load_steps=13 format=2]
 
 [ext_resource path="res://ui/font.tres" type="DynamicFont" id=2]
-[ext_resource path="res://core/menu/button/button.tres" type="StyleBox" id=3]
-[ext_resource path="res://core/menu/button/button_hover.tres" type="StyleBox" id=4]
-[ext_resource path="res://core/menu/button/button_pressed.tres" type="StyleBox" id=5]
 [ext_resource path="res://ui/transparent_vscroll_black_panel.tres" type="StyleBox" id=6]
-[ext_resource path="res://core/menu/button/button_focus.tres" type="StyleBox" id=7]
-[ext_resource path="res://core/menu/button/button_disabled.tres" type="StyleBox" id=8]
 [ext_resource path="res://core/menu/blank.tres" type="StyleBox" id=9]
 [ext_resource path="res://ui/transparent_black_panel.tres" type="StyleBox" id=10]
 [ext_resource path="res://ui/semisolid_white_panel.tres" type="StyleBox" id=11]
@@ -17,15 +12,6 @@
 [ext_resource path="res://ui/transparent_white_panel.tres" type="StyleBox" id=16]
 [ext_resource path="res://ui/transparent_gray_panel.tres" type="StyleBox" id=17]
 [ext_resource path="res://ui/font_big.tres" type="DynamicFont" id=18]
-
-[sub_resource type="StreamTexture" id=1]
-flags = 4
-
-[sub_resource type="StyleBoxTexture" id=2]
-texture = SubResource( 1 )
-region_rect = Rect2( 24.1578, 11.5503, 157.441, 39.7948 )
-margin_left = 26.6366
-margin_top = 9.03742
 
 [resource]
 default_font = ExtResource( 2 )
@@ -228,21 +214,21 @@ MenuButton/styles/hover = null
 MenuButton/styles/normal = null
 MenuButton/styles/pressed = null
 OptionButton/colors/font_color = Color( 1, 1, 1, 1 )
-OptionButton/colors/font_color_disabled = Color( 0, 0, 0, 1 )
-OptionButton/colors/font_color_hover = Color( 0, 0, 0, 1 )
-OptionButton/colors/font_color_pressed = Color( 0, 0, 0, 1 )
+OptionButton/colors/font_color_disabled = Color( 1, 1, 1, 1 )
+OptionButton/colors/font_color_hover = Color( 1, 1, 1, 1 )
+OptionButton/colors/font_color_pressed = Color( 1, 1, 1, 1 )
 OptionButton/constants/arrow_margin = 2
 OptionButton/constants/hseparation = 2
 OptionButton/fonts/font = ExtResource( 2 )
 OptionButton/icons/arrow = null
-OptionButton/styles/disabled = ExtResource( 8 )
-OptionButton/styles/focus = ExtResource( 7 )
-OptionButton/styles/hover = ExtResource( 4 )
-OptionButton/styles/normal = ExtResource( 3 )
-OptionButton/styles/pressed = ExtResource( 5 )
+OptionButton/styles/disabled = ExtResource( 14 )
+OptionButton/styles/focus = ExtResource( 12 )
+OptionButton/styles/hover = ExtResource( 12 )
+OptionButton/styles/normal = ExtResource( 13 )
+OptionButton/styles/pressed = ExtResource( 11 )
 Panel/styles/panel = ExtResource( 10 )
 PanelContainer/styles/panel = ExtResource( 10 )
-PopupDialog/styles/panel = SubResource( 2 )
+PopupDialog/styles/panel = null
 PopupMenu/colors/font_color = Color( 1, 1, 1, 1 )
 PopupMenu/colors/font_color_accel = Color( 0, 0, 0, 1 )
 PopupMenu/colors/font_color_disabled = Color( 0, 0, 0, 1 )
@@ -255,18 +241,18 @@ PopupMenu/icons/radio_checked = null
 PopupMenu/icons/radio_unchecked = null
 PopupMenu/icons/submenu = null
 PopupMenu/icons/unchecked = null
-PopupMenu/styles/hover = null
+PopupMenu/styles/hover = ExtResource( 13 )
 PopupMenu/styles/labeled_separator_left = null
 PopupMenu/styles/labeled_separator_right = null
-PopupMenu/styles/panel = SubResource( 2 )
-PopupMenu/styles/panel_disabled = null
+PopupMenu/styles/panel = ExtResource( 10 )
+PopupMenu/styles/panel_disabled = ExtResource( 17 )
 PopupMenu/styles/separator = null
 PopupPanel/styles/panel = null
 ProgressBar/colors/font_color = Color( 1, 1, 1, 1 )
 ProgressBar/colors/font_color_shadow = Color( 0, 0, 0, 1 )
 ProgressBar/fonts/font = null
-ProgressBar/styles/bg = ExtResource( 15 )
-ProgressBar/styles/fg = ExtResource( 16 )
+ProgressBar/styles/bg = ExtResource( 14 )
+ProgressBar/styles/fg = ExtResource( 12 )
 RichTextLabel/colors/default_color = Color( 0, 0, 0, 1 )
 RichTextLabel/colors/font_color_selected = Color( 0, 0, 0, 1 )
 RichTextLabel/colors/font_color_shadow = Color( 0, 0, 0, 1 )
