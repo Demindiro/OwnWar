@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://settings/keybinds.gd" type="Script" id=2]
+[ext_resource path="res://settings/slider.tscn" type="PackedScene" id=3]
+[ext_resource path="res://settings/sound.gd" type="Script" id=4]
 
 [node name="Settings" type="TabContainer"]
 anchor_left = 0.05
@@ -16,7 +18,6 @@ __meta__ = {
 }
 
 [node name="Sound" type="ScrollContainer" parent="."]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0
@@ -25,6 +26,7 @@ margin_right = -4.0
 margin_bottom = -4.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+script = ExtResource( 4 )
 
 [node name="Box" type="MarginContainer" parent="Sound"]
 margin_right = 1720.0
@@ -43,120 +45,35 @@ margin_right = 1520.0
 margin_bottom = 885.0
 custom_constants/separation = 16
 
-[node name="Master" type="HBoxContainer" parent="Sound/Box/Box"]
-margin_right = 1320.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-custom_constants/separation = 40
-
-[node name="Name" type="Label" parent="Sound/Box/Box/Master"]
-margin_right = 248.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-text = "Master"
-align = 2
-
-[node name="Slider" type="HSlider" parent="Sound/Box/Box/Master"]
-margin_left = 288.0
-margin_right = 1032.0
-margin_bottom = 16.0
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 3.0
+[node name="Master" parent="Sound/Box/Box" instance=ExtResource( 3 )]
+min_value = -50.0
+max_value = 10.0
 step = 0.1
-value = 50.0
+exp_edit = true
 
-[node name="Value" type="Control" parent="Sound/Box/Box/Master"]
-margin_left = 1072.0
-margin_right = 1320.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-
-[node name="Music" type="HBoxContainer" parent="Sound/Box/Box"]
+[node name="Music" parent="Sound/Box/Box" instance=ExtResource( 3 )]
 margin_top = 37.0
-margin_right = 1320.0
 margin_bottom = 58.0
-size_flags_horizontal = 3
-custom_constants/separation = 40
-
-[node name="Name" type="Label" parent="Sound/Box/Box/Music"]
-margin_right = 248.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-text = "Music"
-align = 2
-
-[node name="Slider" type="HSlider" parent="Sound/Box/Box/Music"]
-margin_left = 288.0
-margin_right = 1032.0
-margin_bottom = 16.0
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 3.0
+min_value = -50.0
+max_value = 10.0
 step = 0.1
-value = 50.0
+exp_edit = true
 
-[node name="Value" type="Control" parent="Sound/Box/Box/Music"]
-margin_left = 1072.0
-margin_right = 1320.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-
-[node name="Effects" type="HBoxContainer" parent="Sound/Box/Box"]
+[node name="Effects" parent="Sound/Box/Box" instance=ExtResource( 3 )]
 margin_top = 74.0
-margin_right = 1320.0
 margin_bottom = 95.0
-size_flags_horizontal = 3
-custom_constants/separation = 40
-
-[node name="Name" type="Label" parent="Sound/Box/Box/Effects"]
-margin_right = 248.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-text = "Effects"
-align = 2
-
-[node name="Slider" type="HSlider" parent="Sound/Box/Box/Effects"]
-margin_left = 288.0
-margin_right = 1032.0
-margin_bottom = 16.0
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 3.0
+min_value = -50.0
+max_value = 10.0
 step = 0.1
-value = 50.0
+exp_edit = true
 
-[node name="Value" type="Control" parent="Sound/Box/Box/Effects"]
-margin_left = 1072.0
-margin_right = 1320.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-
-[node name="UI" type="HBoxContainer" parent="Sound/Box/Box"]
+[node name="UI" parent="Sound/Box/Box" instance=ExtResource( 3 )]
 margin_top = 111.0
-margin_right = 1320.0
 margin_bottom = 132.0
-size_flags_horizontal = 3
-custom_constants/separation = 40
-
-[node name="Name" type="Label" parent="Sound/Box/Box/UI"]
-margin_right = 248.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-text = "UI"
-align = 2
-
-[node name="Slider" type="HSlider" parent="Sound/Box/Box/UI"]
-margin_left = 288.0
-margin_right = 1032.0
-margin_bottom = 16.0
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 3.0
+min_value = -50.0
+max_value = 10.0
 step = 0.1
-value = 50.0
-
-[node name="Value" type="Control" parent="Sound/Box/Box/UI"]
-margin_left = 1072.0
-margin_right = 1320.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
+exp_edit = true
 
 [node name="Graphics" type="ScrollContainer" parent="."]
 visible = false
@@ -213,6 +130,7 @@ margin_bottom = 21.0
 size_flags_horizontal = 3
 
 [node name="Keybinds" type="ScrollContainer" parent="."]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0
@@ -238,3 +156,7 @@ margin_left = 200.0
 margin_top = 50.0
 margin_right = 1520.0
 margin_bottom = 885.0
+[connection signal="value_changed" from="Sound/Box/Box/Master" to="Sound" method="set_bus_volume" binds= [ "Master" ]]
+[connection signal="value_changed" from="Sound/Box/Box/Music" to="Sound" method="set_bus_volume" binds= [ "Music" ]]
+[connection signal="value_changed" from="Sound/Box/Box/Effects" to="Sound" method="set_bus_volume" binds= [ "Effects" ]]
+[connection signal="value_changed" from="Sound/Box/Box/UI" to="Sound" method="set_bus_volume" binds= [ "UI" ]]

@@ -8,6 +8,7 @@ resource_local_to_scene = true
 flags_transparent = true
 flags_unshaded = true
 params_cull_mode = 2
+albedo_color = Color( 1, 1, 1, 0 )
 albedo_texture = ExtResource( 1 )
 uv1_scale = Vector3( 0.15, 0.02, 1 )
 uv1_offset = Vector3( 0.597, 0.1862, 0 )
@@ -57,5 +58,6 @@ anims/fade_out = SubResource( 3 )
 [node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource( 2 )
 autoplay = true
+bus = "Effects"
 [connection signal="timeout" from="Timer" to="." method="queue_free"]
 [connection signal="ready" from="AnimationPlayer" to="AnimationPlayer" method="play" binds= [ "fade_out" ]]
