@@ -1,8 +1,6 @@
 extends Node
 
 
-const MetaEditor := preload("meta_editor.gd")
-
 class Block:
 	var id: int
 	var position: Vector3
@@ -49,12 +47,11 @@ onready var _floor_origin_ghost: MeshInstance = $Floor/Origin/Ghost
 onready var _floor = get_node("Floor")
 onready var _camera: FreeCamera = $Camera
 onready var _camera_mesh: MeshInstance = $Camera/Box/Viewport/Camera/Mesh
-onready var _gui_menu: Control = $GUI/Menu
-onready var _gui_inventory: Control = $GUI/Inventory
-onready var _gui_color_picker: Control = $GUI/ColorPicker
-onready var _gui_meta_editor: MetaEditor = $GUI/MetaEditor
-onready var _hud_block_layer: OptionButton = $HUD/BlockLayer
-onready var _hud_block_layer_view: OptionButton = $HUD/BlockLayerView
+onready var _gui_menu: Control = $Menu
+onready var _gui_inventory: Control = $Inventory
+onready var _gui_color_picker: Control = $ColorPicker
+onready var _hud_block_layer: OptionButton = $BlockLayer
+onready var _hud_block_layer_view: OptionButton = $BlockLayerView
 onready var _block_face_highlighter: Spatial = get_node("BlockFaceHighlighter")
 
 
@@ -143,7 +140,6 @@ func set_enabled(var p_enabled):
 		_gui_menu.visible = false
 		_gui_inventory.visible = false
 		_gui_color_picker.visible = false
-		_gui_meta_editor.visible = false
 	_camera.enabled = enabled
 	set_process(enabled)
 	set_process_input(enabled)
@@ -193,14 +189,6 @@ func process_actions():
 		_camera.enabled = false
 	elif Input.is_action_just_released("editor_release_cursor"):
 		_camera.enabled = true
-	elif Input.is_action_just_pressed("editor_configure"):
-		if ray_voxel_valid and ray.voxel in blocks:
-			var block = OwnWar_Block.get_block(blocks[ray.voxel].name)
-			if len(block.meta) > 0:
-				var meta_data = meta[ray.voxel] if ray.voxel in meta else block.meta
-				set_enabled(false)
-				_gui_meta_editor.set_meta_items(block, meta_data)
-				_gui_meta_editor.visible = true
 
 
 func place_block(block: OwnWar_Block, coordinate: Array, rotation: int,

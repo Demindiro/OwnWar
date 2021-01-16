@@ -122,7 +122,6 @@ far = 1000.0
 camera = NodePath("../HUDCamera")
 
 [node name="GUI" type="ColorRect" parent="."]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 focus_mode = 2
@@ -145,22 +144,22 @@ __meta__ = {
 }
 
 [node name="Continue" type="Button" parent="GUI/Box"]
-margin_top = 468.0
+margin_top = 486.0
 margin_right = 322.0
-margin_bottom = 509.629
+margin_bottom = 515.0
 shortcut = ExtResource( 12 )
 text = "Continue"
 
 [node name="Settings" type="Button" parent="GUI/Box"]
-margin_top = 519.0
+margin_top = 525.0
 margin_right = 322.0
-margin_bottom = 560.629
+margin_bottom = 554.0
 text = "Settings"
 
 [node name="Exit" type="Button" parent="GUI/Box"]
-margin_top = 570.0
+margin_top = 564.0
 margin_right = 322.0
-margin_bottom = 611.629
+margin_bottom = 593.0
 text = "Exit"
 
 [node name="OwnWar_Settings_Applier" type="Node" parent="."]

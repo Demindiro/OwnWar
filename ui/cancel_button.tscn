@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=1]
+
+[node name="Cancel" type="Button"]
+anchor_left = 0.98
+anchor_top = 0.02
+anchor_right = 0.98
+anchor_bottom = 0.02
+margin_left = -40.0
+margin_bottom = 40.0
+shortcut = ExtResource( 1 )
+text = "x"
+__meta__ = {
+"_edit_use_anchors_": false
+}

@@ -6,8 +6,6 @@
 [ext_resource path="res://core/menu/dialog/independent_panel.gd" type="Script" id=4]
 [ext_resource path="res://ui/font.tres" type="DynamicFont" id=5]
 
-
-
 [node name="IndependentPanel" type="Control"]
 margin_right = 320.0
 margin_bottom = 380.0

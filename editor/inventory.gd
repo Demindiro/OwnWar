@@ -1,21 +1,19 @@
 extends Control
 
 
-export(NodePath) var category_button_template
-export(NodePath) var block_button_template
 export(NodePath) var preview_mesh
-export var _thumbnail_placeholder: Texture
+export var block_item: PackedScene
+export var _category_list := NodePath()
+export var _block_list := NodePath()
 
 var categories := {}
 
-var _category_button_template: Button
-var _category_container: Node
-var _block_button_template: TextureButton
-var _block_container: Node
+onready var category_list: Control = get_node(_category_list)
+onready var block_list: Control = get_node(_block_list)
+
 var _preview_mesh: MeshInstance
 var _designer: Node
 var _escape_pressed := false
-onready var _parent: Control = get_parent()
 
 
 func _ready():
@@ -30,17 +28,6 @@ func _ready():
 
 func _process(delta: float) -> void:
 	_preview_mesh.rotate_y(delta * 0.3)
-
-
-func _unhandled_input(event):
-	if not _parent.visible:
-		return
-	if event.is_action("ui_cancel") or event.is_action("editor_open_inventory"):
-		if event.pressed:
-			_escape_pressed = true
-		elif _escape_pressed:
-			_parent.visible = false
-			_escape_pressed = false
 
 
 func show_category(var category):
@@ -60,45 +47,36 @@ func show_block(var block_name):
 
 
 func _resolve_node_paths():
-	_category_button_template = get_node(category_button_template) as Button
-	_category_container = _category_button_template.get_parent()
-	_category_container.remove_child(_category_button_template)
-	_block_button_template = get_node(block_button_template)
-	_block_container = _block_button_template.get_parent()
-	_block_container.remove_child(_block_button_template)
 	_preview_mesh = get_node(preview_mesh)
 	_designer = find_parent("Designer")
 
 
 func _category_container_init():
 	for category in categories:
-		var node = _category_button_template.duplicate() as Button
+		var node := Button.new()
 		node.text = category
 		node.connect("pressed", self, "show_category", [category])
-		_category_container.add_child(node)
+		category_list.add_child(node)
 
 
 func _block_container_init(var category):
-	for child in _block_container.get_children():
-		_block_container.remove_child(child)
+	Util.free_children(block_list)
 	for block_name in categories[category]:
-		var node: TextureButton = _block_button_template.duplicate()
-		#node.text = OwnWar_Block.get_block(block_name).human_name
-		if not OwnWar_Thumbnail.get_block_thumbnail_async(block_name,
-			funcref(self, "_block_set_thumbnail"), [node]):
-			_block_set_thumbnail(_thumbnail_placeholder, node)
+		var node: Control = block_item.instance()
+		OwnWar_Thumbnail.get_block_thumbnail_async(block_name,
+			funcref(self, "_block_set_thumbnail"), [node])
 		Util.assert_connect(node, "mouse_entered", self, "show_block", [block_name])
 		Util.assert_connect(node, "pressed", _designer, "select_block", [block_name])
 		Util.assert_connect(node, "pressed", _designer, "set_enabled", [true])
-		_block_container.add_child(node)
+		block_list.add_child(node)
 
 
-func _block_set_thumbnail(img, button: TextureButton) -> void:
-	if img is Image:
-		var tex := ImageTexture.new()
-		tex.create_from_image(img)
-		img = tex
-	button.texture_normal = img
+func _block_set_thumbnail(img: Image, button: Control) -> void:
+	assert(img != null)
+	assert(button != null)
+	var tex := ImageTexture.new()
+	tex.create_from_image(img)
+	button.get_node("Icon").texture = tex
 
 
 func _get_categories():

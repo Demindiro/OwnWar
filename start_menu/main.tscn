@@ -11,7 +11,7 @@
 [ext_resource path="res://addons/hud/obituary_hexa_circles.tres" type="Texture" id=9]
 [ext_resource path="res://ui/blur_material.tres" type="Material" id=10]
 [ext_resource path="res://icon.png" type="Texture" id=11]
-[ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=12]
+[ext_resource path="res://ui/cancel_button.tscn" type="PackedScene" id=12]
 [ext_resource path="res://ui/font_big.tres" type="DynamicFont" id=13]
 [ext_resource path="res://start_menu/shortcut_main_menu_battle.tres" type="ShortCut" id=14]
 [ext_resource path="res://start_menu/shortcut_main_menu_settings.tres" type="ShortCut" id=15]
@@ -764,18 +764,7 @@ margin_right = 300.0
 margin_bottom = 864.0
 text = "Start server"
 
-[node name="Cancel" type="Button" parent="Server menu"]
-anchor_left = 0.98
-anchor_top = 0.02
-anchor_right = 0.98
-anchor_bottom = 0.02
-margin_left = -40.0
-margin_bottom = 40.0
-shortcut = ExtResource( 12 )
-text = "x"
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="Cancel" parent="Server menu" instance=ExtResource( 12 )]
 
 [node name="Settings" parent="." instance=ExtResource( 3 )]
 
@@ -790,12 +779,12 @@ __meta__ = {
 
 [node name="OwnWar_Settings_Applier" type="Node" parent="."]
 script = ExtResource( 28 )
-[connection signal="vehicle_renamed" from="." to="Vehicle list" method="on_vehicle_renamed"]
 [connection signal="vehicle_renamed" from="." to="Vehicle info" method="on_vehicle_renamed"]
+[connection signal="vehicle_renamed" from="." to="Vehicle list" method="on_vehicle_renamed"]
 [connection signal="loaded_vehicle" from="Vehicle preview" to="Vehicle info" method="set_vehicle"]
 [connection signal="timeout" from="Vehicle preview/InputTimer" to="Vehicle preview" method="input_timeout"]
-[connection signal="select_vehicle" from="Vehicle list" to="." method="select_vehicle"]
 [connection signal="select_vehicle" from="Vehicle list" to="Vehicle preview" method="set_preview"]
+[connection signal="select_vehicle" from="Vehicle list" to="." method="select_vehicle"]
 [connection signal="create_vehicle" from="New vehicle" to="." method="goto_editor"]
 [connection signal="focus_exited" from="New vehicle/Box/Name" to="New vehicle" method="focus_lost"]
 [connection signal="gui_input" from="New vehicle/Box/Name" to="New vehicle" method="name_gui_input"]
@@ -813,7 +802,6 @@ script = ExtResource( 28 )
 [connection signal="text_entered" from="Vehicle info/Box/Name" to="Vehicle info" method="edit_name"]
 [connection signal="pressed" from="Server menu/Box/Box/Manual connect/Connect" to="Server menu/Box/Box/Manual connect" method="launch"]
 [connection signal="pressed" from="Server menu/Box/Lobby/Connect" to="Server menu/Box/Lobby" method="launch"]
-[connection signal="toggled" from="Server menu/Box/Self host/List in lobby" to="Server menu/Box/Self host/Name" method="set_visible"]
 [connection signal="toggled" from="Server menu/Box/Self host/List in lobby" to="Server menu/Box/Self host/Description" method="set_visible"]
+[connection signal="toggled" from="Server menu/Box/Self host/List in lobby" to="Server menu/Box/Self host/Name" method="set_visible"]
 [connection signal="pressed" from="Server menu/Box/Self host/Start server" to="Server menu/Box/Self host" method="launch"]
-[connection signal="pressed" from="Server menu/Cancel" to="Server menu" method="set_visible" binds= [ false ]]
