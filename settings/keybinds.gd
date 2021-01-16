@@ -45,7 +45,7 @@ func _input(event: InputEvent) -> void:
 		button.text = _event_to_string(event)
 		button.release_focus()
 		selected_action = []
-		OwnWar.save_settings()
+		OwnWar_Settings.save_settings()
 
 
 func _event_to_string(event: InputEvent) -> String:
