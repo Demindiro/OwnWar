@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://ui/font.tres" type="DynamicFont" id=1]
 [ext_resource path="res://ui/theme.tres" type="Theme" id=2]
@@ -14,6 +14,7 @@
 [ext_resource path="res://maps/test/test.gd" type="Script" id=12]
 [ext_resource path="res://addons/backgrounds/AllSkyFree_Sky_ColdSunset_Equirect.png" type="Texture" id=13]
 [ext_resource path="res://settings/applier.gd" type="Script" id=14]
+[ext_resource path="res://settings/settings_blur.tscn" type="PackedScene" id=15]
 
 [sub_resource type="PanoramaSky" id=1]
 panorama = ExtResource( 13 )
@@ -198,6 +199,8 @@ text = "Editor"
 [node name="OwnWar_Settings_Applier" type="Node" parent="."]
 script = ExtResource( 14 )
 lights/0 = NodePath("../DirectionalLight")
+
+[node name="Settings" parent="." instance=ExtResource( 15 )]
 [connection signal="cancel" from="GUI" to="GUI" method="set_visible" binds= [ false ]]
 [connection signal="exit" from="GUI" to="." method="exit"]
 [connection signal="hide" from="GUI" to="HUD" method="set_mouse_mode"]
@@ -208,5 +211,5 @@ lights/0 = NodePath("../DirectionalLight")
 [connection signal="settings" from="GUI/ExitMenu" to="GUI" method="_on_ExitMenu_settings"]
 [connection signal="pressed" from="GUI/ExitMenu/Box/Continue" to="GUI/ExitMenu" method="_on_Continue_pressed"]
 [connection signal="pressed" from="GUI/ExitMenu/Box/Restart" to="GUI/ExitMenu" method="_on_Restart_pressed"]
-[connection signal="pressed" from="GUI/ExitMenu/Box/Settings" to="GUI/ExitMenu" method="_on_Settings_pressed"]
+[connection signal="pressed" from="GUI/ExitMenu/Box/Settings" to="Settings" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/ExitMenu/Box/Exit" to="GUI/ExitMenu" method="_on_Exit_pressed"]

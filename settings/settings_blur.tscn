@@ -1,0 +1,34 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=2]
+[ext_resource path="res://settings/settings.tscn" type="PackedScene" id=3]
+[ext_resource path="res://ui/blur_material.tres" type="Material" id=4]
+
+[node name="Settings" type="ColorRect"]
+visible = false
+material = ExtResource( 4 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+focus_mode = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Settings" parent="." instance=ExtResource( 3 )]
+
+[node name="Cancel" type="Button" parent="."]
+anchor_left = 0.98
+anchor_top = 0.02
+anchor_right = 0.98
+anchor_bottom = 0.02
+margin_left = -40.0
+margin_bottom = 40.0
+shortcut = ExtResource( 2 )
+text = "x"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="focus_entered" from="." to="." method="set_visible" binds= [ false ]]
+[connection signal="visibility_changed" from="." to="Settings" method="set_visible" binds= [ true ]]
+[connection signal="hide" from="Settings" to="." method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="Cancel" to="." method="set_visible" binds= [ false ]]

@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=2]
+[gd_scene load_steps=30 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://editor/meta_editor.gd" type="Script" id=2]
@@ -14,6 +14,7 @@
 [ext_resource path="res://editor/block_face_highlighter.gd" type="Script" id=12]
 [ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=13]
 [ext_resource path="res://start_menu/main.tscn" type="PackedScene" id=14]
+[ext_resource path="res://settings/settings_blur.tscn" type="PackedScene" id=15]
 [ext_resource path="res://editor/floor.gd" type="Script" id=16]
 [ext_resource path="res://editor/block_layer_view.gd" type="Script" id=19]
 [ext_resource path="res://editor/color_picker.gd" type="Script" id=20]
@@ -440,10 +441,13 @@ __meta__ = {
 [node name="SaveTimer" type="Timer" parent="."]
 wait_time = 60.0
 autostart = true
+
+[node name="Settings" parent="." instance=ExtResource( 15 )]
 [connection signal="item_selected" from="HUD/BlockLayer" to="." method="_on_BlockLayer_item_selected"]
 [connection signal="item_selected" from="HUD/BlockLayerView" to="." method="_on_BlockLayerView_item_selected"]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Continue" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Test" to="." method="_on_Designer_pressed"]
+[connection signal="pressed" from="GUI/Menu/VBoxContainer/Settings" to="Settings" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Menu/VBoxContainer/Exit" to="." method="_on_Exit_pressed"]
 [connection signal="hide" from="GUI/Inventory" to="." method="set_enabled" binds= [ true ]]
 [connection signal="hide" from="GUI/ColorPicker" to="." method="set_enabled" binds= [ true ]]
