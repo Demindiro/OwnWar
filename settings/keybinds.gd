@@ -26,6 +26,7 @@ func _ready() -> void:
 			value.text = _event_to_string(input)
 			break
 		value.size_flags_horizontal = SIZE_EXPAND_FILL
+		value.shortcut_in_tooltip = false
 		var e := value.connect("pressed", value, "set", ["text", "Press a key..."])
 		assert(e == OK)
 		e = value.connect("pressed", self, "set", ["selected_action", [value, action]])
@@ -42,6 +43,7 @@ func _input(event: InputEvent) -> void:
 		InputMap.action_erase_events(action)
 		InputMap.action_add_event(action, event)
 		button.text = _event_to_string(event)
+		button.release_focus()
 		selected_action = []
 
 
