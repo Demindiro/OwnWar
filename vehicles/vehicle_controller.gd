@@ -10,6 +10,7 @@ puppet var move_forward := false
 puppet var move_back := false
 puppet var fire := false
 puppet var aim_at := Vector3()
+puppet var flip := false
 
 var _last_seq_id := -1
 
@@ -36,6 +37,8 @@ func _physics_process(_delta: float) -> void:
 			bitmask |= 32
 		if fire:
 			bitmask |= 64
+		if flip:
+			bitmask |= 128
 		rpc_unreliable_id(-OwnWar_NetInfo.disable_broadcast_id, "_sync",
 			Engine.get_physics_frames(), bitmask, aim_at)
 
@@ -49,5 +52,6 @@ puppet func _sync(seq_id: int, bitmask: int, p_aim_at: Vector3) -> void:
 		move_forward = bitmask & 16
 		move_back = bitmask & 32
 		fire = bitmask & 64
+		flip = bitmask & 128
 		aim_at = p_aim_at
 		_last_seq_id = seq_id

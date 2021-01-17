@@ -43,8 +43,6 @@ far = 2000.0
 [node name="HTerrain" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -128.25, 0, -128.25 )
 script = ExtResource( 3 )
-ambient_wind = 0.0
-lod_scale = 2.0
 map_scale = Vector3( 0.5, 0.5, 0.5 )
 _terrain_data = ExtResource( 4 )
 chunk_size = 32

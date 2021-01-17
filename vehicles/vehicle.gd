@@ -26,6 +26,8 @@ var collisions_with_player := 0
 var accept_server_physics := true
 var accept_server_physics_timer: SceneTreeTimer = null
 
+var flipping_timeout := 0.0
+
 onready var server_mode := get_tree().is_network_server()
 onready var headless := OS.has_feature("Server")
 
@@ -46,6 +48,53 @@ func _physics_process(delta: float) -> void:
 				if vb != null:
 					transform = vb.transform
 					break
+
+		if controller.flip:
+			var space := get_world().direct_space_state
+			for b in voxel_bodies:
+				var result := space.intersect_ray(
+					b.global_transform.origin,
+					b.global_transform.origin - Vector3(0, 2, 0),
+					voxel_bodies
+				)
+				if len(result) > 0:
+					flipping_timeout = 3.0
+					break
+
+		if flipping_timeout > 0:
+			var space := get_world().direct_space_state
+			var vel_up := 0.0
+			for b in voxel_bodies:
+				b.custom_integrator = true
+				var result := space.intersect_ray(
+					b.global_transform.origin,
+					b.global_transform.origin - Vector3(0, 2, 0),
+					voxel_bodies
+				)
+				if len(result) > 0:
+					vel_up = 2
+					break
+			for b in voxel_bodies:
+				var vel := Vector3(0, vel_up, 0)
+				var xz: Vector3 = b.global_transform.basis.z
+				xz = Vector3(xz.x, 0, xz.z).normalized() * 2
+				if controller.move_forward:
+					vel += xz
+				if controller.move_back:
+					vel -= xz
+				b.linear_velocity = vel
+				var rot_diff: Vector3 = b.global_transform.basis.inverse().get_euler() * PI
+				rot_diff.y = 0
+				if controller.turn_left:
+					rot_diff.y += 1.0
+				if controller.turn_right:
+					rot_diff.y -= 1.0
+				b.angular_velocity = rot_diff
+			flipping_timeout -= delta
+			if flipping_timeout <= 0.0:
+				for b in voxel_bodies:
+					b.custom_integrator = false
+			return
 
 		var drive_yaw := 0.0
 		var drive_forward := 0.0
@@ -394,6 +443,8 @@ func debug_draw() -> void:
 		text += "back, "
 	if controller.fire:
 		text += "fire, "
+	if controller.flip:
+		text += "flip, "
 	Debug.draw_text(get_visual_origin(), text, Color.cyan)
 	for b in voxel_bodies:
 		if b != null:
