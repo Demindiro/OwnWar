@@ -24,6 +24,11 @@ class Block:
 		return [name, rotation, node, color, layer]
 
 
+signal block_placed(block, position)
+signal block_removed(block, position)
+signal vehicle_moved(position)
+signal vehicle_rotated(center)
+
 const GRID_SIZE = 25
 const SCALE := 1 / OwnWar_Block.BLOCK_SCALE
 export var enabled := true
@@ -221,15 +226,17 @@ func place_block(block: OwnWar_Block, coordinate: Array, rotation: int,
 		color,
 		layer
 	)
+	emit_signal("block_placed", block, Vector3(coordinate[0], coordinate[1], coordinate[2]))
 	return true
 
 
 func remove_block(coordinate):
 	if coordinate in blocks:
-		var node = blocks[coordinate].node
+		var blk: Block = blocks[coordinate]
+		var node = blk.node
 		node.queue_free()
-		# warning-ignore:return_value_discarded
-		blocks.erase(coordinate)
+		emit_signal("block_removed", OwnWar_Block.get_block_by_id(blk.id), Vector3(coordinate[0], coordinate[1], coordinate[2]))
+		var _e := blocks.erase(coordinate)
 		return true
 	return false
 
@@ -460,6 +467,7 @@ func _move_vehicle(direction: Vector3) -> void:
 			b.node.translation += direction
 			b.position += direction
 		blocks = dict
+		emit_signal("vehicle_moved", direction)
 
 
 func _rotate_vehicle() -> void:
@@ -482,6 +490,7 @@ func _rotate_vehicle() -> void:
 			b.node.rotate_y(-PI / 2.0)
 			b.rotation = OwnWar_Block.basis_to_rotation(b.node.transform.basis)
 		blocks = dict
+		emit_signal("vehicle_rotated", center)
 
 
 func _get_vehicle_aabb() -> AABB:

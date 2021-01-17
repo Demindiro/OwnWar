@@ -779,12 +779,12 @@ __meta__ = {
 
 [node name="OwnWar_Settings_Applier" type="Node" parent="."]
 script = ExtResource( 28 )
-[connection signal="vehicle_renamed" from="." to="Vehicle info" method="on_vehicle_renamed"]
 [connection signal="vehicle_renamed" from="." to="Vehicle list" method="on_vehicle_renamed"]
+[connection signal="vehicle_renamed" from="." to="Vehicle info" method="on_vehicle_renamed"]
 [connection signal="loaded_vehicle" from="Vehicle preview" to="Vehicle info" method="set_vehicle"]
 [connection signal="timeout" from="Vehicle preview/InputTimer" to="Vehicle preview" method="input_timeout"]
-[connection signal="select_vehicle" from="Vehicle list" to="Vehicle preview" method="set_preview"]
 [connection signal="select_vehicle" from="Vehicle list" to="." method="select_vehicle"]
+[connection signal="select_vehicle" from="Vehicle list" to="Vehicle preview" method="set_preview"]
 [connection signal="create_vehicle" from="New vehicle" to="." method="goto_editor"]
 [connection signal="focus_exited" from="New vehicle/Box/Name" to="New vehicle" method="focus_lost"]
 [connection signal="gui_input" from="New vehicle/Box/Name" to="New vehicle" method="name_gui_input"]

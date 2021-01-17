@@ -1,9 +1,10 @@
-[gd_scene load_steps=33 format=2]
+[gd_scene load_steps=35 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://editor/inventory_item.tscn" type="PackedScene" id=2]
 [ext_resource path="res://addons/aabb_camera.gd" type="Script" id=3]
 [ext_resource path="res://editor/block_layer.gd" type="Script" id=4]
+[ext_resource path="res://editor/stats.gd" type="Script" id=5]
 [ext_resource path="res://editor/garage_todo_text.png" type="Texture" id=6]
 [ext_resource path="res://addons/crosshairs/image0018.png" type="Texture" id=7]
 [ext_resource path="res://editor/floor_material.tres" type="Material" id=8]
@@ -16,6 +17,7 @@
 [ext_resource path="res://settings/settings_blur.tscn" type="PackedScene" id=15]
 [ext_resource path="res://editor/floor.gd" type="Script" id=16]
 [ext_resource path="res://ui/blur_material.tres" type="Material" id=17]
+[ext_resource path="res://addons/crosshairs/image0003.png" type="Texture" id=18]
 [ext_resource path="res://editor/block_layer_view.gd" type="Script" id=19]
 [ext_resource path="res://editor/color_picker.gd" type="Script" id=20]
 [ext_resource path="res://editor/editor.gd" type="Script" id=21]
@@ -177,29 +179,99 @@ visible = false
 mesh = SubResource( 6 )
 material/0 = null
 
-[node name="HUD" type="Control" parent="."]
+[node name="Crosshair" type="TextureRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -1.22461
-margin_top = 3.07907
-margin_right = -1.22461
-margin_bottom = 3.0791
-theme = ExtResource( 1 )
+margin_left = -32.9886
+margin_top = -29.3929
+margin_right = 31.0114
+margin_bottom = 34.6072
+texture = ExtResource( 7 )
+stretch_mode = 4
 __meta__ = {
-"_edit_lock_": true,
 "_edit_use_anchors_": false
 }
 
-[node name="Crosshair" type="TextureRect" parent="HUD"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -32.0
-margin_top = -32.0
-margin_right = 32.0
-margin_bottom = 32.0
-texture = ExtResource( 7 )
+[node name="Stats" type="PanelContainer" parent="."]
+margin_left = 5.0
+margin_top = 5.0
+margin_right = 180.0
+margin_bottom = 96.0
+theme = ExtResource( 1 )
+script = ExtResource( 5 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+_count_label = NodePath("Box/Blocks/Value")
+_cost_label = NodePath("Box/Cost/Value")
+_mass_label = NodePath("Box/Mass/Value")
+_center_of_mass = NodePath("../Center of mass indicator")
+
+[node name="Box" type="VBoxContainer" parent="Stats"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 171.0
+margin_bottom = 87.0
+size_flags_horizontal = 3
+
+[node name="Blocks" type="HBoxContainer" parent="Stats/Box"]
+margin_right = 167.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Stats/Box/Blocks"]
+margin_right = 81.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "Blocks"
+
+[node name="Value" type="Label" parent="Stats/Box/Blocks"]
+margin_left = 85.0
+margin_right = 167.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "9999"
+align = 2
+
+[node name="Cost" type="HBoxContainer" parent="Stats/Box"]
+margin_top = 31.0
+margin_right = 167.0
+margin_bottom = 52.0
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Stats/Box/Cost"]
+margin_right = 81.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "Cost"
+
+[node name="Value" type="Label" parent="Stats/Box/Cost"]
+margin_left = 85.0
+margin_right = 167.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "9999"
+align = 2
+
+[node name="Mass" type="HBoxContainer" parent="Stats/Box"]
+margin_top = 62.0
+margin_right = 167.0
+margin_bottom = 83.0
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Stats/Box/Mass"]
+margin_right = 81.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "Mass"
+
+[node name="Value" type="Label" parent="Stats/Box/Mass"]
+margin_left = 85.0
+margin_right = 167.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "9999"
+align = 2
 
 [node name="BlockLayer" type="OptionButton" parent="."]
 anchor_left = 1.0
@@ -290,6 +362,7 @@ margin_bottom = 273.0
 text = "Exit"
 
 [node name="Inventory" type="ColorRect" parent="."]
+visible = false
 material = ExtResource( 17 )
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -328,7 +401,7 @@ transparent_bg = true
 handle_input_locally = false
 msaa = 4
 usage = 3
-render_target_update_mode = 3
+render_target_update_mode = 0
 gui_disable_input = true
 
 [node name="Camera" type="Camera" parent="Inventory/Panel/ViewportContainer/Viewport"]
@@ -398,14 +471,13 @@ margin_bottom = 29.0
 shortcut = SubResource( 8 )
 
 [node name="ColorPicker" type="ColorRect" parent="."]
-visible = false
 material = ExtResource( 17 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 1 )
 script = ExtResource( 20 )
 __meta__ = {
-"_edit_use_anchors_": false
+"_edit_use_anchors_": true
 }
 button = ExtResource( 28 )
 _list = NodePath("Box/Box")
@@ -427,7 +499,7 @@ __meta__ = {
 [node name="Box" type="GridContainer" parent="ColorPicker/Box"]
 margin_left = 4.0
 margin_top = 4.0
-margin_right = 316.0
+margin_right = 319.0
 margin_bottom = 396.0
 custom_constants/vseparation = 3
 custom_constants/hseparation = 3
@@ -442,6 +514,23 @@ __meta__ = {
 margin_right = 8.0
 margin_bottom = 29.0
 shortcut = SubResource( 8 )
+
+[node name="Center of mass indicator" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -31.5
+margin_top = -31.5
+margin_right = -1887.5
+margin_bottom = -1047.5
+rect_pivot_offset = Vector2( 31.5, 31.5 )
+texture = ExtResource( 18 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="block_placed" from="." to="Stats" method="on_block_placed"]
+[connection signal="block_removed" from="." to="Stats" method="on_block_removed"]
+[connection signal="vehicle_moved" from="." to="Stats" method="on_vehicle_moved"]
+[connection signal="vehicle_rotated" from="." to="Stats" method="on_vehicle_rotated"]
 [connection signal="item_selected" from="BlockLayer" to="." method="_on_BlockLayer_item_selected"]
 [connection signal="item_selected" from="BlockLayerView" to="." method="_on_BlockLayerView_item_selected"]
 [connection signal="timeout" from="SaveTimer" to="." method="save_vehicle"]
