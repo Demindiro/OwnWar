@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=2]
+[gd_scene load_steps=36 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://editor/inventory_item.tscn" type="PackedScene" id=2]
@@ -24,6 +24,7 @@
 [ext_resource path="res://editor/block_base_material.tres" type="Material" id=22]
 [ext_resource path="res://core/thumbnail/mock_cube.tres" type="CubeMesh" id=23]
 [ext_resource path="res://addons/flowcontainer.gd" type="Script" id=24]
+[ext_resource path="res://editor/goto_test_map_shortcut.tres" type="ShortCut" id=25]
 [ext_resource path="res://editor/color_button.tscn" type="PackedScene" id=28]
 [ext_resource path="res://ui/cancel_button.tscn" type="PackedScene" id=30]
 
@@ -178,6 +179,19 @@ material/0 = null
 visible = false
 mesh = SubResource( 6 )
 material/0 = null
+
+[node name="Center of mass indicator" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -31.5
+margin_top = -31.5
+margin_right = -1887.5
+margin_bottom = -1047.5
+rect_pivot_offset = Vector2( 31.5, 31.5 )
+texture = ExtResource( 18 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Crosshair" type="TextureRect" parent="."]
 anchor_right = 1.0
@@ -347,6 +361,7 @@ text = "Continue"
 margin_top = 166.0
 margin_right = 320.0
 margin_bottom = 195.0
+shortcut = ExtResource( 25 )
 text = "Test"
 
 [node name="Settings" type="Button" parent="Menu/VBoxContainer"]
@@ -515,15 +530,8 @@ margin_right = 8.0
 margin_bottom = 29.0
 shortcut = SubResource( 8 )
 
-[node name="Center of mass indicator" type="TextureRect" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = -31.5
-margin_top = -31.5
-margin_right = -1887.5
-margin_bottom = -1047.5
-rect_pivot_offset = Vector2( 31.5, 31.5 )
-texture = ExtResource( 18 )
+[node name="Hidden goto test map button" type="ToolButton" parent="."]
+shortcut = ExtResource( 25 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -545,3 +553,4 @@ __meta__ = {
 [connection signal="pick_color" from="ColorPicker" to="." method="_on_ColorPicker_pick_color"]
 [connection signal="pressed" from="ColorPicker/Cancel" to="ColorPicker" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="ColorPicker/Hidden cancel" to="ColorPicker" method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="Hidden goto test map button" to="." method="_on_Designer_pressed"]

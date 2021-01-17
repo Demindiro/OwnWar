@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://ui/font.tres" type="DynamicFont" id=1]
 [ext_resource path="res://ui/theme.tres" type="Theme" id=2]
@@ -15,6 +15,7 @@
 [ext_resource path="res://addons/backgrounds/AllSkyFree_Sky_ColdSunset_Equirect.png" type="Texture" id=13]
 [ext_resource path="res://settings/applier.gd" type="Script" id=14]
 [ext_resource path="res://settings/settings_blur.tscn" type="PackedScene" id=15]
+[ext_resource path="res://editor/goto_test_map_shortcut.tres" type="ShortCut" id=16]
 
 [sub_resource type="PanoramaSky" id=1]
 panorama = ExtResource( 13 )
@@ -194,6 +195,7 @@ text = "Settings"
 margin_top = 153.0
 margin_right = 262.0
 margin_bottom = 194.629
+shortcut = ExtResource( 16 )
 text = "Editor"
 
 [node name="OwnWar_Settings_Applier" type="Node" parent="."]
@@ -201,6 +203,12 @@ script = ExtResource( 14 )
 lights/0 = NodePath("../DirectionalLight")
 
 [node name="Settings" parent="." instance=ExtResource( 15 )]
+
+[node name="Hidden goto editor button" type="ToolButton" parent="."]
+shortcut = ExtResource( 16 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 [connection signal="cancel" from="GUI" to="GUI" method="set_visible" binds= [ false ]]
 [connection signal="exit" from="GUI" to="." method="exit"]
 [connection signal="hide" from="GUI" to="HUD" method="set_mouse_mode"]
@@ -213,3 +221,4 @@ lights/0 = NodePath("../DirectionalLight")
 [connection signal="pressed" from="GUI/ExitMenu/Box/Restart" to="GUI/ExitMenu" method="_on_Restart_pressed"]
 [connection signal="pressed" from="GUI/ExitMenu/Box/Settings" to="Settings" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/ExitMenu/Box/Exit" to="GUI/ExitMenu" method="_on_Exit_pressed"]
+[connection signal="pressed" from="Hidden goto editor button" to="GUI/ExitMenu" method="_on_Exit_pressed"]
