@@ -14,10 +14,11 @@ var max_cost: int
 var voxel_bodies := []
 var wheels := []
 var weapons := []
+var fireable_weapons := []
 
-var avg_delay_between_shots := 0.0
 var fireable_weapon_count := 0
 var delay_until_next_fire := 0.0
+var fired_shots_count := 0
 var data: PoolByteArray
 var _last_seq_id := 0
 
@@ -121,17 +122,20 @@ func _physics_process(delta: float) -> void:
 
 		for weapon in weapons:
 			weapon.aim_at(controller.aim_at)
-		if controller.fire:
-			#if delay_until_next_fire <= 0.0:
-				for weapon in weapons:
+		if len(fireable_weapons) > 0:
+			var avg_delay_between_shots := PoolRealArray(
+				[INF, 1.0, 1.0 / 2, 1.0 / 3, 1.0 / 4])[min(len(fireable_weapons), 4)]
+			if controller.fire:
+				if delay_until_next_fire <= 0:
+					var weapon = fireable_weapons[fired_shots_count % len(fireable_weapons)]
 					if weapon.fire():
-						if -delay_until_next_fire > avg_delay_between_shots:
-							delay_until_next_fire = avg_delay_between_shots
-						else:
-							delay_until_next_fire += avg_delay_between_shots
-						#if delay_until_next_fire > delta:
-						#	break
-		delay_until_next_fire -= delta
+						delay_until_next_fire += avg_delay_between_shots
+						fired_shots_count += 1
+				delay_until_next_fire -= delta
+			elif delay_until_next_fire > 0:
+				delay_until_next_fire -= delta
+				if delay_until_next_fire < 0:
+					delay_until_next_fire = 0
 
 		var state := PoolVector3Array()
 		for body in voxel_bodies:
@@ -338,15 +342,10 @@ func load_from_data(data: PoolByteArray, state := []) -> int:
 		var e: int = w.connect("tree_exited", self, "_erase_from", [wheels, w])
 		assert(e == OK)
 	for w in weapons:
-		var e: int = w.connect("tree_exited", self, "_erase_from", [weapons, w])
+		var e: int = w.connect("tree_exited", self, "_remove_weapon", [w])
 		assert(e == OK)
-		if w.time_between_shots >= 0.0:
-			avg_delay_between_shots = avg_delay_between_shots * fireable_weapon_count + \
-				w.time_between_shots
-			fireable_weapon_count += 1
-			avg_delay_between_shots /= fireable_weapon_count
-	if fireable_weapon_count > 0:
-		avg_delay_between_shots /= fireable_weapon_count
+		if not "_joint" in w:
+			fireable_weapons.push_back(w)
 
 	var physics_bodies := []
 	for child in Util.get_children_recursive(self):
@@ -462,3 +461,9 @@ func _erase_from(array: Array, item) -> void:
 
 func _remove_voxel_body(index: int) -> void:
 	voxel_bodies[index] = null
+
+
+func _remove_weapon(weapon: OwnWar_Weapon) -> void:
+	assert(weapon != null)
+	weapons.erase(weapon)
+	fireable_weapons.erase(weapon)
