@@ -1,6 +1,8 @@
 extends Control
 
 
+const HealthBar := preload("health_circle.gd")
+
 export var camera: NodePath
 export var camera_rotate_speed := 1.0
 export(float, 0.1, 10.0) var camera_zoom_speed := 1.0
@@ -16,6 +18,7 @@ var _camera_terrain_ray := RayCast.new()
 onready var _camera_zoom := (camera_zoom_min + camera_zoom_max) / 2
 onready var _camera: Camera = get_node(camera)
 onready var _gui: Control = get_node("../GUI")
+onready var _health_bar: HealthBar = get_node("Health")
 
 
 func _ready() -> void:
@@ -72,6 +75,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _process(_delta: float) -> void:
 	call_deferred("_set_camera")
+	if player_vehicle != null and player_vehicle.max_cost > 0:
+		_health_bar.value = player_vehicle.get_cost() / float(player_vehicle.max_cost)
+	else:
+		_health_bar.value = 0
 
 
 func _set_camera() -> void:
