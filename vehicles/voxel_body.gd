@@ -450,6 +450,7 @@ func remove_anchor(coordinate: Vector3, body: VehicleBody) -> void:
 		connect_count += 1
 	if connect_count == 0:
 		_voxel_mesh.remove_block([x, y, z])
+		cost -= OwnWar_Block.get_block_by_id(_block_ids[index]).cost
 		var val := _block_health[index]
 		if val != 0:
 			_block_health[index] = 0
@@ -733,6 +734,7 @@ func _destroy_connected_blocks(index: int, x: int, y: int, z: int) -> void:
 		node.translation = to_global(pos)
 		get_tree().current_scene.add_child(node)
 	_voxel_mesh.remove_block([x, y, z])
+	cost -= OwnWar_Block.get_block_by_id(_block_ids[index]).cost
 	var val := _block_health[index]
 	if val != 0:
 		_block_health[index] = 0

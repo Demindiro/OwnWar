@@ -301,9 +301,7 @@ func load_from_data(data: PoolByteArray, state := []) -> int:
 		vb.team = team
 		vb.id = layer
 		add_child(vb)
-		var e := vb.connect("hit", self, "_voxel_body_hit")
-		assert(e == OK)
-		e = vb.connect("destroyed", self, "_remove_voxel_body", [layer])
+		var e := vb.connect("destroyed", self, "_remove_voxel_body", [layer])
 		assert(e == OK)
 		vb.transform = Transform()
 		vb.aabb = vb_aabbs[layer]
@@ -323,6 +321,7 @@ func load_from_data(data: PoolByteArray, state := []) -> int:
 		if body != null:
 			body.fix_physics()
 			body.init_blocks(self)
+			max_cost += body.max_cost
 	for vb in voxel_bodies:
 		var center_of_mass_0: Vector3 = vb.center_of_mass
 		var position_0: Vector3 = vb.aabb.position
@@ -450,12 +449,6 @@ func debug_draw() -> void:
 	for b in voxel_bodies:
 		if b != null:
 			Debug.draw_point(b.translation, Color.purple, 0.2)
-
-
-func _voxel_body_hit(_voxel_body):
-	if get_cost() * 4 < max_cost and not is_queued_for_deletion():
-		get_parent().remove_child(self)
-		queue_free()
 
 
 static func add_manager(p_name: String, script: GDScript):
