@@ -1,4 +1,5 @@
 extends VehicleWheel
+class_name OwnWar_Wheel
 
 
 export var max_power := 300.0

@@ -338,9 +338,12 @@ func load_from_data(data: PoolByteArray, state := []) -> int:
 		if body != null:
 			wheels += body.wheels
 			weapons += body.weapons
-	for w in wheels:
-		var e: int = w.connect("tree_exited", self, "_erase_from", [wheels, w])
-		assert(e == OK)
+	if len(wheels) > 0:
+		var wheel_susp_force := get_mass() / len(wheels) * 9.81 * 3
+		for w in wheels:
+			var e: int = w.connect("tree_exited", self, "_erase_from", [wheels, w])
+			assert(e == OK)
+			w.suspension_max_force = wheel_susp_force
 	for w in weapons:
 		var e: int = w.connect("tree_exited", self, "_remove_weapon", [w])
 		assert(e == OK)
@@ -467,3 +470,12 @@ func _remove_weapon(weapon: OwnWar_Weapon) -> void:
 	assert(weapon != null)
 	weapons.erase(weapon)
 	fireable_weapons.erase(weapon)
+
+
+func _remove_wheel(wheel: OwnWar_Wheel) -> void:
+	assert(wheel != null)
+	wheels.erase(wheel)
+	if len(wheels) > 0:
+		var susp_force := get_mass() / len(wheels) * 9.81 * 3
+		for wheel in wheels:
+			wheel.suspension_max_force = susp_force
