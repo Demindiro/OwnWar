@@ -24,6 +24,8 @@ suspension_travel = 0.2
 suspension_stiffness = 25.0
 suspension_max_force = 1500.0
 script = ExtResource( 3 )
+max_power = 600.0
+max_rpm = 450.0
 
 [node name="Client" type="Spatial" parent="."]
 script = ExtResource( 5 )

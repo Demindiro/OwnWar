@@ -115,8 +115,9 @@ func _physics_process(delta: float) -> void:
 					drive_brake = 0.2
 		for wheel in wheels:
 			wheel.steering = drive_yaw * wheel.max_angle
-			wheel.engine_force = wheel.max_power * drive_forward
 			wheel.brake = drive_brake * wheel.max_brake
+			var fraction := 1 - clamp(ease(abs(wheel.get_rpm()) / wheel.max_rpm, 1), 0, 1)
+			wheel.engine_force = wheel.max_power * drive_forward * fraction
 
 		for weapon in weapons:
 			weapon.aim_at(controller.aim_at)
