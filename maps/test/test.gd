@@ -139,4 +139,10 @@ func exit() -> void:
 
 
 func restart() -> void:
-	get_tree().reload_current_scene()
+	var s = load(filename).instance()
+	s.vehicle_path = vehicle_path
+	var tree := get_tree()
+	tree.root.remove_child(self)
+	tree.root.add_child(s)
+	tree.current_scene = s
+	queue_free()
