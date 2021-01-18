@@ -77,6 +77,8 @@ func load_from_data(data: PoolByteArray) -> int:
 					OwnWar_Block.rotation_to_basis(rot),
 					(Vector3(x, y, z) + Vector3.ONE / 2) * OwnWar_Block.BLOCK_SCALE - center
 				)
+				if node.has_method("set_color"):
+					node.set_color(clr)
 			if aabb == AABB():
 				aabb.position = Vector3(x, y, z)
 				aabb.size = Vector3.ONE
