@@ -59,7 +59,7 @@ func _physics_process(delta: float) -> void:
 					voxel_bodies
 				)
 				if len(result) > 0:
-					flipping_timeout = 3.0
+					flipping_timeout = 1.0
 					break
 
 		if flipping_timeout > 0:
