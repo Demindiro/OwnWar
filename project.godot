@@ -170,6 +170,7 @@ OwnWar_Thumbnail="*res://core/thumbnail/thumbnail.gd"
 OwnWar_NetInfo="*res://maps/net_info.gd"
 OwnWar_Lobby="*res://lobby/lobby.gd"
 OwnWar_Settings="*res://settings/autoload.gd"
+OwnWar_UiSounds="*res://ui/ui_sounds.gd"
 
 [debug]
 
