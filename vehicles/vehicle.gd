@@ -56,6 +56,8 @@ func _physics_process(delta: float) -> void:
 		if controller.flip:
 			var space := get_world().direct_space_state
 			for b in voxel_bodies:
+				if b == null:
+					continue
 				var result := space.intersect_ray(
 					b.global_transform.origin,
 					b.global_transform.origin - Vector3(0, 2, 0),
@@ -69,6 +71,8 @@ func _physics_process(delta: float) -> void:
 			var space := get_world().direct_space_state
 			var vel_up := 0.0
 			for b in voxel_bodies:
+				if b == null:
+					continue
 				b.custom_integrator = true
 				var result := space.intersect_ray(
 					b.global_transform.origin,
@@ -79,6 +83,8 @@ func _physics_process(delta: float) -> void:
 					vel_up = 2
 					break
 			for b in voxel_bodies:
+				if b == null:
+					continue
 				var vel := Vector3(0, vel_up, 0)
 				var xz: Vector3 = b.global_transform.basis.z
 				xz = Vector3(xz.x, 0, xz.z).normalized() * 2
