@@ -16,6 +16,7 @@ export var _status := NodePath()
 var selected_entry: OwnWar_Lobby.Entry
 
 var _list_button_group := ButtonGroup.new()
+var _timer: SceneTreeTimer = null
 
 onready var filter: LineEdit = get_node(_filter)
 onready var list: Control = get_node(_list)
@@ -35,12 +36,15 @@ func _ready() -> void:
 		if OwnWar_Lobby.got_server_list:
 			OwnWar_Lobby.get_server_list()
 			status.set_status(Status.STATUS_NONE, "Getting server list...", loading_icon, true)
-		yield(get_tree().create_timer(10.0), "timeout")
+		_timer = get_tree().create_timer(10.0)
+		yield(_timer, "timeout")
 
 
 func _exit_tree() -> void:
 	OwnWar_Lobby.disconnect("server_list", self, "generate_list")
 	OwnWar_Lobby.disconnect("server_info", self, "set_info")
+	for sig in _timer.get_signal_connection_list("timeout"):
+		_timer.disconnect(sig["signal"], sig["target"], sig["method"])
 
 
 func launch() -> void:
