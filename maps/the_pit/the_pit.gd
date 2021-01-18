@@ -32,15 +32,15 @@ func _ready() -> void:
 		assert(e == OK)
 		get_tree().multiplayer_poll = false
 		if true:
-			spawn_vehicle("tank")
-			spawn_vehicle("tank")
-			spawn_vehicle("tank")
+			spawn_vehicle("skunk")
+			spawn_vehicle("skunk")
+			spawn_vehicle("skunk")
 		OwnWar_Lobby.register_server(self)
 	else:
 		print("Client mode")
 		free_cam.free()
 		var file := File.new()
-		var e := file.open_compressed(OwnWar.get_vehicle_path("tank"), File.READ, File.COMPRESSION_GZIP)
+		var e := file.open_compressed(OwnWar.get_vehicle_path("skunk"), File.READ, File.COMPRESSION_GZIP)
 		assert(e == OK)
 		var data := file.get_buffer(file.get_len())
 		rpc("request_sync_vehicles")
@@ -125,6 +125,7 @@ puppet func accepted_vehicle(name: String, team: int, transform: Transform) -> v
 	vehicle.name = name
 	vehicle.team = team
 	vehicle.transform = transform
+	vehicle.is_ally = true
 	vehicle.load_from_data(player_vehicle_data)
 	add_child(vehicle)
 	#player_vehicle_data = PoolByteArray()

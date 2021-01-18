@@ -90,7 +90,7 @@ func _enter_tree() -> void:
 	# This is a security risk btw, we shouldn't listen on random ports, let alone
 	# one that is bound to 0.0.0.0
 	var n := NetworkedMultiplayerENet.new()
-	n.create_server(59798)
+	n.create_server(59797)
 	get_tree().network_peer = n
 
 
@@ -101,6 +101,7 @@ func _ready() -> void:
 			vehicle_path = OwnWar.get_vehicle_path(vehicle_name)
 		var vehicle := OwnWar_Vehicle.new()
 		vehicle.team = 0
+		vehicle.is_ally = true
 		var e := vehicle.load_from_file(vehicle_path)
 		assert(e == OK)
 		vehicle.transform = get_node(_spawn_points[_spawn_point_index]).transform

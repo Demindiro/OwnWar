@@ -31,7 +31,10 @@ var max_health := 0
 var block_count := 0
 var wheels := []
 var weapons := []
+
 var team := -1
+var is_ally := false
+
 var aabb := AABB() setget set_aabb
 var last_hit_position := Vector3()
 var id := -1
@@ -321,6 +324,9 @@ func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color, s
 			add_child(bb.server_node)
 		if "server_node" in bb.client_node:
 			bb.client_node.server_node = bb.server_node
+		if "team_color" in bb.client_node:
+			# TODO add a proper way to detect allied vehicles
+			bb.client_node.team_color = Color.blue if is_ally else Color.red
 		bb.client_node.set_as_toplevel(true)
 		_interpolate_blocks.push_back(bb)
 		var e := bb.server_node.connect("tree_exiting", self, "_remove_interpolator", [bb])

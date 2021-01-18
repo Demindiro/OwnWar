@@ -13,7 +13,6 @@ onready var _ray: RayCast = get_node("Ray")
 
 func fire() -> bool:
 	if not is_network_master():
-		assert(false)
 		return false
 	var dmg := damage
 	var at: Vector3

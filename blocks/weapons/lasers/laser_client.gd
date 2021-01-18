@@ -4,6 +4,7 @@ class_name OwnWar_WeaponLaserClient
 
 export var laser_ray: PackedScene
 var server_node: OwnWar_WeaponLaser setget set_server_node
+var team_color := Color.red
 onready var fire_point: Position3D = get_node("FirePoint")
 
 
@@ -16,6 +17,7 @@ func set_server_node(value: OwnWar_WeaponLaser) -> void:
 
 func _on_fired(at: Vector3) -> void:
 	var node: Spatial = laser_ray.instance()
+	node.color = team_color
 	get_tree().current_scene.add_child(node)
 	var g_pos := fire_point.global_transform.origin
 	node.translation = g_pos

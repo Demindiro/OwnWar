@@ -9,7 +9,10 @@ const VoxelMesh := preload("voxel_mesh.gd")
 
 
 const MANAGERS := {}
+
 var team := -1
+var is_ally := false
+
 var max_cost: int
 var voxel_bodies := []
 var wheels := []
@@ -304,6 +307,7 @@ func load_from_data(data: PoolByteArray, state := []) -> int:
 		var vb := VoxelBody.new()
 		vb.team = team
 		vb.id = layer
+		vb.is_ally = is_ally
 		add_child(vb)
 		var e := vb.connect("destroyed", self, "_remove_voxel_body", [layer])
 		assert(e == OK)
