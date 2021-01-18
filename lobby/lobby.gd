@@ -48,6 +48,7 @@ var server_scene: Node
 var server_ping_timer := Timer.new()
 
 var client_connected := false
+var player_vehicle_path := ""
 
 var _retry_timer: SceneTreeTimer = null
 

@@ -42,5 +42,5 @@ func exit_game() -> void:
 
 
 func select_vehicle(path: String) -> void:
-	print("oigerijreiojgeriojg")
+	OwnWar_Lobby.player_vehicle_path = path
 	_selected_vehicle_path = path

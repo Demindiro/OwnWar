@@ -31,16 +31,13 @@ func _ready() -> void:
 		e = get_tree().connect("network_peer_disconnected", self, "remove_client")
 		assert(e == OK)
 		get_tree().multiplayer_poll = false
-		if true:
-			spawn_vehicle("skunk")
-			spawn_vehicle("skunk")
-			spawn_vehicle("skunk")
 		OwnWar_Lobby.register_server(self)
 	else:
 		print("Client mode")
 		free_cam.free()
 		var file := File.new()
-		var e := file.open_compressed(OwnWar.get_vehicle_path("skunk"), File.READ, File.COMPRESSION_GZIP)
+		assert(OwnWar_Lobby.player_vehicle_path != "")
+		var e := file.open_compressed(OwnWar_Lobby.player_vehicle_path, File.READ, File.COMPRESSION_GZIP)
 		assert(e == OK)
 		var data := file.get_buffer(file.get_len())
 		rpc("request_sync_vehicles")
