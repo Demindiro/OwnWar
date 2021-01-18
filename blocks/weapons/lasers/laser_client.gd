@@ -3,9 +3,18 @@ class_name OwnWar_WeaponLaserClient
 
 
 export var laser_ray: PackedScene
+export var audio_sample_length := 3.0
+export var audio_sample_count := 10
+
 var server_node: OwnWar_WeaponLaser setget set_server_node
 var team_color := Color.red
 onready var fire_point: Position3D = get_node("FirePoint")
+onready var audio_nodes := [
+	get_node("Audio1"),
+	get_node("Audio2"),
+	get_node("Audio3"),
+]
+var audio_node_index := 0
 
 
 func set_server_node(value: OwnWar_WeaponLaser) -> void:
@@ -23,3 +32,7 @@ func _on_fired(at: Vector3) -> void:
 	node.translation = g_pos
 	node.look_at(at, Vector3.UP)
 	node.scale = Vector3(1, 1, g_pos.distance_to(at))
+	var audio: AudioStreamPlayer3D = audio_nodes[audio_node_index]
+	audio.play(audio_sample_length * (randi() % audio_sample_count))
+	audio.get_node("Timer").start(audio_sample_length - 0.1)
+	audio_node_index = (audio_node_index + 1) % len(audio_nodes)

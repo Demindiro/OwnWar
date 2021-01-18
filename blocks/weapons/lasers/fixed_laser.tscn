@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://blocks/block_instance.gd" type="Script" id=1]
 [ext_resource path="res://blocks/weapons/lasers/laser_server.gd" type="Script" id=2]
 [ext_resource path="res://blocks/weapons/lasers/laser_ray.tscn" type="PackedScene" id=3]
 [ext_resource path="res://blocks/weapons/lasers/laser_client.gd" type="Script" id=4]
 [ext_resource path="res://blocks/weapons/lasers/fixed_laser.obj" type="ArrayMesh" id=5]
+[ext_resource path="res://addons/lasers/480872__c3sabertooth__blaster-multiple.wav" type="AudioStream" id=6]
 
 [node name="FixedLaser" type="Node"]
 script = ExtResource( 1 )
@@ -21,11 +22,54 @@ cast_to = Vector3( 0, 0, 1000 )
 [node name="Client" type="Spatial" parent="."]
 script = ExtResource( 4 )
 laser_ray = ExtResource( 3 )
+audio_sample_length = 3.0
 
 [node name="FirePoint" type="Position3D" parent="Client"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0289, 0.625 )
+
+[node name="Audio1" type="AudioStreamPlayer3D" parent="Client"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0283924, 0.621764 )
+stream = ExtResource( 6 )
+unit_size = 0.5
+max_db = 1.0
+bus = "Effects"
+doppler_tracking = 1
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Timer" type="Timer" parent="Client/Audio1"]
+
+[node name="Audio2" type="AudioStreamPlayer3D" parent="Client"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0283924, 0.621764 )
+stream = ExtResource( 6 )
+unit_size = 0.5
+max_db = 1.0
+bus = "Effects"
+doppler_tracking = 1
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Timer" type="Timer" parent="Client/Audio2"]
+
+[node name="Audio3" type="AudioStreamPlayer3D" parent="Client"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0283924, 0.621764 )
+stream = ExtResource( 6 )
+unit_size = 0.5
+max_db = 1.0
+bus = "Effects"
+doppler_tracking = 1
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Timer" type="Timer" parent="Client/Audio3"]
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
 mesh = ExtResource( 5 )
 material/0 = null
 material/1 = null
+[connection signal="timeout" from="Client/Audio1/Timer" to="Client/Audio1" method="stop"]
+[connection signal="timeout" from="Client/Audio2/Timer" to="Client/Audio2" method="stop"]
+[connection signal="timeout" from="Client/Audio3/Timer" to="Client/Audio3" method="stop"]
