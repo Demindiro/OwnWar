@@ -41,6 +41,11 @@ func _init(p_parent, p_cell_x: int, p_cell_y: int, p_material: Material):
 	# TODO Is this needed?
 	vs.instance_set_visible(_mesh_instance, _visible)
 
+	# TODO implement this as an option and make a PR -- demindiro
+	#vs.instance_geometry_set_cast_shadows_setting(_mesh_instance, vs.SHADOW_CASTING_SETTING_DOUBLE_SIDED)
+	# TODO DOUBLE_SIDED doesn't seem to work, so just disable shadows for now and add "wall" meshes instead later)
+	vs.instance_geometry_set_cast_shadows_setting(_mesh_instance, vs.SHADOW_CASTING_SETTING_OFF)
+
 	_active = true
 	_pending_update = false
 

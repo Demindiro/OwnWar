@@ -88,6 +88,7 @@ shape = SubResource( 1 )
 
 [node name="DirectionalLight" type="DirectionalLight" parent="Environment"]
 transform = Transform( 0.866025, 0.25, -0.433013, 0, 0.866025, 0.5, 0.5, -0.433013, 0.75, 0, 55, 0 )
+shadow_bias = 0.15
 __meta__ = {
 "_edit_lock_": true
 }
