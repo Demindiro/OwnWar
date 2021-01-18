@@ -6,21 +6,20 @@ export var port := 39983
 export var password := ""
 export var max_players := 10
 
+var headless := OS.has_feature("Server")
+onready var server_mode := get_tree().network_peer == null
+
 var counter := 0
 var clients := {}
 
 var player_vehicle_data := PoolByteArray()
-
-onready var hud: Control = get_node("HUD")
-onready var hud_cam: Camera = get_node("HUDCamera")
-onready var free_cam: Camera = get_node("FreeCamera")
+onready var hud = get_node("HUD")
 
 
 func _ready() -> void:
-	if get_tree().network_peer == null:
+	get_tree().multiplayer_poll = false
+	if server_mode:
 		print("Server mode")
-		hud.free()
-		hud_cam.free()
 		var network := NetworkedMultiplayerENet.new()
 		network.compression_mode = OwnWar.NET_COMPRESSION
 		var e := network.create_server(port, max_players)
@@ -30,20 +29,13 @@ func _ready() -> void:
 		assert(e == OK)
 		e = get_tree().connect("network_peer_disconnected", self, "remove_client")
 		assert(e == OK)
-		get_tree().multiplayer_poll = false
 		OwnWar_Lobby.register_server(self)
+		if not headless:
+			clients[1] = null
+			spawn_player_vehicle()
 	else:
-		print("Client mode")
-		free_cam.free()
-		var file := File.new()
-		assert(OwnWar_Lobby.player_vehicle_path != "")
-		var e := file.open_compressed(OwnWar_Lobby.player_vehicle_path, File.READ, File.COMPRESSION_GZIP)
-		assert(e == OK)
-		var data := file.get_buffer(file.get_len())
-		rpc("request_sync_vehicles")
-		rpc("request_vehicle", data)
-		player_vehicle_data = data
-		get_tree().multiplayer_poll = false
+		assert(not headless, "Can't create client in headless mode")
+		spawn_player_vehicle()
 
 
 func _exit_tree() -> void:
@@ -53,6 +45,25 @@ func _exit_tree() -> void:
 
 func _physics_process(_delta: float) -> void:
 	get_tree().multiplayer.poll()
+
+
+func spawn_player_vehicle() -> void:
+	print("Spawning vehicle")
+	assert(not headless, "Can't spawn player vehicle in headless mode")
+	var file := File.new()
+	assert(OwnWar_Lobby.player_vehicle_path != "")
+	var e := file.open_compressed(OwnWar_Lobby.player_vehicle_path, File.READ, File.COMPRESSION_GZIP)
+	assert(e == OK)
+	var data := file.get_buffer(file.get_len())
+	if server_mode:
+		request_vehicle(data)
+		hud.player_vehicle = clients[1]
+		e = clients[1].connect("tree_exited", self, "request_respawn")
+		assert(e == OK)
+	else:
+		rpc("request_sync_vehicles")
+		rpc("request_vehicle", data)
+	player_vehicle_data = data
 
 
 func new_client(id: int) -> void:
@@ -96,10 +107,16 @@ puppet func sync_vehicle(data: PoolByteArray, name: String, team: int, \
 
 
 master func request_vehicle(data: PoolByteArray) -> void:
+	var is_ally := false
 	var id := get_tree().get_rpc_sender_id()
+	if id == 0:
+		# Server requested vehicle
+		id = 1
+		is_ally = true
 	if clients[id] == null:
 		var vehicle := OwnWar_Vehicle.new()
 		vehicle.team = counter
+		vehicle.is_ally = is_ally
 		var e := vehicle.load_from_data(data)
 		assert(e == OK)
 		var index := counter % get_node(spawn_points).get_child_count()
@@ -109,9 +126,13 @@ master func request_vehicle(data: PoolByteArray) -> void:
 		vehicle.controller.set_network_master(id)
 		add_child(vehicle)
 		counter += 1
-		rpc_id(id, "accepted_vehicle", vehicle.name, vehicle.team, vehicle.transform)
-		rpc_id(-id, "sync_vehicle", data, vehicle.name, vehicle.team,
-			vehicle.transform, vehicle.controller.get_network_master())
+		if id != 1:
+			rpc_id(id, "accepted_vehicle", vehicle.name, vehicle.team, vehicle.transform)
+			rpc_id(-id, "sync_vehicle", data, vehicle.name, vehicle.team,
+				vehicle.transform, vehicle.controller.get_network_master())
+		else:
+			rpc("sync_vehicle", data, vehicle.name, vehicle.team,
+				vehicle.transform, vehicle.controller.get_network_master())
 		clients[id] = vehicle
 		e = vehicle.connect("tree_exiting", self, "remove_client_vehicle", [id])
 		assert(e == OK)
@@ -134,7 +155,13 @@ puppet func accepted_vehicle(name: String, team: int, transform: Transform) -> v
 func request_respawn() -> void:
 	if is_inside_tree():
 		yield(get_tree().create_timer(1.5), "timeout")
-		rpc_id(1, "request_vehicle", player_vehicle_data)
+		if server_mode:
+			request_vehicle(player_vehicle_data)
+			hud.player_vehicle = clients[1]
+			var e: int = clients[1].connect("tree_exited", self, "request_respawn")
+			assert(e == OK)
+		else:
+			rpc_id(1, "request_vehicle", player_vehicle_data)
 
 
 func spawn_vehicle(name: String) -> void:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
 [ext_resource path="res://maps/the_pit/map_data/data.hterrain" type="Resource" id=2]
@@ -6,7 +6,6 @@
 [ext_resource path="res://addons/tiles/sand/savanna_cliff_a.png" type="Texture" id=4]
 [ext_resource path="res://addons/tiles/sand/savanna_dirt_rocks_a.png" type="Texture" id=5]
 [ext_resource path="res://addons/tiles/sand/savanna_dirt_a.png" type="Texture" id=6]
-[ext_resource path="res://addons/free_camera.gd" type="Script" id=7]
 [ext_resource path="res://maps/the_pit/the_pit.gd" type="Script" id=8]
 [ext_resource path="res://maps/hud.tscn" type="PackedScene" id=9]
 [ext_resource path="res://maps/the_pit/gui.gd" type="Script" id=10]
@@ -110,19 +109,14 @@ transform = Transform( 0.721094, 2.26375e-08, -0.692837, -3.13933e-08, 1, 9.3559
 [node name="Position3D4" type="Position3D" parent="Spawn Points"]
 transform = Transform( -0.692837, 2.26375e-08, -0.721094, 5.31481e-16, 1, 3.13933e-08, 0.721094, 2.17504e-08, -0.692837, 82.672, 18.4028, 28.2274 )
 
-[node name="FreeCamera" type="Camera" parent="."]
-far = 1000.0
-script = ExtResource( 7 )
-speed = 100.0
-actions = PoolStringArray( "editor_move_left", "editor_move_right", "editor_move_forward", "editor_move_back", "editor_move_up", "editor_move_down" )
-
-[node name="HUDCamera" type="Camera" parent="."]
+[node name="Camera" type="Camera" parent="."]
 far = 1000.0
 
 [node name="HUD" parent="." instance=ExtResource( 9 )]
-camera = NodePath("../HUDCamera")
+camera = NodePath("../Camera")
 
 [node name="GUI" type="ColorRect" parent="."]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 focus_mode = 2
