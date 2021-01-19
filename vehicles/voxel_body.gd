@@ -115,11 +115,12 @@ func _physics_process(_delta: float) -> void:
 
 func _exit_tree() -> void:
 	if not headless:
-		var node: CPUParticles = DESTROY_BODY_EFFECT_SCENE.instance()
-		node.translation = translation
-		# This is potentially a really bad idea and may need to be capped
-		node.amount = 4 * block_count
-		get_tree().current_scene.call_deferred("add_child", node)
+		if block_count > 0:
+			var node: CPUParticles = DESTROY_BODY_EFFECT_SCENE.instance()
+			node.translation = translation
+			# This is potentially a really bad idea and may need to be capped
+			node.amount = 4 * block_count
+			get_tree().current_scene.call_deferred("add_child", node)
 
 
 func debug_draw():
