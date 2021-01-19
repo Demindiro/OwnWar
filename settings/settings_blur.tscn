@@ -1,5 +1,6 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
+[ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=2]
 [ext_resource path="res://settings/settings.tscn" type="PackedScene" id=3]
 [ext_resource path="res://ui/blur_material.tres" type="Material" id=4]
@@ -10,6 +11,7 @@ material = ExtResource( 4 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 focus_mode = 1
+theme = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
