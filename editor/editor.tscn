@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=2]
+[gd_scene load_steps=38 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://editor/inventory_item.tscn" type="PackedScene" id=2]
@@ -25,6 +25,8 @@
 [ext_resource path="res://core/thumbnail/mock_cube.tres" type="CubeMesh" id=23]
 [ext_resource path="res://addons/flowcontainer.gd" type="Script" id=24]
 [ext_resource path="res://editor/goto_test_map_shortcut.tres" type="ShortCut" id=25]
+[ext_resource path="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422497__nightflame__swinging-staff-whoosh-low-01.wav" type="AudioStream" id=26]
+[ext_resource path="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422494__nightflame__swinging-staff-whoosh-low-04.wav" type="AudioStream" id=27]
 [ext_resource path="res://editor/color_button.tscn" type="PackedScene" id=28]
 [ext_resource path="res://ui/cancel_button.tscn" type="PackedScene" id=30]
 
@@ -59,6 +61,8 @@ pause_mode = 2
 script = ExtResource( 21 )
 main_menu = ExtResource( 14 )
 material = ExtResource( 22 )
+place_sound = NodePath("Place block sound")
+remove_sound = NodePath("Remove block sound")
 
 [node name="Camera" type="Camera" parent="."]
 process_priority = -1
@@ -535,6 +539,14 @@ shortcut = ExtResource( 25 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="Place block sound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 27 )
+bus = "UI"
+
+[node name="Remove block sound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 26 )
+bus = "UI"
 [connection signal="block_placed" from="." to="Stats" method="on_block_placed"]
 [connection signal="block_removed" from="." to="Stats" method="on_block_removed"]
 [connection signal="vehicle_moved" from="." to="Stats" method="on_vehicle_moved"]

@@ -31,10 +31,17 @@ signal vehicle_rotated(center)
 
 const GRID_SIZE = 25
 const SCALE := 1 / OwnWar_Block.BLOCK_SCALE
+
 export var enabled := true
 export var main_menu: PackedScene
 export var test_map: PackedScene
 export var material: SpatialMaterial setget set_material
+
+export var place_sound := NodePath()
+export var remove_sound := NodePath()
+onready var place_sound_player: AudioStreamPlayer = get_node(place_sound)
+onready var remove_sound_player: AudioStreamPlayer = get_node(remove_sound)
+
 var selected_block: OwnWar_Block
 var blocks := {}
 var meta := {}
@@ -46,6 +53,7 @@ var ray_voxel_valid := false
 var selected_layer := 0 setget set_layer
 var view_layer := -1 setget set_view_layer
 var _snap_face := true
+
 onready var ray := preload("res://addons/voxel_raycast.gd").new()
 onready var _floor_origin: Spatial = $Floor/Origin
 onready var _floor_origin_ghost: MeshInstance = $Floor/Origin/Ghost
@@ -173,6 +181,7 @@ func process_actions():
 				var m_block: OwnWar_Block = selected_block.mirror_block
 				place_block(m_block, coordinate, m_block.get_mirror_rotation(_rotation),
 					material.albedo_color, selected_layer)
+			place_sound_player.play()
 	elif Input.is_action_just_pressed("editor_remove_block"):
 		if not ray.finished and not Input.is_action_pressed("editor_release_cursor"):
 			var coordinate = [] + ray.voxel
@@ -184,6 +193,7 @@ func process_actions():
 				var delta = coordinate[0] - mirror_x
 				coordinate[0] = mirror_x - delta
 				remove_block(coordinate)
+			remove_sound_player.play()
 	elif Input.is_action_just_pressed("editor_mirror"):
 		mirror = not mirror
 		_floor.enable_mirror(mirror)

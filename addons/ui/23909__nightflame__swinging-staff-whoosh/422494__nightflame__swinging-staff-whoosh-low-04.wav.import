@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/422494__nightflame__swinging-staff-whoosh-low-04.wav-43a9d6611a0d00a895ee35f9a24c06c7.sample"
+
+[deps]
+
+source_file="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422494__nightflame__swinging-staff-whoosh-low-04.wav"
+dest_files=[ "res://.import/422494__nightflame__swinging-staff-whoosh-low-04.wav-43a9d6611a0d00a895ee35f9a24c06c7.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0
