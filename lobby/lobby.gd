@@ -98,7 +98,7 @@ func _process(_delta: float) -> void:
 				var status := spb.get_u8()
 				match status:
 					OK:
-						if server_scene.is_connected("tree_exiting", self, "remove_server"):
+						if not server_scene.is_connected("tree_exiting", self, "remove_server"):
 							var e := server_scene.connect("tree_exiting", self, "remove_server")
 							assert(e == OK)
 						registered = true
