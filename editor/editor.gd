@@ -28,6 +28,7 @@ signal block_placed(block, position)
 signal block_removed(block, position)
 signal vehicle_moved(position)
 signal vehicle_rotated(center)
+signal toggled_edit_mode(enable)
 
 const GRID_SIZE = 25
 const SCALE := 1 / OwnWar_Block.BLOCK_SCALE
@@ -59,6 +60,7 @@ export var max_layers := 8
 export var _layer_selector := NodePath()
 var selected_layer := 0 setget set_layer
 var edit_mode := false setget set_edit_mode
+var map_rotations := true
 onready var layer_selector: OptionButton = get_node(_layer_selector)
 
 onready var ray := preload("res://addons/voxel_raycast.gd").new()
@@ -193,14 +195,17 @@ func place_block(block: OwnWar_Block, coordinate: Array, rotation: int,
 	if block.editor_node != null:
 		node = block.editor_node.duplicate()
 		mi.add_child(node)
+	if node != null:
+		if node.has_method("set_color"):
+			node.set_color(color)
+		if map_rotations and node.has_method("map_rotation"):
+			rotation = node.map_rotation(rotation)
 	_floor_origin.add_child(mi)
 	mi.translation = _a2v(coordinate)
 	mi.transform.basis = block.get_basis(rotation)
 	mi.scale_object_local(Vector3.ONE * SCALE)
 	mi.material_override = SpatialMaterial.new()
 	mi.material_override.albedo_color = color
-	if node != null and node.has_method("set_color"):
-		node.set_color(color)
 	blocks[coordinate] = Block.new(
 		block.id,
 		coordinate,
@@ -250,6 +255,8 @@ func select_block(name):
 			ghost_node.set_color(color)
 		if selected_block.editor_node.has_method("set_transparency"):
 			ghost_node.set_transparency(0.5)
+		if ghost_node.has_method("set_preview_mode"):
+			ghost_node.set_preview_mode(true)
 	_camera_mesh.material_override = material
 
 
@@ -280,10 +287,14 @@ func highlight_face():
 					_a2v(place_at) + (Vector3.ONE - _a2v(direction)) * 0.5)
 			if AABB(Vector3.ZERO, Vector3.ONE * (GRID_SIZE - 1)).has_point(_a2v(place_at)) \
 					and not place_at in blocks:
+				var rot := _rotation
+				if map_rotations and _floor_origin_ghost.get_child_count() > 0:
+					if _floor_origin_ghost.get_child(0).has_method("map_rotation"):
+						rot = _floor_origin_ghost.get_child(0).map_rotation(rot)
 				ray_voxel_valid = true
 				_floor_origin_ghost.translation = _a2v(place_at)
 				_floor_origin_ghost.transform.basis = selected_block \
-					.get_basis(_rotation)
+					.get_basis(rot)
 				_floor_origin_ghost.scale_object_local(Vector3.ONE * SCALE)
 			else:
 				ray_voxel_valid = false
@@ -348,7 +359,9 @@ func save_vehicle() -> void:
 
 func load_vehicle() -> void:
 	var prev_edit_mode := edit_mode
+	var prev_map_rotations := map_rotations
 	edit_mode = true
+	map_rotations = false
 	var MAGIC := 493279249 # Totally random, not derived from a name
 	var REVISION := 0
 	var file := File.new()
@@ -394,6 +407,7 @@ func load_vehicle() -> void:
 				place_block(OwnWar_Block.get_block_by_id(id), [x, y, z], rot, color, layer)
 		print("Loaded vehicle from %s" % vehicle_path)
 	edit_mode = prev_edit_mode
+	map_rotations = prev_map_rotations
 	update_block_visibility()
 
 
@@ -427,6 +441,7 @@ func set_layer(p_layer: int) -> void:
 func set_edit_mode(enable: bool) -> void:
 	edit_mode = enable
 	update_block_visibility()
+	emit_signal("toggled_edit_mode", enable)
 
 
 func set_mirror(enable: bool) -> void:
@@ -436,6 +451,10 @@ func set_mirror(enable: bool) -> void:
 
 func set_snap_faces(enable: bool) -> void:
 	_snap_face = enable
+
+
+func set_map_rotations(enable: bool) -> void:
+	map_rotations = enable
 
 
 func next_layer() -> void:
@@ -463,6 +482,8 @@ func update_block_visibility() -> void:
 		for node in block.node.get_children():
 			if node.has_method("set_color"):
 				node.set_color(color)
+			if node.has_method("set_preview_mode"):
+				node.set_preview_mode(not edit_mode)
 
 
 func rotate_block_down() -> void:

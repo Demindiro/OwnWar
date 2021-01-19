@@ -1,10 +1,12 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://blocks/wheels/big-wheel/wheel_mesh.tres" type="CylinderMesh" id=1]
 [ext_resource path="res://addons/wheels/big_tire.tres" type="ArrayMesh" id=2]
 [ext_resource path="res://blocks/wheels/wheel.gd" type="Script" id=3]
 [ext_resource path="res://blocks/block_instance.gd" type="Script" id=4]
 [ext_resource path="res://blocks/set_color.gd" type="Script" id=5]
+[ext_resource path="res://blocks/wheels/wheel_editor.gd" type="Script" id=6]
+[ext_resource path="res://addons/hud/obituary_arrow.tres" type="Texture" id=7]
 
 [sub_resource type="CylinderMesh" id=1]
 top_radius = 0.65
@@ -46,14 +48,11 @@ mesh = ExtResource( 2 )
 material/0 = null
 
 [node name="Editor" type="Spatial" parent="."]
-script = ExtResource( 5 )
-color_node_0 = NodePath("RimL")
-color_node_1 = NodePath("RimR")
-color_node_2 = null
-transparency_node_0 = NodePath("RimL")
-transparency_node_1 = NodePath("Tire")
-transparency_node_2 = NodePath("RimR")
-transparency_node_3 = null
+script = ExtResource( 6 )
+rim_l = NodePath("RimL")
+rim_r = NodePath("RimR")
+tire = NodePath("Tire")
+arrow = NodePath("Arrow")
 
 [node name="RimL" type="MeshInstance" parent="Editor"]
 transform = Transform( -1.09278e-08, -0.125, 0, 0.25, -5.46392e-09, 0, 0, 0, 0.25, -0.114, 0, 0 )
@@ -69,3 +68,7 @@ material/0 = null
 transform = Transform( 1.5299e-08, -0.35, -5.28485e-08, -0.35, -1.5299e-08, -8.29412e-17, -2.22714e-15, 5.28485e-08, -0.35, 0, 0, 0 )
 mesh = ExtResource( 2 )
 material/0 = null
+
+[node name="Arrow" type="Sprite3D" parent="Editor"]
+transform = Transform( 0.560522, -4.26596e-09, -1.86471e-16, 0, -4.37114e-08, 1, -7.61069e-09, -1, -4.37114e-08, 0, -0.371882, 0 )
+texture = ExtResource( 7 )

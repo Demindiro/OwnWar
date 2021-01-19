@@ -73,6 +73,8 @@ func load_from_data(data: PoolByteArray) -> int:
 			if blk.editor_node != null:
 				var node := blk.editor_node.duplicate()
 				add_child(node)
+				if node.has_method("set_preview_mode"):
+					node.set_preview_mode(true)
 				node.transform = Transform(
 					OwnWar_Block.rotation_to_basis(rot),
 					(Vector3(x, y, z) + Vector3.ONE / 2) * OwnWar_Block.BLOCK_SCALE - center

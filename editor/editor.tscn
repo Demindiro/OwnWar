@@ -1,4 +1,4 @@
-[gd_scene load_steps=53 format=2]
+[gd_scene load_steps=54 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://editor/inventory_item.tscn" type="PackedScene" id=2]
@@ -44,6 +44,7 @@
 [ext_resource path="res://editor/shortcuts/rotate_down.tres" type="ShortCut" id=42]
 [ext_resource path="res://editor/shortcuts/open_inventory.tres" type="ShortCut" id=43]
 [ext_resource path="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422503__nightflame__swinging-staff-whoosh-low-09.wav" type="AudioStream" id=44]
+[ext_resource path="res://editor/shortcuts/toggle_rotation_mapping.tres" type="ShortCut" id=45]
 
 [sub_resource type="SpatialMaterial" id=1]
 
@@ -312,7 +313,7 @@ align = 2
 [node name="Toggles & modes" type="PanelContainer" parent="."]
 anchor_left = 1.0
 anchor_right = 1.0
-margin_left = -185.0
+margin_left = -250.0
 margin_top = 5.0
 margin_right = -5.0
 theme = ExtResource( 1 )
@@ -323,11 +324,11 @@ __meta__ = {
 [node name="Box" type="VBoxContainer" parent="Toggles & modes"]
 margin_left = 4.0
 margin_top = 4.0
-margin_right = 176.0
-margin_bottom = 159.0
+margin_right = 241.0
+margin_bottom = 201.0
 
 [node name="Block layer" type="OptionButton" parent="Toggles & modes/Box"]
-margin_right = 172.0
+margin_right = 237.0
 margin_bottom = 29.0
 focus_mode = 0
 theme = ExtResource( 1 )
@@ -339,7 +340,7 @@ __meta__ = {
 
 [node name="Edit mode" type="CheckButton" parent="Toggles & modes/Box"]
 margin_top = 39.0
-margin_right = 172.0
+margin_right = 237.0
 margin_bottom = 71.0
 focus_mode = 0
 shortcut = ExtResource( 4 )
@@ -347,7 +348,7 @@ text = "Edit mode"
 
 [node name="Mirror" type="CheckButton" parent="Toggles & modes/Box"]
 margin_top = 81.0
-margin_right = 172.0
+margin_right = 237.0
 margin_bottom = 113.0
 focus_mode = 0
 shortcut = ExtResource( 19 )
@@ -355,7 +356,7 @@ text = "Mirror"
 
 [node name="Snap faces" type="CheckButton" parent="Toggles & modes/Box"]
 margin_top = 123.0
-margin_right = 172.0
+margin_right = 237.0
 margin_bottom = 155.0
 pressed = true
 shortcut = ExtResource( 33 )
@@ -363,6 +364,17 @@ text = "Snap faces"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="Map rotations" type="CheckButton" parent="Toggles & modes/Box"]
+anchor_top = 0.00507614
+anchor_bottom = 0.00507614
+margin_top = 165.0
+margin_right = 237.0
+margin_bottom = 197.0
+focus_mode = 0
+pressed = true
+shortcut = ExtResource( 45 )
+text = "Map rotations"
 
 [node name="SaveTimer" type="Timer" parent="."]
 wait_time = 60.0
@@ -721,12 +733,14 @@ volume_db = -3.591
 pitch_scale = 4.0
 [connection signal="block_placed" from="." to="Stats" method="on_block_placed"]
 [connection signal="block_removed" from="." to="Stats" method="on_block_removed"]
+[connection signal="toggled_edit_mode" from="." to="Stats" method="enable_center_of_mass_indicator"]
 [connection signal="vehicle_moved" from="." to="Stats" method="on_vehicle_moved"]
 [connection signal="vehicle_rotated" from="." to="Stats" method="on_vehicle_rotated"]
 [connection signal="item_selected" from="Toggles & modes/Box/Block layer" to="." method="set_layer"]
 [connection signal="toggled" from="Toggles & modes/Box/Edit mode" to="." method="set_edit_mode"]
 [connection signal="toggled" from="Toggles & modes/Box/Mirror" to="." method="set_mirror"]
 [connection signal="toggled" from="Toggles & modes/Box/Snap faces" to="." method="set_snap_faces"]
+[connection signal="toggled" from="Toggles & modes/Box/Map rotations" to="." method="set_map_rotations"]
 [connection signal="timeout" from="SaveTimer" to="." method="save_vehicle"]
 [connection signal="pressed" from="Menu/VBoxContainer/Continue" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="Menu/VBoxContainer/Test" to="." method="_on_Designer_pressed"]
