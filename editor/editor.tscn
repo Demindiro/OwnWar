@@ -327,8 +327,6 @@ __meta__ = {
 wait_time = 60.0
 autostart = true
 
-[node name="Settings" parent="." instance=ExtResource( 15 )]
-
 [node name="Menu" type="ColorRect" parent="."]
 visible = false
 material = ExtResource( 17 )
@@ -379,6 +377,8 @@ margin_top = 244.0
 margin_right = 320.0
 margin_bottom = 273.0
 text = "Exit"
+
+[node name="Settings" parent="." instance=ExtResource( 15 )]
 
 [node name="Inventory" type="ColorRect" parent="."]
 visible = false
