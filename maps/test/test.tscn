@@ -1,15 +1,11 @@
-[gd_scene load_steps=19 format=2]
+[gd_scene load_steps=15 format=2]
 
-[ext_resource path="res://ui/font.tres" type="DynamicFont" id=1]
 [ext_resource path="res://ui/theme.tres" type="Theme" id=2]
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=3]
 [ext_resource path="res://maps/test/map_data/data.hterrain" type="Resource" id=4]
-[ext_resource path="res://core/menu/menu/panel.tres" type="StyleBox" id=5]
 [ext_resource path="res://maps/test/rect.svg" type="Texture" id=6]
 [ext_resource path="res://maps/gui.gd" type="Script" id=7]
 [ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=8]
-[ext_resource path="res://core/menu/menu/panel_edge.png" type="Texture" id=9]
-[ext_resource path="res://maps/exit_menu.gd" type="Script" id=10]
 [ext_resource path="res://maps/hud.tscn" type="PackedScene" id=11]
 [ext_resource path="res://maps/test/test.gd" type="Script" id=12]
 [ext_resource path="res://addons/backgrounds/AllSkyFree_Sky_ColdSunset_Equirect.png" type="Texture" id=13]
@@ -107,93 +103,48 @@ anchor_right = 1.0007
 anchor_bottom = 1.0
 margin_left = 4.24268
 margin_right = 4.24268
+theme = ExtResource( 2 )
 color = Color( 0, 0, 0, 0.2 )
 script = ExtResource( 7 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ExitMenu" type="Control" parent="GUI"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -161.634
-margin_top = -180.557
-margin_right = -161.634
-margin_bottom = -180.557
-theme = ExtResource( 2 )
-script = ExtResource( 10 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-title = "Menu"
-
-[node name="Panel" type="Panel" parent="GUI/ExitMenu"]
-anchor_right = 1.0
+[node name="Box" type="VBoxContainer" parent="GUI"]
+anchor_left = 0.3
+anchor_right = 0.3
 anchor_bottom = 1.0
-rect_min_size = Vector2( 320, 380 )
-custom_styles/panel = ExtResource( 5 )
+margin_left = -161.003
+margin_right = 160.997
+alignment = 1
 __meta__ = {
-"_edit_use_anchors_": false
+"_edit_use_anchors_": false,
+"_editor_description_": ""
 }
 
-[node name="TextureRect" type="TextureRect" parent="GUI/ExitMenu"]
-anchor_right = 1.028
-margin_left = -25.0
-margin_top = -25.0
-margin_right = 0.0400085
-margin_bottom = 344.0
-texture = ExtResource( 9 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Title" type="Label" parent="GUI/ExitMenu"]
-margin_left = 11.0
-margin_top = -25.0
-margin_right = 196.0
-margin_bottom = 25.0
-custom_fonts/font = ExtResource( 1 )
-text = "Menu"
-valign = 1
-autowrap = true
-clip_text = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Box" type="VBoxContainer" parent="GUI/ExitMenu"]
-margin_left = 40.0
-margin_top = 40.0
-margin_right = 302.0
-margin_bottom = 359.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Continue" type="Button" parent="GUI/ExitMenu/Box"]
-margin_right = 262.0
-margin_bottom = 41.6293
+[node name="Continue" type="Button" parent="GUI/Box"]
+margin_top = 467.0
+margin_right = 322.0
+margin_bottom = 496.0
 shortcut = ExtResource( 8 )
 text = "Continue"
 
-[node name="Restart" type="Button" parent="GUI/ExitMenu/Box"]
-margin_top = 51.0
-margin_right = 262.0
-margin_bottom = 92.6293
+[node name="Restart" type="Button" parent="GUI/Box"]
+margin_top = 506.0
+margin_right = 322.0
+margin_bottom = 535.0
 text = "Restart"
 
-[node name="Settings" type="Button" parent="GUI/ExitMenu/Box"]
-margin_top = 102.0
-margin_right = 262.0
-margin_bottom = 143.629
+[node name="Settings" type="Button" parent="GUI/Box"]
+margin_top = 545.0
+margin_right = 322.0
+margin_bottom = 574.0
 text = "Settings"
 
-[node name="Exit" type="Button" parent="GUI/ExitMenu/Box"]
-margin_top = 153.0
-margin_right = 262.0
-margin_bottom = 194.629
+[node name="Exit" type="Button" parent="GUI/Box"]
+margin_top = 584.0
+margin_right = 322.0
+margin_bottom = 613.0
 shortcut = ExtResource( 16 )
 text = "Editor"
 
@@ -212,12 +163,9 @@ __meta__ = {
 [connection signal="exit" from="GUI" to="." method="exit"]
 [connection signal="hide" from="GUI" to="HUD" method="set_mouse_mode"]
 [connection signal="restart" from="GUI" to="." method="restart"]
-[connection signal="cancel" from="GUI/ExitMenu" to="GUI" method="_on_ExitMenu_cancel"]
-[connection signal="exit" from="GUI/ExitMenu" to="GUI" method="_on_ExitMenu_exit"]
-[connection signal="restart" from="GUI/ExitMenu" to="GUI" method="_on_ExitMenu_restart"]
-[connection signal="settings" from="GUI/ExitMenu" to="GUI" method="_on_ExitMenu_settings"]
-[connection signal="pressed" from="GUI/ExitMenu/Box/Continue" to="GUI/ExitMenu" method="_on_Continue_pressed"]
-[connection signal="pressed" from="GUI/ExitMenu/Box/Restart" to="GUI/ExitMenu" method="_on_Restart_pressed"]
-[connection signal="pressed" from="GUI/ExitMenu/Box/Settings" to="Settings" method="set_visible" binds= [ true ]]
-[connection signal="pressed" from="GUI/ExitMenu/Box/Exit" to="GUI/ExitMenu" method="_on_Exit_pressed"]
-[connection signal="pressed" from="Hidden goto editor button" to="GUI/ExitMenu" method="_on_Exit_pressed"]
+[connection signal="visibility_changed" from="GUI" to="HUD" method="poll_input"]
+[connection signal="pressed" from="GUI/Box/Continue" to="GUI" method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="GUI/Box/Restart" to="." method="restart"]
+[connection signal="pressed" from="GUI/Box/Settings" to="Settings" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="GUI/Box/Exit" to="." method="exit"]
+[connection signal="pressed" from="Hidden goto editor button" to="." method="exit"]

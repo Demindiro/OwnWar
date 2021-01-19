@@ -89,9 +89,13 @@ func _enter_tree() -> void:
 	# Dummy network until I figure out how to do RPC in singleplayer properly
 	# This is a security risk btw, we shouldn't listen on random ports, let alone
 	# one that is bound to 0.0.0.0
-	var n := NetworkedMultiplayerENet.new()
-	n.create_server(59797)
-	get_tree().network_peer = n
+	# Try some random ports until one works
+	for i in 1000:
+		var n := NetworkedMultiplayerENet.new()
+		var e := n.create_server(randi() % (65536 - 10000) + 10000)
+		if e == OK:
+			get_tree().network_peer = n
+			break
 
 
 func _ready() -> void:
@@ -115,6 +119,7 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	get_tree().network_peer.close_connection()
 	get_tree().network_peer = null
 
 
