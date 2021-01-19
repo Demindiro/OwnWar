@@ -2,7 +2,7 @@
 
 [ext_resource path="res://ui/font.tres" type="DynamicFont" id=2]
 [ext_resource path="res://ui/transparent_vscroll_black_panel.tres" type="StyleBox" id=6]
-[ext_resource path="res://core/menu/blank.tres" type="StyleBox" id=9]
+[ext_resource path="res://ui/blank.tres" type="StyleBox" id=9]
 [ext_resource path="res://ui/transparent_black_panel.tres" type="StyleBox" id=10]
 [ext_resource path="res://ui/semisolid_white_panel.tres" type="StyleBox" id=11]
 [ext_resource path="res://ui/semisolid_lightgray_panel.tres" type="StyleBox" id=12]
@@ -12,6 +12,7 @@
 [ext_resource path="res://ui/transparent_white_panel.tres" type="StyleBox" id=16]
 [ext_resource path="res://ui/transparent_gray_panel.tres" type="StyleBox" id=17]
 [ext_resource path="res://ui/font_big.tres" type="DynamicFont" id=18]
+
 
 [resource]
 default_font = ExtResource( 2 )

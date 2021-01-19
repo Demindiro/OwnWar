@@ -24,7 +24,6 @@ shape = ExtResource( 2 )
 [node name="Vehicle" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0304327, 1.68157, -1.39083 )
 script = ExtResource( 3 )
-_file = "user://vehicles/test.owv.gz"
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 0.258819, 0.620885, 0.739942, -0.408218, -0.623963, 0.666355, 0.875426, -0.474523, 0.091963, 2.05, 7.95, -24.45 )

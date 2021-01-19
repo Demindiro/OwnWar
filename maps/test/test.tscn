@@ -1,10 +1,9 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=2]
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=3]
 [ext_resource path="res://maps/test/map_data/data.hterrain" type="Resource" id=4]
 [ext_resource path="res://maps/test/rect.svg" type="Texture" id=6]
-[ext_resource path="res://maps/gui.gd" type="Script" id=7]
 [ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=8]
 [ext_resource path="res://maps/hud.tscn" type="PackedScene" id=11]
 [ext_resource path="res://maps/test/test.gd" type="Script" id=12]
@@ -105,7 +104,6 @@ margin_left = 4.24268
 margin_right = 4.24268
 theme = ExtResource( 2 )
 color = Color( 0, 0, 0, 0.2 )
-script = ExtResource( 7 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -159,10 +157,7 @@ shortcut = ExtResource( 16 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-[connection signal="cancel" from="GUI" to="GUI" method="set_visible" binds= [ false ]]
-[connection signal="exit" from="GUI" to="." method="exit"]
 [connection signal="hide" from="GUI" to="HUD" method="set_mouse_mode"]
-[connection signal="restart" from="GUI" to="." method="restart"]
 [connection signal="visibility_changed" from="GUI" to="HUD" method="poll_input"]
 [connection signal="pressed" from="GUI/Box/Continue" to="GUI" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="GUI/Box/Restart" to="." method="restart"]
