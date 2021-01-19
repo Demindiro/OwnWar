@@ -1,10 +1,6 @@
 extends Node
 
 const LOADER_MAX_TIME := 1000.0 / 60.0
-# Because Godot does not allow cyclic references and is apparently not capable
-# of updating file paths automatically, this shall be the solution
-const SCENE_DESIGNER = "res://core/designer/designer.tscn"
-const SCENE_LOADING = "res://core/menu/loading_screen.tscn"
 const DIRECTORY_USER_VEHICLES = "user://vehicles"
 const ERROR_TO_STRING = [
 		"No errors",
@@ -62,12 +58,6 @@ const COLLISION_MASK_TERRAIN = 1 << (8 - 1) # Christ's sake, Godot pls
 var _loader
 var _loader_callback
 var _loader_callback_arguments: Array
-
-
-# Improve loading speeds with this one trick!
-#var _editor := preload("res://editor/editor.tscn")
-#var _main := preload("res://core/menu/main_menu/main.tscn")
-#var _test := preload("res://maps/test/test.tscn")
 
 
 func _init():
@@ -150,7 +140,7 @@ func _goto_scene(path) -> void:
 			error("Error creating loader")
 			return
 		set_process(true)
-		var err = get_tree().change_scene(SCENE_LOADING)
+		var err = get_tree().change_scene("res://ui/loading_screen.tscn")
 		if err != OK:
 			error("Failed to change scene '%s'" % path, err)
 		call_deferred("_load_scene")
