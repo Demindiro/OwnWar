@@ -29,7 +29,6 @@ func _ready() -> void:
 	_camera.add_child(_camera_terrain_ray)
 	_camera_terrain_ray.set_as_toplevel(true)
 	_camera_terrain_ray.transform = Transform.IDENTITY
-	_camera_terrain_ray.cast_to = Vector3(0, -1000, 0)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -86,16 +85,18 @@ func _set_camera() -> void:
 		return
 	var basis := Basis(Vector3(0, 1, 0), _camera_pan) * \
 		Basis(Vector3(1, 0, 0), _camera_tilt)
-	var pos := player_vehicle.get_visual_origin()
-	pos += basis * (Vector3(0, 0, _camera_zoom) + camera_offset)
-	_camera_terrain_ray.translation = pos + Vector3(0, 500, 0)
+	var pos := player_vehicle.get_visual_origin() + camera_offset
+	_camera_terrain_ray.translation = pos
+	pos += basis * (Vector3(0, 0, _camera_zoom))
+	_camera_terrain_ray.cast_to = pos - _camera_terrain_ray.translation
+	_camera_terrain_ray.cast_to += _camera_terrain_ray.cast_to.normalized()
 	_camera_terrain_ray.force_raycast_update()
 	if _camera_terrain_ray.is_colliding():
 		var r_pos := _camera_terrain_ray.get_collision_point()
 		var r_normal := _camera_terrain_ray.get_collision_normal()
 		var rel_pos := r_pos - pos
 		if rel_pos.length_squared() < 0.25 or rel_pos.dot(r_normal) > 0:
-			pos = r_pos + Vector3(0, 0.5, 0)
+			pos = r_pos - _camera_terrain_ray.cast_to.normalized()
 	_camera.transform = Transform(basis, pos)
 	_camera_ray.force_raycast_update()
 	if _camera_ray.is_colliding():
@@ -114,8 +115,7 @@ func set_player_vehicle(p_vehicle) -> void:
 				_camera_ray.add_exception(body)
 				_camera_terrain_ray.add_exception(body)
 		var aabb := player_vehicle.get_aabb()
-		camera_offset.y = aabb.size.y * 1.5 * OwnWar_Block.BLOCK_SCALE
-		camera_offset.z = aabb.size.z * 0.5 * OwnWar_Block.BLOCK_SCALE
+		camera_offset.y = aabb.size.y * OwnWar_Block.BLOCK_SCALE + 1
 
 
 func set_mouse_mode() -> void:
