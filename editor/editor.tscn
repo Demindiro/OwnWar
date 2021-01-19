@@ -1,9 +1,9 @@
-[gd_scene load_steps=38 format=2]
+[gd_scene load_steps=53 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://editor/inventory_item.tscn" type="PackedScene" id=2]
 [ext_resource path="res://addons/aabb_camera.gd" type="Script" id=3]
-[ext_resource path="res://editor/block_layer.gd" type="Script" id=4]
+[ext_resource path="res://editor/shortcuts/toggle_edit_mode.tres" type="ShortCut" id=4]
 [ext_resource path="res://editor/stats.gd" type="Script" id=5]
 [ext_resource path="res://editor/garage_todo_text.png" type="Texture" id=6]
 [ext_resource path="res://addons/crosshairs/image0018.png" type="Texture" id=7]
@@ -18,17 +18,32 @@
 [ext_resource path="res://editor/floor.gd" type="Script" id=16]
 [ext_resource path="res://ui/blur_material.tres" type="Material" id=17]
 [ext_resource path="res://addons/crosshairs/image0003.png" type="Texture" id=18]
-[ext_resource path="res://editor/block_layer_view.gd" type="Script" id=19]
+[ext_resource path="res://editor/shortcuts/toggle_mirror.tres" type="ShortCut" id=19]
 [ext_resource path="res://editor/color_picker.gd" type="Script" id=20]
 [ext_resource path="res://editor/editor.gd" type="Script" id=21]
 [ext_resource path="res://editor/block_base_material.tres" type="Material" id=22]
 [ext_resource path="res://core/thumbnail/mock_cube.tres" type="CubeMesh" id=23]
 [ext_resource path="res://addons/flowcontainer.gd" type="Script" id=24]
-[ext_resource path="res://editor/goto_test_map_shortcut.tres" type="ShortCut" id=25]
+[ext_resource path="res://editor/shortcuts/goto_test_map.tres" type="ShortCut" id=25]
 [ext_resource path="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422497__nightflame__swinging-staff-whoosh-low-01.wav" type="AudioStream" id=26]
 [ext_resource path="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422494__nightflame__swinging-staff-whoosh-low-04.wav" type="AudioStream" id=27]
 [ext_resource path="res://editor/color_button.tscn" type="PackedScene" id=28]
+[ext_resource path="res://addons/ui/417794__lorenzothegreat__error.wav" type="AudioStream" id=29]
 [ext_resource path="res://ui/cancel_button.tscn" type="PackedScene" id=30]
+[ext_resource path="res://editor/shortcuts/layer_next.tres" type="ShortCut" id=31]
+[ext_resource path="res://editor/shortcuts/layer_previous.tres" type="ShortCut" id=32]
+[ext_resource path="res://editor/shortcuts/toggle_snap_faces.tres" type="ShortCut" id=33]
+[ext_resource path="res://editor/shortcuts/vehicle_rotate.tres" type="ShortCut" id=34]
+[ext_resource path="res://editor/shortcuts/vehicle_up.tres" type="ShortCut" id=35]
+[ext_resource path="res://editor/shortcuts/vehicle_down.tres" type="ShortCut" id=36]
+[ext_resource path="res://editor/shortcuts/vehicle_left.tres" type="ShortCut" id=37]
+[ext_resource path="res://editor/shortcuts/vehicle_right.tres" type="ShortCut" id=38]
+[ext_resource path="res://editor/shortcuts/vehicle_forward.tres" type="ShortCut" id=39]
+[ext_resource path="res://editor/shortcuts/vehicle_back.tres" type="ShortCut" id=40]
+[ext_resource path="res://editor/shortcuts/rotate_up.tres" type="ShortCut" id=41]
+[ext_resource path="res://editor/shortcuts/rotate_down.tres" type="ShortCut" id=42]
+[ext_resource path="res://editor/shortcuts/open_inventory.tres" type="ShortCut" id=43]
+[ext_resource path="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422503__nightflame__swinging-staff-whoosh-low-09.wav" type="AudioStream" id=44]
 
 [sub_resource type="SpatialMaterial" id=1]
 
@@ -61,8 +76,11 @@ pause_mode = 2
 script = ExtResource( 21 )
 main_menu = ExtResource( 14 )
 material = ExtResource( 22 )
-place_sound = NodePath("Place block sound")
-remove_sound = NodePath("Remove block sound")
+place_sound = NodePath("Sounds/Place block")
+remove_sound = NodePath("Sounds/Remove block")
+fail_place_or_remove_sound = NodePath("Sounds/Fail place or remove")
+rotate_sound = NodePath("Sounds/Rotate block")
+_layer_selector = NodePath("Toggles & modes/Box/Block layer")
 
 [node name="Camera" type="Camera" parent="."]
 process_priority = -1
@@ -291,34 +309,57 @@ size_flags_horizontal = 3
 text = "9999"
 align = 2
 
-[node name="BlockLayer" type="OptionButton" parent="."]
+[node name="Toggles & modes" type="PanelContainer" parent="."]
 anchor_left = 1.0
 anchor_right = 1.0
-margin_left = -100.0
-margin_top = 18.0791
-margin_right = -18.0
-margin_bottom = 63.0791
-focus_mode = 0
+margin_left = -185.0
+margin_top = 5.0
+margin_right = -5.0
 theme = ExtResource( 1 )
-toggle_mode = false
-enabled_focus_mode = 0
-script = ExtResource( 4 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="BlockLayerView" type="OptionButton" parent="."]
-anchor_left = 1.0
-anchor_right = 1.0
-margin_left = -100.0
-margin_top = 80.0
-margin_right = -18.0
-margin_bottom = 125.0
+[node name="Box" type="VBoxContainer" parent="Toggles & modes"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 176.0
+margin_bottom = 159.0
+
+[node name="Block layer" type="OptionButton" parent="Toggles & modes/Box"]
+margin_right = 172.0
+margin_bottom = 29.0
 focus_mode = 0
 theme = ExtResource( 1 )
 toggle_mode = false
 enabled_focus_mode = 0
-script = ExtResource( 19 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Edit mode" type="CheckButton" parent="Toggles & modes/Box"]
+margin_top = 39.0
+margin_right = 172.0
+margin_bottom = 71.0
+focus_mode = 0
+shortcut = ExtResource( 4 )
+text = "Edit mode"
+
+[node name="Mirror" type="CheckButton" parent="Toggles & modes/Box"]
+margin_top = 81.0
+margin_right = 172.0
+margin_bottom = 113.0
+focus_mode = 0
+shortcut = ExtResource( 19 )
+text = "Mirror"
+
+[node name="Snap faces" type="CheckButton" parent="Toggles & modes/Box"]
+margin_top = 123.0
+margin_right = 172.0
+margin_bottom = 155.0
+pressed = true
+shortcut = ExtResource( 33 )
+text = "Snap faces"
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -487,9 +528,10 @@ script = ExtResource( 24 )
 [node name="Hidden cancel" type="ToolButton" parent="Inventory"]
 margin_right = 8.0
 margin_bottom = 29.0
-shortcut = SubResource( 8 )
+shortcut = ExtResource( 43 )
 
 [node name="ColorPicker" type="ColorRect" parent="."]
+visible = false
 material = ExtResource( 17 )
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -534,30 +576,163 @@ margin_right = 8.0
 margin_bottom = 29.0
 shortcut = SubResource( 8 )
 
-[node name="Hidden goto test map button" type="ToolButton" parent="."]
+[node name="Hidden buttons" type="Control" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Goto test map" type="ToolButton" parent="Hidden buttons"]
+button_mask = 0
 shortcut = ExtResource( 25 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Place block sound" type="AudioStreamPlayer" parent="."]
+[node name="Next layer" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 31 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Previous layer" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 32 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Rotate block up" type="ToolButton" parent="Hidden buttons"]
+visible = false
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 41 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Rotate block down" type="ToolButton" parent="Hidden buttons"]
+visible = false
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 42 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Rotate vehicle" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 34 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Move vehicle up" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 35 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Move vehicle down" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 36 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Move vehicle left" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 37 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Move vehicle right" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 38 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Move vehicle forward" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 39 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Move vehicle back" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 40 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Open inventory" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 43 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Sounds" type="Node" parent="."]
+
+[node name="Place block" type="AudioStreamPlayer" parent="Sounds"]
 stream = ExtResource( 27 )
 bus = "UI"
 
-[node name="Remove block sound" type="AudioStreamPlayer" parent="."]
+[node name="Remove block" type="AudioStreamPlayer" parent="Sounds"]
 stream = ExtResource( 26 )
 bus = "UI"
+
+[node name="Fail place or remove" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource( 29 )
+
+[node name="Rotate block" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource( 44 )
+volume_db = -3.591
+pitch_scale = 4.0
 [connection signal="block_placed" from="." to="Stats" method="on_block_placed"]
 [connection signal="block_removed" from="." to="Stats" method="on_block_removed"]
 [connection signal="vehicle_moved" from="." to="Stats" method="on_vehicle_moved"]
 [connection signal="vehicle_rotated" from="." to="Stats" method="on_vehicle_rotated"]
-[connection signal="item_selected" from="BlockLayer" to="." method="_on_BlockLayer_item_selected"]
-[connection signal="item_selected" from="BlockLayerView" to="." method="_on_BlockLayerView_item_selected"]
+[connection signal="item_selected" from="Toggles & modes/Box/Block layer" to="." method="set_layer"]
+[connection signal="toggled" from="Toggles & modes/Box/Edit mode" to="." method="set_edit_mode"]
+[connection signal="toggled" from="Toggles & modes/Box/Mirror" to="." method="set_mirror"]
+[connection signal="toggled" from="Toggles & modes/Box/Snap faces" to="." method="set_snap_faces"]
 [connection signal="timeout" from="SaveTimer" to="." method="save_vehicle"]
 [connection signal="pressed" from="Menu/VBoxContainer/Continue" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="Menu/VBoxContainer/Test" to="." method="_on_Designer_pressed"]
 [connection signal="pressed" from="Menu/VBoxContainer/Settings" to="Settings" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="Menu/VBoxContainer/Exit" to="." method="_on_Exit_pressed"]
+[connection signal="hide" from="Inventory" to="Hidden buttons" method="set_visible" binds= [ true ]]
 [connection signal="hide" from="Inventory" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="Inventory/Cancel" to="Inventory" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="Inventory/Hidden cancel" to="Inventory" method="set_visible" binds= [ false ]]
@@ -565,4 +740,17 @@ bus = "UI"
 [connection signal="pick_color" from="ColorPicker" to="." method="_on_ColorPicker_pick_color"]
 [connection signal="pressed" from="ColorPicker/Cancel" to="ColorPicker" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="ColorPicker/Hidden cancel" to="ColorPicker" method="set_visible" binds= [ false ]]
-[connection signal="pressed" from="Hidden goto test map button" to="." method="_on_Designer_pressed"]
+[connection signal="pressed" from="Hidden buttons/Goto test map" to="." method="_on_Designer_pressed"]
+[connection signal="pressed" from="Hidden buttons/Next layer" to="." method="next_layer"]
+[connection signal="pressed" from="Hidden buttons/Previous layer" to="." method="previous_layer"]
+[connection signal="pressed" from="Hidden buttons/Rotate block up" to="." method="rotate_block_up"]
+[connection signal="pressed" from="Hidden buttons/Rotate block down" to="." method="rotate_block_down"]
+[connection signal="pressed" from="Hidden buttons/Rotate vehicle" to="." method="rotate_vehicle"]
+[connection signal="pressed" from="Hidden buttons/Move vehicle up" to="." method="move_vehicle" binds= [ Vector3( 0, 1, 0 ) ]]
+[connection signal="pressed" from="Hidden buttons/Move vehicle down" to="." method="move_vehicle" binds= [ Vector3( 0, -1, 0 ) ]]
+[connection signal="pressed" from="Hidden buttons/Move vehicle left" to="." method="move_vehicle" binds= [ Vector3( 1, 0, 0 ) ]]
+[connection signal="pressed" from="Hidden buttons/Move vehicle right" to="." method="move_vehicle" binds= [ Vector3( -1, 0, 0 ) ]]
+[connection signal="pressed" from="Hidden buttons/Move vehicle forward" to="." method="move_vehicle" binds= [ Vector3( 0, 0, 1 ) ]]
+[connection signal="pressed" from="Hidden buttons/Move vehicle back" to="." method="move_vehicle" binds= [ Vector3( 0, 0, -1 ) ]]
+[connection signal="pressed" from="Hidden buttons/Open inventory" to="Hidden buttons" method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="Hidden buttons/Open inventory" to="Inventory" method="set_visible" binds= [ true ]]

@@ -28,6 +28,11 @@ func node_added(node: Node) -> void:
 		assert(e == OK)
 		e = node.connect("pressed", audio_click, "play")
 		assert(e == OK)
+		if node is OptionButton:
+			e = node.connect("item_focused", self, "option_button_hovered")
+			assert(e == OK)
+			e = node.connect("item_selected", self, "option_button_pressed")
+			assert(e == OK)
 		# Recursing is necessary because https://github.com/godotengine/godot/issues/16854
 		for n in Util.get_children_recursive(node):
 			if n is Control:
@@ -52,3 +57,11 @@ func mouse_entered(node: BaseButton) -> void:
 
 func mouse_exited(node: BaseButton) -> void:
 	node.call_deferred("set_meta", "ui_audio_mouse_entered", false)
+
+
+func option_button_pressed(_index: int) -> void:
+	audio_click.play()
+
+
+func option_button_hovered(_index: int) -> void:
+	audio_hover.play()

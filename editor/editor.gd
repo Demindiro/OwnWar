@@ -39,20 +39,27 @@ export var material: SpatialMaterial setget set_material
 
 export var place_sound := NodePath()
 export var remove_sound := NodePath()
+export var fail_place_or_remove_sound := NodePath()
+export var rotate_sound := NodePath()
 onready var place_sound_player: AudioStreamPlayer = get_node(place_sound)
 onready var remove_sound_player: AudioStreamPlayer = get_node(remove_sound)
+onready var fail_place_or_remove_player: AudioStreamPlayer = get_node(fail_place_or_remove_sound)
+onready var rotate_player: AudioStreamPlayer = get_node(rotate_sound)
 
 var selected_block: OwnWar_Block
 var blocks := {}
-var meta := {}
 var vehicle_name := ""
 var vehicle_path := ""
 var _rotation := 0
 var mirror := false
 var ray_voxel_valid := false
-var selected_layer := 0 setget set_layer
-var view_layer := -1 setget set_view_layer
 var _snap_face := true
+
+export var max_layers := 8
+export var _layer_selector := NodePath()
+var selected_layer := 0 setget set_layer
+var edit_mode := false setget set_edit_mode
+onready var layer_selector: OptionButton = get_node(_layer_selector)
 
 onready var ray := preload("res://addons/voxel_raycast.gd").new()
 onready var _floor_origin: Spatial = $Floor/Origin
@@ -63,8 +70,6 @@ onready var _camera_mesh: MeshInstance = $Camera/Box/Viewport/Camera/Mesh
 onready var _gui_menu: Control = $Menu
 onready var _gui_inventory: Control = $Inventory
 onready var _gui_color_picker: Control = $ColorPicker
-onready var _hud_block_layer: OptionButton = $BlockLayer
-onready var _hud_block_layer_view: OptionButton = $BlockLayerView
 onready var _block_face_highlighter: Spatial = get_node("BlockFaceHighlighter")
 
 
@@ -88,61 +93,25 @@ func _ready():
 	get_tree().paused = false # To be sure because ??????
 	select_block(OwnWar_Block.get_block_by_id(1).name)
 	set_enabled(true) # Disable UIs
-	_floor.enable_mirror(mirror)
+	set_mirror(mirror)
 	if File.new().file_exists(vehicle_path):
 		call_deferred("load_vehicle")
 	else:
 		# Save it to create a "slot"
 		save_vehicle()
+	for i in max_layers:
+		layer_selector.add_item("Layer %d" % i, i)
 
 
 func _input(event: InputEvent) -> void:
-	if not _camera.enabled:
-		return
-	if event is InputEventMouseButton and event.is_pressed():
-		if event.is_action("editor_rotate_down"):
-			_rotation -= 1
-			if _rotation < 0:
-				_rotation = 23
-		elif event.is_action("editor_rotate_up"):
-			_rotation += 1
-			if _rotation >= 24:
-				_rotation = 0
-	if event.is_action_pressed("editor_snap_faces"):
-		_snap_face = not _snap_face
-	elif event.is_action_pressed("editor_vehicle_up"):
-		_move_vehicle(Vector3.UP)
-	elif event.is_action_pressed("editor_vehicle_down"):
-		_move_vehicle(Vector3.DOWN)
-	elif event.is_action_pressed("editor_vehicle_left"):
-		_move_vehicle(Vector3.RIGHT)
-	elif event.is_action_pressed("editor_vehicle_right"):
-		_move_vehicle(Vector3.LEFT)
-	elif event.is_action_pressed("editor_vehicle_back"):
-		_move_vehicle(Vector3.FORWARD)
-	elif event.is_action_pressed("editor_vehicle_forward"):
-		_move_vehicle(Vector3.BACK)
-	elif event.is_action_pressed("editor_vehicle_rotate"):
-		_rotate_vehicle()
-	elif event.is_action_pressed("editor_layer_next"):
-		view_layer += 1
-		selected_layer = view_layer
-		if view_layer > 3:
-			view_layer = -1
-			selected_layer = 0
-		set_layer(selected_layer)
-		set_view_layer(view_layer)
-	elif event.is_action_pressed("editor_layer_previous"):
-		view_layer -= 1
-		if view_layer < -1:
-			view_layer = 3
-		selected_layer = 0 if view_layer == -1 else view_layer
-		set_layer(selected_layer)
-		set_view_layer(view_layer)
+	# TODO fix BaseButton so it also detects mouse button shortcuts
+	if event.is_action_pressed("editor_rotate_up"):
+		rotate_block_up()
+	elif event.is_action_pressed("editor_rotate_down"):
+		rotate_block_down()
 
 
 func _process(_delta):
-	#_camera_mesh_camera.transform = _camera.transform
 	highlight_face()
 	process_actions()
 
@@ -170,9 +139,9 @@ func process_actions():
 		if ray_voxel_valid and not Input.is_action_pressed("editor_release_cursor"):
 			var coordinate = _v2a(_a2v(ray.voxel) + _a2v(ray.get_normal()))
 			_snap_face(_a2v(ray.get_normal()))
-			place_block(selected_block, coordinate, _rotation,
+			var placed := place_block(selected_block, coordinate, _rotation,
 				material.albedo_color, selected_layer)
-			if mirror:
+			if placed and mirror:
 				coordinate = [] + coordinate
 				# warning-ignore:integer_division
 				var mirror_x = (GRID_SIZE - 1) / 2
@@ -181,22 +150,25 @@ func process_actions():
 				var m_block: OwnWar_Block = selected_block.mirror_block
 				place_block(m_block, coordinate, m_block.get_mirror_rotation(_rotation),
 					material.albedo_color, selected_layer)
-			place_sound_player.play()
+			if placed:
+				place_sound_player.play()
+			else:
+				fail_place_or_remove_player.play()
 	elif Input.is_action_just_pressed("editor_remove_block"):
 		if not ray.finished and not Input.is_action_pressed("editor_release_cursor"):
 			var coordinate = [] + ray.voxel
-			remove_block(coordinate)
-			if mirror:
+			var removed := remove_block(coordinate)
+			if removed and mirror:
 				coordinate = [] + coordinate
 				# warning-ignore:integer_division
 				var mirror_x = (GRID_SIZE - 1) / 2
 				var delta = coordinate[0] - mirror_x
 				coordinate[0] = mirror_x - delta
 				remove_block(coordinate)
-			remove_sound_player.play()
-	elif Input.is_action_just_pressed("editor_mirror"):
-		mirror = not mirror
-		_floor.enable_mirror(mirror)
+			if removed:
+				remove_sound_player.play()
+			else:
+				fail_place_or_remove_player.play()
 	elif Input.is_action_just_pressed("editor_open_colorpicker"):
 		set_enabled(false)
 		_gui_color_picker.visible = true
@@ -208,6 +180,8 @@ func process_actions():
 
 func place_block(block: OwnWar_Block, coordinate: Array, rotation: int,
 	color: Color, layer: int) -> bool:
+	if not edit_mode:
+		return false
 	for c in coordinate:
 		if c < 0 or c >= GRID_SIZE:
 			return false
@@ -240,9 +214,11 @@ func place_block(block: OwnWar_Block, coordinate: Array, rotation: int,
 	return true
 
 
-func remove_block(coordinate):
-	if coordinate in blocks:
+func remove_block(coordinate: Array) -> bool:
+	if edit_mode and coordinate in blocks:
 		var blk: Block = blocks[coordinate]
+		if blk.layer != selected_layer:
+			return false
 		var node = blk.node
 		node.queue_free()
 		emit_signal("block_removed", OwnWar_Block.get_block_by_id(blk.id), Vector3(coordinate[0], coordinate[1], coordinate[2]))
@@ -371,6 +347,8 @@ func save_vehicle() -> void:
 
 
 func load_vehicle() -> void:
+	var prev_edit_mode := edit_mode
+	edit_mode = true
 	var MAGIC := 493279249 # Totally random, not derived from a name
 	var REVISION := 0
 	var file := File.new()
@@ -415,6 +393,8 @@ func load_vehicle() -> void:
 				color.b8 = file.get_8()
 				place_block(OwnWar_Block.get_block_by_id(id), [x, y, z], rot, color, layer)
 		print("Loaded vehicle from %s" % vehicle_path)
+	edit_mode = prev_edit_mode
+	update_block_visibility()
 
 
 func set_material(p_material: SpatialMaterial):
@@ -438,24 +418,61 @@ func set_material(p_material: SpatialMaterial):
 			node.set_color(color)
 
 
-func set_layer(p_layer: int):
+func set_layer(p_layer: int) -> void:
 	selected_layer = p_layer
-	_hud_block_layer.select(p_layer)
+	layer_selector.select(p_layer)
+	update_block_visibility()
 
 
-func set_view_layer(p_view_layer: int):
-	view_layer = p_view_layer
+func set_edit_mode(enable: bool) -> void:
+	edit_mode = enable
+	update_block_visibility()
+
+
+func set_mirror(enable: bool) -> void:
+	mirror = enable
+	_floor.enable_mirror(enable)
+
+
+func set_snap_faces(enable: bool) -> void:
+	_snap_face = enable
+
+
+func next_layer() -> void:
+	selected_layer += 1
+	if selected_layer >= max_layers:
+		selected_layer = 0
+	set_layer(selected_layer)
+
+
+func previous_layer() -> void:
+	selected_layer -= 1
+	if selected_layer < 0:
+		selected_layer = max_layers - 1
+	set_layer(selected_layer)
+
+
+func update_block_visibility() -> void:
 	for coordinate in blocks:
 		var block: Block = blocks[coordinate]
 		var color := block.color
-		if view_layer != -1 and block.layer != view_layer:
+		if edit_mode and block.layer != selected_layer:
 			color.a *= 0.1
 		var material := MaterialCache.get_material(color)
 		block.node.material_override = material
 		for node in block.node.get_children():
 			if node.has_method("set_color"):
 				node.set_color(color)
-	_hud_block_layer_view.select(p_view_layer + 1)
+
+
+func rotate_block_down() -> void:
+	_rotation = posmod(_rotation - 1, 24)
+	rotate_player.play()
+
+
+func rotate_block_up() -> void:
+	_rotation = posmod(_rotation + 1, 24)
+	rotate_player.play()
 
 
 func _snap_face(direction: Vector3) -> void:
@@ -466,7 +483,7 @@ func _snap_face(direction: Vector3) -> void:
 		_rotation |= dir
 
 
-func _move_vehicle(direction: Vector3) -> void:
+func move_vehicle(direction: Vector3) -> void:
 	var aabb := _get_vehicle_aabb()
 	aabb.position += direction
 	if AABB(Vector3.ZERO, Vector3.ONE * GRID_SIZE).encloses(aabb):
@@ -480,7 +497,7 @@ func _move_vehicle(direction: Vector3) -> void:
 		emit_signal("vehicle_moved", direction)
 
 
-func _rotate_vehicle() -> void:
+func rotate_vehicle() -> void:
 	var aabb := _get_vehicle_aabb()
 	var center := aabb.position + (aabb.size / 2.0).round()
 	var lower := aabb.position - center
@@ -536,23 +553,6 @@ func _on_ColorPicker_pick_color(color):
 	var mat := SpatialMaterial.new()
 	mat.albedo_color = color
 	set_material(mat)
-
-
-func _on_BlockLayer_item_selected(index):
-	set_layer(index)
-	if view_layer != selected_layer and view_layer >= 0:
-		set_view_layer(index)
-
-
-func _on_BlockLayerView_item_selected(index):
-	index -= 1
-	set_view_layer(index)
-	if index >= 0:
-		set_layer(index)
-
-
-func _on_MetaEditor_meta_changed(meta_data):
-	meta[ray.voxel] = meta_data.duplicate()
 
 
 func _on_Designer_pressed() -> void:

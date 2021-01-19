@@ -10,7 +10,9 @@
 [ext_resource path="res://addons/backgrounds/AllSkyFree_Sky_ColdSunset_Equirect.png" type="Texture" id=13]
 [ext_resource path="res://settings/applier.gd" type="Script" id=14]
 [ext_resource path="res://settings/settings_blur.tscn" type="PackedScene" id=15]
-[ext_resource path="res://editor/goto_test_map_shortcut.tres" type="ShortCut" id=16]
+[ext_resource path="res://editor/shortcuts/goto_test_map.tres" type="ShortCut" id=16]
+
+
 
 [sub_resource type="PanoramaSky" id=1]
 panorama = ExtResource( 13 )
