@@ -6,6 +6,7 @@ const Status := preload("status.gd")
 export var no_connection_icon: Texture
 export var empty_address_icon: Texture
 export var connecting_icon: Texture
+export var user_error_icon: Texture
 export var _address := NodePath()
 export var _port := NodePath()
 export var _password := NodePath()
@@ -41,6 +42,10 @@ func _exit_tree() -> void:
 
 
 func launch() -> void:
+	if not OwnWar_Lobby.player_vehicle_valid:
+		# Show this error first so the user doesn't waste time with an address or whatever
+		status.set_status(Status.STATUS_ERR, "Vehicle isn't valid", user_error_icon)
+		return
 	if address.text == "":
 		status.set_status(Status.STATUS_ERR, "You need to fill in an address", empty_address_icon)
 		return

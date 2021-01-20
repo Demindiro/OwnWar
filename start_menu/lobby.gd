@@ -6,6 +6,7 @@ const Status = preload("status.gd")
 export var failed_connect_icon: Texture
 export var loading_icon: Texture
 export var connecting_icon: Texture
+export var user_error_icon: Texture
 export var _filter := NodePath()
 export var _list := NodePath()
 export var _map := NodePath()
@@ -48,6 +49,10 @@ func _exit_tree() -> void:
 
 
 func launch() -> void:
+	if not OwnWar_Lobby.player_vehicle_valid:
+		# Show this error first so the user doesn't waste time with an address or whatever
+		status.set_status(Status.STATUS_ERR, "Vehicle isn't valid", user_error_icon)
+		return
 	if selected_entry == null:
 		status.set_status(Status.STATUS_ERR, "No server selected", failed_connect_icon)
 		return

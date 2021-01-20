@@ -8,6 +8,7 @@ var aabb := AABB()
 var cost := 0
 var mass := 0.0
 var block_count := 0
+var mainframe_count := 0
 
 
 func _ready() -> void:
@@ -89,9 +90,14 @@ func load_from_data(data: PoolByteArray) -> int:
 			block_count += 1
 			cost += blk.cost
 			mass += blk.mass
+			if id == OwnWar.MAINFRAME_ID:
+				mainframe_count += 1
 
 	# TODO should we center based on AABB or editor grid size?
 	mesh_instance.translation -= Vector3(25, 25, 25) * OwnWar_Block.BLOCK_SCALE / 2
 
 	return OK
 
+
+func is_valid() -> bool:
+	return mainframe_count == 1

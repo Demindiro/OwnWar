@@ -3,7 +3,7 @@ extends VBoxContainer
 
 const Status := preload("status.gd")
 
-export var no_selection_error_icon: Texture
+export var user_error_icon: Texture
 export var _map_selection := NodePath()
 export var _thumbnail := NodePath()
 export var _list_lobby := NodePath()
@@ -43,12 +43,16 @@ func _ready() -> void:
 
 
 func launch() -> void:
+	if not OwnWar_Lobby.player_vehicle_valid:
+		# Show this error first so the user doesn't waste time with an address or whatever
+		status.set_status(Status.STATUS_ERR, "Vehicle isn't valid", user_error_icon)
+		return
 	var btn := _button_group_map.get_pressed_button()
 	if btn == null:
-		status.set_status(Status.STATUS_ERR, "You need to select a map", no_selection_error_icon)
+		status.set_status(Status.STATUS_ERR, "You need to select a map", user_error_icon)
 		return
 	if list_lobby.pressed and name_s.text == "":
-		status.set_status(Status.STATUS_ERR, "Name may not be empty", no_selection_error_icon)
+		status.set_status(Status.STATUS_ERR, "Name may not be empty", user_error_icon)
 		return
 	var map: String = btn.get_meta("map_path")
 	OwnWar_Lobby.disable_upnp = not use_upnp.pressed
