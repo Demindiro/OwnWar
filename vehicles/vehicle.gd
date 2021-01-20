@@ -120,9 +120,10 @@ func _physics_process(delta: float) -> void:
 		if not controller.move_forward and not controller.move_back:
 			drive_brake = 1.0
 			# Reduce brake to prevent jitter
-			if len(voxel_bodies) > 0:
-				if voxel_bodies[0].linear_velocity.length_squared() < 1.0:
+			for b in voxel_bodies:
+				if b != null and b.linear_velocity.length_squared() < 1.0:
 					drive_brake = 0.2
+					break
 		for wheel in wheels:
 			wheel.steering = drive_yaw * wheel.max_angle
 			wheel.brake = drive_brake * wheel.max_brake
