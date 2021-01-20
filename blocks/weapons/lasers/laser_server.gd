@@ -24,7 +24,7 @@ func fire() -> bool:
 		if _ray.is_colliding():
 			at = _ray.get_collision_point()
 			var collider := _ray.get_collider()
-			var body := collider as OwnWar.VoxelBody
+			var body := collider as OwnWar_VoxelBody
 			if body != null:
 				if body.team == team:
 					if not body.can_ray_pass_through(at, global_transform * dir):

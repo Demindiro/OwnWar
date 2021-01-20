@@ -1,12 +1,6 @@
 class_name OwnWar
 
 
-const VoxelBody := preload("res://vehicles/voxel_body.gd")
-const VoxelMesh := preload("res://vehicles/voxel_mesh.gd")
-
-const Compatibility := preload("compatibility.gd")
-
-
 const VERSION := Vector3(0, 17, 0)
 const COLLISION_MASK_TERRAIN := 1 << (8 - 1)
 const COLLISION_MASK_UNIT := 1 << (19 - 1)
@@ -16,6 +10,7 @@ const VEHICLE_DIRECTORY := "user://vehicles"
 const VEHICLE_EXTENSION := "owv"
 const NET_COMPRESSION := NetworkedMultiplayerENet.COMPRESS_RANGE_CODER
 const SETTINGS_FILE := "user://settings.cfg"
+const MAINFRAME_ID := 76
 
 
 static func snap_transform(node) -> void:

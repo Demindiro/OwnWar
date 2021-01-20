@@ -6,7 +6,7 @@
 
 [resource]
 script = ExtResource( 1 )
-name = "turret_1x1"
+id = 77
 human_name = "Turret Connector"
 revision = 0
 category = "Weapons"
@@ -17,4 +17,4 @@ mass = 1.0
 cost = 1
 aabb = AABB( 0, 0, 0, 1, 1, 1 )
 mirror_rotation_offset = 0
-__mirror_block_name = ""
+__mirror_block_id = 0

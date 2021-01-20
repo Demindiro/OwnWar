@@ -179,7 +179,7 @@ puppet func sync_physics(seq_id: int, state: PoolVector3Array) -> void:
 	_last_seq_id = seq_id
 	assert(len(voxel_bodies) * 4 == len(state))
 	for i in len(voxel_bodies):
-		var body: OwnWar.VoxelBody = voxel_bodies[i]
+		var body: OwnWar_VoxelBody = voxel_bodies[i]
 		if body == null:
 			# Can happen due to packets being late / out of order
 			continue
@@ -203,7 +203,7 @@ master func apply_client_physics(seq_id: int, state: PoolVector3Array) -> void:
 	_last_seq_id = seq_id
 	assert(len(voxel_bodies) * 4 == len(state))
 	for i in len(voxel_bodies):
-		var body: OwnWar.VoxelBody = voxel_bodies[i]
+		var body: OwnWar_VoxelBody = voxel_bodies[i]
 		if body == null:
 			continue
 		i *= 4
@@ -244,7 +244,7 @@ func load_from_data(data: PoolByteArray, state := []) -> int:
 			body.queue_free()
 
 	var has_mainframe := false
-	var mainframe_id: int = OwnWar_Block.get_block("mainframe").id
+	var mainframe_id := OwnWar.MAINFRAME_ID
 
 	var spb := StreamPeerBuffer.new()
 	spb.data_array = data
@@ -292,7 +292,7 @@ func load_from_data(data: PoolByteArray, state := []) -> int:
 			color.r8 = spb.get_u8()
 			color.g8 = spb.get_u8()
 			color.b8 = spb.get_u8()
-			var arr := [Vector3(x, y, z), OwnWar_Block.get_block_by_id(id), rot, color]
+			var arr := [Vector3(x, y, z), OwnWar_Block.get_block(id), rot, color]
 			vb.push_back(arr)
 			if id == mainframe_id:
 				if has_mainframe:
@@ -380,21 +380,6 @@ func serialize_state() -> Array:
 				vb_data.resize(vb.id + 1)
 			vb_data[vb.id] = [vb._block_health, vb._block_health_alt]
 	return vb_data
-
-
-func get_blocks(block_name):
-	var id = OwnWar_Block.get_block(block_name).id
-	return get_blocks_by_id(id)
-
-
-func get_blocks_by_id(id):
-	var filtered_blocks = []
-	for body in voxel_bodies:
-		if body != null:
-			for block in body.blocks.values():
-				if block.id == id:
-					filtered_blocks.append(block)
-	return filtered_blocks
 
 
 func get_cost():

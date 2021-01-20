@@ -4,24 +4,19 @@ extends Node
 class Block:
 	var id: int
 	var position: Vector3
-	var name: String
 	var rotation: int
 	var node: Spatial
 	var color: Color
 	var layer: int
 
-	func _init(p_id: int, p_position: Array, p_name: String, p_rotation: int,
+	func _init(p_id: int, p_position: Array, p_rotation: int,
 		p_node: Spatial, p_color: Color, p_layer: int) -> void:
 		id = p_id
 		position = Vector3(p_position[0], p_position[1], p_position[2])
-		name = p_name
 		rotation = p_rotation
 		node = p_node
 		color = p_color
 		layer = p_layer
-
-	func to_array() -> Array:
-		return [name, rotation, node, color, layer]
 
 
 signal block_placed(block, position)
@@ -93,7 +88,7 @@ func _ready():
 			assert(false, "vehicle_name is empty")
 		vehicle_path = OwnWar.get_vehicle_path(vehicle_name)
 	get_tree().paused = false # To be sure because ??????
-	select_block(OwnWar_Block.get_block_by_id(1).name)
+	select_block(1)
 	set_enabled(true) # Disable UIs
 	set_mirror(mirror)
 	if File.new().file_exists(vehicle_path):
@@ -209,7 +204,6 @@ func place_block(block: OwnWar_Block, coordinate: Array, rotation: int,
 	blocks[coordinate] = Block.new(
 		block.id,
 		coordinate,
-		block.name,
 		rotation,
 		mi,
 		color,
@@ -226,14 +220,14 @@ func remove_block(coordinate: Array) -> bool:
 			return false
 		var node = blk.node
 		node.queue_free()
-		emit_signal("block_removed", OwnWar_Block.get_block_by_id(blk.id), Vector3(coordinate[0], coordinate[1], coordinate[2]))
+		emit_signal("block_removed", OwnWar_Block.get_block(blk.id), Vector3(coordinate[0], coordinate[1], coordinate[2]))
 		var _e := blocks.erase(coordinate)
 		return true
 	return false
 
 
-func select_block(name):
-	selected_block = OwnWar_Block.get_block(name)
+func select_block(id: int) -> void:
+	selected_block = OwnWar_Block.get_block(id)
 	for child in _camera_mesh.get_children():
 		child.queue_free()
 	for child in _floor_origin_ghost.get_children():
@@ -404,7 +398,7 @@ func load_vehicle() -> void:
 				color.r8 = file.get_8()
 				color.g8 = file.get_8()
 				color.b8 = file.get_8()
-				place_block(OwnWar_Block.get_block_by_id(id), [x, y, z], rot, color, layer)
+				place_block(OwnWar_Block.get_block(id), [x, y, z], rot, color, layer)
 		print("Loaded vehicle from %s" % vehicle_path)
 	edit_mode = prev_edit_mode
 	map_rotations = prev_map_rotations

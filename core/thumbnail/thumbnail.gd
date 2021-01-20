@@ -7,12 +7,12 @@ const _VEHICLE_DIRECTORY := "vehicles"
 const _UNIT_DIRECTORY := "units"
 
 
-static func get_block_thumbnail_async(name: String, callback: FuncRef, arguments := []) -> bool:
-	var block: OwnWar_Block = OwnWar_Block.get_block(name)
-	if _try_get_thumbnail(_get_block_path(name, block.revision), callback, arguments):
+static func get_block_thumbnail_async(id: int, callback: FuncRef, arguments := []) -> bool:
+	var block: OwnWar_Block = OwnWar_Block.get_block(id)
+	if _try_get_thumbnail(_get_block_path(id, block.revision), callback, arguments):
 		return true
 	else:
-		OwnWar_Thumbnail._create_block_thumbnail(name, callback, arguments)
+		OwnWar_Thumbnail._create_block_thumbnail(id, callback, arguments)
 		return false
 
 
@@ -32,10 +32,11 @@ static func move_vehicle_thumbnail(from: String, to: String) -> void:
 	var _e := Directory.new().rename(from, to)
 
 
-static func _get_block_path(name: String, revision: int) -> String:
+static func _get_block_path(id: int, revision: int) -> String:
+	var blk = OwnWar_Block.get_block(id)
 	return _THUMBNAIL_DIRECTORY \
 		.plus_file(_BLOCK_DIRECTORY) \
-		.plus_file(name + ".png")
+		.plus_file("%d-%d.png" % [id, blk.revision])
 
 
 static func _get_vehicle_path(path: String) -> String:
@@ -62,16 +63,16 @@ static func _try_get_thumbnail(path: String, callback: FuncRef, arguments: Array
 		return false
 
 
-func _create_block_thumbnail(name: String, callback: FuncRef, arguments: Array) -> void:
+func _create_block_thumbnail(id: int, callback: FuncRef, arguments: Array) -> void:
 	while get_child_count() > 16:
 		# Cap to 16 to prevent lag when loading a large amount of thumbnails
 		yield(get_tree(), "idle_frame")
 	var tn: Viewport = preload("thumbnail.tscn").instance()
 	add_child(tn)
 	var mi: MeshInstance = tn.get_child(0)
-	var block: OwnWar_Block = OwnWar_Block.get_block(name)
-	print("Generating block thumbnail for ", block.name)
-	var path := _get_block_path(block.name, block.revision)
+	var block: OwnWar_Block = OwnWar_Block.get_block(id)
+	print("Generating block thumbnail for ", id)
+	var path := _get_block_path(id, block.revision)
 	mi.scale = Vector3.ONE / max(block.aabb.size.x, max(block.aabb.size.y, block.aabb.size.z))
 	mi.mesh = block.mesh
 	if block.editor_node != null:

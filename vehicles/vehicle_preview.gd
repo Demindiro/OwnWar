@@ -68,7 +68,7 @@ func load_from_data(data: PoolByteArray) -> int:
 			clr.r8 = spb.get_u8()
 			clr.g8 = spb.get_u8()
 			clr.b8 = spb.get_u8()
-			var blk: OwnWar_Block = OwnWar_Block.get_block_by_id(id)
+			var blk: OwnWar_Block = OwnWar_Block.get_block(id)
 			voxel_mesh.add_block(blk, clr, [x, y, z], rot)
 			if blk.editor_node != null:
 				var node := blk.editor_node.duplicate()

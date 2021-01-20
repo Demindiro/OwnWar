@@ -82,5 +82,6 @@ func _block_set_thumbnail(img: Image, button: Control) -> void:
 func _get_categories():
 	for block in OwnWar_Block.get_all_blocks():
 		if not block.category in categories:
-			categories[block.category] = []
-		categories[block.category].append(block.name)
+			categories[block.category] = PoolIntArray([block.id])
+		else:
+			categories[block.category].push_back(block.id)

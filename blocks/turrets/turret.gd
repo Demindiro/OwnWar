@@ -3,8 +3,8 @@ extends "../weapons/weapon.gd"
 
 var max_turn_speed := PI / 2
 #var _desired_direction := Vector3(0, 0, 1)
-var _body_a: OwnWar.VoxelBody
-var _body_b: OwnWar.VoxelBody
+var _body_a: OwnWar_VoxelBody
+var _body_b: OwnWar_VoxelBody
 var _coord_a: Vector3
 var _coord_b: Vector3
 var _aim_pos := Vector3()
@@ -12,7 +12,7 @@ var _body_b_mount := Spatial.new()
 onready var _joint: Generic6DOFJoint = get_node("Joint")
 
 
-func init(coordinate: Vector3, voxel_body: OwnWar.VoxelBody, vehicle: OwnWar_Vehicle) -> void:
+func init(coordinate: Vector3, voxel_body: OwnWar_VoxelBody, vehicle: OwnWar_Vehicle) -> void:
 	_joint = get_node("Joint")
 	var connecting_coordinate := coordinate + transform.basis.y.round()
 	for body in vehicle.voxel_bodies:

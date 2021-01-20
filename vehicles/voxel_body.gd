@@ -1,4 +1,5 @@
 extends VehicleBody
+class_name OwnWar_VoxelBody
 
 
 const VoxelMesh := preload("voxel_mesh.gd")
@@ -60,7 +61,7 @@ var _block_has_mainframe := false
 onready var server_mode := get_tree().multiplayer.is_network_server()
 onready var headless := OS.has_feature("Server")
 
-onready var _mainframe_id: int = OwnWar_Block.get_block("mainframe").id
+onready var _mainframe_id := OwnWar.MAINFRAME_ID
 
 
 func _init():
@@ -221,7 +222,7 @@ puppet func apply_damage_local(origin: Vector3, direction: Vector3, damage: int)
 						node.queue_free()
 						_block_client_nodes[alt_index] = null
 					_voxel_mesh.remove_block(_raycast.voxel)
-					cost -= OwnWar_Block.get_block_by_id(_block_ids[index]).cost
+					cost -= OwnWar_Block.get_block(_block_ids[index]).cost
 					destroyed_blocks.push_back(index)
 					if _block_ids[index] == _mainframe_id:
 						assert(_block_has_mainframe)
@@ -241,7 +242,7 @@ puppet func apply_damage_local(origin: Vector3, direction: Vector3, damage: int)
 						remove_all_anchors(index, _raycast.x, _raycast.y, _raycast.z)
 						block_anchor_destroyed = true
 					_voxel_mesh.remove_block(_raycast.voxel)
-					cost -= OwnWar_Block.get_block_by_id(_block_ids[index]).cost
+					cost -= OwnWar_Block.get_block(_block_ids[index]).cost
 					destroyed_blocks.push_back(index)
 					# Don't do the check in release builds as a small optimization, but keep an
 					# assert just in case things change (e.g. mainframe has no server_node anymore).
@@ -361,7 +362,7 @@ func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color, s
 			max_cost += _block_health[index]
 	block_count += 1
 	assert(_verify_block_count())
-	if block.name == "mainframe":
+	if block.id == OwnWar.MAINFRAME_ID:
 		assert(not _block_has_mainframe, "Body already has a mainframe!")
 		_block_has_mainframe = true
 
@@ -457,7 +458,7 @@ func remove_anchor(coordinate: Vector3, body: VehicleBody) -> void:
 		connect_count += 1
 	if connect_count == 0:
 		_voxel_mesh.remove_block([x, y, z])
-		cost -= OwnWar_Block.get_block_by_id(_block_ids[index]).cost
+		cost -= OwnWar_Block.get_block(_block_ids[index]).cost
 		var val := _block_health[index]
 		if val != 0:
 			_block_health[index] = 0
@@ -529,9 +530,10 @@ func _correct_mass() -> void:
 		for y in sy:
 			for z in sz:
 				var id := _block_ids[x * sy * sz + y * sz + z]
-				var block_mass: float = OwnWar_Block.get_block_by_id(id).mass
-				center_of_mass += Vector3(x, y, z) * block_mass
-				total_mass += block_mass
+				if id > 0:
+					var block_mass: float = OwnWar_Block.get_block(id).mass
+					center_of_mass += Vector3(x, y, z) * block_mass
+					total_mass += block_mass
 	assert(total_mass > 0)
 	center_of_mass /= total_mass
 	center_of_mass += Vector3.ONE * 0.5
@@ -741,7 +743,7 @@ func _destroy_connected_blocks(index: int, x: int, y: int, z: int) -> void:
 		node.translation = to_global(pos)
 		get_tree().current_scene.add_child(node)
 	_voxel_mesh.remove_block([x, y, z])
-	cost -= OwnWar_Block.get_block_by_id(_block_ids[index]).cost
+	cost -= OwnWar_Block.get_block(_block_ids[index]).cost
 	var val := _block_health[index]
 	if val != 0:
 		_block_health[index] = 0
