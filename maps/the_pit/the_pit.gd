@@ -2,9 +2,6 @@ extends Node
 
 
 export var spawn_points := NodePath("Spawn Points")
-export var port := 39983
-export var password := ""
-export var max_players := 10
 
 var headless := OS.has_feature("Server")
 onready var server_mode := get_tree().network_peer == null
@@ -22,7 +19,7 @@ func _ready() -> void:
 		print("Server mode")
 		var network := NetworkedMultiplayerENet.new()
 		network.compression_mode = OwnWar.NET_COMPRESSION
-		var e := network.create_server(port, max_players)
+		var e := network.create_server(OwnWar_Lobby.server_port, OwnWar_Lobby.server_max_players)
 		assert(e == OK)
 		get_tree().network_peer = network
 		e = get_tree().connect("network_peer_connected", self, "new_client")

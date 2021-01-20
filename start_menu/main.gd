@@ -6,17 +6,12 @@ signal vehicle_rename_failed()
 signal vehicle_renamed(from, to)
 
 
-func _enter_tree() -> void:
-	OwnWar_Lobby.player_vehicle_path = ""
-	OwnWar_Lobby.player_vehicle_valid = false
-
-
 func goto_editor(vehicle_path := "") -> void:
 	if vehicle_path == "":
 		vehicle_path = OwnWar_Lobby.player_vehicle_path
 	if vehicle_path == "":
-		assert(false, "No vehicle selected")
-	if vehicle_path != "":
+		print("No vehicle selected, refusing to go to editor")
+	else:
 		var scene = load("res://editor/editor.tscn").instance()
 		scene.vehicle_path = vehicle_path
 		queue_free()

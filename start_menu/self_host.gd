@@ -40,6 +40,12 @@ func _ready() -> void:
 		btn.toggle_mode = true
 		btn.set_meta("map_path", map)
 		map_selection.add_child(btn)
+	list_lobby.pressed = not OwnWar_Lobby.disable_lobby
+	use_upnp.pressed = not OwnWar_Lobby.disable_upnp
+	port.value = OwnWar_Lobby.server_port
+	name_s.text = OwnWar_Lobby.server_name
+	description.text = OwnWar_Lobby.server_description
+	max_players.value = OwnWar_Lobby.server_max_players
 
 
 func launch() -> void:
@@ -61,4 +67,5 @@ func launch() -> void:
 	OwnWar_Lobby.server_name = name_s.text
 	OwnWar_Lobby.server_description = description.text
 	OwnWar_Lobby.server_max_players = int(max_players.value)
+	OwnWar_Settings.save_settings()
 	Global.goto_scene(map)

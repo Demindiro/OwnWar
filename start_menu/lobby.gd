@@ -66,6 +66,7 @@ func launch() -> void:
 	OwnWar_Lobby.punch_hole(selected_entry)
 	get_tree().network_peer = network
 	get_tree().multiplayer_poll = false
+	print("Attempting to connect to %s:%d" % [selected_entry.get_ip(), selected_entry.port])
 	status.set_status(Status.STATUS_NONE, "Connecting...", connecting_icon, true)
 
 

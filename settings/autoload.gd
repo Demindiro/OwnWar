@@ -10,6 +10,7 @@ var master_volume := 0.0
 var music_volume := 0.0
 var effects_volume := 0.0
 var ui_volume := 0.0
+var username := ""
 
 
 func _enter_tree() -> void:
@@ -98,6 +99,17 @@ func save_settings() -> void:
 	cf.set_value("graphics", "window_borderless", OS.window_borderless)
 	cf.set_value("graphics", "fps", Engine.target_fps)
 
+	cf.set_value("server", "username", OwnWar_Lobby.player_name)
+	cf.set_value("server", "upnp", not OwnWar_Lobby.disable_upnp)
+	cf.set_value("server", "lobby", not OwnWar_Lobby.disable_lobby)
+	cf.set_value("server", "upnp_ttl", OwnWar_Lobby.upnp_ttl)
+	cf.set_value("server", "name", OwnWar_Lobby.server_name)
+	cf.set_value("server", "port", OwnWar_Lobby.server_port)
+	cf.set_value("server", "max_players", OwnWar_Lobby.server_max_players)
+	cf.set_value("server", "description", OwnWar_Lobby.server_description)
+
+	cf.set_value("menu", "selected_vehicle", OwnWar_Lobby.player_vehicle_path)
+
 	var e := cf.save(OwnWar.SETTINGS_FILE)
 	if e != OK:
 		print("Failed to save custom settings: %s" % Global.ERROR_TO_STRING[e])
@@ -157,6 +169,17 @@ func load_settings() -> void:
 			OS.window_fullscreen = cf.get_value("graphics", "window_fullscreen", true)
 			OS.window_borderless = cf.get_value("graphics", "window_borderless", false)
 			Engine.target_fps = cf.get_value("graphics", "fps", 0)
+
+			OwnWar_Lobby.player_name = cf.get_value("server", "username", "")
+			OwnWar_Lobby.disable_upnp = not cf.get_value("server", "upnp", true)
+			OwnWar_Lobby.disable_lobby = not cf.get_value("server", "lobby", true)
+			OwnWar_Lobby.upnp_ttl = cf.get_value("server", "upnp_ttl", 2)
+			OwnWar_Lobby.server_name = cf.get_value("server", "name", "")
+			OwnWar_Lobby.server_port = cf.get_value("server", "port", 39983)
+			OwnWar_Lobby.server_max_players = cf.get_value("server", "max_players", 10)
+			OwnWar_Lobby.server_description = cf.get_value("server", "description", "")
+
+			OwnWar_Lobby.player_vehicle_path = cf.get_value("menu", "selected_vehicle", "")
 
 			var root := get_tree().root
 			root.msaa = ProjectSettings.get_setting("rendering/quality/filters/msaa")

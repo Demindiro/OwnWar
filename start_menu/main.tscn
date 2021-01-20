@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=2]
+[gd_scene load_steps=38 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://start_menu/vehicle_list.gd" type="Script" id=2]
@@ -8,6 +8,7 @@
 [ext_resource path="res://start_menu/floor_mirror.gd" type="Script" id=6]
 [ext_resource path="res://start_menu/new_vehicle.gd" type="Script" id=7]
 [ext_resource path="res://start_menu/main.gd" type="Script" id=8]
+[ext_resource path="res://start_menu/server_settings.gd" type="Script" id=9]
 [ext_resource path="res://ui/blur_material.tres" type="Material" id=10]
 [ext_resource path="res://icon.png" type="Texture" id=11]
 [ext_resource path="res://ui/cancel_button.tscn" type="PackedScene" id=12]
@@ -442,6 +443,7 @@ __meta__ = {
 [node name="Box" type="VBoxContainer" parent="Server menu/Box"]
 margin_right = 300.0
 margin_bottom = 864.0
+alignment = 1
 
 [node name="Manual connect" type="VBoxContainer" parent="Server menu/Box/Box"]
 margin_right = 300.0
@@ -498,12 +500,34 @@ margin_right = 300.0
 margin_bottom = 217.0
 text = "Connect"
 
-[node name="Status" type="VBoxContainer" parent="Server menu/Box/Box"]
-process_priority = 1
+[node name="Settings" type="VBoxContainer" parent="Server menu/Box/Box"]
 margin_top = 227.0
 margin_right = 300.0
-margin_bottom = 864.0
+margin_bottom = 707.0
 size_flags_vertical = 3
+alignment = 1
+script = ExtResource( 9 )
+username_path = NodePath("Username")
+
+[node name="Title" type="Label" parent="Server menu/Box/Box/Settings"]
+margin_top = 207.0
+margin_right = 300.0
+margin_bottom = 233.0
+custom_fonts/font = ExtResource( 13 )
+text = "Settings"
+align = 1
+
+[node name="Username" type="LineEdit" parent="Server menu/Box/Box/Settings"]
+margin_top = 243.0
+margin_right = 300.0
+margin_bottom = 272.0
+placeholder_text = "Username"
+
+[node name="Status" type="VBoxContainer" parent="Server menu/Box/Box"]
+process_priority = 1
+margin_top = 717.0
+margin_right = 300.0
+margin_bottom = 864.0
 custom_constants/separation = 30
 alignment = 2
 script = ExtResource( 21 )
@@ -511,15 +535,14 @@ _error = NodePath("../../../../Server menu/Box/Box/Status/Error")
 _icon = NodePath("../../../../Server menu/Box/Box/Status/Icon")
 
 [node name="Error" type="Label" parent="Server menu/Box/Box/Status"]
-margin_top = 490.0
 margin_right = 300.0
-margin_bottom = 511.0
+margin_bottom = 21.0
 autowrap = true
 
 [node name="Icon" type="TextureRect" parent="Server menu/Box/Box/Status"]
-margin_top = 541.0
+margin_top = 51.0
 margin_right = 300.0
-margin_bottom = 637.0
+margin_bottom = 147.0
 rect_min_size = Vector2( 0, 96 )
 rect_pivot_offset = Vector2( 150, 48 )
 texture = ExtResource( 29 )

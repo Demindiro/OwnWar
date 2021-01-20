@@ -29,10 +29,11 @@ func generate_vehicle_list() -> void:
 		btn.group = _button_group
 		_box.add_child(btn)
 		prev_btn = btn
+		if path == OwnWar_Lobby.player_vehicle_path:
+			btn.pressed = true
+			btn.grab_focus()
 	if prev_btn != null:
 		var first_btn: Card = _box.get_child(0)
-		first_btn.pressed = true
-		first_btn.emit_signal("pressed")
 		var first_path := first_btn.get_path()
 		var last_path := prev_btn.get_path()
 		prev_btn.focus_neighbour_right = first_path

@@ -38,19 +38,19 @@ var got_server_info := true
 
 var disable_lobby := false
 var disable_upnp := false
-var upnp_ttl := 3 # TODO change back to 2 (3 because I have double NAT :( )
+var upnp_ttl := 2
 
-var server_name := "NO NAME"
+var server_name := ""
 var server_port := 39983
 var server_max_players := 32
-var server_description := "NO DESCRIPTION"
+var server_description := ""
 var server_scene: Node
 var server_ping_timer := Timer.new()
 
 var client_connected := false
 var player_vehicle_path := ""
 var player_vehicle_valid := false
-var player_name := "N/A"
+var player_name := "" setget set_player_name
 
 var _retry_timer: SceneTreeTimer = null
 
@@ -297,3 +297,7 @@ func punch_hole(entry: Entry) -> void:
 		yield(get_tree().create_timer(1.0), "timeout")
 		if client_connected:
 			break
+
+
+func set_player_name(value: String) -> void:
+	player_name = value
