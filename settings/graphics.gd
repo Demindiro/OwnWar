@@ -5,11 +5,21 @@ export var _msaa := NodePath()
 export var _shadows := NodePath()
 export var _shadow_filter_mode := NodePath()
 export var _floor_mirror := NodePath()
+export var _vsync := NodePath()
+export var _vsync_compositor := NodePath()
+export var _fps := NodePath()
+export var _borderless_window := NodePath()
+export var _fullscreen_window := NodePath()
 
 onready var msaa: OptionButton = get_node(_msaa)
 onready var shadows: BaseButton = get_node(_shadows)
 onready var shadow_filter_mode: OptionButton = get_node(_shadow_filter_mode)
 onready var floor_mirror: BaseButton = get_node(_floor_mirror)
+onready var vsync: BaseButton = get_node(_vsync)
+onready var vsync_compositor: BaseButton = get_node(_vsync_compositor)
+onready var fps: Range = get_node(_fps)
+onready var borderless_window: BaseButton = get_node(_borderless_window)
+onready var fullscreen_window: BaseButton = get_node(_fullscreen_window)
 
 
 func _ready():
@@ -33,7 +43,34 @@ func _ready():
 	assert(e == OK)
 	e = floor_mirror.connect("toggled", self, "_save")
 	assert(e == OK)
+
+	e = vsync.connect("toggled", OS, "set_use_vsync")
+	assert(e == OK)
+	e = vsync.connect("toggled", self, "_save")
+	assert(e == OK)
+	e = vsync_compositor.connect("toggled", OS, "set_vsync_via_compositor")
+	assert(e == OK)
+	e = vsync_compositor.connect("toggled", self, "_save")
+	assert(e == OK)
+	e = borderless_window.connect("toggled", OS, "set_window_borderless")
+	assert(e == OK)
+	e = borderless_window.connect("toggled", self, "_save")
+	assert(e == OK)
+	e = fullscreen_window.connect("toggled", OS, "set_window_fullscreen")
+	assert(e == OK)
+	e = fullscreen_window.connect("toggled", self, "_save")
+	assert(e == OK)
+	e = fps.connect("value_changed", Engine, "set_target_fps")
+	assert(e == OK)
+	e = fps.connect("value_changed", self, "_save")
+	assert(e == OK)
+
 	shadow_filter_mode.get_parent().visible = OwnWar_Settings.enable_shadows
+	vsync.pressed = OS.vsync_enabled
+	vsync_compositor.pressed = OS.vsync_via_compositor
+	borderless_window.pressed = OS.window_borderless
+	fullscreen_window.pressed = OS.window_fullscreen
+	fps.value = Engine.target_fps
 
 
 func _save(_argsplzsadface = null) -> void:

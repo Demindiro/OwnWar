@@ -20,6 +20,7 @@ __meta__ = {
 }
 
 [node name="Sound" type="ScrollContainer" parent="."]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0
@@ -63,7 +64,6 @@ margin_top = 111.0
 margin_bottom = 132.0
 
 [node name="Graphics" type="ScrollContainer" parent="."]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0
@@ -75,6 +75,11 @@ _msaa = NodePath("Box/Box/Box/MSAA/Value")
 _shadows = NodePath("Box/Box/Box/Shadows/CheckButton")
 _shadow_filter_mode = NodePath("Box/Box/Box/Shadow filter mode/Value")
 _floor_mirror = NodePath("Box/Box/Box/Enable floor mirror/Enable floor mirror")
+_vsync = NodePath("Box/Box/Box/VSync/VSync")
+_vsync_compositor = NodePath("Box/Box/Box/Vsync via compositor/Vsync via compositor")
+_fps = NodePath("Box/Box/Box/FPS/FPS")
+_borderless_window = NodePath("Box/Box/Box/Borderless window/Borderless window")
+_fullscreen_window = NodePath("Box/Box/Box/Fullscreen window/Fullscreen window")
 
 [node name="Box" type="MarginContainer" parent="Graphics"]
 margin_right = 1720.0
@@ -90,13 +95,13 @@ custom_constants/margin_bottom = 50
 margin_left = 200.0
 margin_top = 50.0
 margin_right = 1520.0
-margin_bottom = 220.0
+margin_bottom = 457.0
 size_flags_vertical = 0
 
 [node name="Box" type="VBoxContainer" parent="Graphics/Box/Box"]
 margin_left = 460.0
 margin_right = 860.0
-margin_bottom = 170.0
+margin_bottom = 407.0
 rect_min_size = Vector2( 400, 0 )
 custom_constants/separation = 16
 
@@ -176,12 +181,98 @@ margin_top = 5.0
 margin_right = 332.0
 margin_bottom = 26.0
 size_flags_horizontal = 3
-text = "Enable floor mirror"
+text = "Floor mirror"
 
 [node name="Enable floor mirror" type="CheckButton" parent="Graphics/Box/Box/Box/Enable floor mirror"]
 margin_left = 336.0
 margin_right = 400.0
 margin_bottom = 32.0
+
+[node name="Fullscreen window" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_top = 186.0
+margin_right = 400.0
+margin_bottom = 218.0
+
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/Fullscreen window"]
+margin_top = 5.0
+margin_right = 332.0
+margin_bottom = 26.0
+size_flags_horizontal = 3
+text = "Fullscreen window"
+
+[node name="Fullscreen window" type="CheckButton" parent="Graphics/Box/Box/Box/Fullscreen window"]
+margin_left = 336.0
+margin_right = 400.0
+margin_bottom = 32.0
+
+[node name="Borderless window" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_top = 234.0
+margin_right = 400.0
+margin_bottom = 266.0
+
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/Borderless window"]
+margin_top = 5.0
+margin_right = 332.0
+margin_bottom = 26.0
+size_flags_horizontal = 3
+text = "Borderless window"
+
+[node name="Borderless window" type="CheckButton" parent="Graphics/Box/Box/Box/Borderless window"]
+margin_left = 336.0
+margin_right = 400.0
+margin_bottom = 32.0
+
+[node name="VSync" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_top = 282.0
+margin_right = 400.0
+margin_bottom = 314.0
+
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/VSync"]
+margin_top = 5.0
+margin_right = 332.0
+margin_bottom = 26.0
+size_flags_horizontal = 3
+text = "VSync"
+
+[node name="VSync" type="CheckButton" parent="Graphics/Box/Box/Box/VSync"]
+margin_left = 336.0
+margin_right = 400.0
+margin_bottom = 32.0
+
+[node name="Vsync via compositor" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_top = 330.0
+margin_right = 400.0
+margin_bottom = 362.0
+
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/Vsync via compositor"]
+margin_top = 5.0
+margin_right = 332.0
+margin_bottom = 26.0
+size_flags_horizontal = 3
+text = "VSync via compositor"
+
+[node name="Vsync via compositor" type="CheckButton" parent="Graphics/Box/Box/Box/Vsync via compositor"]
+margin_left = 336.0
+margin_right = 400.0
+margin_bottom = 32.0
+
+[node name="FPS" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_top = 378.0
+margin_right = 400.0
+margin_bottom = 407.0
+
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/FPS"]
+margin_top = 4.0
+margin_right = 312.0
+margin_bottom = 25.0
+size_flags_horizontal = 3
+text = "FPS"
+
+[node name="FPS" type="SpinBox" parent="Graphics/Box/Box/Box/FPS"]
+margin_left = 316.0
+margin_right = 400.0
+margin_bottom = 29.0
+max_value = 9001.0
 
 [node name="Keybinds" type="ScrollContainer" parent="."]
 visible = false

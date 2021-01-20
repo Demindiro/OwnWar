@@ -92,6 +92,11 @@ func save_settings() -> void:
 	cf.set_value("graphics", "shadows_filter_mode",
 		ProjectSettings.get_setting("rendering/quality/shadows/filter_mode"))
 	cf.set_value("graphics", "floor_mirror", enable_floor_mirror)
+	cf.set_value("graphics", "vsync", OS.vsync_enabled)
+	cf.set_value("graphics", "vsync_compositor", OS.vsync_via_compositor)
+	cf.set_value("graphics", "window_fullscreen", OS.window_fullscreen)
+	cf.set_value("graphics", "window_borderless", OS.window_borderless)
+	cf.set_value("graphics", "fps", Engine.target_fps)
 
 	var e := cf.save(OwnWar.SETTINGS_FILE)
 	if e != OK:
@@ -147,6 +152,11 @@ func load_settings() -> void:
 			ProjectSettings.set_setting("rendering/quality/shadows/filter_mode",
 				cf.get_value("graphics", "shadows_filter_mode"))
 			enable_floor_mirror = cf.get_value("graphics", "floor_mirror")
+			OS.set_use_vsync(cf.get_value("graphics", "vsync", true))
+			OS.vsync_via_compositor = cf.get_value("graphics", "vsync_compositor", false)
+			OS.window_fullscreen = cf.get_value("graphics", "window_fullscreen", true)
+			OS.window_borderless = cf.get_value("graphics", "window_borderless", false)
+			Engine.target_fps = cf.get_value("graphics", "fps", 0)
 
 			var root := get_tree().root
 			root.msaa = ProjectSettings.get_setting("rendering/quality/filters/msaa")
@@ -154,6 +164,7 @@ func load_settings() -> void:
 			print("Loaded settings")
 		ERR_FILE_NOT_FOUND:
 			print("No custom configuration file found")
+			OS.window_fullscreen = Engine.is_debug()
 		_:
 			print("Failed to load custom settings: %s" % Global.ERROR_TO_STRING[e])
 			assert(false, "Failed to load custom settings")
