@@ -49,34 +49,18 @@ margin_bottom = 885.0
 custom_constants/separation = 16
 
 [node name="Master" parent="Sound/Box/Box" instance=ExtResource( 3 )]
-min_value = -50.0
-max_value = 10.0
-step = 0.1
-exp_edit = true
 
 [node name="Music" parent="Sound/Box/Box" instance=ExtResource( 3 )]
 margin_top = 37.0
 margin_bottom = 58.0
-min_value = -50.0
-max_value = 10.0
-step = 0.1
-exp_edit = true
 
 [node name="Effects" parent="Sound/Box/Box" instance=ExtResource( 3 )]
 margin_top = 74.0
 margin_bottom = 95.0
-min_value = -50.0
-max_value = 10.0
-step = 0.1
-exp_edit = true
 
 [node name="UI" parent="Sound/Box/Box" instance=ExtResource( 3 )]
 margin_top = 111.0
 margin_bottom = 132.0
-min_value = -50.0
-max_value = 10.0
-step = 0.1
-exp_edit = true
 
 [node name="Graphics" type="ScrollContainer" parent="."]
 visible = false

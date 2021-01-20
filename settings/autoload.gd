@@ -79,7 +79,12 @@ func save_settings() -> void:
 			print("Audio bus not found: %s" % bus)
 			assert(false, "Audio bus not found")
 			continue
-		var vol := AudioServer.get_bus_volume_db(index)
+		var vol: float
+		if AudioServer.is_bus_mute(index):
+			vol = 0.0
+		else:
+			var db := AudioServer.get_bus_volume_db(index)
+			vol = db2linear(db)
 		cf.set_value("audio_buses", bus, vol)
 
 	cf.set_value("graphics", "msaa", ProjectSettings.get_setting("rendering/quality/filters/msaa"))
@@ -132,8 +137,9 @@ func load_settings() -> void:
 					assert(false, "Audio bus not found")
 					continue
 				var vol: float = cf.get_value("audio_buses", bus)
-				AudioServer.set_bus_mute(index, vol < -49.99)
-				AudioServer.set_bus_volume_db(index, vol)
+				AudioServer.set_bus_mute(index, vol == 0)
+				if vol > 0:
+					AudioServer.set_bus_volume_db(index, linear2db(vol))
 
 			ProjectSettings.set_setting("rendering/quality/filters/msaa",
 				cf.get_value("graphics", "msaa"))
