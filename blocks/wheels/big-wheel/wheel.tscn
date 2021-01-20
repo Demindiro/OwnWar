@@ -1,12 +1,13 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://blocks/wheels/big-wheel/wheel_mesh.tres" type="CylinderMesh" id=1]
 [ext_resource path="res://addons/wheels/big_tire.tres" type="ArrayMesh" id=2]
 [ext_resource path="res://blocks/wheels/wheel.gd" type="Script" id=3]
 [ext_resource path="res://blocks/block_instance.gd" type="Script" id=4]
-[ext_resource path="res://blocks/set_color.gd" type="Script" id=5]
+[ext_resource path="res://blocks/wheels/wheel_client.gd" type="Script" id=5]
 [ext_resource path="res://blocks/wheels/wheel_editor.gd" type="Script" id=6]
 [ext_resource path="res://addons/hud/obituary_arrow.tres" type="Texture" id=7]
+[ext_resource path="res://addons/wheels/203602__mrauralization__dc-gear-motor.wav" type="AudioStream" id=8]
 
 [sub_resource type="CylinderMesh" id=1]
 top_radius = 0.65
@@ -31,11 +32,9 @@ max_rpm = 450.0
 
 [node name="Client" type="Spatial" parent="."]
 script = ExtResource( 5 )
-color_node_0 = NodePath("Rim")
-color_node_1 = null
-transparency_node_0 = NodePath("Rim")
-transparency_node_1 = NodePath("Tire")
-transparency_node_2 = null
+dc_motor_audio_path = NodePath("DC motor")
+rim_path = NodePath("Rim")
+pitch_scale = 0.625
 
 [node name="Rim" type="MeshInstance" parent="Client"]
 transform = Transform( -1.09278e-08, -0.125, 0, 0.25, -5.46392e-09, 0, 0, 0, 0.25, 0, 0, 0 )
@@ -46,6 +45,13 @@ material/0 = null
 transform = Transform( 1.5299e-08, -0.35, -5.28485e-08, -0.35, -1.5299e-08, -8.29412e-17, -2.22714e-15, 5.28485e-08, -0.35, 0, 0, 0 )
 mesh = ExtResource( 2 )
 material/0 = null
+
+[node name="DC motor" type="AudioStreamPlayer3D" parent="Client"]
+stream = ExtResource( 8 )
+unit_db = -30.0
+max_db = -10.0
+bus = "Effects"
+doppler_tracking = 1
 
 [node name="Editor" type="Spatial" parent="."]
 script = ExtResource( 6 )

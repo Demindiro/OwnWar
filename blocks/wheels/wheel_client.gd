@@ -1,0 +1,31 @@
+extends Spatial
+
+
+export var dc_motor_audio_path := NodePath()
+export var rim_path := NodePath()
+export(float, 0.0, 2.0) var pitch_scale := 1.0
+
+var server_node: VehicleWheel
+var color: Color
+
+onready var dc_motor_audio: AudioStreamPlayer3D = get_node(dc_motor_audio_path)
+onready var rim: MeshInstance = get_node(rim_path)
+
+
+func _ready() -> void:
+	rim.material_override = MaterialCache.get_material(color)
+
+
+func _process(_delta: float) -> void:
+	var pitch := abs(server_node.get_rpm() / server_node.max_rpm)
+	pitch *= pitch_scale
+	if pitch >= 0.00001:
+		if not dc_motor_audio.is_playing():
+			dc_motor_audio.play()
+		dc_motor_audio.pitch_scale = pitch
+	else:
+		dc_motor_audio.stop()
+
+
+func set_color(p_color: Color) -> void:
+	color = p_color
