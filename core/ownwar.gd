@@ -13,7 +13,7 @@ const COLLISION_MASK_UNIT := 1 << (19 - 1)
 const COLLISION_MASK_STRUCTURE := 1 << (20 - 1)
 const MAIN_MENU := "res://start_menu/main.tscn"
 const VEHICLE_DIRECTORY := "user://vehicles"
-const VEHICLE_EXTENSION := "owv.gz"
+const VEHICLE_EXTENSION := "owv"
 const NET_COMPRESSION := NetworkedMultiplayerENet.COMPRESS_RANGE_CODER
 const SETTINGS_FILE := "user://settings.cfg"
 

@@ -20,7 +20,7 @@ func _ready() -> void:
 func generate_vehicle_list() -> void:
 	Util.free_children(_box)
 	var prev_btn: Card = null
-	for path in Util.iterate_dir("user://vehicles", "gz"):
+	for path in Util.iterate_dir("user://vehicles", OwnWar.VEHICLE_EXTENSION):
 		path = "user://vehicles".plus_file(path)
 		var btn: Card = card_template.instance()
 		OwnWar_Thumbnail.call_deferred("get_vehicle_thumbnail_async", path, funcref(self, "_set_thumbnail"), [btn, path])
