@@ -14,7 +14,7 @@ func _ready() -> void:
 		if AudioServer.is_bus_mute(i):
 			child.value = 0
 		else:
-			child.value = db2linear(AudioServer.get_bus_volume_db(i)) * 10
+			child.value = round(db2linear(AudioServer.get_bus_volume_db(i)) * 100)
 	post_ready = true
 
 
@@ -22,12 +22,11 @@ func _ready() -> void:
 func set_bus_volume(value: float, bus_name: String) -> void:
 	if not post_ready:
 		return
-	value /= 10
 	var i := AudioServer.get_bus_index(bus_name)
 	assert(i >= 0, "Bus not found")
 	AudioServer.set_bus_mute(i, value == 0)
 	if value > 0:
-		AudioServer.set_bus_volume_db(i, linear2db(value))
+		AudioServer.set_bus_volume_db(i, linear2db(value / 100))
 	if save_timer == null:
 		save_timer = get_tree().create_timer(1.0)
 		var e := save_timer.connect("timeout", OwnWar_Settings, "save_settings")
