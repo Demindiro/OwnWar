@@ -1,10 +1,15 @@
 static func load_blocks() -> void:
-	var id_counter := 1
 	var file := File.new()
 	var err := file.open("res://blocks/chassis/shapes.json", File.READ)
 	if err != OK:
 		print("Couldn't read shapes file: %d" % err)
 		return
+	var id_map_file := File.new()
+	err = id_map_file.open("res://blocks/chassis/shapes_ids.json", File.READ)
+	if err != OK:
+		print("Couldn't read shapes IDs map: %d" % err)
+		return
+	var name2id: Dictionary = parse_json(id_map_file.get_as_text())
 	var data = parse_json(file.get_as_text())
 	for generator_name in data:
 		var blocks = data[generator_name]
@@ -26,8 +31,7 @@ static func load_blocks() -> void:
 			generator.set_indices(indices)
 
 			var block = OwnWar_Block.new()
-			block.id = id_counter
-			id_counter += 1
+			block.id = name2id[block_name]
 			block.human_name = block_name
 			block.category = "Structural"
 			block.mesh = generator.get_mesh(generator.get_result(), transform)
@@ -35,8 +39,7 @@ static func load_blocks() -> void:
 			if mirror < 0:
 				var mirror_block = OwnWar_Block.new()
 				var mirror_transform = Transform.FLIP_X * transform
-				mirror_block.id = id_counter
-				id_counter += 1
+				mirror_block.id = name2id[block_name + " (M)"]
 				mirror_block.human_name = block.human_name + " (M)"
 				mirror_block.category = "Structural"
 				mirror_block.mesh = generator.get_mesh(generator.get_result(), mirror_transform, true)
@@ -45,4 +48,3 @@ static func load_blocks() -> void:
 				block.mirror_block = mirror_block
 			else:
 				block.set_mirror_rotation_offset(mirror)
-	print("Final chassis ID counter value: %d" % id_counter)

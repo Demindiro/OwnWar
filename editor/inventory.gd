@@ -34,8 +34,8 @@ func show_category(var category):
 	_block_container_init(category)
 
 
-func show_block(var block_name):
-	var block = OwnWar_Block.get_block(block_name)
+func show_block(id: int):
+	var block = OwnWar_Block.get_block(id)
 	_preview_mesh.mesh = block.mesh
 	_preview_mesh.transform = Transform.IDENTITY
 	_preview_mesh.scale = \
@@ -61,12 +61,11 @@ func _category_container_init():
 
 func _block_container_init(var category):
 	Util.free_children(block_list)
-	for block_name in categories[category]:
+	for id in categories[category]:
 		var node: Control = block_item.instance()
-		OwnWar_Thumbnail.get_block_thumbnail_async(block_name,
-			funcref(self, "_block_set_thumbnail"), [node])
-		Util.assert_connect(node, "mouse_entered", self, "show_block", [block_name])
-		Util.assert_connect(node, "pressed", _designer, "select_block", [block_name])
+		OwnWar_Thumbnail.get_block_thumbnail_async(id, funcref(self, "_block_set_thumbnail"), [node])
+		Util.assert_connect(node, "mouse_entered", self, "show_block", [id])
+		Util.assert_connect(node, "pressed", _designer, "select_block", [id])
 		Util.assert_connect(node, "pressed", _designer, "set_enabled", [true])
 		block_list.add_child(node)
 
@@ -81,7 +80,6 @@ func _block_set_thumbnail(img: Image, button: Control) -> void:
 
 func _get_categories():
 	for block in OwnWar_Block.get_all_blocks():
-		if not block.category in categories:
-			categories[block.category] = PoolIntArray([block.id])
-		else:
-			categories[block.category].push_back(block.id)
+		var arr: PoolIntArray = categories.get(block.category, PoolIntArray())
+		arr.push_back(block.id)
+		categories[block.category] = arr

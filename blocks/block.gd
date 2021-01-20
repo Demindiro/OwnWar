@@ -96,7 +96,9 @@ static func add_block(block):
 
 static func get_block(p_id: int):# -> Block:
 	assert(p_id > 0 and p_id < 65536, "Block ID out of range")
-	assert(_ID_TO_BLOCK[p_id] != null, "Invalid block ID")
+	if _ID_TO_BLOCK[p_id] == null:
+		return _ID_TO_BLOCK[13] # Cube (L)
+	#assert(_ID_TO_BLOCK[p_id] != null, "Invalid block ID")
 	return _ID_TO_BLOCK[p_id]
 
 
@@ -162,9 +164,10 @@ static func axis_to_direction(axis: Vector3) -> int:
 
 func __set_mirror_block(block: Resource):
 	# warning-ignore:unsafe_property_access
+	assert(block.id > 0, "oh no - invalid mirror block id")
 	__mirror_block_id = block.id
 
 
 func __get_mirror_block():
-	if len(get_stack()) == 0 or get_stack()[1]["function"] != "__get_mirror_block":
-		return get_block(__mirror_block_id) if __mirror_block_id == 0 else self
+	if len(get_stack()) == 0 or get_stack()[2]["function"] != "__get_mirror_block":
+		return get_block(__mirror_block_id) if __mirror_block_id != 0 else self

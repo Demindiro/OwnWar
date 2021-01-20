@@ -13,13 +13,13 @@ export(Array, String) var generator_names := [
 		"inverse_square_corner",
 	]
 export(Array, GDScript) var generator_paths := [
-		preload("res://plugins/chassis_blocks/variant/complex/corner.gd"),
-		preload("res://plugins/chassis_blocks/variant/complex/square_corner.gd"),
-		preload("res://plugins/chassis_blocks/variant/complex/cube_a.gd"),
-		preload("res://plugins/chassis_blocks/variant/complex/cube_b.gd"),
-		preload("res://plugins/chassis_blocks/variant/complex/edge_a.gd"),
-		preload("res://plugins/chassis_blocks/variant/complex/inverse_corner.gd"),
-		preload("res://plugins/chassis_blocks/variant/complex/inverse_square_corner.gd"),
+		preload("res://blocks/chassis/variant/complex/corner.gd"),
+		preload("res://blocks/chassis/variant/complex/square_corner.gd"),
+		preload("res://blocks/chassis/variant/complex/cube_a.gd"),
+		preload("res://blocks/chassis/variant/complex/cube_b.gd"),
+		preload("res://blocks/chassis/variant/complex/edge_a.gd"),
+		preload("res://blocks/chassis/variant/complex/inverse_corner.gd"),
+		preload("res://blocks/chassis/variant/complex/inverse_square_corner.gd"),
 	]
 var generator
 var meshes := []
