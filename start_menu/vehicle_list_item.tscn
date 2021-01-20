@@ -44,3 +44,4 @@ margin_top = 111.0
 margin_right = 132.0
 margin_bottom = 132.0
 text = "Name"
+clip_text = true
