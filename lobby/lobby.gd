@@ -50,6 +50,7 @@ var server_ping_timer := Timer.new()
 var client_connected := false
 var player_vehicle_path := ""
 var player_vehicle_valid := false
+var player_name := "N/A"
 
 var _retry_timer: SceneTreeTimer = null
 

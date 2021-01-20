@@ -29,7 +29,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0289, 0.625 )
 [node name="Audio1" type="AudioStreamPlayer3D" parent="Client"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0283924, 0.621764 )
 stream = ExtResource( 6 )
-max_db = 3.0
 bus = "Effects"
 doppler_tracking = 1
 __meta__ = {
@@ -41,7 +40,6 @@ __meta__ = {
 [node name="Audio2" type="AudioStreamPlayer3D" parent="Client"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0283924, 0.621764 )
 stream = ExtResource( 6 )
-max_db = 3.0
 bus = "Effects"
 __meta__ = {
 "_editor_description_": ""
@@ -52,7 +50,6 @@ __meta__ = {
 [node name="Audio3" type="AudioStreamPlayer3D" parent="Client"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0283924, 0.621764 )
 stream = ExtResource( 6 )
-max_db = 3.0
 bus = "Effects"
 __meta__ = {
 "_editor_description_": ""

@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
 [ext_resource path="res://maps/the_pit/map_data/data.hterrain" type="Resource" id=2]
@@ -6,6 +6,7 @@
 [ext_resource path="res://addons/tiles/sand/savanna_cliff_a.png" type="Texture" id=4]
 [ext_resource path="res://addons/tiles/sand/savanna_dirt_rocks_a.png" type="Texture" id=5]
 [ext_resource path="res://addons/tiles/sand/savanna_dirt_a.png" type="Texture" id=6]
+[ext_resource path="res://maps/chat.tscn" type="PackedScene" id=7]
 [ext_resource path="res://maps/the_pit/the_pit.gd" type="Script" id=8]
 [ext_resource path="res://maps/hud.tscn" type="PackedScene" id=9]
 [ext_resource path="res://maps/the_pit/gui.gd" type="Script" id=10]
@@ -114,6 +115,8 @@ far = 1000.0
 
 [node name="HUD" parent="." instance=ExtResource( 9 )]
 camera = NodePath("../Camera")
+
+[node name="Chat" parent="." instance=ExtResource( 7 )]
 
 [node name="GUI" type="ColorRect" parent="."]
 visible = false
