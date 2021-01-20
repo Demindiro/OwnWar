@@ -482,6 +482,7 @@ value = 39983.0
 prefix = "Port"
 
 [node name="Password" type="LineEdit" parent="Server menu/Box/Box/Manual connect"]
+visible = false
 margin_top = 119.0
 margin_right = 300.0
 margin_bottom = 148.0
@@ -580,6 +581,7 @@ text = "Lobby"
 align = 1
 
 [node name="Filter" type="LineEdit" parent="Server menu/Box/Lobby"]
+visible = false
 margin_top = 41.0
 margin_right = 872.0
 margin_bottom = 70.0
@@ -774,6 +776,7 @@ value = 10.0
 prefix = "Max players"
 
 [node name="Password" type="LineEdit" parent="Server menu/Box/Self host"]
+visible = false
 margin_top = 766.0
 margin_right = 300.0
 margin_bottom = 795.0
