@@ -18,6 +18,7 @@ class Block:
 		color = p_color
 		layer = p_layer
 
+const ErrorWindow := preload("error_window.gd")
 
 signal block_placed(block, position)
 signal block_removed(block, position)
@@ -42,6 +43,10 @@ onready var remove_sound_player: AudioStreamPlayer = get_node(remove_sound)
 onready var fail_place_or_remove_player: AudioStreamPlayer = get_node(fail_place_or_remove_sound)
 onready var rotate_player: AudioStreamPlayer = get_node(rotate_sound)
 
+export var error_window_path := NodePath()
+var queued_error_message := ""
+onready var error_window: ErrorWindow = get_node(error_window_path)
+
 var selected_block: OwnWar_Block
 var blocks := {}
 var vehicle_name := ""
@@ -57,6 +62,8 @@ var selected_layer := 0 setget set_layer
 var edit_mode := false setget set_edit_mode
 var map_rotations := true
 onready var layer_selector: OptionButton = get_node(_layer_selector)
+
+var mainframe_count := 0
 
 onready var ray := preload("res://addons/voxel_raycast.gd").new()
 onready var _floor_origin: Spatial = $Floor/Origin
@@ -150,6 +157,7 @@ func process_actions():
 			if placed:
 				place_sound_player.play()
 			else:
+				error_window.show_error(queued_error_message)
 				fail_place_or_remove_player.play()
 	elif Input.is_action_just_pressed("editor_remove_block"):
 		if not ray.finished and not Input.is_action_pressed("editor_release_cursor"):
@@ -165,6 +173,7 @@ func process_actions():
 			if removed:
 				remove_sound_player.play()
 			else:
+				error_window.show_error(queued_error_message)
 				fail_place_or_remove_player.play()
 	elif Input.is_action_just_pressed("editor_open_colorpicker"):
 		set_enabled(false)
@@ -178,11 +187,14 @@ func process_actions():
 func place_block(block: OwnWar_Block, coordinate: Array, rotation: int,
 	color: Color, layer: int) -> bool:
 	if not edit_mode:
+		queued_error_message = "Enter edit mode to place blocks"
 		return false
 	for c in coordinate:
 		if c < 0 or c >= GRID_SIZE:
+			queued_error_message = "Location is outside grid"
 			return false
 	if coordinate in blocks:
+		queued_error_message = "A block is already placed here"
 		return false
 	var mi := MeshInstance.new()
 	var node: Spatial = null
@@ -209,6 +221,8 @@ func place_block(block: OwnWar_Block, coordinate: Array, rotation: int,
 		color,
 		layer
 	)
+	if block.id == OwnWar.MAINFRAME_ID:
+		mainframe_count += 1
 	emit_signal("block_placed", block, Vector3(coordinate[0], coordinate[1], coordinate[2]))
 	return true
 
@@ -217,12 +231,19 @@ func remove_block(coordinate: Array) -> bool:
 	if edit_mode and coordinate in blocks:
 		var blk: Block = blocks[coordinate]
 		if blk.layer != selected_layer:
+			queued_error_message = "Switch layer to remove this block"
 			return false
 		var node = blk.node
 		node.queue_free()
+		if blk.id == OwnWar.MAINFRAME_ID:
+			mainframe_count -= 1
 		emit_signal("block_removed", OwnWar_Block.get_block(blk.id), Vector3(coordinate[0], coordinate[1], coordinate[2]))
 		var _e := blocks.erase(coordinate)
 		return true
+	if not edit_mode:
+		queued_error_message = "Enter edit mode to remove blocks"
+	else:
+		queued_error_message = "No block found at this location"
 	return false
 
 
@@ -510,6 +531,9 @@ func move_vehicle(direction: Vector3) -> void:
 			b.position += direction
 		blocks = dict
 		emit_signal("vehicle_moved", direction)
+	else:
+		error_window.show_error("No place to move vehicle")
+		fail_place_or_remove_player.play()
 
 
 func rotate_vehicle() -> void:
@@ -533,6 +557,9 @@ func rotate_vehicle() -> void:
 			b.rotation = OwnWar_Block.basis_to_rotation(b.node.transform.basis)
 		blocks = dict
 		emit_signal("vehicle_rotated", center)
+	else:
+		error_window.show_error("No place to rotate vehicle (try centering it)")
+		fail_place_or_remove_player.play()
 
 
 func _get_vehicle_aabb() -> AABB:
@@ -560,10 +587,6 @@ func _on_Exit_pressed():
 	Global.goto_scene(main_menu)
 
 
-func _on_Test_pressed():
-	Global.goto_scene(test_map)
-
-
 func _on_ColorPicker_pick_color(color):
 	var mat := SpatialMaterial.new()
 	mat.albedo_color = color
@@ -571,10 +594,18 @@ func _on_ColorPicker_pick_color(color):
 
 
 func _on_Designer_pressed() -> void:
-	var scene = preload("res://maps/test/test.tscn").instance()
-	scene.vehicle_path = vehicle_path
-	queue_free()
-	var tree := get_tree()
-	tree.root.remove_child(self)
-	tree.root.add_child(scene)
-	tree.current_scene = scene
+	if mainframe_count == 1:
+		var scene = preload("res://maps/test/test.tscn").instance()
+		scene.vehicle_path = vehicle_path
+		queue_free()
+		var tree := get_tree()
+		tree.root.remove_child(self)
+		tree.root.add_child(scene)
+		tree.current_scene = scene
+	else:
+		assert(mainframe_count >= 0, "Negative mainframe count!")
+		if mainframe_count == 0:
+			error_window.show_error("Vehicle has no mainframe")
+		else:
+			error_window.show_error("Vehicle has multiple mainframes")
+		fail_place_or_remove_player.play()

@@ -1,4 +1,4 @@
-[gd_scene load_steps=54 format=2]
+[gd_scene load_steps=56 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://editor/inventory_item.tscn" type="PackedScene" id=2]
@@ -45,6 +45,7 @@
 [ext_resource path="res://editor/shortcuts/open_inventory.tres" type="ShortCut" id=43]
 [ext_resource path="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422503__nightflame__swinging-staff-whoosh-low-09.wav" type="AudioStream" id=44]
 [ext_resource path="res://editor/shortcuts/toggle_rotation_mapping.tres" type="ShortCut" id=45]
+[ext_resource path="res://editor/error_window.gd" type="Script" id=46]
 
 [sub_resource type="SpatialMaterial" id=1]
 
@@ -66,11 +67,27 @@ top_radius = 0.001
 bottom_radius = 0.5
 height = 1.0
 
-[sub_resource type="InputEventAction" id=7]
+[sub_resource type="Animation" id=7]
+resource_name = "fade_out"
+length = 5.0
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 3, 5 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 0,
+"values": [ 1.0, 1.0, 0.0 ]
+}
+
+[sub_resource type="InputEventAction" id=8]
 action = "editor_open_colorpicker"
 
-[sub_resource type="ShortCut" id=8]
-shortcut = SubResource( 7 )
+[sub_resource type="ShortCut" id=9]
+shortcut = SubResource( 8 )
 
 [node name="Designer" type="Node"]
 pause_mode = 2
@@ -81,6 +98,7 @@ place_sound = NodePath("Sounds/Place block")
 remove_sound = NodePath("Sounds/Remove block")
 fail_place_or_remove_sound = NodePath("Sounds/Fail place or remove")
 rotate_sound = NodePath("Sounds/Rotate block")
+error_window_path = NodePath("Error window")
 _layer_selector = NodePath("Toggles & modes/Box/Block layer")
 
 [node name="Camera" type="Camera" parent="."]
@@ -366,8 +384,6 @@ __meta__ = {
 }
 
 [node name="Map rotations" type="CheckButton" parent="Toggles & modes/Box"]
-anchor_top = 0.00507614
-anchor_bottom = 0.00507614
 margin_top = 165.0
 margin_right = 237.0
 margin_bottom = 197.0
@@ -375,6 +391,35 @@ focus_mode = 0
 pressed = true
 shortcut = ExtResource( 45 )
 text = "Map rotations"
+
+[node name="Error window" type="PanelContainer" parent="."]
+visible = false
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_bottom = -4.0
+grow_vertical = 0
+theme = ExtResource( 1 )
+script = ExtResource( 46 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+message_path = NodePath("Error message")
+animation_path = NodePath("Fade out")
+animation_name = "fade_out"
+timer_path = NodePath("Timer")
+
+[node name="Error message" type="Label" parent="Error window"]
+modulate = Color( 1, 0, 0, 1 )
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 4.0
+margin_bottom = 25.0
+
+[node name="Fade out" type="AnimationPlayer" parent="Error window"]
+anims/fade_out = SubResource( 7 )
+
+[node name="Timer" type="Timer" parent="Error window"]
 
 [node name="SaveTimer" type="Timer" parent="."]
 wait_time = 60.0
@@ -586,7 +631,7 @@ __meta__ = {
 [node name="Hidden cancel" type="ToolButton" parent="ColorPicker"]
 margin_right = 8.0
 margin_bottom = 29.0
-shortcut = SubResource( 8 )
+shortcut = SubResource( 9 )
 
 [node name="Hidden buttons" type="Control" parent="."]
 anchor_left = 1.0
@@ -741,13 +786,14 @@ pitch_scale = 4.0
 [connection signal="toggled" from="Toggles & modes/Box/Mirror" to="." method="set_mirror"]
 [connection signal="toggled" from="Toggles & modes/Box/Snap faces" to="." method="set_snap_faces"]
 [connection signal="toggled" from="Toggles & modes/Box/Map rotations" to="." method="set_map_rotations"]
+[connection signal="timeout" from="Error window/Timer" to="Error window" method="set_visible" binds= [ true ]]
 [connection signal="timeout" from="SaveTimer" to="." method="save_vehicle"]
 [connection signal="pressed" from="Menu/VBoxContainer/Continue" to="." method="set_enabled" binds= [ true ]]
 [connection signal="pressed" from="Menu/VBoxContainer/Test" to="." method="_on_Designer_pressed"]
 [connection signal="pressed" from="Menu/VBoxContainer/Settings" to="Settings" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="Menu/VBoxContainer/Exit" to="." method="_on_Exit_pressed"]
-[connection signal="hide" from="Inventory" to="Hidden buttons" method="set_visible" binds= [ true ]]
 [connection signal="hide" from="Inventory" to="." method="set_enabled" binds= [ true ]]
+[connection signal="hide" from="Inventory" to="Hidden buttons" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="Inventory/Cancel" to="Inventory" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="Inventory/Hidden cancel" to="Inventory" method="set_visible" binds= [ false ]]
 [connection signal="hide" from="ColorPicker" to="." method="set_enabled" binds= [ true ]]
@@ -766,5 +812,5 @@ pitch_scale = 4.0
 [connection signal="pressed" from="Hidden buttons/Move vehicle right" to="." method="move_vehicle" binds= [ Vector3( -1, 0, 0 ) ]]
 [connection signal="pressed" from="Hidden buttons/Move vehicle forward" to="." method="move_vehicle" binds= [ Vector3( 0, 0, 1 ) ]]
 [connection signal="pressed" from="Hidden buttons/Move vehicle back" to="." method="move_vehicle" binds= [ Vector3( 0, 0, -1 ) ]]
-[connection signal="pressed" from="Hidden buttons/Open inventory" to="Hidden buttons" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="Hidden buttons/Open inventory" to="Inventory" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="Hidden buttons/Open inventory" to="Hidden buttons" method="set_visible" binds= [ false ]]
