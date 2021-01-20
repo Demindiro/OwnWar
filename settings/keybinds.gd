@@ -40,9 +40,14 @@ func _input(event: InputEvent) -> void:
 	if len(selected_action) > 0 and (event is InputEventKey or event is InputEventMouseButton):
 		var button: Button = selected_action[0]
 		var action: String = selected_action[1]
-		InputMap.action_erase_events(action)
-		InputMap.action_add_event(action, event)
-		button.text = _event_to_string(event)
+		if event is InputEventKey and event.scancode == KEY_ESCAPE:
+			InputMap.action_erase_events(action)
+			InputMap.action_add_event(action, InputEvent.new())
+			button.text = "N/A"
+		else:
+			InputMap.action_erase_events(action)
+			InputMap.action_add_event(action, event)
+			button.text = _event_to_string(event)
 		button.release_focus()
 		selected_action = []
 		OwnWar_Settings.save_settings()
@@ -73,4 +78,4 @@ func _event_to_string(event: InputEvent) -> String:
 			BUTTON_WHEEL_RIGHT:
 				text += " (wheel right)"
 		return text
-	return ""
+	return "N/A"
