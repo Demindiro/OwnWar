@@ -23,7 +23,7 @@ extends Camera
 class_name FreeCamera
 
 export var speed := 10.0
-export var angular_speed := 0.01
+export var angular_speed := 1.0
 export var always_capture := false
 export var actions := PoolStringArray([
 	"camera_left",
@@ -50,8 +50,8 @@ func _input(event):
 	if event is InputEventMouseMotion:
 		if always_capture or event.button_mask & BUTTON_MASK_RIGHT:
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-			_rot_x -= event.relative.x * angular_speed
-			_rot_y -= event.relative.y * angular_speed
+			_rot_x -= event.relative.x * angular_speed / 100
+			_rot_y -= event.relative.y * angular_speed / 100
 			if limit_tilt:
 				_rot_y = clamp(_rot_y, -PI / 2, PI / 2)
 			transform.basis = Basis()
@@ -89,3 +89,7 @@ func set_enabled(var p_enabled):
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	else:
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
+
+func set_angular_speed(value: float) -> void:
+	angular_speed = value

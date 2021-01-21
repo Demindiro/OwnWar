@@ -47,6 +47,9 @@ export var error_window_path := NodePath()
 var queued_error_message := ""
 onready var error_window: ErrorWindow = get_node(error_window_path)
 
+export var camera_path := NodePath()
+onready var camera: FreeCamera = get_node(camera_path)
+
 var selected_block: OwnWar_Block
 var blocks := {}
 var vehicle_name := ""
@@ -81,11 +84,6 @@ func _enter_tree():
 	get_tree().paused = true
 
 
-func _exit_tree():
-	save_vehicle()
-	get_tree().paused = false
-
-
 func _ready():
 	# I'm too lazy for a proper debugging solution
 	if vehicle_path == "":
@@ -106,6 +104,9 @@ func _ready():
 	for i in max_layers:
 		layer_selector.add_item("Layer %d" % i, i)
 
+	var e := OwnWar_Settings.connect("mouse_move_sensitivity_changed", camera, "set_angular_speed")
+	assert(e == OK)
+
 
 func _input(event: InputEvent) -> void:
 	# TODO fix BaseButton so it also detects mouse button shortcuts
@@ -118,6 +119,13 @@ func _input(event: InputEvent) -> void:
 func _process(_delta):
 	highlight_face()
 	process_actions()
+
+
+func _exit_tree():
+	save_vehicle()
+	get_tree().paused = false
+
+	OwnWar_Settings.disconnect("mouse_move_sensitivity_changed", camera, "set_angular_speed")
 
 
 func set_enabled(var p_enabled):

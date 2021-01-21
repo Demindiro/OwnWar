@@ -3,6 +3,8 @@ extends Node
 
 signal shadows_toggled(enabled)
 signal floor_mirror_toggled(enabled)
+signal mouse_move_sensitivity_changed(value)
+signal mouse_scroll_sensitivity_changed(value)
 
 var enable_shadows := false setget set_enable_shadows
 var enable_floor_mirror := true setget set_enable_floor_mirror
@@ -11,6 +13,8 @@ var music_volume := 0.0
 var effects_volume := 0.0
 var ui_volume := 0.0
 var username := ""
+var mouse_move_sensitivity := 1.0 setget set_mouse_move_sensitivity
+var mouse_scroll_sensitivity := 1.0 setget set_mouse_scroll_sensitivity
 
 
 func _enter_tree() -> void:
@@ -110,6 +114,9 @@ func save_settings() -> void:
 
 	cf.set_value("menu", "selected_vehicle", OwnWar_Lobby.player_vehicle_path)
 
+	cf.set_value("mouse", "move_sensitivity", mouse_move_sensitivity)
+	cf.set_value("mouse", "scroll_sensitivity", mouse_scroll_sensitivity)
+
 	var e := cf.save(OwnWar.SETTINGS_FILE)
 	if e != OK:
 		print("Failed to save custom settings: %s" % Global.ERROR_TO_STRING[e])
@@ -181,6 +188,9 @@ func load_settings() -> void:
 
 			OwnWar_Lobby.player_vehicle_path = cf.get_value("menu", "selected_vehicle", "")
 
+			mouse_move_sensitivity = cf.get_value("mouse", "move_sensitivity", 1.0)
+			mouse_scroll_sensitivity = cf.get_value("mouse", "scroll_sensitivity", 1.0)
+
 			var root := get_tree().root
 			root.msaa = ProjectSettings.get_setting("rendering/quality/filters/msaa")
 
@@ -192,3 +202,12 @@ func load_settings() -> void:
 			print("Failed to load custom settings: %s" % Global.ERROR_TO_STRING[e])
 			assert(false, "Failed to load custom settings")
 
+
+func set_mouse_move_sensitivity(value: float) -> void:
+	mouse_move_sensitivity = value
+	emit_signal("mouse_move_sensitivity_changed", value)
+
+
+func set_mouse_scroll_sensitivity(value: float) -> void:
+	mouse_scroll_sensitivity = value
+	emit_signal("mouse_scroll_sensitivity_changed", value)

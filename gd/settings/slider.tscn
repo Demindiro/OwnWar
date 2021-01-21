@@ -2,7 +2,7 @@
 
 [ext_resource path="res://settings/slider.gd" type="Script" id=1]
 
-[node name="Master" type="HBoxContainer"]
+[node name="Slider" type="HBoxContainer"]
 margin_right = 1320.0
 margin_bottom = 21.0
 size_flags_horizontal = 3
@@ -22,7 +22,7 @@ margin_top = 3.0
 margin_right = 248.0
 margin_bottom = 17.0
 size_flags_horizontal = 3
-text = "Master"
+text = "Slider"
 align = 2
 
 [node name="Slider" type="HSlider" parent="."]

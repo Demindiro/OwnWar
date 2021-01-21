@@ -85,7 +85,6 @@ script = ExtResource( 5 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-camera_input_zoom_speed = 0.3333
 camera_zoom_min = 2.0
 camera_zoom_max = 10.0
 

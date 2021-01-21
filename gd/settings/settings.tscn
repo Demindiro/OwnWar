@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://settings/keybinds.gd" type="Script" id=2]
@@ -6,6 +6,7 @@
 [ext_resource path="res://settings/sound.gd" type="Script" id=4]
 [ext_resource path="res://addons/option_button_preset.gd" type="Script" id=5]
 [ext_resource path="res://settings/graphics.gd" type="Script" id=6]
+[ext_resource path="res://settings/mouse.gd" type="Script" id=7]
 
 [node name="Settings" type="TabContainer"]
 anchor_left = 0.05
@@ -64,6 +65,7 @@ margin_top = 111.0
 margin_bottom = 132.0
 
 [node name="Graphics" type="ScrollContainer" parent="."]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0
@@ -301,6 +303,50 @@ margin_left = 200.0
 margin_top = 50.0
 margin_right = 1520.0
 margin_bottom = 885.0
+
+[node name="Mouse" type="ScrollContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 33.0
+margin_right = -4.0
+margin_bottom = -4.0
+script = ExtResource( 7 )
+move_sensitivity_path = NodePath("Box/Box/Move sensitivity")
+scroll_sensitivity_path = NodePath("Box/Box/Scroll sensitivity")
+
+[node name="Box" type="MarginContainer" parent="Mouse"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 200
+custom_constants/margin_top = 50
+custom_constants/margin_left = 200
+custom_constants/margin_bottom = 50
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Box" type="VBoxContainer" parent="Mouse/Box"]
+margin_left = 200.0
+margin_top = 50.0
+margin_right = 1520.0
+margin_bottom = 885.0
+custom_constants/separation = 16
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Move sensitivity" parent="Mouse/Box/Box" instance=ExtResource( 3 )]
+max_value = 5.0
+step = 0.01
+
+[node name="Scroll sensitivity" parent="Mouse/Box/Box" instance=ExtResource( 3 )]
+margin_top = 37.0
+margin_bottom = 58.0
+max_value = 5.0
+step = 0.01
 [connection signal="value_changed" from="Sound/Box/Box/Master" to="Sound" method="set_bus_volume" binds= [ "Master" ]]
 [connection signal="value_changed" from="Sound/Box/Box/Music" to="Sound" method="set_bus_volume" binds= [ "Music" ]]
 [connection signal="value_changed" from="Sound/Box/Box/Effects" to="Sound" method="set_bus_volume" binds= [ "Effects" ]]

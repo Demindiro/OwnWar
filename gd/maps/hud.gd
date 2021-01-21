@@ -4,8 +4,6 @@ extends Control
 const HealthBar := preload("health_circle.gd")
 
 export var camera: NodePath
-export var camera_rotate_speed := 1.0
-export(float, 0.1, 10.0) var camera_zoom_speed := 1.0
 export(float, 0.0, 100.0) var camera_zoom_min := 5.0
 export(float, 0.0, 100.0) var camera_zoom_max := 10.0
 export var camera_offset := Vector3()
@@ -36,16 +34,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	var mouse_event := event as InputEventMouseMotion
 	if mouse_event != null:
-		_camera_pan -= mouse_event.relative.x * camera_rotate_speed / 100
-		_camera_tilt -= mouse_event.relative.y * camera_rotate_speed / 100
+		var rel := mouse_event.relative * OwnWar_Settings.mouse_move_sensitivity / 100
+		_camera_pan -= rel.x
+		_camera_tilt -= rel.y
 		_camera_pan = fposmod(_camera_pan, 2 * PI)
 		_camera_tilt = clamp(_camera_tilt, -PI / 2, PI / 2)
 		get_tree().set_input_as_handled()
 	elif event.is_action_pressed("combat_zoom_in"):
-		_camera_zoom = max(camera_zoom_min, _camera_zoom - camera_zoom_speed)
+		_camera_zoom = max(camera_zoom_min, _camera_zoom - OwnWar_Settings.mouse_scroll_sensitivity)
 		get_tree().set_input_as_handled()
 	elif event.is_action_pressed("combat_zoom_out"):
-		_camera_zoom = min(camera_zoom_max, _camera_zoom + camera_zoom_speed)
+		_camera_zoom = min(camera_zoom_max, _camera_zoom + OwnWar_Settings.mouse_scroll_sensitivity)
 		get_tree().set_input_as_handled()
 	elif event.is_action("combat_release_cursor"):
 		set_mouse_mode()

@@ -99,6 +99,7 @@ remove_sound = NodePath("Sounds/Remove block")
 fail_place_or_remove_sound = NodePath("Sounds/Fail place or remove")
 rotate_sound = NodePath("Sounds/Rotate block")
 error_window_path = NodePath("Error window")
+camera_path = NodePath("Camera")
 _layer_selector = NodePath("Toggles & modes/Box/Block layer")
 
 [node name="Camera" type="Camera" parent="."]
@@ -108,7 +109,7 @@ cull_mask = 1
 far = 200.0
 script = ExtResource( 3 )
 speed = 10.0
-angular_speed = 0.01
+angular_speed = 1.0
 always_capture = true
 actions = PoolStringArray( "editor_move_left", "editor_move_right", "editor_move_forward", "editor_move_back", "editor_move_up", "editor_move_down" )
 limit_tilt = true
@@ -812,5 +813,5 @@ pitch_scale = 4.0
 [connection signal="pressed" from="Hidden buttons/Move vehicle right" to="." method="move_vehicle" binds= [ Vector3( -1, 0, 0 ) ]]
 [connection signal="pressed" from="Hidden buttons/Move vehicle forward" to="." method="move_vehicle" binds= [ Vector3( 0, 0, 1 ) ]]
 [connection signal="pressed" from="Hidden buttons/Move vehicle back" to="." method="move_vehicle" binds= [ Vector3( 0, 0, -1 ) ]]
-[connection signal="pressed" from="Hidden buttons/Open inventory" to="Inventory" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="Hidden buttons/Open inventory" to="Hidden buttons" method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="Hidden buttons/Open inventory" to="Inventory" method="set_visible" binds= [ true ]]
