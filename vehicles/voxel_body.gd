@@ -10,7 +10,6 @@ class InterpolationData:
 	var client_node: Spatial
 	var prev_transform: Transform
 	var curr_transform: Transform
-	var interpolate_dirty := false
 
 	func _init(block: OwnWar_Block) -> void:
 		if block.server_node != null:
@@ -83,35 +82,24 @@ func _process(_delta: float) -> void:
 	if _interpolation_dirty:
 		_prev_transform = _curr_transform
 		_curr_transform = transform
-		_interpolation_dirty = false
 	var frac := Engine.get_physics_interpolation_fraction()
 	var trf := _prev_transform.interpolate_with(transform, frac)
 	_voxel_mesh_instance.transform = trf
 	_voxel_mesh_instance.translation -= trf.basis * center_of_mass
 	for block in _interpolate_blocks:
 		var bb: InterpolationData = block
-		if bb.interpolate_dirty:
+		if _interpolation_dirty:
 			bb.prev_transform = bb.curr_transform
 			bb.curr_transform = bb.server_node.global_transform
-			bb.interpolate_dirty = false
 		bb.client_node.global_transform = bb.prev_transform.interpolate_with(
 			bb.curr_transform,
 			Engine.get_physics_interpolation_fraction()
 		)
+	_interpolation_dirty = false
 
 
 func _physics_process(_delta: float) -> void:
-	if _interpolation_dirty:
-		_prev_transform = _curr_transform
-		_curr_transform = transform
 	_interpolation_dirty = true
-	for block in _interpolate_blocks:
-		var bb: InterpolationData = block
-		if bb.interpolate_dirty:
-			bb.prev_transform = bb.curr_transform
-			bb.curr_transform = bb.server_node.global_transform
-			bb.interpolate_dirty = false
-		bb.interpolate_dirty = true
 
 
 func _exit_tree() -> void:
