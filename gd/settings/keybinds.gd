@@ -50,7 +50,7 @@ func _input(event: InputEvent) -> void:
 			button.text = _event_to_string(event)
 		button.release_focus()
 		selected_action = []
-		OwnWar_Settings.save_settings()
+		OwnWar_Settings.dirty = true
 
 
 func _event_to_string(event: InputEvent) -> String:

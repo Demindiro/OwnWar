@@ -8,7 +8,7 @@ signal vehicle_renamed(from, to)
 
 func goto_editor(vehicle_path := "") -> void:
 	if vehicle_path == "":
-		vehicle_path = OwnWar_Lobby.player_vehicle_path
+		vehicle_path = OwnWar_Settings.selected_vehicle_path
 	if vehicle_path == "":
 		print("No vehicle selected, refusing to go to editor")
 	else:
@@ -39,4 +39,4 @@ func exit_game() -> void:
 
 
 func select_vehicle(path: String) -> void:
-	OwnWar_Lobby.player_vehicle_path = path
+	OwnWar_Settings.selected_vehicle_path = path

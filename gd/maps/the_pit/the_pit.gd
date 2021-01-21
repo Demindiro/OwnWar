@@ -48,8 +48,8 @@ func spawn_player_vehicle() -> void:
 	print("Spawning vehicle")
 	assert(not headless, "Can't spawn player vehicle in headless mode")
 	var file := File.new()
-	assert(OwnWar_Lobby.player_vehicle_path != "")
-	var e := file.open_compressed(OwnWar_Lobby.player_vehicle_path, File.READ, File.COMPRESSION_GZIP)
+	assert(OwnWar_Settings.selected_vehicle_path != "")
+	var e := file.open_compressed(OwnWar_Settings.selected_vehicle_path, File.READ, File.COMPRESSION_GZIP)
 	assert(e == OK)
 	var data := file.get_buffer(file.get_len())
 	if server_mode:

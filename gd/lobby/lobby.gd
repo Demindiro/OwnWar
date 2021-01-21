@@ -51,7 +51,6 @@ var server_scene: Node
 var server_ping_timer := Timer.new()
 
 var client_connected := false
-var player_vehicle_path := ""
 var player_vehicle_valid := false
 var player_name := "" setget set_player_name
 
@@ -304,3 +303,4 @@ func punch_hole(entry: Entry) -> void:
 
 func set_player_name(value: String) -> void:
 	player_name = value
+	OwnWar_Settings.dirty = true

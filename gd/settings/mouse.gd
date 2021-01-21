@@ -15,13 +15,5 @@ func _ready():
 	scroll_sensitivity.value = OwnWar_Settings.mouse_scroll_sensitivity
 	var e := move_sensitivity.connect("value_changed", OwnWar_Settings, "set_mouse_move_sensitivity")
 	assert(e == OK)
-	e = move_sensitivity.connect("value_changed", self, "_save")
-	assert(e == OK)
 	e = scroll_sensitivity.connect("value_changed", OwnWar_Settings, "set_mouse_scroll_sensitivity")
 	assert(e == OK)
-	e = scroll_sensitivity.connect("value_changed", self, "_save")
-	assert(e == OK)
-
-
-func _save(_pls = null) -> void:
-	OwnWar_Settings.save_settings()

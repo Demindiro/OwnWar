@@ -20,8 +20,8 @@ onready var _camera_origin: Spatial = get_node("CameraOrigin")
 
 
 func _ready() -> void:
-	if OwnWar_Lobby.player_vehicle_path != "":
-		set_preview(OwnWar_Lobby.player_vehicle_path, false)
+	if OwnWar_Settings.selected_vehicle_path != "":
+		set_preview(OwnWar_Settings.selected_vehicle_path, false)
 
 
 func set_preview(path: String, save := true) -> void:
@@ -37,7 +37,7 @@ func set_preview(path: String, save := true) -> void:
 	_vehicle.translation.y += 25 * OwnWar_Block.BLOCK_SCALE / 2
 	OwnWar_Lobby.player_vehicle_valid = _vehicle.is_valid()
 	if save:
-		OwnWar_Settings.save_settings()
+		OwnWar_Settings.dirty = true
 	add_child(_vehicle)
 	emit_signal("loaded_vehicle", path, _vehicle)
 

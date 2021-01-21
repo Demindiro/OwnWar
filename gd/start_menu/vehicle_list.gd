@@ -29,7 +29,7 @@ func generate_vehicle_list() -> void:
 		btn.group = _button_group
 		_box.add_child(btn)
 		prev_btn = btn
-		if path == OwnWar_Lobby.player_vehicle_path:
+		if path == OwnWar_Settings.selected_vehicle_path:
 			btn.pressed = true
 			btn.grab_focus()
 	if prev_btn != null:

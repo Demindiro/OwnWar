@@ -8,17 +8,31 @@ signal mouse_scroll_sensitivity_changed(value)
 
 var enable_shadows := false setget set_enable_shadows
 var enable_floor_mirror := true setget set_enable_floor_mirror
-var master_volume := 0.0
-var music_volume := 0.0
-var effects_volume := 0.0
-var ui_volume := 0.0
-var username := ""
+
+var master_volume := 0.0 setget set_master_volume
+var music_volume := 0.0 setget set_music_volume
+var effects_volume := 0.0 setget set_effects_volume
+var ui_volume := 0.0 setget set_ui_volume
+
 var mouse_move_sensitivity := 1.0 setget set_mouse_move_sensitivity
 var mouse_scroll_sensitivity := 1.0 setget set_mouse_scroll_sensitivity
+
+var selected_vehicle_path := "" setget set_selected_vehicle_path
+
+var dirty := false
 
 
 func _enter_tree() -> void:
 	load_settings()
+	var timer := Timer.new()
+	timer.connect("timeout", self, "save_settings")
+	timer.wait_time = 60
+	add_child(timer)
+	timer.start()
+
+
+func _exit_tree() -> void:
+	save_settings()
 
 
 func set_msaa(value: int) -> void:
@@ -26,6 +40,7 @@ func set_msaa(value: int) -> void:
 	assert(value <= Viewport.MSAA_16X)
 	var root := get_tree().root
 	root.msaa = value
+	dirty = ProjectSettings.get_setting("rendering/quality/filters/msaa") != value
 	ProjectSettings.set_setting("rendering/quality/filters/msaa", value)
 
 
@@ -34,12 +49,14 @@ func get_msaa() -> int:
 
 
 func enable_shadows(enabled: bool) -> void:
+	dirty = dirty or enable_shadows != enabled
 	enable_shadows = enabled
 
 
 func set_shadow_filter_mode(value: int) -> void:
 	assert(0 <= value)
 	assert(value <= 2)
+	dirty = dirty or ProjectSettings.get_setting("rendering/quality/shadows/filter_mode") != value
 	ProjectSettings.set_setting("rendering/quality/shadows/filter_mode", value)
 
 
@@ -47,21 +64,64 @@ func get_shadow_filter_mode() -> int:
 	return ProjectSettings.get_setting("rendering/quality/shadows/filter_mode")
 
 
-func enable_floor_mirror(enabled: bool) -> void:
-	enable_floor_mirror = enabled
-
-
 func set_enable_shadows(value: bool) -> void:
+	dirty = dirty or enable_shadows != value
 	enable_shadows = value
 	emit_signal("shadows_toggled", value)
 
 
 func set_enable_floor_mirror(value: bool) -> void:
+	dirty = dirty or enable_floor_mirror != value
 	enable_floor_mirror = value
 	emit_signal("floor_mirror_toggled", value)
 
 
+func set_mouse_move_sensitivity(value: float) -> void:
+	dirty = dirty or mouse_move_sensitivity != value
+	mouse_move_sensitivity = value
+	emit_signal("mouse_move_sensitivity_changed", value)
+
+
+func set_mouse_scroll_sensitivity(value: float) -> void:
+	dirty = dirty or mouse_scroll_sensitivity != value
+	mouse_scroll_sensitivity = value
+	emit_signal("mouse_scroll_sensitivity_changed", value)
+
+
+func set_master_volume(value: float) -> void:
+	dirty = dirty or master_volume != value
+	master_volume = value
+
+
+func set_music_volume(value: float) -> void:
+	dirty = dirty or music_volume != value
+	music_volume = value
+
+
+func set_effects_volume(value: float) -> void:
+	dirty = dirty or effects_volume != value
+	effects_volume = value
+
+
+func set_ui_volume(value: float) -> void:
+	dirty = dirty or ui_volume != value
+	ui_volume = value
+
+
+func set_fps(value: float) -> void:
+	dirty = dirty or Engine.target_fps != value
+	Engine.target_fps = value
+
+
+func set_selected_vehicle_path(value: String) -> void:
+	dirty = dirty or selected_vehicle_path != value
+	selected_vehicle_path = value
+
+
 func save_settings() -> void:
+	if not dirty:
+		return
+
 	var cf := ConfigFile.new()
 
 	var actions := Array(InputMap.get_actions())
@@ -112,7 +172,7 @@ func save_settings() -> void:
 	cf.set_value("server", "max_players", OwnWar_Lobby.server_max_players)
 	cf.set_value("server", "description", OwnWar_Lobby.server_description)
 
-	cf.set_value("menu", "selected_vehicle", OwnWar_Lobby.player_vehicle_path)
+	cf.set_value("menu", "selected_vehicle", OwnWar_Settings.selected_vehicle_path)
 
 	cf.set_value("mouse", "move_sensitivity", mouse_move_sensitivity)
 	cf.set_value("mouse", "scroll_sensitivity", mouse_scroll_sensitivity)
@@ -123,6 +183,7 @@ func save_settings() -> void:
 		assert(false, "Failed to save custom settings")
 	else:
 		print("Saved settings")
+		dirty = false
 
 
 func load_settings() -> void:
@@ -186,7 +247,7 @@ func load_settings() -> void:
 			OwnWar_Lobby.server_max_players = cf.get_value("server", "max_players", 10)
 			OwnWar_Lobby.server_description = cf.get_value("server", "description", "")
 
-			OwnWar_Lobby.player_vehicle_path = cf.get_value("menu", "selected_vehicle", "")
+			OwnWar_Settings.selected_vehicle_path = cf.get_value("menu", "selected_vehicle", "")
 
 			mouse_move_sensitivity = cf.get_value("mouse", "move_sensitivity", 1.0)
 			mouse_scroll_sensitivity = cf.get_value("mouse", "scroll_sensitivity", 1.0)
@@ -201,13 +262,3 @@ func load_settings() -> void:
 		_:
 			print("Failed to load custom settings: %s" % Global.ERROR_TO_STRING[e])
 			assert(false, "Failed to load custom settings")
-
-
-func set_mouse_move_sensitivity(value: float) -> void:
-	mouse_move_sensitivity = value
-	emit_signal("mouse_move_sensitivity_changed", value)
-
-
-func set_mouse_scroll_sensitivity(value: float) -> void:
-	mouse_scroll_sensitivity = value
-	emit_signal("mouse_scroll_sensitivity_changed", value)
