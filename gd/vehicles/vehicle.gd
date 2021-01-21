@@ -103,7 +103,8 @@ func _physics_process(delta: float) -> void:
 			flipping_timeout -= delta
 			if flipping_timeout <= 0.0:
 				for b in voxel_bodies:
-					b.custom_integrator = false
+					if b != null:
+						b.custom_integrator = false
 			return
 
 		var drive_yaw := 0.0
