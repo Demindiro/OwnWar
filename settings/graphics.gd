@@ -52,7 +52,9 @@ func _ready():
 	assert(e == OK)
 	e = vsync_compositor.connect("toggled", self, "_save")
 	assert(e == OK)
-	e = borderless_window.connect("toggled", OS, "set_window_borderless")
+	# Consistency? I think not!
+	#e = borderless_window.connect("toggled", OS, "set_window_borderless")
+	e = borderless_window.connect("toggled", OS, "set_borderless_window")
 	assert(e == OK)
 	e = borderless_window.connect("toggled", self, "_save")
 	assert(e == OK)
