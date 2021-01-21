@@ -12,8 +12,6 @@
 [ext_resource path="res://settings/settings_blur.tscn" type="PackedScene" id=15]
 [ext_resource path="res://editor/shortcuts/goto_test_map.tres" type="ShortCut" id=16]
 
-
-
 [sub_resource type="PanoramaSky" id=1]
 panorama = ExtResource( 13 )
 
@@ -92,8 +90,6 @@ transform = Transform( -0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, -0.965926,
 [node name="HUD" parent="." instance=ExtResource( 11 )]
 mouse_filter = 2
 camera = NodePath("../../Test/Camera")
-camera_rotate_speed = 0.75
-camera_zoom_speed = 0.75
 camera_zoom_min = 1.0
 camera_offset = Vector3( 0, 2, 0 )
 
@@ -151,6 +147,7 @@ text = "Editor"
 [node name="OwnWar_Settings_Applier" type="Node" parent="."]
 script = ExtResource( 14 )
 lights/0 = NodePath("../DirectionalLight")
+environment = NodePath("../WorldEnvironment")
 
 [node name="Settings" parent="." instance=ExtResource( 15 )]
 

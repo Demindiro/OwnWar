@@ -4,6 +4,7 @@ class_name OwnWar_Settings_Applier
 
 
 var paths := []
+var environment := NodePath()
 
 
 func _get_property_list() -> Array:
@@ -17,6 +18,10 @@ func _get_property_list() -> Array:
 		"name": "lights/%d" % len(paths),
 		"type": TYPE_NODE_PATH,
 		"usage": PROPERTY_USAGE_EDITOR,
+	})
+	props.push_back({
+		"name": "environment",
+		"type": TYPE_NODE_PATH,
 	})
 	return props
 
@@ -34,6 +39,8 @@ func _get(property: String):
 		if index == len(paths):
 			return NodePath()
 		return paths[index]
+	elif property == "environment":
+		return environment
 
 
 func _set(property: String, value) -> bool:
@@ -59,6 +66,11 @@ func _set(property: String, value) -> bool:
 				paths.remove(index)
 			property_list_changed_notify()
 		return true
+	elif property == "environment":
+		if not value is NodePath and value != null:
+			return false
+		environment = value if value != null else NodePath()
+		return true
 	return false
 
 
@@ -66,12 +78,21 @@ func _ready() -> void:
 	var e := OwnWar_Settings.connect("shadows_toggled", self, "enable_shadows")
 	assert(e == OK)
 	enable_shadows(OwnWar_Settings.enable_shadows)
+	e = OwnWar_Settings.connect("tonemap_mode_changed", self, "set_tonemap_mode")
+	assert(e == OK)
+	set_tonemap_mode(OwnWar_Settings.tonemap_mode)
 
 
 func enable_shadows(enable: bool) -> void:
 	for path in paths:
 		var node: Light = get_node(path)
 		node.shadow_enabled = enable
+
+
+func set_tonemap_mode(value: int) -> void:
+	if environment != NodePath():
+		var env: WorldEnvironment = get_node(environment)
+		env.environment.tonemap_mode = value
 
 
 func _exit_tree() -> void:

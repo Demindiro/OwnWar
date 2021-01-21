@@ -1,0 +1,24 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://settings/toggle.gd" type="Script" id=1]
+
+[node name="Toggle" type="HBoxContainer"]
+margin_right = 40.0
+margin_bottom = 40.0
+size_flags_horizontal = 3
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="."]
+margin_top = 13.0
+margin_bottom = 27.0
+size_flags_horizontal = 3
+
+[node name="Value" type="CheckButton" parent="."]
+margin_left = 4.0
+margin_right = 80.0
+margin_bottom = 40.0
+size_flags_horizontal = 3
+[connection signal="toggled" from="Value" to="." method="set_value"]

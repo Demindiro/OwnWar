@@ -5,9 +5,11 @@ signal shadows_toggled(enabled)
 signal floor_mirror_toggled(enabled)
 signal mouse_move_sensitivity_changed(value)
 signal mouse_scroll_sensitivity_changed(value)
+signal tonemap_mode_changed(value)
 
 var enable_shadows := false setget set_enable_shadows
 var enable_floor_mirror := true setget set_enable_floor_mirror
+var tonemap_mode := Environment.TONE_MAPPER_LINEAR setget set_tonemap_mode
 
 var master_volume := 0.0 setget set_master_volume
 var music_volume := 0.0 setget set_music_volume
@@ -118,6 +120,12 @@ func set_selected_vehicle_path(value: String) -> void:
 	selected_vehicle_path = value
 
 
+func set_tonemap_mode(value: int) -> void:
+	dirty = dirty or tonemap_mode != value
+	tonemap_mode = value
+	emit_signal("tonemap_mode_changed", value)
+
+
 func save_settings() -> void:
 	if not dirty:
 		return
@@ -162,6 +170,7 @@ func save_settings() -> void:
 	cf.set_value("graphics", "window_fullscreen", OS.window_fullscreen)
 	cf.set_value("graphics", "window_borderless", OS.window_borderless)
 	cf.set_value("graphics", "fps", Engine.target_fps)
+	cf.get_value("graphics", "tonemap", tonemap_mode)
 
 	cf.set_value("server", "username", OwnWar_Lobby.player_name)
 	cf.set_value("server", "upnp", not OwnWar_Lobby.disable_upnp)
@@ -237,6 +246,7 @@ func load_settings() -> void:
 			OS.window_fullscreen = cf.get_value("graphics", "window_fullscreen", true)
 			OS.window_borderless = cf.get_value("graphics", "window_borderless", false)
 			Engine.target_fps = cf.get_value("graphics", "fps", 0)
+			tonemap_mode = cf.get_value("graphics", "tonemap", Environment.TONE_MAPPER_LINEAR)
 
 			OwnWar_Lobby.player_name = cf.get_value("server", "username", "")
 			OwnWar_Lobby.disable_upnp = not cf.get_value("server", "upnp", true)
@@ -247,8 +257,8 @@ func load_settings() -> void:
 			OwnWar_Lobby.server_max_players = cf.get_value("server", "max_players", 10)
 			OwnWar_Lobby.server_description = cf.get_value("server", "description", "")
 
-			OwnWar_Settings.selected_vehicle_path = cf.get_value("menu", "selected_vehicle", "")
-
+			selected_vehicle_path = cf.get_value("menu", "selected_vehicle", "")
+			
 			mouse_move_sensitivity = cf.get_value("mouse", "move_sensitivity", 1.0)
 			mouse_scroll_sensitivity = cf.get_value("mouse", "scroll_sensitivity", 1.0)
 

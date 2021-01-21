@@ -1,6 +1,9 @@
 extends ScrollContainer
 
 
+const Toggle := preload("toggle.gd")
+const Option = preload("option.gd")
+
 export var _msaa := NodePath()
 export var _shadows := NodePath()
 export var _shadow_filter_mode := NodePath()
@@ -10,9 +13,10 @@ export var _vsync_compositor := NodePath()
 export var _fps := NodePath()
 export var _borderless_window := NodePath()
 export var _fullscreen_window := NodePath()
+export var _tonemap_mode := NodePath()
 
 onready var msaa: OptionButton = get_node(_msaa)
-onready var shadows: BaseButton = get_node(_shadows)
+onready var shadows: Toggle = get_node(_shadows)
 onready var shadow_filter_mode: OptionButton = get_node(_shadow_filter_mode)
 onready var floor_mirror: BaseButton = get_node(_floor_mirror)
 onready var vsync: BaseButton = get_node(_vsync)
@@ -20,6 +24,7 @@ onready var vsync_compositor: BaseButton = get_node(_vsync_compositor)
 onready var fps: Range = get_node(_fps)
 onready var borderless_window: BaseButton = get_node(_borderless_window)
 onready var fullscreen_window: BaseButton = get_node(_fullscreen_window)
+onready var tonemap_mode: Option = get_node(_tonemap_mode)
 
 
 func _ready():
@@ -55,6 +60,9 @@ func _ready():
 	e = fps.connect("value_changed", OwnWar_Settings, "set_fps")
 	assert(e == OK)
 	e = fps.connect("value_changed", self, "_save")
+	assert(e == OK)
+
+	e = tonemap_mode.connect("item_selected", OwnWar_Settings, "set_tonemap_mode")
 	assert(e == OK)
 
 	shadow_filter_mode.get_parent().visible = OwnWar_Settings.enable_shadows

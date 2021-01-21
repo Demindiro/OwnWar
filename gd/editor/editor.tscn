@@ -1,4 +1,4 @@
-[gd_scene load_steps=56 format=2]
+[gd_scene load_steps=57 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://editor/inventory_item.tscn" type="PackedScene" id=2]
@@ -46,6 +46,7 @@
 [ext_resource path="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422503__nightflame__swinging-staff-whoosh-low-09.wav" type="AudioStream" id=44]
 [ext_resource path="res://editor/shortcuts/toggle_rotation_mapping.tres" type="ShortCut" id=45]
 [ext_resource path="res://editor/error_window.gd" type="Script" id=46]
+[ext_resource path="res://settings/applier.gd" type="Script" id=47]
 
 [sub_resource type="SpatialMaterial" id=1]
 
@@ -777,6 +778,10 @@ stream = ExtResource( 29 )
 stream = ExtResource( 44 )
 volume_db = -3.591
 pitch_scale = 4.0
+
+[node name="OwnWar_Settings_Applier" type="Node" parent="."]
+script = ExtResource( 47 )
+environment = NodePath("../WorldEnvironment")
 [connection signal="block_placed" from="." to="Stats" method="on_block_placed"]
 [connection signal="block_removed" from="." to="Stats" method="on_block_removed"]
 [connection signal="toggled_edit_mode" from="." to="Stats" method="enable_center_of_mass_indicator"]
@@ -813,5 +818,5 @@ pitch_scale = 4.0
 [connection signal="pressed" from="Hidden buttons/Move vehicle right" to="." method="move_vehicle" binds= [ Vector3( -1, 0, 0 ) ]]
 [connection signal="pressed" from="Hidden buttons/Move vehicle forward" to="." method="move_vehicle" binds= [ Vector3( 0, 0, 1 ) ]]
 [connection signal="pressed" from="Hidden buttons/Move vehicle back" to="." method="move_vehicle" binds= [ Vector3( 0, 0, -1 ) ]]
-[connection signal="pressed" from="Hidden buttons/Open inventory" to="Hidden buttons" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="Hidden buttons/Open inventory" to="Inventory" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="Hidden buttons/Open inventory" to="Hidden buttons" method="set_visible" binds= [ false ]]
