@@ -108,11 +108,16 @@ func _create_vehicle_thumbnail(p_path: String, callback: FuncRef, arguments: Arr
 		push_error("Failed to load vehicle from %s: %d" % [p_path, e])
 		return
 	var aabb := vehicle.aabb
+	aabb.size *= OwnWar_Block.BLOCK_SCALE
+	aabb.position *= OwnWar_Block.BLOCK_SCALE
 	var camera: Camera = tn.get_node("Spatial/Camera")
 	var size := max(aabb.size.x, max(aabb.size.y, aabb.size.z))
-	vehicle.translation.y += aabb.size.y * OwnWar_Block.BLOCK_SCALE
+	var grid_center := Vector3(25, 25, 25) * OwnWar_Block.BLOCK_SCALE / 2
+	var aabb_center := aabb.size / 2 + aabb.position
+	var offset_center := aabb_center - grid_center
+	vehicle.translation -= offset_center
 	# 1.5 has been derived by trial and error
-	camera.translate(Vector3.BACK * size / 1.5)
+	camera.translate(Vector3.BACK * size / 1.5 * 4)
 	vehicle.propagate_call("set_process", [false], true)
 	vehicle.propagate_call("set_process_internal", [false], true)
 	vehicle.propagate_call("set_physics_process", [false], true)
