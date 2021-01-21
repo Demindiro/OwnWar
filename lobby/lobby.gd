@@ -31,7 +31,10 @@ enum {
 signal server_list(entries)
 signal server_info(info)
 
-var peer := PacketPeerUDP.new()
+var lobby_address := "209.141.49.112"
+var lobby_port := 39984
+var lobby_peer := PacketPeerUDP.new()
+
 var registered := false
 var got_server_list := true # TODO name isn't quite correct
 var got_server_info := true
@@ -56,7 +59,7 @@ var _retry_timer: SceneTreeTimer = null
 
 
 func _ready() -> void:
-	var e := peer.connect_to_host("127.0.0.1", 39984)
+	var e := lobby_peer.connect_to_host(lobby_address, lobby_port)
 	assert(e == OK)
 	e = server_ping_timer.connect("timeout", self, "ping")
 	server_ping_timer.wait_time = 10
@@ -64,9 +67,9 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	for _i in peer.get_available_packet_count():
+	for _i in lobby_peer.get_available_packet_count():
 		var spb := StreamPeerBuffer.new()
-		spb.data_array = peer.get_packet()
+		spb.data_array = lobby_peer.get_packet()
 		var msg_type := spb.get_u8()
 		match msg_type:
 			MSG_TYPE_LIST:
@@ -206,7 +209,7 @@ func register_server(scene: Node) -> void:
 
 	while not registered:
 		print("Attempting to register server")
-		e = peer.put_packet(spb.data_array)
+		e = lobby_peer.put_packet(spb.data_array)
 		assert(e == OK)
 		yield(get_tree().create_timer(1.0), "timeout")
 
@@ -215,7 +218,7 @@ func register_server(scene: Node) -> void:
 		yield(get_tree().create_timer(100), "timeout")
 		if server_scene == null:
 			break
-		e = peer.put_packet(spb.data_array)
+		e = lobby_peer.put_packet(spb.data_array)
 		assert(e == OK)
 
 
@@ -233,7 +236,7 @@ func ping() -> void:
 	var spb := StreamPeerBuffer.new()
 	spb.put_u8(MSG_TYPE_PING)
 	spb.put_u16(server_port)
-	var e := peer.put_packet(spb.data_array)
+	var e := lobby_peer.put_packet(spb.data_array)
 	assert(e == OK)
 
 
@@ -244,7 +247,7 @@ func get_server_list(filter := "") -> void:
 
 	got_server_list = false
 	while not got_server_list:
-		var e := peer.put_packet(pkt)
+		var e := lobby_peer.put_packet(pkt)
 		assert(e == OK)
 		yield(get_tree().create_timer(1.0), "timeout")
 
@@ -267,7 +270,7 @@ func get_server_info(entry: Entry) -> void:
 
 	got_server_info = false
 	while not got_server_info:
-		var e := peer.put_packet(spb.data_array)
+		var e := lobby_peer.put_packet(spb.data_array)
 		assert(e == OK)
 		yield(get_tree().create_timer(1), "timeout")
 
@@ -292,7 +295,7 @@ func punch_hole(entry: Entry) -> void:
 	# If the connection fails after 5 tries, the server is likely unreachable anyways
 	for _i in 5:
 		print("I TRIED SO HARD")
-		var e := peer.put_packet(spb.data_array)
+		var e := lobby_peer.put_packet(spb.data_array)
 		assert(e == OK)
 		yield(get_tree().create_timer(1.0), "timeout")
 		if client_connected:

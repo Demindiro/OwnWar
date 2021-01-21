@@ -23,3 +23,6 @@ data_*/
 
 # Rust stuff
 target/
+
+# Other stuff
+bin/
