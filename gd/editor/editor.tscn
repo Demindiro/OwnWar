@@ -345,37 +345,25 @@ margin_top = 4.0
 margin_right = 241.0
 margin_bottom = 201.0
 
-[node name="Block layer" type="OptionButton" parent="Toggles & modes/Box"]
-margin_right = 237.0
-margin_bottom = 29.0
-focus_mode = 0
-theme = ExtResource( 1 )
-toggle_mode = false
-enabled_focus_mode = 0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
 [node name="Edit mode" type="CheckButton" parent="Toggles & modes/Box"]
-margin_top = 39.0
 margin_right = 237.0
-margin_bottom = 71.0
+margin_bottom = 32.0
 focus_mode = 0
 shortcut = ExtResource( 4 )
 text = "Edit mode"
 
 [node name="Mirror" type="CheckButton" parent="Toggles & modes/Box"]
-margin_top = 81.0
+margin_top = 42.0
 margin_right = 237.0
-margin_bottom = 113.0
+margin_bottom = 74.0
 focus_mode = 0
 shortcut = ExtResource( 19 )
 text = "Mirror"
 
 [node name="Snap faces" type="CheckButton" parent="Toggles & modes/Box"]
-margin_top = 123.0
+margin_top = 84.0
 margin_right = 237.0
-margin_bottom = 155.0
+margin_bottom = 116.0
 pressed = true
 shortcut = ExtResource( 33 )
 text = "Snap faces"
@@ -384,13 +372,25 @@ __meta__ = {
 }
 
 [node name="Map rotations" type="CheckButton" parent="Toggles & modes/Box"]
-margin_top = 165.0
+margin_top = 126.0
 margin_right = 237.0
-margin_bottom = 197.0
+margin_bottom = 158.0
 focus_mode = 0
 pressed = true
 shortcut = ExtResource( 45 )
 text = "Map rotations"
+
+[node name="Block layer" type="OptionButton" parent="Toggles & modes/Box"]
+margin_top = 168.0
+margin_right = 237.0
+margin_bottom = 197.0
+focus_mode = 0
+theme = ExtResource( 1 )
+toggle_mode = false
+enabled_focus_mode = 0
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Error window" type="PanelContainer" parent="."]
 visible = false
@@ -781,11 +781,11 @@ pitch_scale = 4.0
 [connection signal="toggled_edit_mode" from="." to="Stats" method="enable_center_of_mass_indicator"]
 [connection signal="vehicle_moved" from="." to="Stats" method="on_vehicle_moved"]
 [connection signal="vehicle_rotated" from="." to="Stats" method="on_vehicle_rotated"]
-[connection signal="item_selected" from="Toggles & modes/Box/Block layer" to="." method="set_layer"]
 [connection signal="toggled" from="Toggles & modes/Box/Edit mode" to="." method="set_edit_mode"]
 [connection signal="toggled" from="Toggles & modes/Box/Mirror" to="." method="set_mirror"]
 [connection signal="toggled" from="Toggles & modes/Box/Snap faces" to="." method="set_snap_faces"]
 [connection signal="toggled" from="Toggles & modes/Box/Map rotations" to="." method="set_map_rotations"]
+[connection signal="item_selected" from="Toggles & modes/Box/Block layer" to="." method="set_layer"]
 [connection signal="timeout" from="Error window/Timer" to="Error window" method="set_visible" binds= [ true ]]
 [connection signal="timeout" from="SaveTimer" to="." method="save_vehicle"]
 [connection signal="pressed" from="Menu/VBoxContainer/Continue" to="." method="set_enabled" binds= [ true ]]
