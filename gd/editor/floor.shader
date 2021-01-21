@@ -26,16 +26,21 @@ void fragment() {
 	float mirror_max = 0.5 + mirror_offt;
 	if (enable_mirror && mirror_min < UV.y && UV.y < mirror_max) {
 		ALBEDO = mirror_color.rgb;
+		EMISSION = mirror_color.rgb * 0.8;
+		METALLIC = 0.3;
 	} else {
 		vec2 uv = fract(UV * (float(grid_size) + edge_size));
 		if (uv.x < edge_size || uv.y < edge_size) {
 			ALBEDO = edge_color.rgb;
+			EMISSION = edge_color.rgb * 0.2;
+			METALLIC = 0.5;
 		} else {
 			vec4 tex = texture(albedo_texture, UV);
 			ALBEDO = cell_color.rgb * (1.0 - tex.a) + tex.rgb * tex.a;
+			EMISSION = tex.rgb * tex.a;
+			METALLIC = 0.0;
 		}
 	}
-	METALLIC = 0.0;
 	SPECULAR = 1.0;
 	ROUGHNESS = 0.5;
 }
