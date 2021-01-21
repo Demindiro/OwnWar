@@ -285,7 +285,7 @@ margin_left = 85.0
 margin_right = 167.0
 margin_bottom = 21.0
 size_flags_horizontal = 3
-text = "9999"
+text = "0"
 align = 2
 
 [node name="Cost" type="HBoxContainer" parent="Stats/Box"]
@@ -305,7 +305,7 @@ margin_left = 85.0
 margin_right = 167.0
 margin_bottom = 21.0
 size_flags_horizontal = 3
-text = "9999"
+text = "0"
 align = 2
 
 [node name="Mass" type="HBoxContainer" parent="Stats/Box"]
@@ -325,7 +325,7 @@ margin_left = 85.0
 margin_right = 167.0
 margin_bottom = 21.0
 size_flags_horizontal = 3
-text = "9999"
+text = "0"
 align = 2
 
 [node name="Toggles & modes" type="PanelContainer" parent="."]
