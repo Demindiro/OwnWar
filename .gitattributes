@@ -12,11 +12,11 @@
 # Denote all files that are truly binary and should not be modified.
 *.png binary
 *.jpg binary
-addons/backgrounds/AllSkyFree_Sky_AnotherPlanet_Equirect.png filter=lfs diff=lfs merge=lfs -text
-addons/backgrounds/AllSkyFree_Sky_ClearBlueSky_Equirect.png filter=lfs diff=lfs merge=lfs -text
-addons/backgrounds/AllSkyFree_Sky_ColdSunset_Equirect.png filter=lfs diff=lfs merge=lfs -text
-blocks/weapons/fixed_laser.blend filter=lfs diff=lfs merge=lfs -text
-blocks/weapons/lasers/fixed_laser.mtl filter=lfs diff=lfs merge=lfs -text
-blocks/weapons/lasers/fixed_laser.obj filter=lfs diff=lfs merge=lfs -text
-addons/lasers/480872__c3sabertooth__blaster-multiple.wav filter=lfs diff=lfs merge=lfs -text
-addons/breaking/41348__datasoundsample__glass-shatter.wav filter=lfs diff=lfs merge=lfs -text
+gd/addons/backgrounds/AllSkyFree_Sky_AnotherPlanet_Equirect.png filter=lfs diff=lfs merge=lfs -text
+gd/addons/backgrounds/AllSkyFree_Sky_ClearBlueSky_Equirect.png filter=lfs diff=lfs merge=lfs -text
+gd/addons/backgrounds/AllSkyFree_Sky_ColdSunset_Equirect.png filter=lfs diff=lfs merge=lfs -text
+gd/blocks/weapons/fixed_laser.blend filter=lfs diff=lfs merge=lfs -text
+gd/blocks/weapons/lasers/fixed_laser.mtl filter=lfs diff=lfs merge=lfs -text
+gd/blocks/weapons/lasers/fixed_laser.obj filter=lfs diff=lfs merge=lfs -text
+gd/addons/lasers/480872__c3sabertooth__blaster-multiple.wav filter=lfs diff=lfs merge=lfs -text
+gd/addons/breaking/41348__datasoundsample__glass-shatter.wav filter=lfs diff=lfs merge=lfs -text
