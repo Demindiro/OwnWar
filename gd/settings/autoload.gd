@@ -170,7 +170,7 @@ func save_settings() -> void:
 	cf.set_value("graphics", "window_fullscreen", OS.window_fullscreen)
 	cf.set_value("graphics", "window_borderless", OS.window_borderless)
 	cf.set_value("graphics", "fps", Engine.target_fps)
-	cf.get_value("graphics", "tonemap", tonemap_mode)
+	cf.set_value("graphics", "tonemap", tonemap_mode)
 
 	cf.set_value("server", "username", OwnWar_Lobby.player_name)
 	cf.set_value("server", "upnp", not OwnWar_Lobby.disable_upnp)
