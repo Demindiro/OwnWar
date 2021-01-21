@@ -26,6 +26,8 @@ var editor_node: Spatial
 var mirror_block: Resource setget __set_mirror_block, __get_mirror_block
 var mirror_rotation_map: PoolIntArray
 
+var mesh_arrays := [] setget , get_mesh_arrays
+
 
 func _init():
 	set_mirror_rotation_offset(0)
@@ -171,3 +173,17 @@ func __set_mirror_block(block: Resource):
 func __get_mirror_block():
 	if len(get_stack()) == 0 or get_stack()[2]["function"] != "__get_mirror_block":
 		return get_block(__mirror_block_id) if __mirror_block_id != 0 else self
+
+
+func get_mesh_arrays() -> Array:
+	if len(mesh_arrays) == 0 and mesh != null:
+		for i in mesh.get_surface_count():
+			var a := mesh.surface_get_arrays(i)
+			if a[Mesh.ARRAY_INDEX] == null:
+				var l := len(a[Mesh.ARRAY_VERTEX])
+				a[Mesh.ARRAY_INDEX] = PoolIntArray(range(l))
+			mesh_arrays.push_back(a)
+	var arr := []
+	for a in mesh_arrays:
+		arr.push_back(a.duplicate())
+	return arr

@@ -21,23 +21,18 @@ func add_block(block: OwnWar_Block, color: Color, coordinate: Array, rotation: i
 	assert(coordinate[0] is int)
 	assert(coordinate[1] is int)
 	assert(coordinate[2] is int)
-	var mesh := block.mesh
-	if mesh == null:
-		return
-	add_mesh(mesh, color, coordinate, rotation)
-
-
-func add_mesh(mesh: Mesh, color: Color, coordinate: Array, rotation: int) -> void:
-	assert(coordinate[0] is int)
-	assert(coordinate[1] is int)
-	assert(coordinate[2] is int)
-	for i in range(mesh.get_surface_count()):
-#		var material := mesh.surface_get_material(i)
-#		var material := MaterialCache.get_material(color)
+	for array in block.get_mesh_arrays():
 		var material := MaterialCache.get_material(color)
-		var array := _get_mesh_arrays(mesh, i)
-		_transform_array(array, coordinate, rotation)
-		_dedup_array(array)
+
+		var basis := OwnWar_Block.rotation_to_basis(rotation)
+		var position := Vector3(coordinate[0], coordinate[1], coordinate[2]) + Vector3.ONE / 2
+		var transform := Transform(basis, position * OwnWar_Block.BLOCK_SCALE)
+		for i in range(len(array[Mesh.ARRAY_VERTEX])):
+			array[Mesh.ARRAY_VERTEX][i] = transform * array[Mesh.ARRAY_VERTEX][i]
+			array[Mesh.ARRAY_NORMAL][i] = basis * array[Mesh.ARRAY_NORMAL][i]
+		array[Mesh.ARRAY_VERTEX] = ObjectCache.dedup_immutable(array[Mesh.ARRAY_VERTEX])
+		array[Mesh.ARRAY_NORMAL] = ObjectCache.dedup_immutable(array[Mesh.ARRAY_NORMAL])
+
 		var sm := SubMesh.new(array, coordinate)
 		var sm_array: Array = _material_to_meshes_map.get(material, [])
 		if len(sm_array) > 0:
@@ -123,26 +118,3 @@ func _remove_surface_array(p_material: Material):
 		if material == p_material:
 			surface_remove(i)
 			break
-
-
-static func _get_mesh_arrays(mesh: Mesh, index: int) -> Array:
-	var mesh_array = mesh.surface_get_arrays(index)
-	if mesh_array[Mesh.ARRAY_INDEX] == null:
-		var length = len(mesh_array[Mesh.ARRAY_VERTEX])
-		mesh_array[Mesh.ARRAY_INDEX] = PoolIntArray(range(length))
-	return mesh_array
-
-
-static func _transform_array(array: Array, coordinate: Array, rotation: int) -> void:
-	var basis := OwnWar_Block.rotation_to_basis(rotation)
-	var position := Vector3(coordinate[0], coordinate[1], coordinate[2]) + Vector3.ONE / 2
-	var transform := Transform(basis, position * OwnWar_Block.BLOCK_SCALE)
-	for i in range(len(array[Mesh.ARRAY_VERTEX])):
-		array[Mesh.ARRAY_VERTEX][i] = transform * array[Mesh.ARRAY_VERTEX][i]
-		array[Mesh.ARRAY_NORMAL][i] = basis * array[Mesh.ARRAY_NORMAL][i]
-
-
-static func _dedup_array(array: Array):
-	array[Mesh.ARRAY_VERTEX] = ObjectCache.dedup_immutable(array[Mesh.ARRAY_VERTEX])
-	array[Mesh.ARRAY_NORMAL] = ObjectCache.dedup_immutable(array[Mesh.ARRAY_NORMAL])
-	array[Mesh.ARRAY_INDEX] = ObjectCache.dedup_immutable(array[Mesh.ARRAY_INDEX])
