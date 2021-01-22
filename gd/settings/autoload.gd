@@ -1,6 +1,8 @@
 extends Node
 
 
+const ENVIRONMENT_VAR = "OWNWAR_SETTINGS"
+
 signal shadows_toggled(enabled)
 signal floor_mirror_toggled(enabled)
 signal mouse_move_sensitivity_changed(value)
@@ -127,6 +129,10 @@ func set_tonemap_mode(value: int) -> void:
 
 
 func save_settings() -> void:
+	if OS.has_feature("Server"):
+		print("Refusing to save settings in headless mode")
+		return
+
 	if not dirty:
 		return
 
@@ -186,7 +192,7 @@ func save_settings() -> void:
 	cf.set_value("mouse", "move_sensitivity", mouse_move_sensitivity)
 	cf.set_value("mouse", "scroll_sensitivity", mouse_scroll_sensitivity)
 
-	var e := cf.save(OwnWar.SETTINGS_FILE)
+	var e := cf.save(get_settings_file())
 	if e != OK:
 		print("Failed to save custom settings: %s" % Global.ERROR_TO_STRING[e])
 		assert(false, "Failed to save custom settings")
@@ -197,7 +203,7 @@ func save_settings() -> void:
 
 func load_settings() -> void:
 	var cf := ConfigFile.new()
-	var e := cf.load(OwnWar.SETTINGS_FILE)
+	var e := cf.load(get_settings_file())
 	match e:
 		OK:
 			for a in cf.get_section_keys("input_map"):
@@ -268,7 +274,26 @@ func load_settings() -> void:
 			print("Loaded settings")
 		ERR_FILE_NOT_FOUND:
 			print("No custom configuration file found")
-			OS.window_fullscreen = Engine.is_debug()
+			OS.window_fullscreen = not OS.is_debug_build()
 		_:
 			print("Failed to load custom settings: %s" % Global.ERROR_TO_STRING[e])
 			assert(false, "Failed to load custom settings")
+
+
+func get_settings_file() -> String:
+	var file: String
+	if OS.has_environment(ENVIRONMENT_VAR):
+		file = OS.get_environment(ENVIRONMENT_VAR)
+		if len(file) == 0:
+			file = OS.get_executable_path().get_base_dir().plus_file("settings.cfg")
+		elif file[0] == "/":
+			pass # Do nothing, Godot should correctly try to use the root dir
+		elif file.begins_with("user://"):
+			pass # Ditto
+		else:
+			# It's a relative path
+			assert(false, "TODO use current working dir getcwd()")
+			file = OS.get_executable_path().plus_file(file)
+	else:
+		file = OwnWar.SETTINGS_FILE
+	return file
