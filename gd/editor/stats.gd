@@ -73,5 +73,4 @@ func on_vehicle_rotated(center: Vector3) -> void:
 
 
 func enable_center_of_mass_indicator(enable: bool) -> void:
-	printt("CHICKEN", enable)
 	enable_center_of_mass_indicator = enable

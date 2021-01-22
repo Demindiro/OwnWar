@@ -115,7 +115,6 @@ func _process(_delta: float) -> void:
 				if spb.get_available_bytes() == 0:
 					print("Failed to get info") # Can happen due to unfortunate timing
 				else:
-					print("joiregijoregiojregioj")
 					var info := ServerInfo.new()
 					info.max_players = spb.get_u8()
 					var l := spb.get_u8()

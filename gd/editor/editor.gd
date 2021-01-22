@@ -277,7 +277,6 @@ func select_block(id: int) -> void:
 			camera_node.set_color(color)
 			ghost_node.set_color(color)
 		if ghost_node.has_method("set_transparency"):
-			print("YES")
 			ghost_node.set_transparency(0.5)
 		if ghost_node.has_method("set_preview_mode"):
 			ghost_node.set_preview_mode(true)
