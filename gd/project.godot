@@ -166,7 +166,7 @@ _global_script_class_icons={
 
 config/name="Own War"
 run/main_scene="res://start_menu/main.tscn"
-config/icon="res://icon.png"
+config/icon="res://godot-icon.png"
 
 [autoload]
 

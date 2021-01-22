@@ -7,61 +7,10 @@ assets:
     author: LoneCoder
     source: https://opengameart.org/content/64-crosshairs-pack-split
     license: cc0
-  - asset: addons/tiles/wall_decals
-    author: yughues
-    source: https://opengameart.org/content/free-decals-01-sci-fi
-    license: cc0
-  - asset: addons/tiles/grass/grass_0.png
-    author: Lamoot
-    source: https://opengameart.org/content/grass-001
-    license: cc-by 3.0
-  - asset: addons/weapons/cannon_reviewed.escn
-    author: nazzyc
-    source: https://opengameart.org/content/turret-reviwed
-    license: cc-by 3.0
-  - asset: addons/ores/Minirals.escn
-    author: Tech Knight
-    source: https://opengameart.org/content/4-minerals
-    license: cc0
-  - asset: addons/tiles/water/water_*.jpg
-    author: Catalin Pavel
-    source: https://opengameart.org/content/water-texture-pack
-    license: cc0
-  - asset: addons/tiles/sand/..
-    author: jordonbc
-    source: https://opengameart.org/content/close-up-sand-grains
-    license: cc-by 4.0
-  - asset: addons/map_detail/grass
-    author: yughues
-    source: https://opengameart.org/content/grass-pack-01
-    license: cc0
-  - asset: addons/weapons/muzzle_flashes
-    source: http://www.jeanmoreno.com/unity/warfx/
-    license: null
-  - asset: addons/weapons/firing_sounds/91572__steveygos93__layeredgunshot.wav
-    author: steveygos93
-    source: https://freesound.org/people/steveygos93/sounds/91572/
-    license: cc-by 3.0
-  - asset: addons/weapons/firing_sounds/187767__qubodup__cannon-shot.flac
-    author: qubodup
-    source: https://freesound.org/people/qubodup/sounds/187767/
-    license: cc0 1.0
-  - asset: addons/weapons/firing_sounds/448002__kneeling__cannon.ogg
-    author: Kneeling
-    source: https://freesound.org/people/Kneeling/sounds/448002/
-    license: cc0 1.0
-  - asset: addons/tiles/3D_pattern_57
-    author: yughues
-    source: https://opengameart.org/content/free-tiling-textures-pack-57
-    license: cc0
   - asset: addons/wheels/big_tire.blend
     author: Clint Bellanger
     source: https://opengameart.org/content/big-tire
     license: cc-by 3.0
-  - asset: addons/engines/242740__marlonhj__engine.wav
-    author: MarlonHJ
-    source: https://freesound.org/people/MarlonHJ/sounds/242740/
-    license: cc0
   - asset: addons/hud/obituary.svg
     author: sbed
     source: https://opengameart.org/content/obituary-kill-or-death-icons

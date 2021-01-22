@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=2]
+[gd_scene load_steps=39 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://start_menu/vehicle_list.gd" type="Script" id=2]
@@ -10,7 +10,7 @@
 [ext_resource path="res://start_menu/main.gd" type="Script" id=8]
 [ext_resource path="res://start_menu/server_settings.gd" type="Script" id=9]
 [ext_resource path="res://ui/blur_material.tres" type="Material" id=10]
-[ext_resource path="res://icon.png" type="Texture" id=11]
+[ext_resource path="res://godot-icon.png" type="Texture" id=11]
 [ext_resource path="res://ui/cancel_button.tscn" type="PackedScene" id=12]
 [ext_resource path="res://ui/font_big.tres" type="DynamicFont" id=13]
 [ext_resource path="res://start_menu/shortcut_main_menu_battle.tres" type="ShortCut" id=14]
@@ -29,6 +29,7 @@
 [ext_resource path="res://start_menu/vehicle_list_item.tscn" type="PackedScene" id=27]
 [ext_resource path="res://settings/applier.gd" type="Script" id=28]
 [ext_resource path="res://addons/crosshairs/image0036.png" type="Texture" id=29]
+[ext_resource path="res://start_menu/credits.tscn" type="PackedScene" id=30]
 
 [sub_resource type="Environment" id=1]
 ambient_light_color = Color( 1, 1, 1, 1 )
@@ -267,11 +268,18 @@ size_flags_vertical = 0
 alignment = 2
 
 [node name="Exit" type="Button" parent="QuickActions/Left"]
-margin_left = 698.0
-margin_right = 751.0
+margin_left = 605.0
+margin_right = 658.0
 margin_bottom = 34.0
 custom_fonts/font = ExtResource( 13 )
 text = "Exit"
+
+[node name="Credits" type="Button" parent="QuickActions/Left"]
+margin_left = 662.0
+margin_right = 751.0
+margin_bottom = 34.0
+custom_fonts/font = ExtResource( 13 )
+text = "Credits"
 
 [node name="Settings" type="Button" parent="QuickActions/Left"]
 margin_left = 755.0
@@ -807,6 +815,9 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="Credits" parent="." instance=ExtResource( 30 )]
+visible = false
+
 [node name="OwnWar_Settings_Applier" type="Node" parent="."]
 script = ExtResource( 28 )
 environment = NodePath("../Vehicle preview/WorldEnvironment")
@@ -814,8 +825,8 @@ environment = NodePath("../Vehicle preview/WorldEnvironment")
 [connection signal="vehicle_renamed" from="." to="Vehicle info" method="on_vehicle_renamed"]
 [connection signal="loaded_vehicle" from="Vehicle preview" to="Vehicle info" method="set_vehicle"]
 [connection signal="timeout" from="Vehicle preview/InputTimer" to="Vehicle preview" method="input_timeout"]
-[connection signal="select_vehicle" from="Vehicle list" to="." method="select_vehicle"]
 [connection signal="select_vehicle" from="Vehicle list" to="Vehicle preview" method="set_preview"]
+[connection signal="select_vehicle" from="Vehicle list" to="." method="select_vehicle"]
 [connection signal="create_vehicle" from="New vehicle" to="." method="goto_editor"]
 [connection signal="focus_exited" from="New vehicle/Box/Name" to="New vehicle" method="focus_lost"]
 [connection signal="gui_input" from="New vehicle/Box/Name" to="New vehicle" method="name_gui_input"]
@@ -824,6 +835,7 @@ environment = NodePath("../Vehicle preview/WorldEnvironment")
 [connection signal="focus_exited" from="New vehicle/Box/Create" to="New vehicle" method="focus_lost"]
 [connection signal="pressed" from="New vehicle/Box/Create" to="New vehicle" method="goto_editor"]
 [connection signal="pressed" from="QuickActions/Left/Exit" to="." method="exit_game"]
+[connection signal="pressed" from="QuickActions/Left/Credits" to="Credits" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="QuickActions/Left/Settings" to="Settings" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="QuickActions/Middle/Servers" to="Server menu" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="QuickActions/Right/Edit" to="." method="goto_editor"]

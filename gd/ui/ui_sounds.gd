@@ -21,7 +21,7 @@ func _enter_tree() -> void:
 
 
 func node_added(node: Node) -> void:
-	if node is BaseButton:
+	if node is BaseButton and not node.has_meta("ui_audio_disable"):
 		var e := node.connect("mouse_entered", self, "mouse_entered", [node])
 		assert(e == OK)
 		e = node.connect("mouse_exited", self, "mouse_exited", [node])

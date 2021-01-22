@@ -1,5 +1,6 @@
-[gd_resource type="Theme" load_steps=13 format=2]
+[gd_resource type="Theme" load_steps=14 format=2]
 
+[ext_resource path="res://ui/transparent_panel.tres" type="StyleBox" id=1]
 [ext_resource path="res://ui/font.tres" type="DynamicFont" id=2]
 [ext_resource path="res://ui/transparent_vscroll_black_panel.tres" type="StyleBox" id=6]
 [ext_resource path="res://ui/blank.tres" type="StyleBox" id=9]
@@ -349,19 +350,19 @@ TextEdit/styles/completion = ExtResource( 10 )
 TextEdit/styles/focus = ExtResource( 10 )
 TextEdit/styles/normal = ExtResource( 10 )
 TextEdit/styles/read_only = ExtResource( 10 )
-ToolButton/colors/font_color = Color( 0, 0, 0, 1 )
-ToolButton/colors/font_color_disabled = Color( 0, 0, 0, 1 )
-ToolButton/colors/font_color_hover = Color( 0, 0, 0, 1 )
-ToolButton/colors/font_color_pressed = Color( 0, 0, 0, 1 )
+ToolButton/colors/font_color = Color( 1, 1, 1, 1 )
+ToolButton/colors/font_color_disabled = Color( 1, 1, 1, 1 )
+ToolButton/colors/font_color_hover = Color( 1, 1, 1, 1 )
+ToolButton/colors/font_color_pressed = Color( 1, 1, 1, 1 )
 ToolButton/constants/hseparation = 3
 ToolButton/fonts/font = null
-ToolButton/styles/disabled = null
-ToolButton/styles/focus = null
-ToolButton/styles/hover = null
-ToolButton/styles/normal = null
-ToolButton/styles/pressed = null
-TooltipLabel/colors/font_color = Color( 0, 0, 0, 1 )
-TooltipLabel/colors/font_color_shadow = Color( 0, 0, 0, 1 )
+ToolButton/styles/disabled = ExtResource( 1 )
+ToolButton/styles/focus = ExtResource( 1 )
+ToolButton/styles/hover = ExtResource( 1 )
+ToolButton/styles/normal = ExtResource( 1 )
+ToolButton/styles/pressed = ExtResource( 1 )
+TooltipLabel/colors/font_color = Color( 1, 1, 1, 0.6 )
+TooltipLabel/colors/font_color_shadow = Color( 0, 0, 0, 0.6 )
 TooltipLabel/constants/shadow_offset_x = 1
 TooltipLabel/constants/shadow_offset_y = 1
 TooltipLabel/fonts/font = null

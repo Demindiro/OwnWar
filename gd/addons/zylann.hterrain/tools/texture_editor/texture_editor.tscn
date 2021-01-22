@@ -4,8 +4,9 @@
 [ext_resource path="res://addons/zylann.hterrain/tools/texture_editor/texture_list.tscn" type="PackedScene" id=2]
 [ext_resource path="res://addons/zylann.hterrain/tools/texture_editor/texture_editor_dialog.gd" type="Script" id=3]
 [ext_resource path="res://addons/zylann.hterrain/tools/texture_editor/display_color_material.tres" type="Material" id=4]
-[ext_resource path="res://icon.png" type="Texture" id=5]
+[ext_resource path="res://godot-icon.png" type="Texture" id=5]
 [ext_resource path="res://addons/zylann.hterrain/tools/texture_editor/display_alpha_material.tres" type="Material" id=6]
+
 
 [node name="TextureEditor" type="Control"]
 margin_right = 352.0
