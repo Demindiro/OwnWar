@@ -3,7 +3,6 @@ extends Spatial
 class_name OwnWar_Vehicle
 
 
-const Compatibility := preload("res://core/compatibility.gd")
 const VoxelBody := preload("voxel_body.gd")
 const VoxelMesh := preload("voxel_mesh.gd")
 
