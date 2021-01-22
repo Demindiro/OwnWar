@@ -14,6 +14,7 @@ editor_node = NodePath("")
 [node name="Server" type="Spatial" parent="."]
 script = ExtResource( 2 )
 time_between_shots = 0.3333
+inaccuracy = 0.01
 
 [node name="Ray" type="RayCast" parent="Server"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0289386, 0.625 )
