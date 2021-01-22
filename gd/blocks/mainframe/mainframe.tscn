@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://blocks/block_instance.gd" type="Script" id=1]
+[ext_resource path="res://blocks/mainframe/terminal.png" type="Texture" id=2]
+[ext_resource path="res://blocks/set_color.gd" type="Script" id=3]
+
+[node name="Mainframe" type="Node"]
+script = ExtResource( 1 )
+client_node = NodePath("It\'s a UNIX system!")
+editor_node = NodePath("It\'s a UNIX system!")
+
+[node name="Server" type="Spatial" parent="."]
+
+[node name="It\'s a UNIX system!" type="Spatial" parent="."]
+script = ExtResource( 3 )
+color_node_0 = null
+transparency_node_0 = NodePath("../It\'s a UNIX system!/Code")
+transparency_node_1 = null
+
+[node name="Code" type="Sprite3D" parent="It\'s a UNIX system!"]
+transform = Transform( 0.0372513, -4.50926e-06, 5.22898e-05, 0.000110399, 0.0345181, 0.000236073, -4.60087e-05, -8.47278e-06, 1, -0.0225, 0, 0.1121 )
+transparent = false
+double_sided = false
+texture = ExtResource( 2 )

@@ -1,0 +1,165 @@
+[gd_scene load_steps=14 format=2]
+
+[ext_resource path="res://ui/theme.tres" type="Theme" id=2]
+[ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=3]
+[ext_resource path="res://maps/test/map_data/data.hterrain" type="Resource" id=4]
+[ext_resource path="res://maps/test/rect.svg" type="Texture" id=6]
+[ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=8]
+[ext_resource path="res://maps/hud.tscn" type="PackedScene" id=11]
+[ext_resource path="res://maps/test/test.gd" type="Script" id=12]
+[ext_resource path="res://addons/backgrounds/AllSkyFree_Sky_ColdSunset_Equirect.png" type="Texture" id=13]
+[ext_resource path="res://settings/applier.gd" type="Script" id=14]
+[ext_resource path="res://settings/settings_blur.tscn" type="PackedScene" id=15]
+[ext_resource path="res://editor/shortcuts/goto_test_map.tres" type="ShortCut" id=16]
+
+[sub_resource type="PanoramaSky" id=1]
+panorama = ExtResource( 13 )
+
+[sub_resource type="Environment" id=2]
+background_mode = 2
+background_sky = SubResource( 1 )
+background_sky_orientation = Basis( 0.939693, 0, -0.34202, 0, 1, 0, 0.34202, 0, 0.939693 )
+ambient_light_energy = 0.2
+tonemap_mode = 2
+
+[node name="Test" type="Node"]
+script = ExtResource( 12 )
+editor_scene_path = "res://editor/editor.tscn"
+spawn_point/0 = NodePath("SpawnPoints/Center")
+spawn_point/1 = NodePath("SpawnPoints/-X-Y")
+spawn_point/2 = NodePath("SpawnPoints/X-Y")
+spawn_point/3 = NodePath("SpawnPoints/-XY")
+spawn_point/4 = NodePath("SpawnPoints/XY")
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( -1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, -0.0682526, 2.32457, 7.83551 )
+far = 2000.0
+
+[node name="HTerrain" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -128.25, 0, -128.25 )
+script = ExtResource( 3 )
+ambient_wind = 0.0
+lod_scale = 2.0
+map_scale = Vector3( 0.5, 0.5, 0.5 )
+_terrain_data = ExtResource( 4 )
+chunk_size = 32
+collision_enabled = true
+collision_layer = 1
+collision_mask = 1
+shader_type = "Classic4Lite"
+custom_shader = null
+custom_globalmap_shader = null
+shader_params/u_ground_uv_scale = 1.0
+shader_params/u_depth_blending = false
+shader_params/u_triplanar = false
+shader_params/u_tile_reduction = Plane( 0, 0, 0, 0 )
+ground/albedo_bump_0 = ExtResource( 6 )
+ground/normal_roughness_0 = null
+ground/albedo_bump_1 = null
+ground/normal_roughness_1 = null
+ground/albedo_bump_2 = null
+ground/normal_roughness_2 = null
+ground/albedo_bump_3 = null
+ground/normal_roughness_3 = null
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 0.939693, 0.172899, -0.2951, 0, 0.862814, 0.505522, 0.34202, -0.475035, 0.81078, 0, 84, 0 )
+layers = 0
+shadow_bias = 0.15
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource( 2 )
+
+[node name="SpawnPoints" type="Node" parent="."]
+
+[node name="Center" type="Position3D" parent="SpawnPoints"]
+transform = Transform( -1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, 0, 1, 0 )
+
+[node name="-X-Y" type="Position3D" parent="SpawnPoints"]
+transform = Transform( 0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -25, 1, -29 )
+
+[node name="X-Y" type="Position3D" parent="SpawnPoints"]
+transform = Transform( 0.852593, 0, 0.522576, 0, 1, 0, -0.522576, 0, 0.852593, 35, 1, -37 )
+
+[node name="-XY" type="Position3D" parent="SpawnPoints"]
+transform = Transform( -0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, -0.866025, -25, 1, 39 )
+
+[node name="XY" type="Position3D" parent="SpawnPoints"]
+transform = Transform( -0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, -0.965926, 27, 1, 44 )
+
+[node name="HUD" parent="." instance=ExtResource( 11 )]
+mouse_filter = 2
+camera = NodePath("../../Test/Camera")
+camera_zoom_min = 1.0
+camera_offset = Vector3( 0, 2, 0 )
+
+[node name="GUI" type="ColorRect" parent="."]
+visible = false
+anchor_left = 0.000695229
+anchor_right = 1.0007
+anchor_bottom = 1.0
+margin_left = 4.24268
+margin_right = 4.24268
+theme = ExtResource( 2 )
+color = Color( 0, 0, 0, 0.2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Box" type="VBoxContainer" parent="GUI"]
+anchor_left = 0.3
+anchor_right = 0.3
+anchor_bottom = 1.0
+margin_left = -161.003
+margin_right = 160.997
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false,
+"_editor_description_": ""
+}
+
+[node name="Continue" type="Button" parent="GUI/Box"]
+margin_top = 467.0
+margin_right = 322.0
+margin_bottom = 496.0
+shortcut = ExtResource( 8 )
+text = "Continue"
+
+[node name="Restart" type="Button" parent="GUI/Box"]
+margin_top = 506.0
+margin_right = 322.0
+margin_bottom = 535.0
+text = "Restart"
+
+[node name="Settings" type="Button" parent="GUI/Box"]
+margin_top = 545.0
+margin_right = 322.0
+margin_bottom = 574.0
+text = "Settings"
+
+[node name="Exit" type="Button" parent="GUI/Box"]
+margin_top = 584.0
+margin_right = 322.0
+margin_bottom = 613.0
+shortcut = ExtResource( 16 )
+text = "Editor"
+
+[node name="OwnWar_Settings_Applier" type="Node" parent="."]
+script = ExtResource( 14 )
+lights/0 = NodePath("../DirectionalLight")
+environment = NodePath("../WorldEnvironment")
+
+[node name="Settings" parent="." instance=ExtResource( 15 )]
+
+[node name="Hidden goto editor button" type="ToolButton" parent="."]
+shortcut = ExtResource( 16 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="hide" from="GUI" to="HUD" method="set_mouse_mode"]
+[connection signal="visibility_changed" from="GUI" to="HUD" method="poll_input"]
+[connection signal="pressed" from="GUI/Box/Continue" to="GUI" method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="GUI/Box/Restart" to="." method="restart"]
+[connection signal="pressed" from="GUI/Box/Settings" to="Settings" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="GUI/Box/Exit" to="." method="exit"]
+[connection signal="pressed" from="Hidden goto editor button" to="." method="exit"]

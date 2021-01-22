@@ -1,0 +1,1005 @@
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://ui/blur_material.tres" type="Material" id=1]
+[ext_resource path="res://ui/theme.tres" type="Theme" id=2]
+[ext_resource path="res://ui/font_title.tres" type="DynamicFont" id=3]
+[ext_resource path="res://ui/font_big_title.tres" type="DynamicFont" id=4]
+[ext_resource path="res://ui/font.tres" type="DynamicFont" id=5]
+[ext_resource path="res://ui/font_big.tres" type="DynamicFont" id=6]
+[ext_resource path="res://addons/godot-logo.svg" type="Texture" id=7]
+[ext_resource path="res://ui/font_small.tres" type="DynamicFont" id=8]
+[ext_resource path="res://start_menu/link_to_site.gd" type="Script" id=9]
+[ext_resource path="res://ui/cancel_button.tscn" type="PackedScene" id=10]
+
+[node name="Credits" type="ColorRect"]
+material = ExtResource( 1 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+focus_mode = 1
+theme = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Box" type="TabContainer" parent="."]
+anchor_left = 0.05
+anchor_top = 0.05
+anchor_right = 0.95
+anchor_bottom = 0.95
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Developer" type="ScrollContainer" parent="Box"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 33.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="Box" type="VBoxContainer" parent="Box/Developer"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Title" type="Label" parent="Box/Developer/Box"]
+margin_top = 412.0
+margin_right = 1720.0
+margin_bottom = 443.0
+custom_fonts/font = ExtResource( 3 )
+text = "Lead (& only) developer"
+align = 1
+
+[node name="Name" type="Label" parent="Box/Developer/Box"]
+margin_top = 453.0
+margin_right = 1720.0
+margin_bottom = 492.0
+custom_fonts/font = ExtResource( 4 )
+text = "David Hoppenbrouwers"
+align = 1
+
+[node name="Nick" type="Label" parent="Box/Developer/Box"]
+margin_top = 502.0
+margin_right = 1720.0
+margin_bottom = 523.0
+custom_fonts/font = ExtResource( 5 )
+text = "AKA Demindiro"
+align = 1
+
+[node name="Engine" type="ScrollContainer" parent="Box"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 33.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="Box" type="MarginContainer" parent="Box/Engine"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 7
+size_flags_vertical = 7
+custom_constants/margin_right = 40
+custom_constants/margin_top = 40
+custom_constants/margin_left = 40
+custom_constants/margin_bottom = 40
+
+[node name="Box" type="VBoxContainer" parent="Box/Engine/Box"]
+margin_left = 348.0
+margin_top = 79.0
+margin_right = 1372.0
+margin_bottom = 856.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Made in" type="ToolButton" parent="Box/Engine/Box/Box"]
+margin_right = 1024.0
+margin_bottom = 26.0
+custom_fonts/font = ExtResource( 6 )
+text = "Made with"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://godotengine.org"
+
+[node name="China" type="TextureButton" parent="Box/Engine/Box/Box"]
+margin_top = 36.0
+margin_right = 1024.0
+margin_bottom = 450.0
+mouse_default_cursor_shape = 2
+size_flags_horizontal = 4
+texture_normal = ExtResource( 7 )
+texture_pressed = ExtResource( 7 )
+texture_hover = ExtResource( 7 )
+texture_disabled = ExtResource( 7 )
+texture_focused = ExtResource( 7 )
+stretch_mode = 4
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://godotengine.org"
+
+[node name="Just kidding" type="Label" parent="Box/Engine/Box/Box"]
+margin_left = 254.0
+margin_top = 460.0
+margin_right = 770.0
+margin_bottom = 777.0
+size_flags_horizontal = 4
+custom_fonts/font = ExtResource( 8 )
+text = "Copyright (c) 2007-2021 Juan Linietsky, Ariel Manzur.
+Copyright (c) 2014-2021 Godot Engine contributors.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the \"Software\"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE."
+valign = 2
+
+[node name="Plugins" type="ScrollContainer" parent="Box"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 33.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="Box" type="MarginContainer" parent="Box/Plugins"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 40
+custom_constants/margin_top = 40
+custom_constants/margin_left = 40
+custom_constants/margin_bottom = 40
+
+[node name="Box" type="HBoxContainer" parent="Box/Plugins/Box"]
+margin_left = 40.0
+margin_top = 40.0
+margin_right = 1680.0
+margin_bottom = 895.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 40
+alignment = 1
+
+[node name="HTerrain" type="VBoxContainer" parent="Box/Plugins/Box/Box"]
+margin_top = 301.0
+margin_right = 1066.0
+margin_bottom = 554.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+size_flags_stretch_ratio = 2.0
+alignment = 1
+
+[node name="Title" type="ToolButton" parent="Box/Plugins/Box/Box/HTerrain"]
+margin_right = 1066.0
+margin_bottom = 39.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 4 )
+text = "Heightmap terrain plugin"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://github.com/Zylann/godot_heightmap_plugin"
+
+[node name="Made by" type="ToolButton" parent="Box/Plugins/Box/Box/HTerrain"]
+margin_top = 49.0
+margin_right = 1066.0
+margin_bottom = 70.0
+mouse_default_cursor_shape = 2
+text = "Made by Marc Gilleron"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://github.com/Zylann/"
+
+[node name="License" type="Label" parent="Box/Plugins/Box/Box/HTerrain"]
+margin_top = 80.0
+margin_right = 1066.0
+margin_bottom = 253.0
+custom_fonts/font = ExtResource( 8 )
+text = "Copyright (c) 2016-2020 Marc Gilleron
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
+autowrap = true
+
+[node name="Metadata inspector" type="VBoxContainer" parent="Box/Plugins/Box/Box"]
+margin_left = 1106.0
+margin_top = 249.0
+margin_right = 1640.0
+margin_bottom = 606.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Title" type="ToolButton" parent="Box/Plugins/Box/Box/Metadata inspector"]
+margin_right = 534.0
+margin_bottom = 31.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 3 )
+text = "Metadata inspector"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://github.com/ballerburg9005/godot-metadata-inspector"
+
+[node name="Made by" type="ToolButton" parent="Box/Plugins/Box/Box/Metadata inspector"]
+margin_top = 41.0
+margin_right = 534.0
+margin_bottom = 62.0
+mouse_default_cursor_shape = 2
+text = "Made by Mathias Steiger"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://github.com/ballerburg9005"
+
+[node name="License" type="Label" parent="Box/Plugins/Box/Box/Metadata inspector"]
+margin_top = 72.0
+margin_right = 534.0
+margin_bottom = 357.0
+custom_fonts/font = ExtResource( 8 )
+text = "Copyright 2020 Ballerburg9005
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"
+autowrap = true
+
+[node name="Textures" type="ScrollContainer" parent="Box"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 33.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="Box" type="MarginContainer" parent="Box/Textures"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 40
+custom_constants/margin_top = 40
+custom_constants/margin_left = 40
+custom_constants/margin_bottom = 40
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Box" type="GridContainer" parent="Box/Textures/Box"]
+margin_left = 40.0
+margin_top = 362.0
+margin_right = 1680.0
+margin_bottom = 572.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+custom_constants/vseparation = 40
+custom_constants/hseparation = 40
+columns = 3
+
+[node name="AllSky" type="VBoxContainer" parent="Box/Textures/Box/Box"]
+margin_right = 520.0
+margin_bottom = 85.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Title" type="ToolButton" parent="Box/Textures/Box/Box/AllSky"]
+margin_right = 520.0
+margin_bottom = 31.0
+rect_pivot_offset = Vector2( 1616.52, -199.469 )
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 3 )
+text = "AllSky"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://assetstore.unity.com/packages/2d/textures-materials/sky/allsky-free-10-sky-skybox-set-146014"
+
+[node name="Made by" type="ToolButton" parent="Box/Textures/Box/Box/AllSky"]
+margin_top = 41.0
+margin_right = 520.0
+margin_bottom = 62.0
+mouse_default_cursor_shape = 2
+text = "Made by Richard Whitelock"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "http://www.richardwhitelock.com/"
+
+[node name="License" type="ToolButton" parent="Box/Textures/Box/Box/AllSky"]
+margin_top = 72.0
+margin_right = 520.0
+margin_bottom = 85.0
+custom_fonts/font = ExtResource( 8 )
+text = "Unity Single Entity"
+__meta__ = {
+"ui_audio_disable": ""
+}
+
+[node name="Crosshairs" type="VBoxContainer" parent="Box/Textures/Box/Box"]
+margin_left = 560.0
+margin_right = 1080.0
+margin_bottom = 85.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Title" type="ToolButton" parent="Box/Textures/Box/Box/Crosshairs"]
+margin_right = 520.0
+margin_bottom = 31.0
+rect_pivot_offset = Vector2( 1616.52, -199.469 )
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 3 )
+text = "64 crosshair pack"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://opengameart.org/content/64-crosshairs-pack-split"
+
+[node name="Made by" type="ToolButton" parent="Box/Textures/Box/Box/Crosshairs"]
+margin_top = 41.0
+margin_right = 520.0
+margin_bottom = 62.0
+mouse_default_cursor_shape = 2
+text = "Made by LoneCoder and para"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://opengameart.org/content/64-crosshairs-pack-split"
+
+[node name="License" type="ToolButton" parent="Box/Textures/Box/Box/Crosshairs"]
+margin_top = 72.0
+margin_right = 520.0
+margin_bottom = 85.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 8 )
+text = "CC0"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/publicdomain/zero/1.0/"
+
+[node name="Obituary" type="VBoxContainer" parent="Box/Textures/Box/Box"]
+margin_left = 1120.0
+margin_right = 1640.0
+margin_bottom = 85.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Title" type="ToolButton" parent="Box/Textures/Box/Box/Obituary"]
+margin_right = 520.0
+margin_bottom = 31.0
+rect_pivot_offset = Vector2( 1616.52, -199.469 )
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 3 )
+text = "Obituary, Kill or Death Icons"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://opengameart.org/content/obituary-kill-or-death-icons"
+
+[node name="Made by" type="ToolButton" parent="Box/Textures/Box/Box/Obituary"]
+margin_top = 41.0
+margin_right = 520.0
+margin_bottom = 62.0
+mouse_default_cursor_shape = 2
+text = "Made by sbed"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://opengameart.org/content/obituary-kill-or-death-icons"
+
+[node name="License" type="ToolButton" parent="Box/Textures/Box/Box/Obituary"]
+margin_top = 72.0
+margin_right = 520.0
+margin_bottom = 85.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 8 )
+text = "CC BY-SA 3.0"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/licenses/by-sa/3.0/"
+
+[node name="0 AD Textures" type="VBoxContainer" parent="Box/Textures/Box/Box"]
+margin_top = 125.0
+margin_right = 520.0
+margin_bottom = 210.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Title" type="ToolButton" parent="Box/Textures/Box/Box/0 AD Textures"]
+margin_right = 520.0
+margin_bottom = 31.0
+rect_pivot_offset = Vector2( 1616.52, -199.469 )
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 3 )
+text = "0 AD Textures"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://opengameart.org/content/0-ad-textures"
+
+[node name="Made by" type="ToolButton" parent="Box/Textures/Box/Box/0 AD Textures"]
+margin_top = 41.0
+margin_right = 520.0
+margin_bottom = 62.0
+mouse_default_cursor_shape = 2
+text = "Made by Wildfire Games"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "http://www.wildfiregames.com/"
+
+[node name="License" type="ToolButton" parent="Box/Textures/Box/Box/0 AD Textures"]
+margin_top = 72.0
+margin_right = 520.0
+margin_bottom = 85.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 8 )
+text = "CC BY-SA 3.0"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/licenses/by-sa/3.0/"
+
+[node name="Red arrow" type="VBoxContainer" parent="Box/Textures/Box/Box"]
+margin_left = 560.0
+margin_top = 125.0
+margin_right = 1080.0
+margin_bottom = 210.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Title" type="ToolButton" parent="Box/Textures/Box/Box/Red arrow"]
+margin_right = 520.0
+margin_bottom = 31.0
+rect_pivot_offset = Vector2( 1616.52, -199.469 )
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 3 )
+text = "Glow Arrow"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://opengameart.org/content/glow-arrow"
+
+[node name="Made by" type="ToolButton" parent="Box/Textures/Box/Box/Red arrow"]
+margin_top = 41.0
+margin_right = 520.0
+margin_bottom = 62.0
+mouse_default_cursor_shape = 2
+text = "Made by oglsdl"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://opengameart.org/users/oglsdl"
+
+[node name="License" type="ToolButton" parent="Box/Textures/Box/Box/Red arrow"]
+margin_top = 72.0
+margin_right = 520.0
+margin_bottom = 85.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 8 )
+text = "CC0"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/publicdomain/zero/1.0/"
+
+[node name="Models" type="ScrollContainer" parent="Box"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 33.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="Box" type="MarginContainer" parent="Box/Models"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 40
+custom_constants/margin_top = 40
+custom_constants/margin_left = 40
+custom_constants/margin_bottom = 40
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Box" type="GridContainer" parent="Box/Models/Box"]
+margin_left = 722.0
+margin_top = 371.0
+margin_right = 998.0
+margin_bottom = 564.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="Literally the only 3D model" type="VBoxContainer" parent="Box/Models/Box/Box"]
+margin_right = 276.0
+margin_bottom = 193.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="Title" type="ToolButton" parent="Box/Models/Box/Box/Literally the only 3D model"]
+margin_right = 276.0
+margin_bottom = 31.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 3 )
+text = "Big Tire"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://opengameart.org/content/big-tire"
+
+[node name="Made by" type="ToolButton" parent="Box/Models/Box/Box/Literally the only 3D model"]
+margin_top = 41.0
+margin_right = 276.0
+margin_bottom = 62.0
+mouse_default_cursor_shape = 2
+text = "Made by Clint Bellanger"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "http://clintbellanger.net/"
+
+[node name="License" type="ToolButton" parent="Box/Models/Box/Box/Literally the only 3D model"]
+margin_top = 72.0
+margin_right = 276.0
+margin_bottom = 85.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 8 )
+text = "CC BY-SA 3.0"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/licenses/by-sa/3.0/"
+
+[node name="Texture side" type="ToolButton" parent="Box/Models/Box/Box/Literally the only 3D model"]
+margin_top = 95.0
+margin_right = 276.0
+margin_bottom = 116.0
+mouse_default_cursor_shape = 2
+text = "Texture side by Mr. Thinktank"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://www.flickr.com/photos/tahini/4048609570/"
+
+[node name="License2" type="ToolButton" parent="Box/Models/Box/Box/Literally the only 3D model"]
+margin_top = 126.0
+margin_right = 276.0
+margin_bottom = 139.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 8 )
+text = "CC BY-SA 3.0"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/licenses/by-sa/3.0/"
+
+[node name="Texture tread" type="ToolButton" parent="Box/Models/Box/Box/Literally the only 3D model"]
+margin_top = 149.0
+margin_right = 276.0
+margin_bottom = 170.0
+mouse_default_cursor_shape = 2
+text = "Texture tread by lostandtaken"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://www.flickr.com/photos/27668445@N03/3191999320/"
+
+[node name="License3" type="ToolButton" parent="Box/Models/Box/Box/Literally the only 3D model"]
+margin_top = 180.0
+margin_right = 276.0
+margin_bottom = 193.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 8 )
+text = "CC BY-SA 3.0"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/licenses/by-sa/3.0/"
+
+[node name="Sounds" type="ScrollContainer" parent="Box"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 33.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="Box" type="MarginContainer" parent="Box/Sounds"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 40
+custom_constants/margin_top = 40
+custom_constants/margin_left = 40
+custom_constants/margin_bottom = 40
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Box" type="GridContainer" parent="Box/Sounds/Box"]
+margin_left = 40.0
+margin_top = 362.0
+margin_right = 1680.0
+margin_bottom = 572.0
+size_flags_horizontal = 5
+size_flags_vertical = 4
+custom_constants/vseparation = 40
+custom_constants/hseparation = 40
+columns = 3
+
+[node name="Swinging staff whoosh" type="VBoxContainer" parent="Box/Sounds/Box/Box"]
+margin_right = 800.0
+margin_bottom = 85.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Swinging staff whoosh"]
+margin_right = 800.0
+margin_bottom = 31.0
+rect_pivot_offset = Vector2( 1616.52, -199.469 )
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 3 )
+text = "Swinging staff whoosh"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://freesound.org/people/Nightflame/packs/23909/"
+
+[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Swinging staff whoosh"]
+margin_top = 41.0
+margin_right = 800.0
+margin_bottom = 62.0
+mouse_default_cursor_shape = 2
+text = "Made by Nightflame"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://freesound.org/people/Nightflame"
+
+[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Swinging staff whoosh"]
+margin_top = 72.0
+margin_right = 800.0
+margin_bottom = 85.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 8 )
+text = "CC0"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/publicdomain/zero/1.0/"
+
+[node name="Blaster" type="VBoxContainer" parent="Box/Sounds/Box/Box"]
+margin_left = 840.0
+margin_right = 1640.0
+margin_bottom = 85.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Blaster"]
+margin_right = 800.0
+margin_bottom = 31.0
+rect_pivot_offset = Vector2( 1616.52, -199.469 )
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 3 )
+text = "Blaster"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://freesound.org/people/C3Sabertooth/sounds/480872/"
+
+[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Blaster"]
+margin_top = 41.0
+margin_right = 800.0
+margin_bottom = 62.0
+mouse_default_cursor_shape = 2
+text = "Made by C3Sabertooth"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://freesound.org/people/C3Sabertooth/"
+
+[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Blaster"]
+margin_top = 72.0
+margin_right = 800.0
+margin_bottom = 85.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 8 )
+text = "CC0"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/publicdomain/zero/1.0/"
+
+[node name="Glass shatter" type="VBoxContainer" parent="Box/Sounds/Box/Box"]
+margin_top = 125.0
+margin_right = 800.0
+margin_bottom = 210.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Glass shatter"]
+margin_right = 800.0
+margin_bottom = 31.0
+rect_pivot_offset = Vector2( 1616.52, -199.469 )
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 3 )
+text = "Glass shatter"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://freesound.org/people/datasoundsample/sounds/41348/"
+
+[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Glass shatter"]
+margin_top = 41.0
+margin_right = 800.0
+margin_bottom = 62.0
+mouse_default_cursor_shape = 2
+text = "Made by datasoundsample"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://freesound.org/people/datasoundsample"
+
+[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Glass shatter"]
+margin_top = 72.0
+margin_right = 800.0
+margin_bottom = 85.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 8 )
+text = "CC BY 3.0"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/licenses/by/3.0/"
+
+[node name="Error" type="VBoxContainer" parent="Box/Sounds/Box/Box"]
+margin_left = 840.0
+margin_top = 125.0
+margin_right = 1640.0
+margin_bottom = 210.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Error"]
+margin_right = 800.0
+margin_bottom = 31.0
+rect_pivot_offset = Vector2( 1616.52, -199.469 )
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 3 )
+text = "Error.wav"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://freesound.org/people/LorenzoTheGreat/sounds/417794/"
+
+[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Error"]
+margin_top = 41.0
+margin_right = 800.0
+margin_bottom = 62.0
+mouse_default_cursor_shape = 2
+text = "Made by LorenzoTheGreat"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://freesound.org/people/LorenzoTheGreat"
+
+[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Error"]
+margin_top = 72.0
+margin_right = 800.0
+margin_bottom = 85.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 8 )
+text = "CC BY 3.0"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/licenses/by/3.0/"
+
+[node name="DC gear motor" type="VBoxContainer" parent="Box/Sounds/Box/Box"]
+margin_top = 250.0
+margin_right = 800.0
+margin_bottom = 335.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/DC gear motor"]
+margin_right = 800.0
+margin_bottom = 31.0
+rect_pivot_offset = Vector2( 1616.52, -199.469 )
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 3 )
+text = "DC gear motor"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://freesound.org/people/MrAuralization/sounds/203602/"
+
+[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/DC gear motor"]
+margin_top = 41.0
+margin_right = 800.0
+margin_bottom = 62.0
+mouse_default_cursor_shape = 2
+text = "Made by Dennis Johansson"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://freesound.org/people/MrAuralization/"
+
+[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/DC gear motor"]
+margin_top = 72.0
+margin_right = 800.0
+margin_bottom = 85.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 8 )
+text = "CC BY 3.0"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/licenses/by/3.0/"
+
+[node name="Fonts" type="ScrollContainer" parent="Box"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 33.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="Box" type="MarginContainer" parent="Box/Fonts"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 40
+custom_constants/margin_top = 40
+custom_constants/margin_left = 40
+custom_constants/margin_bottom = 40
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Box" type="GridContainer" parent="Box/Fonts/Box"]
+margin_left = 729.0
+margin_top = 421.0
+margin_right = 990.0
+margin_bottom = 514.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="Audiowide" type="VBoxContainer" parent="Box/Fonts/Box/Box"]
+margin_right = 261.0
+margin_bottom = 93.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Title" type="ToolButton" parent="Box/Fonts/Box/Box/Audiowide"]
+margin_right = 261.0
+margin_bottom = 39.0
+rect_pivot_offset = Vector2( 1616.52, -199.469 )
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 4 )
+text = "Audiowide"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://fonts.google.com/specimen/Audiowide"
+
+[node name="Made by" type="ToolButton" parent="Box/Fonts/Box/Box/Audiowide"]
+margin_top = 49.0
+margin_right = 261.0
+margin_bottom = 70.0
+mouse_default_cursor_shape = 2
+text = "Made by Brian J. Bonislawsky"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "astigma@astigmatic.com"
+
+[node name="License" type="ToolButton" parent="Box/Fonts/Box/Box/Audiowide"]
+margin_top = 80.0
+margin_right = 261.0
+margin_bottom = 93.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 8 )
+text = "Open Font License"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL"
+
+[node name="Cancel" parent="." instance=ExtResource( 10 )]
+[connection signal="focus_entered" from="." to="." method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="Cancel" to="." method="set_visible" binds= [ false ]]

@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/480872__c3sabertooth__blaster-multiple.wav-5ea62f71ac34ff0b9ca79b7245f86b35.sample"
+
+[deps]
+
+source_file="res://addons/lasers/480872__c3sabertooth__blaster-multiple.wav"
+dest_files=[ "res://.import/480872__c3sabertooth__blaster-multiple.wav-5ea62f71ac34ff0b9ca79b7245f86b35.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=true
+edit/loop=false
+compress/mode=0

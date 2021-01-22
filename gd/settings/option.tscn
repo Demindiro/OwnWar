@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://settings/option.gd" type="Script" id=1]
+
+[node name="Option" type="HBoxContainer"]
+margin_right = 40.0
+margin_bottom = 40.0
+size_flags_horizontal = 3
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="."]
+margin_top = 13.0
+margin_right = 44.0
+margin_bottom = 27.0
+size_flags_horizontal = 3
+text = "Option"
+
+[node name="Options" type="OptionButton" parent="."]
+margin_left = 48.0
+margin_right = 168.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 120, 0 )

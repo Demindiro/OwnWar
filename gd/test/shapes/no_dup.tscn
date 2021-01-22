@@ -1,0 +1,241 @@
+[gd_scene load_steps=19 format=2]
+
+[ext_resource path="res://test/shapes/shapes.gd" type="Script" id=1]
+[ext_resource path="res://plugins/chassis_blocks/variant/no_dup/corner.gd" type="Script" id=2]
+[ext_resource path="res://addons/free_camera.gd" type="Script" id=3]
+[ext_resource path="res://plugins/chassis_blocks/variant/no_dup/square_corner.gd" type="Script" id=4]
+[ext_resource path="res://plugins/chassis_blocks/variant/no_dup/cube.gd" type="Script" id=5]
+[ext_resource path="res://plugins/chassis_blocks/variant/no_dup/edge.gd" type="Script" id=6]
+[ext_resource path="res://plugins/chassis_blocks/variant/no_dup/inverse_corner.gd" type="Script" id=7]
+[ext_resource path="res://plugins/chassis_blocks/variant/no_dup/inverse_square_corner.gd" type="Script" id=8]
+
+
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends DirectionalLight
+
+
+var rot_x = PI / 4 * 3
+var rot_y = -PI / 4
+
+
+func _process(delta):
+	if Input.is_key_pressed(KEY_UP):
+		rot_y += delta
+	if Input.is_key_pressed(KEY_DOWN):
+		rot_y -= delta
+	if Input.is_key_pressed(KEY_LEFT):
+		rot_x -= delta
+	if Input.is_key_pressed(KEY_RIGHT):
+		rot_x += delta
+	transform.basis = Basis.IDENTITY.rotated(Vector3.UP, rot_x) * \\
+			Basis.IDENTITY.rotated(Vector3.RIGHT, rot_y)
+"
+
+[sub_resource type="SpatialMaterial" id=2]
+flags_unshaded = true
+vertex_color_use_as_albedo = true
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends ImmediateGeometry
+
+func _ready():
+	clear()
+	begin(Mesh.PRIMITIVE_LINES)
+	set_color(Color.yellow)
+	add_vertex(Vector3.ZERO)
+	add_vertex(Vector3.BACK * 2)
+	end()
+"
+
+[sub_resource type="SpatialMaterial" id=4]
+flags_disable_ambient_light = true
+
+[sub_resource type="SpatialMaterial" id=5]
+flags_unshaded = true
+vertex_color_use_as_albedo = true
+
+[sub_resource type="GDScript" id=6]
+script/source = "extends ImmediateGeometry
+
+
+func _ready():
+	clear()
+	begin(Mesh.PRIMITIVE_LINES)
+	set_color(Color.red)
+	add_vertex(Vector3.ZERO)
+	add_vertex(Vector3.RIGHT)
+	end()
+	begin(Mesh.PRIMITIVE_LINES)
+	set_color(Color.green)
+	add_vertex(Vector3.ZERO)
+	add_vertex(Vector3.UP)
+	end()
+	begin(Mesh.PRIMITIVE_LINES)
+	set_color(Color.blue)
+	add_vertex(Vector3.ZERO)
+	add_vertex(Vector3.FORWARD)
+	end()
+	begin(Mesh.PRIMITIVE_LINES)
+	set_color(Color.white)
+	add_vertex(Vector3.ZERO)
+	add_vertex(Vector3.ONE.normalized())
+	end()
+"
+
+[sub_resource type="InputEventKey" id=7]
+scancode = 16777349
+
+[sub_resource type="ShortCut" id=8]
+shortcut = SubResource( 7 )
+
+[sub_resource type="InputEventKey" id=9]
+scancode = 16777347
+
+[sub_resource type="ShortCut" id=10]
+shortcut = SubResource( 9 )
+
+[node name="Shapes" type="Node"]
+script = ExtResource( 1 )
+segments = 2
+generator_index = 4
+generator_names = [ "corner", "square_corner", "cube", "edge", "inverse_corner", "inverse_square_corner" ]
+generator_paths = [ ExtResource( 2 ), ExtResource( 4 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 7 ), ExtResource( 8 ) ]
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+script = SubResource( 1 )
+
+[node name="ImmediateGeometry" type="ImmediateGeometry" parent="DirectionalLight"]
+material_override = SubResource( 2 )
+script = SubResource( 3 )
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 2.36516, 5.66657 )
+script = ExtResource( 3 )
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+material_override = SubResource( 4 )
+
+[node name="Axises" type="ImmediateGeometry" parent="."]
+transform = Transform( 5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0 )
+material_override = SubResource( 5 )
+script = SubResource( 6 )
+
+[node name="UI" type="Control" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="NextVariant" type="Button" parent="UI"]
+margin_left = 4.0
+margin_top = 5.0
+margin_right = 148.0
+margin_bottom = 25.0
+focus_mode = 0
+enabled_focus_mode = 0
+shortcut = SubResource( 8 )
+text = "Next variant"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PreviousVariant" type="Button" parent="UI"]
+margin_left = 4.0
+margin_top = 25.0
+margin_right = 148.0
+margin_bottom = 45.0
+focus_mode = 0
+enabled_focus_mode = 0
+shortcut = SubResource( 10 )
+text = "Previous Variant"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VariantIndex" type="Label" parent="UI"]
+margin_left = 153.498
+margin_top = 5.87627
+margin_right = 187.498
+margin_bottom = 23.8763
+text = "1"
+align = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="IncreaseSegments" type="Button" parent="UI"]
+margin_left = 4.0
+margin_top = 130.5
+margin_right = 148.0
+margin_bottom = 150.5
+focus_mode = 0
+enabled_focus_mode = 0
+text = "Increase Segments"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DecreaseSegments" type="Button" parent="UI"]
+margin_left = 4.0
+margin_top = 150.5
+margin_right = 148.0
+margin_bottom = 170.5
+focus_mode = 0
+enabled_focus_mode = 0
+text = "Decrease Segments"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Segments" type="Label" parent="UI"]
+margin_left = 161.507
+margin_top = 134.021
+margin_right = 195.507
+margin_bottom = 152.021
+text = "1"
+align = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="NextMesh" type="Button" parent="UI"]
+margin_left = 4.0
+margin_top = 244.922
+margin_right = 148.0
+margin_bottom = 264.922
+focus_mode = 0
+enabled_focus_mode = 0
+text = "Next Mesh"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PreviousMesh" type="Button" parent="UI"]
+margin_left = 4.0
+margin_top = 264.922
+margin_right = 148.0
+margin_bottom = 284.922
+focus_mode = 0
+enabled_focus_mode = 0
+text = "Previous Mesh"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MeshName" type="Label" parent="UI"]
+margin_left = 189.54
+margin_top = 252.963
+margin_right = 320.54
+margin_bottom = 271.963
+text = "Blah"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="pressed" from="UI/NextVariant" to="." method="_on_NextVariant_pressed"]
+[connection signal="pressed" from="UI/PreviousVariant" to="." method="_on_PreviousVariant_pressed"]
+[connection signal="pressed" from="UI/IncreaseSegments" to="." method="_on_IncreaseSegments_pressed"]
+[connection signal="pressed" from="UI/DecreaseSegments" to="." method="_on_DecreaseSegments_pressed"]
+[connection signal="pressed" from="UI/NextMesh" to="." method="_on_NextMesh_pressed"]
+[connection signal="pressed" from="UI/PreviousMesh" to="." method="_on_PreviousMesh_pressed"]

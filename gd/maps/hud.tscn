@@ -1,0 +1,80 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://ui/theme.tres" type="Theme" id=1]
+[ext_resource path="res://maps/hud.gd" type="Script" id=2]
+[ext_resource path="res://addons/crosshairs/image0027.png" type="Texture" id=3]
+[ext_resource path="res://maps/health_circle.gd" type="Script" id=4]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+
+
+uniform float width = 0.3;
+uniform float gradient_ease = 5.0;
+uniform float fill_ratio = 0.8;
+
+
+void fragment() {
+	float fill_angle = fill_ratio * 3.141592656 * 2.0;
+	vec2 uv = UV * 2.0 - 1.0;
+	if (atan(uv.x, uv.y) + 3.141592656 < fill_angle) {
+		float inner_width = 1.0 - width;
+		inner_width *= inner_width;
+		float d = uv.x * uv.x + uv.y * uv.y;
+		if (d <= 1.0 && d >= inner_width) {
+			float w = abs((1.0 + inner_width) / 2.0 - d) / (1.0 - inner_width);
+			w = 1.0 - pow(w + 0.5, gradient_ease);
+			COLOR = vec4(vec3(1.0), min(1.0, w));
+		} else {
+			COLOR.a = 0.0;
+		}
+	} else {
+		COLOR.a = 0.0;
+	}
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+shader_param/width = 0.3
+shader_param/gradient_ease = 5.0
+shader_param/fill_ratio = 1.0
+
+[node name="HUD" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 1 )
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+camera_zoom_min = 0.0
+
+[node name="Crosshair" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 1.2937
+margin_right = 1.2937
+mouse_filter = 2
+texture = ExtResource( 3 )
+stretch_mode = 4
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Health" type="ColorRect" parent="."]
+self_modulate = Color( 1, 0, 0, 1 )
+material = SubResource( 2 )
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -48.0
+margin_top = -128.0
+margin_right = 48.0
+margin_bottom = -32.0
+mouse_filter = 1
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+value = 1.0

@@ -1,0 +1,822 @@
+[gd_scene load_steps=57 format=2]
+
+[ext_resource path="res://ui/theme.tres" type="Theme" id=1]
+[ext_resource path="res://editor/inventory_item.tscn" type="PackedScene" id=2]
+[ext_resource path="res://addons/aabb_camera.gd" type="Script" id=3]
+[ext_resource path="res://editor/shortcuts/toggle_edit_mode.tres" type="ShortCut" id=4]
+[ext_resource path="res://editor/stats.gd" type="Script" id=5]
+[ext_resource path="res://editor/garage_todo_text.png" type="Texture" id=6]
+[ext_resource path="res://addons/crosshairs/image0018.png" type="Texture" id=7]
+[ext_resource path="res://editor/floor_material.tres" type="Material" id=8]
+[ext_resource path="res://editor/inventory.gd" type="Script" id=9]
+[ext_resource path="res://editor/block_face_highlighter_material.tres" type="Material" id=10]
+[ext_resource path="res://editor/editor_environment.tres" type="Environment" id=11]
+[ext_resource path="res://editor/block_face_highlighter.gd" type="Script" id=12]
+[ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=13]
+[ext_resource path="res://start_menu/main.tscn" type="PackedScene" id=14]
+[ext_resource path="res://settings/settings_blur.tscn" type="PackedScene" id=15]
+[ext_resource path="res://editor/floor.gd" type="Script" id=16]
+[ext_resource path="res://ui/blur_material.tres" type="Material" id=17]
+[ext_resource path="res://addons/crosshairs/image0003.png" type="Texture" id=18]
+[ext_resource path="res://editor/shortcuts/toggle_mirror.tres" type="ShortCut" id=19]
+[ext_resource path="res://editor/color_picker.gd" type="Script" id=20]
+[ext_resource path="res://editor/editor.gd" type="Script" id=21]
+[ext_resource path="res://editor/block_base_material.tres" type="Material" id=22]
+[ext_resource path="res://core/thumbnail/mock_cube.tres" type="CubeMesh" id=23]
+[ext_resource path="res://addons/flowcontainer.gd" type="Script" id=24]
+[ext_resource path="res://editor/shortcuts/goto_test_map.tres" type="ShortCut" id=25]
+[ext_resource path="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422497__nightflame__swinging-staff-whoosh-low-01.wav" type="AudioStream" id=26]
+[ext_resource path="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422494__nightflame__swinging-staff-whoosh-low-04.wav" type="AudioStream" id=27]
+[ext_resource path="res://editor/color_button.tscn" type="PackedScene" id=28]
+[ext_resource path="res://addons/ui/417794__lorenzothegreat__error.wav" type="AudioStream" id=29]
+[ext_resource path="res://ui/cancel_button.tscn" type="PackedScene" id=30]
+[ext_resource path="res://editor/shortcuts/layer_next.tres" type="ShortCut" id=31]
+[ext_resource path="res://editor/shortcuts/layer_previous.tres" type="ShortCut" id=32]
+[ext_resource path="res://editor/shortcuts/toggle_snap_faces.tres" type="ShortCut" id=33]
+[ext_resource path="res://editor/shortcuts/vehicle_rotate.tres" type="ShortCut" id=34]
+[ext_resource path="res://editor/shortcuts/vehicle_up.tres" type="ShortCut" id=35]
+[ext_resource path="res://editor/shortcuts/vehicle_down.tres" type="ShortCut" id=36]
+[ext_resource path="res://editor/shortcuts/vehicle_left.tres" type="ShortCut" id=37]
+[ext_resource path="res://editor/shortcuts/vehicle_right.tres" type="ShortCut" id=38]
+[ext_resource path="res://editor/shortcuts/vehicle_forward.tres" type="ShortCut" id=39]
+[ext_resource path="res://editor/shortcuts/vehicle_back.tres" type="ShortCut" id=40]
+[ext_resource path="res://editor/shortcuts/rotate_up.tres" type="ShortCut" id=41]
+[ext_resource path="res://editor/shortcuts/rotate_down.tres" type="ShortCut" id=42]
+[ext_resource path="res://editor/shortcuts/open_inventory.tres" type="ShortCut" id=43]
+[ext_resource path="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422503__nightflame__swinging-staff-whoosh-low-09.wav" type="AudioStream" id=44]
+[ext_resource path="res://editor/shortcuts/toggle_rotation_mapping.tres" type="ShortCut" id=45]
+[ext_resource path="res://editor/error_window.gd" type="Script" id=46]
+[ext_resource path="res://settings/applier.gd" type="Script" id=47]
+
+[sub_resource type="SpatialMaterial" id=1]
+
+[sub_resource type="SpatialMaterial" id=2]
+params_cull_mode = 1
+
+[sub_resource type="CubeMesh" id=3]
+size = Vector3( 45.5, 31.5, 45.5 )
+
+[sub_resource type="PlaneMesh" id=4]
+custom_aabb = AABB( 0, 0, 0, 25, 0, 25 )
+size = Vector2( 1, 1 )
+
+[sub_resource type="QuadMesh" id=5]
+size = Vector2( 1.25, 1.25 )
+
+[sub_resource type="CylinderMesh" id=6]
+top_radius = 0.001
+bottom_radius = 0.5
+height = 1.0
+
+[sub_resource type="Animation" id=7]
+resource_name = "fade_out"
+length = 5.0
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 3, 5 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 0,
+"values": [ 1.0, 1.0, 0.0 ]
+}
+
+[sub_resource type="InputEventAction" id=8]
+action = "editor_open_colorpicker"
+
+[sub_resource type="ShortCut" id=9]
+shortcut = SubResource( 8 )
+
+[node name="Designer" type="Node"]
+pause_mode = 2
+script = ExtResource( 21 )
+main_menu = ExtResource( 14 )
+material = ExtResource( 22 )
+place_sound = NodePath("Sounds/Place block")
+remove_sound = NodePath("Sounds/Remove block")
+fail_place_or_remove_sound = NodePath("Sounds/Fail place or remove")
+rotate_sound = NodePath("Sounds/Rotate block")
+error_window_path = NodePath("Error window")
+camera_path = NodePath("Camera")
+_layer_selector = NodePath("Toggles & modes/Box/Block layer")
+
+[node name="Camera" type="Camera" parent="."]
+process_priority = -1
+transform = Transform( -1, -1.5632e-13, -3.25842e-07, -1.62921e-07, 0.866025, 0.5, 2.82187e-07, 0.5, -0.866025, 10, 5.09171, 0 )
+cull_mask = 1
+far = 200.0
+script = ExtResource( 3 )
+speed = 10.0
+angular_speed = 1.0
+always_capture = true
+actions = PoolStringArray( "editor_move_left", "editor_move_right", "editor_move_forward", "editor_move_back", "editor_move_up", "editor_move_down" )
+limit_tilt = true
+aabb = AABB( -10, 0.55, -10, 45, 30, 45 )
+
+[node name="RT" type="RemoteTransform" parent="Camera"]
+transform = Transform( -1, -1.62921e-07, 2.82187e-07, -1.42109e-13, 0.866025, 0.5, -3.25842e-07, 0.5, -0.866025, 10, -4.40955, -2.54585 )
+remote_path = NodePath("../Box/Viewport/Camera")
+
+[node name="Box" type="ViewportContainer" parent="Camera"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+stretch = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Viewport" type="Viewport" parent="Camera/Box"]
+size = Vector2( 1920, 1080 )
+transparent_bg = true
+handle_input_locally = false
+render_target_update_mode = 3
+gui_disable_input = true
+
+[node name="Camera" type="Camera" parent="Camera/Box/Viewport"]
+process_priority = 1
+transform = Transform( 1, 5.68434e-14, -1.13687e-13, -1.98952e-13, 1, -2.98023e-08, 3.41061e-13, 2.98023e-08, 1, 9.53674e-07, 9.53674e-07, -2.6226e-06 )
+cull_mask = 2147483776
+
+[node name="Mesh" type="MeshInstance" parent="Camera/Box/Viewport/Camera"]
+pause_mode = 1
+transform = Transform( 0.945729, -0.0479753, 0.321394, 0.163176, 0.925416, -0.34202, -0.281015, 0.375902, 0.883022, 0.675385, -0.287656, -0.690228 )
+layers = 128
+mesh = ExtResource( 23 )
+material/0 = SubResource( 1 )
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource( 11 )
+
+[node name="Room" type="Spatial" parent="."]
+
+[node name="BoxOfClaustrophobia" type="MeshInstance" parent="Room"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5, 15, 12.5 )
+visible = false
+material_override = SubResource( 2 )
+mesh = SubResource( 3 )
+material/0 = null
+
+[node name="Lights" type="Node" parent="Room"]
+
+[node name="-X-Y" type="SpotLight" parent="Room/Lights"]
+transform = Transform( -0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, 0.5, -0.5, -9.75, 30.5, -10 )
+layers = 1048575
+light_energy = 0.3
+spot_range = 92.2871
+
+[node name="-XY" type="SpotLight" parent="Room/Lights"]
+transform = Transform( 0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, -0.5, 0.5, -9.75, 30.5, 34.75 )
+layers = 1048575
+light_energy = 0.5
+spot_range = 92.2871
+
+[node name="X-Y" type="SpotLight" parent="Room/Lights"]
+transform = Transform( 0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 35, 30.5, 34.75 )
+layers = 1048575
+light_energy = 0.3
+spot_range = 92.2871
+
+[node name="XY" type="SpotLight" parent="Room/Lights"]
+transform = Transform( -0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, 0.5, -0.5, 35, 30.5, -10 )
+layers = 1048575
+light_energy = 0.3
+spot_range = 92.2871
+
+[node name="Sun" type="SpotLight" parent="Room/Lights"]
+transform = Transform( 0.873613, 0, 0.486621, 0, 1, 0, -0.486621, 0, 0.873613, 44.375, 0, 75.75 )
+layers = 1048575
+spot_range = 161.345
+spot_angle = 41.5913
+
+[node name="TODO text" type="Sprite3D" parent="Room"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 12.2097, 6.5, -13.3234 )
+texture = ExtResource( 6 )
+
+[node name="Floor" type="MeshInstance" parent="."]
+material_override = ExtResource( 8 )
+mesh = SubResource( 4 )
+material/0 = null
+script = ExtResource( 16 )
+
+[node name="Origin" type="Spatial" parent="Floor"]
+pause_mode = 1
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.5, 0.5 )
+
+[node name="Ghost" type="MeshInstance" parent="Floor/Origin"]
+transform = Transform( 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, -1 )
+
+[node name="BlockFaceHighlighter" type="Spatial" parent="."]
+transform = Transform( -4.37114e-08, 4.37114e-08, -1, 1, -4.37114e-08, -4.37114e-08, -4.37114e-08, -1, -4.37114e-08, 0.5, 0, 0.5 )
+script = ExtResource( 12 )
+
+[node name="Mesh" type="MeshInstance" parent="BlockFaceHighlighter"]
+transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0.001, 0, 0 )
+material_override = ExtResource( 10 )
+mesh = SubResource( 5 )
+material/0 = null
+
+[node name="MagicDebuggingConeOfLife" type="MeshInstance" parent="BlockFaceHighlighter"]
+visible = false
+mesh = SubResource( 6 )
+material/0 = null
+
+[node name="Center of mass indicator" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -31.5
+margin_top = -31.5
+margin_right = -1887.5
+margin_bottom = -1047.5
+rect_pivot_offset = Vector2( 31.5, 31.5 )
+texture = ExtResource( 18 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Crosshair" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -32.9886
+margin_top = -29.3929
+margin_right = 31.0114
+margin_bottom = 34.6072
+texture = ExtResource( 7 )
+stretch_mode = 4
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Stats" type="PanelContainer" parent="."]
+margin_left = 5.0
+margin_top = 5.0
+margin_right = 180.0
+margin_bottom = 96.0
+theme = ExtResource( 1 )
+script = ExtResource( 5 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+_count_label = NodePath("Box/Blocks/Value")
+_cost_label = NodePath("Box/Cost/Value")
+_mass_label = NodePath("Box/Mass/Value")
+_center_of_mass = NodePath("../Center of mass indicator")
+
+[node name="Box" type="VBoxContainer" parent="Stats"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 171.0
+margin_bottom = 87.0
+size_flags_horizontal = 3
+
+[node name="Blocks" type="HBoxContainer" parent="Stats/Box"]
+margin_right = 167.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Stats/Box/Blocks"]
+margin_right = 81.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "Blocks"
+
+[node name="Value" type="Label" parent="Stats/Box/Blocks"]
+margin_left = 85.0
+margin_right = 167.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "0"
+align = 2
+
+[node name="Cost" type="HBoxContainer" parent="Stats/Box"]
+margin_top = 31.0
+margin_right = 167.0
+margin_bottom = 52.0
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Stats/Box/Cost"]
+margin_right = 81.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "Cost"
+
+[node name="Value" type="Label" parent="Stats/Box/Cost"]
+margin_left = 85.0
+margin_right = 167.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "0"
+align = 2
+
+[node name="Mass" type="HBoxContainer" parent="Stats/Box"]
+margin_top = 62.0
+margin_right = 167.0
+margin_bottom = 83.0
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Stats/Box/Mass"]
+margin_right = 81.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "Mass"
+
+[node name="Value" type="Label" parent="Stats/Box/Mass"]
+margin_left = 85.0
+margin_right = 167.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
+text = "0"
+align = 2
+
+[node name="Toggles & modes" type="PanelContainer" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -250.0
+margin_top = 5.0
+margin_right = -5.0
+theme = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Box" type="VBoxContainer" parent="Toggles & modes"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 241.0
+margin_bottom = 201.0
+
+[node name="Edit mode" type="CheckButton" parent="Toggles & modes/Box"]
+margin_right = 237.0
+margin_bottom = 32.0
+focus_mode = 0
+shortcut = ExtResource( 4 )
+text = "Edit mode"
+
+[node name="Mirror" type="CheckButton" parent="Toggles & modes/Box"]
+margin_top = 42.0
+margin_right = 237.0
+margin_bottom = 74.0
+focus_mode = 0
+shortcut = ExtResource( 19 )
+text = "Mirror"
+
+[node name="Snap faces" type="CheckButton" parent="Toggles & modes/Box"]
+margin_top = 84.0
+margin_right = 237.0
+margin_bottom = 116.0
+pressed = true
+shortcut = ExtResource( 33 )
+text = "Snap faces"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Map rotations" type="CheckButton" parent="Toggles & modes/Box"]
+margin_top = 126.0
+margin_right = 237.0
+margin_bottom = 158.0
+focus_mode = 0
+pressed = true
+shortcut = ExtResource( 45 )
+text = "Map rotations"
+
+[node name="Block layer" type="OptionButton" parent="Toggles & modes/Box"]
+margin_top = 168.0
+margin_right = 237.0
+margin_bottom = 197.0
+focus_mode = 0
+theme = ExtResource( 1 )
+toggle_mode = false
+enabled_focus_mode = 0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Error window" type="PanelContainer" parent="."]
+visible = false
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_bottom = -4.0
+grow_vertical = 0
+theme = ExtResource( 1 )
+script = ExtResource( 46 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+message_path = NodePath("Error message")
+animation_path = NodePath("Fade out")
+animation_name = "fade_out"
+timer_path = NodePath("Timer")
+
+[node name="Error message" type="Label" parent="Error window"]
+modulate = Color( 1, 0, 0, 1 )
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 4.0
+margin_bottom = 25.0
+
+[node name="Fade out" type="AnimationPlayer" parent="Error window"]
+anims/fade_out = SubResource( 7 )
+
+[node name="Timer" type="Timer" parent="Error window"]
+
+[node name="SaveTimer" type="Timer" parent="."]
+wait_time = 60.0
+autostart = true
+
+[node name="Menu" type="ColorRect" parent="."]
+visible = false
+material = ExtResource( 17 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Menu"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -160.0
+margin_top = -200.0
+margin_right = 160.0
+margin_bottom = 200.0
+custom_constants/separation = 10
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Continue" type="Button" parent="Menu/VBoxContainer"]
+margin_top = 127.0
+margin_right = 320.0
+margin_bottom = 156.0
+shortcut = ExtResource( 13 )
+text = "Continue"
+
+[node name="Test" type="Button" parent="Menu/VBoxContainer"]
+margin_top = 166.0
+margin_right = 320.0
+margin_bottom = 195.0
+shortcut = ExtResource( 25 )
+text = "Test"
+
+[node name="Settings" type="Button" parent="Menu/VBoxContainer"]
+margin_top = 205.0
+margin_right = 320.0
+margin_bottom = 234.0
+text = "Settings"
+
+[node name="Exit" type="Button" parent="Menu/VBoxContainer"]
+margin_top = 244.0
+margin_right = 320.0
+margin_bottom = 273.0
+text = "Exit"
+
+[node name="Settings" parent="." instance=ExtResource( 15 )]
+
+[node name="Inventory" type="ColorRect" parent="."]
+visible = false
+material = ExtResource( 17 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="PanelContainer" parent="Inventory"]
+anchor_right = 0.95
+anchor_bottom = 1.0
+margin_left = 40.0
+margin_top = 40.0
+margin_right = -40.0
+margin_bottom = -40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ViewportContainer" type="ViewportContainer" parent="Inventory/Panel"]
+modulate = Color( 1, 1, 1, 0.498039 )
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 1740.0
+margin_bottom = 996.0
+stretch = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Viewport" type="Viewport" parent="Inventory/Panel/ViewportContainer"]
+pause_mode = 1
+size = Vector2( 1736, 992 )
+own_world = true
+transparent_bg = true
+handle_input_locally = false
+msaa = 4
+usage = 3
+render_target_update_mode = 0
+gui_disable_input = true
+
+[node name="Camera" type="Camera" parent="Inventory/Panel/ViewportContainer/Viewport"]
+transform = Transform( 0.642788, -0.323744, 0.694272, 0, 0.906308, 0.422618, -0.766044, -0.271654, 0.582563, 0.6838, 0.4475, 0.572 )
+fov = 30.0
+
+[node name="DirectionalLight" type="DirectionalLight" parent="Inventory/Panel/ViewportContainer/Viewport"]
+transform = Transform( 0.866025, -0.17101, 0.469846, 0, 0.939693, 0.34202, -0.5, -0.296198, 0.813798, 0, 0, 0 )
+
+[node name="MeshInstance" type="MeshInstance" parent="Inventory/Panel/ViewportContainer/Viewport"]
+pause_mode = 1
+mesh = ExtResource( 23 )
+material/0 = null
+
+[node name="Inventory" type="VBoxContainer" parent="Inventory/Panel"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 1740.0
+margin_bottom = 996.0
+script = ExtResource( 9 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+preview_mesh = NodePath("../ViewportContainer/Viewport/MeshInstance")
+block_item = ExtResource( 2 )
+_category_list = NodePath("Box/Categories/Box")
+_block_list = NodePath("Box/Blocks/Box")
+
+[node name="Box" type="HBoxContainer" parent="Inventory/Panel/Inventory"]
+margin_right = 1736.0
+margin_bottom = 992.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Categories" type="ScrollContainer" parent="Inventory/Panel/Inventory/Box"]
+margin_right = 200.0
+margin_bottom = 992.0
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+
+[node name="Box" type="VBoxContainer" parent="Inventory/Panel/Inventory/Box/Categories"]
+margin_right = 200.0
+margin_bottom = 992.0
+rect_min_size = Vector2( 200, 0 )
+size_flags_vertical = 3
+
+[node name="Blocks" type="ScrollContainer" parent="Inventory/Panel/Inventory/Box"]
+margin_left = 204.0
+margin_right = 1736.0
+margin_bottom = 992.0
+size_flags_horizontal = 3
+
+[node name="Box" type="GridContainer" parent="Inventory/Panel/Inventory/Box/Blocks"]
+margin_right = 1532.0
+margin_bottom = 992.0
+size_flags_horizontal = 15
+size_flags_vertical = 15
+custom_constants/vseparation = 0
+custom_constants/hseparation = 0
+script = ExtResource( 24 )
+
+[node name="Cancel" parent="Inventory" instance=ExtResource( 30 )]
+
+[node name="Hidden cancel" type="ToolButton" parent="Inventory"]
+margin_right = 8.0
+margin_bottom = 29.0
+shortcut = ExtResource( 43 )
+
+[node name="ColorPicker" type="ColorRect" parent="."]
+visible = false
+material = ExtResource( 17 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 1 )
+script = ExtResource( 20 )
+__meta__ = {
+"_edit_use_anchors_": true
+}
+button = ExtResource( 28 )
+_list = NodePath("Box/Box")
+
+[node name="Box" type="PanelContainer" parent="ColorPicker"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -160.0
+margin_top = -200.0
+margin_right = 160.0
+margin_bottom = 200.0
+grow_horizontal = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Box" type="GridContainer" parent="ColorPicker/Box"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 319.0
+margin_bottom = 396.0
+custom_constants/vseparation = 3
+custom_constants/hseparation = 3
+columns = 6
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Cancel" parent="ColorPicker" instance=ExtResource( 30 )]
+
+[node name="Hidden cancel" type="ToolButton" parent="ColorPicker"]
+margin_right = 8.0
+margin_bottom = 29.0
+shortcut = SubResource( 9 )
+
+[node name="Hidden buttons" type="Control" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Goto test map" type="ToolButton" parent="Hidden buttons"]
+button_mask = 0
+shortcut = ExtResource( 25 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Next layer" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 31 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Previous layer" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 32 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Rotate block up" type="ToolButton" parent="Hidden buttons"]
+visible = false
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 41 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Rotate block down" type="ToolButton" parent="Hidden buttons"]
+visible = false
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 42 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Rotate vehicle" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 34 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Move vehicle up" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 35 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Move vehicle down" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 36 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Move vehicle left" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 37 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Move vehicle right" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 38 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Move vehicle forward" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 39 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Move vehicle back" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 40 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Open inventory" type="ToolButton" parent="Hidden buttons"]
+margin_right = 12.0
+margin_bottom = 22.0
+button_mask = 0
+shortcut = ExtResource( 43 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Sounds" type="Node" parent="."]
+
+[node name="Place block" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource( 27 )
+bus = "UI"
+
+[node name="Remove block" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource( 26 )
+bus = "UI"
+
+[node name="Fail place or remove" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource( 29 )
+
+[node name="Rotate block" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource( 44 )
+volume_db = -3.591
+pitch_scale = 4.0
+
+[node name="OwnWar_Settings_Applier" type="Node" parent="."]
+script = ExtResource( 47 )
+environment = NodePath("../WorldEnvironment")
+[connection signal="block_placed" from="." to="Stats" method="on_block_placed"]
+[connection signal="block_removed" from="." to="Stats" method="on_block_removed"]
+[connection signal="toggled_edit_mode" from="." to="Stats" method="enable_center_of_mass_indicator"]
+[connection signal="vehicle_moved" from="." to="Stats" method="on_vehicle_moved"]
+[connection signal="vehicle_rotated" from="." to="Stats" method="on_vehicle_rotated"]
+[connection signal="toggled" from="Toggles & modes/Box/Edit mode" to="." method="set_edit_mode"]
+[connection signal="toggled" from="Toggles & modes/Box/Mirror" to="." method="set_mirror"]
+[connection signal="toggled" from="Toggles & modes/Box/Snap faces" to="." method="set_snap_faces"]
+[connection signal="toggled" from="Toggles & modes/Box/Map rotations" to="." method="set_map_rotations"]
+[connection signal="item_selected" from="Toggles & modes/Box/Block layer" to="." method="set_layer"]
+[connection signal="timeout" from="Error window/Timer" to="Error window" method="set_visible" binds= [ true ]]
+[connection signal="timeout" from="SaveTimer" to="." method="save_vehicle"]
+[connection signal="pressed" from="Menu/VBoxContainer/Continue" to="." method="set_enabled" binds= [ true ]]
+[connection signal="pressed" from="Menu/VBoxContainer/Test" to="." method="_on_Designer_pressed"]
+[connection signal="pressed" from="Menu/VBoxContainer/Settings" to="Settings" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="Menu/VBoxContainer/Exit" to="." method="_on_Exit_pressed"]
+[connection signal="hide" from="Inventory" to="Hidden buttons" method="set_visible" binds= [ true ]]
+[connection signal="hide" from="Inventory" to="." method="set_enabled" binds= [ true ]]
+[connection signal="pressed" from="Inventory/Cancel" to="Inventory" method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="Inventory/Hidden cancel" to="Inventory" method="set_visible" binds= [ false ]]
+[connection signal="hide" from="ColorPicker" to="." method="set_enabled" binds= [ true ]]
+[connection signal="pick_color" from="ColorPicker" to="." method="_on_ColorPicker_pick_color"]
+[connection signal="pressed" from="ColorPicker/Cancel" to="ColorPicker" method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="ColorPicker/Hidden cancel" to="ColorPicker" method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="Hidden buttons/Goto test map" to="." method="_on_Designer_pressed"]
+[connection signal="pressed" from="Hidden buttons/Next layer" to="." method="next_layer"]
+[connection signal="pressed" from="Hidden buttons/Previous layer" to="." method="previous_layer"]
+[connection signal="pressed" from="Hidden buttons/Rotate block up" to="." method="rotate_block_up"]
+[connection signal="pressed" from="Hidden buttons/Rotate block down" to="." method="rotate_block_down"]
+[connection signal="pressed" from="Hidden buttons/Rotate vehicle" to="." method="rotate_vehicle"]
+[connection signal="pressed" from="Hidden buttons/Move vehicle up" to="." method="move_vehicle" binds= [ Vector3( 0, 1, 0 ) ]]
+[connection signal="pressed" from="Hidden buttons/Move vehicle down" to="." method="move_vehicle" binds= [ Vector3( 0, -1, 0 ) ]]
+[connection signal="pressed" from="Hidden buttons/Move vehicle left" to="." method="move_vehicle" binds= [ Vector3( 1, 0, 0 ) ]]
+[connection signal="pressed" from="Hidden buttons/Move vehicle right" to="." method="move_vehicle" binds= [ Vector3( -1, 0, 0 ) ]]
+[connection signal="pressed" from="Hidden buttons/Move vehicle forward" to="." method="move_vehicle" binds= [ Vector3( 0, 0, 1 ) ]]
+[connection signal="pressed" from="Hidden buttons/Move vehicle back" to="." method="move_vehicle" binds= [ Vector3( 0, 0, -1 ) ]]
+[connection signal="pressed" from="Hidden buttons/Open inventory" to="Inventory" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="Hidden buttons/Open inventory" to="Hidden buttons" method="set_visible" binds= [ false ]]

@@ -1,0 +1,15 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=2]
+
+[ext_resource path="res://addons/arrow.png" type="Texture" id=1]
+[ext_resource path="res://editor/floor.shader" type="Shader" id=2]
+
+[resource]
+shader = ExtResource( 2 )
+shader_param/enable_mirror = true
+shader_param/grid_size = 25
+shader_param/edge_size = 0.1
+shader_param/cell_color = Color( 0.0823529, 0.0784314, 0.0784314, 1 )
+shader_param/edge_color = Color( 0.87451, 0.886275, 0.886275, 1 )
+shader_param/mirror_color = Color( 1, 0, 0, 1 )
+shader_param/mirror_offset = 0.1
+shader_param/albedo_texture = ExtResource( 1 )

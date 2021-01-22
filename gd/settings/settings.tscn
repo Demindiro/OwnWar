@@ -1,0 +1,351 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://ui/theme.tres" type="Theme" id=1]
+[ext_resource path="res://settings/keybinds.gd" type="Script" id=2]
+[ext_resource path="res://settings/slider.tscn" type="PackedScene" id=3]
+[ext_resource path="res://settings/sound.gd" type="Script" id=4]
+[ext_resource path="res://addons/option_button_preset.gd" type="Script" id=5]
+[ext_resource path="res://settings/graphics.gd" type="Script" id=6]
+[ext_resource path="res://settings/mouse.gd" type="Script" id=7]
+[ext_resource path="res://settings/toggle.tscn" type="PackedScene" id=8]
+[ext_resource path="res://settings/option.tscn" type="PackedScene" id=9]
+
+[node name="Settings" type="TabContainer"]
+anchor_left = 0.05
+anchor_top = 0.05
+anchor_right = 0.95
+anchor_bottom = 0.95
+theme = ExtResource( 1 )
+custom_constants/top_margin = 20
+custom_constants/side_margin = 20
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Sound" type="ScrollContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 33.0
+margin_right = -4.0
+margin_bottom = -4.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource( 4 )
+buses_sliders_parent = NodePath("Box/Box")
+
+[node name="Box" type="MarginContainer" parent="Sound"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 200
+custom_constants/margin_top = 50
+custom_constants/margin_left = 200
+custom_constants/margin_bottom = 50
+
+[node name="Box" type="VBoxContainer" parent="Sound/Box"]
+margin_left = 200.0
+margin_top = 50.0
+margin_right = 1520.0
+margin_bottom = 885.0
+custom_constants/separation = 16
+
+[node name="Master" parent="Sound/Box/Box" instance=ExtResource( 3 )]
+
+[node name="Music" parent="Sound/Box/Box" instance=ExtResource( 3 )]
+margin_top = 37.0
+margin_bottom = 58.0
+
+[node name="Effects" parent="Sound/Box/Box" instance=ExtResource( 3 )]
+margin_top = 74.0
+margin_bottom = 95.0
+
+[node name="UI" parent="Sound/Box/Box" instance=ExtResource( 3 )]
+margin_top = 111.0
+margin_bottom = 132.0
+
+[node name="Graphics" type="ScrollContainer" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 33.0
+margin_right = -4.0
+margin_bottom = -4.0
+script = ExtResource( 6 )
+_msaa = NodePath("Box/Box/Box/MSAA/Value")
+_shadows = NodePath("Box/Box/Box/Shadows")
+_shadow_filter_mode = NodePath("Box/Box/Box/Shadow filter mode/Value")
+_floor_mirror = NodePath("Box/Box/Box/Enable floor mirror/Enable floor mirror")
+_vsync = NodePath("Box/Box/Box/VSync/VSync")
+_vsync_compositor = NodePath("Box/Box/Box/Vsync via compositor/Vsync via compositor")
+_fps = NodePath("Box/Box/Box/FPS/FPS")
+_borderless_window = NodePath("Box/Box/Box/Borderless window/Borderless window")
+_fullscreen_window = NodePath("Box/Box/Box/Fullscreen window/Fullscreen window")
+_tonemap_mode = NodePath("Box/Box/Box/Tonemap mode")
+
+[node name="Box" type="MarginContainer" parent="Graphics"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 200
+custom_constants/margin_top = 50
+custom_constants/margin_left = 200
+custom_constants/margin_bottom = 50
+
+[node name="Box" type="CenterContainer" parent="Graphics/Box"]
+margin_left = 200.0
+margin_top = 50.0
+margin_right = 1520.0
+margin_bottom = 502.0
+size_flags_vertical = 0
+
+[node name="Box" type="VBoxContainer" parent="Graphics/Box/Box"]
+margin_left = 460.0
+margin_right = 860.0
+margin_bottom = 452.0
+rect_min_size = Vector2( 400, 0 )
+custom_constants/separation = 16
+
+[node name="MSAA" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_right = 400.0
+margin_bottom = 29.0
+alignment = 1
+
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/MSAA"]
+margin_top = 4.0
+margin_right = 276.0
+margin_bottom = 25.0
+size_flags_horizontal = 3
+text = "Anti-aliasing (MSAA)"
+
+[node name="Value" type="OptionButton" parent="Graphics/Box/Box/Box/MSAA"]
+margin_left = 280.0
+margin_right = 400.0
+margin_bottom = 29.0
+rect_min_size = Vector2( 120, 0 )
+text = "Disabled"
+align = 2
+items = [ "Disabled", null, false, 1, null, "x2", null, false, 2, null, "x4", null, false, 3, null, "x8", null, false, 4, null, "x16", null, false, 5, null ]
+selected = 0
+script = ExtResource( 5 )
+options = PoolStringArray( "Disabled", "x2", "x4", "x8", "x16" )
+
+[node name="Shadows" parent="Graphics/Box/Box/Box" instance=ExtResource( 8 )]
+margin_top = 45.0
+margin_right = 400.0
+margin_bottom = 77.0
+
+[node name="Shadow filter mode" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_top = 93.0
+margin_right = 400.0
+margin_bottom = 122.0
+alignment = 1
+
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/Shadow filter mode"]
+margin_top = 4.0
+margin_right = 276.0
+margin_bottom = 25.0
+size_flags_horizontal = 3
+text = "Shadow filter mode"
+
+[node name="Value" type="OptionButton" parent="Graphics/Box/Box/Box/Shadow filter mode"]
+margin_left = 280.0
+margin_right = 400.0
+margin_bottom = 29.0
+rect_min_size = Vector2( 120, 0 )
+text = "Disabled"
+align = 2
+items = [ "Disabled", null, false, 1, null, "PCF5", null, false, 2, null, "PCF13", null, false, 3, null ]
+selected = 0
+script = ExtResource( 5 )
+options = PoolStringArray( "Disabled", "PCF5", "PCF13" )
+
+[node name="Enable floor mirror" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_top = 138.0
+margin_right = 400.0
+margin_bottom = 170.0
+
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/Enable floor mirror"]
+margin_top = 5.0
+margin_right = 332.0
+margin_bottom = 26.0
+size_flags_horizontal = 3
+text = "Floor mirror"
+
+[node name="Enable floor mirror" type="CheckButton" parent="Graphics/Box/Box/Box/Enable floor mirror"]
+margin_left = 336.0
+margin_right = 400.0
+margin_bottom = 32.0
+
+[node name="Fullscreen window" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_top = 186.0
+margin_right = 400.0
+margin_bottom = 218.0
+
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/Fullscreen window"]
+margin_top = 5.0
+margin_right = 332.0
+margin_bottom = 26.0
+size_flags_horizontal = 3
+text = "Fullscreen window"
+
+[node name="Fullscreen window" type="CheckButton" parent="Graphics/Box/Box/Box/Fullscreen window"]
+margin_left = 336.0
+margin_right = 400.0
+margin_bottom = 32.0
+
+[node name="Borderless window" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_top = 234.0
+margin_right = 400.0
+margin_bottom = 266.0
+
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/Borderless window"]
+margin_top = 5.0
+margin_right = 332.0
+margin_bottom = 26.0
+size_flags_horizontal = 3
+text = "Borderless window"
+
+[node name="Borderless window" type="CheckButton" parent="Graphics/Box/Box/Box/Borderless window"]
+margin_left = 336.0
+margin_right = 400.0
+margin_bottom = 32.0
+
+[node name="VSync" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_top = 282.0
+margin_right = 400.0
+margin_bottom = 314.0
+
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/VSync"]
+margin_top = 5.0
+margin_right = 332.0
+margin_bottom = 26.0
+size_flags_horizontal = 3
+text = "VSync"
+
+[node name="VSync" type="CheckButton" parent="Graphics/Box/Box/Box/VSync"]
+margin_left = 336.0
+margin_right = 400.0
+margin_bottom = 32.0
+
+[node name="Vsync via compositor" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_top = 330.0
+margin_right = 400.0
+margin_bottom = 362.0
+
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/Vsync via compositor"]
+margin_top = 5.0
+margin_right = 332.0
+margin_bottom = 26.0
+size_flags_horizontal = 3
+text = "VSync via compositor"
+
+[node name="Vsync via compositor" type="CheckButton" parent="Graphics/Box/Box/Box/Vsync via compositor"]
+margin_left = 336.0
+margin_right = 400.0
+margin_bottom = 32.0
+
+[node name="FPS" type="HBoxContainer" parent="Graphics/Box/Box/Box"]
+margin_top = 378.0
+margin_right = 400.0
+margin_bottom = 407.0
+
+[node name="Label" type="Label" parent="Graphics/Box/Box/Box/FPS"]
+margin_top = 4.0
+margin_right = 312.0
+margin_bottom = 25.0
+size_flags_horizontal = 3
+text = "FPS"
+
+[node name="FPS" type="SpinBox" parent="Graphics/Box/Box/Box/FPS"]
+margin_left = 316.0
+margin_right = 400.0
+margin_bottom = 29.0
+max_value = 9001.0
+
+[node name="Tonemap mode" parent="Graphics/Box/Box/Box" instance=ExtResource( 9 )]
+margin_top = 423.0
+margin_right = 400.0
+margin_bottom = 452.0
+options = PoolStringArray( "Linear", "Reindhart", "Filmic", "Aces" )
+
+[node name="Keybinds" type="ScrollContainer" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 33.0
+margin_right = -4.0
+margin_bottom = -4.0
+follow_focus = true
+script = ExtResource( 2 )
+_list = NodePath("../Keybinds/Box/Box")
+
+[node name="Box" type="MarginContainer" parent="Keybinds"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 200
+custom_constants/margin_top = 50
+custom_constants/margin_left = 200
+custom_constants/margin_bottom = 50
+
+[node name="Box" type="VBoxContainer" parent="Keybinds/Box"]
+margin_left = 200.0
+margin_top = 50.0
+margin_right = 1520.0
+margin_bottom = 885.0
+
+[node name="Mouse" type="ScrollContainer" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 33.0
+margin_right = -4.0
+margin_bottom = -4.0
+script = ExtResource( 7 )
+move_sensitivity_path = NodePath("Box/Box/Move sensitivity")
+scroll_sensitivity_path = NodePath("Box/Box/Scroll sensitivity")
+
+[node name="Box" type="MarginContainer" parent="Mouse"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 200
+custom_constants/margin_top = 50
+custom_constants/margin_left = 200
+custom_constants/margin_bottom = 50
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Box" type="VBoxContainer" parent="Mouse/Box"]
+margin_left = 200.0
+margin_top = 50.0
+margin_right = 1520.0
+margin_bottom = 885.0
+custom_constants/separation = 16
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Move sensitivity" parent="Mouse/Box/Box" instance=ExtResource( 3 )]
+max_value = 5.0
+step = 0.01
+
+[node name="Scroll sensitivity" parent="Mouse/Box/Box" instance=ExtResource( 3 )]
+margin_top = 37.0
+margin_bottom = 58.0
+max_value = 5.0
+step = 0.01
+[connection signal="value_changed" from="Sound/Box/Box/Master" to="Sound" method="set_bus_volume" binds= [ "Master" ]]
+[connection signal="value_changed" from="Sound/Box/Box/Music" to="Sound" method="set_bus_volume" binds= [ "Music" ]]
+[connection signal="value_changed" from="Sound/Box/Box/Effects" to="Sound" method="set_bus_volume" binds= [ "Effects" ]]
+[connection signal="value_changed" from="Sound/Box/Box/UI" to="Sound" method="set_bus_volume" binds= [ "UI" ]]
+[connection signal="item_selected" from="Graphics/Box/Box/Box/Shadow filter mode/Value" to="Graphics" method="set_shadow_filter_mode"]

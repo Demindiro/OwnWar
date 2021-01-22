@@ -1,9 +1,0 @@
-[gd_resource type="Environment" load_steps=2 format=2]
-
-[ext_resource path="res://editor/editor_environment_sky.tres" type="PanoramaSky" id=1]
-
-[resource]
-background_mode = 2
-background_sky = ExtResource( 1 )
-background_sky_orientation = Basis( -0.866025, -0.0695866, 0.495134, 8.6572e-08, -0.990268, -0.139173, 0.5, -0.120527, 0.857597 )
-tonemap_mode = 2

@@ -1,0 +1,21 @@
+assets:
+  - asset: addons/arrow.png
+    author: oglsdl
+    source: https://opengameart.org/content/glow-arrow
+    license: cc0
+  - asset: addons/crosshairs
+    author: LoneCoder
+    source: https://opengameart.org/content/64-crosshairs-pack-split
+    license: cc0
+  - asset: addons/wheels/big_tire.blend
+    author: Clint Bellanger
+    source: https://opengameart.org/content/big-tire
+    license: cc-by 3.0
+  - asset: addons/hud/obituary.svg
+    author: sbed
+    source: https://opengameart.org/content/obituary-kill-or-death-icons
+    license: cc-by 3.0, cc-by-sa 3.0
+  - asset: addons/backgrounds/AllSkyFree_Sky_AnotherPlanet_Equirect.png
+    author: Richard Whitelock
+    source: https://github.com/rpgwhitelock/AllSkyFree_Godot
+    license: MIT
