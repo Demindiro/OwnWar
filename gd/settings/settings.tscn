@@ -270,7 +270,7 @@ max_value = 9001.0
 margin_top = 423.0
 margin_right = 400.0
 margin_bottom = 452.0
-options = PoolStringArray( "Linear", "Reindhart", "Fimic", "Aces" )
+options = PoolStringArray( "Linear", "Reindhart", "Filmic", "Aces" )
 
 [node name="Keybinds" type="ScrollContainer" parent="."]
 visible = false

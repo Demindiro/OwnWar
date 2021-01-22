@@ -71,6 +71,7 @@ func _ready():
 	borderless_window.pressed = OS.window_borderless
 	fullscreen_window.pressed = OS.window_fullscreen
 	fps.value = Engine.target_fps
+	tonemap_mode.selected = OwnWar_Settings.tonemap_mode
 
 
 func _save(_argsplzsadface = null) -> void:

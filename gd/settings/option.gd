@@ -6,6 +6,8 @@ signal item_selected(index)
 
 export var options := PoolStringArray() setget set_options
 
+var selected := 0 setget set_selected
+
 onready var _label: Label = get_node("Label")
 onready var _options: OptionButton = get_node("Options")
 
@@ -26,6 +28,11 @@ func set_options(value: PoolStringArray) -> void:
 	_options.clear()
 	for v in value:
 		_options.add_item(v)
+
+
+func set_selected(value: int) -> void:
+	selected = value
+	_options.selected = value
 
 
 func on_item_selected(index: int) -> void:

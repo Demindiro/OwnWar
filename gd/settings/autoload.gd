@@ -9,7 +9,7 @@ signal tonemap_mode_changed(value)
 
 var enable_shadows := false setget set_enable_shadows
 var enable_floor_mirror := true setget set_enable_floor_mirror
-var tonemap_mode := Environment.TONE_MAPPER_LINEAR setget set_tonemap_mode
+var tonemap_mode := Environment.TONE_MAPPER_REINHARDT setget set_tonemap_mode
 
 var master_volume := 0.0 setget set_master_volume
 var music_volume := 0.0 setget set_music_volume
@@ -246,7 +246,7 @@ func load_settings() -> void:
 			OS.window_fullscreen = cf.get_value("graphics", "window_fullscreen", true)
 			OS.window_borderless = cf.get_value("graphics", "window_borderless", false)
 			Engine.target_fps = cf.get_value("graphics", "fps", 0)
-			tonemap_mode = cf.get_value("graphics", "tonemap", Environment.TONE_MAPPER_LINEAR)
+			tonemap_mode = cf.get_value("graphics", "tonemap", Environment.TONE_MAPPER_REINHARDT)
 
 			OwnWar_Lobby.player_name = cf.get_value("server", "username", "")
 			OwnWar_Lobby.disable_upnp = not cf.get_value("server", "upnp", true)
