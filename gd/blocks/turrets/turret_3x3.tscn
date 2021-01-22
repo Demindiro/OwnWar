@@ -35,8 +35,7 @@ script = ExtResource( 6 )
 color_node_0 = NodePath("Base")
 color_node_1 = null
 transparency_node_0 = NodePath("Base")
-transparency_node_1 = NodePath("Arrow")
-transparency_node_2 = null
+transparency_node_1 = null
 
 [node name="Base" type="MeshInstance" parent="Editor"]
 transform = Transform( 0.9667, 0, 0, 0, 1, 0, 0, 0, 0.9667, 0, 0.125, 0 )

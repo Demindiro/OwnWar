@@ -273,10 +273,11 @@ func select_block(id: int) -> void:
 			if vi != null:
 				vi.layers = 1 << 7 # TODO don't hardcode this
 		var color := material.albedo_color
-		if selected_block.editor_node.has_method("set_color"):
+		if ghost_node.has_method("set_color"):
 			camera_node.set_color(color)
 			ghost_node.set_color(color)
-		if selected_block.editor_node.has_method("set_transparency"):
+		if ghost_node.has_method("set_transparency"):
+			print("YES")
 			ghost_node.set_transparency(0.5)
 		if ghost_node.has_method("set_preview_mode"):
 			ghost_node.set_preview_mode(true)
@@ -498,13 +499,16 @@ func update_block_visibility() -> void:
 	for coordinate in blocks:
 		var block: Block = blocks[coordinate]
 		var color := block.color
-		if edit_mode and block.layer != selected_layer:
-			color.a *= 0.1
+		var transparent := edit_mode and block.layer != selected_layer
+		if transparent:
+			color.a *= 0.15
 		var material := MaterialCache.get_material(color)
 		block.node.material_override = material
 		for node in block.node.get_children():
 			if node.has_method("set_color"):
 				node.set_color(color)
+			if node.has_method("set_transparency"):
+				node.set_transparency(0.15 if transparent else 1)
 			if node.has_method("set_preview_mode"):
 				node.set_preview_mode(not edit_mode)
 

@@ -110,8 +110,9 @@ func set_transparency(alpha: float) -> void:
 				assert(base_mat != null, "base_mat is null. Check if the node has already been added")
 				assert(base_mat is SpatialMaterial, "TODO: handle other material types")
 				var color := (base_mat as SpatialMaterial).albedo_color
-				color.a *= alpha
+				color.a = alpha
 				var mat := MaterialCache.get_material(color, base_mat)
+				mi.mesh.surface_set_material(i, mat)
 		else:
 			var sprite := node as Sprite3D
 			if sprite != null:
