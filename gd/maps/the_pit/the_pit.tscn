@@ -99,7 +99,7 @@ environment = SubResource( 3 )
 [node name="Spawn Points" type="Node" parent="."]
 
 [node name="Position3D" type="Position3D" parent="Spawn Points"]
-transform = Transform( -0.278067, 0.248612, 0.927831, 0, 0.965926, -0.258819, -0.960561, -0.0719691, -0.268592, -91.3194, 13.4028, 41.6737 )
+transform = Transform( -0.278067, 0.248612, 0.927831, 0, 0.965926, -0.258819, -0.960561, -0.0719691, -0.268592, -91.3194, 7.37956, 41.6737 )
 
 [node name="Position3D2" type="Position3D" parent="Spawn Points"]
 transform = Transform( 0.855862, 2.26375e-08, 0.517204, -8.12518e-09, 1, -3.03236e-08, -0.517204, 2.17504e-08, 0.855862, -66.2348, 13.4028, -92.7232 )
@@ -166,9 +166,9 @@ lights/0 = NodePath("../Environment/DirectionalLight")
 environment = NodePath("../Environment/WorldEnvironment")
 
 [node name="Settings" parent="." instance=ExtResource( 14 )]
-[connection signal="visibility_changed" from="GUI" to="GUI" method="grab_focus"]
 [connection signal="visibility_changed" from="GUI" to="HUD" method="set_mouse_mode"]
 [connection signal="visibility_changed" from="GUI" to="HUD" method="poll_input"]
+[connection signal="visibility_changed" from="GUI" to="GUI" method="grab_focus"]
 [connection signal="pressed" from="GUI/Box/Continue" to="GUI" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="GUI/Box/Settings" to="Settings" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Box/Exit" to="GUI" method="goto_main_menu"]
