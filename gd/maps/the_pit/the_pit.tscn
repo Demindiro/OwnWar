@@ -97,16 +97,16 @@ environment = SubResource( 3 )
 [node name="Spawn Points" type="Node" parent="."]
 
 [node name="Position3D" type="Position3D" parent="Spawn Points"]
-transform = Transform( -0.278067, 0.248612, 0.927831, 0, 0.965926, -0.258819, -0.960561, -0.0719691, -0.268592, -91.3194, 7.37956, 41.6737 )
+transform = Transform( -0.278067, 0.248612, 0.927831, 0, 0.965926, -0.258819, -0.960561, -0.0719691, -0.268592, -91.3194, 5.38784, 41.6737 )
 
 [node name="Position3D2" type="Position3D" parent="Spawn Points"]
-transform = Transform( 0.855862, 2.26375e-08, 0.517204, -8.12518e-09, 1, -3.03236e-08, -0.517204, 2.17504e-08, 0.855862, -66.2348, 8.34257, -92.7232 )
+transform = Transform( 0.855862, 2.26375e-08, 0.517204, -8.12518e-09, 1, -3.03236e-08, -0.517204, 2.17504e-08, 0.855862, -66.2348, 7.36874, -92.7232 )
 
 [node name="Position3D3" type="Position3D" parent="Spawn Points"]
-transform = Transform( 0.721094, 2.26375e-08, -0.692837, -3.13933e-08, 1, 9.35593e-16, 0.692837, 2.17504e-08, 0.721094, 55.9942, 10.3688, -113.66 )
+transform = Transform( 0.721094, 2.26375e-08, -0.692837, -3.13933e-08, 1, 9.35593e-16, 0.692837, 2.17504e-08, 0.721094, 55.9942, 8.36196, -113.66 )
 
 [node name="Position3D4" type="Position3D" parent="Spawn Points"]
-transform = Transform( -0.692837, 2.26375e-08, -0.721094, 5.31481e-16, 1, 3.13933e-08, 0.721094, 2.17504e-08, -0.692837, 82.672, 13.8029, 28.2274 )
+transform = Transform( -0.692837, 2.26375e-08, -0.721094, 5.31481e-16, 1, 3.13933e-08, 0.721094, 2.17504e-08, -0.692837, 82.672, 12.5648, 28.2274 )
 
 [node name="Camera" type="Camera" parent="."]
 far = 1000.0
@@ -168,9 +168,9 @@ environment = NodePath("../Environment/WorldEnvironment")
 [node name="Disconnected" parent="." instance=ExtResource( 15 )]
 visible = false
 [connection signal="server_disconnected" from="." to="Disconnected" method="set_visible" binds= [ true ]]
+[connection signal="visibility_changed" from="GUI" to="GUI" method="grab_focus"]
 [connection signal="visibility_changed" from="GUI" to="HUD" method="set_mouse_mode"]
 [connection signal="visibility_changed" from="GUI" to="HUD" method="poll_input"]
-[connection signal="visibility_changed" from="GUI" to="GUI" method="grab_focus"]
 [connection signal="pressed" from="GUI/Box/Continue" to="GUI" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="GUI/Box/Settings" to="Settings" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Box/Exit" to="GUI" method="goto_main_menu"]
