@@ -46,6 +46,11 @@ func _ready() -> void:
 		assert(e == OK)
 		e = _body_b.connect("tree_exiting", self, "set_physics_process", [false])
 		assert(e == OK)
+	# TODO godot pls, fix the inspector
+	# Like seriously I was stuck on this shit for so long and the solution is
+	# literally just this?
+	# I'm going to buy another bottle tomorrow
+	_joint.set("precision", 75)
 
 
 func _physics_process(delta: float) -> void:
@@ -95,14 +100,6 @@ func _create_joint(body_a: PhysicsBody, body_b: PhysicsBody, vehicle: OwnWar_Veh
 	# Needed to prevent bullet from complaining ("assert_no_constraints")
 	Util.assert_connect(body_a, "tree_exiting", self, "_remove_joint")
 	Util.assert_connect(body_b, "tree_exiting", self, "_remove_joint")
-	var i := -1
-	for j in len(vehicle.voxel_bodies):
-		if body_a == vehicle.voxel_bodies[j]:
-			i = j
-			break
-	assert(i >= 0)
-	_joint.set("solver/priority", 7 - i)
-	process_priority = -i
 
 
 func _remove_joint() -> void:
