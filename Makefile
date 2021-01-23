@@ -12,28 +12,30 @@ build-debug: bin/ build-gdn-debug build-lobby-debug
 	cd gd && $(GODOT) --export-pack Linux ../bin/ownwar.pck
 
 
-build-gdn: gd/lib/
-	cd gdn && cargo build --release --target $(TARGET_LINUX)
-	cd gdn && cargo build --release --target $(TARGET_OSX)
-	cd gdn && cargo build --release --target $(TARGET_WINDOWS)
-	cp gdn/target/$(TARGET_LINUX)/release/libownwar.so gd/lib/
-	cp gdn/target/$(TARGET_OSX)/release/libownwar.dylib gd/lib/
-	cp gdn/target/$(TARGET_WINDOWS)/release/ownwar.dll gd/lib/
-	cp gdn/target/$(TARGET_LINUX)/release/libownwar.so bin/
-	cp gdn/target/$(TARGET_OSX)/release/libownwar.dylib bin/
-	cp gdn/target/$(TARGET_WINDOWS)/release/ownwar.dll bin/
+build-gdn: build-gdn-ownwar build-gdn-hterrain
 
 
-build-gdn-debug: gd/lib/
-	cd gdn && cargo build --target $(TARGET_LINUX)
-	cd gdn && cargo build --target $(TARGET_OSX)
-	cd gdn && cargo build --target $(TARGET_WINDOWS)
-	cp gdn/target/$(TARGET_LINUX)/debug/libownwar.so gd/lib/
-	cp gdn/target/$(TARGET_OSX)/debug/libownwar.dylib gd/lib/
-	cp gdn/target/$(TARGET_WINDOWS)/debug/ownwar.dll gd/lib/
-	cp gdn/target/$(TARGET_LINUX)/release/libownwar.so bin/
-	cp gdn/target/$(TARGET_OSX)/release/libownwar.dylib bin/
-	cp gdn/target/$(TARGET_WINDOWS)/release/ownwar.dll bin/
+build-gdn-debug: build-gdn-debug-ownwar build-gdn-debug-hterrain
+
+
+build-gdn-debug-%: gd/lib/
+	cd gdn/$* && cargo build --target $(TARGET_LINUX)
+	cd gdn/$* && cargo build --target $(TARGET_OSX)
+	cd gdn/$* && cargo build --target $(TARGET_WINDOWS)
+	cp gdn/$*/target/$(TARGET_LINUX)/debug/lib$*.so gd/lib/
+	cp gdn/$*/target/$(TARGET_OSX)/debug/lib$*.dylib gd/lib/
+	cp gdn/$*/target/$(TARGET_WINDOWS)/debug/$*.dll gd/lib/
+
+
+build-gdn-%: gd/lib/
+	cd gdn/$* && cargo build --release --target $(TARGET_LINUX)
+	cd gdn/$* && cargo build --release --target $(TARGET_OSX)
+	cd gdn/$* && cargo build --release --target $(TARGET_WINDOWS)
+	cp gdn/$*/target/$(TARGET_LINUX)/release/lib$*.so gd/lib/
+	cp gdn/$*/target/$(TARGET_OSX)/release/lib$*.dylib gd/lib/
+	cp gdn/$*/target/$(TARGET_WINDOWS)/release/$*.dll gd/lib/
+	strip gd/lib/lib$*.so
+	strip gd/lib/$*.dll
 
 
 build-lobby:
