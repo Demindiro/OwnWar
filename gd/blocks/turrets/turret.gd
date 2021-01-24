@@ -22,7 +22,7 @@ func init(coordinate: Vector3, voxel_body: OwnWar_VoxelBody, vehicle: OwnWar_Veh
 				_create_joint(voxel_body, body, vehicle)
 				_body_a.add_anchor(coordinate, _body_b)
 				_body_b.add_anchor(connecting_coordinate, _body_a)
-				var e := _body_a.connect("destroyed", self, "set", ["_body_a", null])
+				var e: int = _body_a.connect("destroyed", self, "set", ["_body_a", null])
 				assert(e == OK)
 				e = _body_b.connect("destroyed", self, "set", ["_body_b", null])
 				assert(e == OK)

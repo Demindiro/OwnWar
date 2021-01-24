@@ -96,8 +96,8 @@ _global_script_classes=[ {
 }, {
 "base": "VehicleBody",
 "class": "OwnWar_VoxelBody",
-"language": "GDScript",
-"path": "res://vehicles/voxel_body.gd"
+"language": "NativeScript",
+"path": "res://vehicles/voxel_body.gdns"
 }, {
 "base": "ArrayMesh",
 "class": "OwnWar_VoxelMesh",

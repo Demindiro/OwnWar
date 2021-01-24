@@ -9,3 +9,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 gdnative = "0.9"
+euclid = "0.22"
+num-traits = "0.2"

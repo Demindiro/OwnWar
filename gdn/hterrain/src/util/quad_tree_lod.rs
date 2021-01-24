@@ -119,6 +119,7 @@ impl QuadTreeLod {
 	}
 
 	#[export]
+	#[profiled]
 	pub fn update(&self, _owner: &Object, view_pos: Vector3) {
 		let mut quad = self.tree.borrow_mut();
 		self.quad_update(
