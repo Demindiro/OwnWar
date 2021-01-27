@@ -1592,7 +1592,9 @@ impl MultiBlock {
 
 fn add_block_to_cache(block: TRef<Resource>) -> (NonZeroU16, &'static CachedBlock) {
 	unsafe {
-		let id = NonZeroU16::new(block.get("id").try_to_u64().unwrap() as u16).unwrap();
+		//godot_dbg!(block.get("id")); // Uncomment in case of panics, we may be getting a f64
+		let id = block.get("id").try_to_u64().unwrap();
+		let id = NonZeroU16::new(id as u16).unwrap();
 		let index = id.get() as usize - 1;
 		if let Some(cached) = BLOCK_COST_CACHE.get(index).and_then(Option::as_ref) {
 			(id, cached)
