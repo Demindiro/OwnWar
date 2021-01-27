@@ -1,5 +1,5 @@
 use super::voxel_mesh::VoxelMesh;
-use crate::util::{convert_vec, BitArray, VoxelRaycast, AABB, swap_erase};
+use crate::util::{convert_vec, swap_erase, BitArray, VoxelRaycast, AABB};
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{
 	BoxShape, CollisionShape, Engine, MeshInstance, PackedScene, Resource, Script, Spatial,
@@ -19,6 +19,8 @@ const BLOCK_SCALE: f32 = 0.25;
 const MAINFRAME_ID: NonZeroU16 = unsafe { NonZeroU16::new_unchecked(76) };
 const DESTROY_BLOCK_EFFECT_SCENE: &str = "res://vehicles/destroy_block_effect.tscn";
 const DESTROY_BODY_EFFECT_SCENE: &str = "res://vehicles/destroy_body_effect.tscn";
+// TODO port Block in Rust so we don't have to do this for performance
+static mut BLOCK_COST_CACHE: Vec<Option<CachedBlock>> = Vec::new();
 
 #[derive(NativeClass)]
 #[inherit(VehicleBody)]
@@ -84,6 +86,11 @@ struct MultiBlock {
 	server_node: Ref<Spatial>,
 	client_node: Ref<Spatial>,
 	reverse_indices: Box<[Voxel]>,
+}
+
+struct CachedBlock {
+	health: NonZeroU32,
+	cost: NonZeroU32,
 }
 
 #[derive(Debug)]
@@ -257,9 +264,7 @@ impl VoxelBody {
 		let dhp = self.debug_hit_points.replace(Vec::new());
 		let body = self.body().borrow();
 		for point in &dhp {
-			let point = owner.to_global(
-				(point.to_f32() - body.center_of_mass) * BLOCK_SCALE,
-			);
+			let point = owner.to_global((point.to_f32() - body.center_of_mass) * BLOCK_SCALE);
 			unsafe {
 				debug.assume_safe().call(
 					"draw_point",
@@ -345,7 +350,12 @@ impl VoxelBody {
 			node.set("team", self.team);
 			if node.has_method("init") {
 				let pos = (pos + offset).to_f32();
-				unsafe { node.call("init", &[pos.to_variant(), owner.to_variant(), vehicle.to_variant()]) };
+				unsafe {
+					node.call(
+						"init",
+						&[pos.to_variant(), owner.to_variant(), vehicle.to_variant()],
+					)
+				};
 			}
 		}
 	}
@@ -432,7 +442,6 @@ impl VoxelBody {
 				.map_mut(|s, _| {
 					let mut body = self.body().borrow_mut();
 					body.remove_anchored_body(
-						self.ownwar_block_script.as_ref().unwrap().assume_safe(),
 						owner.claim(),
 						s,
 						voxel_body,
@@ -586,7 +595,8 @@ impl VoxelBody {
 		if destroy_disconnected {
 			self.destroy_disconnected_blocks(owner, destroyed_blocks, block_anchor_destroyed);
 		}
-		self.last_hit_position.set(convert_vec(raycast.voxel()) - Vector3::new(0.5, 0.5, 0.5));
+		self.last_hit_position
+			.set(convert_vec(raycast.voxel()) - Vector3::new(0.5, 0.5, 0.5));
 		damage
 	}
 
@@ -661,7 +671,16 @@ impl VoxelBody {
 			self.voxel_mesh
 				.assume_safe()
 				.map_mut(|s, _| {
-					body.add_block(owner, s, position, rotation, block, color, state.as_ref(), is_ally)
+					body.add_block(
+						owner,
+						s,
+						position,
+						rotation,
+						block,
+						color,
+						state.as_ref(),
+						is_ally,
+					)
 				})
 				.unwrap()
 		};
@@ -682,7 +701,9 @@ impl VoxelBody {
 
 	#[export]
 	fn remove_interpolator(&mut self, _owner: &VehicleBody, server_node: Ref<Spatial>) {
-		let interp = swap_erase(&mut self.interpolation_states, |e| e.server_node == server_node);
+		let interp = swap_erase(&mut self.interpolation_states, |e| {
+			e.server_node == server_node
+		});
 		let bsn = if let Ok(interp) = interp {
 			unsafe { interp.server_node.assume_safe() }
 		} else {
@@ -855,16 +876,17 @@ impl VoxelBody {
 		check_anchors: bool,
 	) {
 		let vm = unsafe { self.voxel_mesh.assume_safe() };
-		let result = vm.map_mut(|s, _| {
-			let mut body = self.body().borrow_mut();
-			body.destroy_disconnected_blocks(
-				unsafe { self.ownwar_block_script.as_ref().unwrap().assume_safe() },
-				owner.claim(),
-				s,
-				voxels,
-				check_anchors,
-			)
-		}).unwrap();
+		let result = vm
+			.map_mut(|s, _| {
+				let mut body = self.body().borrow_mut();
+				body.destroy_disconnected_blocks(
+					owner.claim(),
+					s,
+					voxels,
+					check_anchors,
+				)
+			})
+			.unwrap();
 		match result {
 			DamageState::BlocksDestroyed(destroy_blocks) => {
 				destroy_blocks.into_iter().for_each(|e| e.destroy());
@@ -942,13 +964,12 @@ impl InterpolationState {
 	fn interpolate(&self, fraction: f32) {
 		// TODO ask for implementation of interpolate_with on godot-rust repo
 		// TODO this is stupid but it seems I am too stupid to apply slerp correctly?
-		let trf = self.previous_transform.to_variant()
+		let trf = self
+			.previous_transform
+			.to_variant()
 			.call(
 				"interpolate_with",
-				&[
-					self.current_transform.to_variant(),
-					fraction.to_variant(),
-				],
+				&[self.current_transform.to_variant(), fraction.to_variant()],
 			)
 			.unwrap()
 			.try_to_transform()
@@ -1005,6 +1026,7 @@ impl Body {
 			return None;
 		}
 
+		let (id, cached) = add_block_to_cache(block);
 		let hp = if let Some(state) = state {
 			if let Some(hp) = NonZeroU32::new(state.get(index as i32) as u32) {
 				hp
@@ -1012,13 +1034,12 @@ impl Body {
 				return None;
 			}
 		} else {
-			NonZeroU32::new(block.get("health").try_to_u64().unwrap() as u32).unwrap()
+			cached.health
 		};
-		let cost = block.get("cost").try_to_u64().unwrap() as u32;
+		let cost = cached.cost.get();
 
 		voxel_mesh.add_block(block, color, position, rotation);
 
-		let id = NonZeroU16::new(block.get("id").try_to_u64().unwrap() as u16).unwrap();
 		let mut bb = InterpolationState::new(block);
 
 		if id == MAINFRAME_ID {
@@ -1044,7 +1065,7 @@ impl Body {
 				position.x as f32 + 0.5,
 				position.y as f32 + 0.5,
 				position.z as f32 + 0.5,
-				) * BLOCK_SCALE;
+			) * BLOCK_SCALE;
 			let server_node = unsafe { bb.server_node.assume_safe() };
 			let client_node = unsafe { bb.client_node.assume_safe() };
 			server_node.set_name(format!("S {},{},{}", position.x, position.y, position.z));
@@ -1063,7 +1084,7 @@ impl Body {
 				} else {
 					Color::rgb(1.0, 0.0, 0.0)
 				},
-				);
+			);
 			owner.add_child(bb.server_node, false);
 			owner.add_child(bb.client_node, false);
 			let args = VariantArray::new();
@@ -1075,7 +1096,7 @@ impl Body {
 					"remove_interpolator",
 					args.into_shared(),
 					0,
-					)
+				)
 				.unwrap();
 
 			self.health[index as usize] =
@@ -1096,7 +1117,7 @@ impl Body {
 	fn try_get_block<T: PrimInt + AsPrimitive<isize>>(
 		&self,
 		position: Vector3D<T, UnknownUnit>,
-		) -> Result<Option<Block>, ()> {
+	) -> Result<Option<Block>, ()> {
 		self.get_index(position).and_then(|i| {
 			let i = i as usize;
 			if let Some(id) = self.ids[i] {
@@ -1127,7 +1148,7 @@ impl Body {
 	fn get_block_health<T: PrimInt + AsPrimitive<isize>>(
 		&self,
 		position: Vector3D<T, UnknownUnit>,
-		) -> u32 {
+	) -> u32 {
 		if let Ok(Some(block)) = self.try_get_block(position) {
 			block.health()
 		} else {
@@ -1171,11 +1192,10 @@ impl Body {
 
 	fn remove_anchored_body(
 		&mut self,
-		ownwar_block_script: TRef<Script>,
 		owner: Ref<VehicleBody>,
 		voxel_mesh: &mut VoxelMesh,
 		body: Ref<VehicleBody>,
-		) -> Option<DamageState> {
+	) -> Option<DamageState> {
 		let mut removed_something = false;
 		let mut remove_keys = Vec::new();
 		for (k, v) in self.anchors.iter_mut() {
@@ -1194,12 +1214,11 @@ impl Body {
 		}
 		if removed_something {
 			Some(self.destroy_disconnected_blocks(
-					ownwar_block_script,
-					owner,
-					voxel_mesh,
-					Vec::new(),
-					true,
-					))
+				owner,
+				voxel_mesh,
+				Vec::new(),
+				true,
+			))
 		} else {
 			None
 		}
@@ -1208,13 +1227,13 @@ impl Body {
 	fn get_index<T: PrimInt + AsPrimitive<isize>>(
 		&self,
 		position: Vector3D<T, UnknownUnit>,
-		) -> Result<u32, ()> {
+	) -> Result<u32, ()> {
 		let position = convert_vec(position);
 		let size = convert_vec(self.size);
 		if AABB::new(Vector3D::zero(), size - Vector3D::new(1, 1, 1)).has_point(position) {
 			Ok(((position.x * size.y + position.y) * size.z + position.z)
-			   .try_into()
-			   .unwrap())
+				.try_into()
+				.unwrap())
 		} else {
 			Err(())
 		}
@@ -1223,40 +1242,40 @@ impl Body {
 	fn calculate_mass(
 		&mut self,
 		ownwar_block_script: &Ref<Script>, /* TODO this is a shitty hack */
-		) {
+	) {
 		let mut total_mass = 0.0;
 		let mut center_of_mass = Vector3::zero();
 		let size = self.size;
 		for (x, y, z) in (0..size.x)
 			.flat_map(move |x| (0..size.y).map(move |y| (x, y)))
-				.flat_map(move |(x, y)| (0..size.z).map(move |z| (x, y, z)))
-				{
-					let blk = self.try_get_block(Voxel::new(x, y, z)).unwrap();
-					if let Some(blk) = blk {
-						let mass = unsafe {
-							ownwar_block_script
-								.assume_safe()
-								.call("get_block", &[blk.id().get().to_variant()])
-								.try_to_object::<Resource>()
-								.unwrap()
-								.assume_safe()
-								.get("mass")
-								.try_to_f64()
-								.unwrap() as f32
-						};
-						center_of_mass += Vector3::new(x as f32, y as f32, z as f32) * mass;
-						total_mass += mass;
-					}
-				}
+			.flat_map(move |(x, y)| (0..size.z).map(move |z| (x, y, z)))
+		{
+			let blk = self.try_get_block(Voxel::new(x, y, z)).unwrap();
+			if let Some(blk) = blk {
+				let mass = unsafe {
+					ownwar_block_script
+						.assume_safe()
+						.call("get_block", &[blk.id().get().to_variant()])
+						.try_to_object::<Resource>()
+						.unwrap()
+						.assume_safe()
+						.get("mass")
+						.try_to_f64()
+						.unwrap() as f32
+				};
+				center_of_mass += Vector3::new(x as f32, y as f32, z as f32) * mass;
+				total_mass += mass;
+			}
+		}
 		self.total_mass = total_mass;
 		self.center_of_mass = center_of_mass / total_mass;
 	}
 
 	fn try_damage_block(
 		&mut self,
-		position: Vector3D<u8, UnknownUnit>,
+		position: Voxel,
 		damage: u32,
-		) -> Result<(bool, u32, bool, bool, Option<MultiBlock>), ()> {
+	) -> Result<(bool, u32, bool, bool, Option<MultiBlock>), ()> {
 		self.get_index(position).and_then(|i| {
 			let i = i as usize;
 			if let Some(id) = self.ids[i] {
@@ -1265,26 +1284,24 @@ impl Body {
 					if hp.get() & 0x8000 != 0 {
 						let block_index = (hp.get() & 0x7fff) as usize;
 						if let Some(ref block) = self.multi_blocks[block_index] {
-							if block.health.get() <= damage {
+							let hp = block.health.get();
+							if hp <= damage {
 								let block = self.multi_blocks[block_index].take().unwrap();
-								let damage = damage - block.health.get();
+								let damage = damage - hp;
 								self.count -= 1;
+								self.total_health -= hp;
+								self.total_cost -= get_cached_block(id).cost.get();
 								let mut anchor_destroyed = false;
 								for &pos in block.reverse_indices.iter() {
 									self.health[self.get_index(pos).unwrap() as usize] = None;
 									anchor_destroyed |= self.remove_all_anchors(pos);
 								}
 								self.multi_blocks[block_index] = None;
-								Ok((
-										true,
-										damage,
-										anchor_destroyed,
-										is_mainframe,
-										Some(block),
-										))
+								Ok((true, damage, anchor_destroyed, is_mainframe, Some(block)))
 							} else {
 								self.multi_blocks[block_index].as_mut().unwrap().health =
 									NonZeroU32::new(block.health.get() - damage).unwrap();
+								self.total_health -= damage;
 								Ok((false, 0, false, is_mainframe, None))
 							}
 						} else {
@@ -1294,16 +1311,20 @@ impl Body {
 							Ok((false, damage, false, is_mainframe, None))
 						}
 					} else {
-						if hp.get() as u32 <= damage {
-							let damage = damage - hp.get() as u32;
+						let hp = hp.get() as u32;
+						if hp <= damage {
+							let damage = damage - hp;
 							self.health[i] = None;
 							self.count -= 1;
+							self.total_health -= hp;
+							self.total_cost -= get_cached_block(id).cost.get();
+							let mut anchor_destroyed = false;
 							let anchor_destroyed = self.remove_all_anchors(position);
 							Ok((true, damage, anchor_destroyed, is_mainframe, None))
 						} else {
+							self.total_health -= damage;
 							// unwrap() may seem silly, but the check is worth it
-							self.health[i] =
-								Some(NonZeroU16::new(hp.get() - damage as u16).unwrap());
+							self.health[i] = Some(NonZeroU16::new((hp - damage) as u16).unwrap());
 							Ok((false, 0, false, is_mainframe, None))
 						}
 					}
@@ -1319,12 +1340,11 @@ impl Body {
 	#[profiled]
 	fn destroy_disconnected_blocks(
 		&mut self,
-		ownwar_block_script: TRef<Script>,
 		vehicle: Ref<VehicleBody>,
 		voxel_mesh: &mut VoxelMesh,
 		destroyed_blocks: Vec<Voxel>,
 		block_anchor_destroyed: bool,
-		) -> DamageState {
+	) -> DamageState {
 		if !self.has_mainframe {
 			if self.anchors.len() == 0 {
 				return DamageState::BodyDestroyed;
@@ -1360,29 +1380,28 @@ impl Body {
 				let index = self.get_index(side_voxel).unwrap();
 				if marks
 					.get(self.get_index(side_voxel).unwrap() as usize)
-						.unwrap()
-						{
-							continue;
-						}
+					.unwrap()
+				{
+					continue;
+				}
 				let anchor_found = self.mark_connected_blocks(&mut marks, side_voxel, index, false);
 				if anchor_found {
 					while let Some(side_voxel) = connections.pop() {
 						if !marks
 							.get(self.get_index(side_voxel).unwrap() as usize)
-								.unwrap()
-								{
-									connections.push(side_voxel);
-									break;
-								}
+							.unwrap()
+						{
+							connections.push(side_voxel);
+							break;
+						}
 					}
 				} else {
 					self.destroy_connected_blocks(
-						ownwar_block_script,
 						&mut Some(voxel_mesh),
 						side_voxel,
 						index,
 						&mut destroy_blocks_list,
-						);
+					);
 				}
 			}
 		}
@@ -1395,7 +1414,7 @@ impl Body {
 		voxel: Voxel,
 		index: u32,
 		mut found: bool,
-		) -> bool {
+	) -> bool {
 		debug_assert_eq!(index, self.get_index(voxel).unwrap());
 		marks.set(index as usize, true).unwrap();
 		if !found {
@@ -1419,41 +1438,32 @@ impl Body {
 
 	fn destroy_connected_blocks(
 		&mut self,
-		ownwar_block_script: TRef<Script>,
 		voxel_mesh: &mut Option<&mut VoxelMesh>,
 		voxel: Voxel,
 		index: u32,
 		destroy_blocks_list: &mut Vec<MultiBlock>,
-		) {
+	) {
 		debug_assert_eq!(index, self.get_index(voxel).unwrap());
 		debug_assert_ne!(self.health[index as usize], Some(MAINFRAME_ID));
 		if let Some(voxel_mesh) = voxel_mesh {
 			voxel_mesh.remove_block(voxel);
 		}
-		self.total_cost -= unsafe {
-			ownwar_block_script
-				.call(
-					"get_block",
-					&[self.ids[index as usize].unwrap().get().to_variant()],
-					)
-				.try_to_object::<Resource>()
-				.unwrap()
-				.assume_safe()
-				.get("cost")
-				.try_to_u64()
-				.unwrap() as u32
-		};
+		self.total_cost -= get_cached_block(self.ids[index as usize].unwrap()).cost.get();
 		if let Some(hp) = self.health[index as usize] {
+			let hp = hp.get();
 			self.health[index as usize] = None;
 			self.count -= 1;
-			if hp.get() & 0x8000 > 0 {
-				let index = hp.get() & 0x7fff;
+			if hp & 0x8000 != 0 {
+				let index = hp & 0x7fff;
 				let block = self.multi_blocks[index as usize].take();
 				if let Some(block) = block {
+					self.total_health -= block.health.get() as u32;
 					destroy_blocks_list.push(block)
 				} else {
 					godot_error!("Multi block is None but HP is not zero!");
 				}
+			} else {
+				self.total_health -= hp as u32;
 			}
 		}
 		let size = self.size;
@@ -1462,12 +1472,11 @@ impl Body {
 			if self.health[index as usize] != None {
 				let voxel = convert_vec(voxel.to_i32() + Vector3D::new(x, y, z));
 				self.destroy_connected_blocks(
-					ownwar_block_script,
 					voxel_mesh,
 					voxel,
 					index as u32,
 					destroy_blocks_list,
-					)
+				)
 			}
 		};
 		Self::apply_to_all_sides(size, voxel, cf);
@@ -1498,7 +1507,7 @@ impl Body {
 		&self,
 		marks: &mut HashSet<Ref<VehicleBody>>,
 		insert: Ref<VehicleBody>,
-		) -> bool {
+	) -> bool {
 		marks.insert(insert);
 		for (_, nodes) in &self.anchors {
 			for node in nodes {
@@ -1514,7 +1523,7 @@ impl Body {
 							mainframe_found = true;
 						}
 					})
-				.unwrap();
+					.unwrap();
 				if mainframe_found {
 					return true;
 				}
@@ -1568,7 +1577,6 @@ impl Block<'_> {
 	}
 }
 
-
 impl MultiBlock {
 	fn destroy(self) {
 		unsafe {
@@ -1580,5 +1588,34 @@ impl MultiBlock {
 				sn.call("destroy", &[]);
 			}
 		}
+	}
+}
+
+fn add_block_to_cache(block: TRef<Resource>) -> (NonZeroU16, &'static CachedBlock) {
+	unsafe {
+		let id = NonZeroU16::new(block.get("id").try_to_u64().unwrap() as u16).unwrap();
+		let index = id.get() as usize - 1;
+		if let Some(cached) = BLOCK_COST_CACHE.get(index).and_then(Option::as_ref) {
+			(id, cached)
+		} else {
+			let health = block.get("health").try_to_u64().unwrap() as u32;
+			let cost = block.get("cost").try_to_u64().unwrap() as u32;
+			let cached = CachedBlock {
+				health: NonZeroU32::new(health).unwrap(),
+				cost: NonZeroU32::new(cost).unwrap(),
+			};
+			if BLOCK_COST_CACHE.len() <= index {
+				BLOCK_COST_CACHE.resize_with(index + 1, || None);
+			}
+			BLOCK_COST_CACHE[index] = Some(cached);
+			//godot_print!("Cached block {}, cache size: {}", id, BLOCK_COST_CACHE.len());
+			(id, BLOCK_COST_CACHE[index].as_ref().unwrap())
+		}
+	}
+}
+
+fn get_cached_block(id: NonZeroU16) -> &'static CachedBlock {
+	unsafe {
+		BLOCK_COST_CACHE[id.get() as usize - 1].as_ref().unwrap()
 	}
 }
