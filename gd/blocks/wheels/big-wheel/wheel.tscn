@@ -42,7 +42,7 @@ mesh = SubResource( 1 )
 material/0 = null
 
 [node name="Tire" type="MeshInstance" parent="Client"]
-transform = Transform( 1.5299e-08, -0.35, -5.28485e-08, -0.35, -1.5299e-08, -8.29412e-17, -2.22714e-15, 5.28485e-08, -0.35, 0, 0, 0 )
+transform = Transform( -1.5299e-08, 0.35, 8.34465e-08, -0.35, -1.5299e-08, -8.29412e-17, 3.56462e-15, -8.34465e-08, 0.35, 0, 0, 0 )
 mesh = ExtResource( 2 )
 material/0 = null
 
@@ -70,7 +70,7 @@ mesh = ExtResource( 1 )
 material/0 = null
 
 [node name="Tire" type="MeshInstance" parent="Editor"]
-transform = Transform( 1.5299e-08, -0.35, -5.28485e-08, -0.35, -1.5299e-08, -8.29412e-17, -2.22714e-15, 5.28485e-08, -0.35, 0, 0, 0 )
+transform = Transform( -1.5299e-08, 0.35, 8.34465e-08, -0.35, -1.5299e-08, -8.29412e-17, 3.56462e-15, -8.34465e-08, 0.35, 0, 0, 0 )
 mesh = ExtResource( 2 )
 material/0 = null
 
