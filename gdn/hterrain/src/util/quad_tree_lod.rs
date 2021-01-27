@@ -19,7 +19,7 @@ struct Quad {
 
 
 #[derive(NativeClass)]
-#[inherit(Object)]
+#[inherit(Reference)]
 pub struct QuadTreeLod {
 	tree: RefCell<Quad>,
 	max_depth: u32,
@@ -47,7 +47,7 @@ impl Quad {
 
 #[methods]
 impl QuadTreeLod {
-	pub fn new(_owner: &Object) -> Self {
+	pub fn new(_owner: &Reference) -> Self {
 		Self {
 			tree: RefCell::new(Quad::new()),
 			max_depth: 0,
@@ -60,14 +60,14 @@ impl QuadTreeLod {
 	}
 
 	#[export]
-	pub fn set_callbacks(&mut self, _owner: &Object, make_func: Ref<FuncRef>, recycle_func: Ref<FuncRef>, vertical_bounds_func: Ref<FuncRef>) {
+	pub fn set_callbacks(&mut self, _owner: &Reference, make_func: Ref<FuncRef>, recycle_func: Ref<FuncRef>, vertical_bounds_func: Ref<FuncRef>) {
 		self.make_func = Some(make_func);
 		self.recycle_func = Some(recycle_func);
 		self.vertical_bounds_func = Some(vertical_bounds_func);
 	}
 
 	#[export]
-	pub fn clear(&mut self, _owner: &Object) {
+	pub fn clear(&mut self, _owner: &Reference) {
 		if let Ok(mut quad) = self.tree.try_borrow_mut() {
 			Self::join_all_recursively(self, &mut quad, self.max_depth);
 			self.max_depth = 0;
@@ -88,19 +88,19 @@ impl QuadTreeLod {
 	}
 
 	#[export]
-	pub fn create_from_sizes(&mut self, _owner: &Object, base_size: u32, full_size: u32) {
+	pub fn create_from_sizes(&mut self, _owner: &Reference, base_size: u32, full_size: u32) {
 		self.clear(_owner);
 		self.base_size = base_size;
 		self.max_depth = Self::compute_lod_count(base_size, full_size);
 	}
 
 	#[export]
-	pub fn get_lod_count(&self, _owner: &Object) -> u32 {
+	pub fn get_lod_count(&self, _owner: &Reference) -> u32 {
 		self.max_depth + 1
 	}
 
 	#[export]
-	pub fn set_split_scale(&mut self, _owner: &Object, split_scale: f32) {
+	pub fn set_split_scale(&mut self, _owner: &Reference, split_scale: f32) {
 		let min = 2.0;
 		let max = 5.0;
 
@@ -114,13 +114,13 @@ impl QuadTreeLod {
 	}
 
 	#[export]
-	pub fn get_split_scale(&self, _owner: &Object) -> f32 {
+	pub fn get_split_scale(&self, _owner: &Reference) -> f32 {
 		self.split_scale
 	}
 
 	#[export]
 	#[profiled]
-	pub fn update(&self, _owner: &Object, view_pos: Vector3) {
+	pub fn update(&self, _owner: &Reference, view_pos: Vector3) {
 		let mut quad = self.tree.borrow_mut();
 		self.quad_update(
 			&mut quad,
@@ -134,7 +134,7 @@ impl QuadTreeLod {
 	}
 
 	#[export]
-	pub fn get_lod_size(&self, _owner: &Object, lod: u32) -> u32 {
+	pub fn get_lod_size(&self, _owner: &Reference, lod: u32) -> u32 {
 		Self::get_lod_size_static(lod)
 	}
 
@@ -254,7 +254,7 @@ impl QuadTreeLod {
 	}
 
 	#[export]
-	pub fn debug_draw_tree(&self, _owner: &Object, ci: Variant) {
+	pub fn debug_draw_tree(&self, _owner: &Reference, ci: Variant) {
 		if let Some(ci) = ci.try_to_object::<CanvasItem>() {
 			let ci = unsafe { ci.assume_safe() };
 			Self::debug_draw_tree_recursive(&ci, &self.tree.borrow(), self.max_depth, 0);
