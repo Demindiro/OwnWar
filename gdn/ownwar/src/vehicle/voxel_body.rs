@@ -1439,7 +1439,7 @@ impl Body {
 				.try_to_object::<Resource>()
 				.unwrap()
 				.assume_safe()
-				.get("id")
+				.get("cost")
 				.try_to_u64()
 				.unwrap() as u32
 		};
