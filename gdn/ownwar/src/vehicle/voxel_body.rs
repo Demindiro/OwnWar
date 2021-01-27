@@ -1199,7 +1199,7 @@ impl Body {
 		let mut removed_something = false;
 		let mut remove_keys = Vec::new();
 		for (k, v) in self.anchors.iter_mut() {
-			for i in 0..v.len() {
+			for i in (0..v.len()).rev() {
 				if v[i] == body {
 					v.swap_remove(i);
 					removed_something = true
