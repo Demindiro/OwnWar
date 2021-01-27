@@ -1318,7 +1318,6 @@ impl Body {
 							self.count -= 1;
 							self.total_health -= hp;
 							self.total_cost -= get_cached_block(id).cost.get();
-							let mut anchor_destroyed = false;
 							let anchor_destroyed = self.remove_all_anchors(position);
 							Ok((true, damage, anchor_destroyed, is_mainframe, None))
 						} else {
