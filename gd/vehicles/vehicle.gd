@@ -322,7 +322,7 @@ func load_from_data(p_data: PoolByteArray, state := []) -> int:
 			if len(state) > 0:
 				vb.spawn_block(pos, rot, blk, clr, state[layer])
 			else:
-				vb.spawn_block(pos, rot, blk, clr, [])
+				vb.spawn_block(pos, rot, blk, clr, null)
 			vb.name = "VoxelBody %d" % layer
 		voxel_bodies[layer] = vb
 
@@ -371,7 +371,7 @@ func serialize_state() -> Array:
 		if vb != null:
 			if vb.id >= len(vb_data):
 				vb_data.resize(vb.id + 1)
-			vb_data[vb.id] = [vb._block_health, vb._block_health_alt]
+			vb_data[vb.id] = vb.serialize_state()
 	return vb_data
 
 
