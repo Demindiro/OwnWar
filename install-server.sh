@@ -1,3 +1,7 @@
 #!/bin/sh
 
-scp bin/ownwar.pck ownwar@lv0:ownwar.pck
+for SERVER in lu0 lv0; do
+	scp bin/libhterrain.so "ownwar@$SERVER:ownwar.pck"
+	scp bin/libownwar.so "ownwar@$SERVER:ownwar.pck"
+	scp bin/ownwar.pck "ownwar@$SERVER:ownwar.pck"
+done
