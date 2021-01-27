@@ -95,7 +95,9 @@ func _set_camera() -> void:
 		var r_normal := _camera_terrain_ray.get_collision_normal()
 		var rel_pos := r_pos - pos
 		if rel_pos.length_squared() < 0.25 or rel_pos.dot(r_normal) > 0:
-			pos = r_pos - _camera_terrain_ray.cast_to.normalized()
+			# Multiply factor determined by trial and error
+			# I have no idea why 0.5 is "right"
+			pos = r_pos - _camera_terrain_ray.cast_to.normalized() * 0.5
 	_camera.transform = Transform(basis, pos)
 	_camera_ray.force_raycast_update()
 	if _camera_ray.is_colliding():
