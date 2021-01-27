@@ -8,8 +8,7 @@ const _UNIT_DIRECTORY := "units"
 
 
 static func get_block_thumbnail_async(id: int, callback: FuncRef, arguments := []) -> bool:
-	var block: OwnWar_Block = OwnWar_Block.get_block(id)
-	if _try_get_thumbnail(_get_block_path(id, block.revision), callback, arguments):
+	if _try_get_thumbnail(_get_block_path(id), callback, arguments):
 		return true
 	else:
 		OwnWar_Thumbnail._create_block_thumbnail(id, callback, arguments)
@@ -32,7 +31,7 @@ static func move_vehicle_thumbnail(from: String, to: String) -> void:
 	var _e := Directory.new().rename(from, to)
 
 
-static func _get_block_path(id: int, revision: int) -> String:
+static func _get_block_path(id: int) -> String:
 	var blk = OwnWar_Block.get_block(id)
 	return _THUMBNAIL_DIRECTORY \
 		.plus_file(_BLOCK_DIRECTORY) \
@@ -72,7 +71,7 @@ func _create_block_thumbnail(id: int, callback: FuncRef, arguments: Array) -> vo
 	var mi: MeshInstance = tn.get_child(0)
 	var block: OwnWar_Block = OwnWar_Block.get_block(id)
 	print("Generating block thumbnail for ", id)
-	var path := _get_block_path(id, block.revision)
+	var path := _get_block_path(id)
 	mi.scale = Vector3.ONE / max(block.aabb.size.x, max(block.aabb.size.y, block.aabb.size.z))
 	mi.mesh = block.mesh
 	if block.editor_node != null:

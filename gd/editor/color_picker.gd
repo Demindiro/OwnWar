@@ -2,6 +2,7 @@ tool
 extends ColorRect
 
 
+# warning-ignore:unused_signal
 signal pick_color(color)
 
 const COLORS = [Color.white, Color.gray, Color.black, Color.red, Color.green,

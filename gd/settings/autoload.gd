@@ -29,7 +29,8 @@ var dirty := false
 func _enter_tree() -> void:
 	load_settings()
 	var timer := Timer.new()
-	timer.connect("timeout", self, "save_settings")
+	var e := timer.connect("timeout", self, "save_settings")
+	assert(e == OK)
 	timer.wait_time = 60
 	add_child(timer)
 	timer.start()
@@ -52,6 +53,7 @@ func get_msaa() -> int:
 	return ProjectSettings.get_setting("rendering/quality/filters/msaa")
 
 
+# warning-ignore:function_conflicts_variable
 func enable_shadows(enabled: bool) -> void:
 	dirty = dirty or enable_shadows != enabled
 	enable_shadows = enabled
@@ -114,7 +116,7 @@ func set_ui_volume(value: float) -> void:
 
 func set_fps(value: float) -> void:
 	dirty = dirty or Engine.target_fps != value
-	Engine.target_fps = value
+	Engine.target_fps = int(value)
 
 
 func set_selected_vehicle_path(value: String) -> void:

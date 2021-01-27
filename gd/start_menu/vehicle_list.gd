@@ -10,6 +10,8 @@ var _button_group := ButtonGroup.new()
 onready var _box: Control = get_node("Box/Box")
 
 
+# TODO
+# warning-ignore:unused_signal
 signal select_vehicle(path)
 
 

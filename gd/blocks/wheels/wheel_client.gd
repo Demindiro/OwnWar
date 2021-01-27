@@ -6,7 +6,7 @@ export var rim_path := NodePath()
 export(float, 0.0, 2.0) var pitch_scale := 1.0
 export var dc_motor_audio_max_db := -10.0
 
-var server_node: VehicleWheel
+var server_node: OwnWar_Wheel 
 var color: Color
 
 onready var dc_motor_audio: AudioStreamPlayer3D = get_node(dc_motor_audio_path)

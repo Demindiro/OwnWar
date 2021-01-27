@@ -19,7 +19,7 @@ func init(coordinate: Vector3, voxel_body: OwnWar_VoxelBody, vehicle: OwnWar_Veh
 		if body != null and body != voxel_body:
 			var other_id: int = body.get_block_id(connecting_coordinate)
 			if other_id > 0:
-				_create_joint(voxel_body, body, vehicle)
+				_create_joint(voxel_body, body)
 				_body_a.add_anchor(coordinate, _body_b)
 				_body_b.add_anchor(connecting_coordinate, _body_a)
 				var e: int = _body_a.connect("destroyed", self, "set", ["_body_a", null])
@@ -92,7 +92,7 @@ func aim_at(position: Vector3):
 	_aim_pos = position
 
 
-func _create_joint(body_a: PhysicsBody, body_b: PhysicsBody, vehicle: OwnWar_Vehicle) -> void:
+func _create_joint(body_a: PhysicsBody, body_b: PhysicsBody) -> void:
 	_body_a = body_a
 	_body_b = body_b
 	_joint.set("nodes/node_a", _joint.get_path_to(body_a))

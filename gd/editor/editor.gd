@@ -150,7 +150,7 @@ func process_actions():
 	elif Input.is_action_just_pressed("editor_place_block"):
 		if ray_voxel_valid and not Input.is_action_pressed("editor_release_cursor"):
 			var coordinate = _v2a(_a2v(ray.voxel) + _a2v(ray.get_normal()))
-			_snap_face(_a2v(ray.get_normal()))
+			snap_face(_a2v(ray.get_normal()))
 			var placed := place_block(selected_block, coordinate, _rotation,
 				material.albedo_color, selected_layer)
 			if placed and mirror:
@@ -160,7 +160,7 @@ func process_actions():
 				var delta = coordinate[0] - mirror_x
 				coordinate[0] = mirror_x - delta
 				var m_block: OwnWar_Block = selected_block.mirror_block
-				place_block(m_block, coordinate, m_block.get_mirror_rotation(_rotation),
+				var _success := place_block(m_block, coordinate, m_block.get_mirror_rotation(_rotation),
 					material.albedo_color, selected_layer)
 			if placed:
 				place_sound_player.play()
@@ -177,7 +177,7 @@ func process_actions():
 				var mirror_x = (GRID_SIZE - 1) / 2
 				var delta = coordinate[0] - mirror_x
 				coordinate[0] = mirror_x - delta
-				remove_block(coordinate)
+				var _success := remove_block(coordinate)
 			if removed:
 				remove_sound_player.play()
 			else:
@@ -298,7 +298,7 @@ func highlight_face():
 			ray_hits_block = false
 		else:
 			var direction = ray.get_normal()
-			_snap_face(_a2v(direction))
+			snap_face(_a2v(direction))
 			var place_at = _v2a(_a2v(ray.voxel) + _a2v(direction))
 			var x = _a2v(direction)
 			var y = Vector3.RIGHT.cross(x)
@@ -427,7 +427,7 @@ func load_vehicle() -> void:
 				color.r8 = file.get_8()
 				color.g8 = file.get_8()
 				color.b8 = file.get_8()
-				place_block(OwnWar_Block.get_block(id), [x, y, z], rot, color, layer)
+				var _success := place_block(OwnWar_Block.get_block(id), [x, y, z], rot, color, layer)
 		print("Loaded vehicle from %s" % vehicle_path)
 	edit_mode = prev_edit_mode
 	map_rotations = prev_map_rotations
@@ -501,13 +501,13 @@ func update_block_visibility() -> void:
 		var transparent := edit_mode and block.layer != selected_layer
 		if transparent:
 			color.a *= 0.15
-		var material := MaterialCache.get_material(color)
-		block.node.material_override = material
+		var mat := MaterialCache.get_material(color)
+		block.node.material_override = mat
 		for node in block.node.get_children():
 			if node.has_method("set_color"):
 				node.set_color(color)
 			if node.has_method("set_transparency"):
-				node.set_transparency(0.15 if transparent else 1)
+				node.set_transparency(0.15 if transparent else 1.0)
 			if node.has_method("set_preview_mode"):
 				node.set_preview_mode(not edit_mode)
 
@@ -522,7 +522,7 @@ func rotate_block_up() -> void:
 	rotate_player.play()
 
 
-func _snap_face(direction: Vector3) -> void:
+func snap_face(direction: Vector3) -> void:
 	if _snap_face:
 		var dir := OwnWar_Block.axis_to_direction(direction)
 		assert(dir != -1)

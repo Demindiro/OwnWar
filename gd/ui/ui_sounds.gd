@@ -43,7 +43,7 @@ func node_added(node: Node) -> void:
 		node.set_meta("ui_audio_mouse_entered", false)
 
 
-func node_removed(node: Node) -> void:
+func node_removed(_node: Node) -> void:
 	# TODO is it safe to assume the node has been deleted?
 	pass
 

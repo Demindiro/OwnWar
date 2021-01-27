@@ -72,5 +72,6 @@ func on_vehicle_rotated(center: Vector3) -> void:
 	center_of_mass += center
 
 
+# warning-ignore:function_conflicts_variable
 func enable_center_of_mass_indicator(enable: bool) -> void:
 	enable_center_of_mass_indicator = enable

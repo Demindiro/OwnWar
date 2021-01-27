@@ -211,7 +211,7 @@ master func apply_client_physics(seq_id: int, state: PoolVector3Array) -> void:
 
 
 # TODO apply server correction
-puppet func override_physics(state: PoolVector3Array) -> void:
+puppet func override_physics(_state: PoolVector3Array) -> void:
 	pass
 
 
@@ -232,7 +232,7 @@ func load_from_file(path: String) -> int:
 	return load_from_data(file.get_buffer(file.get_len()))
 
 
-func load_from_data(data: PoolByteArray, state := []) -> int:
+func load_from_data(p_data: PoolByteArray, state := []) -> int:
 	for body in voxel_bodies:
 		if body != null:
 			body.queue_free()
@@ -241,8 +241,8 @@ func load_from_data(data: PoolByteArray, state := []) -> int:
 	var mainframe_id := OwnWar.MAINFRAME_ID
 
 	var spb := StreamPeerBuffer.new()
-	spb.data_array = data
-	self.data = data
+	spb.data_array = p_data
+	data = p_data
 
 	var vb_data_blocks := {}
 	var vb_aabbs := {}

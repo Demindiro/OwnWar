@@ -50,7 +50,8 @@ static func snap_transform(node) -> void:
 
 
 static func goto_main_menu(tree: SceneTree) -> void:
-	tree.change_scene(MAIN_MENU)
+	var e := tree.change_scene(MAIN_MENU)
+	assert(e == OK)
 	tree.paused = false
 
 

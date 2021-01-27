@@ -167,6 +167,7 @@ static func axis_to_direction(axis: Vector3) -> int:
 func __set_mirror_block(block: Resource):
 	# warning-ignore:unsafe_property_access
 	assert(block.id > 0, "oh no - invalid mirror block id")
+	# warning-ignore:unsafe_property_access
 	__mirror_block_id = block.id
 
 
