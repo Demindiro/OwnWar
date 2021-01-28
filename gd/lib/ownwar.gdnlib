@@ -8,7 +8,10 @@ reloadable=false
 [entry]
 
 X11.64="res://lib/libownwar.so"
+Server="res://lib/libownwar.so"
 
 [dependencies]
 
 X11.64=[  ]
+Server.64=[  ]
+Server=[  ]
