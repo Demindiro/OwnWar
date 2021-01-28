@@ -3,7 +3,7 @@ use crate::util::{convert_vec, swap_erase, BitArray, VoxelRaycast, AABB};
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{
 	BoxShape, CollisionShape, Engine, MeshInstance, PackedScene, Resource, Script, Spatial,
-	VehicleBody, VehicleWheel, OS,
+	VehicleBody, VehicleWheel, OS, PhysicsMaterial,
 };
 use gdnative::prelude::*;
 use num_traits::float::FloatConst;
@@ -19,6 +19,7 @@ const BLOCK_SCALE: f32 = 0.25;
 const MAINFRAME_ID: NonZeroU16 = unsafe { NonZeroU16::new_unchecked(76) };
 const DESTROY_BLOCK_EFFECT_SCENE: &str = "res://vehicles/destroy_block_effect.tscn";
 const DESTROY_BODY_EFFECT_SCENE: &str = "res://vehicles/destroy_body_effect.tscn";
+const PHYSICS_MATERIAL: &str = "res://vehicles/medium_friction.tres";
 // TODO port Block in Rust so we don't have to do this for performance
 static mut BLOCK_COST_CACHE: Vec<Option<CachedBlock>> = Vec::new();
 
@@ -139,6 +140,12 @@ impl VoxelBody {
 	fn new(owner: TRef<VehicleBody>) -> Self {
 		owner.set_as_toplevel(true);
 		owner.set("can_sleep", false); // Prevent turrets from locking up
+
+		let physics_material = ResourceLoader::godot_singleton()
+			.load(PHYSICS_MATERIAL, "PhysicsMaterial", false)
+			.and_then(|s| s.cast::<PhysicsMaterial>())
+			.unwrap();
+		owner.set_physics_material_override(physics_material);
 
 		let collision_shape = Ref::<BoxShape, Unique>::new().into_shared();
 		let collision_shape_instance = Ref::<CollisionShape, Unique>::new();
