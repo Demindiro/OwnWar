@@ -9,6 +9,7 @@ var _coord_a: Vector3
 var _coord_b: Vector3
 var _aim_pos := Vector3()
 var _body_b_mount := Spatial.new()
+var _heaviest_mass := 0.0 # Used to adjust joint precision
 onready var _joint: Generic6DOFJoint = get_node("Joint")
 
 
@@ -28,6 +29,10 @@ func init(coordinate: Vector3, voxel_body: OwnWar_VoxelBody, vehicle: OwnWar_Veh
 				assert(e == OK)
 				_coord_a = coordinate
 				_coord_b = connecting_coordinate
+				for b in vehicle.voxel_bodies:
+					_heaviest_mass = max(_heaviest_mass, b.mass)
+				assert(_heaviest_mass > 0.0, "Mass of heaviest body is 0!")
+				break
 
 
 func destroy() -> void:
@@ -50,7 +55,12 @@ func _ready() -> void:
 	# Like seriously I was stuck on this shit for so long and the solution is
 	# literally just this?
 	# I'm going to buy another bottle tomorrow
-	_joint.set("precision", 75)
+	# TODO convince the core devs NOT TO REMOVE THIS PROPERTY come on, it exists
+	# for a reason :(
+	var mass_ratio := _heaviest_mass / min(_body_a.mass, _body_b.mass)
+	var precision_factor := int(clamp(mass_ratio * 0.33, 10, 75))
+	#printt("Mass ratio", mass_ratio, "Precision", precision_factor)
+	_joint.set("precision", precision_factor)
 
 
 func _physics_process(delta: float) -> void:
