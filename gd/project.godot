@@ -191,8 +191,8 @@ enabled=PoolStringArray( "metadata_inspector", "zylann.hterrain" )
 
 [gdnative]
 
-singletons=[  ]
 singletons_disabled=[  ]
+singletons=[  ]
 
 [input]
 

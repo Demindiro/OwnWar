@@ -25,7 +25,7 @@ build-windows:
 	@mkdir -p bin/windows/lib/
 	@cd gd && $(GODOT) --export windows ../bin/windows/ownwar.exe > /dev/null 2> /dev/null
 	@echo Moving Windows libraries to lib/
-	@mv bin/linux/*.dll bin/linux/lib/
+	@mv bin/windows/*.dll bin/windows/lib/
 	@echo Compressing Windows
 	@cd bin && zip -r windows/ownwar.zip windows/ -x '*windows/ownwar.zip*' > /dev/null
 
