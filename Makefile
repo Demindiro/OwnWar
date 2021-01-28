@@ -8,24 +8,20 @@ build: build-linux build-osx build-windows
 
 build-linux:
 	@echo Building Linux
-	@mkdir -p bin/linux/lib/
+	@mkdir -p bin/linux/
 	@cd gd && $(GODOT) --export linux ../bin/linux/ownwar > /dev/null 2> /dev/null
-	@echo Moving Linux libraries to lib/
-	@mv bin/linux/lib*.so bin/linux/lib/
 	@echo Compressing Linux
 	@cd bin && zip -r linux/ownwar.zip linux/ -x '*linux/ownwar.zip*' > /dev/null
 
 build-osx:
 	@echo Building OS X
-	@mkdir -p bin/osx/lib/
+	@mkdir -p bin/osx/
 	@cd gd && $(GODOT) --export osx ../bin/osx/ownwar.zip > /dev/null 2> /dev/null
 
 build-windows:
 	@echo Building Windows
-	@mkdir -p bin/windows/lib/
+	@mkdir -p bin/windows/
 	@cd gd && $(GODOT) --export windows ../bin/windows/ownwar.exe > /dev/null 2> /dev/null
-	@echo Moving Windows libraries to lib/
-	@mv bin/windows/*.dll bin/windows/lib/
 	@echo Compressing Windows
 	@cd bin && zip -r windows/ownwar.zip windows/ -x '*windows/ownwar.zip*' > /dev/null
 
