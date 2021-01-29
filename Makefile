@@ -6,19 +6,19 @@ TARGET_WINDOWS?=x86_64-pc-windows-gnu
 
 build: build-linux build-osx build-windows
 
-build-linux:
+build-linux: build-gdn
 	@echo Building Linux
 	@mkdir -p bin/linux/
 	@cd gd && $(GODOT) --export linux ../bin/linux/ownwar > /dev/null 2> /dev/null
 	@echo Compressing Linux
 	@cd bin && zip -r linux/ownwar.zip linux/ -x '*linux/ownwar.zip*' > /dev/null
 
-build-osx:
+build-osx: build-gdn
 	@echo Building OS X
 	@mkdir -p bin/osx/
 	@cd gd && $(GODOT) --export osx ../bin/osx/ownwar.zip > /dev/null 2> /dev/null
 
-build-windows:
+build-windows: build-gdn
 	@echo Building Windows
 	@mkdir -p bin/windows/
 	@cd gd && $(GODOT) --export windows ../bin/windows/ownwar.exe > /dev/null 2> /dev/null
