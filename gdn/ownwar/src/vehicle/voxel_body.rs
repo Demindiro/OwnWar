@@ -965,7 +965,19 @@ impl InterpolationState {
 
 	fn update(&mut self) {
 		self.previous_transform = self.current_transform;
-		self.current_transform = unsafe { self.server_node.assume_safe().global_transform() };
+		let trf = unsafe { self.server_node.assume_safe().global_transform() };
+		let chk_nan = |v: Vector3| v.x.is_nan() || v.y.is_nan() || v.z.is_nan();
+		if chk_nan(trf.origin) || chk_nan(trf.basis.x()) || chk_nan(trf.basis.y()) || chk_nan(trf.basis.z()) {
+			let sn = unsafe { self.server_node.assume_safe() };
+			godot_error!(
+				"Transform has NaN components! Offender: [{}:{}], transform: {:?}",
+				sn.get_class(),
+				sn.get_instance_id(),
+				trf,
+			);
+		} else {
+			self.current_transform = trf;
+		}
 	}
 
 	fn interpolate(&self, fraction: f32) {
