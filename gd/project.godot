@@ -166,7 +166,12 @@ _global_script_class_icons={
 
 config/name="Own War"
 run/main_scene="res://start_menu/main.tscn"
-config/icon="res://godot-icon.png"
+boot_splash/image="res://icons/512x512/icon.png"
+boot_splash/fullsize=false
+boot_splash/bg_color=Color( 0, 0, 0, 1 )
+config/icon="res://icons/512x512/icon.png"
+config/macos_native_icon="res://icons/icon.icns"
+config/windows_native_icon="res://icons/256x256/icon.ico"
 
 [autoload]
 
