@@ -846,7 +846,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.821202 )
 [connection signal="text_entered" from="Vehicle info/Box/Name" to="Vehicle info" method="edit_name"]
 [connection signal="pressed" from="Server menu/Box/Box/Manual connect/Connect" to="Server menu/Box/Box/Manual connect" method="launch"]
 [connection signal="pressed" from="Server menu/Box/Lobby/Connect" to="Server menu/Box/Lobby" method="launch"]
-[connection signal="toggled" from="Server menu/Box/Self host/List in lobby" to="Server menu/Box/Self host/Name" method="set_visible"]
 [connection signal="toggled" from="Server menu/Box/Self host/List in lobby" to="Server menu/Box/Self host/Description" method="set_visible"]
+[connection signal="toggled" from="Server menu/Box/Self host/List in lobby" to="Server menu/Box/Self host/Name" method="set_visible"]
 [connection signal="pressed" from="Server menu/Box/Self host/Start server" to="Server menu/Box/Self host" method="launch"]
 [connection signal="pressed" from="Server menu/Cancel" to="Server menu" method="set_visible" binds= [ false ]]

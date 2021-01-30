@@ -1,6 +1,10 @@
 extends Node
 
 
+# Set to true if recording for trailer footage
+const TRAILER_MODE := false
+
+
 class Block:
 	var id: int
 	var position: Vector3
@@ -106,6 +110,13 @@ func _ready():
 
 	var e := OwnWar_Settings.connect("mouse_move_sensitivity_changed", camera, "set_angular_speed")
 	assert(e == OK)
+
+	if TRAILER_MODE:
+		for child in Util.get_children_recursive(self):
+			if child is Control or child.name == "TODO text" or child.name == "Ghost" or child.name == "BlockFaceHighlighter":
+				child.visible = false
+		set_process(false)
+		set_process_input(false)
 
 
 func _input(event: InputEvent) -> void:
@@ -327,6 +338,9 @@ func highlight_face():
 
 
 func save_vehicle() -> void:
+	if TRAILER_MODE:
+		print("Refusing to save in trailer mode to prevent data loss")
+		return
 	var MAGIC := 493279249 # Totally random, not derived from a name
 	var REVISION := 0
 	var file := File.new()
@@ -381,6 +395,11 @@ func save_vehicle() -> void:
 
 
 func load_vehicle() -> void:
+
+	if TRAILER_MODE:
+		while not Input.is_key_pressed(KEY_KP_5):
+			yield(get_tree(), "idle_frame")
+
 	var prev_edit_mode := edit_mode
 	var prev_map_rotations := map_rotations
 	edit_mode = true
@@ -428,6 +447,11 @@ func load_vehicle() -> void:
 				color.g8 = file.get_8()
 				color.b8 = file.get_8()
 				var _success := place_block(OwnWar_Block.get_block(id), [x, y, z], rot, color, layer)
+				if TRAILER_MODE:
+					edit_mode = false
+					update_block_visibility()
+					edit_mode = true
+					yield(get_tree(), "idle_frame")
 		print("Loaded vehicle from %s" % vehicle_path)
 	edit_mode = prev_edit_mode
 	map_rotations = prev_map_rotations
