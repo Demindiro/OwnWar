@@ -11,19 +11,19 @@ build-linux: build-gdn
 	@mkdir -p bin/linux/
 	@cd gd && $(GODOT) --export linux ../bin/linux/ownwar > /dev/null 2> /dev/null
 	@echo Compressing Linux
-	@cd bin && zip -r linux/ownwar.zip linux/ -x '*linux/ownwar.zip*' > /dev/null
+	@cd bin && tar zcf ownwar-linux.tar.gz linux/
 
 build-osx: build-gdn
 	@echo Building OS X
 	@mkdir -p bin/osx/
-	@cd gd && $(GODOT) --export osx ../bin/osx/ownwar.zip > /dev/null 2> /dev/null
+	@cd gd && $(GODOT) --export osx ../bin/ownwar-osx.zip > /dev/null 2> /dev/null
 
 build-windows: build-gdn
 	@echo Building Windows
 	@mkdir -p bin/windows/
 	@cd gd && $(GODOT) --export windows ../bin/windows/ownwar.exe > /dev/null 2> /dev/null
 	@echo Compressing Windows
-	@cd bin && zip -r windows/ownwar.zip windows/ -x '*windows/ownwar.zip*' > /dev/null
+	@cd bin && zip -r ownwar-windows.zip windows/ > /dev/null
 
 
 build-gdn: build-gdn-ownwar build-gdn-hterrain
