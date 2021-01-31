@@ -292,7 +292,6 @@ func punch_hole(entry: Entry) -> void:
 	client_connected = false
 	# If the connection fails after 5 tries, the server is likely unreachable anyways
 	for _i in 5:
-		print("I TRIED SO HARD")
 		var e := lobby_peer.put_packet(spb.data_array)
 		assert(e == OK)
 		yield(get_tree().create_timer(1.0), "timeout")
