@@ -31,7 +31,7 @@ func set_preview(path: String, save := true) -> void:
 	var e := _vehicle.load_from_file(path)
 	if e != OK:
 		print("Failed to load vehicle at %s: %s" % [path, Global.ERROR_TO_STRING[e]])
-		assert(false, "Failed to load vehicle")
+		#assert(false, "Failed to load vehicle")
 		return
 	_vehicle.transform = _origin.transform
 	_vehicle.translation.y += 25 * OwnWar_Block.BLOCK_SCALE / 2

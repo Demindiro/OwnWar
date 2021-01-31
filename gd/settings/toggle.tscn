@@ -13,12 +13,14 @@ __meta__ = {
 
 [node name="Label" type="Label" parent="."]
 margin_top = 13.0
+margin_right = 41.0
 margin_bottom = 27.0
 size_flags_horizontal = 3
+text = "Toggle"
 
 [node name="Value" type="CheckButton" parent="."]
-margin_left = 4.0
-margin_right = 80.0
+margin_left = 45.0
+margin_right = 121.0
 margin_bottom = 40.0
 size_flags_horizontal = 3
-[connection signal="toggled" from="Value" to="." method="set_value"]
+[connection signal="toggled" from="Value" to="." method="set_pressed"]

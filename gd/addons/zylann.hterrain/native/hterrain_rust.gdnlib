@@ -1,0 +1,20 @@
+[general]
+
+singleton=false
+load_once=true
+symbol_prefix="godot_"
+reloadable=false
+
+[entry]
+
+OSX.64="res://lib/libhterrain.dylib"
+Windows.64="res://lib/hterrain.dll"
+X11.64="res://lib/libhterrain.so"
+Server="res://lib/libhterrain.so"
+
+[dependencies]
+
+OSX.64=[  ]
+Windows.64=[  ]
+X11.64=[  ]
+Server=[  ]

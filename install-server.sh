@@ -1,4 +1,8 @@
 #!/bin/sh
 
-scp bin/ownwar.pck ownwar@lv0:ownwar.pck
-scp lobby/target/release/own-war-lobby ownwar@lv0:own-war-lobby
+for SERVER in lu0 lv0; do
+	echo Installing on $SERVER
+	scp bin/linux/libhterrain.so "ownwar@$SERVER:libhterrain.so"
+	scp bin/linux/libownwar.so "ownwar@$SERVER:libownwar.so"
+	scp bin/linux/ownwar.pck "ownwar@$SERVER:ownwar.pck"
+done

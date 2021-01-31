@@ -1,10 +1,11 @@
 extends VehicleBody
-class_name OwnWar_VoxelBody
+#class_name OwnWar_VoxelBody
 
 
 const VoxelMesh := preload("voxel_mesh.gd")
 
 
+### PORTED
 class InterpolationData:
 	var server_node: Spatial
 	var client_node: Spatial
@@ -63,6 +64,7 @@ onready var headless := OS.has_feature("Server")
 onready var _mainframe_id := OwnWar.MAINFRAME_ID
 
 
+### PORTED
 func _init():
 	set_as_toplevel(true)
 	_collision_shape = CollisionShape.new()
@@ -76,6 +78,7 @@ func _init():
 		set_physics_process(false)
 
 
+### PORTED
 func _process(_delta: float) -> void:
 	if _voxel_mesh.dirty:
 		_voxel_mesh.generate()
@@ -98,10 +101,12 @@ func _process(_delta: float) -> void:
 	_interpolation_dirty = false
 
 
+### PORTED
 func _physics_process(_delta: float) -> void:
 	_interpolation_dirty = true
 
 
+### PORTED
 func _exit_tree() -> void:
 	if not headless:
 		if block_count > 0:
@@ -128,10 +133,12 @@ func debug_draw():
 			Color.green, 0.15)
 
 
+### PORTED
 func get_visual_transform() -> Transform:
 	return _voxel_mesh_instance.transform.translated(center_of_mass)
 
 
+### PORTED
 func fix_physics():
 	cost = max_cost
 	var middle := aabb.size / 2 * OwnWar_Block.BLOCK_SCALE
@@ -141,6 +148,7 @@ func fix_physics():
 	global_transform = Transform(Basis(), center_of_mass + aabb.position * OwnWar_Block.BLOCK_SCALE)
 
 
+### PORTED
 func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 	assert(is_network_master(), "This shouldn't be called on the client ever, use the local version")
 	var local_origin := to_local(origin) + center_of_mass
@@ -149,6 +157,7 @@ func apply_damage(origin: Vector3, direction: Vector3, damage: int) -> int:
 	return apply_damage_local(local_origin, local_direction, damage)
 
 
+### PORTED
 puppet func apply_damage_local(origin: Vector3, direction: Vector3, damage: int) -> int:
 	if is_network_master():
 		rpc_id(-OwnWar_NetInfo.disable_broadcast_id, "apply_damage_local", origin, direction, damage)
@@ -248,6 +257,7 @@ puppet func apply_damage_local(origin: Vector3, direction: Vector3, damage: int)
 	return damage
 
 
+### PORTED
 func can_ray_pass_through(origin: Vector3, direction: Vector3) -> bool:
 	var sx := int(aabb.size.x)
 	var sy := int(aabb.size.y)
@@ -269,6 +279,7 @@ func can_ray_pass_through(origin: Vector3, direction: Vector3) -> bool:
 	return true
 
 
+### PORTED
 func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color, state := []) -> void:
 	var sx := int(aabb.size.x)
 	var sy := int(aabb.size.y)
@@ -355,12 +366,14 @@ func spawn_block(position: Vector3, r: int, block: OwnWar_Block, color: Color, s
 		_block_has_mainframe = true
 
 
+### SKIP
 func coordinate_to_vector(coordinate):
 	var position = Vector3(coordinate[0], coordinate[1], coordinate[2])
 	position *= OwnWar_Block.BLOCK_SCALE
 	return position - center_of_mass
 
 
+### PORTED
 func init_blocks(vehicle) -> void:
 	var sx := int(aabb.size.x)
 	var sy := int(aabb.size.y)
@@ -379,7 +392,7 @@ func init_blocks(vehicle) -> void:
 				assert(x < sx and y < sy and z < sz)
 				node.init(Vector3(x, y, z) + aabb.position, self, vehicle)
 
-
+### PORTED
 func add_anchor(coordinate: Vector3, body: VehicleBody) -> void:
 	assert(body != null)
 	coordinate -= aabb.position
@@ -404,6 +417,7 @@ func add_anchor(coordinate: Vector3, body: VehicleBody) -> void:
 		assert(e == OK)
 
 
+### PORTED
 func remove_anchor(coordinate: Vector3, body: VehicleBody) -> void:
 	assert(body != null)
 	coordinate -= aabb.position
@@ -427,6 +441,8 @@ func remove_anchor(coordinate: Vector3, body: VehicleBody) -> void:
 			var _e := _block_anchors.erase(index)
 		else:
 			# There are still anchors present, so it isn't disconnected
+			# Also, this is the reason that stacked turrets don't get destroyed
+			# if one of them is killed. Good job David.
 			return
 	else:
 		# The anchor was already removed, nothing to do here
@@ -469,6 +485,7 @@ func remove_anchor(coordinate: Vector3, body: VehicleBody) -> void:
 		_destroy_disconnected_blocks(PoolIntArray([index]), true, true)
 
 
+### PORTED
 func remove_all_anchors(index: int, x: int, y: int, z: int) -> void:
 	var sx := int(aabb.size.x)
 	var sy := int(aabb.size.y)
@@ -492,6 +509,7 @@ func remove_all_anchors(index: int, x: int, y: int, z: int) -> void:
 		_destroy_disconnected_blocks(PoolIntArray([index]), true, true)
 
 
+### PORTED
 func _remove_anchored_body(body) -> void:
 	var indices := PoolIntArray()
 	for index in _block_anchors:
@@ -508,6 +526,7 @@ func _remove_anchored_body(body) -> void:
 	_destroy_disconnected_blocks(PoolIntArray(), true)
 
 
+### PORTED
 func _correct_mass() -> void:
 	var total_mass := 0.0
 	center_of_mass = Vector3.ZERO
@@ -540,6 +559,7 @@ func _correct_mass() -> void:
 	mass = total_mass
 
 
+### PORTED
 func _remove_interpolator(interp: InterpolationData) -> void:
 	assert(interp != null)
 	if interp.client_node != null:
@@ -550,6 +570,7 @@ func _remove_interpolator(interp: InterpolationData) -> void:
 	_interpolate_blocks.erase(interp)
 
 
+### PORTED
 func _is_connected_to_mainframe(marks := []) -> bool:
 	marks.push_back(self)
 	for index in _block_anchors:
@@ -561,6 +582,7 @@ func _is_connected_to_mainframe(marks := []) -> bool:
 	return false
 
 
+### PORTED
 func _destroy_disconnected_blocks(destroyed_blocks: PoolIntArray, block_anchor_destroyed: bool,
 	force_check := false) -> void:
 	if get_parent().is_queued_for_deletion():
@@ -679,6 +701,7 @@ func _destroy_disconnected_blocks(destroyed_blocks: PoolIntArray, block_anchor_d
 			queue_free()
 
 
+### PORTED
 func _mark_connected_blocks(index: int, x: int, y: int, z: int, bitmap: BitMap, found := false) -> bool:
 	var sx := int(aabb.size.x)
 	var sy := int(aabb.size.y)
@@ -722,6 +745,7 @@ func _mark_connected_blocks(index: int, x: int, y: int, z: int, bitmap: BitMap, 
 	return found
 
 
+### PORTED
 func _destroy_connected_blocks(index: int, x: int, y: int, z: int) -> void:
 	if not headless:
 		var node: Spatial = DESTROY_BLOCK_EFFECT_SCENE.instance()
@@ -776,7 +800,7 @@ func _destroy_connected_blocks(index: int, x: int, y: int, z: int) -> void:
 			_destroy_connected_blocks(i, x, y, z - 1)
 
 
-# REEEEEEE https://github.com/godotengine/godot/issues/16105
+### SKIPPED
 func get_children_recursive(node = null, array = []):
 	node = node if node != null else self
 	for child in node.get_children():
@@ -785,6 +809,7 @@ func get_children_recursive(node = null, array = []):
 	return array
 
 
+### PORTED
 func get_block_id(position: Vector3) -> int:
 	position -= aabb.position
 	if position.x < 0 or position.y < 0 or position.z < 0 or \
@@ -794,6 +819,7 @@ func get_block_id(position: Vector3) -> int:
 	return _block_ids[index]
 
 
+### PORTED
 func set_aabb(value: AABB) -> void:
 	assert(aabb == AABB(), "AABB already set")
 	aabb = value
@@ -805,7 +831,7 @@ func set_aabb(value: AABB) -> void:
 		_block_health[i] = 0
 		_block_ids[i] = 0
 
-
+### SKIPPED
 func _verify_block_count() -> bool:
 	var c := 0
 	for v in _block_health:

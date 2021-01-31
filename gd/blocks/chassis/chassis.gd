@@ -31,7 +31,8 @@ static func load_blocks() -> void:
 			generator.set_indices(indices)
 
 			var block = OwnWar_Block.new()
-			block.id = name2id[block_name]
+			# TODO this is a bug in GDScript, report it
+			block.id = int(name2id[block_name])
 			block.human_name = block_name
 			block.category = "Structural"
 			block.mesh = generator.get_mesh(generator.get_result(), transform)
@@ -39,7 +40,8 @@ static func load_blocks() -> void:
 			if mirror < 0:
 				var mirror_block = OwnWar_Block.new()
 				var mirror_transform = Transform.FLIP_X * transform
-				mirror_block.id = name2id[block_name + " (M)"]
+				# TODO ditto
+				mirror_block.id = int(name2id[block_name + " (M)"])
 				mirror_block.human_name = block.human_name + " (M)"
 				mirror_block.category = "Structural"
 				mirror_block.mesh = generator.get_mesh(generator.get_result(), mirror_transform, true)

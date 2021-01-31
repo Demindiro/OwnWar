@@ -116,6 +116,7 @@ func _ready() -> void:
 		spawn_vehicle(vehicle_path)
 		spawn_vehicle(vehicle_path)
 		spawn_vehicle(vehicle_path)
+		spawn_vehicle(vehicle_path)
 
 
 func _exit_tree() -> void:

@@ -23,4 +23,5 @@ func on_renamed() -> void:
 
 func set_pressed(v: bool) -> void:
 	pressed = v
+	_value.pressed = v
 	emit_signal("toggled", v)

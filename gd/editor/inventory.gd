@@ -55,7 +55,8 @@ func _category_container_init():
 	for category in categories:
 		var node := Button.new()
 		node.text = category
-		node.connect("pressed", self, "show_category", [category])
+		var e := node.connect("pressed", self, "show_category", [category])
+		assert(e == OK)
 		category_list.add_child(node)
 
 
@@ -63,7 +64,7 @@ func _block_container_init(var category):
 	Util.free_children(block_list)
 	for id in categories[category]:
 		var node: Control = block_item.instance()
-		OwnWar_Thumbnail.get_block_thumbnail_async(id, funcref(self, "_block_set_thumbnail"), [node])
+		var _created := OwnWar_Thumbnail.get_block_thumbnail_async(id, funcref(self, "_block_set_thumbnail"), [node])
 		Util.assert_connect(node, "mouse_entered", self, "show_block", [id])
 		Util.assert_connect(node, "pressed", _designer, "select_block", [id])
 		Util.assert_connect(node, "pressed", _designer, "set_enabled", [true])

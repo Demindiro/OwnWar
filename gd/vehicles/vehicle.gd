@@ -3,12 +3,6 @@ extends Spatial
 class_name OwnWar_Vehicle
 
 
-const VoxelBody := preload("voxel_body.gd")
-const VoxelMesh := preload("voxel_mesh.gd")
-
-
-const MANAGERS := {}
-
 var team := -1
 var is_ally := false
 
@@ -217,7 +211,7 @@ master func apply_client_physics(seq_id: int, state: PoolVector3Array) -> void:
 
 
 # TODO apply server correction
-puppet func override_physics(state: PoolVector3Array) -> void:
+puppet func override_physics(_state: PoolVector3Array) -> void:
 	pass
 
 
@@ -238,7 +232,7 @@ func load_from_file(path: String) -> int:
 	return load_from_data(file.get_buffer(file.get_len()))
 
 
-func load_from_data(data: PoolByteArray, state := []) -> int:
+func load_from_data(p_data: PoolByteArray, state := []) -> int:
 	for body in voxel_bodies:
 		if body != null:
 			body.queue_free()
@@ -247,8 +241,8 @@ func load_from_data(data: PoolByteArray, state := []) -> int:
 	var mainframe_id := OwnWar.MAINFRAME_ID
 
 	var spb := StreamPeerBuffer.new()
-	spb.data_array = data
-	self.data = data
+	spb.data_array = p_data
+	data = p_data
 
 	var vb_data_blocks := {}
 	var vb_aabbs := {}
@@ -311,15 +305,15 @@ func load_from_data(data: PoolByteArray, state := []) -> int:
 			voxel_bodies.resize(layer + 1)
 		if len(state) > 0 and (len(state) <= layer or state[layer] == null):
 			continue
-		var vb := VoxelBody.new()
+		var vb := OwnWar_VoxelBody.new()
 		vb.team = team
 		vb.id = layer
 		vb.is_ally = is_ally
 		add_child(vb)
-		var e := vb.connect("destroyed", self, "_remove_voxel_body", [layer])
+		var e: int = vb.connect("destroyed", self, "_remove_voxel_body", [layer])
 		assert(e == OK)
 		vb.transform = Transform()
-		vb.aabb = vb_aabbs[layer]
+		vb.create_body(vb_aabbs[layer])
 		for bd in vb_data_blocks[layer]:
 			var pos: Vector3 = bd[0]
 			var blk: OwnWar_Block = bd[1]
@@ -328,14 +322,13 @@ func load_from_data(data: PoolByteArray, state := []) -> int:
 			if len(state) > 0:
 				vb.spawn_block(pos, rot, blk, clr, state[layer])
 			else:
-				vb.spawn_block(pos, rot, blk, clr)
+				vb.spawn_block(pos, rot, blk, clr, null)
 			vb.name = "VoxelBody %d" % layer
 		voxel_bodies[layer] = vb
 
 	for body in voxel_bodies:
 		if body != null:
-			body.fix_physics()
-			body.init_blocks(self)
+			body.init(self)
 			max_cost += body.max_cost
 	for vb in voxel_bodies:
 		var center_of_mass_0: Vector3 = vb.center_of_mass
@@ -378,7 +371,7 @@ func serialize_state() -> Array:
 		if vb != null:
 			if vb.id >= len(vb_data):
 				vb_data.resize(vb.id + 1)
-			vb_data[vb.id] = [vb._block_health, vb._block_health_alt]
+			vb_data[vb.id] = vb.serialize_state()
 	return vb_data
 
 
@@ -447,11 +440,6 @@ func debug_draw() -> void:
 	for b in voxel_bodies:
 		if b != null:
 			Debug.draw_point(b.translation, Color.purple, 0.2)
-
-
-static func add_manager(p_name: String, script: GDScript):
-	assert(not p_name in MANAGERS)
-	MANAGERS[p_name] = script
 
 
 func _erase_from(array: Array, item) -> void:

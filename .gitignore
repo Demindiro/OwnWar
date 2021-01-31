@@ -26,3 +26,7 @@ target/
 
 # Other stuff
 bin/
+lib/
+gd/lib/*
+!gd/lib/*.gdnlib
+/callgrind/

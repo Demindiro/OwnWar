@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
 [ext_resource path="res://maps/the_pit/map_data/data.hterrain" type="Resource" id=2]
@@ -14,6 +14,7 @@
 [ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=12]
 [ext_resource path="res://settings/applier.gd" type="Script" id=13]
 [ext_resource path="res://settings/settings_blur.tscn" type="PackedScene" id=14]
+[ext_resource path="res://maps/disconnected.tscn" type="PackedScene" id=15]
 
 [sub_resource type="BoxShape" id=1]
 extents = Vector3( 200, 1000, 1000 )
@@ -37,9 +38,6 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_lock_": true
 }
-ambient_wind = 0.0
-lod_scale = 2.0
-map_scale = Vector3( 1, 1, 1 )
 _terrain_data = ExtResource( 2 )
 chunk_size = 32
 collision_enabled = true
@@ -99,16 +97,16 @@ environment = SubResource( 3 )
 [node name="Spawn Points" type="Node" parent="."]
 
 [node name="Position3D" type="Position3D" parent="Spawn Points"]
-transform = Transform( -0.278067, 0.248612, 0.927831, 0, 0.965926, -0.258819, -0.960561, -0.0719691, -0.268592, -91.3194, 7.37956, 41.6737 )
+transform = Transform( -0.278067, 0.248612, 0.927831, 0, 0.965926, -0.258819, -0.960561, -0.0719691, -0.268592, -91.3194, 5.38784, 41.6737 )
 
 [node name="Position3D2" type="Position3D" parent="Spawn Points"]
-transform = Transform( 0.855862, 2.26375e-08, 0.517204, -8.12518e-09, 1, -3.03236e-08, -0.517204, 2.17504e-08, 0.855862, -66.2348, 13.4028, -92.7232 )
+transform = Transform( 0.855862, 2.26375e-08, 0.517204, -8.12518e-09, 1, -3.03236e-08, -0.517204, 2.17504e-08, 0.855862, -66.2348, 7.36874, -92.7232 )
 
 [node name="Position3D3" type="Position3D" parent="Spawn Points"]
-transform = Transform( 0.721094, 2.26375e-08, -0.692837, -3.13933e-08, 1, 9.35593e-16, 0.692837, 2.17504e-08, 0.721094, 55.9942, 13.4028, -113.66 )
+transform = Transform( 0.721094, 2.26375e-08, -0.692837, -3.13933e-08, 1, 9.35593e-16, 0.692837, 2.17504e-08, 0.721094, 55.9942, 8.36196, -113.66 )
 
 [node name="Position3D4" type="Position3D" parent="Spawn Points"]
-transform = Transform( -0.692837, 2.26375e-08, -0.721094, 5.31481e-16, 1, 3.13933e-08, 0.721094, 2.17504e-08, -0.692837, 82.672, 18.4028, 28.2274 )
+transform = Transform( -0.692837, 2.26375e-08, -0.721094, 5.31481e-16, 1, 3.13933e-08, 0.721094, 2.17504e-08, -0.692837, 82.672, 12.5648, 28.2274 )
 
 [node name="Camera" type="Camera" parent="."]
 far = 1000.0
@@ -166,9 +164,13 @@ lights/0 = NodePath("../Environment/DirectionalLight")
 environment = NodePath("../Environment/WorldEnvironment")
 
 [node name="Settings" parent="." instance=ExtResource( 14 )]
+
+[node name="Disconnected" parent="." instance=ExtResource( 15 )]
+visible = false
+[connection signal="server_disconnected" from="." to="Disconnected" method="set_visible" binds= [ true ]]
+[connection signal="visibility_changed" from="GUI" to="GUI" method="grab_focus"]
 [connection signal="visibility_changed" from="GUI" to="HUD" method="set_mouse_mode"]
 [connection signal="visibility_changed" from="GUI" to="HUD" method="poll_input"]
-[connection signal="visibility_changed" from="GUI" to="GUI" method="grab_focus"]
 [connection signal="pressed" from="GUI/Box/Continue" to="GUI" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="GUI/Box/Settings" to="Settings" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Box/Exit" to="GUI" method="goto_main_menu"]

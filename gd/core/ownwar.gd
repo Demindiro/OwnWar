@@ -1,7 +1,7 @@
 class_name OwnWar
 
 
-const VERSION := Vector3(0, 17, 0)
+const VERSION := Vector3(0, 17, 1)
 const COLLISION_MASK_TERRAIN := 1 << (8 - 1)
 const COLLISION_MASK_UNIT := 1 << (19 - 1)
 const COLLISION_MASK_STRUCTURE := 1 << (20 - 1)
@@ -50,7 +50,8 @@ static func snap_transform(node) -> void:
 
 
 static func goto_main_menu(tree: SceneTree) -> void:
-	tree.change_scene(MAIN_MENU)
+	var e := tree.change_scene(MAIN_MENU)
+	assert(e == OK)
 	tree.paused = false
 
 

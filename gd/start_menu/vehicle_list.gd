@@ -10,6 +10,8 @@ var _button_group := ButtonGroup.new()
 onready var _box: Control = get_node("Box/Box")
 
 
+# TODO
+# warning-ignore:unused_signal
 signal select_vehicle(path)
 
 
@@ -17,7 +19,19 @@ func _ready() -> void:
 	generate_vehicle_list()
 
 
+func create_vehicle_directory() -> void:
+	var dir := Directory.new()
+	if not dir.dir_exists("user://vehicles/"):
+		print("Creating vehicle directory")
+		dir.make_dir("user://vehicles/")
+		for f in ["at-at_chicken.owv", "skunk.owv", "tank.owv"]:
+			print("Copying %s" % f)
+			var e := dir.copy("res://default_user_dir/vehicles/%s" % f, "user://vehicles/%s" %f)
+			assert(e == OK)
+
+
 func generate_vehicle_list() -> void:
+	create_vehicle_directory()
 	Util.free_children(_box)
 	var prev_btn: Card = null
 	for path in Util.iterate_dir("user://vehicles", OwnWar.VEHICLE_EXTENSION):

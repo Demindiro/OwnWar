@@ -1,6 +1,8 @@
 extends Node
 
 
+signal server_disconnected()
+
 export var spawn_points := NodePath("Spawn Points")
 
 var headless := OS.has_feature("Server")
@@ -33,6 +35,9 @@ func _ready() -> void:
 	else:
 		assert(not headless, "Can't create client in headless mode")
 		spawn_player_vehicle()
+		var e := get_tree().multiplayer.connect(
+			"server_disconnected", self, "emit_signal", ["server_disconnected"])
+		assert(e == OK)
 
 
 func _exit_tree() -> void:

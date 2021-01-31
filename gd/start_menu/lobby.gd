@@ -70,8 +70,13 @@ func launch() -> void:
 	status.set_status(Status.STATUS_NONE, "Connecting...", connecting_icon, true)
 
 
+func sort_list(a, b) -> bool:
+	return a.name < b.name
+
+
 func generate_list(entries: Array) -> void:
 	Util.free_children(list, true)
+	entries.sort_custom(self, "sort_list")
 	for entry in entries:
 		var btn := Button.new()
 		btn.text = entry.name

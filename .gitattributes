@@ -20,3 +20,12 @@ gd/blocks/weapons/lasers/fixed_laser.mtl filter=lfs diff=lfs merge=lfs -text
 gd/blocks/weapons/lasers/fixed_laser.obj filter=lfs diff=lfs merge=lfs -text
 gd/addons/lasers/480872__c3sabertooth__blaster-multiple.wav filter=lfs diff=lfs merge=lfs -text
 gd/addons/breaking/41348__datasoundsample__glass-shatter.wav filter=lfs diff=lfs merge=lfs -text
+*.glb filter=lfs diff=lfs merge=lfs -text
+*.material filter=lfs diff=lfs merge=lfs -text
+gd/maps/test/props/_defaultMat(Clone).material filter=lfs diff=lfs merge=lfs -text
+gd/maps/test/props/jump-edge.glb filter=lfs diff=lfs merge=lfs -text
+gd/maps/test/props/road-bump.glb filter=lfs diff=lfs merge=lfs -text
+gd/maps/test/props/skate-loop.glb filter=lfs diff=lfs merge=lfs -text
+gd/icons/icon.icns filter=lfs diff=lfs merge=lfs -text
+gd/icons/256x256/icon.ico filter=lfs diff=lfs merge=lfs -text
+gd/icons/512x512/icon.png filter=lfs diff=lfs merge=lfs -text
