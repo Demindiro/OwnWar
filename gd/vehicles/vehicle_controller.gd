@@ -43,6 +43,17 @@ func _physics_process(_delta: float) -> void:
 			Engine.get_physics_frames(), bitmask, aim_at)
 
 
+func clear() -> void:
+	turn_left = false
+	turn_right = false
+	pitch_up = false
+	pitch_down = false
+	move_forward = false
+	move_back = false
+	fire = false
+	flip = false
+
+
 puppet func _sync(seq_id: int, bitmask: int, p_aim_at: Vector3) -> void:
 	if _last_seq_id < seq_id:
 		turn_left = bitmask & 1

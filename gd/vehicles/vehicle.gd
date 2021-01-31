@@ -31,6 +31,7 @@ onready var headless := OS.has_feature("Server")
 
 func _init() -> void:
 	set_process(not server_mode)
+	add_to_group("vehicles")
 
 
 func _ready() -> void:
@@ -40,11 +41,10 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if not Engine.editor_hint:
-		if not server_mode:
-			for vb in voxel_bodies:
-				if vb != null:
-					transform = vb.transform
-					break
+		for vb in voxel_bodies:
+			if vb != null:
+				transform = vb.transform
+				break
 
 		if controller.flip:
 			var space := get_world().direct_space_state

@@ -1,6 +1,8 @@
 extends Node
 
 
+const TRAILER_MODE := false
+
 signal server_disconnected()
 
 export var spawn_points := NodePath("Spawn Points")
@@ -32,12 +34,17 @@ func _ready() -> void:
 		if not headless:
 			clients[1] = null
 			spawn_player_vehicle()
+		if TRAILER_MODE:
+			var vehicle := spawn_vehicle("skunk")
+			vehicle.add_child(BrickAI.new())
 	else:
 		assert(not headless, "Can't create client in headless mode")
 		spawn_player_vehicle()
 		var e := get_tree().multiplayer.connect(
 			"server_disconnected", self, "emit_signal", ["server_disconnected"])
 		assert(e == OK)
+	if TRAILER_MODE:
+		get_node("Chat").visible = false
 
 
 func _exit_tree() -> void:
@@ -166,7 +173,7 @@ func request_respawn() -> void:
 			rpc_id(1, "request_vehicle", player_vehicle_data)
 
 
-func spawn_vehicle(name: String) -> void:
+func spawn_vehicle(name: String) -> OwnWar_Vehicle:
 	var vehicle := OwnWar_Vehicle.new()
 	vehicle.team = counter
 	vehicle.load_from_file(OwnWar.get_vehicle_path(name))
@@ -176,6 +183,7 @@ func spawn_vehicle(name: String) -> void:
 	vehicle.name = "Vehicle %d" % counter
 	add_child(vehicle)
 	counter += 1
+	return vehicle
 
 
 func remove_client_vehicle(id: int) -> void:
