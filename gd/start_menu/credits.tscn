@@ -32,7 +32,6 @@ __meta__ = {
 }
 
 [node name="Developer" type="ScrollContainer" parent="Box"]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0
@@ -159,6 +158,7 @@ SOFTWARE."
 valign = 2
 
 [node name="Bindings" type="ScrollContainer" parent="Box"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0

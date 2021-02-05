@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=2]
+[gd_scene load_steps=39 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://start_menu/vehicle_list.gd" type="Script" id=2]
@@ -10,6 +10,7 @@
 [ext_resource path="res://start_menu/main.gd" type="Script" id=8]
 [ext_resource path="res://start_menu/server_settings.gd" type="Script" id=9]
 [ext_resource path="res://ui/blur_material.tres" type="Material" id=10]
+[ext_resource path="res://start_menu/electro_waiting_room.ogg" type="AudioStream" id=11]
 [ext_resource path="res://ui/cancel_button.tscn" type="PackedScene" id=12]
 [ext_resource path="res://ui/font_big.tres" type="DynamicFont" id=13]
 [ext_resource path="res://start_menu/shortcut_main_menu_battle.tres" type="ShortCut" id=14]
@@ -820,8 +821,11 @@ visible = false
 script = ExtResource( 28 )
 environment = NodePath("../Vehicle preview/WorldEnvironment")
 
-[node name="Position3D" type="Position3D" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.821202 )
+[node name="Waiting room music" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 11 )
+volume_db = -10.0
+autoplay = true
+bus = "Music"
 [connection signal="vehicle_renamed" from="." to="Vehicle list" method="on_vehicle_renamed"]
 [connection signal="vehicle_renamed" from="." to="Vehicle info" method="on_vehicle_renamed"]
 [connection signal="loaded_vehicle" from="Vehicle preview" to="Vehicle info" method="set_vehicle"]

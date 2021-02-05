@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/electro_waiting_room.ogg-0c07c0de8bf41cee310b03f02ad0bc83.oggstr"
+
+[deps]
+
+source_file="res://start_menu/electro_waiting_room.ogg"
+dest_files=[ "res://.import/electro_waiting_room.ogg-0c07c0de8bf41cee310b03f02ad0bc83.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0
