@@ -495,5 +495,6 @@ common/enable_object_picking=false
 
 threads/thread_model=0
 vram_compression/import_etc2=false
+quality/directional_shadow/size=16384
 quality/filters/msaa=2
 environment/default_environment="res://default_env.tres"
