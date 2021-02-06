@@ -415,38 +415,19 @@ func load_vehicle() -> void:
 			if child.name != "Ghost":
 				child.queue_free()
 		blocks.clear()
-		var magic := file.get_32()
-		if magic != MAGIC:
-			print("Magic is wrong! ", magic)
-			assert(false)
+		var data := file.get_buffer(file.get_len())
+		var loader := OwnWar_VehicleLoader.new()
+		err = loader.load_from_data(data)
+		if err != OK:
+			print("Failed to load vehicle:", Global.ERROR_TO_STRING[err])
 			return
-		var revision := file.get_16()
-		if revision != REVISION:
-			print("Revision doesn't match!")
-			assert(false)
-			return
-		var layer_count := file.get_8()
-		for _i in layer_count:
-			var layer := file.get_8()
-			var aabb := AABB()
-			aabb.position.x = file.get_8()
-			aabb.position.y = file.get_8()
-			aabb.position.z = file.get_8()
-			aabb.size.x = file.get_8()
-			aabb.size.y = file.get_8()
-			aabb.size.z = file.get_8()
-			var size := file.get_32()
-			for _j in size:
-				var color := Color()
-				var x := file.get_8()
-				var y := file.get_8()
-				var z := file.get_8()
-				var id := file.get_16()
-				var rot := file.get_8()
-				color.r8 = file.get_8()
-				color.g8 = file.get_8()
-				color.b8 = file.get_8()
-				var _success := place_block(OwnWar_Block.get_block(id), [x, y, z], rot, color, layer)
+		for layer in loader.bodies:
+			var body: OwnWar_VehicleLoader.Body = loader.bodies[layer]
+			for blk in body.blocks:
+				var x := int(blk.position.x)
+				var y := int(blk.position.y)
+				var z := int(blk.position.z)
+				var _success := place_block(blk.block, [x, y, z], blk.rotation, blk.color, layer)
 				if TRAILER_MODE:
 					edit_mode = false
 					update_block_visibility()

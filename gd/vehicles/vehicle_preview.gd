@@ -37,51 +37,31 @@ func load_from_data(data: PoolByteArray) -> int:
 
 	var center := Vector3(25, 25, 25) * OwnWar_Block.BLOCK_SCALE / 2
 
-	var MAGIC := 493279249 # Totally random, not derived from a name
-	var REVISION := 0
-	var magic := spb.get_u32()
-	if magic != MAGIC:
-		print("Magic is wrong! ", magic)
-		assert(false)
-		return ERR_INVALID_DATA
-	var revision := spb.get_u16()
-	if revision != REVISION:
-		print("Revision doesn't match!")
-		assert(false)
-		return ERR_INVALID_DATA
-	var layer_count := spb.get_u8()
-	for _i in layer_count:
-		var _layer := spb.get_u8()
-		var _aabb_px := spb.get_u8()
-		var _aabb_py := spb.get_u8()
-		var _aabb_pz := spb.get_u8()
-		var _aabb_sx := spb.get_u8()
-		var _aabb_sy := spb.get_u8()
-		var _aabb_sz := spb.get_u8()
-		var size := spb.get_32()
-		for _j in size:
-			var x := spb.get_u8()
-			var y := spb.get_u8()
-			var z := spb.get_u8()
-			var id := spb.get_u16()
-			var rot := spb.get_u8()
-			var clr := Color()
-			clr.r8 = spb.get_u8()
-			clr.g8 = spb.get_u8()
-			clr.b8 = spb.get_u8()
-			var blk: OwnWar_Block = OwnWar_Block.get_block(id)
-			voxel_mesh.add_block(blk, clr, [x, y, z], rot)
+	var loader := OwnWar_VehicleLoader.new()
+	var err := loader.load_from_data(data)
+	if err != OK:
+		print("Failed to load vehicle: ", Global.ERROR_TO_STRING[err])
+		return err
+
+	for layer in loader.bodies:
+		var body: OwnWar_VehicleLoader.Body = loader.bodies[layer]
+		for block in body.blocks:
+			var blk: OwnWar_Block = block.block
+			var x := int(block.position.x)
+			var y := int(block.position.y)
+			var z := int(block.position.z)
+			voxel_mesh.add_block(blk, block.color, [x, y, z], block.rotation)
 			if blk.editor_node != null:
 				var node := blk.editor_node.duplicate()
 				add_child(node)
 				if node.has_method("set_preview_mode"):
 					node.set_preview_mode(true)
 				node.transform = Transform(
-					OwnWar_Block.rotation_to_basis(rot),
+					OwnWar_Block.rotation_to_basis(block.rotation),
 					(Vector3(x, y, z) + Vector3.ONE / 2) * OwnWar_Block.BLOCK_SCALE - center
 				)
 				if node.has_method("set_color"):
-					node.set_color(clr)
+					node.set_color(block.color)
 			if aabb == AABB():
 				aabb.position = Vector3(x, y, z)
 				aabb.size = Vector3.ONE
@@ -90,8 +70,8 @@ func load_from_data(data: PoolByteArray) -> int:
 			block_count += 1
 			cost += blk.cost
 			mass += blk.mass
-			if id == OwnWar.MAINFRAME_ID:
-				mainframe_count += 1
+	
+	mainframe_count = loader.mainframe_count
 
 	# TODO should we center based on AABB or editor grid size?
 	mesh_instance.translation -= Vector3(25, 25, 25) * OwnWar_Block.BLOCK_SCALE / 2

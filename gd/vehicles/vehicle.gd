@@ -233,74 +233,25 @@ func load_from_file(path: String) -> int:
 
 
 func load_from_data(p_data: PoolByteArray, state := []) -> int:
-	for body in voxel_bodies:
-		if body != null:
-			body.queue_free()
 
-	var has_mainframe := false
-	var mainframe_id := OwnWar.MAINFRAME_ID
+	if len(data) > 0:
+		print("Vehicle is already loaded!")
+		return ERR_ALREADY_IN_USE
 
-	var spb := StreamPeerBuffer.new()
-	spb.data_array = p_data
+	var loader := OwnWar_VehicleLoader.new()
+	var err := loader.load_from_data(p_data)
+	if err != OK:
+		print("Failed to load vehicle: ", Global.ERROR_TO_STRING[err])
+		return err
+	if not loader.valid:
+		print("Vehicle isn't valid")
+		return ERR_INVALID_DATA
+
 	data = p_data
-
-	var vb_data_blocks := {}
-	var vb_aabbs := {}
-	var MAGIC := 493279249 # Totally random, not derived from a name
-	var REVISION := 0
-	var magic := spb.get_u32()
-	if magic != MAGIC:
-		print("Magic is wrong! ", magic)
-		assert(false)
-		return ERR_INVALID_DATA
-	var revision := spb.get_u16()
-	if revision != REVISION:
-		print("Revision doesn't match!")
-		assert(false)
-		return ERR_INVALID_DATA
-	var layer_count := spb.get_u8()
-	for _i in layer_count:
-		var layer := spb.get_u8()
-		if layer in vb_data_blocks:
-			print("File data corrupt: double layer %d" % layer)
-			assert(false, "File data corrupt: double layer %d" % layer)
-			return ERR_INVALID_DATA
-		var aabb := AABB()
-		aabb.position.x = spb.get_u8()
-		aabb.position.y = spb.get_u8()
-		aabb.position.z = spb.get_u8()
-		aabb.size.x = spb.get_u8()
-		aabb.size.y = spb.get_u8()
-		aabb.size.z = spb.get_u8()
-		vb_aabbs[layer] = aabb
-		var vb := []
-		vb_data_blocks[layer] = vb
-		var size := spb.get_32()
-		for _j in size:
-			var color := Color()
-			var x := spb.get_u8()
-			var y := spb.get_u8()
-			var z := spb.get_u8()
-			var id := spb.get_u16()
-			var rot := spb.get_u8()
-			color.r8 = spb.get_u8()
-			color.g8 = spb.get_u8()
-			color.b8 = spb.get_u8()
-			var arr := [Vector3(x, y, z), OwnWar_Block.get_block(id), rot, color]
-			vb.push_back(arr)
-			if id == mainframe_id:
-				if has_mainframe:
-					print("Refusing to load vehicle with more than one mainframe")
-					return ERR_INVALID_DATA
-				has_mainframe = true
-
-	if not has_mainframe:
-		print("Refusing to load vehicle with no mainframes")
-		return ERR_INVALID_DATA
 
 	voxel_bodies = []
 
-	for layer in vb_data_blocks:
+	for layer in loader.bodies:
 		if layer >= len(voxel_bodies):
 			voxel_bodies.resize(layer + 1)
 		if len(state) > 0 and (len(state) <= layer or state[layer] == null):
@@ -313,16 +264,13 @@ func load_from_data(p_data: PoolByteArray, state := []) -> int:
 		var e: int = vb.connect("destroyed", self, "_remove_voxel_body", [layer])
 		assert(e == OK)
 		vb.transform = Transform()
-		vb.create_body(vb_aabbs[layer])
-		for bd in vb_data_blocks[layer]:
-			var pos: Vector3 = bd[0]
-			var blk: OwnWar_Block = bd[1]
-			var rot: int = bd[2]
-			var clr: Color = bd[3]
+		var body: OwnWar_VehicleLoader.Body = loader.bodies[layer]
+		vb.create_body(body.aabb)
+		for bd in body.blocks:
 			if len(state) > 0:
-				vb.spawn_block(pos, rot, blk, clr, state[layer])
+				vb.spawn_block(bd.position, bd.rotation, bd.block, bd.color, state[layer])
 			else:
-				vb.spawn_block(pos, rot, blk, clr, null)
+				vb.spawn_block(bd.position, bd.rotation, bd.block, bd.color, null)
 			vb.name = "VoxelBody %d" % layer
 		voxel_bodies[layer] = vb
 
