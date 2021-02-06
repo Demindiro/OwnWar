@@ -2,8 +2,8 @@ use super::voxel_mesh::VoxelMesh;
 use crate::util::{convert_vec, swap_erase, BitArray, VoxelRaycast, AABB};
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{
-	BoxShape, CollisionShape, Engine, MeshInstance, PackedScene, Resource, Script, Spatial,
-	VehicleBody, VehicleWheel, OS, PhysicsMaterial,
+	BoxShape, CollisionShape, Engine, MeshInstance, PackedScene, PhysicsMaterial, Resource, Script,
+	Spatial, VehicleBody, VehicleWheel, OS,
 };
 use gdnative::prelude::*;
 use num_traits::float::FloatConst;
@@ -448,11 +448,7 @@ impl VoxelBody {
 				.assume_safe()
 				.map_mut(|s, _| {
 					let mut body = self.body().borrow_mut();
-					body.remove_anchored_body(
-						owner.claim(),
-						s,
-						voxel_body,
-					)
+					body.remove_anchored_body(owner.claim(), s, voxel_body)
 				})
 				.unwrap()
 		};
@@ -886,12 +882,7 @@ impl VoxelBody {
 		let result = vm
 			.map_mut(|s, _| {
 				let mut body = self.body().borrow_mut();
-				body.destroy_disconnected_blocks(
-					owner.claim(),
-					s,
-					voxels,
-					check_anchors,
-				)
+				body.destroy_disconnected_blocks(owner.claim(), s, voxels, check_anchors)
 			})
 			.unwrap();
 		match result {
@@ -967,7 +958,11 @@ impl InterpolationState {
 		self.previous_transform = self.current_transform;
 		let trf = unsafe { self.server_node.assume_safe().global_transform() };
 		let chk_nan = |v: Vector3| v.x.is_nan() || v.y.is_nan() || v.z.is_nan();
-		if chk_nan(trf.origin) || chk_nan(trf.basis.x()) || chk_nan(trf.basis.y()) || chk_nan(trf.basis.z()) {
+		if chk_nan(trf.origin)
+			|| chk_nan(trf.basis.x())
+			|| chk_nan(trf.basis.y())
+			|| chk_nan(trf.basis.z())
+		{
 			let sn = unsafe { self.server_node.assume_safe() };
 			godot_error!(
 				"Transform has NaN components! Offender: [{}:{}], transform: {:?}",
@@ -1232,12 +1227,7 @@ impl Body {
 			self.anchors.remove(&k).unwrap();
 		}
 		if removed_something {
-			Some(self.destroy_disconnected_blocks(
-				owner,
-				voxel_mesh,
-				Vec::new(),
-				true,
-			))
+			Some(self.destroy_disconnected_blocks(owner, voxel_mesh, Vec::new(), true))
 		} else {
 			None
 		}
@@ -1466,7 +1456,9 @@ impl Body {
 		if let Some(voxel_mesh) = voxel_mesh {
 			voxel_mesh.remove_block(voxel);
 		}
-		self.total_cost -= get_cached_block(self.ids[index as usize].unwrap()).cost.get();
+		self.total_cost -= get_cached_block(self.ids[index as usize].unwrap())
+			.cost
+			.get();
 		if let Some(hp) = self.health[index as usize] {
 			let hp = hp.get();
 			self.health[index as usize] = None;
@@ -1489,12 +1481,7 @@ impl Body {
 			let index = index as i32 + index_offset;
 			if self.health[index as usize] != None {
 				let voxel = convert_vec(voxel.to_i32() + Vector3D::new(x, y, z));
-				self.destroy_connected_blocks(
-					voxel_mesh,
-					voxel,
-					index as u32,
-					destroy_blocks_list,
-				)
+				self.destroy_connected_blocks(voxel_mesh, voxel, index as u32, destroy_blocks_list)
 			}
 		};
 		Self::apply_to_all_sides(size, voxel, cf);
@@ -1635,7 +1622,5 @@ fn add_block_to_cache(block: TRef<Resource>) -> (NonZeroU16, &'static CachedBloc
 }
 
 fn get_cached_block(id: NonZeroU16) -> &'static CachedBlock {
-	unsafe {
-		BLOCK_COST_CACHE[id.get() as usize - 1].as_ref().unwrap()
-	}
+	unsafe { BLOCK_COST_CACHE[id.get() as usize - 1].as_ref().unwrap() }
 }

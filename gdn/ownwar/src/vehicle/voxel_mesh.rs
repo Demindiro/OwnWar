@@ -1,3 +1,4 @@
+use crate::util::convert_vec;
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{ArrayMesh, Material, Mesh, Resource, SpatialMaterial};
 use gdnative::prelude::*;
@@ -9,7 +10,7 @@ const BLOCK_SCALE: f32 = 0.25;
 
 static mut MATERIAL_CACHE: Option<HashMap<(u8, u8, u8), Ref<SpatialMaterial>>> = None;
 // TODO ask for implementation of Hash and Eq for TypedArray
-// TODO we can do this more efficiently by storing an ID + Voxel + rotation instead
+// TODO we can do this more efficiently by storing an ID + Position + rotation instead
 // That way we only need to hash and compare 6 bytes instead of an arbitrarily large amount of data
 //static mut VECTOR3_ARRAY_CACHE: Option<HashSet<TypedArray<Vector3>>> = None;
 static mut VECTOR3_ARRAY_CACHE: Option<Dictionary<Unique>> = None;
@@ -17,6 +18,7 @@ static mut VECTOR3_ARRAY_CACHE: Option<Dictionary<Unique>> = None;
 #[derive(NativeClass)]
 #[inherit(ArrayMesh)]
 pub(super) struct VoxelMesh {
+	#[property]
 	dirty: bool,
 	material_to_meshes_map: HashMap<Ref<SpatialMaterial>, (Vec<SubMesh>, bool)>,
 	remove_list_positions: Vec<Voxel>,
@@ -30,11 +32,20 @@ struct SubMesh {
 
 #[methods]
 impl VoxelMesh {
+
 	pub(super) fn new(_owner: &ArrayMesh) -> Self {
 		Self {
 			dirty: false,
 			material_to_meshes_map: HashMap::new(),
 			remove_list_positions: Vec::new(),
+		}
+	}
+
+	#[export]
+	fn add_block_gd(&mut self, _owner: &ArrayMesh, block: Ref<Resource>, color: Color, coordinate: Vector3, rotation: u8) {
+		unsafe {
+			let v = convert_vec(coordinate);
+			self.add_block(block.assume_safe(), color, v, rotation);
 		}
 	}
 
@@ -107,6 +118,7 @@ impl VoxelMesh {
 		self.dirty = true
 	}
 
+	#[export]
 	pub(super) fn generate(&mut self, owner: &ArrayMesh) {
 		let mut remove_materials = Vec::new();
 		for (material, (list, array_dirty)) in self.material_to_meshes_map.iter_mut() {
