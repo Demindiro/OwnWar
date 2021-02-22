@@ -108,6 +108,7 @@ puppet func sync_vehicle(data: PoolByteArray, name: String, team: int, \
 	vehicle.team = team
 	vehicle.name = name
 	vehicle.transform = transform
+	vehicle.kinematic = true
 	var e := vehicle.load_from_data(data, state)
 	assert(e == OK)
 	vehicle.add_to_group("vehicles")
@@ -126,6 +127,7 @@ master func request_vehicle(data: PoolByteArray) -> void:
 		var vehicle := OwnWar_Vehicle.new()
 		vehicle.team = counter
 		vehicle.is_ally = is_ally
+		vehicle.kinematic = true
 		var e := vehicle.load_from_data(data)
 		assert(e == OK)
 		var index := counter % get_node(spawn_points).get_child_count()

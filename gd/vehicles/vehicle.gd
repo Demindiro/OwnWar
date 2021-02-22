@@ -23,6 +23,8 @@ var collisions_with_player := 0
 var accept_server_physics := true
 var accept_server_physics_timer: SceneTreeTimer = null
 
+var kinematic := false
+
 var flipping_timeout := 0.0
 
 onready var server_mode := get_tree().is_network_server()
@@ -276,6 +278,7 @@ func load_from_data(p_data: PoolByteArray, state := []) -> int:
 
 	for body in voxel_bodies:
 		if body != null:
+			body.mode = RigidBody.MODE_KINEMATIC if kinematic else RigidBody.MODE_RIGID
 			body.init(self)
 			max_cost += body.max_cost
 	for vb in voxel_bodies:

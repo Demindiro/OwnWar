@@ -14,6 +14,9 @@ onready var _joint: Generic6DOFJoint = get_node("Joint")
 
 
 func init(coordinate: Vector3, voxel_body: OwnWar_VoxelBody, vehicle: OwnWar_Vehicle) -> void:
+	if vehicle.kinematic:
+		set_physics_process(false)
+		return
 	_joint = get_node("Joint")
 	var connecting_coordinate := coordinate + transform.basis.y.round()
 	for body in vehicle.voxel_bodies:
@@ -51,16 +54,16 @@ func _ready() -> void:
 		assert(e == OK)
 		e = _body_b.connect("tree_exiting", self, "set_physics_process", [false])
 		assert(e == OK)
-	# TODO godot pls, fix the inspector
-	# Like seriously I was stuck on this shit for so long and the solution is
-	# literally just this?
-	# I'm going to buy another bottle tomorrow
-	# TODO convince the core devs NOT TO REMOVE THIS PROPERTY come on, it exists
-	# for a reason :(
-	var mass_ratio := _heaviest_mass / min(_body_a.mass, _body_b.mass)
-	var precision_factor := int(clamp(mass_ratio * 0.33, 10, 75))
-	#printt("Mass ratio", mass_ratio, "Precision", precision_factor)
-	_joint.set("precision", precision_factor)
+		# TODO godot pls, fix the inspector
+		# Like seriously I was stuck on this shit for so long and the solution is
+		# literally just this?
+		# I'm going to buy another bottle tomorrow
+		# TODO convince the core devs NOT TO REMOVE THIS PROPERTY come on, it exists
+		# for a reason :(
+		var mass_ratio := _heaviest_mass / min(_body_a.mass, _body_b.mass)
+		var precision_factor := int(clamp(mass_ratio * 0.33, 10, 75))
+		#printt("Mass ratio", mass_ratio, "Precision", precision_factor)
+		_joint.set("precision", precision_factor)
 
 
 func _physics_process(delta: float) -> void:
