@@ -203,6 +203,7 @@ lights/0 = NodePath("../DirectionalLight")
 environment = NodePath("../WorldEnvironment")
 
 [node name="Settings" parent="." instance=ExtResource( 15 )]
+visible = false
 
 [node name="Hidden goto editor button" type="ToolButton" parent="."]
 shortcut = ExtResource( 16 )

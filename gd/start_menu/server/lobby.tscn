@@ -1,0 +1,169 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://ui/theme.tres" type="Theme" id=1]
+[ext_resource path="res://ui/blur_material.tres" type="Material" id=2]
+[ext_resource path="res://addons/hud/obituary_cancel_cloud.tres" type="Texture" id=3]
+[ext_resource path="res://addons/hud/obituary_hammer.tres" type="Texture" id=4]
+[ext_resource path="res://ui/font_title.tres" type="DynamicFont" id=5]
+[ext_resource path="res://ui/cancel_button.tscn" type="PackedScene" id=6]
+[ext_resource path="res://start_menu/server/lobby.gd" type="Script" id=7]
+[ext_resource path="res://addons/crosshairs/image0036.png" type="Texture" id=8]
+[ext_resource path="res://start_menu/server/status.tscn" type="PackedScene" id=9]
+
+[node name="Lobby" type="ColorRect"]
+self_modulate = Color( 0.584314, 0.584314, 0.584314, 1 )
+material = ExtResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+focus_mode = 2
+theme = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Lobby" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 40.0
+margin_top = 40.0
+margin_right = -40.0
+margin_bottom = -40.0
+rect_min_size = Vector2( 400, 0 )
+size_flags_horizontal = 3
+script = ExtResource( 7 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+failed_connect_icon = ExtResource( 3 )
+loading_icon = ExtResource( 8 )
+connecting_icon = ExtResource( 8 )
+user_error_icon = ExtResource( 4 )
+_filter = NodePath("Box/Left/Filter")
+_list = NodePath("Box/Left/List/Box/Box")
+_map = NodePath("Box/Right/Info/Map value")
+_max_players = NodePath("Box/Right/Info/Max players value")
+_description = NodePath("Box/Right/Description/Box/Text")
+_status = NodePath("Box/Right/Status")
+
+[node name="Title" type="Label" parent="Lobby"]
+margin_right = 1840.0
+margin_bottom = 31.0
+custom_fonts/font = ExtResource( 5 )
+text = "Lobby"
+align = 1
+
+[node name="Box" type="HBoxContainer" parent="Lobby"]
+margin_top = 41.0
+margin_right = 1840.0
+margin_bottom = 1000.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 20
+
+[node name="Left" type="VBoxContainer" parent="Lobby/Box"]
+margin_right = 910.0
+margin_bottom = 959.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Filter" type="LineEdit" parent="Lobby/Box/Left"]
+margin_right = 910.0
+margin_bottom = 29.0
+placeholder_text = "Filter"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="List" type="PanelContainer" parent="Lobby/Box/Left"]
+margin_top = 39.0
+margin_right = 910.0
+margin_bottom = 959.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Box" type="ScrollContainer" parent="Lobby/Box/Left/List"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 906.0
+margin_bottom = 916.0
+scroll_horizontal_enabled = false
+
+[node name="Box" type="VBoxContainer" parent="Lobby/Box/Left/List/Box"]
+margin_right = 902.0
+margin_bottom = 912.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Right" type="VBoxContainer" parent="Lobby/Box"]
+margin_left = 930.0
+margin_right = 1840.0
+margin_bottom = 959.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Info" type="GridContainer" parent="Lobby/Box/Right"]
+margin_right = 910.0
+margin_bottom = 46.0
+custom_constants/hseparation = 20
+columns = 2
+
+[node name="Map label" type="Label" parent="Lobby/Box/Right/Info"]
+margin_right = 107.0
+margin_bottom = 21.0
+text = "Map	"
+
+[node name="Map value" type="Label" parent="Lobby/Box/Right/Info"]
+margin_left = 127.0
+margin_right = 127.0
+margin_bottom = 21.0
+
+[node name="Max players label" type="Label" parent="Lobby/Box/Right/Info"]
+margin_top = 25.0
+margin_right = 107.0
+margin_bottom = 46.0
+text = "Max players"
+
+[node name="Max players value" type="Label" parent="Lobby/Box/Right/Info"]
+margin_left = 127.0
+margin_top = 25.0
+margin_right = 127.0
+margin_bottom = 46.0
+
+[node name="Description" type="PanelContainer" parent="Lobby/Box/Right"]
+margin_top = 56.0
+margin_right = 910.0
+margin_bottom = 156.0
+rect_min_size = Vector2( 0, 100 )
+
+[node name="Box" type="ScrollContainer" parent="Lobby/Box/Right/Description"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 906.0
+margin_bottom = 96.0
+scroll_horizontal_enabled = false
+
+[node name="Text" type="Label" parent="Lobby/Box/Right/Description/Box"]
+margin_right = 902.0
+margin_bottom = 92.0
+size_flags_horizontal = 3
+size_flags_vertical = 7
+autowrap = true
+
+[node name="Padding bottom" type="Control" parent="Lobby/Box/Right"]
+margin_top = 166.0
+margin_right = 910.0
+margin_bottom = 186.0
+rect_min_size = Vector2( 0, 20 )
+
+[node name="Connect" type="Button" parent="Lobby/Box/Right"]
+margin_top = 196.0
+margin_right = 910.0
+margin_bottom = 225.0
+text = "Connect"
+
+[node name="Status" parent="Lobby/Box/Right" instance=ExtResource( 9 )]
+margin_bottom = 330.0
+
+[node name="Cancel" parent="." instance=ExtResource( 6 )]
+[connection signal="pressed" from="Lobby/Box/Right/Connect" to="Lobby" method="launch"]
+[connection signal="pressed" from="Cancel" to="." method="set_visible" binds= [ false ]]

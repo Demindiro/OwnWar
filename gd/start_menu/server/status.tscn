@@ -1,0 +1,31 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://start_menu/server/status.gd" type="Script" id=1]
+
+[node name="Status" type="VBoxContainer"]
+margin_top = 235.0
+margin_right = 910.0
+margin_bottom = 266.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+_error = NodePath("Error")
+_icon = NodePath("Box/Icon")
+
+[node name="Error" type="Label" parent="."]
+margin_right = 910.0
+margin_bottom = 14.0
+
+[node name="Box" type="CenterContainer" parent="."]
+margin_top = 18.0
+margin_right = 910.0
+margin_bottom = 18.0
+
+[node name="Icon" type="TextureRect" parent="Box"]
+margin_left = 455.0
+margin_right = 455.0
+rect_pivot_offset = Vector2( 32.5, 32.5 )
+size_flags_horizontal = 0
+size_flags_vertical = 0
+stretch_mode = 4

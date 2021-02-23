@@ -38,6 +38,9 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_lock_": true
 }
+ambient_wind = 0.0
+lod_scale = 2.0
+map_scale = Vector3( 1, 1, 1 )
 _terrain_data = ExtResource( 2 )
 chunk_size = 32
 collision_enabled = true
@@ -164,13 +167,14 @@ lights/0 = NodePath("../Environment/DirectionalLight")
 environment = NodePath("../Environment/WorldEnvironment")
 
 [node name="Settings" parent="." instance=ExtResource( 14 )]
+visible = false
 
 [node name="Disconnected" parent="." instance=ExtResource( 15 )]
 visible = false
 [connection signal="server_disconnected" from="." to="Disconnected" method="set_visible" binds= [ true ]]
-[connection signal="visibility_changed" from="GUI" to="GUI" method="grab_focus"]
 [connection signal="visibility_changed" from="GUI" to="HUD" method="set_mouse_mode"]
 [connection signal="visibility_changed" from="GUI" to="HUD" method="poll_input"]
+[connection signal="visibility_changed" from="GUI" to="GUI" method="grab_focus"]
 [connection signal="pressed" from="GUI/Box/Continue" to="GUI" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="GUI/Box/Settings" to="Settings" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Box/Exit" to="GUI" method="goto_main_menu"]

@@ -1,4 +1,4 @@
-extends VBoxContainer
+extends Control
 
 
 const Status := preload("status.gd")

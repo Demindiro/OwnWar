@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=2]
+[gd_scene load_steps=30 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://start_menu/vehicle_list.gd" type="Script" id=2]
@@ -8,27 +8,18 @@
 [ext_resource path="res://start_menu/floor_mirror.gd" type="Script" id=6]
 [ext_resource path="res://start_menu/new_vehicle.gd" type="Script" id=7]
 [ext_resource path="res://start_menu/main.gd" type="Script" id=8]
-[ext_resource path="res://start_menu/server_settings.gd" type="Script" id=9]
-[ext_resource path="res://ui/blur_material.tres" type="Material" id=10]
+[ext_resource path="res://start_menu/server/lobby.tscn" type="PackedScene" id=9]
+[ext_resource path="res://start_menu/server/direct.tscn" type="PackedScene" id=10]
 [ext_resource path="res://start_menu/electro_waiting_room.ogg" type="AudioStream" id=11]
-[ext_resource path="res://ui/cancel_button.tscn" type="PackedScene" id=12]
 [ext_resource path="res://ui/font_big.tres" type="DynamicFont" id=13]
 [ext_resource path="res://start_menu/shortcut_main_menu_battle.tres" type="ShortCut" id=14]
 [ext_resource path="res://start_menu/shortcut_main_menu_settings.tres" type="ShortCut" id=15]
 [ext_resource path="res://start_menu/shortcut_main_menu_edit.tres" type="ShortCut" id=16]
 [ext_resource path="res://start_menu/shortcut_main_menu_create.tres" type="ShortCut" id=17]
-[ext_resource path="res://start_menu/self_host.gd" type="Script" id=18]
-[ext_resource path="res://start_menu/manual_connect.gd" type="Script" id=19]
-[ext_resource path="res://addons/auto_center_pivot.gd" type="Script" id=20]
-[ext_resource path="res://start_menu/status.gd" type="Script" id=21]
-[ext_resource path="res://addons/hud/obituary_hammer.tres" type="Texture" id=22]
-[ext_resource path="res://addons/hud/obituary_cancel_cloud.tres" type="Texture" id=23]
-[ext_resource path="res://start_menu/lobby.gd" type="Script" id=24]
-[ext_resource path="res://ui/font_title.tres" type="DynamicFont" id=25]
+[ext_resource path="res://start_menu/server/host.tscn" type="PackedScene" id=18]
 [ext_resource path="res://ui/font_big_title.tres" type="DynamicFont" id=26]
 [ext_resource path="res://start_menu/vehicle_list_item.tscn" type="PackedScene" id=27]
 [ext_resource path="res://settings/applier.gd" type="Script" id=28]
-[ext_resource path="res://addons/crosshairs/image0036.png" type="Texture" id=29]
 [ext_resource path="res://start_menu/credits.tscn" type="PackedScene" id=30]
 
 [sub_resource type="Environment" id=1]
@@ -261,53 +252,76 @@ __meta__ = {
 }
 
 [node name="Left" type="HBoxContainer" parent="QuickActions"]
-margin_right = 859.0
+margin_right = 765.0
 margin_bottom = 34.0
 size_flags_horizontal = 3
 size_flags_vertical = 0
 alignment = 2
 
 [node name="Exit" type="Button" parent="QuickActions/Left"]
-margin_left = 605.0
-margin_right = 658.0
+margin_left = 511.0
+margin_right = 564.0
 margin_bottom = 34.0
 custom_fonts/font = ExtResource( 13 )
 text = "Exit"
 
 [node name="Credits" type="Button" parent="QuickActions/Left"]
-margin_left = 662.0
-margin_right = 751.0
+margin_left = 568.0
+margin_right = 657.0
 margin_bottom = 34.0
 custom_fonts/font = ExtResource( 13 )
 text = "Credits"
 
 [node name="Settings" type="Button" parent="QuickActions/Left"]
-margin_left = 755.0
-margin_right = 859.0
+margin_left = 661.0
+margin_right = 765.0
 margin_bottom = 34.0
 custom_fonts/font = ExtResource( 13 )
 shortcut = ExtResource( 15 )
 text = "Settings"
 
 [node name="Middle" type="HBoxContainer" parent="QuickActions"]
-margin_left = 869.0
-margin_right = 1010.0
+margin_left = 775.0
+margin_right = 1104.0
 margin_bottom = 47.0
 size_flags_vertical = 0
+custom_constants/separation = 8
 alignment = 1
 
-[node name="Servers" type="Button" parent="QuickActions/Middle"]
-margin_right = 141.0
+[node name="Host" type="Button" parent="QuickActions/Middle"]
+margin_right = 88.0
 margin_bottom = 47.0
 custom_fonts/font = ExtResource( 26 )
 shortcut = ExtResource( 14 )
-text = "Servers"
+text = "Host"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Lobby" type="Button" parent="QuickActions/Middle"]
+margin_left = 96.0
+margin_right = 209.0
+margin_bottom = 47.0
+custom_fonts/font = ExtResource( 26 )
+shortcut = ExtResource( 14 )
+text = "Lobby"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Direct" type="Button" parent="QuickActions/Middle"]
+margin_left = 217.0
+margin_right = 329.0
+margin_bottom = 47.0
+custom_fonts/font = ExtResource( 26 )
+shortcut = ExtResource( 14 )
+text = "Direct"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Right" type="HBoxContainer" parent="QuickActions"]
-margin_left = 1020.0
+margin_left = 1114.0
 margin_right = 1880.0
 margin_bottom = 34.0
 size_flags_horizontal = 3
@@ -426,384 +440,17 @@ margin_right = 356.0
 margin_bottom = 96.0
 size_flags_horizontal = 3
 
-[node name="Server menu" type="ColorRect" parent="."]
+[node name="Host" parent="." instance=ExtResource( 18 )]
 visible = false
-self_modulate = Color( 0.584314, 0.584314, 0.584314, 1 )
-material = ExtResource( 10 )
-anchor_right = 1.0
-anchor_bottom = 1.0
-focus_mode = 2
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="Box" type="HBoxContainer" parent="Server menu"]
-anchor_left = 0.1
-anchor_top = 0.1
-anchor_right = 0.9
-anchor_bottom = 0.9
-alignment = 1
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Box" type="VBoxContainer" parent="Server menu/Box"]
-margin_right = 300.0
-margin_bottom = 864.0
-alignment = 1
-
-[node name="Manual connect" type="VBoxContainer" parent="Server menu/Box/Box"]
-margin_right = 300.0
-margin_bottom = 178.0
-rect_min_size = Vector2( 300, 0 )
-script = ExtResource( 19 )
-no_connection_icon = ExtResource( 23 )
-empty_address_icon = ExtResource( 22 )
-connecting_icon = ExtResource( 29 )
-user_error_icon = ExtResource( 22 )
-_address = NodePath("../../../../Server menu/Box/Box/Manual connect/Host")
-_port = NodePath("../../../../Server menu/Box/Box/Manual connect/Port")
-_password = NodePath("../../../../Server menu/Box/Box/Manual connect/Password")
-_status = NodePath("../../../../Server menu/Box/Box/Status")
-
-[node name="Title" type="Label" parent="Server menu/Box/Box/Manual connect"]
-margin_right = 300.0
-margin_bottom = 31.0
-custom_fonts/font = ExtResource( 25 )
-text = "Manual Connect"
-align = 1
-
-[node name="Host" type="LineEdit" parent="Server menu/Box/Box/Manual connect"]
-margin_top = 41.0
-margin_right = 300.0
-margin_bottom = 70.0
-placeholder_text = "Address"
-
-[node name="Port" type="SpinBox" parent="Server menu/Box/Box/Manual connect"]
-margin_top = 80.0
-margin_right = 300.0
-margin_bottom = 109.0
-min_value = 1.0
-max_value = 65535.0
-value = 39983.0
-prefix = "Port"
-
-[node name="Password" type="LineEdit" parent="Server menu/Box/Box/Manual connect"]
+[node name="Lobby" parent="." instance=ExtResource( 9 )]
 visible = false
-margin_top = 119.0
-margin_right = 300.0
-margin_bottom = 148.0
-secret = true
-placeholder_text = "Password (optional)"
 
-[node name="Padding bottom" type="Control" parent="Server menu/Box/Box/Manual connect"]
-margin_top = 119.0
-margin_right = 300.0
-margin_bottom = 139.0
-rect_min_size = Vector2( 0, 20 )
-
-[node name="Connect" type="Button" parent="Server menu/Box/Box/Manual connect"]
-margin_top = 149.0
-margin_right = 300.0
-margin_bottom = 178.0
-text = "Connect"
-
-[node name="Settings" type="VBoxContainer" parent="Server menu/Box/Box"]
-margin_top = 188.0
-margin_right = 300.0
-margin_bottom = 707.0
-size_flags_vertical = 3
-alignment = 1
-script = ExtResource( 9 )
-username_path = NodePath("Username")
-
-[node name="Title" type="Label" parent="Server menu/Box/Box/Settings"]
-margin_top = 227.0
-margin_right = 300.0
-margin_bottom = 253.0
-custom_fonts/font = ExtResource( 13 )
-text = "Settings"
-align = 1
-
-[node name="Username" type="LineEdit" parent="Server menu/Box/Box/Settings"]
-margin_top = 263.0
-margin_right = 300.0
-margin_bottom = 292.0
-placeholder_text = "Username"
-
-[node name="Status" type="VBoxContainer" parent="Server menu/Box/Box"]
-process_priority = 1
-margin_top = 717.0
-margin_right = 300.0
-margin_bottom = 864.0
-custom_constants/separation = 30
-alignment = 2
-script = ExtResource( 21 )
-_error = NodePath("../../../../Server menu/Box/Box/Status/Error")
-_icon = NodePath("../../../../Server menu/Box/Box/Status/Icon")
-
-[node name="Error" type="Label" parent="Server menu/Box/Box/Status"]
-margin_right = 300.0
-margin_bottom = 21.0
-autowrap = true
-
-[node name="Icon" type="TextureRect" parent="Server menu/Box/Box/Status"]
-margin_top = 51.0
-margin_right = 300.0
-margin_bottom = 147.0
-rect_min_size = Vector2( 0, 96 )
-rect_pivot_offset = Vector2( 150, 48 )
-texture = ExtResource( 29 )
-stretch_mode = 4
-script = ExtResource( 20 )
-
-[node name="Left separator" type="VSeparator" parent="Server menu/Box"]
-margin_left = 304.0
-margin_right = 328.0
-margin_bottom = 864.0
-
-[node name="Lobby" type="VBoxContainer" parent="Server menu/Box"]
-margin_left = 332.0
-margin_right = 1204.0
-margin_bottom = 864.0
-rect_min_size = Vector2( 400, 0 )
-size_flags_horizontal = 3
-script = ExtResource( 24 )
-failed_connect_icon = ExtResource( 23 )
-loading_icon = ExtResource( 29 )
-connecting_icon = ExtResource( 29 )
-user_error_icon = ExtResource( 22 )
-_filter = NodePath("Filter")
-_list = NodePath("List/Box/Box")
-_map = NodePath("Info/Map value")
-_max_players = NodePath("Info/Max players value")
-_description = NodePath("Description/Box/Text")
-_status = NodePath("../Box/Status")
-
-[node name="Title" type="Label" parent="Server menu/Box/Lobby"]
-margin_right = 872.0
-margin_bottom = 31.0
-custom_fonts/font = ExtResource( 25 )
-text = "Lobby"
-align = 1
-
-[node name="Filter" type="LineEdit" parent="Server menu/Box/Lobby"]
+[node name="Direct" parent="." instance=ExtResource( 10 )]
 visible = false
-margin_top = 41.0
-margin_right = 872.0
-margin_bottom = 70.0
-placeholder_text = "Filter"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="List" type="PanelContainer" parent="Server menu/Box/Lobby"]
-margin_top = 41.0
-margin_right = 872.0
-margin_bottom = 629.0
-size_flags_vertical = 3
-
-[node name="Box" type="ScrollContainer" parent="Server menu/Box/Lobby/List"]
-margin_left = 4.0
-margin_top = 4.0
-margin_right = 868.0
-margin_bottom = 584.0
-scroll_horizontal_enabled = false
-
-[node name="Box" type="VBoxContainer" parent="Server menu/Box/Lobby/List/Box"]
-margin_right = 864.0
-margin_bottom = 580.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="Info" type="GridContainer" parent="Server menu/Box/Lobby"]
-margin_top = 639.0
-margin_right = 872.0
-margin_bottom = 685.0
-custom_constants/hseparation = 20
-columns = 2
-
-[node name="Map label" type="Label" parent="Server menu/Box/Lobby/Info"]
-margin_right = 107.0
-margin_bottom = 21.0
-text = "Map	"
-
-[node name="Map value" type="Label" parent="Server menu/Box/Lobby/Info"]
-margin_left = 127.0
-margin_right = 127.0
-margin_bottom = 21.0
-
-[node name="Max players label" type="Label" parent="Server menu/Box/Lobby/Info"]
-margin_top = 25.0
-margin_right = 107.0
-margin_bottom = 46.0
-text = "Max players"
-
-[node name="Max players value" type="Label" parent="Server menu/Box/Lobby/Info"]
-margin_left = 127.0
-margin_top = 25.0
-margin_right = 127.0
-margin_bottom = 46.0
-
-[node name="Description" type="PanelContainer" parent="Server menu/Box/Lobby"]
-margin_top = 695.0
-margin_right = 872.0
-margin_bottom = 795.0
-rect_min_size = Vector2( 0, 100 )
-
-[node name="Box" type="ScrollContainer" parent="Server menu/Box/Lobby/Description"]
-margin_left = 4.0
-margin_top = 4.0
-margin_right = 868.0
-margin_bottom = 96.0
-scroll_horizontal_enabled = false
-
-[node name="Text" type="Label" parent="Server menu/Box/Lobby/Description/Box"]
-margin_right = 864.0
-margin_bottom = 92.0
-size_flags_horizontal = 3
-size_flags_vertical = 7
-autowrap = true
-
-[node name="Padding bottom" type="Control" parent="Server menu/Box/Lobby"]
-margin_top = 805.0
-margin_right = 872.0
-margin_bottom = 825.0
-rect_min_size = Vector2( 0, 20 )
-
-[node name="Connect" type="Button" parent="Server menu/Box/Lobby"]
-margin_top = 835.0
-margin_right = 872.0
-margin_bottom = 864.0
-text = "Connect"
-
-[node name="Right separator" type="VSeparator" parent="Server menu/Box"]
-margin_left = 1208.0
-margin_right = 1232.0
-margin_bottom = 864.0
-
-[node name="Self host" type="VBoxContainer" parent="Server menu/Box"]
-margin_left = 1236.0
-margin_right = 1536.0
-margin_bottom = 864.0
-rect_min_size = Vector2( 300, 0 )
-script = ExtResource( 18 )
-user_error_icon = ExtResource( 22 )
-_map_selection = NodePath("../../../Server menu/Box/Self host/Map selection/Box/Box")
-_thumbnail = NodePath("../../../Server menu/Box/Self host/Thumbnail")
-_list_lobby = NodePath("../../../Server menu/Box/Self host/List in lobby")
-_use_upnp = NodePath("Use UPNP")
-_name = NodePath("Name")
-_description = NodePath("../../../Server menu/Box/Self host/Description")
-_port = NodePath("../../../Server menu/Box/Self host/Port")
-_max_players = NodePath("../../../Server menu/Box/Self host/Max players")
-_password = NodePath("../../../Server menu/Box/Self host/Password")
-_status = NodePath("../../../Server menu/Box/Box/Status")
-maps = PoolStringArray( "res://maps/the_pit/the_pit.tscn" )
-
-[node name="Title" type="Label" parent="Server menu/Box/Self host"]
-margin_right = 300.0
-margin_bottom = 31.0
-custom_fonts/font = ExtResource( 25 )
-text = "Host"
-align = 1
-
-[node name="Map selection" type="PanelContainer" parent="Server menu/Box/Self host"]
-margin_top = 41.0
-margin_right = 300.0
-margin_bottom = 516.0
-size_flags_vertical = 3
-
-[node name="Box" type="ScrollContainer" parent="Server menu/Box/Self host/Map selection"]
-margin_left = 4.0
-margin_top = 4.0
-margin_right = 296.0
-margin_bottom = 471.0
-size_flags_vertical = 3
-
-[node name="Box" type="VBoxContainer" parent="Server menu/Box/Self host/Map selection/Box"]
-margin_right = 292.0
-margin_bottom = 467.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="Thumbnail" type="TextureRect" parent="Server menu/Box/Self host"]
-visible = false
-margin_top = 297.0
-margin_right = 400.0
-margin_bottom = 457.0
-rect_min_size = Vector2( 0, 160 )
-stretch_mode = 6
-
-[node name="Name" type="LineEdit" parent="Server menu/Box/Self host"]
-margin_top = 526.0
-margin_right = 300.0
-margin_bottom = 555.0
-placeholder_text = "Name"
-
-[node name="Description" type="TextEdit" parent="Server menu/Box/Self host"]
-margin_top = 565.0
-margin_right = 300.0
-margin_bottom = 655.0
-rect_min_size = Vector2( 0, 90 )
-text = "Description"
-wrap_enabled = true
-
-[node name="List in lobby" type="CheckBox" parent="Server menu/Box/Self host"]
-margin_top = 665.0
-margin_right = 300.0
-margin_bottom = 686.0
-pressed = true
-text = "List in lobby"
-
-[node name="Use UPNP" type="CheckBox" parent="Server menu/Box/Self host"]
-margin_top = 696.0
-margin_right = 300.0
-margin_bottom = 717.0
-pressed = true
-text = "Use UPNP"
-
-[node name="Port" type="SpinBox" parent="Server menu/Box/Self host"]
-margin_top = 727.0
-margin_right = 300.0
-margin_bottom = 756.0
-min_value = 1.0
-max_value = 65535.0
-value = 39983.0
-prefix = "Port"
-
-[node name="Max players" type="SpinBox" parent="Server menu/Box/Self host"]
-margin_top = 766.0
-margin_right = 300.0
-margin_bottom = 795.0
-size_flags_horizontal = 3
-max_value = 32.0
-value = 10.0
-prefix = "Max players"
-
-[node name="Password" type="LineEdit" parent="Server menu/Box/Self host"]
-visible = false
-margin_top = 766.0
-margin_right = 300.0
-margin_bottom = 795.0
-secret = true
-placeholder_text = "Password (blank for none)"
-
-[node name="Padding bottom" type="Control" parent="Server menu/Box/Self host"]
-margin_top = 805.0
-margin_right = 300.0
-margin_bottom = 825.0
-rect_min_size = Vector2( 0, 20 )
-
-[node name="Start server" type="Button" parent="Server menu/Box/Self host"]
-margin_top = 835.0
-margin_right = 300.0
-margin_bottom = 864.0
-text = "Start server"
-
-[node name="Cancel" parent="Server menu" instance=ExtResource( 12 )]
 
 [node name="Settings" parent="." instance=ExtResource( 3 )]
+visible = false
 
 [node name="Darken background" type="ColorRect" parent="."]
 visible = false
@@ -826,8 +473,8 @@ stream = ExtResource( 11 )
 volume_db = -10.0
 autoplay = true
 bus = "Music"
-[connection signal="vehicle_renamed" from="." to="Vehicle list" method="on_vehicle_renamed"]
 [connection signal="vehicle_renamed" from="." to="Vehicle info" method="on_vehicle_renamed"]
+[connection signal="vehicle_renamed" from="." to="Vehicle list" method="on_vehicle_renamed"]
 [connection signal="loaded_vehicle" from="Vehicle preview" to="Vehicle info" method="set_vehicle"]
 [connection signal="timeout" from="Vehicle preview/InputTimer" to="Vehicle preview" method="input_timeout"]
 [connection signal="select_vehicle" from="Vehicle list" to="Vehicle preview" method="set_preview"]
@@ -842,15 +489,11 @@ bus = "Music"
 [connection signal="pressed" from="QuickActions/Left/Exit" to="." method="exit_game"]
 [connection signal="pressed" from="QuickActions/Left/Credits" to="Credits" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="QuickActions/Left/Settings" to="Settings" method="set_visible" binds= [ true ]]
-[connection signal="pressed" from="QuickActions/Middle/Servers" to="Server menu" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="QuickActions/Middle/Host" to="Host" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="QuickActions/Middle/Lobby" to="Lobby" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="QuickActions/Middle/Direct" to="Direct" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="QuickActions/Right/Edit" to="." method="goto_editor"]
 [connection signal="pressed" from="QuickActions/Right/Create" to="New vehicle" method="activate"]
 [connection signal="new_vehicle_path" from="Vehicle info" to="." method="rename_vehicle"]
 [connection signal="focus_exited" from="Vehicle info/Box/Name" to="Vehicle info" method="edit_name"]
 [connection signal="text_entered" from="Vehicle info/Box/Name" to="Vehicle info" method="edit_name"]
-[connection signal="pressed" from="Server menu/Box/Box/Manual connect/Connect" to="Server menu/Box/Box/Manual connect" method="launch"]
-[connection signal="pressed" from="Server menu/Box/Lobby/Connect" to="Server menu/Box/Lobby" method="launch"]
-[connection signal="toggled" from="Server menu/Box/Self host/List in lobby" to="Server menu/Box/Self host/Name" method="set_visible"]
-[connection signal="toggled" from="Server menu/Box/Self host/List in lobby" to="Server menu/Box/Self host/Description" method="set_visible"]
-[connection signal="pressed" from="Server menu/Box/Self host/Start server" to="Server menu/Box/Self host" method="launch"]
-[connection signal="pressed" from="Server menu/Cancel" to="Server menu" method="set_visible" binds= [ false ]]

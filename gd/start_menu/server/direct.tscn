@@ -1,0 +1,94 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://start_menu/server/status.tscn" type="PackedScene" id=1]
+[ext_resource path="res://ui/theme.tres" type="Theme" id=2]
+[ext_resource path="res://start_menu/server/direct.gd" type="Script" id=3]
+[ext_resource path="res://ui/blur_material.tres" type="Material" id=4]
+[ext_resource path="res://addons/hud/obituary_cancel_cloud.tres" type="Texture" id=5]
+[ext_resource path="res://addons/hud/obituary_hammer.tres" type="Texture" id=6]
+[ext_resource path="res://ui/font_title.tres" type="DynamicFont" id=7]
+[ext_resource path="res://ui/cancel_button.tscn" type="PackedScene" id=8]
+[ext_resource path="res://addons/crosshairs/image0036.png" type="Texture" id=12]
+
+[node name="Direct" type="ColorRect"]
+self_modulate = Color( 0.584314, 0.584314, 0.584314, 1 )
+material = ExtResource( 4 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+focus_mode = 2
+theme = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Cancel" parent="." instance=ExtResource( 8 )]
+
+[node name="Direct" type="VBoxContainer" parent="."]
+margin_left = 40.0
+margin_top = 451.0
+margin_right = 1880.0
+margin_bottom = 629.0
+rect_min_size = Vector2( 300, 0 )
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+no_connection_icon = ExtResource( 5 )
+empty_address_icon = ExtResource( 6 )
+connecting_icon = ExtResource( 12 )
+user_error_icon = ExtResource( 6 )
+_address = NodePath("Host")
+_port = NodePath("Port")
+_password = NodePath("Password")
+_status = NodePath("Status")
+
+[node name="Title" type="Label" parent="Direct"]
+margin_right = 1840.0
+margin_bottom = 31.0
+custom_fonts/font = ExtResource( 7 )
+text = "Manual Connect"
+align = 1
+
+[node name="Host" type="LineEdit" parent="Direct"]
+margin_top = 41.0
+margin_right = 1840.0
+margin_bottom = 70.0
+placeholder_text = "Address"
+
+[node name="Port" type="SpinBox" parent="Direct"]
+margin_top = 80.0
+margin_right = 1840.0
+margin_bottom = 109.0
+min_value = 1.0
+max_value = 65535.0
+value = 39983.0
+prefix = "Port"
+
+[node name="Password" type="LineEdit" parent="Direct"]
+visible = false
+margin_top = 119.0
+margin_right = 300.0
+margin_bottom = 148.0
+secret = true
+placeholder_text = "Password (optional)"
+
+[node name="Padding bottom" type="Control" parent="Direct"]
+margin_top = 119.0
+margin_right = 1840.0
+margin_bottom = 139.0
+rect_min_size = Vector2( 0, 20 )
+
+[node name="Connect" type="Button" parent="Direct"]
+margin_top = 149.0
+margin_right = 1840.0
+margin_bottom = 178.0
+text = "Connect"
+
+[node name="Status" parent="Direct" instance=ExtResource( 1 )]
+margin_top = 188.0
+margin_right = 1840.0
+margin_bottom = 283.0
+_error = NodePath("../../Direct/Status/Error")
+_icon = NodePath("../../Direct/Status/Box/Icon")
+[connection signal="pressed" from="Cancel" to="." method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="Direct/Connect" to="Direct" method="launch"]

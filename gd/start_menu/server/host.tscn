@@ -1,0 +1,166 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://ui/theme.tres" type="Theme" id=1]
+[ext_resource path="res://ui/blur_material.tres" type="Material" id=2]
+[ext_resource path="res://addons/hud/obituary_hammer.tres" type="Texture" id=3]
+[ext_resource path="res://ui/font_title.tres" type="DynamicFont" id=4]
+[ext_resource path="res://ui/cancel_button.tscn" type="PackedScene" id=5]
+[ext_resource path="res://start_menu/server/host.gd" type="Script" id=6]
+[ext_resource path="res://start_menu/server/status.tscn" type="PackedScene" id=7]
+
+[node name="Host" type="ColorRect"]
+self_modulate = Color( 0.584314, 0.584314, 0.584314, 1 )
+material = ExtResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+focus_mode = 2
+theme = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Host" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 40.0
+margin_top = 40.0
+margin_right = -40.0
+margin_bottom = -40.0
+rect_min_size = Vector2( 300, 0 )
+script = ExtResource( 6 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+user_error_icon = ExtResource( 3 )
+_map_selection = NodePath("Box/Map selection/Box/Box")
+_thumbnail = NodePath("Box/Box/Thumbnail")
+_list_lobby = NodePath("Box/Box/List in lobby")
+_use_upnp = NodePath("Box/Box/Use UPNP")
+_name = NodePath("Box/Box/Name")
+_description = NodePath("Box/Box/Description")
+_port = NodePath("Box/Box/Port")
+_max_players = NodePath("Box/Box/Max players")
+_password = NodePath("Box/Box/Password")
+_status = NodePath("Box/Box/Status")
+
+[node name="Title" type="Label" parent="Host"]
+margin_right = 1840.0
+margin_bottom = 31.0
+custom_fonts/font = ExtResource( 4 )
+text = "Host"
+align = 1
+
+[node name="Box" type="HBoxContainer" parent="Host"]
+margin_top = 41.0
+margin_right = 1840.0
+margin_bottom = 1000.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Map selection" type="PanelContainer" parent="Host/Box"]
+margin_right = 918.0
+margin_bottom = 959.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Box" type="ScrollContainer" parent="Host/Box/Map selection"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 914.0
+margin_bottom = 955.0
+size_flags_vertical = 3
+
+[node name="Box" type="VBoxContainer" parent="Host/Box/Map selection/Box"]
+margin_right = 910.0
+margin_bottom = 951.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Box" type="VBoxContainer" parent="Host/Box"]
+margin_left = 922.0
+margin_right = 1840.0
+margin_bottom = 959.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Name" type="LineEdit" parent="Host/Box/Box"]
+margin_right = 918.0
+margin_bottom = 29.0
+placeholder_text = "Name"
+
+[node name="Description" type="TextEdit" parent="Host/Box/Box"]
+margin_top = 39.0
+margin_right = 918.0
+margin_bottom = 129.0
+rect_min_size = Vector2( 0, 90 )
+text = "Description"
+wrap_enabled = true
+
+[node name="Thumbnail" type="TextureRect" parent="Host/Box/Box"]
+visible = false
+margin_left = -922.0
+margin_top = 451.0
+margin_right = 918.0
+margin_bottom = 611.0
+rect_min_size = Vector2( 0, 160 )
+stretch_mode = 6
+
+[node name="List in lobby" type="CheckBox" parent="Host/Box/Box"]
+margin_top = 139.0
+margin_right = 918.0
+margin_bottom = 160.0
+pressed = true
+text = "List in lobby"
+
+[node name="Use UPNP" type="CheckBox" parent="Host/Box/Box"]
+margin_top = 170.0
+margin_right = 918.0
+margin_bottom = 191.0
+pressed = true
+text = "Use UPNP"
+
+[node name="Port" type="SpinBox" parent="Host/Box/Box"]
+margin_top = 201.0
+margin_right = 918.0
+margin_bottom = 230.0
+min_value = 1.0
+max_value = 65535.0
+value = 39983.0
+prefix = "Port"
+
+[node name="Max players" type="SpinBox" parent="Host/Box/Box"]
+margin_top = 240.0
+margin_right = 918.0
+margin_bottom = 269.0
+size_flags_horizontal = 3
+max_value = 32.0
+value = 10.0
+prefix = "Max players"
+
+[node name="Password" type="LineEdit" parent="Host/Box/Box"]
+visible = false
+margin_left = -922.0
+margin_top = 725.0
+margin_right = -622.0
+margin_bottom = 754.0
+secret = true
+placeholder_text = "Password (blank for none)"
+
+[node name="Start server" type="Button" parent="Host/Box/Box"]
+margin_top = 279.0
+margin_right = 918.0
+margin_bottom = 308.0
+text = "Start server"
+
+[node name="Status" parent="Host/Box/Box" instance=ExtResource( 7 )]
+margin_top = 318.0
+margin_right = 918.0
+margin_bottom = 413.0
+_error = NodePath("../../../../Host/Box/Box/Status/Error")
+_icon = NodePath("../../../../Host/Box/Box/Status/Box/Icon")
+
+[node name="Cancel" parent="." instance=ExtResource( 5 )]
+[connection signal="toggled" from="Host/Box/Box/List in lobby" to="Host/Box/Box/Description" method="set_visible"]
+[connection signal="toggled" from="Host/Box/Box/List in lobby" to="Host/Box/Box/Name" method="set_visible"]
+[connection signal="pressed" from="Host/Box/Box/Start server" to="Host" method="launch"]
+[connection signal="pressed" from="Cancel" to="." method="set_visible" binds= [ false ]]
