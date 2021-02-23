@@ -65,7 +65,7 @@ func spawn_player_vehicle() -> void:
 	assert(e == OK)
 	var data := file.get_buffer(file.get_len())
 	if server_mode:
-		request_vehicle(data)
+		request_vehicle(data, false)
 		hud.player_vehicle = clients[1]
 		e = clients[1].connect("tree_exited", self, "request_respawn")
 		assert(e == OK)
@@ -116,7 +116,7 @@ puppet func sync_vehicle(data: PoolByteArray, name: String, team: int, \
 	add_child(vehicle)
 
 
-master func request_vehicle(data: PoolByteArray) -> void:
+master func request_vehicle(data: PoolByteArray, kinematic := true) -> void:
 	var is_ally := false
 	var id := get_tree().get_rpc_sender_id()
 	if id == 0:
@@ -127,7 +127,7 @@ master func request_vehicle(data: PoolByteArray) -> void:
 		var vehicle := OwnWar_Vehicle.new()
 		vehicle.team = counter
 		vehicle.is_ally = is_ally
-		vehicle.kinematic = true
+		vehicle.kinematic = kinematic
 		var e := vehicle.load_from_data(data)
 		assert(e == OK)
 		var index := counter % get_node(spawn_points).get_child_count()
