@@ -491,7 +491,6 @@ map_focus_chat_input={
 
 [physics]
 
-common/physics_fps=30
 common/physics_jitter_fix=0.0
 3d/physics_engine="Bullet"
 3d/active_soft_world=false
