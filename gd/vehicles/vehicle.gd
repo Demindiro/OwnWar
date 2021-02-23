@@ -370,24 +370,6 @@ func get_mass() -> float:
 
 
 func debug_draw() -> void:
-	var text := "Actions: "
-	if controller.turn_left:
-		text += "left, "
-	if controller.turn_right:
-		text += "right, "
-	if controller.pitch_up:
-		text += "up, "
-	if controller.pitch_down:
-		text += "down, "
-	if controller.move_forward:
-		text += "forward, "
-	if controller.move_back:
-		text += "back, "
-	if controller.fire:
-		text += "fire, "
-	if controller.flip:
-		text += "flip, "
-	Debug.draw_text(get_visual_origin(), text, Color.cyan)
 	for b in voxel_bodies:
 		if b != null:
 			Debug.draw_point(b.translation, Color.purple, 0.2)

@@ -40,7 +40,3 @@ func _physics_process(_delta) -> void:
 		controller.move_forward = true
 		controller.aim_at = v.translation
 		controller.fire = true
-
-
-func debug_draw():
-	Debug.draw_point(controller.aim_at, Color.red)

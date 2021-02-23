@@ -77,30 +77,6 @@ func _physics_process(delta: float) -> void:
 	_joint.set("angular_motor_z/target_velocity", turn_rate * side)
 
 
-func debug_draw():
-	if not is_inside_tree() or _body_b_mount == null or not _body_b_mount.is_inside_tree():
-		return
-	Debug.draw_line(global_transform.origin, \
-			global_transform.origin + global_transform.basis.z * 10.0)
-	Debug.draw_line(global_transform.origin, _aim_pos, Color.red)
-	Debug.draw_line(global_transform.origin,
-			global_transform.origin + global_transform.basis.z * 20.0)
-	var bbmt := _body_b_mount.global_transform
-	Debug.draw_line(bbmt.origin,
-			bbmt.origin + bbmt.basis.x * 5.0,
-			Color.red)
-	Debug.draw_line(bbmt.origin,
-			bbmt.origin + bbmt.basis.y * 5.0,
-			Color.green)
-	Debug.draw_line(bbmt.origin,
-			bbmt.origin + bbmt.basis.z * 5.0,
-			Color.blue)
-	var g_trf := _body_b_mount.global_transform
-	var plane := Plane(g_trf.basis.y, 0)
-	var proj_pos := plane.project(_aim_pos - g_trf.origin).normalized()
-	Debug.draw_point(proj_pos * 5.0 + g_trf.origin, Color.cyan, 0.1)
-
-
 func aim_at(position: Vector3):
 	_aim_pos = position
 

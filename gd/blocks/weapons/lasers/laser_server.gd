@@ -52,13 +52,3 @@ func fire() -> bool:
 
 puppetsync func fired_feedback(at: Vector3) -> void:
 	emit_signal("fired", at)
-
-
-func debug_draw() -> void:
-	_ray.force_raycast_update()
-	var at: Vector3
-	if _ray.is_colliding():
-		at = _ray.get_collision_point()
-	else:
-		at = global_transform * _ray.cast_to
-	Debug.draw_point(at, Color.red, 0.1)
