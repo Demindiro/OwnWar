@@ -1,0 +1,37 @@
+# 0.18 Roadmap
+
+## Optimization
+- Dramatically decrease server and client CPU usage
+  - Using kinematic bodies
+  - Allows increasing tickrate -> less tunnneling
+  - Will make anti-cheat harder
+    - Concensus algorithm
+  - Damage will remain server-side
+- Rework savefile format (again)
+  - Manually apply compression so we can _easily_ stream it over the net
+  - Store big array instead of storing block locations
+    - Easier to compress + less data on average
+
+## UI/UX
+- Make a proper lobby with search functionality and a proper info board
+  - Move the direct connect and hosting menus to separate tabs
+
+## Weapons
+- Add "plasma" (explosive) cannon
+- Add railgun
+  - Make railgun the gun with deep pen, make laser a "heatgun" instead
+    - Heat = transfers to whatever nearby blocks
+
+## Movement
+- Add thrusters
+- Add wings
+  - TODO: should it "magically" balance constructs somewhat? And how?
+- Add rotors
+
+## Decoration
+- Add glowing blocks
+
+# Damage system
+* Fix physics body not updating on damage
+* Fix mass not updating on damage
+* Fix blocks not properly disconnecting
