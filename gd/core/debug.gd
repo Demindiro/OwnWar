@@ -211,3 +211,11 @@ func _draw_canvas_item():
 		Vector2(_canvas_item.rect_size.x / 2.0, 40.0),
 		"Draw calls: " + str(draw_calls)
 	)
+	var vertices = get_tree() \
+		.root \
+		.get_render_info(Viewport.RENDER_INFO_VERTICES_IN_FRAME)
+	_canvas_item.draw_string(
+		_default_font,
+		Vector2(_canvas_item.rect_size.x / 2.0, 60.0),
+		"Vertices: " + str(vertices)
+	)

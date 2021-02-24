@@ -1,0 +1,19 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/thruster.obj-1eb59419eb93822e994708535fd40e9b.mesh"
+
+[deps]
+
+files=[ "res://.import/thruster.obj-1eb59419eb93822e994708535fd40e9b.mesh" ]
+
+source_file="res://blocks/thrusters/thruster.obj"
+dest_files=[ "res://.import/thruster.obj-1eb59419eb93822e994708535fd40e9b.mesh", "res://.import/thruster.obj-1eb59419eb93822e994708535fd40e9b.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 0.2, 0.2, 0.2 )
+offset_mesh=Vector3( 0, -0.1, -0.2 )
+optimize_mesh=true

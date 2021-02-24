@@ -91,8 +91,12 @@ func enable_shadows(enable: bool) -> void:
 
 func set_tonemap_mode(value: int) -> void:
 	if environment != NodePath():
-		var env: WorldEnvironment = get_node(environment)
-		env.environment.tonemap_mode = value
+		var w_env: WorldEnvironment = get_node(environment)
+		var env := w_env.environment
+		env.tonemap_mode = value
+		env.glow_enabled = true
+		#env.glow_intensity = 2
+		env.glow_bicubic_upscale = true
 
 
 func _exit_tree() -> void:

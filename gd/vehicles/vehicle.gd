@@ -10,6 +10,7 @@ var max_cost: int
 var voxel_bodies := []
 var wheels := []
 var weapons := []
+var thrusters := []
 var fireable_weapons := []
 
 var fireable_weapon_count := 0
@@ -120,11 +121,15 @@ func _physics_process(delta: float) -> void:
 				if b != null and b.linear_velocity.length_squared() < 1.0:
 					drive_brake = 0.2
 					break
+
 		for wheel in wheels:
 			wheel.steering = drive_yaw * wheel.max_angle
 			wheel.brake = drive_brake * wheel.max_brake
 			var fraction := 1 - clamp(ease(abs(wheel.get_rpm()) / wheel.max_rpm, 1), 0, 1)
 			wheel.engine_force = wheel.max_power * drive_forward * fraction
+
+		for thruster in thrusters:
+			thruster.apply_drive(drive_forward, drive_yaw, 0.0)
 
 		for weapon in weapons:
 			weapon.aim_at(controller.aim_at)
@@ -282,6 +287,8 @@ func load_from_data(p_data: PoolByteArray, state := []) -> int:
 			body.init(self)
 			max_cost += body.max_cost
 	for vb in voxel_bodies:
+		if vb == null:
+			continue
 		var center_of_mass_0: Vector3 = vb.center_of_mass
 		var position_0: Vector3 = vb.aabb.position
 		for body in voxel_bodies:
@@ -293,6 +300,7 @@ func load_from_data(p_data: PoolByteArray, state := []) -> int:
 		if body != null:
 			wheels += body.wheels
 			weapons += body.weapons
+			thrusters += body.thrusters
 	if len(wheels) > 0:
 		var wheel_susp_force := get_mass() / len(wheels) * 9.81 * 3
 		for w in wheels:
@@ -304,6 +312,9 @@ func load_from_data(p_data: PoolByteArray, state := []) -> int:
 		assert(e == OK)
 		if not "_joint" in w:
 			fireable_weapons.push_back(w)
+	for t in thrusters:
+		var e: int = t.connect("tree_exited", self, "_remove_thruster", [t])
+		assert(e == OK)
 
 	var physics_bodies := []
 	for child in Util.get_children_recursive(self):
@@ -396,3 +407,8 @@ func _remove_wheel(wheel: OwnWar_Wheel) -> void:
 		var susp_force := get_mass() / len(wheels) * 9.81 * 3
 		for wheel in wheels:
 			wheel.suspension_max_force = susp_force
+
+
+func _remove_thruster(thruster) -> void:# OwnWar_Thruster_Server) -> void:
+	assert(thruster != null)
+	thrusters.erase(thruster)

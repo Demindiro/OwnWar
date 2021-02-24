@@ -49,6 +49,7 @@ pub struct VoxelBody {
 
 	wheels: Vec<Ref<VehicleWheel>>,
 	weapons: Vec<Ref<Spatial>>,
+	thrusters: Vec<Ref<Spatial>>,
 
 	// TODO this is god-awful but it seems there is no other way without access
 	// to the ScriptServer (ノಠ益ಠ)ノ彡┻━┻
@@ -132,6 +133,10 @@ impl VoxelBody {
 			.with_getter(&Self::weapons)
 			.done();
 		builder
+			.add_property("thrusters")
+			.with_getter(&Self::thrusters)
+			.done();
+		builder
 			.add_property("last_hit_position")
 			.with_getter(&Self::last_hit_position)
 			.done();
@@ -184,6 +189,7 @@ impl VoxelBody {
 		Self {
 			wheels: Vec::new(),
 			weapons: Vec::new(),
+			thrusters: Vec::new(),
 
 			team: 0,
 			is_ally: false,
@@ -697,6 +703,9 @@ impl VoxelBody {
 			} else if bsn.has_method("fire") {
 				// TODO handle weapons properly
 				self.weapons.push(bb.server_node);
+			} else if bsn.has_method("apply_drive") {
+				// TODO ditto
+				self.thrusters.push(bb.server_node);
 			}
 			self.interpolation_states.push(bb);
 		}
@@ -841,6 +850,14 @@ impl VoxelBody {
 	fn weapons(&self, _owner: TRef<VehicleBody>) -> VariantArray {
 		let v = VariantArray::new();
 		for w in &self.weapons {
+			v.push(w.clone());
+		}
+		v.into_shared()
+	}
+
+	fn thrusters(&self, _owner: TRef<VehicleBody>) -> VariantArray {
+		let v = VariantArray::new();
+		for w in &self.thrusters {
 			v.push(w.clone());
 		}
 		v.into_shared()
