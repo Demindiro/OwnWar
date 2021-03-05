@@ -1,6 +1,4 @@
-// TODO remove this later
-// This attribute is added because porting the GDScript code
-// will inevitably result in some dead code and unused variables
+#![feature(map_into_keys_values)]
 
 mod util;
 mod vehicle;

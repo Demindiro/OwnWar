@@ -70,6 +70,7 @@ func _init():
 	OwnWar_Block.add_block(preload("res://blocks/turrets/turret_3x3.tres"))
 	OwnWar_Block.add_block(preload("res://blocks/weapons/lasers/fixed_laser.tres"))
 	OwnWar_Block.add_block(preload("res://blocks/thrusters/thruster.tres"))
+	OwnWar_Block.add_block(preload("res://blocks/weapons/plasma/cannon.tres"))
 
 
 func _process(_delta):

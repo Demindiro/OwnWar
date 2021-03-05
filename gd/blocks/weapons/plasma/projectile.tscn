@@ -1,0 +1,61 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://blocks/weapons/plasma/tracer.gd" type="Script" id=1]
+[ext_resource path="res://blocks/weapons/plasma/projectile.gd" type="Script" id=2]
+[ext_resource path="res://blocks/weapons/plasma/explosion.tscn" type="PackedScene" id=3]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type spatial;
+render_mode ambient_light_disabled, shadows_disabled;
+
+uniform vec4 color: hint_color = vec4(0.0, 0.2, 1.0, 1.0);
+uniform float emission_strength: hint_range(0.0, 10.0) = 3.0;
+
+void fragment() {
+	ALBEDO = color.rgb;
+	EMISSION = color.rgb * emission_strength;
+}
+
+void light() {
+	DIFFUSE_LIGHT = vec3(0.0);
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+shader_param/color = Color( 0, 0.905882, 1, 1 )
+shader_param/emission_strength = 10.0
+
+[sub_resource type="SphereMesh" id=3]
+radius = 0.05
+height = 0.1
+radial_segments = 8
+rings = 3
+
+[sub_resource type="SpatialMaterial" id=4]
+flags_disable_ambient_light = true
+emission_enabled = true
+emission = Color( 0, 1, 0.964706, 1 )
+emission_energy = 2.48
+emission_operator = 0
+emission_on_uv2 = false
+
+[node name="Projectile" type="Spatial"]
+script = ExtResource( 2 )
+explosion = ExtResource( 3 )
+
+[node name="Timer" type="Timer" parent="."]
+process_mode = 0
+wait_time = 10.0
+autostart = true
+
+[node name="Visual" type="MeshInstance" parent="."]
+material_override = SubResource( 2 )
+cast_shadow = 0
+mesh = SubResource( 3 )
+material/0 = null
+
+[node name="Tracer" type="ImmediateGeometry" parent="Visual"]
+process_priority = 1
+material_override = SubResource( 4 )
+script = ExtResource( 1 )
+[connection signal="timeout" from="Timer" to="." method="queue_free"]

@@ -32,7 +32,6 @@ struct SubMesh {
 
 #[methods]
 impl VoxelMesh {
-
 	pub(super) fn new(_owner: &ArrayMesh) -> Self {
 		Self {
 			dirty: false,
@@ -42,7 +41,14 @@ impl VoxelMesh {
 	}
 
 	#[export]
-	fn add_block_gd(&mut self, _owner: &ArrayMesh, block: Ref<Resource>, color: Color, coordinate: Vector3, rotation: u8) {
+	fn add_block_gd(
+		&mut self,
+		_owner: &ArrayMesh,
+		block: Ref<Resource>,
+		color: Color,
+		coordinate: Vector3,
+		rotation: u8,
+	) {
 		unsafe {
 			let v = convert_vec(coordinate);
 			self.add_block(block.assume_safe(), color, v, rotation);

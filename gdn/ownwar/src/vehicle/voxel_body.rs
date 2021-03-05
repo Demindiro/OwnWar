@@ -1,5 +1,5 @@
 use super::voxel_mesh::VoxelMesh;
-use crate::util::{convert_vec, swap_erase, BitArray, VoxelRaycast, AABB};
+use crate::util::{convert_vec, swap_erase, BitArray, VoxelRaycast, VoxelSphereIterator, AABB};
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{
 	BoxShape, CollisionShape, Engine, MeshInstance, PackedScene, PhysicsMaterial, Resource, Script,
@@ -540,61 +540,21 @@ impl VoxelBody {
 
 			dhp.push(voxel);
 
-			let mut body = self.body().borrow_mut();
-			if let Ok((
-				destroyed,
-				remaining_damage,
-				other_anchor_destroyed,
-				is_mainframe,
-				destroyed_block,
-			)) = body.try_damage_block(voxel, damage)
-			{
-				let count = body.count;
-				let center_of_mass = body.center_of_mass;
-				drop(body);
-				block_anchor_destroyed |= other_anchor_destroyed;
-				damage = remaining_damage;
-				if destroyed {
-					destroyed_blocks.push(voxel);
-					if is_mainframe {
-						// The vehicle is done for, no point in continuing
-						destroy_disconnected = false;
-						unsafe {
-							owner.get_parent().unwrap().assume_safe().queue_free();
-						}
-						// Drop the body, as it may be referenced again by one of the callees
-						owner.emit_signal("destroyed", &[]);
-						break;
-					} else if count == 0 {
-						// No more blocks remaining, again, don't bother
-						destroy_disconnected = false;
-						owner.emit_signal("destroyed", &[]);
-						owner.queue_free();
-						break;
-					} else {
-						unsafe {
-							self.voxel_mesh
-								.assume_safe()
-								.map_mut(|s, _| s.remove_block(voxel))
-								.unwrap()
-						};
-						if let Ok(node) = Self::instance_effect(DESTROY_BLOCK_EFFECT_SCENE) {
-							node.set_translation((voxel.to_f32() - center_of_mass) * BLOCK_SCALE);
-							owner.add_child(node, false);
-						}
-					}
-					if let Some(block) = destroyed_block {
-						block.destroy();
-					}
-				}
-				if damage == 0 {
+			if let Ok(done) = self.destroy_block(
+				owner,
+				voxel,
+				&mut damage,
+				&mut destroy_disconnected,
+				&mut block_anchor_destroyed,
+				&mut destroyed_blocks,
+			) {
+				if done || damage == 0 {
 					break;
 				}
 				if let None = raycast.next() {
 					break;
 				}
 			} else {
-				godot_error!("Position is out of bounds! {:?} in {:?}", voxel, body.size);
 				break;
 			}
 		}
@@ -607,6 +567,148 @@ impl VoxelBody {
 		self.last_hit_position
 			.set(convert_vec(raycast.voxel()) - Vector3::new(0.5, 0.5, 0.5));
 		damage
+	}
+
+	// FIXME can't convert I64 to F32
+	#[export]
+	fn apply_explosion_damage(
+		&self,
+		owner: TRef<VehicleBody>,
+		origin: Vector3,
+		radius: i16,
+		damage: u32,
+	) -> u32 {
+		if !owner.is_network_master() {
+			godot_error!("apply_explosion_damage is called on a puppet node (don't do that!)");
+			return damage;
+		}
+		let (origin, _) = self.global_to_voxel_space(&owner, origin, Vector3D::zero());
+		self.apply_explosion_damage_local(owner, origin, radius, damage)
+	}
+
+	#[export(rpc = "puppet")]
+	fn apply_explosion_damage_local(
+		&self,
+		owner: TRef<VehicleBody>,
+		origin: Vector3,
+		radius: i16,
+		mut damage: u32,
+	) -> u32 {
+		if owner.is_network_master() {
+			owner.rpc(
+				"apply_explosion_damage_local",
+				&[
+					origin.to_variant(),
+					radius.to_variant(),
+					damage.to_variant(),
+				],
+			);
+		}
+
+		let mut destroy_disconnected = true;
+		let mut block_anchor_destroyed = false;
+		let mut destroyed_blocks = Vec::new();
+
+		let origin = convert_vec(origin);
+		// TODO maybe this should be rounded up (sometimes)?
+		// FIXME find an alternative to 'as' that accounts for overflow
+		let radius = radius as i16;
+
+		let mut dhp = self.debug_hit_points.replace(Vec::new());
+		dhp.clear();
+
+		for v in VoxelSphereIterator::new(origin, radius) {
+			let body = self.body().borrow();
+			if body.is_valid_voxel(v) {
+				dhp.push(convert_vec(v));
+				drop(body);
+				if let Ok(done) = self.destroy_block(
+					owner,
+					convert_vec(v),
+					&mut damage,
+					&mut destroy_disconnected,
+					&mut block_anchor_destroyed,
+					&mut destroyed_blocks,
+				) {
+					if done || damage == 0 {
+						break;
+					}
+				} else {
+					break;
+				}
+			}
+		}
+
+		self.debug_hit_points.set(dhp);
+
+		if destroy_disconnected {
+			self.destroy_disconnected_blocks(owner, destroyed_blocks, block_anchor_destroyed);
+		}
+
+		damage
+	}
+
+	fn destroy_block(
+		&self,
+		owner: TRef<VehicleBody>,
+		voxel: Voxel,
+		damage: &mut u32,
+		destroy_disconnected: &mut bool,
+		block_anchor_destroyed: &mut bool,
+		destroyed_blocks: &mut Vec<Voxel>,
+	) -> Result<bool, ()> {
+		let mut body = self.body().borrow_mut();
+		if let Ok((
+			destroyed,
+			remaining_damage,
+			other_anchor_destroyed,
+			is_mainframe,
+			destroyed_block,
+		)) = body.try_damage_block(voxel, *damage)
+		{
+			let count = body.count;
+			let center_of_mass = body.center_of_mass;
+			drop(body);
+			*block_anchor_destroyed |= other_anchor_destroyed;
+			*damage = remaining_damage;
+			if destroyed {
+				destroyed_blocks.push(voxel);
+				if is_mainframe {
+					// The vehicle is done for, no point in continuing
+					*destroy_disconnected = false;
+					unsafe {
+						owner.get_parent().unwrap().assume_safe().queue_free();
+					}
+					// Drop the body, as it may be referenced again by one of the callees
+					owner.emit_signal("destroyed", &[]);
+					return Ok(true);
+				} else if count == 0 {
+					// No more blocks remaining, again, don't bother
+					*destroy_disconnected = false;
+					owner.emit_signal("destroyed", &[]);
+					owner.queue_free();
+					return Ok(true);
+				} else {
+					unsafe {
+						self.voxel_mesh
+							.assume_safe()
+							.map_mut(|s, _| s.remove_block(voxel))
+							.unwrap()
+					};
+					if let Ok(node) = Self::instance_effect(DESTROY_BLOCK_EFFECT_SCENE) {
+						node.set_translation((voxel.to_f32() - center_of_mass) * BLOCK_SCALE);
+						owner.add_child(node, false);
+					}
+				}
+				if let Some(block) = destroyed_block {
+					block.destroy();
+				}
+			}
+			Ok(false)
+		} else {
+			godot_error!("Position is out of bounds! {:?} in {:?}", voxel, body.size);
+			Err(())
+		}
 	}
 
 	#[export]
@@ -1263,6 +1365,13 @@ impl Body {
 		} else {
 			Err(())
 		}
+	}
+
+	fn is_valid_voxel<T: PrimInt + AsPrimitive<isize>>(
+		&self,
+		position: Vector3D<T, UnknownUnit>,
+	) -> bool {
+		self.get_index(position) != Err(())
 	}
 
 	fn calculate_mass(
