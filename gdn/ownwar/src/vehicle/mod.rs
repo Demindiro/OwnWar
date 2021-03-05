@@ -1,3 +1,5 @@
+mod body;
+mod interpolation_state;
 mod voxel_body;
 mod voxel_mesh;
 
