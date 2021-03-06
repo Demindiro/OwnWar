@@ -584,29 +584,16 @@ impl VoxelBody {
 	}
 
 	#[export]
-	fn can_ray_pass_through(
+	fn raycast(
 		&self,
 		owner: &VehicleBody,
 		origin: Vector3,
 		direction: Vector3,
-	) -> bool {
+	) -> Option<Vector3> {
 		let (origin, direction) = self.global_to_voxel_space(owner, origin, direction);
-		let body = self.body().borrow();
-		let raycast = VoxelRaycast::start(
-			origin + Vector3::new(0.5, 0.5, 0.5), // TODO figure out why +0.5 is needed
-			direction,
-			AABB::new(Vector3D::zero(), body.size().to_i32()),
-		);
-		for voxel in raycast {
-			if let Ok(Some(block)) = body.try_get_block(voxel) {
-				if let Block::Destroyed(_) = block {
-					/* pass */
-				} else {
-					return false;
-				}
-			}
-		}
-		true
+		self
+			.raycast_local(origin, direction)
+			.map(|pos| self.voxel_to_global_space(owner, convert_vec(pos), Vector3::zero()).0)
 	}
 
 	#[export]
@@ -822,9 +809,23 @@ impl VoxelBody {
 		direction: Vector3,
 	) -> (Vector3, Vector3) {
 		let body = self.body().borrow();
-		let local_origin = owner.to_local(origin) / block::SCALE + body.center_of_mass();
-		let local_direction = owner.to_local(origin + direction) - owner.to_local(origin);
+		let local_unscaled_origin = owner.to_local(origin);
+		let local_origin = local_unscaled_origin / block::SCALE + body.center_of_mass();
+		let local_direction = owner.to_local(origin + direction) - local_unscaled_origin;
 		(local_origin, local_direction)
+	}
+
+	fn voxel_to_global_space(
+		&self,
+		owner: &VehicleBody,
+		origin: Vector3,
+		direction: Vector3,
+	) -> (Vector3, Vector3) {
+		let body = self.body().borrow();
+		let local_unscaled_origin = (origin - body.center_of_mass()) * block::SCALE;
+		let global_origin = owner.to_global(local_unscaled_origin);
+		let global_direction = owner.to_global(origin + direction) - global_origin;
+		(global_origin, global_direction)
 	}
 
 	#[profiled]
@@ -918,4 +919,28 @@ impl VoxelBody {
 			Err(())
 		}
 	}
+
+	fn raycast_local(
+		&self,
+		origin: Vector3,
+		direction: Vector3,
+	) -> Option<Voxel> {
+		let body = self.body().borrow();
+		let raycast = VoxelRaycast::start(
+			origin + Vector3::new(0.5, 0.5, 0.5), // TODO figure out why +0.5 is needed
+			direction,
+			AABB::new(Vector3D::zero(), body.size().to_i32()),
+		);
+		for voxel in raycast {
+			if let Ok(Some(block)) = body.try_get_block(voxel) {
+				if let Block::Destroyed(_) = block {
+					/* pass */
+				} else {
+					return Some(convert_vec(voxel));
+				}
+			}
+		}
+		None
+	}
+
 }

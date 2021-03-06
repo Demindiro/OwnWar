@@ -20,10 +20,19 @@ func _physics_process(delta: float) -> void:
 	if len(result) > 0:
 		var collider = result["collider"]
 		var pos: Vector3 = result["position"]
-		# GODOT PLS
-		#if collider is OwnWar_VoxelBody:
-		if collider.has_method("apply_explosion_damage") and collider.get("team") != team:
-			collider.apply_explosion_damage(pos, radius, damage)
+		if collider.has_method("apply_explosion_damage"):
+			if collider.has_method("raycast"):
+				var p = collider.raycast(old_tr, translation - old_tr)
+				if p == null:
+					return
+				# See https://github.com/bulletphysics/bullet3/issues/459, the moment we're inside
+				# we can no longer detect the body
+				# There may be a crafty workaround to this, but I can't be bothered
+				#if p.distance_squared_to(old_tr) > translation.distance_squared_to(old_tr):
+				#	return
+				pos = p
+			if collider.get("team") != team:
+				collider.apply_explosion_damage(pos, radius, damage)
 		explode(pos)
 
 

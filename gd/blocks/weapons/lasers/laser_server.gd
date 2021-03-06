@@ -31,7 +31,9 @@ func fire() -> bool:
 			var body := collider as OwnWar_VoxelBody
 			if body != null:
 				if body.team == team:
-					if not body.can_ray_pass_through(at, global_transform * dir):
+					var pos = body.raycast(at, global_transform * dir)
+					if pos != null:
+						at = pos
 						break
 				else:
 					assert(get_tree().is_network_server())
