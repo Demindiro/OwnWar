@@ -22,7 +22,7 @@ void vertex() {
 void fragment() {
 	vec4 color = (start * UV.y + end * (1.0 - UV.y));
 	EMISSION = color.rgb * emission_strength * strength;
-	ALPHA = color.a * color.a * color.a * strength;
+	ALPHA = clamp(color.a * color.a * color.a * strength, 0.0, 1.0);
 }
 
 void light() {
