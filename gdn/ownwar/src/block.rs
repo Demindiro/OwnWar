@@ -1,12 +1,16 @@
 use crate::util::{convert_vec, AABB};
 use gdnative::api::{Mesh, Resource};
 use gdnative::prelude::*;
+use lazy_static::lazy_static;
 use std::convert::TryInto;
 use std::num::{NonZeroU16, NonZeroU32};
+use std::sync::RwLock;
 
 pub const SCALE: f32 = 0.25;
-static mut BLOCKS: Vec<Option<(&Block, Ref<Resource>)>> = Vec::new();
-static mut FREEZE_BLOCK_ADDITIONS: bool = false;
+lazy_static! {
+	static ref BLOCKS: RwLock<Vec<Option<(&'static Block, Ref<Resource>)>>> =
+		RwLock::new(Vec::new());
+}
 
 #[derive(NativeClass)]
 #[inherit(Resource)]
@@ -31,7 +35,7 @@ pub struct Block {
 	pub mass: f32,
 	pub cost: NonZeroU16,
 	pub aabb: AABB<i8>,
-	
+
 	mirror_rotation_offset: u8,
 	mirror_block_id: Option<NonZeroU16>,
 
@@ -51,28 +55,6 @@ pub struct MeshPoint {
 
 pub struct MeshArrays {
 	data: Vec<Vec<MeshPoint>>,
-}
-
-macro_rules! check_modifiable {
-	() => {
-		unsafe {
-			assert!(
-				!FREEZE_BLOCK_ADDITIONS,
-				"Block additions & modifcations have been frozen!"
-			);
-		}
-	};
-}
-
-macro_rules! check_frozen {
-	() => {
-		unsafe {
-			assert!(
-				FREEZE_BLOCK_ADDITIONS,
-				"Block additions & modifications have not been frozen!"
-			);
-		}
-	};
 }
 
 #[methods]
@@ -139,7 +121,6 @@ impl Block {
 
 	fn new(owner: TRef<Resource>) -> Self {
 		let _ = owner;
-		check_modifiable!();
 		use euclid::Vector3D;
 		let mut s = Self {
 			aabb: AABB::new(Vector3D::zero(), Vector3D::new(1, 1, 1)),
@@ -187,7 +168,6 @@ impl Block {
 	}
 
 	fn gd_set_aabb(&mut self, _owner: TRef<Resource>, aabb: Aabb) {
-		check_modifiable!();
 		self.aabb = AABB {
 			position: convert_vec(aabb.position),
 			size: convert_vec(aabb.size),
@@ -200,7 +180,6 @@ impl Block {
 
 	fn gd_set_id(&mut self, _owner: TRef<Resource>, id: u16) {
 		//godot_warn!("{}", &self.human_name);
-		check_modifiable!();
 		self.id = id.try_into().unwrap();
 	}
 
@@ -209,7 +188,6 @@ impl Block {
 	}
 
 	fn gd_set_health(&mut self, _owner: TRef<Resource>, health: u32) {
-		check_modifiable!();
 		self.health = health.try_into().unwrap();
 	}
 
@@ -218,7 +196,6 @@ impl Block {
 	}
 
 	fn gd_set_cost(&mut self, _owner: TRef<Resource>, cost: u16) {
-		check_modifiable!();
 		self.cost = cost.try_into().unwrap();
 	}
 
@@ -227,35 +204,35 @@ impl Block {
 	}
 
 	fn gd_set_mirror_block_id(&mut self, _owner: TRef<Resource>, id: Option<u16>) {
-		check_modifiable!();
 		self.mirror_block_id = id.map(NonZeroU16::new).flatten();
 	}
 
 	fn gd_get_mirror_block(&self, owner: TRef<Resource>) -> Option<Ref<Resource>> {
-		check_frozen!();
-		unsafe {
-			Some(
-				self.mirror_block_id
-					.map(|id| BLOCKS.get(id.get() as usize - 1))
-					.flatten()
-					.and_then(|v| v.as_ref().map(|v| v.1.clone()))
-					.map_or(owner.claim(), |v| v)
-			)
-		}
+		Some(
+			self.mirror_block_id
+				.map(|id| {
+					BLOCKS
+						.read()
+						.unwrap()
+						.get(id.get() as usize - 1)
+						.map(|v| v.as_ref().map(|v| v.1.clone()))
+				})
+				.flatten()
+				.flatten()
+				.map_or(owner.claim(), |v| v),
+		)
 	}
 
 	fn gd_set_mirror_block(&mut self, _owner: TRef<Resource>, block: Option<Ref<Resource>>) {
 		unsafe {
-			self.mirror_block_id = block
-				.and_then(|block| {
-					block
-						.cast_instance::<Block>()
-						.unwrap()
-						.assume_safe()
-						.map(|block, _| block.id)
-						.ok()
-				})
-				.or(None);
+			self.mirror_block_id = block.and_then(|block| {
+				block
+					.cast_instance::<Block>()
+					.unwrap()
+					.assume_safe()
+					.map(|block, _| block.id)
+					.ok()
+			});
 		}
 	}
 
@@ -264,7 +241,6 @@ impl Block {
 	}
 
 	fn gd_set_mesh(&mut self, _owner: TRef<Resource>, mesh: Option<Ref<Mesh>>) {
-		check_modifiable!();
 		self.mesh = mesh.map(|m| {
 			let ma = MeshArrays::from(&m);
 			(m, ma)
@@ -355,12 +331,11 @@ impl Block {
 /// Generic helper methods
 impl Block {
 	pub fn get(id: NonZeroU16) -> Option<&'static Block> {
-		check_frozen!();
-		unsafe {
-			BLOCKS
-				.get(id.get() as usize - 1)
-				.and_then(|v| v.as_ref().map(|v| v.0))
-		}
+		BLOCKS
+			.read()
+			.unwrap()
+			.get(id.get() as usize - 1)
+			.and_then(|v| v.as_ref().map(|v| v.0))
 	}
 
 	pub fn editor_node(&self) -> Option<Ref<Spatial>> {
@@ -428,28 +403,22 @@ impl BlockManager {
 				.map(|block, _| {
 					let id = block.id.get();
 					let i = id as usize - 1;
-					if let Some(Some(b)) = BLOCKS.get(i) {
+					let mut blocks = BLOCKS.write().unwrap();
+					if let Some(Some(b)) = blocks.get(i) {
 						let (a_hn, b_hn) = (&block.human_name, &b.0.human_name);
 						godot_error!("ID {} of {} conflicts with {}", id, a_hn, b_hn);
 						panic!("ID {} of {} conflicts with {}", id, a_hn, b_hn);
 					} else {
-						if BLOCKS.len() <= i {
-							BLOCKS.resize(i + 1, None);
+						if blocks.len() <= i {
+							blocks.resize(i + 1, None);
 						}
 						// FIXME make it so _we_ own the value of the block, not Godot
 						// This will do for now...
 						// FIXME this is such a terrible idea
-						BLOCKS[i] = Some((std::mem::transmute(block), owner));
+						blocks[i] = Some((std::mem::transmute(block), owner));
 					}
 				})
 				.unwrap();
-		}
-	}
-
-	#[export]
-	fn freeze_blocks(&self, _owner: &Reference) {
-		unsafe {
-			FREEZE_BLOCK_ADDITIONS = true;
 		}
 	}
 
@@ -460,30 +429,26 @@ impl BlockManager {
 
 	#[export]
 	fn get_block(&self, _owner: &Reference, id: u16) -> Option<Ref<Resource>> {
-		check_frozen!();
-		unsafe {
-			if id == 0 {
-				None
-			} else {
-				BLOCKS
-					.get(id as usize - 1)
-					.and_then(|v| v.as_ref().map(|v| v.1.clone()))
-			}
+		if id == 0 {
+			None
+		} else {
+			BLOCKS
+				.read()
+				.unwrap()
+				.get(id as usize - 1)
+				.and_then(|v| v.as_ref().map(|v| v.1.clone()))
 		}
 	}
 
 	#[export]
 	fn get_all_blocks(&self, _owner: &Reference) -> VariantArray {
-		check_frozen!();
-		unsafe {
-			let arr = VariantArray::new();
-			for b in BLOCKS.iter() {
-				if let Some(b) = b {
-					arr.push(b.1.clone());
-				}
+		let arr = VariantArray::new();
+		for b in BLOCKS.read().unwrap().iter() {
+			if let Some(b) = b {
+				arr.push(b.1.clone());
 			}
-			arr.into_shared()
 		}
+		arr.into_shared()
 	}
 
 	#[export]

@@ -22,7 +22,8 @@ impl InterpolationState {
 					.unwrap()
 			};
 			let client_node = unsafe {
-				block.client_node
+				block
+					.client_node
 					.unwrap()
 					.assume_safe()
 					.duplicate(7)

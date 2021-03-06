@@ -507,7 +507,8 @@ impl Body {
 		if let Some(voxel_mesh) = voxel_mesh {
 			voxel_mesh.remove_block(voxel);
 		}
-		self.total_cost -= block::Block::get(self.ids[index as usize].unwrap()).unwrap()
+		self.total_cost -= block::Block::get(self.ids[index as usize].unwrap())
+			.unwrap()
 			.cost
 			.get() as u32;
 		if let Some(hp) = self.health[index as usize] {
@@ -570,16 +571,17 @@ impl Body {
 				if marks.contains(&node) {
 					continue;
 				}
-				let instance = unsafe { node.assume_safe().cast_instance::<VoxelBody>().unwrap() };
-				let mut mainframe_found = false;
-				instance
-					.map(|s, o| {
-						let body = s.body().borrow();
-						if body.has_mainframe || body.is_connected_to_mainframe(marks, o.claim()) {
-							mainframe_found = true;
-						}
-					})
-					.unwrap();
+				let mainframe_found = unsafe {
+					node
+						.assume_safe()
+						.cast_instance::<VoxelBody>()
+						.unwrap()
+						.map(|s, o| {
+							let body = s.body().borrow();
+							body.has_mainframe || body.is_connected_to_mainframe(marks, o.claim())
+						})
+						.unwrap()
+				};
 				if mainframe_found {
 					return true;
 				}

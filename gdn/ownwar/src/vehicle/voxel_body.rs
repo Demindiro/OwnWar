@@ -5,8 +5,8 @@ use crate::block;
 use crate::util::{convert_vec, swap_erase, VoxelRaycast, VoxelSphereIterator, AABB};
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{
-	BoxShape, CollisionShape, Engine, MeshInstance, PackedScene, PhysicsMaterial, Resource, Script,
-	Spatial, VehicleBody, VehicleWheel, OS,
+	BoxShape, CollisionShape, Engine, MeshInstance, PackedScene, PhysicsMaterial, Resource,
+	VehicleBody, VehicleWheel, OS,
 };
 use gdnative::prelude::*;
 use num_traits::float::FloatConst;
@@ -45,10 +45,6 @@ pub struct VoxelBody {
 	wheels: Vec<Ref<VehicleWheel>>,
 	weapons: Vec<Ref<Spatial>>,
 	thrusters: Vec<Ref<Spatial>>,
-
-	// TODO this is god-awful but it seems there is no other way without access
-	// to the ScriptServer (ノಠ益ಠ)ノ彡┻━┻
-	ownwar_block_script: Option<Ref<Script>>,
 
 	debug_hit_points: Cell<Vec<Voxel>>,
 }
@@ -121,7 +117,7 @@ impl VoxelBody {
 			let mut v = Vec::new();
 			v.push(InterpolationState::from(
 				owner.upcast::<Spatial>().claim(),
-				// TODO wtf is this
+				// FIXME I don't get why a plain upcast won't work
 				unsafe {
 					voxel_mesh_instance
 						.assume_safe()
@@ -153,22 +149,22 @@ impl VoxelBody {
 			interpolation_state_dirty: true,
 			body: None,
 
-			ownwar_block_script: None,
-
 			debug_hit_points: Cell::new(Vec::new()),
 		}
 	}
 
 	#[export]
 	fn _process(&mut self, _owner: &VehicleBody, _delta: f32) {
-		let voxel_mesh = unsafe { self.voxel_mesh.assume_safe() };
-		voxel_mesh
-			.map_mut(|s, o| {
-				if s.dirty() {
-					s.generate(&o);
-				}
-			})
-			.unwrap();
+		unsafe {
+			self.voxel_mesh
+				.assume_safe()
+				.map_mut(|s, o| {
+					if s.dirty() {
+						s.generate(&o);
+					}
+				})
+				.unwrap();
+		}
 		if self.interpolation_state_dirty {
 			for state in self.interpolation_states.iter_mut() {
 				state.update();
@@ -252,8 +248,7 @@ impl VoxelBody {
 
 	#[export]
 	fn get_visual_transform(&self, _owner: &VehicleBody) -> Transform {
-		let vmi = unsafe { self.voxel_mesh_instance.assume_safe() };
-		let mut trf = vmi.transform();
+		let mut trf = unsafe { self.voxel_mesh_instance.assume_safe().transform() };
 		trf.origin += trf
 			.basis
 			.xform(self.body.as_ref().unwrap().borrow().center_of_mass() * block::SCALE);
@@ -280,8 +275,6 @@ impl VoxelBody {
 			self.collision_shape_instance.assume_safe().set_translation(
 				middle - (body.center_of_mass() + Vector3::new(0.5, 0.5, 0.5)) * block::SCALE,
 			);
-		}
-		unsafe {
 			self.collision_shape.assume_safe().set_extents(middle);
 		}
 
@@ -293,10 +286,9 @@ impl VoxelBody {
 		// We can't drop the body while iterating, so collect all nodes first, then
 		// set them up
 		let nodes = unsafe {
-			let v = body.iter_multi_blocks().map(|b| {
-				//(b.reverse_indices().clone(), b.server_node())
-				(b.reverse_indices().clone(), b.server_node.assume_safe())
-			});
+			let v = body
+				.iter_multi_blocks()
+				.map(|b| (b.reverse_indices().clone(), b.server_node.assume_safe()));
 			let r = v.collect::<Vec<_>>();
 			r
 		};
@@ -340,23 +332,25 @@ impl VoxelBody {
 		let position = convert_vec(position);
 		let position = position - body.offset();
 		body.add_anchor(position, voxel_body);
-		let vb = unsafe { voxel_body.assume_safe() };
-		if !vb.is_connected("destroyed", owner, "remove_anchored_body") {
-			let args = VariantArray::new();
-			args.push(voxel_body);
-			let err = vb.connect(
-				"destroyed",
-				owner,
-				"remove_anchored_body",
-				args.into_shared(),
-				0,
-			);
-			if err != Ok(()) {
-				godot_error!(
-					"Failed to connect 'destroyed' signal from {:?} to {:?}",
-					voxel_body,
-					owner
+		unsafe {
+			let vb = voxel_body.assume_safe();
+			if !vb.is_connected("destroyed", owner, "remove_anchored_body") {
+				let args = VariantArray::new();
+				args.push(voxel_body);
+				let err = vb.connect(
+					"destroyed",
+					owner,
+					"remove_anchored_body",
+					args.into_shared(),
+					0,
 				);
+				if err != Ok(()) {
+					godot_error!(
+						"Failed to connect 'destroyed' signal from {:?} to {:?}",
+						voxel_body,
+						owner
+					);
+				}
 			}
 		}
 	}
@@ -369,12 +363,7 @@ impl VoxelBody {
 		position: Vector3,
 		voxel_body: Ref<VehicleBody>,
 	) {
-		let mut body = if let Some(ref body) = self.body {
-			body.borrow_mut()
-		} else {
-			godot_error!("Body is not set!");
-			return;
-		};
+		let mut body = self.body.as_ref().expect("body is not set").borrow_mut();
 		if !AABB::new(body.offset().to_f32(), body.size().to_f32()).has_point(position) {
 			godot_error!(
 				"Position is out of range - body AABB: ({:?}, {:?}), position: {:?}",
@@ -698,19 +687,6 @@ impl VoxelBody {
 		color: Color,
 		state: Option<TypedArray<i32>>,
 	) {
-		if let None = self.ownwar_block_script {
-			self.ownwar_block_script = unsafe {
-				Some(
-					block
-						.assume_safe()
-						.get_script()
-						.unwrap()
-						.cast::<Script>()
-						.unwrap(),
-				)
-			};
-		}
-
 		let mut body = self.body().borrow_mut();
 
 		let position = position.to_i32();
@@ -724,15 +700,14 @@ impl VoxelBody {
 			return;
 		}
 
-		let block = unsafe { block.assume_safe() };
-
 		let position = convert_vec(position) - body.offset();
 		let is_ally = self.is_ally;
-		let interpolation_state = block
-			.cast_instance::<block::Block>()
-			.unwrap()
-			.map(|block, _| {
-				unsafe {
+		let interpolation_state = unsafe {
+			block
+				.assume_safe()
+				.cast_instance::<block::Block>()
+				.unwrap()
+				.map(|block, _| {
 					self.voxel_mesh
 						.assume_safe()
 						.map_mut(|s, _| {
@@ -748,22 +723,23 @@ impl VoxelBody {
 							)
 						})
 						.unwrap()
-				}
-			})
-			.unwrap();
+				})
+				.unwrap()
+		};
 		drop(body);
 
 		if let Some(bb) = interpolation_state {
-			let bsn = unsafe { bb.server_node.assume_safe() };
-			// TODO do this without assume_safe() or unsafe
-			if let Some(wheel) = bsn.cast::<VehicleWheel>() {
-				self.wheels.push(wheel.claim());
-			} else if bsn.has_method("fire") {
-				// TODO handle weapons properly
-				self.weapons.push(bb.server_node);
-			} else if bsn.has_method("apply_drive") {
-				// TODO ditto
-				self.thrusters.push(bb.server_node);
+			unsafe {
+				let bsn = bb.server_node.assume_safe();
+				if let Some(wheel) = bsn.cast::<VehicleWheel>() {
+					self.wheels.push(wheel.claim());
+				} else if bsn.has_method("fire") {
+					// TODO handle weapons properly
+					self.weapons.push(bb.server_node);
+				} else if bsn.has_method("apply_drive") {
+					// TODO ditto
+					self.thrusters.push(bb.server_node);
+				}
 			}
 			self.interpolation_states.push(bb);
 		}
@@ -774,21 +750,15 @@ impl VoxelBody {
 		let interp = swap_erase(&mut self.interpolation_states, |e| {
 			e.server_node == server_node
 		});
-		let bsn = if let Ok(interp) = interp {
-			unsafe { interp.server_node.assume_safe() }
-		} else {
-			godot_error!("Interpolation state for {:?} not found!", server_node);
-			return;
-		};
-
-		if let Some(wheel) = bsn.cast::<VehicleWheel>() {
-			if swap_erase(&mut self.wheels, |e| e == &wheel.claim()).is_err() {
-				godot_error!("Wheel not present in array!");
-			}
-		} else if bsn.has_method("fire") {
-			// TODO handle weapons properly
-			if swap_erase(&mut self.weapons, |e| e == &bsn.claim()).is_err() {
-				godot_error!("Weapon not present in array!");
+		unsafe {
+			let bsn = interp.unwrap().server_node.assume_safe();
+			if let Some(wheel) = bsn.cast::<VehicleWheel>() {
+				swap_erase(&mut self.wheels, |e| e == &wheel.claim())
+					.expect("Wheel not present in array!");
+			} else if bsn.has_method("fire") {
+				// TODO handle weapons properly
+				swap_erase(&mut self.weapons, |e| e == &bsn.claim())
+					.expect("Weapon not present in array!");
 			}
 		}
 	}
@@ -816,15 +786,14 @@ impl VoxelBody {
 	fn correct_mass(&self, owner: &VehicleBody) {
 		let mut body = self.body().borrow_mut();
 		body.calculate_mass();
-		if body.total_mass == 0.0 {
-			godot_error!("Mass is zero!");
-			return;
-		}
+		assert_ne!(body.total_mass, 0.0, "Mass is zero!");
+
 		let center = (body.center_of_mass() + Vector3::new(0.5, 0.5, 0.5)) * block::SCALE;
 
-		let vmi = unsafe { self.voxel_mesh_instance.assume_safe() };
-		let pos = vmi.translation();
-		vmi.set_translation(pos - center);
+		unsafe {
+			let vmi = self.voxel_mesh_instance.assume_safe();
+			vmi.set_translation(vmi.translation() - center);
+		}
 
 		for block in body.iter_multi_blocks() {
 			let bsn = block.server_node();
@@ -851,49 +820,26 @@ impl VoxelBody {
 	}
 
 	pub(super) fn body(&self) -> &RefCell<Body> {
-		self.body.as_ref().unwrap()
+		self.body.as_ref().expect("body is not set!")
 	}
 
 	fn cost(&self, _owner: TRef<VehicleBody>) -> u32 {
-		if let Some(ref body) = self.body {
-			body.borrow().total_cost
-		} else {
-			godot_error!("Body is not set!");
-			0
-		}
+		self.body().borrow().total_cost
 	}
 
 	fn max_cost(&self, _owner: TRef<VehicleBody>) -> u32 {
-		if let Some(ref body) = self.body {
-			body.borrow().max_cost()
-		} else {
-			godot_error!("Body is not set!");
-			0
-		}
+		self.body().borrow().max_cost()
 	}
 
 	fn center_of_mass(&self, _owner: TRef<VehicleBody>) -> Vector3 {
-		if let Some(ref body) = self.body {
-			body.borrow().center_of_mass() * block::SCALE
-		} else {
-			godot_error!("Body is not set!");
-			Vector3::zero()
-		}
+		self.body().borrow().center_of_mass() * block::SCALE
 	}
 
 	fn aabb(&self, _owner: TRef<VehicleBody>) -> Aabb {
-		if let Some(ref body) = self.body {
-			let body = body.borrow();
-			Aabb {
-				position: convert_vec(body.offset()),
-				size: convert_vec(body.size()),
-			}
-		} else {
-			godot_error!("Body is not set!");
-			Aabb {
-				position: Vector3::zero(),
-				size: Vector3::zero(),
-			}
+		let body = self.body().borrow();
+		Aabb {
+			position: convert_vec(body.offset()),
+			size: convert_vec(body.size()),
 		}
 	}
 

@@ -3,16 +3,18 @@ use crate::util::convert_vec;
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{ArrayMesh, Material, Mesh, Resource, SpatialMaterial};
 use gdnative::prelude::*;
+use lazy_static::lazy_static;
 use std::collections::{hash_map::Entry, HashMap};
 use std::num::NonZeroU16;
 use std::sync::{Arc, RwLock};
-use lazy_static::lazy_static;
 
 type Voxel = Vector3D<u8, UnknownUnit>;
 
-static mut MATERIAL_CACHE: Option<HashMap<(u8, u8, u8), Ref<SpatialMaterial>>> = None;
 lazy_static! {
-	static ref SUBMESH_CACHE: RwLock<HashMap<(NonZeroU16, Voxel, u8, u8), SubMesh>> = RwLock::new(HashMap::new());
+	static ref MATERIAL_CACHE: RwLock<HashMap<(u8, u8, u8), Ref<SpatialMaterial>>> =
+		RwLock::new(HashMap::new());
+	static ref SUBMESH_CACHE: RwLock<HashMap<(NonZeroU16, Voxel, u8, u8), SubMesh>> =
+		RwLock::new(HashMap::new());
 }
 
 #[derive(NativeClass)]
@@ -171,37 +173,36 @@ impl VoxelMesh {
 	}
 
 	fn get_material(color: Color) -> Ref<SpatialMaterial> {
-		let cache = unsafe {
-			if let Some(ref mut cache) = MATERIAL_CACHE {
-				cache
-			} else {
-				MATERIAL_CACHE = Some(HashMap::new());
-				MATERIAL_CACHE.as_mut().unwrap()
-			}
-		};
 		let key = (
 			(color.r * 255.0) as u8,
 			(color.g * 255.0) as u8,
 			(color.b * 255.0) as u8,
 		);
-		cache
-			.entry(key)
-			.or_insert_with(|| {
-				let material = Ref::<SpatialMaterial, Unique>::new();
-				material.set_albedo(color);
-				material.into_shared()
-			})
-			.clone()
+		let cache = MATERIAL_CACHE.read().unwrap();
+		if let Some(mat) = cache.get(&key) {
+			mat.clone()
+		} else {
+			drop(cache);
+			let mat = Ref::<SpatialMaterial, Unique>::new();
+			mat.set_albedo(color);
+			let mat = mat.into_shared();
+			MATERIAL_CACHE.write().unwrap().insert(key, mat.clone());
+			mat
+		}
 	}
 
-	fn get_submesh(id: NonZeroU16, coordinate: Voxel, rotation: u8, index: u8, array: &Vec<block::MeshPoint>) -> SubMesh {
+	fn get_submesh(
+		id: NonZeroU16,
+		coordinate: Voxel,
+		rotation: u8,
+		index: u8,
+		array: &Vec<block::MeshPoint>,
+	) -> SubMesh {
 		let key = (id, coordinate, rotation, index);
 		let cache = SUBMESH_CACHE.read().unwrap();
-		/*
 		if let Some(sm) = cache.get(&key) {
 			sm.clone()
 		} else {
-		*/
 			drop(cache);
 			let basis = block::Block::rotation_to_basis(rotation);
 			let position = convert_vec(coordinate) * block::SCALE;
@@ -216,12 +217,15 @@ impl VoxelMesh {
 			let sm = SubMesh::new(a, coordinate);
 			SUBMESH_CACHE.write().unwrap().insert(key, sm.clone());
 			sm
-		//}
+		}
 	}
 }
 
 impl SubMesh {
 	fn new(array: Vec<block::MeshPoint>, coordinate: Voxel) -> Self {
-		Self { array: Arc::new(array), coordinate }
+		Self {
+			array: Arc::new(array),
+			coordinate,
+		}
 	}
 }
