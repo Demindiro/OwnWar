@@ -25,6 +25,8 @@ var _canvas_item := Control.new()
 var _canvas_item_text3d := []
 onready var _default_font := Control.new().get_font("font")
 
+var fps_only := true
+
 
 func _init():
 	visible = OS.is_debug_build()
@@ -76,8 +78,9 @@ func _process(_delta):
 		_vp_rect = Rect2(Vector2.ZERO, _vp.size)
 		_im.begin(Mesh.PRIMITIVE_LINES)
 		_assert_drawing = true
-		for node in _funcrefs:
-			_funcrefs[node].call_func()
+		if not fps_only:
+			for node in _funcrefs:
+				_funcrefs[node].call_func()
 		_assert_drawing = false
 		_im.end()
 		_canvas_item.update()
