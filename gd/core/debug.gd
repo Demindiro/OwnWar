@@ -25,7 +25,7 @@ var _canvas_item := Control.new()
 var _canvas_item_text3d := []
 onready var _default_font := Control.new().get_font("font")
 
-var fps_only := true
+var fps_only := false
 
 
 func _init():

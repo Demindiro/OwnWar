@@ -1,13 +1,15 @@
 extends Spatial
 
+# TODO
+const BLOCK_SCALE := 0.25
 
 const GRAVITY = 9.81
 var velocity := Vector3()
 
 export var explosion: PackedScene
 
-var damage := 500
-var radius := 3
+var damage := 500 * 5000
+var radius := 7#3
 var team := -1
 
 func _physics_process(delta: float) -> void:
@@ -20,24 +22,39 @@ func _physics_process(delta: float) -> void:
 	if len(result) > 0:
 		var collider = result["collider"]
 		var pos: Vector3 = result["position"]
-		if collider.has_method("apply_explosion_damage"):
-			if collider.has_method("raycast"):
-				var p = collider.raycast(old_tr, translation - old_tr)
-				if p == null:
-					return
-				# See https://github.com/bulletphysics/bullet3/issues/459, the moment we're inside
-				# we can no longer detect the body
-				# There may be a crafty workaround to this, but I can't be bothered
-				#if p.distance_squared_to(old_tr) > translation.distance_squared_to(old_tr):
-				#	return
-				pos = p
-			if collider.get("team") != team:
-				collider.apply_explosion_damage(pos, radius, damage)
+		if collider.has_method("raycast"):
+			var p = collider.raycast(old_tr, translation - old_tr)
+			if p == null:
+				return
+			# See https://github.com/bulletphysics/bullet3/issues/459, the moment we're inside
+			# we can no longer detect the body
+			# There may be a crafty workaround to this, but I can't be bothered
+			#if p.distance_squared_to(old_tr) > translation.distance_squared_to(old_tr):
+			#	return
+			pos = p
 		explode(pos)
 
 
 func explode(position: Vector3) -> void:
 	queue_free()
+	var param := PhysicsShapeQueryParameters.new()
+	var shape := SphereShape.new()
+	shape.radius = radius * BLOCK_SCALE
+	param.set_shape(shape)
+	param.transform.origin = position
+	var entities := []
+	for result in get_world().direct_space_state.intersect_shape(param):
+		var collider = result["collider"]
+		if collider.has_method("apply_explosion_damage") and collider.get("team") != team:
+			entities.push_back(collider)
+	if len(entities) > 0:
+		var dmg := damage / len(entities)
+		for i in len(entities):
+			var e = entities[i]
+			# Make sure all damage is applied and somewhat evenly too
+			var d := dmg if damage - dmg < i else (dmg + 1)
+			e.apply_explosion_damage(position, radius, d)
 	var n: Spatial = explosion.instance()
 	n.translation = position
+	n.radius = radius
 	get_tree().current_scene.add_child(n)
