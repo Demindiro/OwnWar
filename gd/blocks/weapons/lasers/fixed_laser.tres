@@ -6,10 +6,10 @@
 
 [resource]
 script = ExtResource( 1 )
-mass = 10.0
-human_category = "Weapons"
-human_name = "Fixed Laser"
 revision = 0
+human_name = "Fixed Laser"
+human_category = "Weapons"
+mass = 10.0
 aabb = AABB( 0, 0, 0, 1, 1, 1 )
 id = 80
 health = 500
@@ -17,4 +17,4 @@ cost = 20
 __mirror_block_id = null
 mesh = ExtResource( 2 )
 instance = ExtResource( 3 )
-mirror_rotation_offset = null
+mirror_rotation_offset = 0
