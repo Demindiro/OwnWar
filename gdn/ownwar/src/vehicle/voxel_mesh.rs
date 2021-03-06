@@ -4,15 +4,16 @@ use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{ArrayMesh, Material, Mesh, Resource, SpatialMaterial};
 use gdnative::prelude::*;
 use std::collections::{hash_map::Entry, HashMap};
+use std::num::NonZeroU16;
+use std::sync::{Arc, RwLock};
+use lazy_static::lazy_static;
 
 type Voxel = Vector3D<u8, UnknownUnit>;
 
 static mut MATERIAL_CACHE: Option<HashMap<(u8, u8, u8), Ref<SpatialMaterial>>> = None;
-// TODO ask for implementation of Hash and Eq for TypedArray
-// TODO we can do this more efficiently by storing an ID + Position + rotation instead
-// That way we only need to hash and compare 6 bytes instead of an arbitrarily large amount of data
-//static mut VECTOR3_ARRAY_CACHE: Option<HashSet<TypedArray<Vector3>>> = None;
-static mut VECTOR3_ARRAY_CACHE: Option<Dictionary<Unique>> = None;
+lazy_static! {
+	static ref SUBMESH_CACHE: RwLock<HashMap<(NonZeroU16, Voxel, u8, u8), SubMesh>> = RwLock::new(HashMap::new());
+}
 
 #[derive(NativeClass)]
 #[inherit(ArrayMesh)]
@@ -23,9 +24,10 @@ pub(super) struct VoxelMesh {
 	remove_list_positions: Vec<Voxel>,
 }
 
-#[derive(Debug)]
+#[derive(Clone)]
 struct SubMesh {
-	array: VariantArray,
+	array: Arc<Vec<block::MeshPoint>>,
+	//array: VariantArray,
 	coordinate: Voxel,
 }
 
@@ -69,37 +71,10 @@ impl VoxelMesh {
 		rotation: u8,
 	) {
 		let material = Self::get_material(color);
-		let basis = block::Block::rotation_to_basis(rotation);
-		let position = convert_vec(coordinate) * block::SCALE;
 
 		if let Some((_, mesh_arrays)) = block.mesh_arrays() {
-			for array in mesh_arrays.iter() {
-				let mut vertices = TypedArray::new();
-				vertices.resize(array.len() as i32);
-				let mut normals = TypedArray::new();
-				normals.resize(array.len() as i32);
-
-				let mut verts = vertices.write();
-				let mut norms = normals.write();
-				for (i, point) in array.iter().enumerate() {
-					verts[i] = basis.xform(point.vertex) + position;
-					norms[i] = basis.xform(point.normal);
-				}
-				drop(verts);
-				drop(norms);
-
-				let array = VariantArray::new();
-				array.resize(ArrayMesh::ARRAY_MAX as i32);
-				array.set(
-					ArrayMesh::ARRAY_VERTEX as i32,
-					vertices,
-				);
-				array.set(
-					ArrayMesh::ARRAY_NORMAL as i32,
-					normals,
-				);
-
-				let sm = SubMesh::new(array.into_shared(), coordinate);
+			for (i, array) in mesh_arrays.iter().enumerate() {
+				let sm = Self::get_submesh(block.id, coordinate, rotation, i as u8, array);
 				match self.material_to_meshes_map.entry(material.clone()) {
 					Entry::Occupied(mut e) => {
 						let e = e.get_mut();
@@ -139,24 +114,24 @@ impl VoxelMesh {
 				Self::remove_surface_array(owner, material.clone().upcast());
 				let mut vertices = TypedArray::<Vector3>::new();
 				let mut normals = TypedArray::<Vector3>::new();
-				let mut indices = TypedArray::<i32>::new();
 
-				for sm in list {
-					let offset = vertices.len() as i32;
-					let verts = sm
-						.array
-						.get(Mesh::ARRAY_VERTEX as i32)
-						.try_to_vector3_array()
-						.unwrap()
-						.clone();
-					let norms = sm
-						.array
-						.get(Mesh::ARRAY_NORMAL as i32)
-						.try_to_vector3_array()
-						.unwrap()
-						.clone();
-					vertices.append(&verts);
-					normals.append(&norms);
+				{
+					let mut len = 0;
+					for sm in list.iter() {
+						len += sm.array.len() as i32;
+					}
+					vertices.resize(len);
+					normals.resize(len);
+					let mut verts = vertices.write();
+					let mut norms = normals.write();
+					let mut i = 0;
+					for sm in list.iter() {
+						for point in sm.array.iter() {
+							verts[i] = point.vertex;
+							norms[i] = point.normal;
+							i += 1;
+						}
+					}
 				}
 
 				let array = VariantArray::new();
@@ -219,32 +194,34 @@ impl VoxelMesh {
 			.clone()
 	}
 
-	fn get_cached_vector3_array(array: TypedArray<Vector3>) -> TypedArray<Vector3> {
-		let cache = unsafe {
-			if let Some(ref mut cache) = VECTOR3_ARRAY_CACHE {
-				cache
-			} else {
-				VECTOR3_ARRAY_CACHE = Some(Dictionary::new());
-				VECTOR3_ARRAY_CACHE.as_mut().unwrap()
-			}
-		};
-		if let Some(array) = cache
-			.get(Variant::from_vector3_array(&array))
-			.try_to_vector3_array()
-		{
-			array
+	fn get_submesh(id: NonZeroU16, coordinate: Voxel, rotation: u8, index: u8, array: &Vec<block::MeshPoint>) -> SubMesh {
+		let key = (id, coordinate, rotation, index);
+		let cache = SUBMESH_CACHE.read().unwrap();
+		/*
+		if let Some(sm) = cache.get(&key) {
+			sm.clone()
 		} else {
-			cache.insert(
-				Variant::from_vector3_array(&array),
-				Variant::from_vector3_array(&array),
-			);
-			array
-		}
+		*/
+			drop(cache);
+			let basis = block::Block::rotation_to_basis(rotation);
+			let position = convert_vec(coordinate) * block::SCALE;
+			let mut a = Vec::with_capacity(array.len());
+			for point in array.iter() {
+				a.push(block::MeshPoint {
+					vertex: basis.xform(point.vertex) + position,
+					normal: basis.xform(point.normal),
+					uv: point.uv,
+				})
+			}
+			let sm = SubMesh::new(a, coordinate);
+			SUBMESH_CACHE.write().unwrap().insert(key, sm.clone());
+			sm
+		//}
 	}
 }
 
 impl SubMesh {
-	fn new(array: VariantArray, coordinate: Voxel) -> Self {
-		Self { array, coordinate }
+	fn new(array: Vec<block::MeshPoint>, coordinate: Voxel) -> Self {
+		Self { array: Arc::new(array), coordinate }
 	}
 }

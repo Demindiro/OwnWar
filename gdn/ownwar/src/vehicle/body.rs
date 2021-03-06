@@ -4,7 +4,7 @@ use super::voxel_mesh::VoxelMesh;
 use crate::block;
 use crate::util::{convert_vec, BitArray, AABB};
 use euclid::{UnknownUnit, Vector3D};
-use gdnative::api::{Resource, Script, Spatial, VehicleBody};
+use gdnative::api::{Spatial, VehicleBody};
 use gdnative::prelude::*;
 use num_traits::{AsPrimitive, PrimInt};
 use std::collections::{HashMap, HashSet};
@@ -15,7 +15,6 @@ type Voxel = Vector3D<u8, UnknownUnit>;
 
 const MAINFRAME_ID: NonZeroU16 = unsafe { NonZeroU16::new_unchecked(76) };
 // TODO port Block in Rust so we don't have to do this for performance
-static mut BLOCK_COST_CACHE: Vec<Option<CachedBlock>> = Vec::new();
 
 pub(super) struct Body {
 	offset: Voxel,
@@ -42,11 +41,6 @@ pub(super) struct MultiBlock {
 	pub(super) server_node: Ref<Spatial>,
 	client_node: Ref<Spatial>,
 	reverse_indices: Box<[Voxel]>,
-}
-
-pub(super) struct CachedBlock {
-	health: NonZeroU32,
-	cost: NonZeroU32,
 }
 
 #[derive(Debug)]

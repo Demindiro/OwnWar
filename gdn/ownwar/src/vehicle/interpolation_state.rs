@@ -1,5 +1,5 @@
 use crate::block;
-use gdnative::api::{Resource, Spatial};
+use gdnative::api::Spatial;
 use gdnative::prelude::*;
 
 pub(super) struct InterpolationState {

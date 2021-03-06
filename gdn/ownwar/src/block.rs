@@ -42,6 +42,7 @@ pub struct Block {
 #[inherit(Reference)]
 struct BlockManager;
 
+#[derive(Clone, Copy)]
 pub struct MeshPoint {
 	pub vertex: Vector3,
 	pub normal: Vector3,
@@ -136,11 +137,11 @@ impl Block {
 			.done();
 	}
 
-	fn new(owner: &Resource) -> Self {
+	fn new(owner: TRef<Resource>) -> Self {
 		let _ = owner;
 		check_modifiable!();
 		use euclid::Vector3D;
-		Self {
+		let mut s = Self {
 			aabb: AABB::new(Vector3D::zero(), Vector3D::new(1, 1, 1)),
 			cost: NonZeroU16::new(1).unwrap(),
 			health: NonZeroU32::new(100).unwrap(),
@@ -160,7 +161,9 @@ impl Block {
 			revision: 0,
 
 			mirror_rotation_map: [0; 24],
-		}
+		};
+		s.gd_set_mirror_rotation_offset(owner, 0);
+		s
 	}
 
 	#[export]
@@ -490,10 +493,10 @@ impl BlockManager {
 		let d = match axis {
 			_ if axis == (0.0, 1.0, 0.0) => 0,
 			_ if axis == (0.0, -1.0, 0.0) => 1,
-			_ if axis == (-1.0, 0.0, 0.0) => 2,
-			_ if axis == (1.0, 0.0, 0.0) => 3,
-			_ if axis == (0.0, 0.0, -1.0) => 4,
-			_ if axis == (0.0, 0.0, 1.0) => 5,
+			_ if axis == (1.0, 0.0, 0.0) => 2,
+			_ if axis == (-1.0, 0.0, 0.0) => 3,
+			_ if axis == (0.0, 0.0, 1.0) => 4,
+			_ if axis == (0.0, 0.0, -1.0) => 5,
 			_ => panic!("Invalid axis {:?}", axis),
 		};
 		d << 2
@@ -558,10 +561,6 @@ impl MeshArrays {
 
 	pub fn iter(&self) -> impl Iterator<Item = &Vec<MeshPoint>> {
 		self.data.iter()
-	}
-
-	pub fn len(&self) -> i32 {
-		self.data.len() as i32
 	}
 }
 
