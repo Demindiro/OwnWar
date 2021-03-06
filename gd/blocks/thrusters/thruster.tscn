@@ -23,6 +23,11 @@ void fragment() {
 	vec4 color = (start * UV.y + end * (1.0 - UV.y));
 	EMISSION = color.rgb * emission_strength * strength;
 	ALPHA = color.a * color.a * color.a * strength;
+}
+
+void light() {
+	DIFFUSE_LIGHT = vec3(0.0);
+	SPECULAR_LIGHT = vec3(0.0);
 }"
 
 [sub_resource type="ShaderMaterial" id=2]
@@ -66,7 +71,7 @@ material/2 = null
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.325 )
 
 [node name="Mesh" type="MeshInstance" parent="Client/Exhaust"]
-transform = Transform( 0.866025, 2.92811e-09, 0.5, 0.5, -1.09278e-08, -0.866025, 5.85622e-09, 0.5, -2.18557e-08, 0, -0.017, -0.233398 )
+transform = Transform( 0.866025, 2.92811e-09, 0.5, 0.5, -1.09278e-08, -0.866025, 5.85622e-09, 0.5, -2.18557e-08, 0, -0.017, -0.232351 )
 material_override = SubResource( 2 )
 mesh = SubResource( 3 )
 material/0 = null
