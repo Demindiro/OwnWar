@@ -572,8 +572,7 @@ impl Body {
 					continue;
 				}
 				let mainframe_found = unsafe {
-					node
-						.assume_safe()
+					node.assume_safe()
 						.cast_instance::<VoxelBody>()
 						.unwrap()
 						.map(|s, o| {

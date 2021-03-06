@@ -583,73 +583,6 @@ impl VoxelBody {
 		damage
 	}
 
-	fn destroy_block(
-		&self,
-		owner: TRef<VehicleBody>,
-		voxel: Voxel,
-		damage: &mut u32,
-		destroy_disconnected: &mut bool,
-		block_anchor_destroyed: &mut bool,
-		destroyed_blocks: &mut Vec<Voxel>,
-	) -> Result<bool, ()> {
-		let mut body = self.body().borrow_mut();
-		if let Ok((
-			destroyed,
-			remaining_damage,
-			other_anchor_destroyed,
-			is_mainframe,
-			destroyed_block,
-		)) = body.try_damage_block(voxel, *damage)
-		{
-			let count = body.count();
-			let center_of_mass = body.center_of_mass();
-			drop(body);
-			*block_anchor_destroyed |= other_anchor_destroyed;
-			*damage = remaining_damage;
-			if destroyed {
-				destroyed_blocks.push(voxel);
-				if is_mainframe {
-					// The vehicle is done for, no point in continuing
-					*destroy_disconnected = false;
-					unsafe {
-						owner.get_parent().unwrap().assume_safe().queue_free();
-					}
-					// Drop the body, as it may be referenced again by one of the callees
-					owner.emit_signal("destroyed", &[]);
-					return Ok(true);
-				} else if count == 0 {
-					// No more blocks remaining, again, don't bother
-					*destroy_disconnected = false;
-					owner.emit_signal("destroyed", &[]);
-					owner.queue_free();
-					return Ok(true);
-				} else {
-					unsafe {
-						self.voxel_mesh
-							.assume_safe()
-							.map_mut(|s, _| s.remove_block(voxel))
-							.unwrap()
-					};
-					if let Ok(node) = Self::instance_effect(DESTROY_BLOCK_EFFECT_SCENE) {
-						node.set_translation((voxel.to_f32() - center_of_mass) * block::SCALE);
-						owner.add_child(node, false);
-					}
-				}
-				if let Some(block) = destroyed_block {
-					block.destroy();
-				}
-			}
-			Ok(false)
-		} else {
-			godot_error!(
-				"Position is out of bounds! {:?} in {:?}",
-				voxel,
-				body.size()
-			);
-			Err(())
-		}
-	}
-
 	#[export]
 	fn can_ray_pass_through(
 		&self,
@@ -818,7 +751,9 @@ impl VoxelBody {
 
 		owner.set_mass(body.total_mass as f64);
 	}
+}
 
+impl VoxelBody {
 	pub(super) fn body(&self) -> &RefCell<Body> {
 		self.body.as_ref().expect("body is not set!")
 	}
@@ -914,6 +849,73 @@ impl VoxelBody {
 				owner.queue_free();
 				owner.emit_signal("destroyed", &[]);
 			}
+		}
+	}
+
+	fn destroy_block(
+		&self,
+		owner: TRef<VehicleBody>,
+		voxel: Voxel,
+		damage: &mut u32,
+		destroy_disconnected: &mut bool,
+		block_anchor_destroyed: &mut bool,
+		destroyed_blocks: &mut Vec<Voxel>,
+	) -> Result<bool, ()> {
+		let mut body = self.body().borrow_mut();
+		if let Ok((
+			destroyed,
+			remaining_damage,
+			other_anchor_destroyed,
+			is_mainframe,
+			destroyed_block,
+		)) = body.try_damage_block(voxel, *damage)
+		{
+			let count = body.count();
+			let center_of_mass = body.center_of_mass();
+			drop(body);
+			*block_anchor_destroyed |= other_anchor_destroyed;
+			*damage = remaining_damage;
+			if destroyed {
+				destroyed_blocks.push(voxel);
+				if is_mainframe {
+					// The vehicle is done for, no point in continuing
+					*destroy_disconnected = false;
+					unsafe {
+						owner.get_parent().unwrap().assume_safe().queue_free();
+					}
+					// Drop the body, as it may be referenced again by one of the callees
+					owner.emit_signal("destroyed", &[]);
+					return Ok(true);
+				} else if count == 0 {
+					// No more blocks remaining, again, don't bother
+					*destroy_disconnected = false;
+					owner.emit_signal("destroyed", &[]);
+					owner.queue_free();
+					return Ok(true);
+				} else {
+					unsafe {
+						self.voxel_mesh
+							.assume_safe()
+							.map_mut(|s, _| s.remove_block(voxel))
+							.unwrap()
+					};
+					if let Ok(node) = Self::instance_effect(DESTROY_BLOCK_EFFECT_SCENE) {
+						node.set_translation((voxel.to_f32() - center_of_mass) * block::SCALE);
+						owner.add_child(node, false);
+					}
+				}
+				if let Some(block) = destroyed_block {
+					block.destroy();
+				}
+			}
+			Ok(false)
+		} else {
+			godot_error!(
+				"Position is out of bounds! {:?} in {:?}",
+				voxel,
+				body.size()
+			);
+			Err(())
 		}
 	}
 }
