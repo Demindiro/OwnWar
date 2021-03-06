@@ -5,6 +5,10 @@ class_name OwnWar_WeaponLaser
 signal fired(at)
 
 
+# TODO
+const BLOCK_SCALE := 0.25
+
+
 export var damage := 100
 export var inaccuracy := 0.05
 var team: int
@@ -35,7 +39,7 @@ func fire() -> bool:
 					if dmg == 0:
 						var pos: Vector3 = body.last_hit_position
 						pos += Vector3(0.5, 0.5, 0.5)
-						pos *= OwnWar_Block.BLOCK_SCALE
+						pos *= BLOCK_SCALE
 						pos -= body.center_of_mass
 						at = body.to_global(pos)
 						break
