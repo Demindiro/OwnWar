@@ -151,7 +151,7 @@ impl Body {
 			client_node.set(
 				"team_color",
 				if is_ally {
-					Color::rgb(0.0, 0.0, 1.0)
+					Color::rgb(0.0, 1.0, 0.976471)
 				} else {
 					Color::rgb(1.0, 0.0, 0.0)
 				},
