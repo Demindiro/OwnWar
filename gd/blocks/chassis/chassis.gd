@@ -1,4 +1,9 @@
+# TODO consts in NativeScript pls
+const BLOCK_SCALE := 0.25
+
+
 static func load_blocks() -> void:
+	var BlockManager := preload("../block_manager.gdns").new()
 	var file := File.new()
 	var err := file.open("res://blocks/chassis/shapes.json", File.READ)
 	if err != OK:
@@ -21,10 +26,10 @@ static func load_blocks() -> void:
 			var rotation = block_data["rotation"]
 			var mirror = block_data["mirror"]
 			var transform = Transform(
-				OwnWar_Block.rotation_to_basis(rotation),
+				BlockManager.rotation_to_basis(int(rotation)),
 				Vector3.ZERO
 			)
-			transform = transform.scaled(Vector3.ONE * OwnWar_Block.BLOCK_SCALE)
+			transform = transform.scaled(Vector3.ONE * BLOCK_SCALE)
 			transform = transform.translated(-Vector3.ONE / 2)
 
 			generator.start(2)
@@ -34,19 +39,19 @@ static func load_blocks() -> void:
 			# TODO this is a bug in GDScript, report it
 			block.id = int(name2id[block_name])
 			block.human_name = block_name
-			block.category = "Structural"
+			block.human_category = "Structural"
 			block.mesh = generator.get_mesh(generator.get_result(), transform)
-			OwnWar_Block.add_block(block)
+			BlockManager.add_block(block)
 			if mirror < 0:
 				var mirror_block = OwnWar_Block.new()
 				var mirror_transform = Transform.FLIP_X * transform
 				# TODO ditto
 				mirror_block.id = int(name2id[block_name + " (M)"])
 				mirror_block.human_name = block.human_name + " (M)"
-				mirror_block.category = "Structural"
+				mirror_block.human_category = "Structural"
 				mirror_block.mesh = generator.get_mesh(generator.get_result(), mirror_transform, true)
-				OwnWar_Block.add_block(mirror_block)
+				BlockManager.add_block(mirror_block)
 				mirror_block.mirror_block = block
 				block.mirror_block = mirror_block
 			else:
-				block.set_mirror_rotation_offset(mirror)
+				block.mirror_rotation_offset = int(mirror)

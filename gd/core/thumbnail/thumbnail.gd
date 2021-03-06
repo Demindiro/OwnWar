@@ -6,6 +6,9 @@ const _BLOCK_DIRECTORY := "blocks"
 const _VEHICLE_DIRECTORY := "vehicles"
 const _UNIT_DIRECTORY := "units"
 
+# TODO
+const BLOCK_SCALE := 0.25
+
 
 static func get_block_thumbnail_async(id: int, callback: FuncRef, arguments := []) -> bool:
 	if _try_get_thumbnail(_get_block_path(id), callback, arguments):
@@ -32,7 +35,7 @@ static func move_vehicle_thumbnail(from: String, to: String) -> void:
 
 
 static func _get_block_path(id: int) -> String:
-	var blk = OwnWar_Block.get_block(id)
+	var blk = OwnWar_BlockManager.new().get_block(id)
 	return _THUMBNAIL_DIRECTORY \
 		.plus_file(_BLOCK_DIRECTORY) \
 		.plus_file("%d-%d.png" % [id, blk.revision])
@@ -107,11 +110,11 @@ func _create_vehicle_thumbnail(p_path: String, callback: FuncRef, arguments: Arr
 		push_error("Failed to load vehicle from %s: %d" % [p_path, e])
 		return
 	var aabb := vehicle.aabb
-	aabb.size *= OwnWar_Block.BLOCK_SCALE
-	aabb.position *= OwnWar_Block.BLOCK_SCALE
+	aabb.size *= BLOCK_SCALE
+	aabb.position *= BLOCK_SCALE
 	var camera: Camera = tn.get_node("Spatial/Camera")
 	var size := max(aabb.size.x, max(aabb.size.y, aabb.size.z))
-	var grid_center := Vector3(25, 25, 25) * OwnWar_Block.BLOCK_SCALE / 2
+	var grid_center := Vector3(25, 25, 25) * BLOCK_SCALE / 2
 	var aabb_center := aabb.size / 2 + aabb.position
 	var offset_center := aabb_center - grid_center
 	vehicle.translation -= offset_center

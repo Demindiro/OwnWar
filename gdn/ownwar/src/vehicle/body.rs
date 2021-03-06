@@ -1,6 +1,7 @@
 use super::interpolation_state::InterpolationState;
 use super::voxel_body::VoxelBody;
 use super::voxel_mesh::VoxelMesh;
+use crate::block;
 use crate::util::{convert_vec, BitArray, AABB};
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{Resource, Script, Spatial, VehicleBody};
@@ -12,7 +13,6 @@ use std::num::{NonZeroU16, NonZeroU32};
 
 type Voxel = Vector3D<u8, UnknownUnit>;
 
-const BLOCK_SCALE: f32 = 0.25;
 const MAINFRAME_ID: NonZeroU16 = unsafe { NonZeroU16::new_unchecked(76) };
 // TODO port Block in Rust so we don't have to do this for performance
 static mut BLOCK_COST_CACHE: Vec<Option<CachedBlock>> = Vec::new();
@@ -89,7 +89,7 @@ impl Body {
 		voxel_mesh: &mut VoxelMesh,
 		position: Voxel,
 		rotation: u8,
-		block: TRef<Resource>,
+		block: &block::Block,
 		color: Color,
 		state: Option<&TypedArray<i32>>,
 		is_ally: bool,
@@ -109,7 +109,6 @@ impl Body {
 			return None;
 		}
 
-		let (id, cached) = add_block_to_cache(block);
 		let hp = if let Some(state) = state {
 			if let Some(hp) = NonZeroU32::new(state.get(index as i32) as u32) {
 				hp
@@ -117,38 +116,33 @@ impl Body {
 				return None;
 			}
 		} else {
-			cached.health
+			block.health
 		};
-		let cost = cached.cost.get();
+		let cost = block.cost.get() as u32;
 
 		voxel_mesh.add_block(block, color, position, rotation);
 
 		let mut bb = InterpolationState::new(block);
 
-		if id == MAINFRAME_ID {
+		if block.id == MAINFRAME_ID {
 			if self.has_mainframe {
 				godot_error!("Body has two mainframes!");
 				// Carry on anyways...
 			}
 			self.has_mainframe = true;
 		}
-		self.ids[index as usize] = Some(id);
+		self.ids[index as usize] = Some(block.id);
 		self.max_health += hp.get();
 		self.max_cost += cost;
 		self.count += 1;
 
 		if let Some(ref mut bb) = bb {
-			let basis = unsafe {
-				block
-					.call("rotation_to_basis", &[rotation.to_variant()])
-					.try_to_basis()
-					.unwrap()
-			};
+			let basis = block::Block::rotation_to_basis(rotation);
 			let origin = Vector3::new(
 				position.x as f32 + 0.5,
 				position.y as f32 + 0.5,
 				position.z as f32 + 0.5,
-			) * BLOCK_SCALE;
+			) * block::SCALE;
 			let server_node = unsafe { bb.server_node.assume_safe() };
 			let client_node = unsafe { bb.client_node.assume_safe() };
 			server_node.set_name(format!("S {},{},{}", position.x, position.y, position.z));
@@ -324,10 +318,7 @@ impl Body {
 		self.get_index(position) != Err(())
 	}
 
-	pub fn calculate_mass(
-		&mut self,
-		ownwar_block_script: &Ref<Script>, /* TODO this is a shitty hack */
-	) {
+	pub fn calculate_mass(&mut self) {
 		let mut total_mass = 0.0;
 		let mut center_of_mass = Vector3::zero();
 		let size = self.size;
@@ -337,17 +328,7 @@ impl Body {
 		{
 			let blk = self.try_get_block(Voxel::new(x, y, z)).unwrap();
 			if let Some(blk) = blk {
-				let mass = unsafe {
-					ownwar_block_script
-						.assume_safe()
-						.call("get_block", &[blk.id().get().to_variant()])
-						.try_to_object::<Resource>()
-						.unwrap()
-						.assume_safe()
-						.get("mass")
-						.try_to_f64()
-						.unwrap() as f32
-				};
+				let mass = block::Block::get(blk.id()).unwrap().mass;
 				center_of_mass += Vector3::new(x as f32, y as f32, z as f32) * mass;
 				total_mass += mass;
 			}
@@ -375,7 +356,7 @@ impl Body {
 								let damage = damage - hp;
 								self.count -= 1;
 								self.total_health -= hp;
-								self.total_cost -= get_cached_block(id).cost.get();
+								self.total_cost -= block::Block::get(id).unwrap().cost.get() as u32;
 								let mut anchor_destroyed = false;
 								for &pos in block.reverse_indices.iter() {
 									self.health[self.get_index(pos).unwrap() as usize] = None;
@@ -402,7 +383,7 @@ impl Body {
 							self.health[i] = None;
 							self.count -= 1;
 							self.total_health -= hp;
-							self.total_cost -= get_cached_block(id).cost.get();
+							self.total_cost -= block::Block::get(id).unwrap().cost.get() as u32;
 							let anchor_destroyed = self.remove_all_anchors(position);
 							Ok((true, damage, anchor_destroyed, is_mainframe, None))
 						} else {
@@ -532,9 +513,9 @@ impl Body {
 		if let Some(voxel_mesh) = voxel_mesh {
 			voxel_mesh.remove_block(voxel);
 		}
-		self.total_cost -= get_cached_block(self.ids[index as usize].unwrap())
+		self.total_cost -= block::Block::get(self.ids[index as usize].unwrap()).unwrap()
 			.cost
-			.get();
+			.get() as u32;
 		if let Some(hp) = self.health[index as usize] {
 			let hp = hp.get();
 			self.health[index as usize] = None;
@@ -702,33 +683,4 @@ impl MultiBlock {
 	pub fn reverse_indices(&self) -> &Box<[Voxel]> {
 		&self.reverse_indices
 	}
-}
-
-fn add_block_to_cache(block: TRef<Resource>) -> (NonZeroU16, &'static CachedBlock) {
-	unsafe {
-		//godot_dbg!(block.get("id")); // Uncomment in case of panics, we may be getting a f64
-		let id = block.get("id").try_to_u64().unwrap();
-		let id = NonZeroU16::new(id as u16).unwrap();
-		let index = id.get() as usize - 1;
-		if let Some(cached) = BLOCK_COST_CACHE.get(index).and_then(Option::as_ref) {
-			(id, cached)
-		} else {
-			let health = block.get("health").try_to_u64().unwrap() as u32;
-			let cost = block.get("cost").try_to_u64().unwrap() as u32;
-			let cached = CachedBlock {
-				health: NonZeroU32::new(health).unwrap(),
-				cost: NonZeroU32::new(cost).unwrap(),
-			};
-			if BLOCK_COST_CACHE.len() <= index {
-				BLOCK_COST_CACHE.resize_with(index + 1, || None);
-			}
-			BLOCK_COST_CACHE[index] = Some(cached);
-			//godot_print!("Cached block {}, cache size: {}", id, BLOCK_COST_CACHE.len());
-			(id, BLOCK_COST_CACHE[index].as_ref().unwrap())
-		}
-	}
-}
-
-fn get_cached_block(id: NonZeroU16) -> &'static CachedBlock {
-	unsafe { BLOCK_COST_CACHE[id.get() as usize - 1].as_ref().unwrap() }
 }

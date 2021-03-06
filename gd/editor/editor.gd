@@ -1,6 +1,13 @@
 extends Node
 
 
+# TODO
+const BLOCK_SCALE := 0.25
+
+# TODO
+var BlockManager := preload("res://blocks/block_manager.gdns").new()
+
+
 # Set to true if recording for trailer footage
 const TRAILER_MODE := false
 
@@ -31,7 +38,7 @@ signal vehicle_rotated(center)
 signal toggled_edit_mode(enable)
 
 const GRID_SIZE = 25
-const SCALE := 1 / OwnWar_Block.BLOCK_SCALE
+const SCALE := 1 / BLOCK_SCALE
 
 export var enabled := true
 export var main_menu: PackedScene
@@ -256,7 +263,7 @@ func remove_block(coordinate: Array) -> bool:
 		node.queue_free()
 		if blk.id == OwnWar.MAINFRAME_ID:
 			mainframe_count -= 1
-		emit_signal("block_removed", OwnWar_Block.get_block(blk.id), Vector3(coordinate[0], coordinate[1], coordinate[2]))
+		emit_signal("block_removed", BlockManager.get_block(blk.id), Vector3(coordinate[0], coordinate[1], coordinate[2]))
 		var _e := blocks.erase(coordinate)
 		return true
 	if not edit_mode:
@@ -267,7 +274,7 @@ func remove_block(coordinate: Array) -> bool:
 
 
 func select_block(id: int) -> void:
-	selected_block = OwnWar_Block.get_block(id)
+	selected_block = BlockManager.get_block(id)
 	for child in _camera_mesh.get_children():
 		child.queue_free()
 	for child in _floor_origin_ghost.get_children():
@@ -529,7 +536,7 @@ func rotate_block_up() -> void:
 
 func snap_face(direction: Vector3) -> void:
 	if _snap_face:
-		var dir := OwnWar_Block.axis_to_direction(direction)
+		var dir: int = BlockManager.axis_to_direction(direction)
 		assert(dir != -1)
 		_rotation &= 0b11
 		_rotation |= dir

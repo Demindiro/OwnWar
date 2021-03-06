@@ -1,18 +1,18 @@
 [gd_resource type="Resource" load_steps=3 format=2]
 
-[ext_resource path="res://blocks/block.gd" type="Script" id=1]
+[ext_resource path="res://blocks/block.gdns" type="Script" id=1]
 [ext_resource path="res://blocks/thrusters/thruster.tscn" type="PackedScene" id=2]
 
 [resource]
 script = ExtResource( 1 )
-id = 100
+human_category = "Movement"
 human_name = "Thruster"
-revision = 0
-category = "Movement"
-instance = ExtResource( 2 )
-health = 100
 mass = 1.0
 cost = 1
-aabb = AABB( 0, 0, 0, 1, 1, 1 )
 mirror_rotation_offset = 0
-__mirror_block_id = 0
+health = 100
+instance = ExtResource( 2 )
+revision = 0
+aabb = AABB( 0, 0, 0, 1, 1, 1 )
+id = 100
+__mirror_block_id = null

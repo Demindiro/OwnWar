@@ -1,6 +1,7 @@
 use super::body::{Block, Body, DamageState};
 use super::interpolation_state::InterpolationState;
 use super::voxel_mesh::VoxelMesh;
+use crate::block;
 use crate::util::{convert_vec, swap_erase, VoxelRaycast, VoxelSphereIterator, AABB};
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{
@@ -13,7 +14,6 @@ use std::cell::{Cell, RefCell};
 
 type Voxel = Vector3D<u8, UnknownUnit>;
 
-const BLOCK_SCALE: f32 = 0.25;
 const DESTROY_BLOCK_EFFECT_SCENE: &str = "res://vehicles/destroy_block_effect.tscn";
 const DESTROY_BODY_EFFECT_SCENE: &str = "res://vehicles/destroy_body_effect.tscn";
 const PHYSICS_MATERIAL: &str = "res://vehicles/medium_friction.tres";
@@ -183,7 +183,7 @@ impl VoxelBody {
 			let vmi = self.voxel_mesh_instance.assume_safe();
 			let trf = vmi.transform();
 			let body = self.body.as_ref().unwrap();
-			let com = body.borrow().center_of_mass() * BLOCK_SCALE;
+			let com = body.borrow().center_of_mass() * block::SCALE;
 			vmi.set_translation(trf.origin - trf.basis.xform(com));
 		}
 	}
@@ -223,14 +223,14 @@ impl VoxelBody {
 		let dhp = self.debug_hit_points.replace(Vec::new());
 		let body = self.body().borrow();
 		for point in &dhp {
-			let point = owner.to_global((point.to_f32() - body.center_of_mass()) * BLOCK_SCALE);
+			let point = owner.to_global((point.to_f32() - body.center_of_mass()) * block::SCALE);
 			unsafe {
 				debug.assume_safe().call(
 					"draw_point",
 					&[
 						point.to_variant(),
 						Color::rgb(0.5, 1.0, 0.5).to_variant(),
-						(BLOCK_SCALE * 0.55).to_variant(),
+						(block::SCALE * 0.55).to_variant(),
 					],
 				);
 			}
@@ -256,7 +256,7 @@ impl VoxelBody {
 		let mut trf = vmi.transform();
 		trf.origin += trf
 			.basis
-			.xform(self.body.as_ref().unwrap().borrow().center_of_mass() * BLOCK_SCALE);
+			.xform(self.body.as_ref().unwrap().borrow().center_of_mass() * block::SCALE);
 		trf
 	}
 
@@ -275,10 +275,10 @@ impl VoxelBody {
 		// Drop is needed in case one of the nodes calls a method on us
 		drop(body);
 		let body = self.body().borrow();
-		let middle = body.size().to_f32() * BLOCK_SCALE / 2.0;
+		let middle = body.size().to_f32() * block::SCALE / 2.0;
 		unsafe {
 			self.collision_shape_instance.assume_safe().set_translation(
-				middle - (body.center_of_mass() + Vector3::new(0.5, 0.5, 0.5)) * BLOCK_SCALE,
+				middle - (body.center_of_mass() + Vector3::new(0.5, 0.5, 0.5)) * block::SCALE,
 			);
 		}
 		unsafe {
@@ -287,7 +287,7 @@ impl VoxelBody {
 
 		owner.set_global_transform(Transform {
 			basis: Basis::identity(),
-			origin: (body.center_of_mass() + body.offset().to_f32()) * BLOCK_SCALE,
+			origin: (body.center_of_mass() + body.offset().to_f32()) * block::SCALE,
 		});
 
 		// We can't drop the body while iterating, so collect all nodes first, then
@@ -642,7 +642,7 @@ impl VoxelBody {
 							.unwrap()
 					};
 					if let Ok(node) = Self::instance_effect(DESTROY_BLOCK_EFFECT_SCENE) {
-						node.set_translation((voxel.to_f32() - center_of_mass) * BLOCK_SCALE);
+						node.set_translation((voxel.to_f32() - center_of_mass) * block::SCALE);
 						owner.add_child(node, false);
 					}
 				}
@@ -728,23 +728,29 @@ impl VoxelBody {
 
 		let position = convert_vec(position) - body.offset();
 		let is_ally = self.is_ally;
-		let interpolation_state = unsafe {
-			self.voxel_mesh
-				.assume_safe()
-				.map_mut(|s, _| {
-					body.add_block(
-						owner,
-						s,
-						position,
-						rotation,
-						block,
-						color,
-						state.as_ref(),
-						is_ally,
-					)
-				})
-				.unwrap()
-		};
+		let interpolation_state = block
+			.cast_instance::<block::Block>()
+			.unwrap()
+			.map(|block, _| {
+				unsafe {
+					self.voxel_mesh
+						.assume_safe()
+						.map_mut(|s, _| {
+							body.add_block(
+								owner,
+								s,
+								position,
+								rotation,
+								block,
+								color,
+								state.as_ref(),
+								is_ally,
+							)
+						})
+						.unwrap()
+				}
+			})
+			.unwrap();
 		drop(body);
 
 		if let Some(bb) = interpolation_state {
@@ -809,12 +815,12 @@ impl VoxelBody {
 
 	fn correct_mass(&self, owner: &VehicleBody) {
 		let mut body = self.body().borrow_mut();
-		body.calculate_mass(self.ownwar_block_script.as_ref().unwrap());
+		body.calculate_mass();
 		if body.total_mass == 0.0 {
 			godot_error!("Mass is zero!");
 			return;
 		}
-		let center = (body.center_of_mass() + Vector3::new(0.5, 0.5, 0.5)) * BLOCK_SCALE;
+		let center = (body.center_of_mass() + Vector3::new(0.5, 0.5, 0.5)) * block::SCALE;
 
 		let vmi = unsafe { self.voxel_mesh_instance.assume_safe() };
 		let pos = vmi.translation();
@@ -868,7 +874,7 @@ impl VoxelBody {
 
 	fn center_of_mass(&self, _owner: TRef<VehicleBody>) -> Vector3 {
 		if let Some(ref body) = self.body {
-			body.borrow().center_of_mass() * BLOCK_SCALE
+			body.borrow().center_of_mass() * block::SCALE
 		} else {
 			godot_error!("Body is not set!");
 			Vector3::zero()
@@ -935,7 +941,7 @@ impl VoxelBody {
 		direction: Vector3,
 	) -> (Vector3, Vector3) {
 		let body = self.body().borrow();
-		let local_origin = owner.to_local(origin) / BLOCK_SCALE + body.center_of_mass();
+		let local_origin = owner.to_local(origin) / block::SCALE + body.center_of_mass();
 		let local_direction = owner.to_local(origin + direction) - owner.to_local(origin);
 		(local_origin, local_direction)
 	}

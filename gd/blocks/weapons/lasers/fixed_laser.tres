@@ -1,20 +1,20 @@
 [gd_resource type="Resource" load_steps=4 format=2]
 
-[ext_resource path="res://blocks/block.gd" type="Script" id=1]
+[ext_resource path="res://blocks/block.gdns" type="Script" id=1]
 [ext_resource path="res://blocks/weapons/lasers/fixed_laser.obj" type="ArrayMesh" id=2]
 [ext_resource path="res://blocks/weapons/lasers/fixed_laser.tscn" type="PackedScene" id=3]
 
 [resource]
 script = ExtResource( 1 )
-id = 80
+human_category = "Weapons"
 human_name = "Fixed Laser"
-revision = 0
-category = "Weapons"
-mesh = ExtResource( 2 )
-instance = ExtResource( 3 )
-health = 500
 mass = 10.0
 cost = 20
-aabb = AABB( 0, 0, 0, 1, 1, 1 )
 mirror_rotation_offset = 0
+health = 500
+instance = ExtResource( 3 )
+revision = 0
+aabb = AABB( 0, 0, 0, 1, 1, 1 )
+id = 80
 __mirror_block_id = 0
+mesh = ExtResource( 2 )

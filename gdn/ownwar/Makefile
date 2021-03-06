@@ -11,3 +11,6 @@ compile-loop:
 
 install-loop:
 	find src/ -name '*.rs' | entr -c bash -c 'cargo build && cp $(TARGET_PATH) $(OUTPUT)'
+
+clean:
+	rm -r target/

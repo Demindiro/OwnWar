@@ -1,6 +1,9 @@
 extends Control
 
 
+# TODO
+var BlockManager := OwnWar_BlockManager.new()
+
 export(NodePath) var preview_mesh
 export var block_item: PackedScene
 export var _category_list := NodePath()
@@ -35,7 +38,7 @@ func show_category(var category):
 
 
 func show_block(id: int):
-	var block = OwnWar_Block.get_block(id)
+	var block = BlockManager.get_block(id)
 	_preview_mesh.mesh = block.mesh
 	_preview_mesh.transform = Transform.IDENTITY
 	_preview_mesh.scale = \
@@ -80,7 +83,7 @@ func _block_set_thumbnail(img: Image, button: Control) -> void:
 
 
 func _get_categories():
-	for block in OwnWar_Block.get_all_blocks():
-		var arr: PoolIntArray = categories.get(block.category, PoolIntArray())
+	for block in OwnWar_BlockManager.new().get_all_blocks():
+		var arr: PoolIntArray = categories.get(block.human_category, PoolIntArray())
 		arr.push_back(block.id)
-		categories[block.category] = arr
+		categories[block.human_category] = arr

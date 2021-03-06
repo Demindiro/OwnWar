@@ -16,7 +16,7 @@ class Block:
 		position.y = spb.get_u8()
 		position.z = spb.get_u8()
 		var id := spb.get_u16()
-		block = OwnWar_Block.get_block(id)
+		block = OwnWar_BlockManager.new().get_block(id)
 		rotation = spb.get_u8()
 		color.r8 = spb.get_u8()
 		color.g8 = spb.get_u8()

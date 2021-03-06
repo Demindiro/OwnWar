@@ -1,3 +1,4 @@
+use crate::block;
 use crate::util::convert_vec;
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{ArrayMesh, Material, Mesh, Resource, SpatialMaterial};
@@ -5,8 +6,6 @@ use gdnative::prelude::*;
 use std::collections::{hash_map::Entry, HashMap};
 
 type Voxel = Vector3D<u8, UnknownUnit>;
-
-const BLOCK_SCALE: f32 = 0.25;
 
 static mut MATERIAL_CACHE: Option<HashMap<(u8, u8, u8), Ref<SpatialMaterial>>> = None;
 // TODO ask for implementation of Hash and Eq for TypedArray
@@ -51,71 +50,68 @@ impl VoxelMesh {
 	) {
 		unsafe {
 			let v = convert_vec(coordinate);
-			self.add_block(block.assume_safe(), color, v, rotation);
+			block
+				.assume_safe()
+				.cast_instance::<block::Block>()
+				.unwrap()
+				.map(|block, _| {
+					self.add_block(block, color, v, rotation);
+				})
+				.unwrap();
 		}
 	}
 
 	pub(super) fn add_block(
 		&mut self,
-		block: TRef<Resource>,
+		block: &block::Block,
 		color: Color,
 		coordinate: Voxel,
 		rotation: u8,
 	) {
-		let arrays = unsafe { block.call("get_mesh_arrays", &[]).try_to_array().unwrap() };
-		for array in arrays.iter() {
-			let array = array.try_to_array().unwrap();
+		let material = Self::get_material(color);
+		let basis = block::Block::rotation_to_basis(rotation);
+		let position = convert_vec(coordinate) * block::SCALE;
 
-			let material = Self::get_material(color);
+		if let Some((_, mesh_arrays)) = block.mesh_arrays() {
+			for array in mesh_arrays.iter() {
+				let mut vertices = TypedArray::new();
+				vertices.resize(array.len() as i32);
+				let mut normals = TypedArray::new();
+				normals.resize(array.len() as i32);
 
-			let basis = unsafe {
-				block
-					.call("rotation_to_basis", &[Variant::from_u64(rotation as u64)])
-					.try_to_basis()
-					.unwrap()
-			};
-			let position = Vector3::new(
-				coordinate.x as f32,
-				coordinate.y as f32,
-				coordinate.z as f32,
-			) * BLOCK_SCALE;
-			let mut vertices = array
-				.get(ArrayMesh::ARRAY_VERTEX as i32)
-				.try_to_vector3_array()
-				.unwrap();
-			let mut normals = array
-				.get(ArrayMesh::ARRAY_NORMAL as i32)
-				.try_to_vector3_array()
-				.unwrap();
-			let mut verts = vertices.write();
-			let mut norms = normals.write();
-			for i in 0..verts.len() {
-				verts[i] = basis.xform(verts[i]) + position;
-				norms[i] = basis.xform(norms[i]);
-			}
-			drop(verts);
-			drop(norms);
-			array.set(
-				ArrayMesh::ARRAY_VERTEX as i32,
-				Self::get_cached_vector3_array(vertices),
-			);
-			array.set(
-				ArrayMesh::ARRAY_NORMAL as i32,
-				Self::get_cached_vector3_array(normals),
-			);
-
-			let sm = SubMesh::new(array, coordinate);
-			match self.material_to_meshes_map.entry(material.clone()) {
-				Entry::Occupied(mut e) => {
-					let e = e.get_mut();
-					e.0.push(sm);
-					e.1 = true;
+				let mut verts = vertices.write();
+				let mut norms = normals.write();
+				for (i, point) in array.iter().enumerate() {
+					verts[i] = basis.xform(point.vertex) + position;
+					norms[i] = basis.xform(point.normal);
 				}
-				Entry::Vacant(e) => {
-					e.insert((vec![sm], true));
+				drop(verts);
+				drop(norms);
+
+				let array = VariantArray::new();
+				array.resize(ArrayMesh::ARRAY_MAX as i32);
+				array.set(
+					ArrayMesh::ARRAY_VERTEX as i32,
+					vertices,
+				);
+				array.set(
+					ArrayMesh::ARRAY_NORMAL as i32,
+					normals,
+				);
+
+				let sm = SubMesh::new(array.into_shared(), coordinate);
+				match self.material_to_meshes_map.entry(material.clone()) {
+					Entry::Occupied(mut e) => {
+						let e = e.get_mut();
+						e.0.push(sm);
+						e.1 = true;
+					}
+					Entry::Vacant(e) => {
+						e.insert((vec![sm], true));
+					}
 				}
+				self.dirty = true
 			}
-			self.dirty = true
 		}
 	}
 
@@ -159,26 +155,14 @@ impl VoxelMesh {
 						.try_to_vector3_array()
 						.unwrap()
 						.clone();
-					let mut inds = sm
-						.array
-						.get(Mesh::ARRAY_INDEX as i32)
-						.try_to_int32_array()
-						.unwrap()
-						// I know it's CoW, but that may change in Godot 4 so let's avoid surprises
-						.clone();
-					for j in 0..inds.len() {
-						inds.set(j, inds.get(j) + offset);
-					}
 					vertices.append(&verts);
 					normals.append(&norms);
-					indices.append(&inds);
 				}
 
 				let array = VariantArray::new();
 				array.resize(ArrayMesh::ARRAY_MAX as i32);
 				array.set(ArrayMesh::ARRAY_VERTEX as i32, vertices);
 				array.set(ArrayMesh::ARRAY_NORMAL as i32, normals);
-				array.set(ArrayMesh::ARRAY_INDEX as i32, indices);
 				let index = owner.get_surface_count();
 				owner.add_surface_from_arrays(
 					Mesh::PRIMITIVE_TRIANGLES,

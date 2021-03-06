@@ -3,6 +3,10 @@ extends Spatial
 class_name OwnWar_Vehicle
 
 
+# TODO
+const BLOCK_SCALE := 0.25
+
+
 var team := -1
 var is_ally := false
 
@@ -293,7 +297,7 @@ func load_from_data(p_data: PoolByteArray, state := []) -> int:
 		var position_0: Vector3 = vb.aabb.position
 		for body in voxel_bodies:
 			if body != null:
-				body.translate(-center_of_mass_0 - position_0 * OwnWar_Block.BLOCK_SCALE)
+				body.translate(-center_of_mass_0 - position_0 * BLOCK_SCALE)
 		break
 
 	for body in voxel_bodies:

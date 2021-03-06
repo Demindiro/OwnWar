@@ -1,5 +1,6 @@
 #![feature(map_into_keys_values)]
 
+mod block;
 mod util;
 mod vehicle;
 
@@ -9,6 +10,7 @@ use gdnative::prelude::*;
 fn init(handle: InitHandle) {
 	godot_print!("Initializing OwnWar native library");
 	vehicle::init(handle);
+	block::init(handle);
 }
 
 // Macro that creates the entry-points of the dynamic library.

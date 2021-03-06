@@ -1,6 +1,10 @@
 extends Control
 
 
+# TODO
+const BLOCK_SCALE := 0.25
+
+
 const HealthBar := preload("health_circle.gd")
 
 export var camera: NodePath
@@ -116,7 +120,7 @@ func set_player_vehicle(p_vehicle) -> void:
 				_camera_ray.add_exception(body)
 				_camera_terrain_ray.add_exception(body)
 		var aabb := player_vehicle.get_aabb()
-		camera_offset.y = aabb.size.y * OwnWar_Block.BLOCK_SCALE + 1
+		camera_offset.y = aabb.size.y * BLOCK_SCALE + 1
 	var e: int = p_vehicle.connect("tree_exiting", self, "set", ["player_vehicle", null])
 	assert(e == OK)
 

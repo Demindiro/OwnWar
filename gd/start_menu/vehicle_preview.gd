@@ -4,6 +4,10 @@ extends Control
 signal loaded_vehicle(path, vehicle)
 
 
+# TODO
+const BLOCK_SCALE := 0.25
+
+
 export var camera_pan_speed := 0.2
 export var camera_distance := 10.0
 export var camera_tilt := PI / 6
@@ -34,7 +38,7 @@ func set_preview(path: String, save := true) -> void:
 		#assert(false, "Failed to load vehicle")
 		return
 	_vehicle.transform = _origin.transform
-	_vehicle.translation.y += 25 * OwnWar_Block.BLOCK_SCALE / 2
+	_vehicle.translation.y += 25 * BLOCK_SCALE / 2
 	OwnWar_Lobby.player_vehicle_valid = _vehicle.is_valid()
 	if save:
 		OwnWar_Settings.dirty = true

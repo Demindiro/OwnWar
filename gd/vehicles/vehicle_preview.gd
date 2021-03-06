@@ -2,6 +2,10 @@ extends Spatial
 class_name OwnWar_VehiclePreview
 
 
+# TODO
+const BLOCK_SCALE := 0.25
+
+
 var voxel_mesh := OwnWar_VoxelMesh.new()
 var mesh_instance := MeshInstance.new()
 var aabb := AABB()
@@ -35,7 +39,7 @@ func load_from_data(data: PoolByteArray) -> int:
 	var spb := StreamPeerBuffer.new()
 	spb.data_array = data
 
-	var center := Vector3(25, 25, 25) * OwnWar_Block.BLOCK_SCALE / 2
+	var center := Vector3(25, 25, 25) * BLOCK_SCALE / 2
 
 	var loader := OwnWar_VehicleLoader.new()
 	var err := loader.load_from_data(data)
@@ -43,19 +47,20 @@ func load_from_data(data: PoolByteArray) -> int:
 		print("Failed to load vehicle: ", Global.ERROR_TO_STRING[err])
 		return err
 
+	var BlockManager := preload("res://blocks/block_manager.gdns").new()
 	for layer in loader.bodies:
 		var body: OwnWar_VehicleLoader.Body = loader.bodies[layer]
 		for block in body.blocks:
 			var blk: OwnWar_Block = block.block
 			voxel_mesh.add_block_gd(blk, block.color, block.position, block.rotation)
 			if blk.editor_node != null:
-				var node := blk.editor_node.duplicate()
+				var node: Spatial = blk.editor_node.duplicate()
 				add_child(node)
 				if node.has_method("set_preview_mode"):
 					node.set_preview_mode(true)
 				node.transform = Transform(
-					OwnWar_Block.rotation_to_basis(block.rotation),
-					(block.position + Vector3.ONE / 2) * OwnWar_Block.BLOCK_SCALE - center
+					BlockManager.rotation_to_basis(block.rotation),
+					(block.position + Vector3.ONE / 2) * BLOCK_SCALE - center
 				)
 				if node.has_method("set_color"):
 					node.set_color(block.color)
@@ -71,8 +76,8 @@ func load_from_data(data: PoolByteArray) -> int:
 	mainframe_count = loader.mainframe_count
 
 	# TODO should we center based on AABB or editor grid size?
-	mesh_instance.translation -= Vector3(25, 25, 25) * OwnWar_Block.BLOCK_SCALE / 2
-	mesh_instance.translation += Vector3.ONE * OwnWar_Block.BLOCK_SCALE / 2
+	mesh_instance.translation -= Vector3(25, 25, 25) * BLOCK_SCALE / 2
+	mesh_instance.translation += Vector3.ONE * BLOCK_SCALE / 2
 
 	return OK
 

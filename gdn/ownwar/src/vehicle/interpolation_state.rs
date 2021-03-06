@@ -1,3 +1,4 @@
+use crate::block;
 use gdnative::api::{Resource, Spatial};
 use gdnative::prelude::*;
 
@@ -9,8 +10,8 @@ pub(super) struct InterpolationState {
 }
 
 impl InterpolationState {
-	pub fn new(block: TRef<Resource>) -> Option<Self> {
-		if let Some(server_node) = block.get("server_node").try_to_object::<Spatial>() {
+	pub fn new(block: &block::Block) -> Option<Self> {
+		if let Some(server_node) = block.server_node {
 			let server_node = unsafe {
 				server_node
 					.assume_safe()
@@ -21,9 +22,7 @@ impl InterpolationState {
 					.unwrap()
 			};
 			let client_node = unsafe {
-				block
-					.get("client_node")
-					.try_to_object::<Spatial>()
+				block.client_node
 					.unwrap()
 					.assume_safe()
 					.duplicate(7)

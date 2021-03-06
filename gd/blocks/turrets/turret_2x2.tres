@@ -1,20 +1,20 @@
 [gd_resource type="Resource" load_steps=4 format=2]
 
-[ext_resource path="res://blocks/block.gd" type="Script" id=1]
+[ext_resource path="res://blocks/block.gdns" type="Script" id=1]
 [ext_resource path="res://blocks/turrets/turret_2x2.tscn" type="PackedScene" id=2]
 [ext_resource path="res://blocks/turrets/turret_base_2x2.obj" type="ArrayMesh" id=3]
 
 [resource]
 script = ExtResource( 1 )
-id = 78
-human_name = "Turret Connector"
 revision = 0
-category = "Weapons"
-mesh = ExtResource( 3 )
-instance = ExtResource( 2 )
-health = 1200
 mass = 12.0
-cost = 30
-aabb = AABB( 0, 0, 0, 2, 1, 2 )
 mirror_rotation_offset = 0
-__mirror_block_id = 0
+human_name = "Turret Connector"
+cost = 30
+instance = ExtResource( 2 )
+human_category = "Weapons"
+health = 1200
+aabb = AABB( 0, 0, 0, 2, 1, 2 )
+id = 78
+mirror_block_id = null
+mesh = ExtResource( 3 )
