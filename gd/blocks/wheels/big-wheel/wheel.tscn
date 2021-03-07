@@ -77,3 +77,6 @@ material/0 = null
 [node name="Arrow" type="Sprite3D" parent="Editor"]
 transform = Transform( 0.560522, -4.26596e-09, -1.86471e-16, 0, -4.37114e-08, 1, -7.61069e-09, -1, -4.37114e-08, 0, -0.371882, 0 )
 texture = ExtResource( 7 )
+__meta__ = {
+"no_outline": ""
+}

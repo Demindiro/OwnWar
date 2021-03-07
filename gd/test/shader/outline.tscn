@@ -1,0 +1,63 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://effects/outline/outline_lod.shader" type="Shader" id=1]
+[ext_resource path="res://blocks/weapons/lasers/fixed_laser.obj" type="ArrayMesh" id=2]
+
+[sub_resource type="ShaderMaterial" id=1]
+shader = ExtResource( 1 )
+shader_param/size = 20.0
+shader_param/outline_color = Color( 1, 0, 0, 1 )
+
+[sub_resource type="Environment" id=2]
+background_mode = 1
+
+[sub_resource type="World" id=3]
+environment = SubResource( 2 )
+
+[sub_resource type="SpatialMaterial" id=4]
+flags_unshaded = true
+albedo_color = Color( 1, 1, 0, 1 )
+
+[node name="ViewportContainer" type="ViewportContainer"]
+material = SubResource( 1 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+stretch = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Viewport" type="Viewport" parent="."]
+size = Vector2( 1920, 1080 )
+world = SubResource( 3 )
+handle_input_locally = false
+msaa = 2
+render_target_update_mode = 3
+
+[node name="MeshInstance" type="MeshInstance" parent="Viewport"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.11224 )
+layers = 2
+material_override = SubResource( 4 )
+mesh = ExtResource( 2 )
+material/0 = null
+material/1 = null
+
+[node name="Camera" type="Camera" parent="Viewport"]
+transform = Transform( -0.707107, -0.27029, 0.653409, 0, 0.92406, 0.382248, -0.707107, 0.27029, -0.653409, 0.548139, 0.2044, 0.880209 )
+cull_mask = 2
+current = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Viewport"]
+environment = SubResource( 2 )
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( -0.707107, -0.27029, 0.653409, 0, 0.92406, 0.382248, -0.707107, 0.27029, -0.653409, 0.548139, 0.2044, 0.880209 )
+cull_mask = 2
+current = true
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.11224 )
+layers = 2
+mesh = ExtResource( 2 )
+material/0 = null
+material/1 = null

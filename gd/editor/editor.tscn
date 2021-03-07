@@ -1,4 +1,4 @@
-[gd_scene load_steps=57 format=2]
+[gd_scene load_steps=60 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://editor/inventory_item.tscn" type="PackedScene" id=2]
@@ -47,29 +47,36 @@
 [ext_resource path="res://editor/shortcuts/toggle_rotation_mapping.tres" type="ShortCut" id=45]
 [ext_resource path="res://editor/error_window.gd" type="Script" id=46]
 [ext_resource path="res://settings/applier.gd" type="Script" id=47]
+[ext_resource path="res://effects/outline/outline.tscn" type="PackedScene" id=48]
+[ext_resource path="res://effects/outline/outline_lod.shader" type="Shader" id=49]
 
-[sub_resource type="SpatialMaterial" id=1]
+[sub_resource type="ShaderMaterial" id=1]
+resource_local_to_scene = true
+shader = ExtResource( 49 )
+shader_param/size = 5.0
+shader_param/outline_color = Color( 0, 1, 1, 1 )
 
 [sub_resource type="SpatialMaterial" id=2]
+
+[sub_resource type="SpatialMaterial" id=3]
 params_cull_mode = 1
 
-[sub_resource type="CubeMesh" id=3]
+[sub_resource type="CubeMesh" id=4]
 size = Vector3( 45.5, 31.5, 45.5 )
 
-[sub_resource type="PlaneMesh" id=4]
+[sub_resource type="PlaneMesh" id=5]
 custom_aabb = AABB( 0, 0, 0, 25, 0, 25 )
 size = Vector2( 1, 1 )
 
-[sub_resource type="QuadMesh" id=5]
+[sub_resource type="QuadMesh" id=6]
 size = Vector2( 1.25, 1.25 )
 
-[sub_resource type="CylinderMesh" id=6]
+[sub_resource type="CylinderMesh" id=7]
 top_radius = 0.001
 bottom_radius = 0.5
 height = 1.0
 
-[sub_resource type="Animation" id=7]
-resource_name = "fade_out"
+[sub_resource type="Animation" id=8]
 length = 5.0
 tracks/0/type = "value"
 tracks/0/path = NodePath(".:modulate:a")
@@ -84,11 +91,11 @@ tracks/0/keys = {
 "values": [ 1.0, 1.0, 0.0 ]
 }
 
-[sub_resource type="InputEventAction" id=8]
+[sub_resource type="InputEventAction" id=9]
 action = "editor_open_colorpicker"
 
-[sub_resource type="ShortCut" id=9]
-shortcut = SubResource( 8 )
+[sub_resource type="ShortCut" id=10]
+shortcut = SubResource( 9 )
 
 [node name="Designer" type="Node"]
 pause_mode = 2
@@ -103,17 +110,18 @@ error_window_path = NodePath("Error window")
 camera_path = NodePath("Camera")
 _layer_selector = NodePath("Toggles & modes/Box/Block layer")
 
+[node name="Outline" parent="." instance=ExtResource( 48 )]
+material = SubResource( 1 )
+main_camera_path = NodePath("../Camera")
+
 [node name="Camera" type="Camera" parent="."]
 process_priority = -1
 transform = Transform( -1, -1.5632e-13, -3.25842e-07, -1.62921e-07, 0.866025, 0.5, 2.82187e-07, 0.5, -0.866025, 10, 5.09171, 0 )
 cull_mask = 1
 far = 200.0
 script = ExtResource( 3 )
-speed = 10.0
-angular_speed = 1.0
 always_capture = true
 actions = PoolStringArray( "editor_move_left", "editor_move_right", "editor_move_forward", "editor_move_back", "editor_move_up", "editor_move_down" )
-limit_tilt = true
 aabb = AABB( -10, 0.55, -10, 45, 30, 45 )
 
 [node name="RT" type="RemoteTransform" parent="Camera"]
@@ -145,7 +153,7 @@ pause_mode = 1
 transform = Transform( 0.945729, -0.0479753, 0.321394, 0.163176, 0.925416, -0.34202, -0.281015, 0.375902, 0.883022, 0.675385, -0.287656, -0.690228 )
 layers = 128
 mesh = ExtResource( 23 )
-material/0 = SubResource( 1 )
+material/0 = SubResource( 2 )
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = ExtResource( 11 )
@@ -155,8 +163,8 @@ environment = ExtResource( 11 )
 [node name="BoxOfClaustrophobia" type="MeshInstance" parent="Room"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5, 15, 12.5 )
 visible = false
-material_override = SubResource( 2 )
-mesh = SubResource( 3 )
+material_override = SubResource( 3 )
+mesh = SubResource( 4 )
 material/0 = null
 
 [node name="Lights" type="Node" parent="Room"]
@@ -197,7 +205,7 @@ texture = ExtResource( 6 )
 
 [node name="Floor" type="MeshInstance" parent="."]
 material_override = ExtResource( 8 )
-mesh = SubResource( 4 )
+mesh = SubResource( 5 )
 material/0 = null
 script = ExtResource( 16 )
 
@@ -215,12 +223,12 @@ script = ExtResource( 12 )
 [node name="Mesh" type="MeshInstance" parent="BlockFaceHighlighter"]
 transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0.001, 0, 0 )
 material_override = ExtResource( 10 )
-mesh = SubResource( 5 )
+mesh = SubResource( 6 )
 material/0 = null
 
 [node name="MagicDebuggingConeOfLife" type="MeshInstance" parent="BlockFaceHighlighter"]
 visible = false
-mesh = SubResource( 6 )
+mesh = SubResource( 7 )
 material/0 = null
 
 [node name="Center of mass indicator" type="TextureRect" parent="."]
@@ -419,7 +427,7 @@ margin_right = 4.0
 margin_bottom = 25.0
 
 [node name="Fade out" type="AnimationPlayer" parent="Error window"]
-anims/fade_out = SubResource( 7 )
+anims/fade_out = SubResource( 8 )
 
 [node name="Timer" type="Timer" parent="Error window"]
 
@@ -634,7 +642,7 @@ __meta__ = {
 [node name="Hidden cancel" type="ToolButton" parent="ColorPicker"]
 margin_right = 8.0
 margin_bottom = 29.0
-shortcut = SubResource( 9 )
+shortcut = SubResource( 10 )
 
 [node name="Hidden buttons" type="Control" parent="."]
 anchor_left = 1.0
@@ -819,5 +827,5 @@ environment = NodePath("../WorldEnvironment")
 [connection signal="pressed" from="Hidden buttons/Move vehicle right" to="." method="move_vehicle" binds= [ Vector3( -1, 0, 0 ) ]]
 [connection signal="pressed" from="Hidden buttons/Move vehicle forward" to="." method="move_vehicle" binds= [ Vector3( 0, 0, 1 ) ]]
 [connection signal="pressed" from="Hidden buttons/Move vehicle back" to="." method="move_vehicle" binds= [ Vector3( 0, 0, -1 ) ]]
-[connection signal="pressed" from="Hidden buttons/Open inventory" to="Hidden buttons" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="Hidden buttons/Open inventory" to="Inventory" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="Hidden buttons/Open inventory" to="Hidden buttons" method="set_visible" binds= [ false ]]

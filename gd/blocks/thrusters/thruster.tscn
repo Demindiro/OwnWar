@@ -30,7 +30,7 @@ void light() {
 	SPECULAR_LIGHT = vec3(0.0);
 }"
 
-[sub_resource type="ShaderMaterial" id=2]
+[sub_resource type="ShaderMaterial" id=4]
 shader = SubResource( 1 )
 shader_param/start = Color( 0.988, 0.224, 0, 1 )
 shader_param/end = Color( 0.988, 0.165, 0, 0 )
@@ -72,9 +72,12 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.325 )
 
 [node name="Mesh" type="MeshInstance" parent="Client/Exhaust"]
 transform = Transform( 0.866025, 2.92811e-09, 0.5, 0.5, -1.09278e-08, -0.866025, 5.85622e-09, 0.5, -2.18557e-08, 0, -0.017, -0.232351 )
-material_override = SubResource( 2 )
+material_override = SubResource( 4 )
 mesh = SubResource( 3 )
 material/0 = null
+__meta__ = {
+	"no_outline": ""
+}
 
 [node name="Editor" type="Spatial" parent="."]
 script = ExtResource( 5 )

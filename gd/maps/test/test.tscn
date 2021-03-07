@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://maps/test/props/skate-loop.tscn" type="PackedScene" id=1]
 [ext_resource path="res://ui/theme.tres" type="Theme" id=2]
@@ -6,8 +6,10 @@
 [ext_resource path="res://maps/test/map_data/data.hterrain" type="Resource" id=4]
 [ext_resource path="res://maps/test/props/road-bump.tscn" type="PackedScene" id=5]
 [ext_resource path="res://maps/test/rect.svg" type="Texture" id=6]
+[ext_resource path="res://effects/outline/outline.tscn" type="PackedScene" id=7]
 [ext_resource path="res://core/shortcut/ui_cancel.tres" type="ShortCut" id=8]
 [ext_resource path="res://maps/test/props/jump-edge.tscn" type="PackedScene" id=9]
+[ext_resource path="res://effects/outline/outline_lod.shader" type="Shader" id=10]
 [ext_resource path="res://maps/hud.tscn" type="PackedScene" id=11]
 [ext_resource path="res://maps/test/test.gd" type="Script" id=12]
 [ext_resource path="res://addons/backgrounds/AllSkyFree_Sky_ColdSunset_Equirect.png" type="Texture" id=13]
@@ -15,12 +17,18 @@
 [ext_resource path="res://settings/settings_blur.tscn" type="PackedScene" id=15]
 [ext_resource path="res://editor/shortcuts/goto_test_map.tres" type="ShortCut" id=16]
 
-[sub_resource type="PanoramaSky" id=1]
+[sub_resource type="ShaderMaterial" id=1]
+resource_local_to_scene = true
+shader = ExtResource( 10 )
+shader_param/size = 5.0
+shader_param/outline_color = Color( 1, 0, 0, 1 )
+
+[sub_resource type="PanoramaSky" id=2]
 panorama = ExtResource( 13 )
 
-[sub_resource type="Environment" id=2]
+[sub_resource type="Environment" id=3]
 background_mode = 2
-background_sky = SubResource( 1 )
+background_sky = SubResource( 2 )
 background_sky_orientation = Basis( 0.939693, 0, -0.34202, 0, 1, 0, 0.34202, 0, 0.939693 )
 ambient_light_energy = 0.2
 tonemap_mode = 2
@@ -34,7 +42,13 @@ spawn_point/2 = NodePath("SpawnPoints/X-Y")
 spawn_point/3 = NodePath("SpawnPoints/-XY")
 spawn_point/4 = NodePath("SpawnPoints/XY")
 
+[node name="Outline" parent="." instance=ExtResource( 7 )]
+material = SubResource( 1 )
+use_parent_material = true
+main_camera_path = NodePath("../Camera")
+
 [node name="Camera" type="Camera" parent="."]
+process_priority = 1
 transform = Transform( -1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, -0.0682526, 2.32457, 7.83551 )
 far = 2000.0
 
@@ -71,7 +85,7 @@ layers = 0
 shadow_bias = 0.15
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource( 2 )
+environment = SubResource( 3 )
 
 [node name="Props" type="Node" parent="."]
 

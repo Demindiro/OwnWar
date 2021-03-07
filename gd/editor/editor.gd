@@ -91,6 +91,9 @@ onready var _gui_color_picker: Control = $ColorPicker
 onready var _block_face_highlighter: Spatial = get_node("BlockFaceHighlighter")
 
 
+onready var outline: OwnWar_Outline = get_node("Outline")
+
+
 func _enter_tree():
 	get_tree().paused = true
 
@@ -250,6 +253,12 @@ func place_block(block: OwnWar_Block, coordinate: Array, rotation: int,
 	if block.id == OwnWar.MAINFRAME_ID:
 		mainframe_count += 1
 	emit_signal("block_placed", block, Vector3(coordinate[0], coordinate[1], coordinate[2]))
+
+	outline.outline_node(mi)
+	if node != null:
+		for n in Util.get_children_recursive(node):
+			if n != null and n is MeshInstance and not n.has_meta("no_outline"):
+				outline.outline_node(n)
 	return true
 
 

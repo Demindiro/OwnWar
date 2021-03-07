@@ -79,6 +79,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://start_menu/error.gd"
 }, {
+"base": "ViewportContainer",
+"class": "OwnWar_Outline",
+"language": "GDScript",
+"path": "res://effects/outline/outline.gd"
+}, {
 "base": "Spatial",
 "class": "OwnWar_SetColor",
 "language": "GDScript",
@@ -179,6 +184,7 @@ _global_script_class_icons={
 "OwnWar_BlockInstance": "",
 "OwnWar_BlockManager": "",
 "OwnWar_ErrorPopup": "",
+"OwnWar_Outline": "",
 "OwnWar_SetColor": "",
 "OwnWar_Settings_Applier": "",
 "OwnWar_Thruster_Client": "",
