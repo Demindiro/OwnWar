@@ -214,7 +214,7 @@ func process_actions():
 
 
 func place_block(block: OwnWar_Block, coordinate: Array, rotation: int,
-	color: Color, layer: int) -> bool:
+	color: Color, layer: int, verify_connections := true) -> bool:
 	if not edit_mode:
 		queued_error_message = "Enter edit mode to place blocks"
 		return false
@@ -254,11 +254,9 @@ func place_block(block: OwnWar_Block, coordinate: Array, rotation: int,
 		mainframe_count += 1
 	emit_signal("block_placed", block, Vector3(coordinate[0], coordinate[1], coordinate[2]))
 
-	outline.outline_node(mi)
-	if node != null:
-		for n in Util.get_children_recursive(node):
-			if n != null and n is MeshInstance and not n.has_meta("no_outline"):
-				outline.outline_node(n)
+	if verify_connections:
+		verify_connections()
+
 	return true
 
 
@@ -274,6 +272,7 @@ func remove_block(coordinate: Array) -> bool:
 			mainframe_count -= 1
 		emit_signal("block_removed", BlockManager.get_block(blk.id), Vector3(coordinate[0], coordinate[1], coordinate[2]))
 		var _e := blocks.erase(coordinate)
+		verify_connections()
 		return true
 	if not edit_mode:
 		queued_error_message = "Enter edit mode to remove blocks"
@@ -443,7 +442,7 @@ func load_vehicle() -> void:
 				var x := int(blk.position.x)
 				var y := int(blk.position.y)
 				var z := int(blk.position.z)
-				var _success := place_block(blk.block, [x, y, z], blk.rotation, blk.color, layer)
+				var _success := place_block(blk.block, [x, y, z], blk.rotation, blk.color, layer, false)
 				if TRAILER_MODE:
 					edit_mode = false
 					update_block_visibility()
@@ -453,6 +452,8 @@ func load_vehicle() -> void:
 	edit_mode = prev_edit_mode
 	map_rotations = prev_map_rotations
 	update_block_visibility()
+
+	verify_connections()
 
 
 func set_material(p_material: SpatialMaterial):
@@ -592,6 +593,54 @@ func rotate_vehicle() -> void:
 	else:
 		error_window.show_error("No place to rotate vehicle (try centering it)")
 		fail_place_or_remove_player.play()
+
+
+func verify_connections() -> void:
+	outline.clear_outlines()
+
+	var remaining_per_layer := []
+	for _i in 256:
+		remaining_per_layer.push_back({})
+	for crd in blocks:
+		remaining_per_layer[blocks[crd].layer][crd] = null
+
+	for remaining in remaining_per_layer:
+		if len(remaining) == 0:
+			continue
+		var crd_list: Array = remaining.keys()
+
+		var marks_list := []
+		while len(remaining) > 0:
+			var marks := {}
+			for crd in remaining:
+				_verify_connections_recursive(crd[0], crd[1], crd[2], marks, remaining)
+				break
+			marks_list.push_back(marks)
+		
+		var marks := {}
+		for m in marks_list:
+			if len(m) > len(marks):
+				marks = m
+		
+		for crd in crd_list:
+			if not crd in marks:
+				var b: Block = blocks[crd]
+				outline.add_outline(b.node)
+				for c in Util.get_children_recursive(b.node):
+					if c is MeshInstance:
+						outline.add_outline(c)
+		
+
+func _verify_connections_recursive(x: int, y: int, z: int, marks: Dictionary, remaining: Dictionary) -> void:
+	var k := [x, y, z]
+	if not k in remaining:
+		return
+	marks[k] = null
+	remaining.erase(k)
+	for i in [-1, 1]:
+		_verify_connections_recursive(x + i, y, z, marks, remaining)
+		_verify_connections_recursive(x, y + i, z, marks, remaining)
+		_verify_connections_recursive(x, y, z + i, marks, remaining)
 
 
 func _get_vehicle_aabb() -> AABB:

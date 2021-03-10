@@ -54,7 +54,7 @@
 resource_local_to_scene = true
 shader = ExtResource( 49 )
 shader_param/size = 5.0
-shader_param/outline_color = Color( 0, 1, 1, 1 )
+shader_param/outline_color = Color( 1, 0, 0, 1 )
 
 [sub_resource type="SpatialMaterial" id=2]
 
@@ -807,8 +807,8 @@ environment = NodePath("../WorldEnvironment")
 [connection signal="pressed" from="Menu/VBoxContainer/Test" to="." method="_on_Designer_pressed"]
 [connection signal="pressed" from="Menu/VBoxContainer/Settings" to="Settings" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="Menu/VBoxContainer/Exit" to="." method="_on_Exit_pressed"]
-[connection signal="hide" from="Inventory" to="Hidden buttons" method="set_visible" binds= [ true ]]
 [connection signal="hide" from="Inventory" to="." method="set_enabled" binds= [ true ]]
+[connection signal="hide" from="Inventory" to="Hidden buttons" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="Inventory/Cancel" to="Inventory" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="Inventory/Hidden cancel" to="Inventory" method="set_visible" binds= [ false ]]
 [connection signal="hide" from="ColorPicker" to="." method="set_enabled" binds= [ true ]]
