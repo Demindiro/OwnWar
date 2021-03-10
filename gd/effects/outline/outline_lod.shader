@@ -30,6 +30,13 @@ void fragment() {
 	
 	COLOR.rgb = outline_color.rgb;
 	// TODO this causes the outline to be slightly detached from the main mesh
-	//COLOR.a = l.r * outline_color.a * (1.0 - c.g);
+	// After thinking about this a bit more, it seems this isn't fixable at the
+	// moment. to have this incorporate MSAA properly it needs to exclude
+	// any fragments from objects the back somehow, which can't be done with
+	// just a canvas item shader
+	// i.e. a black block on a white background will have grey edges, and mixing
+	// red with it will create a red-grey pixel when what we actually need is a
+	// red-black pixel
+	//COLOR.a = l.r * (outline_color.a - c.g);
 	COLOR.a = l.r * outline_color.a;
 }
