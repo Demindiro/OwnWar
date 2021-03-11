@@ -19,7 +19,7 @@ lazy_static! {
 
 #[derive(NativeClass)]
 #[inherit(ArrayMesh)]
-pub(super) struct VoxelMesh {
+pub(crate) struct VoxelMesh {
 	#[property]
 	dirty: bool,
 	material_to_meshes_map: HashMap<Ref<SpatialMaterial>, (Vec<SubMesh>, bool)>,

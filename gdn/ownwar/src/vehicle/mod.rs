@@ -3,7 +3,8 @@ mod interpolation_state;
 mod voxel_body;
 mod voxel_mesh;
 
-pub use voxel_body::VoxelBody;
+pub(crate) use voxel_body::VoxelBody;
+pub(crate) use voxel_mesh::VoxelMesh;
 
 use gdnative::nativescript::InitHandle;
 

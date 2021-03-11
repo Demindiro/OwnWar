@@ -1,6 +1,13 @@
 #![feature(map_into_keys_values)]
+#![feature(destructuring_assignment)]
+#![feature(step_trait)]
+
+// Shuttt the fuckkkkkk upppp please
+#![cfg(debug_assertions)]
+#![allow(dead_code)]
 
 mod block;
+mod editor;
 mod util;
 mod vehicle;
 

@@ -21,7 +21,7 @@ const PHYSICS_MATERIAL: &str = "res://vehicles/medium_friction.tres";
 #[derive(NativeClass)]
 #[inherit(VehicleBody)]
 #[register_with(Self::register_voxelbody)]
-pub struct VoxelBody {
+pub(crate) struct VoxelBody {
 	#[property]
 	team: u16,
 	#[property]
@@ -584,16 +584,12 @@ impl VoxelBody {
 	}
 
 	#[export]
-	fn raycast(
-		&self,
-		owner: &VehicleBody,
-		origin: Vector3,
-		direction: Vector3,
-	) -> Option<Vector3> {
+	fn raycast(&self, owner: &VehicleBody, origin: Vector3, direction: Vector3) -> Option<Vector3> {
 		let (origin, direction) = self.global_to_voxel_space(owner, origin, direction);
-		self
-			.raycast_local(origin, direction)
-			.map(|pos| self.voxel_to_global_space(owner, convert_vec(pos), Vector3::zero()).0)
+		self.raycast_local(origin, direction).map(|pos| {
+			self.voxel_to_global_space(owner, convert_vec(pos), Vector3::zero())
+				.0
+		})
 	}
 
 	#[export]
@@ -920,11 +916,7 @@ impl VoxelBody {
 		}
 	}
 
-	fn raycast_local(
-		&self,
-		origin: Vector3,
-		direction: Vector3,
-	) -> Option<Voxel> {
+	fn raycast_local(&self, origin: Vector3, direction: Vector3) -> Option<Voxel> {
 		let body = self.body().borrow();
 		let raycast = VoxelRaycast::start(
 			origin + Vector3::new(0.5, 0.5, 0.5), // TODO figure out why +0.5 is needed
@@ -942,5 +934,4 @@ impl VoxelBody {
 		}
 		None
 	}
-
 }
