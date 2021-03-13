@@ -417,6 +417,9 @@ impl BlockManager {
 						// FIXME this is such a terrible idea
 						blocks[i] = Some((std::mem::transmute(block), owner));
 					}
+					if block.mass == 0.0 {
+						godot_warn!("Mass of block {} is 0", block.id);
+					}
 				})
 				.unwrap();
 		}

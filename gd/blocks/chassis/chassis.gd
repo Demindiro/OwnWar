@@ -41,6 +41,7 @@ static func load_blocks() -> void:
 			block.human_name = block_name
 			block.human_category = "Structural"
 			block.mesh = generator.get_mesh(generator.get_result(), transform)
+			block.mass = 1.0
 			BlockManager.add_block(block)
 			if mirror < 0:
 				var mirror_block = OwnWar_Block.new()
@@ -50,6 +51,7 @@ static func load_blocks() -> void:
 				mirror_block.human_name = block.human_name + " (M)"
 				mirror_block.human_category = "Structural"
 				mirror_block.mesh = generator.get_mesh(generator.get_result(), mirror_transform, true)
+				mirror_block.mass = 1.0
 				BlockManager.add_block(mirror_block)
 				mirror_block.mirror_block = block
 				block.mirror_block = mirror_block
