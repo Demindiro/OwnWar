@@ -15,7 +15,7 @@ func goto_editor(vehicle_path := "") -> void:
 		print("No vehicle selected, refusing to go to editor")
 	else:
 		var scene = load("res://editor/editor.tscn").instance()
-		scene.vehicle_path = vehicle_path
+		scene.data_path = vehicle_path
 		queue_free()
 		var tree := get_tree()
 		tree.root.remove_child(self)

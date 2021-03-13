@@ -1,4 +1,4 @@
-extends Control
+extends "window.gd"
 
 
 # TODO
@@ -70,7 +70,7 @@ func _block_container_init(var category):
 		var _created := OwnWar_Thumbnail.get_block_thumbnail_async(id, funcref(self, "_block_set_thumbnail"), [node])
 		Util.assert_connect(node, "mouse_entered", self, "show_block", [id])
 		Util.assert_connect(node, "pressed", _designer, "select_block", [id])
-		Util.assert_connect(node, "pressed", _designer, "set_enabled", [true])
+		Util.assert_connect(node, "pressed", _designer, "hide_windows")
 		block_list.add_child(node)
 
 

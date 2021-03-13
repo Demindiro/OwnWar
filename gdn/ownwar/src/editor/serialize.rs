@@ -139,6 +139,7 @@ mod rev_1 {
 		let mut vehicle = Vehicle::new();
 		vehicle.name = String::from(name);
 		let mut data = data;
+
 		for _ in 0..color_count {
 			let mut color = Vec3u8::zero();
 			(data, color.x) = read_u8(data)?;
@@ -146,6 +147,7 @@ mod rev_1 {
 			(data, color.z) = read_u8(data)?;
 			vehicle.add_color(color).expect("Failed to add color");
 		}
+
 		for _ in 0..layer_count {
 			let layer = vehicle.add_layer().expect("Failed to add layer");
 			let (mut s, mut e) = ((0, 0, 0), (0, 0, 0));
@@ -314,6 +316,10 @@ mod rev_0 {
 			let (_layer, _start, _end, size);
 			(data, _layer) = read_u8(data)?;
 			let layer = vehicle.add_layer().unwrap();
+			// A name is not necessary, but it's nice to have
+			vehicle
+				.set_layer_name(layer, format!("Layer {}", layer))
+				.unwrap();
 			(data, _start) = read_vec3u8(data)?;
 			(data, _end) = read_vec3u8(data)?;
 			(data, size) = read_u32(data)?;
@@ -349,8 +355,8 @@ mod rev_0 {
 
 #[cfg(test)]
 mod tests {
-	use crate::util::iter_3d;
 	use super::*;
+	use crate::util::iter_3d;
 
 	mod save_and_load {
 		use super::*;
@@ -483,7 +489,9 @@ mod tests {
 				.set_layer_name(layer_id, String::from(layer_name))
 				.unwrap();
 			for (x, y, z) in iter_3d((0, 0, 0), (3, 3, 3)) {
-				let color_id = vehicle.add_color(Vec3u8::new(x * 80, y * 80, z * 80)).unwrap();
+				let color_id = vehicle
+					.add_color(Vec3u8::new(x * 80, y * 80, z * 80))
+					.unwrap();
 				vehicle
 					.add_block(layer_id, position + Vec3u8::new(x, y, z), id, 0, color_id)
 					.unwrap();

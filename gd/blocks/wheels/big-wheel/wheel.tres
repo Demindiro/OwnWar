@@ -6,13 +6,14 @@
 [resource]
 script = ExtResource( 1 )
 revision = 0
-mass = 15.0
-mirror_rotation_offset = 0
 human_name = "Wheel"
-cost = 10
-instance = ExtResource( 2 )
+mass = 15.0
 human_category = "Movement"
-health = 600
 aabb = AABB( 0, 0, 0, 1, 1, 1 )
 id = 75
-mirror_block_id = null
+health = 600
+cost = 10
+__mirror_block_id = null
+instance = ExtResource( 2 )
+mirror_rotation_offset = 0
+alternate_rotation_map = PoolByteArray( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )

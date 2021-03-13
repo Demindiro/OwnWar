@@ -126,17 +126,16 @@ impl VoxelRaycast {
 		}
 	}
 
+	// FIXME The naming is wrong: a voxel represents a value in a cell, not a coordinate
 	pub fn voxel(&self) -> Vector3i {
 		self.voxel
 	}
 
-	// This will be used later for the editor
-	#[allow(dead_code)]
-	pub fn normal(&self) -> Vector3i {
+	pub fn normal(&self) -> Vector3i8 {
 		match self.last_step {
-			LastStep::X => Vector3i::new(-self.step.x as i32, 0, 0),
-			LastStep::Y => Vector3i::new(0, -self.step.y as i32, 0),
-			LastStep::Z => Vector3i::new(0, 0, -self.step.z as i32),
+			LastStep::X => Vector3D::new(-self.step.x, 0, 0),
+			LastStep::Y => Vector3D::new(0, -self.step.y, 0),
+			LastStep::Z => Vector3D::new(0, 0, -self.step.z),
 		}
 	}
 
@@ -146,13 +145,16 @@ impl VoxelRaycast {
 }
 
 impl Iterator for VoxelRaycast {
-	type Item = Vector3i;
+	type Item = (Vector3i, Vector3i8);
 
+	/// FIXME this method effectively buffers the position, which is _very_
+	/// unintuitive as voxel() and normal() don't work as expected now.
 	fn next(&mut self) -> Option<Self::Item> {
 		if self.finished {
 			return None;
 		}
 		let voxel = self.voxel;
+		let normal = self.normal();
 		if self.t_max.x < self.t_max.y {
 			if self.t_max.x < self.t_max.z {
 				self.voxel.x += self.step.x as i32;
@@ -178,6 +180,6 @@ impl Iterator for VoxelRaycast {
 				self.last_step = LastStep::Z
 			}
 		}
-		Some(voxel)
+		Some((voxel, normal))
 	}
 }

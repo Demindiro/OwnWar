@@ -59,7 +59,6 @@ impl Iterator for VoxelSphereIterator {
 }
 
 fn calculate_points(radius: Radius) {
-	use gdnative::godot_dbg;
 	assert!(radius >= 0);
 	let cache = CACHE.read().unwrap();
 	let inner_radius = cache.radius_to_length.len() as Radius;
@@ -108,6 +107,4 @@ fn calculate_points(radius: Radius) {
 		sum += v;
 		cache.radius_to_length[i] += sum;
 	}
-
-	godot_dbg!(&cache.radius_to_length);
 }

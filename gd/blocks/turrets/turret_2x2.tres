@@ -7,14 +7,15 @@
 [resource]
 script = ExtResource( 1 )
 revision = 0
-mass = 12.0
-mirror_rotation_offset = 0
 human_name = "Turret Connector"
-cost = 30
-instance = ExtResource( 2 )
+mass = 12.0
 human_category = "Weapons"
-health = 1200
 aabb = AABB( 0, 0, 0, 2, 1, 2 )
 id = 78
-mirror_block_id = null
+health = 1200
+cost = 30
+__mirror_block_id = null
 mesh = ExtResource( 3 )
+instance = ExtResource( 2 )
+mirror_rotation_offset = 0
+alternate_rotation_map = null

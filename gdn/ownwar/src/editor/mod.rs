@@ -3,25 +3,1314 @@ mod serialize;
 
 mod godot {
 
-	use super::data::Vehicle;
+	const DEBUG_CAMERA_RAY: bool = false;
+
+	use super::data::{Vehicle, VehicleError};
+	use crate::block;
+	use crate::util::{convert_vec, VoxelRaycast, AABB};
 	use crate::vehicle::VoxelMesh;
+	use euclid::Vector3D;
+	use gdnative::api::{Camera, File, PackedScene, Spatial};
+	use gdnative::nativescript::property::Usage;
 	use gdnative::prelude::*;
+	#[cfg(debug_assertions)]
+	use std::cell::Cell;
+	use std::collections::{HashMap, HashSet};
+	use std::convert::TryInto;
+	use std::mem;
+	use std::num::NonZeroU16;
+
+	type Vec3<T> = Vector3D<T, euclid::UnknownUnit>;
+
+	const GRID_SIZE: u8 = 25;
+	const LAYER_TRANSPARENCY: f32 = 0.25;
+	const MAIN_MENU: &str = "res://start_menu/main.tscn";
 
 	#[derive(NativeClass)]
 	#[inherit(Node)]
-	struct Editor {
+	#[register_with(Self::register)]
+	pub(super) struct Editor {
+		#[property]
+		test_map: Option<Ref<PackedScene>>,
+
+		#[property]
+		camera_path: NodePath,
+
+		#[property]
+		data_path: String,
+
+		#[property]
+		rotation: u8,
+		#[property]
+		mirror: bool,
+		#[property]
+		snap_face: bool,
+		map_rotation: bool,
+		selected_block: NonZeroU16,
+		#[property]
+		selected_layer: u8,
+		#[property]
+		selected_color: u8,
+		edit_mode: bool,
+
+		camera: Option<Ref<Camera>>,
+
 		data: Vehicle,
 
-		meshes: Vec<Instance<VoxelMesh, ThreadLocal>>,
+		layers: Vec<(Instance<VoxelMesh, Shared>, HashMap<Vec3<u8>, Ref<Spatial>>)>,
+		outline: (Instance<VoxelMesh, Shared>, HashSet<Vec3<u8>>),
+
+		focused_window: Window,
+
+		#[cfg(debug_assertions)]
+		debug_points: Cell<Vec<Vec3<u8>>>,
+	}
+
+	enum RayResult {
+		InsideGrid {
+			position: Vec3<u8>,
+			normal: Vec3<i8>,
+		},
+		OutsideGrid {
+			position: Vec3<i32>,
+			normal: Vec3<i8>,
+		},
+		Collides {
+			position: Vec3<u8>,
+			normal: Vec3<i8>,
+		},
+		NoCollision,
+	}
+
+	#[derive(Clone, Copy, PartialEq)]
+	enum Window {
+		None,
+		Panes,
+		Inventory,
+		ColorPicker,
+		Settings,
+	}
+
+	impl Window {
+		fn as_str(&self) -> &str {
+			use Window::*;
+			match self {
+				None => "None",
+				Panes => "Panes",
+				Inventory => "Inventory",
+				ColorPicker => "Color picker",
+				Settings => "Settings",
+			}
+		}
 	}
 
 	#[methods]
 	impl Editor {
-		fn new(_owner: &Node) -> Self {
+		fn register(builder: &ClassBuilder<Self>) {
+			let new_signal = |name, args: &[&str]| {
+				let mut s_args = Vec::with_capacity(args.len());
+				for a in args {
+					s_args.push(SignalArgument {
+						name: a,
+						default: Variant::default(),
+						export_info: ExportInfo::new(VariantType::Nil),
+						usage: Usage::empty(),
+					});
+				}
+				builder.add_signal(Signal {
+					name,
+					args: &s_args,
+				});
+			};
+			new_signal("block_placed", &["block", "position"]);
+			new_signal("block_removed", &["block", "position"]);
+			new_signal("add_editor_node", &["node"]);
+
+			new_signal("vehicle_moved", &["position"]);
+			new_signal("vehicle_rotated", &["center"]);
+			new_signal("toggled_edit_mode", &["enable"]);
+
+			new_signal("play_place_effect", &[]);
+			new_signal("play_remove_effect", &[]);
+			new_signal("play_fail_effect", &[]);
+			new_signal("play_rotate_effect", &[]);
+			new_signal("play_click_effect", &[]);
+
+			new_signal("ghost_position", &["position"]);
+			new_signal("ghost_rotation", &["rotation"]);
+			new_signal("ghost_normal", &["normal"]);
+			new_signal("ghost_block", &["block"]);
+			new_signal("ghost_color", &["color"]);
+			new_signal("ghost_visible", &["visible"]);
+			new_signal("ghost_valid", &["valid"]);
+
+			new_signal("error", &["message"]);
+
+			new_signal("add_voxel_mesh", &["mesh"]);
+			new_signal("remove_voxel_mesh", &["index"]);
+
+			new_signal("add_layer", &["name"]);
+			new_signal("rename_layer", &["index", "name"]);
+			new_signal("remove_layer", &["index"]);
+			new_signal("select_layer", &["index"]);
+
+			new_signal("add_color", &["color"]);
+			new_signal("change_color", &["index", "color"]);
+			new_signal("remove_color", &["index"]);
+
+			new_signal("add_outline_voxel_mesh", &["mesh"]);
+			new_signal("remove_outline_voxel_mesh", &["mesh"]);
+			new_signal("add_outline_node", &["position", "rotation", "node"]);
+			new_signal("remove_outline_node", &["position"]);
+
+			new_signal("toggled_mirror", &["enable"]);
+			new_signal("toggled_handling_input", &["enable"]);
+			new_signal("toggled_snap_faces", &["enable"]);
+			new_signal("toggled_map_rotations", &["enable"]);
+
+			new_signal("open_window", &["name"]);
+
+			builder
+				.add_property("selected_block")
+				.with_getter(Self::gd_selected_block)
+				.with_setter(Self::gd_set_selected_block)
+				.done();
+
+			builder
+				.add_property("edit_mode")
+				.with_getter(Self::edit_mode)
+				.with_setter(Self::set_edit_mode)
+				.done();
+		}
+
+		fn new(_owner: TRef<Node>) -> Self {
 			Self {
+				test_map: None,
+
+				camera_path: NodePath::from_str(""),
+				camera: None,
+
 				data: Vehicle::new(),
-				meshes: Vec::new(),
+				data_path: String::new(),
+
+				mirror: false,
+				rotation: 0,
+				snap_face: true,
+				map_rotation: true,
+				selected_block: NonZeroU16::new(13).unwrap(), // Standard cube
+				selected_layer: 0,
+				selected_color: 0,
+				edit_mode: true,
+
+				outline: (Instance::new().into_shared(), HashSet::new()),
+				layers: Vec::new(),
+
+				focused_window: Window::None,
+
+				#[cfg(debug_assertions)]
+				debug_points: Cell::new(Vec::new()),
+			}
+		}
+
+		#[export]
+		fn _ready(&mut self, owner: TRef<Node>) {
+			// Add the current voxel mesh in case later code removes it
+			owner.emit_signal(
+				"add_outline_voxel_mesh",
+				&[self.outline.0.clone().to_variant()],
+			);
+			if self.load_vehicle(owner, self.data_path.clone()) == -1 {
+				// Create the bare minimum to prevent errors
+				self.add_layer(owner);
+				self.add_color(owner, Color::rgb(1.0, 1.0, 1.0));
+			}
+			if let None = self.test_map {
+				godot_error!("test_map is not set");
+			}
+			// TODO why is Clone not implemented for NodePath?
+			if let Some(node) = owner.get_node(self.camera_path.to_godot_string()) {
+				unsafe {
+					let node = node.assume_safe();
+					if let Some(node) = node.cast::<Camera>() {
+						self.camera = Some(node.claim());
+					} else {
+						godot_error!("Camera node is not of type Camera {}", node.get_class());
+					}
+				}
+			} else {
+				godot_error!("Failed to get camera node from {:?}", self.camera_path);
+			}
+			owner.emit_signal("ghost_block", &[self.selected_block.get().to_variant()]);
+			self.enable_mirror(owner, self.mirror);
+			// Dirty, but it works so *shrug*
+			// This is in case I forget to disable any of the windows in the editor again
+			// (godot pls editor-only visibility)
+			self.focused_window = Window::Panes;
+			self.focus_window(owner, Window::None);
+		}
+
+		#[export]
+		#[profiled(tag = "Input handling")]
+		fn _unhandled_input(&mut self, owner: TRef<Node>, event: Ref<InputEvent>) {
+			let event = unsafe { event.assume_safe() };
+			let pressed = |name, repeat| event.is_action_pressed(name, repeat);
+			if pressed("ui_cancel", false) {
+				let window = if self.focused_window == Window::None {
+					Window::Panes
+				} else {
+					Window::None
+				};
+				self.focus_window(owner, window);
+			} else if pressed("editor_place_block", true) {
+				match self.place_block(owner) {
+					Ok((pos, _)) => {
+						let pos = convert_vec(pos).to_variant();
+						let id = self.selected_block.get().to_variant();
+						owner.emit_signal("block_placed", &[id, pos]);
+						owner.emit_signal("play_place_effect", &[]);
+					}
+					Err(e) => Self::emit_error(owner, e),
+				}
+			} else if pressed("editor_remove_block", true) {
+				match self.remove_block(owner) {
+					Ok((pos, id, _)) => {
+						let pos = Variant::from_vector3(&convert_vec(pos));
+						let id = id.get().to_variant();
+						owner.emit_signal("block_removed", &[id, pos]);
+						owner.emit_signal("play_remove_effect", &[]);
+					}
+					Err(e) => Self::emit_error(owner, e),
+				}
+			} else if pressed("editor_open_inventory", false) {
+				self.focus_or_hide_window(owner, Window::Inventory);
+			} else if pressed("editor_open_colorpicker", false) {
+				self.focus_or_hide_window(owner, Window::ColorPicker);
+			} else if pressed("editor_rotate_up", true) {
+				self.rotate_ghost(owner, 1);
+			} else if pressed("editor_rotate_down", true) {
+				self.rotate_ghost(owner, -1);
+			} else if pressed("editor_toggle_mirror", false) {
+				self.enable_mirror(owner, !self.mirror);
+			} else if pressed("editor_goto_test_map", false) {
+				unsafe {
+					owner.call_deferred("goto_test_scene", &[]);
+				}
+			} else if pressed("editor_vehicle_left", true) {
+				self.move_vehicle(owner, Vec3::new(1, 0, 0));
+			} else if pressed("editor_vehicle_right", true) {
+				self.move_vehicle(owner, Vec3::new(-1, 0, 0));
+			} else if pressed("editor_vehicle_up", true) {
+				self.move_vehicle(owner, Vec3::new(0, 1, 0));
+			} else if pressed("editor_vehicle_down", true) {
+				self.move_vehicle(owner, Vec3::new(0, -1, 0));
+			} else if pressed("editor_vehicle_forward", true) {
+				self.move_vehicle(owner, Vec3::new(0, 0, 1));
+			} else if pressed("editor_vehicle_back", true) {
+				self.move_vehicle(owner, Vec3::new(0, 0, -1));
+			} else if pressed("editor_vehicle_rotate", true) {
+				self.rotate_vehicle(owner);
+			} else if pressed("editor_toggle_snap_faces", false) {
+				self.set_snap_faces(owner, !self.snap_face);
+			} else if pressed("editor_toggle_rotation_mapping", false) {
+				self.set_map_rotations(owner, !self.map_rotation);
+			} else if pressed("editor_layer_next", false) {
+				self.select_layer(owner, (self.selected_layer + 23) % self.data.layer_count())
+			} else if pressed("editor_layer_previous", false) {
+				self.select_layer(owner, (self.selected_layer + 1) % self.data.layer_count())
+			} else {
+				return;
+			}
+			unsafe {
+				owner
+					.get_tree()
+					.expect("Node is not in tree")
+					.assume_safe()
+					.set_input_as_handled();
+			}
+		}
+
+		#[export]
+		fn _exit_tree(&self, owner: TRef<Node>) {
+			self.save_vehicle(owner);
+		}
+
+		#[export]
+		fn _process(&mut self, owner: TRef<Node>, _delta: f32) {
+			let signal = |position, normal, valid: bool| {
+				owner.emit_signal("ghost_position", &[convert_vec(position).to_variant()]);
+				owner.emit_signal("ghost_normal", &[convert_vec(normal).to_variant()]);
+				owner.emit_signal("ghost_valid", &[valid.to_variant()]);
+				true
+			};
+			let signal_u8 = |p, n, v| signal(convert_vec(p), n, v);
+			let visible = match self.place_block_orientation_from_camera() {
+				RayResult::InsideGrid { position, normal } => signal_u8(position, normal, true),
+				RayResult::OutsideGrid { position, normal } => signal(position, normal, false),
+				RayResult::Collides { position, normal } => signal_u8(position, normal, false),
+				RayResult::NoCollision => false,
+			};
+
+			owner.emit_signal("ghost_visible", &[visible.to_variant()]);
+			if self.snap_face {
+				self.snap_ghost(owner);
+			}
+		}
+
+		#[export]
+		fn save_vehicle(&self, _owner: TRef<Node>) {
+			let data = super::serialize::save(&self.data).expect("Failed to serialize vehicle");
+			let file = File::new();
+			// TODO handle error properly
+			file.open(self.data_path.clone(), File::WRITE)
+				.expect(&format!("Failed to open {}", self.data_path));
+			file.store_buffer(TypedArray::from_vec(data));
+		}
+
+		#[export]
+		fn edit_mode(&self, _owner: TRef<Node>) -> bool {
+			self.edit_mode
+		}
+
+		#[export]
+		fn set_edit_mode(&mut self, owner: TRef<Node>, enable: bool) {
+			self.edit_mode = enable;
+			owner.emit_signal("toggled_edit_mode", &[enable.to_variant()]);
+		}
+
+		#[export]
+		/// FIXME return a Result<(), GodotError> whenever possible
+		fn load_vehicle(&mut self, owner: TRef<Node>, path: String) -> i64 {
+			let file = File::new();
+			// Try compressed first due to revision 0 files using this API
+			let result = file
+				.open_compressed(&path, File::READ, File::COMPRESSION_GZIP)
+				.or_else(|_| file.open(&path, File::READ));
+			if let Ok(_) = result {
+				let data = file
+					.get_buffer(file.get_len())
+					.read()
+					.iter()
+					.copied()
+					.collect::<Box<[_]>>();
+				file.close();
+				self.data = super::serialize::load(&data).expect("Failed to deserialize data");
+				self.refresh_meshes(owner);
+				if self.data.layer_count() == 0 {
+					// Ensure that there is at least one layer
+					self.add_layer(owner);
+				}
+				for layer in self.data.iter_layers() {
+					owner.emit_signal("add_layer", &[layer.name.to_variant()]);
+				}
+				if self.data.color_count() == 0 {
+					// Ensure that there is at least one color
+					self.add_color(owner, Color::rgb(1.0, 1.0, 1.0));
+				}
+				for color in self.data.iter_colors() {
+					let f = |v| v as f32 / 255.0;
+					let color = Color::rgb(f(color.x), f(color.y), f(color.z));
+					owner.emit_signal("add_color", &[color.to_variant()]);
+				}
+				0
+			} else {
+				-1
+			}
+		}
+
+		#[export]
+		fn set_mirror(&mut self, owner: TRef<Node>, enable: bool) {
+			self.enable_mirror(owner, enable);
+		}
+
+		#[export]
+		fn goto_test_scene(&self, owner: TRef<Node>) {
+			if owner.is_queued_for_deletion() {
+				// This function has most likely already been called
+				return;
+			}
+			unsafe {
+				let node = self
+					.test_map
+					.as_ref()
+					.expect("Test map is not set")
+					.assume_safe()
+					.instance(0)
+					.expect("Failed to instance test map")
+					.assume_safe();
+				node.set("vehicle_path", &self.data_path);
+				let node = node.claim();
+				owner.queue_free();
+				let tree = owner.get_tree().expect("Node not in tree").assume_safe();
+				let root = tree.root().expect("Failed to get tree root").assume_safe();
+				root.remove_child(owner);
+				root.add_child(node.clone(), false);
+				tree.set_current_scene(node);
+			}
+		}
+
+		#[export]
+		fn hide_windows(&mut self, owner: TRef<Node>) {
+			self.focus_window(owner, Window::None);
+		}
+
+		#[export]
+		fn select_block(&mut self, owner: TRef<Node>, id: u16) {
+			if let Some(id) = NonZeroU16::new(id) {
+				self.selected_block = id;
+				owner.emit_signal("ghost_block", &[id.get().to_variant()]);
+			} else {
+				godot_error!("Attempt to pick block ID 0");
+			}
+		}
+
+		#[export]
+		fn add_color(&mut self, owner: TRef<Node>, color: Color) -> Option<u8> {
+			let clr = (color.r * 255.0, color.g * 255.0, color.b * 255.0);
+			let clr = (clr.0.round(), clr.1.round(), clr.2.round());
+			let clr = Vec3::new(clr.0 as u8, clr.1 as u8, clr.2 as u8);
+			match self.data.add_color(clr) {
+				Ok(i) => {
+					owner.emit_signal("add_color", &[color.to_variant()]);
+					Some(i)
+				}
+				Err(e) => {
+					use super::data::VehicleError::*;
+					let e = match e {
+						ColorOutOfBounds => "maximum colors exceeded",
+						_ => panic!("Unhandled add_color() error"),
+					};
+					Self::emit_error(owner, format!("Failed to add color: {}", e));
+					None
+				}
+			}
+		}
+
+		#[export]
+		fn remove_color(&mut self, owner: TRef<Node>, index: u8) {
+			if let Err(e) = self.data.remove_color(index) {
+				use super::data::VehicleError::*;
+				let e = match e {
+					ColorOutOfBounds => "index out of bounds",
+					OnlyColor => "must have at least one color",
+					_ => panic!("Unhandled remove_color() error"),
+				};
+				Self::emit_error(owner, format!("Failed to remove color: {}", e));
+			} else {
+				let change_index = if index == self.selected_color {
+					Some(0)
+				} else if self.selected_color > index {
+					Some(self.selected_color - 1)
+				} else {
+					None
+				};
+				if let Some(index) = change_index {
+					self.selected_color = index;
+					let color = self.data.get_color(index).expect("Failed to get color");
+					let color = Color::rgb(
+						color.x as f32 / 255.0,
+						color.y as f32 / 255.0,
+						color.z as f32 / 255.0,
+					);
+					owner.emit_signal("ghost_color", &[color.to_variant()]);
+				}
+				owner.emit_signal("remove_color", &[index.to_variant()]);
+				// TODO this is terribly inefficient
+				self.refresh_meshes(owner);
+			}
+		}
+
+		#[export]
+		fn select_color(&mut self, owner: TRef<Node>, index: u8) {
+			match self.data.get_color(index) {
+				Ok(color) => {
+					self.selected_color = index;
+					let color = Color::rgb(
+						color.x as f32 / 255.0,
+						color.y as f32 / 255.0,
+						color.z as f32 / 255.0,
+					);
+					owner.emit_signal("ghost_color", &[color.to_variant()]);
+				}
+				Err(_) => Self::emit_error(owner, "Color doesn't exist"),
+			}
+		}
+
+		#[export]
+		fn change_color(&mut self, owner: TRef<Node>, index: u8, color: Color) {
+			let clr = (color.r * 255.0, color.g * 255.0, color.b * 255.0);
+			let clr = (clr.0.round(), clr.1.round(), clr.2.round());
+			let clr = Vec3::new(clr.0 as u8, clr.1 as u8, clr.2 as u8);
+			match self.data.change_color(index, clr) {
+				Ok(_) => {
+					let color = color.to_variant();
+					owner.emit_signal("change_color", &[index.to_variant(), color.clone()]);
+					if index == self.selected_color {
+						owner.emit_signal("ghost_color", &[color]);
+					}
+					// TODO this is terribly inefficient
+					self.refresh_meshes(owner);
+				}
+				Err(_) => Self::emit_error(owner, "Color is out of bounds"),
+			}
+		}
+
+		#[export]
+		fn add_layer(&mut self, owner: TRef<Node>) {
+			let name = "New layer";
+			match self.data.add_layer() {
+				Ok(i) => {
+					let mesh = Instance::<VoxelMesh, _>::new().into_shared();
+					owner.emit_signal("add_voxel_mesh", &[mesh.base().to_variant()]);
+					self.layers.push((mesh, HashMap::new()));
+					self.data
+						.set_layer_name(i, name)
+						.expect("Failed to set layer name");
+					owner.emit_signal("add_layer", &[name.to_variant()]);
+				}
+				Err(e) => {
+					use VehicleError::*;
+					let e = match e {
+						LayerOutOfBounds => "maximum layers exceeded",
+						_ => panic!("Unhandled add_layer() error"),
+					};
+					Self::emit_error(owner, format!("Failed to add layer: {}", e));
+				}
+			}
+		}
+
+		#[export]
+		fn remove_layer(&mut self, owner: TRef<Node>, index: u8) {
+			if self.layers.len() <= 1 {
+				Self::emit_error(owner, "Refusing to remove only layer");
+			} else if let Err(e) = self.data.remove_layer(index, false) {
+				use VehicleError::*;
+				let e = match e {
+					LayerOutOfBounds => "Layer doesn't exist",
+					HasBlocks => "Layer still has blocks",
+					_ => panic!("Unhandled remove_layer() error"),
+				};
+				Self::emit_error(owner, e);
+			} else {
+				owner.emit_signal("remove_layer", &[index.to_variant()]);
+			}
+		}
+
+		#[export]
+		fn rename_layer(&mut self, owner: TRef<Node>, index: u8, name: String) {
+			match self.data.set_layer_name(index, name.clone()) {
+				Ok(_) => {
+					owner.emit_signal("rename_layer", &[index.to_variant(), name.to_variant()]);
+				}
+				Err(e) => {
+					use VehicleError::*;
+					let e = match e {
+						LayerOutOfBounds => "layer doesn't exist",
+						_ => panic!("Unhandled set_layer_name() error"),
+					};
+					Self::emit_error(owner, format!("Failed to rename layer: {}", e));
+				}
+			}
+		}
+
+		#[export]
+		fn select_layer(&mut self, owner: TRef<Node>, index: u8) {
+			if self.selected_layer == index {
+				return;
+			}
+			if let Some((mesh, nodes)) = self.layers.get_mut(index as usize) {
+				fn set_nodes_alpha(nodes: &HashMap<Vec3<u8>, Ref<Spatial>>, alpha: f32) {
+					for node in nodes.values() {
+						unsafe {
+							let node = node.assume_safe();
+							if node.has_method("set_transparency") {
+								node.call("set_transparency", &[alpha.to_variant()]);
+							}
+						}
+					}
+				}
+				unsafe {
+					mesh.assume_safe()
+						.map_mut(|mesh, _| mesh.set_transparency(1.0))
+						.unwrap();
+				}
+				set_nodes_alpha(nodes, 1.0);
+				let (mesh, nodes) = &self.layers[self.selected_layer as usize];
+				unsafe {
+					mesh.assume_safe()
+						.map_mut(|mesh, _| mesh.set_transparency(LAYER_TRANSPARENCY))
+						.unwrap();
+				}
+				set_nodes_alpha(nodes, LAYER_TRANSPARENCY);
+				self.selected_layer = index;
+				owner.emit_signal("select_layer", &[index.to_variant()]);
+				self.create_outline(owner);
+			} else {
+				Self::emit_error(owner, format!("Layer doesn't exist"));
+			}
+		}
+
+		#[export]
+		fn exit(&self, owner: TRef<Node>) {
+			unsafe {
+				let tree = owner.get_tree().expect("Not in tree").assume_safe();
+				tree.change_scene(MAIN_MENU)
+					.expect("Failed to go to main menu");
+			}
+		}
+
+		#[export]
+		fn set_snap_faces(&mut self, owner: TRef<Node>, enable: bool) {
+			if self.snap_face != enable {
+				self.snap_face = enable;
+				owner.emit_signal("toggled_snap_faces", &[enable.to_variant()]);
+			}
+		}
+
+		#[export]
+		fn set_map_rotations(&mut self, owner: TRef<Node>, enable: bool) {
+			if self.map_rotation != enable {
+				self.map_rotation = enable;
+				owner.emit_signal("toggled_map_rotations", &[enable.to_variant()]);
+			}
+		}
+
+		#[export]
+		#[cfg(debug_assertions)]
+		fn debug_draw(&self, owner: TRef<Node>) {
+			let debug = owner.get_node("/root/Debug").unwrap();
+			let dhp = self.debug_points.replace(Vec::new());
+			for point in &dhp {
+				let point = point.to_f32() + Vec3::new(0.5, 0.5, 0.5);
+				unsafe {
+					debug.assume_safe().call(
+						"draw_point",
+						&[
+							point.to_variant(),
+							Color::rgb(0.5, 1.0, 0.5).to_variant(),
+							(0.25).to_variant(),
+						],
+					);
+				}
+			}
+		}
+
+		// cfg_attr doesn't work sadly, so this will do for now
+		#[cfg(not(debug_assertions))]
+		#[inline(always)]
+		fn debug_draw(&self, _owner: TRef<Node>) {}
+	}
+
+	/// Methods that are not exposed to Godot
+	impl Editor {
+		fn place_block(
+			&mut self,
+			owner: TRef<Node>,
+		) -> Result<(Vec3<u8>, Option<(Vec3<u8>, NonZeroU16)>), &str> {
+			if !self.edit_mode {
+				return Err("Enter edit mode to place blocks");
+			}
+			let pos = match self.place_block_orientation_from_camera() {
+				RayResult::InsideGrid { position, .. } => position,
+				RayResult::OutsideGrid { .. } | RayResult::NoCollision => {
+					return Err("Location is outside grid")
+				}
+				RayResult::Collides { .. } => return Err("Location is already occupied"),
+			};
+			let layer = self.selected_layer;
+			let color = self.selected_color;
+			self.add_block(owner, self.selected_block, layer, pos, self.rotation, color)?;
+			let mirror = if self.mirror {
+				Self::get_mirror_orientation(pos, self.rotation, self.selected_block)
+					.map(|(pos, rot, id)| {
+						self.add_block(owner, id, layer, pos, rot, color)
+							.map(|_| (pos, id))
+							.ok()
+					})
+					.flatten()
+			} else {
+				None
+			};
+			self.create_outline(owner);
+			Ok((pos, mirror))
+		}
+
+		fn remove_block(
+			&mut self,
+			owner: TRef<Node>,
+		) -> Result<(Vec3<u8>, NonZeroU16, Option<(Vec3<u8>, NonZeroU16)>), &str> {
+			if !self.edit_mode {
+				return Err("Enter edit mode to remove blocks");
+			}
+			let (pos, _, _) = self.raycast_from_camera();
+			let grid_size = GRID_SIZE as i32;
+			if 0 <= pos.x
+				&& 0 <= pos.y && 0 <= pos.z
+				&& pos.x < grid_size
+				&& pos.y < grid_size
+				&& pos.z < grid_size
+			{
+				let pos = convert_vec(pos);
+				let id = self.delete_block(owner, self.selected_layer, pos)?;
+				let mirror = if self.mirror {
+					Self::get_mirror_orientation(pos, self.rotation, id)
+						.map(|(pos, _, _)| {
+							self.delete_block(owner, self.selected_layer, pos)
+								.map(|_| (pos, id))
+								.ok()
+						})
+						.flatten()
+				} else {
+					None
+				};
+				self.create_outline(owner);
+				Ok((pos, id, mirror))
+			} else {
+				Err("Location is outside grid")
+			}
+		}
+
+		fn add_block(
+			&mut self,
+			owner: TRef<Node>,
+			id: NonZeroU16,
+			layer: u8,
+			position: Vec3<u8>,
+			rotation: u8,
+			color: u8,
+		) -> Result<(), &'static str> {
+			if position.x >= GRID_SIZE || position.y >= GRID_SIZE || position.z >= GRID_SIZE {
+				return Err("Location is outside grid");
+			}
+			let block = block::Block::get(id).ok_or("Block doesn't exist")?;
+			if let Err(e) = self.data.add_block(layer, position, id, rotation, color) {
+				use super::data::VehicleError::*;
+				return match e {
+					PositionOccupied => Err("Location is already occupied"),
+					_ => panic!("Unhandled add_block() error"),
+				};
+			}
+			let (mesh, nodes) = self
+				.layers
+				.get_mut(layer as usize)
+				.ok_or("Layer doesn't exist")?;
+			let color = self
+				.data
+				.get_color(color)
+				.map_err(|_| "Failed to get color")?;
+			let color = Color::rgb(
+				color.x as f32 / 255.0,
+				color.y as f32 / 255.0,
+				color.z as f32 / 255.0,
+			);
+			unsafe {
+				mesh.assume_safe()
+					.map_mut(|mesh, mesh_owner| {
+						mesh.add_block(block, color, position, rotation);
+						mesh.generate(&mesh_owner)
+					})
+					.unwrap();
+			}
+			Self::add_editor_node(owner, block, position, rotation, color, nodes);
+			Ok(())
+		}
+
+		fn delete_block(
+			&mut self,
+			_owner: TRef<Node>,
+			layer: u8,
+			position: Vec3<u8>,
+		) -> Result<NonZeroU16, &'static str> {
+			match self.data.remove_block(layer, position) {
+				Err(_) => {
+					panic!("Unhandled remove_block() error");
+				}
+				Ok(block) => {
+					if let Some(block) = block {
+						let (mesh, nodes) = &mut self
+							.layers
+							.get_mut(layer as usize)
+							.expect("Layer index out of bounds");
+						unsafe {
+							mesh.assume_safe()
+								.map_mut(|s, o| {
+									s.remove_block(position);
+									s.generate(&o);
+								})
+								.unwrap();
+						}
+						if let Some(node) = nodes.remove(&position) {
+							unsafe { node.assume_safe().queue_free() }
+						}
+						Ok(block.id)
+					} else {
+						Err("No block at location")
+					}
+				}
+			}
+		}
+
+		fn add_editor_node(
+			owner: TRef<Node>,
+			block: &block::Block,
+			position: Vec3<u8>,
+			rotation: u8,
+			color: Color,
+			nodes: &mut HashMap<Vec3<u8>, Ref<Spatial>>,
+		) {
+			if let Some(node) = block.editor_node {
+				let node = unsafe {
+					node.assume_safe()
+						.duplicate(7)
+						.expect("Failed to duplicate node")
+						.assume_safe()
+						.cast::<Spatial>()
+						.expect("Failed to cast node")
+				};
+				node.set_transform(Transform {
+					origin: convert_vec(position),
+					basis: block::Block::rotation_to_basis(rotation)
+						.scaled(&Vec3::new(4.0, 4.0, 4.0)),
+				});
+				if node.has_method("set_color") {
+					unsafe {
+						node.call("set_color", &[color.to_variant()]);
+					}
+				}
+				let node = node.claim();
+				nodes.insert(position, node.clone());
+				owner.emit_signal("add_editor_node", &[node.to_variant()]);
+			}
+		}
+
+		fn get_mirror_orientation(
+			position: Vec3<u8>,
+			rotation: u8,
+			id: NonZeroU16,
+		) -> Option<(Vec3<u8>, u8, NonZeroU16)> {
+			let mut pos = position;
+			pos.x = (GRID_SIZE - 1) - pos.x;
+			let block = block::Block::get(id).expect("Failed to get block");
+			let id = block.mirror_block().id;
+			let rotation = block.mirror_rotation(rotation);
+			Some((pos, rotation, id))
+		}
+
+		fn place_block_orientation_from_camera(&self) -> RayResult {
+			let (pos, normal, collided) = self.raycast_from_camera();
+			if collided || (pos.y == -1 && normal == Vec3::new(0, 1, 0)) {
+				let pos = pos + convert_vec(normal);
+				let gs = GRID_SIZE.into();
+				if pos.x < gs && pos.y < gs && pos.z < gs && pos.x >= 0 && pos.y >= 0 && pos.z >= 0
+				{
+					let f = |v: i32| v.try_into().unwrap();
+					let position = Vec3::new(f(pos.x), f(pos.y), f(pos.z));
+					if self.data.has_block_at(position) {
+						RayResult::Collides { position, normal }
+					} else {
+						RayResult::InsideGrid { position, normal }
+					}
+				} else {
+					RayResult::OutsideGrid {
+						position: pos,
+						normal,
+					}
+				}
+			} else {
+				RayResult::NoCollision
+			}
+		}
+
+		fn raycast_from_camera(&self) -> (Vec3<i32>, Vec3<i8>, bool) {
+			let (start, direction) = unsafe {
+				let cam = self.camera.expect("Camera is None").assume_safe();
+				(cam.translation(), -cam.transform().basis.z())
+			};
+			let grid_size = GRID_SIZE.into();
+			let mut ray = VoxelRaycast::start(
+				start,
+				direction,
+				AABB::new(Vec3::zero(), Vec3::new(grid_size, grid_size, grid_size)),
+			);
+			let mut final_pos = None;
+			let mut collided = false;
+			for (pos, norm) in &mut ray {
+				final_pos = Some((pos, norm));
+				let pos = (pos.x.try_into(), pos.y.try_into(), pos.z.try_into());
+				if let (Ok(x), Ok(y), Ok(z)) = pos {
+					if DEBUG_CAMERA_RAY {
+						self.debug_add_point(Vec3::new(x, y, z));
+					}
+					/*
+					let layer = self
+						.data
+						.get_layer(self.selected_layer)
+						.expect("Failed to get layer");
+					if layer.has_block_at(Vec3::new(x, y, z)) {
+						collided = true;
+						break;
+					}
+					*/
+					// TODO maybe let the user switch between the two modes?
+					if self.data.has_block_at(Vec3::new(x, y, z)) {
+						collided = true;
+						break;
+					}
+				}
+			}
+			if false && collided {
+				// Step once to ensure normal is correct
+				//ray.next();
+			}
+			if DEBUG_CAMERA_RAY {
+				if let Some((p, n)) = final_pos {
+					godot_print!("{}", collided);
+					godot_print!("{} {} {}", p.x, p.y, p.z);
+					godot_print!("{} {} {}", n.x, n.y, n.z);
+					godot_print!("{} {} {}", ray.voxel().x, ray.voxel().y, ray.voxel().z);
+					godot_print!("{} {} {}", ray.normal().x, ray.normal().y, ray.normal().z);
+				}
+			}
+			if collided {
+				let (p, n) = final_pos.unwrap();
+				(p, n, true)
+			} else {
+				(ray.voxel(), ray.normal(), false)
+			}
+		}
+
+		fn emit_error<T: AsRef<str>>(owner: TRef<Node>, message: T) {
+			owner.emit_signal("error", &[Variant::from_str(message)]);
+			owner.emit_signal("play_fail_effect", &[]);
+		}
+
+		fn clear_meshes(&mut self, owner: TRef<Node>) {
+			let layers = mem::replace(&mut self.layers, Vec::new());
+			for (mesh, blocks) in layers {
+				owner.emit_signal("remove_voxel_mesh", &[mesh.to_variant()]);
+				for block in blocks.into_values() {
+					unsafe {
+						block.assume_safe().queue_free();
+					}
+				}
+			}
+			let (mesh, blocks) = mem::replace(
+				&mut self.outline,
+				(Instance::new().into_shared(), HashSet::new()),
+			);
+			owner.emit_signal("remove_outline_voxel_mesh", &[mesh.to_variant()]);
+			for position in blocks {
+				let position = convert_vec(position).to_variant();
+				owner.emit_signal("remove_outline_node", &[position]);
+			}
+			owner.emit_signal(
+				"add_outline_voxel_mesh",
+				&[self.outline.0.clone().to_variant()],
+			);
+		}
+
+		fn rotate_ghost(&mut self, owner: TRef<Node>, amount: i32) {
+			let amount = amount.rem_euclid(24) as u8;
+			self.rotation = (self.rotation + amount) % 24;
+			if self.snap_face {
+				self.snap_ghost(owner);
+			} else {
+				owner.emit_signal("ghost_rotation", &[self.rotation.to_variant()]);
+			}
+			self.map_rotation();
+			owner.emit_signal("play_rotate_effect", &[]);
+		}
+
+		fn snap_ghost(&mut self, owner: TRef<Node>) {
+			let (_, normal, _) = self.raycast_from_camera();
+			if normal.x == 0 && normal.y == 0 && normal.z == 0 {
+				return; // Ray didn't collide with anything
+			}
+			let normal = (normal.x, normal.y, normal.z);
+			self.rotation =
+				block::Block::snap_rotation_to_direction(self.rotation, normal).unwrap();
+			self.map_rotation();
+			owner.emit_signal("ghost_rotation", &[self.rotation.to_variant()]);
+		}
+
+		fn map_rotation(&mut self) {
+			if self.map_rotation {
+				let block = block::Block::get(self.selected_block).expect("Failed to get block");
+				if let Some(map) = block.alternate_rotation_map {
+					self.rotation = map[self.rotation as usize];
+				}
+			}
+		}
+
+		fn enable_mirror(&mut self, owner: TRef<Node>, enable: bool) {
+			if self.mirror != enable {
+				self.mirror = enable;
+				owner.emit_signal("toggled_mirror", &[enable.to_variant()]);
+			}
+		}
+
+		fn focus_window(&mut self, owner: TRef<Node>, window: Window) {
+			if self.focused_window == window {
+				return; // Save some cycles
+			}
+			self.focused_window = window;
+			owner.emit_signal("open_window", &[window.as_str().to_variant()]);
+			owner.emit_signal(
+				"toggled_handling_input",
+				&[(window == Window::None).to_variant()],
+			);
+		}
+
+		fn focus_or_hide_window(&mut self, owner: TRef<Node>, window: Window) {
+			let window = if self.focused_window == window {
+				Window::None
+			} else {
+				window
+			};
+			self.focus_window(owner, window);
+		}
+
+		#[profiled(tag = "Move vehicle")]
+		fn move_vehicle(&mut self, owner: TRef<Node>, by: Vec3<i32>) {
+			if let Some(aabb) = self.data.aabb() {
+				let mut aabb = AABB::new(convert_vec(aabb.position), convert_vec(aabb.size));
+				aabb.position += by;
+				let grid_size = GRID_SIZE.into();
+				let grid_aabb = AABB::new(Vec3::zero(), Vec3::new(grid_size, grid_size, grid_size));
+				if grid_aabb.encloses(aabb) {
+					self.data
+						.move_all_blocks(by)
+						.expect("Failed to move vehicle");
+					self.refresh_meshes(owner);
+				} else {
+					Self::emit_error(owner, "Can't move vehicle outside grid");
+				}
+			} else {
+				Self::emit_error(owner, "No blocks to move");
+			}
+		}
+
+		#[profiled(tag = "Rotate vehicle")]
+		fn rotate_vehicle(&mut self, owner: TRef<Node>) {
+			self.data.rotate_all_blocks(GRID_SIZE);
+			self.refresh_meshes(owner);
+		}
+
+		fn refresh_meshes(&mut self, owner: TRef<Node>) {
+			self.clear_meshes(owner);
+			for layer in self.data.iter_layers() {
+				let mesh = Instance::<VoxelMesh, _>::new();
+				let mut nodes = HashMap::new();
+				mesh.map_mut(|mesh, mesh_owner| {
+					for (&position, block) in layer.iter_blocks() {
+						let rotation = block.rotation;
+						let color = self
+							.data
+							.get_color(block.color)
+							.expect("Failed to get color");
+						let color = Color::rgb(
+							color.x as f32 / 255.0,
+							color.y as f32 / 255.0,
+							color.z as f32 / 255.0,
+						);
+						let block = block::Block::get(block.id).expect("Block not found");
+						mesh.add_block(block, color, position, rotation);
+						Self::add_editor_node(owner, block, position, rotation, color, &mut nodes);
+					}
+					mesh.generate(&mesh_owner)
+				})
+				.unwrap();
+				let mesh = mesh.into_shared();
+				owner.emit_signal("add_voxel_mesh", &[mesh.clone().to_variant()]);
+				self.layers.push((mesh, nodes));
+			}
+			self.create_outline(owner);
+		}
+
+		#[profiled(tag = "Create outline")]
+		fn create_outline(&mut self, owner: TRef<Node>) {
+			// Create current (do it now so we can get a unique reference to mesh without unsafe)
+			let mesh = Instance::new();
+			let mut node_positions = HashSet::new();
+			let mut nodes = Vec::new();
+
+			mesh.map_mut(|mesh: &mut VoxelMesh, mesh_owner| {
+				for (&position, block) in self
+					.data
+					.disconnected_blocks(self.selected_layer)
+					.expect("Failed to get disconnected blocks in layer")
+				{
+					let rotation = block.rotation;
+					let block = block::Block::get(block.id).expect("Failed to get block");
+					mesh.add_block(block, Color::rgb(1.0, 1.0, 1.0), position, rotation);
+					if let Some(node) = block.editor_node {
+						nodes.push((position, (rotation, node.clone())));
+						node_positions.insert(position);
+					}
+				}
+				mesh.generate(&mesh_owner);
+			})
+			.unwrap();
+
+			// Clear previous
+			{
+				let (mesh, nodes) =
+					mem::replace(&mut self.outline, (mesh.into_shared(), node_positions));
+				owner.emit_signal("remove_outline_voxel_mesh", &[mesh.to_variant()]);
+				for position in nodes.into_iter().map(convert_vec) {
+					owner.emit_signal("remove_outline_node", &[position.to_variant()]);
+				}
+			}
+
+			// Emit add signals (emit remove signals first to prevent unexpected behavior)
+			owner.emit_signal(
+				"add_outline_voxel_mesh",
+				&[self.outline.0.clone().to_variant()],
+			);
+			for (position, (rotation, node)) in nodes {
+				let position = convert_vec(position).to_variant();
+				let rotation = rotation.to_variant();
+				owner.emit_signal("add_outline_node", &[position, rotation, node.to_variant()]);
+			}
+		}
+
+		#[cfg(debug_assertions)]
+		fn debug_add_point(&self, point: Vec3<u8>) {
+			let mut v = self.debug_points.replace(Vec::new());
+			v.push(point);
+			self.debug_points.set(v);
+		}
+
+		#[cfg(not(debug_assertions))]
+		#[inline(always)]
+		fn debug_add_point(&self, point: Vec3<u8>) {
+			let _ = point;
+		}
+	}
+
+	/// Methods specifically for Godot
+	impl Editor {
+		fn gd_selected_block(&self, _owner: TRef<Node>) -> u16 {
+			self.selected_block.get()
+		}
+
+		fn gd_set_selected_block(&mut self, _owner: TRef<Node>, id: u16) {
+			if let Ok(id) = id.try_into() {
+				self.selected_block = id;
+			} else {
+				godot_error!("Block ID {} is not valid", id);
 			}
 		}
 	}
+
+	/// This is to make sure we don't leak any resources (looking at you, Node -_-)
+	impl Drop for Editor {
+		fn drop(&mut self) {
+			// TODO actually, let's don't, godot pls reference counted objects when?
+			/*
+			for (_, nodes) in self.layers.iter_mut() {
+				for (_, node) in nodes.iter_mut() {
+					unsafe { node.assume_safe().queue_free() }
+				}
+			}
+			*/
+		}
+	}
+
+	#[derive(NativeClass)]
+	#[inherit(Reference)]
+	pub(super) struct VehicleData /*<'a>*/ {
+		data: Vehicle,
+		// FIXME find a way to get lifetimes to work with iterators
+		// For now, just return a big dump of data and let GDScript go figure
+		//layer_iter: Option<Box<dyn Iterator<Item = &'a super::data::Layer> + 'a>>,
+		//block_iter: Option<Box<dyn Iterator<Item = &'a super::data::Block> + 'a>>,
+	}
+
+	/// A class to load vehicle data from GDScript
+	///
+	/// It's intended to be used as an iterator (à la `for block in vehicle_data: ...`)
+	#[methods]
+	impl VehicleData {
+		fn new(_owner: TRef<Reference>) -> Self {
+			Self {
+				data: Vehicle::new(),
+			}
+		}
+
+		#[export]
+		fn load_data(&mut self, _owner: TRef<Reference>, data: TypedArray<u8>) -> i64 {
+			self.data = super::serialize::load(data.read().as_slice())
+				.expect("Failed to decode vehicle data");
+			0
+		}
+
+		#[export]
+		fn load_file(&mut self, _owner: TRef<Reference>, path: GodotString) -> i64 {
+			let file = File::new();
+			file.open(path, File::READ).expect("Failed to open file");
+			let data = file.get_buffer(file.get_len());
+			self.data = super::serialize::load(data.read().as_slice())
+				.expect("Failed to decode vehicle data");
+			0
+		}
+
+		#[export]
+		fn get_colors(&self, _owner: TRef<Reference>) -> TypedArray<Color> {
+			let mut arr = TypedArray::new();
+			arr.resize(self.data.color_count() as i32);
+			let mut w = arr.write();
+			for (i, c) in self.data.iter_colors().enumerate() {
+				w[i] = Color::rgb(c.x as f32 / 255.0, c.y as f32 / 255.0, c.z as f32 / 255.0);
+			}
+			drop(w);
+			arr
+		}
+
+		#[export]
+		fn get_layer_count(&self, _owner: TRef<Reference>) -> u8 {
+			self.data.layer_count()
+		}
+
+		#[export]
+		/// Format:
+		/// xxxxxxxx | XXXXXXXX | YYYYYYYY | ZZZZZZZZ
+		/// xxxRRRRR | CCCCCCCC | IIIIIIII | IIIIIIII
+		/// XYZ = position
+		/// R = rotation
+		/// C = color index
+		/// I = ID
+		/// Yes, It's terrible. Lifetimes pls
+		fn get_blocks_in_layer(&self, _owner: TRef<Reference>, index: u8) -> TypedArray<i32> {
+			let layer = self.data.get_layer(index).unwrap();
+			let mut arr = TypedArray::new();
+			arr.resize(layer.block_count() as i32 * 2);
+			let mut w = arr.write();
+			for (i, (p, b)) in layer.iter_blocks().enumerate() {
+				w[i * 2] = ((p.x as i32) << 16) | ((p.y as i32) << 8) | (p.z as i32);
+				w[i * 2 + 1] =
+					((b.rotation as i32) << 24) | ((b.color as i32) << 16) | (b.id.get() as i32);
+			}
+			drop(w);
+			arr
+		}
+
+		#[export]
+		fn get_layer_aabb(&self, _owner: TRef<Reference>, index: u8) -> Aabb {
+			let aabb = self
+				.data
+				.get_layer(index)
+				.unwrap()
+				.aabb()
+				.expect("layer is empty");
+			Aabb {
+				position: convert_vec(aabb.position),
+				size: convert_vec(aabb.size),
+			}
+		}
+	}
+}
+
+pub(crate) fn init(handle: gdnative::nativescript::InitHandle) {
+	handle.add_class::<godot::Editor>();
+	handle.add_class::<godot::VehicleData>();
 }

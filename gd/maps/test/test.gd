@@ -140,7 +140,7 @@ func spawn_vehicle(path: String) -> void:
 
 func exit() -> void:
 	var scene = load(editor_scene_path).instance()
-	scene.vehicle_path = vehicle_path
+	scene.data_path = vehicle_path
 	queue_free()
 	var tree := get_tree()
 	tree.root.remove_child(self)

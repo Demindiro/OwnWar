@@ -40,6 +40,8 @@ pub struct Block {
 	mirror_block_id: Option<NonZeroU16>,
 
 	mirror_rotation_map: [u8; 24],
+
+	pub alternate_rotation_map: Option<[u8; 24]>,
 }
 
 #[derive(NativeClass)]
@@ -117,6 +119,11 @@ impl Block {
 			.with_getter(&Self::gd_get_mirror_rotation_offset)
 			.with_setter(&Self::gd_set_mirror_rotation_offset)
 			.done();
+		builder
+			.add_property("alternate_rotation_map")
+			.with_getter(&Self::gd_get_alternate_rotation_map)
+			.with_setter(&Self::gd_set_alternate_rotation_map)
+			.done();
 	}
 
 	fn new(owner: TRef<Resource>) -> Self {
@@ -142,6 +149,8 @@ impl Block {
 			revision: 0,
 
 			mirror_rotation_map: [0; 24],
+
+			alternate_rotation_map: None,
 		};
 		s.gd_set_mirror_rotation_offset(owner, 0);
 		s
@@ -326,6 +335,42 @@ impl Block {
 		}
 		self.mirror_rotation_offset = offset;
 	}
+
+	fn gd_get_alternate_rotation_map(&self, _owner: TRef<Resource>) -> Option<TypedArray<u8>> {
+		self.alternate_rotation_map.map(|arr| {
+			let mut map = TypedArray::<u8>::new();
+			map.resize(24);
+			let mut w = map.write();
+			for (i, &c) in arr.iter().enumerate() {
+				w[i] = c;
+			}
+			drop(w);
+			map
+		})
+	}
+
+	fn gd_set_alternate_rotation_map(
+		&mut self,
+		_owner: TRef<Resource>,
+		map: Option<TypedArray<u8>>,
+	) {
+		self.alternate_rotation_map = {
+			if let Some(map) = map {
+				let r = map.read();
+				if r.len() == 0 {
+					None
+				} else {
+					let mut arr = self.alternate_rotation_map.unwrap_or([0; 24]);
+					for (i, &c) in r.iter().enumerate().take(arr.len()) {
+						arr[i] = c;
+					}
+					Some(arr)
+				}
+			} else {
+				None
+			}
+		};
+	}
 }
 
 /// Generic helper methods
@@ -381,6 +426,50 @@ impl Block {
 			_ => unreachable!(),
 		};
 		b2 * basis
+	}
+
+	pub fn snap_rotation_to_direction<T>(rotation: u8, axis: (T, T, T)) -> Result<u8, ()>
+	where
+		T: TryInto<i64> + Copy,
+	{
+		let f = |v: T| v.try_into().map_err(|_e| ());
+		let axis = (f(axis.0)?, f(axis.1)?, f(axis.2)?);
+		let d = match axis {
+			(0, 1, 0) => 0,
+			(0, -1, 0) => 1,
+			(1, 0, 0) => 2,
+			(-1, 0, 0) => 3,
+			(0, 0, 1) => 4,
+			(0, 0, -1) => 5,
+			_ => return Err(()),
+		};
+		Ok((rotation & 3) | (d << 2))
+	}
+
+	pub fn mirror_block(&self) -> &Block {
+		if let Some(id) = self.mirror_block_id {
+			Self::get(id).expect("Invalid mirror block")
+		} else {
+			self
+		}
+	}
+
+	pub fn mirror_rotation(&self, rotation: u8) -> u8 {
+		self.mirror_rotation_map[rotation as usize]
+	}
+
+	pub fn map_rotation_counter_clockwise(rotation: u8) -> u8 {
+		let a = rotation & 3;
+		let (d, a) = match rotation >> 2 {
+			0 => (0, [1, 2, 3, 0][a as usize]),
+			1 => (1, [3, 0, 1, 2][a as usize]),
+			2 => (5, [3, 0, 1, 2][a as usize]),
+			3 => (4, (a + 1) & 3),
+			4 => (2, (a + 1) & 3),
+			5 => (3, [3, 4, 1, 2][a as usize]),
+			_ => unreachable!(),
+		};
+		(d << 2) | a
 	}
 }
 

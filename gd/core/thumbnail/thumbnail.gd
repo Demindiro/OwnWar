@@ -105,7 +105,7 @@ func _create_vehicle_thumbnail(p_path: String, callback: FuncRef, arguments: Arr
 	var path := _get_vehicle_path(p_path)
 	var vehicle := OwnWar_VehiclePreview.new()
 	var e := vehicle.load_from_file(p_path)
-	assert(e == OK)
+	assert(e == OK, "Failed to load vehicle")
 	if e != OK:
 		push_error("Failed to load vehicle from %s: %d" % [p_path, e])
 		return

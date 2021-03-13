@@ -5,7 +5,7 @@
 
 [resource]
 shader = ExtResource( 2 )
-shader_param/enable_mirror = true
+shader_param/enable_mirror = false
 shader_param/grid_size = 25
 shader_param/edge_size = 0.1
 shader_param/cell_color = Color( 0.0823529, 0.0784314, 0.0784314, 1 )

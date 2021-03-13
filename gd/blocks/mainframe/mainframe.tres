@@ -6,15 +6,16 @@
 
 [resource]
 script = ExtResource( 1 )
-human_category = "Other"
+revision = 0
 human_name = "Mainframe"
 mass = 10.0
-cost = 10
-mirror_rotation_offset = 0
-health = 500
-instance = ExtResource( 3 )
-revision = 0
+human_category = "Other"
 aabb = AABB( 0, 0, 0, 1, 1, 1 )
 id = 76
+health = 500
+cost = 10
 __mirror_block_id = 0
 mesh = ExtResource( 2 )
+instance = ExtResource( 3 )
+mirror_rotation_offset = 0
+alternate_rotation_map = null

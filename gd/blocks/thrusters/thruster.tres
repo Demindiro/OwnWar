@@ -5,14 +5,15 @@
 
 [resource]
 script = ExtResource( 1 )
-human_category = "Movement"
+revision = 0
 human_name = "Thruster"
 mass = 1.0
-cost = 1
-mirror_rotation_offset = 0
-health = 100
-instance = ExtResource( 2 )
-revision = 0
+human_category = "Movement"
 aabb = AABB( 0, 0, 0, 1, 1, 1 )
 id = 100
+health = 100
+cost = 1
 __mirror_block_id = null
+instance = ExtResource( 2 )
+mirror_rotation_offset = 0
+alternate_rotation_map = null

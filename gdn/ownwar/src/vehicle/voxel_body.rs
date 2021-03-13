@@ -46,6 +46,7 @@ pub(crate) struct VoxelBody {
 	weapons: Vec<Ref<Spatial>>,
 	thrusters: Vec<Ref<Spatial>>,
 
+	#[cfg(debug_assertions)]
 	debug_hit_points: Cell<Vec<Voxel>>,
 }
 
@@ -149,6 +150,7 @@ impl VoxelBody {
 			interpolation_state_dirty: true,
 			body: None,
 
+			#[cfg(debug_assertions)]
 			debug_hit_points: Cell::new(Vec::new()),
 		}
 	}
@@ -214,6 +216,7 @@ impl VoxelBody {
 	}
 
 	#[export]
+	#[cfg(debug_assertions)]
 	fn debug_draw(&self, owner: &VehicleBody) {
 		let debug = owner.get_node("/root/Debug").unwrap();
 		let dhp = self.debug_hit_points.replace(Vec::new());
@@ -233,6 +236,9 @@ impl VoxelBody {
 		}
 		self.debug_hit_points.set(dhp);
 	}
+
+	#[cfg(not(debug_assertions))]
+	fn debug_draw(&self, _owner: &VehicleBody) {}
 
 	#[export]
 	fn create_body(&mut self, _owner: &VehicleBody, aabb: Aabb) {
@@ -464,8 +470,7 @@ impl VoxelBody {
 		}
 		drop(body);
 
-		let mut dhp = self.debug_hit_points.replace(Vec::new());
-		dhp.clear();
+		self.debug_clear_points();
 
 		let mut destroyed_blocks = Vec::new();
 		let mut destroy_disconnected = true;
@@ -473,7 +478,7 @@ impl VoxelBody {
 		while !raycast.finished() {
 			let voxel = convert_vec(raycast.voxel());
 
-			dhp.push(voxel);
+			self.debug_add_point(voxel);
 
 			if let Ok(done) = self.destroy_block(
 				owner,
@@ -493,8 +498,6 @@ impl VoxelBody {
 				break;
 			}
 		}
-
-		self.debug_hit_points.set(dhp);
 
 		if destroy_disconnected {
 			self.destroy_disconnected_blocks(owner, destroyed_blocks, block_anchor_destroyed);
@@ -549,13 +552,12 @@ impl VoxelBody {
 		// FIXME find an alternative to 'as' that accounts for overflow
 		let radius = radius as i16;
 
-		let mut dhp = self.debug_hit_points.replace(Vec::new());
-		dhp.clear();
+		self.debug_clear_points();
 
 		for v in VoxelSphereIterator::new(origin, radius) {
 			let body = self.body().borrow();
 			if body.is_valid_voxel(v) {
-				dhp.push(convert_vec(v));
+				self.debug_add_point(convert_vec(v));
 				drop(body);
 				if let Ok(done) = self.destroy_block(
 					owner,
@@ -573,8 +575,6 @@ impl VoxelBody {
 				}
 			}
 		}
-
-		self.debug_hit_points.set(dhp);
 
 		if destroy_disconnected {
 			self.destroy_disconnected_blocks(owner, destroyed_blocks, block_anchor_destroyed);
@@ -923,7 +923,7 @@ impl VoxelBody {
 			direction,
 			AABB::new(Vector3D::zero(), body.size().to_i32()),
 		);
-		for voxel in raycast {
+		for (voxel, _) in raycast {
 			if let Ok(Some(block)) = body.try_get_block(voxel) {
 				if let Block::Destroyed(_) = block {
 					/* pass */
@@ -934,4 +934,22 @@ impl VoxelBody {
 		}
 		None
 	}
+
+	#[cfg(debug_assertions)]
+	fn debug_add_point(&self, point: Voxel) {
+		let mut dhp = self.debug_hit_points.replace(Vec::new());
+		dhp.push(point);
+		self.debug_hit_points.set(dhp);
+	}
+
+	#[cfg(debug_assertions)]
+	fn debug_clear_points(&self) {
+		self.debug_hit_points.set(Vec::new());
+	}
+
+	#[cfg(not(debug_assertions))]
+	fn debug_add_point(&self, _point: Voxel) {}
+
+	#[cfg(not(debug_assertions))]
+	fn debug_clear_points(&self) {}
 }

@@ -1,5 +1,7 @@
-use std::collections::HashMap;
+use crate::util::{convert_vec, AABB};
+use std::collections::{HashMap, HashSet};
 use std::convert::TryInto;
+use std::mem;
 use std::num::NonZeroU16;
 
 type Vec3u8 = euclid::Vector3D<u8, euclid::UnknownUnit>;
@@ -27,14 +29,15 @@ pub(crate) struct Vehicle {
 }
 
 #[derive(Debug)]
-pub struct VehicleError(VehicleErrorKind);
-
-#[derive(Debug)]
-enum VehicleErrorKind {
+pub enum VehicleError {
 	ExceededMaxLayers,
 	LayerOutOfBounds,
 	ColorOutOfBounds,
+	BlockOutOfBounds,
 	PositionOccupied,
+	NoBlocks,
+	OnlyColor,
+	HasBlocks,
 }
 
 impl Layer {
@@ -45,7 +48,7 @@ impl Layer {
 		}
 	}
 
-	fn has_block_at(&self, position: Vec3u8) -> bool {
+	pub fn has_block_at(&self, position: Vec3u8) -> bool {
 		self.blocks.contains_key(&position)
 	}
 
@@ -64,12 +67,23 @@ impl Layer {
 		);
 	}
 
+	fn remove_block(&mut self, position: Vec3u8) -> Option<Block> {
+		self.blocks.remove(&position)
+	}
+
 	pub fn iter_blocks(&self) -> impl Iterator<Item = (&Vec3u8, &Block)> {
 		self.blocks.iter()
 	}
 
-	pub fn aabb(&self) -> Option<crate::util::AABB<u8>> {
-		use crate::util::AABB;
+	pub fn block_count(&self) -> u32 {
+		// Literally can't happen as u8 * 3 < u32 but lets be safe...
+		self.blocks
+			.len()
+			.try_into()
+			.expect("blocks.len() overflows u32")
+	}
+
+	pub fn aabb(&self) -> Option<AABB<u8>> {
 		let start = if let Some((pos, _)) = self.blocks.iter().next() {
 			*pos
 		} else {
@@ -99,35 +113,41 @@ impl Vehicle {
 			self.layers.push(Layer::new());
 			Ok(index)
 		} else {
-			Err(VehicleError(VehicleErrorKind::ExceededMaxLayers))
+			Err(VehicleError::ExceededMaxLayers)
 		}
 	}
 
-	pub fn remove_layer(&mut self, index: u8) -> Result<(), VehicleError> {
-		if self.layers.len() >= index as usize {
-			self.layers.swap_remove(index as usize);
-			Ok(())
+	pub fn remove_layer(&mut self, index: u8, force: bool) -> Result<(), VehicleError> {
+		if let Some(layer) = self.layers.get(index as usize) {
+			if force || layer.blocks.len() == 0 {
+				self.layers.remove(index as usize);
+				Ok(())
+			} else {
+				Err(VehicleError::HasBlocks)
+			}
 		} else {
-			Err(VehicleError(VehicleErrorKind::LayerOutOfBounds))
+			Err(VehicleError::LayerOutOfBounds)
 		}
 	}
 
 	pub fn get_layer(&self, index: u8) -> Result<&Layer, VehicleError> {
-		if self.layers.len() > index as usize {
-			Ok(&self.layers[index as usize])
-		} else {
-			Err(VehicleError(VehicleErrorKind::LayerOutOfBounds))
-		}
+		self.layers
+			.get(index as usize)
+			.ok_or(VehicleError::LayerOutOfBounds)
 	}
 
+	fn get_layer_mut(&mut self, index: u8) -> Result<&mut Layer, VehicleError> {
+		self.layers
+			.get_mut(index as usize)
+			.ok_or(VehicleError::LayerOutOfBounds)
+	}
 
-	pub fn set_layer_name(&mut self, index: u8, name: String) -> Result<(), VehicleError> {
-		if let Some(layer) = self.layers.get_mut(index as usize) {
-			layer.name = name;
-			Ok(())
-		} else {
-			Err(VehicleError(VehicleErrorKind::LayerOutOfBounds))
-		}
+	pub fn set_layer_name<T>(&mut self, index: u8, name: T) -> Result<(), VehicleError>
+	where
+		T: Into<String>,
+	{
+		self.get_layer_mut(index)?.name = name.into();
+		Ok(())
 	}
 
 	pub fn add_color(&mut self, color: Vec3u8) -> Result<u8, VehicleError> {
@@ -136,8 +156,35 @@ impl Vehicle {
 			self.colors.push(color);
 			Ok(index)
 		} else {
-			Err(VehicleError(VehicleErrorKind::ColorOutOfBounds))
+			Err(VehicleError::ColorOutOfBounds)
 		}
+	}
+
+	pub fn remove_color(&mut self, index: u8) -> Result<(), VehicleError> {
+		if index as usize >= self.colors.len() {
+			Err(VehicleError::ColorOutOfBounds)
+		} else if self.colors.len() <= 1 {
+			Err(VehicleError::OnlyColor)
+		} else {
+			self.colors.remove(index as usize);
+			for layer in self.layers.iter_mut() {
+				for block in layer.blocks.values_mut() {
+					if block.color == index {
+						block.color = 0;
+					} else if block.color > index {
+						block.color -= 1;
+					}
+				}
+			}
+			Ok(())
+		}
+	}
+
+	pub fn change_color(&mut self, index: u8, color: Vec3u8) -> Result<(), VehicleError> {
+		self.colors
+			.get_mut(index as usize)
+			.map(|v| *v = color)
+			.ok_or(VehicleError::ColorOutOfBounds)
 	}
 
 	pub fn color_count(&self) -> u8 {
@@ -159,6 +206,65 @@ impl Vehicle {
 		self.layers.iter()
 	}
 
+	pub fn disconnected_blocks(
+		&self,
+		layer: u8,
+	) -> Result<impl Iterator<Item = (&Vec3u8, &Block)>, VehicleError> {
+		fn get_connected_blocks(
+			start: Vec3u8,
+			marks: &mut HashSet<Vec3u8>,
+			remaining: &mut HashSet<Vec3u8>,
+		) {
+			/* TODO this causes an ICE, report this */
+			//let gcb_wrapping = |p: Vec3u8, dx, dy, dz| {
+			let gcb_wrapping = |p: Vec3u8, dx, dy, dz, marks: &mut _, remaining: &mut _| {
+				let vp = Vec3u8::new(
+					p.x.wrapping_add(dx),
+					p.y.wrapping_add(dy),
+					p.z.wrapping_add(dz),
+				);
+				let vn = Vec3u8::new(
+					p.x.wrapping_sub(dx),
+					p.y.wrapping_sub(dy),
+					p.z.wrapping_sub(dz),
+				);
+				get_connected_blocks(vp, marks, remaining);
+				get_connected_blocks(vn, marks, remaining);
+			};
+			if remaining.contains(&start) {
+				marks.insert(start);
+				remaining.remove(&start);
+				gcb_wrapping(start, 1, 0, 0, marks, remaining);
+				gcb_wrapping(start, 0, 1, 0, marks, remaining);
+				gcb_wrapping(start, 0, 0, 1, marks, remaining);
+			}
+		}
+		let layer = self.get_layer(layer)?;
+		let marks = if layer.block_count() == 0 {
+			HashSet::new()
+		} else {
+			let mut remaining = layer.iter_blocks().map(|(&p, _)| p).collect::<HashSet<_>>();
+			let mut marks = Vec::new();
+			while remaining.len() > 0 {
+				let mut m = HashSet::new();
+				for &p in remaining.iter() {
+					get_connected_blocks(p, &mut m, &mut remaining);
+					break;
+				}
+				marks.push(m);
+			}
+			let mut m = marks.pop().expect("No elements in marks");
+			for e in marks {
+				if m.len() < e.len() {
+					m = e;
+				}
+			}
+			m
+		};
+
+		Ok(layer.iter_blocks().filter(move |(p, _)| !marks.contains(p)))
+	}
+
 	pub fn add_block(
 		&mut self,
 		layer: u8,
@@ -167,25 +273,25 @@ impl Vehicle {
 		rotation: u8,
 		color: u8,
 	) -> Result<(), VehicleError> {
-		if self.layers.len() <= layer as usize {
-			Err(VehicleError(VehicleErrorKind::LayerOutOfBounds))
+		if self.layer_count() <= layer {
+			Err(VehicleError::LayerOutOfBounds)
 		} else if self.colors.len() <= color as usize {
-			Err(VehicleError(VehicleErrorKind::ColorOutOfBounds))
+			Err(VehicleError::ColorOutOfBounds)
 		} else if self.has_block_at(position) {
-			Err(VehicleError(VehicleErrorKind::PositionOccupied))
+			Err(VehicleError::PositionOccupied)
 		} else {
 			self.layers[layer as usize].set_block(position, id, rotation, color);
 			Ok(())
 		}
 	}
 
-	pub fn get_block(&self, position: Vec3u8) -> Option<(u8, &Block)> {
-		for (i, layer) in self.layers.iter().enumerate() {
-			if let Some(block) = layer.get_block(position) {
-				return Some((i as u8, block));
-			}
+	pub fn get_block(&self, layer: u8, position: Vec3u8) -> Result<Option<&Block>, VehicleError> {
+		let layer = self.get_layer(layer)?;
+		if let Some(block) = layer.get_block(position) {
+			return Ok(Some(block));
+		} else {
+			Ok(None)
 		}
-		None
 	}
 
 	pub fn get_blocks(&self, position: Vec3u8) -> Vec<(u8, &Block)> {
@@ -196,6 +302,55 @@ impl Vehicle {
 			}
 		}
 		vec
+	}
+
+	pub fn remove_block(
+		&mut self,
+		layer: u8,
+		position: Vec3u8,
+	) -> Result<Option<Block>, VehicleError> {
+		Ok(self.get_layer_mut(layer)?.remove_block(position))
+	}
+
+	pub fn move_all_blocks(
+		&mut self,
+		by: euclid::Vector3D<i32, euclid::UnknownUnit>,
+	) -> Result<(), VehicleError> {
+		if let Some(aabb) = self.aabb().map(|v| v.convert()) {
+			let (s, e) = (aabb.position, aabb.end());
+			let (s, e) = (s + by, e + by);
+			if s.x < 0 || s.y < 0 || s.z < 0 || e.x > 255 || e.y > 255 || e.z > 255 {
+				return Err(VehicleError::BlockOutOfBounds);
+			}
+			for layer in self.layers.iter_mut() {
+				let map = mem::replace(&mut layer.blocks, HashMap::new());
+				for (position, block) in map {
+					let position = convert_vec(position) + by;
+					let position = convert_vec(position);
+					layer.set_block(position, block.id, block.rotation, block.color);
+				}
+			}
+			Ok(())
+		} else {
+			Err(VehicleError::NoBlocks)
+		}
+	}
+
+	// FIXME this can panic if a block is outside the grid_size range
+	pub fn rotate_all_blocks(&mut self, grid_size: u8) {
+		for layer in self.layers.iter_mut() {
+			let map = mem::replace(&mut layer.blocks, HashMap::new());
+			for (mut position, block) in map {
+				(position.x, position.z) = (
+					position.z,
+					grid_size
+						.checked_sub(position.x + 1)
+						.expect("Underflow during rotation"),
+				);
+				let rotation = crate::block::Block::map_rotation_counter_clockwise(block.rotation);
+				layer.set_block(position, block.id, rotation, block.color);
+			}
+		}
 	}
 
 	pub fn block_count(&self) -> u32 {
@@ -222,11 +377,11 @@ impl Vehicle {
 		color: u8,
 	) -> Result<(), VehicleError> {
 		if self.layers.len() <= layer as usize {
-			Err(VehicleError(VehicleErrorKind::LayerOutOfBounds))
+			Err(VehicleError::LayerOutOfBounds)
 		} else if self.colors.len() <= color as usize {
-			Err(VehicleError(VehicleErrorKind::ColorOutOfBounds))
+			Err(VehicleError::ColorOutOfBounds)
 		} else if self.layers[layer as usize].has_block_at(position) {
-			Err(VehicleError(VehicleErrorKind::PositionOccupied))
+			Err(VehicleError::PositionOccupied)
 		} else {
 			self.layers[layer as usize].set_block(position, id, rotation, color);
 			Ok(())
@@ -240,5 +395,17 @@ impl Vehicle {
 			}
 		}
 		false
+	}
+
+	pub fn aabb(&self) -> Option<AABB<u8>> {
+		let mut aabb = None;
+		for layer in self.iter_layers() {
+			aabb = layer
+				.aabb()
+				.map(|v| aabb.map(|u| v.union(u)).or(Some(v)))
+				.or(Some(aabb))
+				.flatten();
+		}
+		aabb
 	}
 }

@@ -29,6 +29,8 @@ func load_from_file(path: String) -> int:
 	var file := File.new()
 	var err := file.open_compressed(path, File.READ, File.COMPRESSION_GZIP)
 	if err != OK:
+		err = file.open(path, File.READ)
+	if err != OK:
 		return err
 
 	return load_from_data(file.get_buffer(file.get_len()))

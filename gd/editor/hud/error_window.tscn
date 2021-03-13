@@ -1,0 +1,50 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://ui/theme.tres" type="Theme" id=1]
+[ext_resource path="res://editor/error_window.gd" type="Script" id=2]
+
+[sub_resource type="Animation" id=1]
+length = 5.0
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 3, 5 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 0,
+"values": [ 1.0, 1.0, 0.0 ]
+}
+
+[node name="Error window" type="PanelContainer"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = -33.0
+margin_right = 12.0
+margin_bottom = -4.0
+grow_vertical = 0
+theme = ExtResource( 1 )
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+message_path = NodePath("Error message")
+animation_path = NodePath("Fade out")
+animation_name = "fade_out"
+timer_path = NodePath("Timer")
+
+[node name="Error message" type="Label" parent="."]
+modulate = Color( 1, 0, 0, 1 )
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 4.0
+margin_bottom = 25.0
+
+[node name="Fade out" type="AnimationPlayer" parent="."]
+anims/fade_out = SubResource( 1 )
+
+[node name="Timer" type="Timer" parent="."]
+[connection signal="timeout" from="Timer" to="." method="set_visible" binds= [ true ]]

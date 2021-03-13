@@ -1,0 +1,126 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://ui/theme.tres" type="Theme" id=1]
+[ext_resource path="res://ui/font_title.tres" type="DynamicFont" id=2]
+[ext_resource path="res://ui/blur_material.tres" type="Material" id=3]
+[ext_resource path="res://ui/cancel_button.tscn" type="PackedScene" id=4]
+[ext_resource path="res://editor/windows/color_picker/color_button.tscn" type="PackedScene" id=5]
+[ext_resource path="res://editor/windows/color_picker/color_picker.gd" type="Script" id=6]
+
+[node name="Color picker" type="ColorRect"]
+material = ExtResource( 3 )
+anchor_top = 0.00151853
+anchor_right = 1.0
+anchor_bottom = 1.00151
+theme = ExtResource( 1 )
+script = ExtResource( 6 )
+__meta__ = {
+"_edit_use_anchors_": true
+}
+button = ExtResource( 5 )
+_list = NodePath("Box/List/Box/Box")
+add_button = NodePath("")
+remove_button = NodePath("Box/Picker/Box/Remove")
+picker = NodePath("Box/Picker/Box/Picker")
+
+[node name="Cancel" parent="." instance=ExtResource( 4 )]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = 360.0
+margin_top = -257.0
+margin_right = 400.0
+margin_bottom = -217.0
+
+[node name="Box" type="HBoxContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 5
+size_flags_vertical = 5
+custom_constants/separation = 8
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="List" type="ScrollContainer" parent="Box"]
+margin_right = 348.0
+margin_bottom = 481.0
+rect_min_size = Vector2( 348, 472 )
+rect_pivot_offset = Vector2( 174, 236 )
+scroll_horizontal_enabled = false
+__meta__ = {
+"_edit_group_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="Box" type="PanelContainer" parent="Box/List"]
+margin_right = 348.0
+margin_bottom = 481.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Box" type="GridContainer" parent="Box/List/Box"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 344.0
+margin_bottom = 477.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/vseparation = 3
+custom_constants/hseparation = 3
+columns = 5
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Add color" type="Button" parent="Box/List/Box/Box"]
+margin_right = 64.0
+margin_bottom = 64.0
+rect_min_size = Vector2( 64, 64 )
+custom_fonts/font = ExtResource( 2 )
+text = "+"
+
+[node name="Picker" type="PanelContainer" parent="Box"]
+margin_left = 356.0
+margin_right = 704.0
+margin_bottom = 481.0
+rect_min_size = Vector2( 348, 472 )
+__meta__ = {
+"_edit_group_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="Box" type="VBoxContainer" parent="Box/Picker"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 344.0
+margin_bottom = 477.0
+custom_constants/separation = 4
+
+[node name="Picker" type="ColorPicker" parent="Box/Picker/Box"]
+margin_right = 340.0
+margin_bottom = 440.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+edit_alpha = false
+presets_enabled = false
+presets_visible = false
+
+[node name="Remove" type="Button" parent="Box/Picker/Box"]
+margin_top = 444.0
+margin_right = 340.0
+margin_bottom = 473.0
+text = "Remove"
+[connection signal="pressed" from="Cancel" to="." method="emit_signal" binds= [ "request_hide" ]]
+[connection signal="pressed" from="Box/List/Box/Box/Add color" to="." method="create_color"]
+[connection signal="color_changed" from="Box/Picker/Box/Picker" to="." method="set_picker_color"]
+[connection signal="pressed" from="Box/Picker/Box/Remove" to="." method="remove_color"]

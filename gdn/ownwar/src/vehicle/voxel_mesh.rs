@@ -11,8 +11,6 @@ use std::sync::{Arc, RwLock};
 type Voxel = Vector3D<u8, UnknownUnit>;
 
 lazy_static! {
-	static ref MATERIAL_CACHE: RwLock<HashMap<(u8, u8, u8), Ref<SpatialMaterial>>> =
-		RwLock::new(HashMap::new());
 	static ref SUBMESH_CACHE: RwLock<HashMap<(NonZeroU16, Voxel, u8, u8), SubMesh>> =
 		RwLock::new(HashMap::new());
 }
@@ -22,7 +20,7 @@ lazy_static! {
 pub(crate) struct VoxelMesh {
 	#[property]
 	dirty: bool,
-	material_to_meshes_map: HashMap<Ref<SpatialMaterial>, (Vec<SubMesh>, bool)>,
+	meshes: HashMap<(u8, u8, u8), (Ref<SpatialMaterial>, Vec<SubMesh>, bool)>,
 	remove_list_positions: Vec<Voxel>,
 }
 
@@ -35,10 +33,10 @@ struct SubMesh {
 
 #[methods]
 impl VoxelMesh {
-	pub(super) fn new(_owner: &ArrayMesh) -> Self {
+	pub(crate) fn new(_owner: &ArrayMesh) -> Self {
 		Self {
 			dirty: false,
-			material_to_meshes_map: HashMap::new(),
+			meshes: HashMap::new(),
 			remove_list_positions: Vec::new(),
 		}
 	}
@@ -65,26 +63,26 @@ impl VoxelMesh {
 		}
 	}
 
-	pub(super) fn add_block(
+	pub(crate) fn add_block(
 		&mut self,
 		block: &block::Block,
 		color: Color,
 		coordinate: Voxel,
 		rotation: u8,
 	) {
-		let material = Self::get_material(color);
-
 		if let Some((_, mesh_arrays)) = block.mesh_arrays() {
+			let key = Self::color_to_tuple(color);
 			for (i, array) in mesh_arrays.iter().enumerate() {
 				let sm = Self::get_submesh(block.id, coordinate, rotation, i as u8, array);
-				match self.material_to_meshes_map.entry(material.clone()) {
+				match self.meshes.entry(key) {
 					Entry::Occupied(mut e) => {
 						let e = e.get_mut();
-						e.0.push(sm);
-						e.1 = true;
+						e.1.push(sm);
+						e.2 = true;
 					}
 					Entry::Vacant(e) => {
-						e.insert((vec![sm], true));
+						let material = Self::create_material(color);
+						e.insert((material, vec![sm], true));
 					}
 				}
 				self.dirty = true
@@ -92,15 +90,15 @@ impl VoxelMesh {
 		}
 	}
 
-	pub(super) fn remove_block(&mut self, coordinate: Voxel) {
+	pub(crate) fn remove_block(&mut self, coordinate: Voxel) {
 		self.remove_list_positions.push(coordinate);
 		self.dirty = true
 	}
 
 	#[export]
-	pub(super) fn generate(&mut self, owner: &ArrayMesh) {
-		let mut remove_materials = Vec::new();
-		for (material, (list, array_dirty)) in self.material_to_meshes_map.iter_mut() {
+	pub(crate) fn generate(&mut self, owner: &ArrayMesh) {
+		let mut remove_colors = Vec::new();
+		for (&color, (material, list, array_dirty)) in self.meshes.iter_mut() {
 			for i in (0..list.len()).rev() {
 				let sm = &list[i];
 				if self.remove_list_positions.contains(&sm.coordinate) {
@@ -111,7 +109,7 @@ impl VoxelMesh {
 
 			if list.is_empty() {
 				Self::remove_surface_array(owner, material.clone().upcast());
-				remove_materials.push(material.clone())
+				remove_colors.push(color);
 			} else if *array_dirty {
 				Self::remove_surface_array(owner, material.clone().upcast());
 				let mut vertices = TypedArray::<Vector3>::new();
@@ -147,19 +145,19 @@ impl VoxelMesh {
 					VariantArray::new().into_shared(),
 					31744,
 				);
-				owner.surface_set_material(index, material);
+				owner.surface_set_material(index, material.clone());
 
 				*array_dirty = false;
 			}
 		}
-		for material in remove_materials {
-			self.material_to_meshes_map.remove(&material);
+		for color in remove_colors {
+			self.meshes.remove(&color);
 		}
 		self.remove_list_positions.clear();
 		self.dirty = false;
 	}
 
-	pub(super) fn dirty(&self) -> bool {
+	pub(crate) fn dirty(&self) -> bool {
 		self.dirty
 	}
 
@@ -172,23 +170,20 @@ impl VoxelMesh {
 		}
 	}
 
-	fn get_material(color: Color) -> Ref<SpatialMaterial> {
-		let key = (
-			(color.r * 255.0) as u8,
-			(color.g * 255.0) as u8,
-			(color.b * 255.0) as u8,
-		);
-		let cache = MATERIAL_CACHE.read().unwrap();
-		if let Some(mat) = cache.get(&key) {
-			mat.clone()
-		} else {
-			drop(cache);
-			let mat = Ref::<SpatialMaterial, Unique>::new();
-			mat.set_albedo(color);
-			let mat = mat.into_shared();
-			MATERIAL_CACHE.write().unwrap().insert(key, mat.clone());
-			mat
-		}
+	fn color_to_tuple(color: Color) -> (u8, u8, u8) {
+		let c = (color.r * 255.0, color.g * 255.0, color.b * 255.0);
+		(c.0 as u8, c.1 as u8, c.2 as u8)
+	}
+
+	fn tuple_to_color(color: (u8, u8, u8)) -> Color {
+		let c = (color.0 as f32, color.1 as f32, color.2 as f32);
+		Color::rgb(c.0 / 255.0, c.1 / 255.0, c.2 / 255.0)
+	}
+
+	fn create_material(color: Color) -> Ref<SpatialMaterial> {
+		let mat = Ref::<SpatialMaterial, Unique>::new();
+		mat.set_albedo(color);
+		mat.into_shared()
 	}
 
 	fn get_submesh(
@@ -217,6 +212,25 @@ impl VoxelMesh {
 			let sm = SubMesh::new(a, coordinate);
 			SUBMESH_CACHE.write().unwrap().insert(key, sm.clone());
 			sm
+		}
+	}
+
+	pub fn set_transparency(&mut self, alpha: f32) {
+		for (&color, (material, _, _)) in self.meshes.iter() {
+			unsafe {
+				let mut color = Self::tuple_to_color(color);
+				color.a = alpha;
+				let material = material.assume_safe();
+				material.set_albedo(color);
+				material.set_feature(SpatialMaterial::FEATURE_TRANSPARENT, alpha < 1.0);
+				// BLEND_MODE_MIX causes flickering and BLEND_MODE_ADD looks bad, but
+				// at least it doesn't flicker...
+				material.set_blend_mode(if alpha < 1.0 {
+					SpatialMaterial::BLEND_MODE_ADD
+				} else {
+					SpatialMaterial::BLEND_MODE_MIX
+				});
+			}
 		}
 	}
 }

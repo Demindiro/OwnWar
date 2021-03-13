@@ -8,8 +8,8 @@
 script = ExtResource( 1 )
 revision = 0
 human_name = "Fixed Laser"
-human_category = "Weapons"
 mass = 10.0
+human_category = "Weapons"
 aabb = AABB( 0, 0, 0, 1, 1, 1 )
 id = 80
 health = 500
@@ -18,3 +18,4 @@ __mirror_block_id = null
 mesh = ExtResource( 2 )
 instance = ExtResource( 3 )
 mirror_rotation_offset = 0
+alternate_rotation_map = null
