@@ -7,3 +7,5 @@ background_mode = 2
 background_sky = ExtResource( 1 )
 background_sky_orientation = Basis( -0.866025, -0.0695866, 0.495134, 8.6572e-08, -0.990268, -0.139173, 0.5, -0.120527, 0.857597 )
 ambient_light_energy = 0.2
+glow_enabled = true
+glow_bicubic_upscale = true

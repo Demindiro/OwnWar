@@ -33,47 +33,47 @@
 [ext_resource path="res://effects/outline/outline.tscn" type="PackedScene" id=48]
 [ext_resource path="res://effects/outline/outline_lod.shader" type="Shader" id=49]
 
-[sub_resource type="ShaderMaterial" id=2]
+[sub_resource type="ShaderMaterial" id=1]
 resource_local_to_scene = true
 shader = ExtResource( 49 )
 shader_param/size = 5.0
 shader_param/outline_color = Color( 1, 0, 0, 1 )
 
-[sub_resource type="SpatialMaterial" id=3]
+[sub_resource type="SpatialMaterial" id=2]
 
-[sub_resource type="SpatialMaterial" id=4]
+[sub_resource type="SpatialMaterial" id=3]
 params_cull_mode = 1
 
-[sub_resource type="CubeMesh" id=5]
+[sub_resource type="CubeMesh" id=4]
 size = Vector3( 45.5, 31.5, 45.5 )
 
-[sub_resource type="PlaneMesh" id=6]
+[sub_resource type="PlaneMesh" id=5]
 custom_aabb = AABB( 0, 0, 0, 25, 0, 25 )
 size = Vector2( 1, 1 )
 
-[sub_resource type="QuadMesh" id=7]
+[sub_resource type="QuadMesh" id=6]
 size = Vector2( 1.25, 1.25 )
 
-[sub_resource type="SpatialMaterial" id=8]
+[sub_resource type="SpatialMaterial" id=7]
 flags_transparent = true
 albedo_color = Color( 1, 1, 1, 0.498039 )
 
-[sub_resource type="CubeMesh" id=9]
+[sub_resource type="CubeMesh" id=8]
 size = Vector3( 0.25, 0.25, 0.25 )
 
 [node name="Designer" type="Node"]
 pause_mode = 2
 script = ExtResource( 14 )
+test_map = ExtResource( 21 )
 data_path = "user://vehicles/one-block.owv"
 camera_path = NodePath("Camera")
-test_map = ExtResource( 21 )
 
 [node name="Outline" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.5, 0.5 )
 script = ExtResource( 24 )
 
 [node name="Outline" parent="Outline" instance=ExtResource( 48 )]
-material = SubResource( 2 )
+material = SubResource( 1 )
 main_camera_path = NodePath("../../Camera")
 
 [node name="Camera" type="Camera" parent="."]
@@ -118,7 +118,7 @@ cull_mask = 2147483776
 pause_mode = 1
 transform = Transform( 0.945729, -0.0479753, 0.321394, 0.163176, 0.925416, -0.34202, -0.281015, 0.375902, 0.883022, 0.675385, -0.287656, -0.690228 )
 layers = 128
-material_override = SubResource( 3 )
+material_override = SubResource( 2 )
 mesh = ExtResource( 23 )
 material/0 = null
 script = ExtResource( 22 )
@@ -131,8 +131,8 @@ environment = ExtResource( 11 )
 [node name="BoxOfClaustrophobia" type="MeshInstance" parent="Room"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5, 15, 12.5 )
 visible = false
-material_override = SubResource( 4 )
-mesh = SubResource( 5 )
+material_override = SubResource( 3 )
+mesh = SubResource( 4 )
 material/0 = null
 
 [node name="Lights" type="Node" parent="Room"]
@@ -173,7 +173,7 @@ texture = ExtResource( 6 )
 
 [node name="Floor" type="MeshInstance" parent="."]
 material_override = ExtResource( 8 )
-mesh = SubResource( 6 )
+mesh = SubResource( 5 )
 material/0 = null
 script = ExtResource( 16 )
 
@@ -191,13 +191,13 @@ script = ExtResource( 12 )
 [node name="Mesh" type="MeshInstance" parent="Offset/Block face highlight"]
 transform = Transform( 1.01, 0, 0, 0, 1.01, 0, 0, 0, 1.01, 0, 0, -0.499 )
 material_override = ExtResource( 10 )
-mesh = SubResource( 7 )
+mesh = SubResource( 6 )
 material/0 = null
 
 [node name="Ghost" type="MeshInstance" parent="Offset"]
 transform = Transform( 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, -1 )
-material_override = SubResource( 8 )
-mesh = SubResource( 9 )
+material_override = SubResource( 7 )
+mesh = SubResource( 8 )
 material/0 = null
 script = ExtResource( 22 )
 
@@ -464,20 +464,20 @@ environment = NodePath("../WorldEnvironment")
 [connection signal="block_removed" from="." to="HUD/Stats" method="block_removed"]
 [connection signal="change_color" from="." to="Color picker" method="change_color"]
 [connection signal="error" from="." to="Error window" method="show_error"]
-[connection signal="ghost_block" from="." to="Offset/Ghost" method="ghost_block"]
 [connection signal="ghost_block" from="." to="Camera/Box/Viewport/Camera/Mesh" method="ghost_block"]
-[connection signal="ghost_color" from="." to="Offset/Ghost" method="ghost_color"]
+[connection signal="ghost_block" from="." to="Offset/Ghost" method="ghost_block"]
 [connection signal="ghost_color" from="." to="Camera/Box/Viewport/Camera/Mesh" method="ghost_color"]
+[connection signal="ghost_color" from="." to="Offset/Ghost" method="ghost_color"]
 [connection signal="ghost_normal" from="." to="Offset/Block face highlight" method="set_normal"]
-[connection signal="ghost_position" from="." to="Offset/Ghost" method="set_translation"]
 [connection signal="ghost_position" from="." to="Offset/Block face highlight" method="set_translation"]
+[connection signal="ghost_position" from="." to="Offset/Ghost" method="set_translation"]
 [connection signal="ghost_rotation" from="." to="Offset/Ghost" method="ghost_rotation"]
 [connection signal="ghost_valid" from="." to="Offset/Block face highlight" method="set_valid"]
-[connection signal="ghost_visible" from="." to="Offset/Ghost" method="set_visible"]
 [connection signal="ghost_visible" from="." to="Offset/Block face highlight" method="set_visible"]
+[connection signal="ghost_visible" from="." to="Offset/Ghost" method="set_visible"]
 [connection signal="open_window" from="." to="Settings" method="open_window"]
-[connection signal="open_window" from="." to="Color picker" method="open_window"]
 [connection signal="open_window" from="." to="Inventory" method="open_window"]
+[connection signal="open_window" from="." to="Color picker" method="open_window"]
 [connection signal="play_click_effect" from="." to="Sounds/Click" method="play"]
 [connection signal="play_fail_effect" from="." to="Sounds/Fail place or remove" method="play"]
 [connection signal="play_place_effect" from="." to="Sounds/Place block" method="play"]
