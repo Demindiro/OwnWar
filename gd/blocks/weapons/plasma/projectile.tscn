@@ -43,6 +43,8 @@ emission_on_uv2 = false
 script = ExtResource( 2 )
 explosion = ExtResource( 3 )
 explosion_mask = 2
+radius = 3
+damage = 600
 
 [node name="Timer" type="Timer" parent="."]
 process_mode = 0

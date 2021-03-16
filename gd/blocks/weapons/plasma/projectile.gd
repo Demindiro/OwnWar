@@ -10,8 +10,8 @@ var velocity := Vector3()
 export var explosion: PackedScene
 var explosion_mask := 1
 
-var damage := 500 * 5000
-var radius := 7#3
+export var damage := 500 * 5000
+export var radius := 7#3
 var team := -1
 
 
