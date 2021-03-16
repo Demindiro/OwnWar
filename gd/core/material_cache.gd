@@ -15,8 +15,7 @@ static func get_material(color: Color, base_material: Material = null) -> Materi
 		var sm := material as SpatialMaterial
 		if sm != null:
 			sm.albedo_color = color
-			if color.a < 0.999:
-				sm.flags_transparent = true
+			sm.flags_transparent = color.a < 0.999
 		else:
 			assert(false, "TODO handle other material types somehow")
 		dict[color] = material

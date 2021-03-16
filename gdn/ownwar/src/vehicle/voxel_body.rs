@@ -18,6 +18,10 @@ const DESTROY_BLOCK_EFFECT_SCENE: &str = "res://vehicles/destroy_block_effect.ts
 const DESTROY_BODY_EFFECT_SCENE: &str = "res://vehicles/destroy_body_effect.tscn";
 const PHYSICS_MATERIAL: &str = "res://vehicles/medium_friction.tres";
 
+const COLLISION_LAYER: u32 = 2;
+// Any + Vehicles + Terrain
+const COLLISION_MASK: u32 = 1 | 2 | (1 << 7);
+
 #[derive(NativeClass)]
 #[inherit(VehicleBody)]
 #[register_with(Self::register_voxelbody)]
@@ -94,6 +98,8 @@ impl VoxelBody {
 			.and_then(|s| s.cast::<PhysicsMaterial>())
 			.unwrap();
 		owner.set_physics_material_override(physics_material);
+		owner.set_collision_layer(COLLISION_LAYER as i64);
+		owner.set_collision_mask(COLLISION_MASK as i64);
 
 		let collision_shape = Ref::<BoxShape, Unique>::new().into_shared();
 		let collision_shape_instance = Ref::<CollisionShape, Unique>::new();

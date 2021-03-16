@@ -1,3 +1,4 @@
+tool
 extends Spatial
 
 # TODO
@@ -7,10 +8,28 @@ const GRAVITY = 9.81
 var velocity := Vector3()
 
 export var explosion: PackedScene
+var explosion_mask := 1
 
 var damage := 500 * 5000
 var radius := 7#3
 var team := -1
+
+
+func _get_property_list() -> Array:
+	return [
+		{
+			"name": "explosion_mask",
+			"type": TYPE_INT,
+			"usage": PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_STORAGE,
+			"hint": PROPERTY_HINT_LAYERS_3D_PHYSICS,
+		},
+	]
+
+
+func _ready() -> void:
+	if Engine.editor_hint:
+		set_physics_process(false)
+
 
 func _physics_process(delta: float) -> void:
 	var old_tr := translation
@@ -42,6 +61,7 @@ func explode(position: Vector3) -> void:
 	shape.radius = radius * BLOCK_SCALE
 	param.set_shape(shape)
 	param.transform.origin = position
+	param.collision_mask = explosion_mask
 	var entities := []
 	for result in get_world().direct_space_state.intersect_shape(param):
 		var collider = result["collider"]

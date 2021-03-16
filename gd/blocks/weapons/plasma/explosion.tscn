@@ -166,3 +166,4 @@ material_override = SubResource( 2 )
 mesh = SubResource( 3 )
 material/0 = null
 script = ExtResource( 1 )
+layer = 1

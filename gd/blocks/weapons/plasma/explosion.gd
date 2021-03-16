@@ -3,6 +3,7 @@ extends MeshInstance
 
 var fade := 0.0
 var radius := 3.0 setget set_radius
+var layer := 1
 
 
 func _ready() -> void:

@@ -59,5 +59,7 @@ margin_right = 347.0
 margin_bottom = 230.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
 [connection signal="pressed" from="Box/Name box/Add" to="." method="user_add_layer"]
 [connection signal="text_entered" from="Box/Name box/Name" to="." method="user_rename_layer"]
