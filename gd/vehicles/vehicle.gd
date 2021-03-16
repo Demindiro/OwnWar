@@ -111,9 +111,9 @@ func _physics_process(delta: float) -> void:
 		var drive_forward := 0.0
 		var drive_brake := 0.0
 		if controller.turn_left:
-			drive_yaw += 0.3
+			drive_yaw += 1.0
 		if controller.turn_right:
-			drive_yaw -= 0.3
+			drive_yaw -= 1.0
 		if controller.move_forward:
 			drive_forward += 1.0
 		if controller.move_back:
@@ -127,7 +127,7 @@ func _physics_process(delta: float) -> void:
 					break
 
 		for wheel in wheels:
-			wheel.steering = drive_yaw * wheel.max_angle
+			wheel.steering = drive_yaw * wheel.max_angle * 0.3
 			wheel.brake = drive_brake * wheel.max_brake
 			var fraction := 1 - clamp(ease(abs(wheel.get_rpm()) / wheel.max_rpm, 1), 0, 1)
 			wheel.engine_force = wheel.max_power * drive_forward * fraction
