@@ -17,6 +17,7 @@ script = ExtResource( 1 )
 [node name="Server" type="Spatial" parent="."]
 script = ExtResource( 2 )
 projectile = ExtResource( 3 )
+volley = true
 
 [node name="Spawn" type="Position3D" parent="Server"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.624637 )

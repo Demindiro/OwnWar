@@ -138,14 +138,22 @@ func _physics_process(delta: float) -> void:
 		for weapon in weapons:
 			weapon.aim_at(controller.aim_at)
 		if len(fireable_weapons) > 0:
-			var avg_delay_between_shots := PoolRealArray(
-				[INF, 1.0, 1.0 / 2, 1.0 / 3, 1.0 / 4])[min(len(fireable_weapons), 4)]
 			if controller.fire:
 				if delay_until_next_fire <= 0:
-					var weapon = fireable_weapons[fired_shots_count % len(fireable_weapons)]
-					if weapon.fire():
-						delay_until_next_fire += avg_delay_between_shots
-						fired_shots_count += 1
+					if fireable_weapons[0].volley:
+						var delay := PoolRealArray([INF, 1.0, 2.0, 3.0, 4.0])[min(len(fireable_weapons), 4)]
+						for i in min(len(fireable_weapons), 4):
+							var weapon = fireable_weapons[(fired_shots_count + i) % len(fireable_weapons)]
+							var fired = weapon.fire()
+							assert(fired, "Weapon did not fire!")
+						delay_until_next_fire += delay
+					else:
+						var avg_delay_between_shots := PoolRealArray(
+							[INF, 1.0, 1.0 / 2, 1.0 / 3, 1.0 / 4])[min(len(fireable_weapons), 4)]
+						var weapon = fireable_weapons[fired_shots_count % len(fireable_weapons)]
+						if weapon.fire():
+							delay_until_next_fire += avg_delay_between_shots
+							fired_shots_count += 1
 				delay_until_next_fire -= delta
 			elif delay_until_next_fire > 0:
 				delay_until_next_fire -= delta
