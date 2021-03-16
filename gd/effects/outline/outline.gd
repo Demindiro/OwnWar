@@ -13,11 +13,6 @@ var outline_to_nodes := {}
 var nodes_to_outline := {}
 
 
-func outline_node(node: MeshInstance) -> void:
-	push_warning("outline_node() is deprecated, use add_outline() instead")
-	add_outline(node)
-
-
 func add_outline(node: MeshInstance) -> void:
 	assert(not node in nodes_to_outline, "Node has already been added! %s & %s" % [
 		node.get_path(),

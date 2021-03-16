@@ -135,7 +135,7 @@ func spawn_vehicle(path: String) -> void:
 	_spawn_point_index %= len(_spawn_points)
 	for n in Util.get_children_recursive(vehicle):
 		if n is MeshInstance and not n.has_meta("no_outline"):
-			get_node("Outline").outline_node(n)
+			get_node("Outline").add_outline(n)
 
 
 func exit() -> void:
