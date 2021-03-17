@@ -394,6 +394,13 @@ mod godot {
 					.collect::<Box<[_]>>();
 				file.close();
 				self.data = super::serialize::load(&data).expect("Failed to deserialize data");
+				for layer in self.data.iter_layers() {
+					for (&position, block) in layer.iter_blocks() {
+						let position = convert_vec(position).to_variant();
+						let id = block.id.get().to_variant();
+						owner.emit_signal("block_placed", &[id, position]);
+					}
+				}
 				self.refresh_meshes(owner);
 				if self.data.layer_count() == 0 {
 					// Ensure that there is at least one layer

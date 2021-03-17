@@ -6,9 +6,9 @@
 
 [resource]
 script = ExtResource( 1 )
-human_category = "Other"
-revision = 0
 mass = 10.0
+revision = 0
+human_category = "Other"
 human_name = "Mainframe"
 aabb = AABB( 0, 0, 0, 1, 1, 1 )
 id = 76
