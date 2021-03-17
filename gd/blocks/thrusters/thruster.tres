@@ -6,9 +6,9 @@
 [resource]
 script = ExtResource( 1 )
 human_category = "Movement"
-human_name = "Thruster"
 revision = 0
 mass = 1.0
+human_name = "Thruster"
 aabb = AABB( 0, 0, 0, 1, 1, 1 )
 id = 100
 health = 100

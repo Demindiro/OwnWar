@@ -4,6 +4,7 @@ class_name OwnWar_VehiclePreview
 
 # TODO
 const BLOCK_SCALE := 0.25
+const GRID_SIZE := 37
 
 
 var voxel_mesh := OwnWar_VoxelMesh.new()
@@ -41,7 +42,7 @@ func load_from_data(data: PoolByteArray) -> int:
 	var spb := StreamPeerBuffer.new()
 	spb.data_array = data
 
-	var center := Vector3(25, 25, 25) * BLOCK_SCALE / 2
+	var center := Vector3.ONE * GRID_SIZE * BLOCK_SCALE / 2
 
 	var loader := OwnWar_VehicleLoader.new()
 	var err := loader.load_from_data(data)
@@ -78,7 +79,7 @@ func load_from_data(data: PoolByteArray) -> int:
 	mainframe_count = loader.mainframe_count
 
 	# TODO should we center based on AABB or editor grid size?
-	mesh_instance.translation -= Vector3(25, 25, 25) * BLOCK_SCALE / 2
+	mesh_instance.translation -= Vector3.ONE * GRID_SIZE * BLOCK_SCALE / 2
 	mesh_instance.translation += Vector3.ONE * BLOCK_SCALE / 2
 
 	return OK

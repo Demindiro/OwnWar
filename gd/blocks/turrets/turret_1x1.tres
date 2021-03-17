@@ -7,9 +7,9 @@
 [resource]
 script = ExtResource( 1 )
 human_category = "Weapons"
-human_name = "Turret Connector"
 revision = 0
 mass = 3.0
+human_name = "Turret Connector"
 aabb = AABB( 0, 0, 0, 1, 1, 1 )
 id = 77
 health = 300

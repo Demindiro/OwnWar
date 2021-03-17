@@ -100,7 +100,7 @@ shader_param/emission_factor = 10.0
 size = Vector2( 48.5, 38 )
 
 [sub_resource type="PlaneMesh" id=10]
-custom_aabb = AABB( 0, 0, 0, 25, 0, 25 )
+custom_aabb = AABB( 0, 0, 0, 50, 0, 50 )
 size = Vector2( 1, 1 )
 
 [sub_resource type="QuadMesh" id=11]
@@ -117,8 +117,8 @@ size = Vector3( 0.25, 0.25, 0.25 )
 pause_mode = 2
 script = ExtResource( 14 )
 test_map = ExtResource( 21 )
-data_path = "user://vehicles/one-block.owv"
 camera_path = NodePath("Camera")
+data_path = "user://vehicles/one-block.owv"
 
 [node name="Outline" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.5, 0.5 )
@@ -136,7 +136,7 @@ far = 200.0
 script = ExtResource( 3 )
 always_capture = true
 actions = PoolStringArray( "editor_move_left", "editor_move_right", "editor_move_forward", "editor_move_back", "editor_move_up", "editor_move_down" )
-aabb = AABB( -8, 0.55, -10, 42, 39, 45 )
+aabb = AABB( -2, 0.55, -2, 42, 39, 45 )
 
 [node name="RT" type="RemoteTransform" parent="Camera"]
 transform = Transform( -1, -1.62921e-07, 2.82187e-07, -1.42109e-13, 0.866025, 0.5, -3.25842e-07, 0.5, -0.866025, 10, -4.40955, -2.54585 )
@@ -176,6 +176,7 @@ script = ExtResource( 22 )
 environment = ExtResource( 11 )
 
 [node name="Room" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 7.5 )
 
 [node name="Lights" type="Node" parent="Room"]
 

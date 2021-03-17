@@ -22,7 +22,7 @@ mod godot {
 
 	type Vec3<T> = Vector3D<T, euclid::UnknownUnit>;
 
-	const GRID_SIZE: u8 = 25;
+	const GRID_SIZE: u8 = 37;
 	const LAYER_TRANSPARENCY: f32 = 0.25;
 	const MAIN_MENU: &str = "res://start_menu/main.tscn";
 
