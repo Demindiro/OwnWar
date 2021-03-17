@@ -14,6 +14,7 @@ static func get_material(color: Color, base_material: Material = null) -> Materi
 		material = base_material.duplicate() if base_material != null else SpatialMaterial.new()
 		var sm := material as SpatialMaterial
 		if sm != null:
+			sm.roughness = 0.4
 			sm.albedo_color = color
 			sm.flags_transparent = color.a < 0.999
 		else:

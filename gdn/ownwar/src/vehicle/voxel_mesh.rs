@@ -183,6 +183,7 @@ impl VoxelMesh {
 	fn create_material(color: Color) -> Ref<SpatialMaterial> {
 		let mat = Ref::<SpatialMaterial, Unique>::new();
 		mat.set_albedo(color);
+		mat.set_roughness(0.4);
 		mat.into_shared()
 	}
 
