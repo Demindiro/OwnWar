@@ -29,3 +29,6 @@ gd/maps/test/props/skate-loop.glb filter=lfs diff=lfs merge=lfs -text
 gd/icons/icon.icns filter=lfs diff=lfs merge=lfs -text
 gd/icons/256x256/icon.ico filter=lfs diff=lfs merge=lfs -text
 gd/icons/512x512/icon.png filter=lfs diff=lfs merge=lfs -text
+models/bay.blend filter=lfs diff=lfs merge=lfs -text
+gd/editor/models/bay.glb filter=lfs diff=lfs merge=lfs -text
+design/editor/concept_art/bay.kra filter=lfs diff=lfs merge=lfs -text

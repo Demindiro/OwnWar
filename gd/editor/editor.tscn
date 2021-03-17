@@ -1,11 +1,11 @@
-[gd_scene load_steps=41 format=2]
+[gd_scene load_steps=47 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://editor/windows/inventory/inventory.tscn" type="PackedScene" id=2]
 [ext_resource path="res://addons/aabb_camera.gd" type="Script" id=3]
 [ext_resource path="res://editor/windows/color_picker/color_picker.tscn" type="PackedScene" id=4]
-[ext_resource path="res://editor/stats.gd" type="Script" id=5]
-[ext_resource path="res://editor/garage_todo_text.png" type="Texture" id=6]
+[ext_resource path="res://editor/hud/stats.tscn" type="PackedScene" id=5]
+[ext_resource path="res://editor/models/monitor.gd" type="Script" id=6]
 [ext_resource path="res://addons/crosshairs/image0018.png" type="Texture" id=7]
 [ext_resource path="res://editor/floor_material.tres" type="Material" id=8]
 [ext_resource path="res://editor/hud/layers.tscn" type="PackedScene" id=9]
@@ -24,6 +24,7 @@
 [ext_resource path="res://editor/ghost.gd" type="Script" id=22]
 [ext_resource path="res://core/thumbnail/mock_cube.tres" type="CubeMesh" id=23]
 [ext_resource path="res://editor/outline.gd" type="Script" id=24]
+[ext_resource path="res://editor/models/bay.glb" type="PackedScene" id=25]
 [ext_resource path="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422497__nightflame__swinging-staff-whoosh-low-01.wav" type="AudioStream" id=26]
 [ext_resource path="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422494__nightflame__swinging-staff-whoosh-low-04.wav" type="AudioStream" id=27]
 [ext_resource path="res://editor/hud/error_window.tscn" type="PackedScene" id=28]
@@ -41,24 +42,75 @@ shader_param/outline_color = Color( 1, 0, 0, 1 )
 
 [sub_resource type="SpatialMaterial" id=2]
 
-[sub_resource type="SpatialMaterial" id=3]
-params_cull_mode = 1
+[sub_resource type="ViewportTexture" id=3]
+flags = 4
 
-[sub_resource type="CubeMesh" id=4]
-size = Vector3( 45.5, 31.5, 45.5 )
+[sub_resource type="SpatialMaterial" id=4]
+albedo_texture = SubResource( 3 )
 
-[sub_resource type="PlaneMesh" id=5]
+[sub_resource type="QuadMesh" id=5]
+size = Vector2( 16, 9 )
+
+[sub_resource type="World" id=6]
+
+[sub_resource type="Shader" id=7]
+code = "shader_type spatial;
+
+uniform vec4 color: hint_color;
+uniform float refraction: hint_range(0.0, 1.0) = 0.0001;
+uniform float wave_speed: hint_range(0.1, 10.0) = 1.0;
+uniform float emission_exponent: hint_range(0.0, 4.0) = 1.5;
+uniform float emission_factor: hint_range(0.0, 20.0) = 10.0;
+
+
+float wave(vec2 uv, float time) {
+	time *= wave_speed;
+	float a = uv.y * 85.0 + time;
+	float s = sin(a);
+	s *= 0.2;
+	s += cos(uv.x * 20.0 + sin(uv.y * 105.0) * 12.0 + time) * 0.08;
+	return s;
+}
+
+vec2 normal(vec2 uv, float time) {
+	vec2 d = vec2(0.001);
+	float x = wave(uv + vec2(d.x, 0.0), time) - wave(uv - vec2(d.x, 0.0), time);
+	float y = wave(uv + vec2(0.0, d.y), time) - wave(uv - vec2(0.0, d.y), time);
+	return vec2(x, y) / (d * 2.0);
+}
+
+void fragment() {
+	float f = wave(UV, TIME);
+	float fc = clamp(f, 0.0005, 1.0);
+	EMISSION = color.rgb * emission_factor * pow(fc, emission_exponent);
+	vec2 norm = normal(UV, TIME);
+	ALBEDO = texture(SCREEN_TEXTURE, SCREEN_UV - norm * refraction / 1000.0).rgb * (1.0 - f);
+	//ALPHA = f;
+}"
+
+[sub_resource type="ShaderMaterial" id=8]
+shader = SubResource( 7 )
+shader_param/color = Color( 0, 0.858824, 1, 1 )
+shader_param/refraction = 0.095
+shader_param/wave_speed = 0.6
+shader_param/emission_exponent = 1.706
+shader_param/emission_factor = 10.0
+
+[sub_resource type="QuadMesh" id=9]
+size = Vector2( 48.5, 38 )
+
+[sub_resource type="PlaneMesh" id=10]
 custom_aabb = AABB( 0, 0, 0, 25, 0, 25 )
 size = Vector2( 1, 1 )
 
-[sub_resource type="QuadMesh" id=6]
+[sub_resource type="QuadMesh" id=11]
 size = Vector2( 1.25, 1.25 )
 
-[sub_resource type="SpatialMaterial" id=7]
+[sub_resource type="SpatialMaterial" id=12]
 flags_transparent = true
 albedo_color = Color( 1, 1, 1, 0.498039 )
 
-[sub_resource type="CubeMesh" id=8]
+[sub_resource type="CubeMesh" id=13]
 size = Vector3( 0.25, 0.25, 0.25 )
 
 [node name="Designer" type="Node"]
@@ -82,12 +134,9 @@ transform = Transform( -1, -1.5632e-13, -3.25842e-07, -1.62921e-07, 0.866025, 0.
 cull_mask = 1
 far = 200.0
 script = ExtResource( 3 )
-speed = 10.0
-angular_speed = 1.0
 always_capture = true
 actions = PoolStringArray( "editor_move_left", "editor_move_right", "editor_move_forward", "editor_move_back", "editor_move_up", "editor_move_down" )
-limit_tilt = true
-aabb = AABB( -10, 0.55, -10, 45, 30, 45 )
+aabb = AABB( -8, 0.55, -10, 42, 39, 45 )
 
 [node name="RT" type="RemoteTransform" parent="Camera"]
 transform = Transform( -1, -1.62921e-07, 2.82187e-07, -1.42109e-13, 0.866025, 0.5, -3.25842e-07, 0.5, -0.866025, 10, -4.40955, -2.54585 )
@@ -128,52 +177,72 @@ environment = ExtResource( 11 )
 
 [node name="Room" type="Spatial" parent="."]
 
-[node name="BoxOfClaustrophobia" type="MeshInstance" parent="Room"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5, 15, 12.5 )
-visible = false
-material_override = SubResource( 3 )
-mesh = SubResource( 4 )
-material/0 = null
-
 [node name="Lights" type="Node" parent="Room"]
 
-[node name="-X-Y" type="SpotLight" parent="Room/Lights"]
-transform = Transform( -0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, 0.5, -0.5, -9.75, 30.5, -10 )
+[node name="Light" type="SpotLight" parent="Room/Lights"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 1.44807, 42.639, 0.169266 )
 layers = 1048575
-light_energy = 0.3
-spot_range = 92.2871
+light_energy = 0.4
+spot_range = 144.572
+spot_angle = 90.0
 
-[node name="-XY" type="SpotLight" parent="Room/Lights"]
-transform = Transform( 0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, -0.5, 0.5, -9.75, 30.5, 34.75 )
+[node name="Light2" type="SpotLight" parent="Room/Lights"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 23.9481, 42.639, 0.169266 )
+layers = 1048575
+light_energy = 0.4
+spot_range = 144.572
+spot_angle = 90.0
+
+[node name="Light3" type="SpotLight" parent="Room/Lights"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 1.44807, 42.639, 32.6693 )
+layers = 1048575
+light_energy = 0.4
+spot_range = 144.572
+spot_angle = 90.0
+
+[node name="Light4" type="SpotLight" parent="Room/Lights"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 23.9481, 42.639, 32.6693 )
+layers = 1048575
+light_energy = 0.4
+spot_range = 144.572
+spot_angle = 90.0
+
+[node name="Monitor" type="MeshInstance" parent="Room"]
+transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -14.49, 16.5, 11.5 )
+material_override = SubResource( 4 )
+mesh = SubResource( 5 )
+material/0 = null
+script = ExtResource( 6 )
+
+[node name="Viewport" type="Viewport" parent="Room/Monitor"]
+size = Vector2( 512, 256 )
+world = SubResource( 6 )
+render_target_v_flip = true
+
+[node name="Stats" parent="Room/Monitor/Viewport" instance=ExtResource( 5 )]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = 0.0
+margin_bottom = 0.0
+_center_of_mass = NodePath("../../../../HUD/Center of mass indicator")
+
+[node name="bay" parent="Room" instance=ExtResource( 25 )]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 12.5, 0, 13.5 )
+
+[node name="Window" type="MeshInstance" parent="Room"]
+transform = Transform( 1, 0, 0, 0, -0.977626, 0.210352, 0, -0.210352, -0.977626, 12.5, 19.9864, 40.6222 )
+material_override = SubResource( 8 )
+mesh = SubResource( 9 )
+material/0 = null
+
+[node name="Sun" type="DirectionalLight" parent="Room"]
+transform = Transform( 0.873613, 0, 0.486621, 0, 1, 0, -0.486621, 0, 0.873613, 191.24, 0, 339.411 )
 layers = 1048575
 light_energy = 0.5
-spot_range = 92.2871
-
-[node name="X-Y" type="SpotLight" parent="Room/Lights"]
-transform = Transform( 0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 35, 30.5, 34.75 )
-layers = 1048575
-light_energy = 0.3
-spot_range = 92.2871
-
-[node name="XY" type="SpotLight" parent="Room/Lights"]
-transform = Transform( -0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, 0.5, -0.5, 35, 30.5, -10 )
-layers = 1048575
-light_energy = 0.3
-spot_range = 92.2871
-
-[node name="Sun" type="SpotLight" parent="Room/Lights"]
-transform = Transform( 0.873613, 0, 0.486621, 0, 1, 0, -0.486621, 0, 0.873613, 44.375, 0, 75.75 )
-layers = 1048575
-spot_range = 161.345
-spot_angle = 41.5913
-
-[node name="TODO text" type="Sprite3D" parent="Room"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 12.2097, 6.5, -13.3234 )
-texture = ExtResource( 6 )
 
 [node name="Floor" type="MeshInstance" parent="."]
 material_override = ExtResource( 8 )
-mesh = SubResource( 5 )
+mesh = SubResource( 10 )
 material/0 = null
 script = ExtResource( 16 )
 
@@ -191,13 +260,13 @@ script = ExtResource( 12 )
 [node name="Mesh" type="MeshInstance" parent="Offset/Block face highlight"]
 transform = Transform( 1.01, 0, 0, 0, 1.01, 0, 0, 0, 1.01, 0, 0, -0.499 )
 material_override = ExtResource( 10 )
-mesh = SubResource( 6 )
+mesh = SubResource( 11 )
 material/0 = null
 
 [node name="Ghost" type="MeshInstance" parent="Offset"]
 transform = Transform( 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, -1 )
-material_override = SubResource( 7 )
-mesh = SubResource( 8 )
+material_override = SubResource( 12 )
+mesh = SubResource( 13 )
 material/0 = null
 script = ExtResource( 22 )
 
@@ -236,85 +305,6 @@ stretch_mode = 4
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="Stats" type="PanelContainer" parent="HUD"]
-margin_right = 169.0
-margin_bottom = 91.0
-theme = ExtResource( 1 )
-script = ExtResource( 5 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-_count_label = NodePath("Box/Blocks/Value")
-_cost_label = NodePath("Box/Cost/Value")
-_mass_label = NodePath("Box/Mass/Value")
-_center_of_mass = NodePath("../Center of mass indicator")
-
-[node name="Box" type="VBoxContainer" parent="HUD/Stats"]
-margin_left = 4.0
-margin_top = 4.0
-margin_right = 165.0
-margin_bottom = 87.0
-size_flags_horizontal = 3
-
-[node name="Blocks" type="HBoxContainer" parent="HUD/Stats/Box"]
-margin_right = 161.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-
-[node name="Name" type="Label" parent="HUD/Stats/Box/Blocks"]
-margin_right = 78.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-text = "Blocks"
-
-[node name="Value" type="Label" parent="HUD/Stats/Box/Blocks"]
-margin_left = 82.0
-margin_right = 161.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-text = "0"
-align = 2
-
-[node name="Cost" type="HBoxContainer" parent="HUD/Stats/Box"]
-margin_top = 31.0
-margin_right = 161.0
-margin_bottom = 52.0
-size_flags_horizontal = 3
-
-[node name="Name" type="Label" parent="HUD/Stats/Box/Cost"]
-margin_right = 78.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-text = "Cost"
-
-[node name="Value" type="Label" parent="HUD/Stats/Box/Cost"]
-margin_left = 82.0
-margin_right = 161.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-text = "0"
-align = 2
-
-[node name="Mass" type="HBoxContainer" parent="HUD/Stats/Box"]
-margin_top = 62.0
-margin_right = 161.0
-margin_bottom = 83.0
-size_flags_horizontal = 3
-
-[node name="Name" type="Label" parent="HUD/Stats/Box/Mass"]
-margin_right = 78.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-text = "Mass"
-
-[node name="Value" type="Label" parent="HUD/Stats/Box/Mass"]
-margin_left = 82.0
-margin_right = 161.0
-margin_bottom = 21.0
-size_flags_horizontal = 3
-text = "0"
-align = 2
 
 [node name="Toggles & modes" type="PanelContainer" parent="HUD"]
 anchor_left = 1.0
@@ -460,8 +450,6 @@ environment = NodePath("../WorldEnvironment")
 [connection signal="add_outline_node" from="." to="Outline" method="add_node"]
 [connection signal="add_outline_voxel_mesh" from="." to="Outline" method="add_mesh"]
 [connection signal="add_voxel_mesh" from="." to="Floor" method="add_voxel_mesh"]
-[connection signal="block_placed" from="." to="HUD/Stats" method="block_placed"]
-[connection signal="block_removed" from="." to="HUD/Stats" method="block_removed"]
 [connection signal="change_color" from="." to="Color picker" method="change_color"]
 [connection signal="error" from="." to="Error window" method="show_error"]
 [connection signal="ghost_block" from="." to="Camera/Box/Viewport/Camera/Mesh" method="ghost_block"]
@@ -475,9 +463,9 @@ environment = NodePath("../WorldEnvironment")
 [connection signal="ghost_valid" from="." to="Offset/Block face highlight" method="set_valid"]
 [connection signal="ghost_visible" from="." to="Offset/Block face highlight" method="set_visible"]
 [connection signal="ghost_visible" from="." to="Offset/Ghost" method="set_visible"]
-[connection signal="open_window" from="." to="Settings" method="open_window"]
-[connection signal="open_window" from="." to="Inventory" method="open_window"]
 [connection signal="open_window" from="." to="Color picker" method="open_window"]
+[connection signal="open_window" from="." to="Inventory" method="open_window"]
+[connection signal="open_window" from="." to="Settings" method="open_window"]
 [connection signal="play_click_effect" from="." to="Sounds/Click" method="play"]
 [connection signal="play_fail_effect" from="." to="Sounds/Fail place or remove" method="play"]
 [connection signal="play_place_effect" from="." to="Sounds/Place block" method="play"]
@@ -493,11 +481,9 @@ environment = NodePath("../WorldEnvironment")
 [connection signal="toggled_edit_mode" from="." to="HUD/Toggles & modes/Box/Edit mode" method="set_pressed"]
 [connection signal="toggled_handling_input" from="." to="Camera" method="set_enabled"]
 [connection signal="toggled_map_rotations" from="." to="HUD/Toggles & modes/Box/Map rotations" method="set_pressed"]
-[connection signal="toggled_mirror" from="." to="Floor" method="enable_mirror"]
 [connection signal="toggled_mirror" from="." to="HUD/Toggles & modes/Box/Mirror" method="set_pressed"]
+[connection signal="toggled_mirror" from="." to="Floor" method="enable_mirror"]
 [connection signal="toggled_snap_faces" from="." to="HUD/Toggles & modes/Box/Snap faces" method="set_pressed"]
-[connection signal="vehicle_moved" from="." to="HUD/Stats" method="vehicle_moved"]
-[connection signal="vehicle_rotated" from="." to="HUD/Stats" method="vehicle_rotated"]
 [connection signal="timeout" from="Save timer" to="." method="save_vehicle"]
 [connection signal="toggled" from="HUD/Toggles & modes/Box/Edit mode" to="." method="set_edit_mode" flags=3]
 [connection signal="toggled" from="HUD/Toggles & modes/Box/Mirror" to="." method="set_mirror" flags=3]

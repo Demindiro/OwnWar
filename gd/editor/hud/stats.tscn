@@ -1,0 +1,90 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://ui/theme.tres" type="Theme" id=1]
+[ext_resource path="res://editor/stats.gd" type="Script" id=2]
+[ext_resource path="res://ui/font_big_title.tres" type="DynamicFont" id=3]
+
+[node name="Stats" type="PanelContainer"]
+margin_right = 169.0
+margin_bottom = 91.0
+theme = ExtResource( 1 )
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+_count_label = NodePath("Box/Blocks/Value")
+_cost_label = NodePath("Box/Cost/Value")
+_mass_label = NodePath("Box/Mass/Value")
+_center_of_mass = NodePath("../Center of mass indicator")
+
+[node name="Box" type="VBoxContainer" parent="."]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 165.0
+margin_bottom = 141.0
+size_flags_horizontal = 3
+
+[node name="Blocks" type="HBoxContainer" parent="Box"]
+margin_right = 161.0
+margin_bottom = 39.0
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Box/Blocks"]
+margin_right = 110.0
+margin_bottom = 39.0
+size_flags_horizontal = 3
+custom_fonts/font = ExtResource( 3 )
+text = "Blocks"
+
+[node name="Value" type="Label" parent="Box/Blocks"]
+margin_left = 114.0
+margin_right = 161.0
+margin_bottom = 39.0
+size_flags_horizontal = 3
+custom_fonts/font = ExtResource( 3 )
+text = "0"
+align = 2
+
+[node name="Cost" type="HBoxContainer" parent="Box"]
+margin_top = 49.0
+margin_right = 161.0
+margin_bottom = 88.0
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Box/Cost"]
+margin_right = 78.0
+margin_bottom = 39.0
+size_flags_horizontal = 3
+custom_fonts/font = ExtResource( 3 )
+text = "Cost"
+
+[node name="Value" type="Label" parent="Box/Cost"]
+margin_left = 82.0
+margin_right = 161.0
+margin_bottom = 39.0
+size_flags_horizontal = 3
+custom_fonts/font = ExtResource( 3 )
+text = "0"
+align = 2
+
+[node name="Mass" type="HBoxContainer" parent="Box"]
+margin_top = 98.0
+margin_right = 161.0
+margin_bottom = 137.0
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Box/Mass"]
+margin_right = 85.0
+margin_bottom = 39.0
+size_flags_horizontal = 3
+custom_fonts/font = ExtResource( 3 )
+text = "Mass"
+
+[node name="Value" type="Label" parent="Box/Mass"]
+margin_left = 89.0
+margin_right = 161.0
+margin_bottom = 39.0
+size_flags_horizontal = 3
+custom_fonts/font = ExtResource( 3 )
+text = "0"
+align = 2
