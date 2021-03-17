@@ -1,4 +1,4 @@
-extends PanelContainer
+extends Control
 
 
 signal add_layer

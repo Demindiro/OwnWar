@@ -1,4 +1,4 @@
-[gd_scene load_steps=47 format=2]
+[gd_scene load_steps=48 format=2]
 
 [ext_resource path="res://ui/theme.tres" type="Theme" id=1]
 [ext_resource path="res://editor/windows/inventory/inventory.tscn" type="PackedScene" id=2]
@@ -29,6 +29,7 @@
 [ext_resource path="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422494__nightflame__swinging-staff-whoosh-low-04.wav" type="AudioStream" id=27]
 [ext_resource path="res://editor/hud/error_window.tscn" type="PackedScene" id=28]
 [ext_resource path="res://addons/ui/417794__lorenzothegreat__error.wav" type="AudioStream" id=29]
+[ext_resource path="res://ui/font_big_title.tres" type="DynamicFont" id=30]
 [ext_resource path="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422503__nightflame__swinging-staff-whoosh-low-09.wav" type="AudioStream" id=44]
 [ext_resource path="res://settings/applier.gd" type="Script" id=47]
 [ext_resource path="res://effects/outline/outline.tscn" type="PackedScene" id=48]
@@ -42,11 +43,11 @@ shader_param/outline_color = Color( 1, 0, 0, 1 )
 
 [sub_resource type="SpatialMaterial" id=2]
 
-[sub_resource type="ViewportTexture" id=3]
+[sub_resource type="ViewportTexture" id=14]
 flags = 4
 
 [sub_resource type="SpatialMaterial" id=4]
-albedo_texture = SubResource( 3 )
+albedo_texture = SubResource( 14 )
 
 [sub_resource type="QuadMesh" id=5]
 size = Vector2( 16, 9 )
@@ -308,12 +309,11 @@ __meta__ = {
 }
 
 [node name="Toggles & modes" type="PanelContainer" parent="HUD"]
-anchor_left = 1.0
-anchor_right = 1.0
-margin_left = -247.0
+margin_right = 247.0
 margin_bottom = 124.0
 theme = ExtResource( 1 )
 __meta__ = {
+"_edit_group_": true,
 "_edit_use_anchors_": false
 }
 
@@ -357,6 +357,7 @@ pressed = true
 text = "Map rotations"
 
 [node name="Layers" parent="HUD" instance=ExtResource( 9 )]
+margin_bottom = -0.52002
 
 [node name="Menu" type="HBoxContainer" parent="HUD"]
 material = ExtResource( 17 )
@@ -371,42 +372,44 @@ __meta__ = {
 }
 
 [node name="Left" type="HBoxContainer" parent="HUD/Menu"]
-margin_right = 921.0
-margin_bottom = 29.0
+margin_right = 913.0
+margin_bottom = 39.0
 size_flags_horizontal = 3
 size_flags_vertical = 0
 alignment = 2
 
 [node name="Exit" type="Button" parent="HUD/Menu/Left"]
-margin_left = 877.0
-margin_right = 921.0
-margin_bottom = 29.0
+margin_left = 850.0
+margin_right = 913.0
+margin_bottom = 39.0
+custom_fonts/font = ExtResource( 20 )
 text = "Exit"
 
 [node name="Middle" type="HBoxContainer" parent="HUD/Menu"]
-margin_left = 925.0
-margin_right = 994.0
-margin_bottom = 39.0
+margin_left = 917.0
+margin_right = 1002.0
+margin_bottom = 47.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 alignment = 1
 
 [node name="Test" type="Button" parent="HUD/Menu/Middle"]
-margin_right = 69.0
-margin_bottom = 39.0
-custom_fonts/font = ExtResource( 20 )
+margin_right = 85.0
+margin_bottom = 47.0
+custom_fonts/font = ExtResource( 30 )
 text = "Test"
 
 [node name="Right" type="HBoxContainer" parent="HUD/Menu"]
-margin_left = 998.0
+margin_left = 1006.0
 margin_right = 1920.0
-margin_bottom = 29.0
+margin_bottom = 39.0
 size_flags_horizontal = 3
 size_flags_vertical = 0
 
 [node name="Settings" type="Button" parent="HUD/Menu/Right"]
-margin_right = 84.0
-margin_bottom = 29.0
+margin_right = 125.0
+margin_bottom = 39.0
+custom_fonts/font = ExtResource( 20 )
 text = "Settings"
 
 [node name="Settings" parent="." instance=ExtResource( 15 )]
@@ -451,6 +454,8 @@ environment = NodePath("../WorldEnvironment")
 [connection signal="add_outline_node" from="." to="Outline" method="add_node"]
 [connection signal="add_outline_voxel_mesh" from="." to="Outline" method="add_mesh"]
 [connection signal="add_voxel_mesh" from="." to="Floor" method="add_voxel_mesh"]
+[connection signal="block_placed" from="." to="Room/Monitor/Viewport/Stats" method="block_placed"]
+[connection signal="block_removed" from="." to="Room/Monitor/Viewport/Stats" method="block_removed"]
 [connection signal="change_color" from="." to="Color picker" method="change_color"]
 [connection signal="error" from="." to="Error window" method="show_error"]
 [connection signal="ghost_block" from="." to="Camera/Box/Viewport/Camera/Mesh" method="ghost_block"]
@@ -464,8 +469,8 @@ environment = NodePath("../WorldEnvironment")
 [connection signal="ghost_valid" from="." to="Offset/Block face highlight" method="set_valid"]
 [connection signal="ghost_visible" from="." to="Offset/Block face highlight" method="set_visible"]
 [connection signal="ghost_visible" from="." to="Offset/Ghost" method="set_visible"]
-[connection signal="open_window" from="." to="Color picker" method="open_window"]
 [connection signal="open_window" from="." to="Inventory" method="open_window"]
+[connection signal="open_window" from="." to="Color picker" method="open_window"]
 [connection signal="open_window" from="." to="Settings" method="open_window"]
 [connection signal="play_click_effect" from="." to="Sounds/Click" method="play"]
 [connection signal="play_fail_effect" from="." to="Sounds/Fail place or remove" method="play"]
