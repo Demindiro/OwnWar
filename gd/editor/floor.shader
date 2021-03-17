@@ -81,7 +81,7 @@ void fragment() {
 	} else if (draw_edge(UV)) {
 		METALLIC = 0.5;
 	} else {
-		METALLIC = 0.0;
+		METALLIC = 1.0;
 	}
 	float s = FRAGCOORD.z * FRAGCOORD.w;
 	s *= max(abs(NORMAL.z), 0.5);
