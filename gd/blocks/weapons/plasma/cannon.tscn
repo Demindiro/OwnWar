@@ -1,11 +1,16 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://blocks/block_instance.gd" type="Script" id=1]
 [ext_resource path="res://blocks/weapons/plasma/cannon_server.gd" type="Script" id=2]
 [ext_resource path="res://blocks/weapons/plasma/projectile.tscn" type="PackedScene" id=3]
 [ext_resource path="res://blocks/set_color.gd" type="Script" id=4]
 
-[sub_resource type="SpatialMaterial" id=4]
+[sub_resource type="SpatialMaterial" id=3]
+emission_enabled = true
+emission = Color( 9.92188, 10, 0, 1 )
+emission_energy = 1.0
+emission_operator = 0
+emission_on_uv2 = false
 
 [sub_resource type="ArrayMesh" id=2]
 resource_name = "Plane"
@@ -16,18 +21,11 @@ surfaces/0 = {
 "blend_shape_data": [  ],
 "format": 97559,
 "index_count": 6,
-"material": SubResource( 4 ),
+"material": SubResource( 3 ),
 "primitive": 4,
 "skeleton_aabb": [  ],
 "vertex_count": 4
 }
-
-[sub_resource type="SpatialMaterial" id=3]
-emission_enabled = true
-emission = Color( 0, 10, 9.2, 1 )
-emission_energy = 1.0
-emission_operator = 0
-emission_on_uv2 = false
 
 [node name="Cannon" type="Node"]
 script = ExtResource( 1 )
@@ -51,7 +49,7 @@ team_glow_node_1 = null
 [node name="Plane" type="MeshInstance" parent="Client"]
 transform = Transform( 1.37344, 0, 0, 0, 5.96046e-08, -1.07087, 0, 1, 6.38288e-08, 0, -0.0589396, 0.535911 )
 mesh = SubResource( 2 )
-material/0 = SubResource( 3 )
+material/0 = null
 
 [node name="Editor" type="Spatial" parent="."]
 script = ExtResource( 4 )
@@ -64,4 +62,4 @@ team_glow_node_1 = null
 [node name="Plane" type="MeshInstance" parent="Editor"]
 transform = Transform( 1.37344, 0, 0, 0, 5.96046e-08, -1.07087, 0, 1, 6.38288e-08, 0, -0.0589396, 0.535911 )
 mesh = SubResource( 2 )
-material/0 = SubResource( 3 )
+material/0 = null

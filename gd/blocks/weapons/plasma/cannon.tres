@@ -31,7 +31,7 @@ surfaces/1 = {
 [resource]
 script = ExtResource( 1 )
 human_name = "Plasma Cannon"
-revision = 0
+revision = 1
 human_category = "Weapons"
 mass = 1.0
 aabb = AABB( 0, 0, 0, 1, 1, 3 )

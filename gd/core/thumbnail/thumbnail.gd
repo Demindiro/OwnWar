@@ -72,7 +72,7 @@ func _create_block_thumbnail(id: int, callback: FuncRef, arguments: Array) -> vo
 	var tn: Viewport = preload("thumbnail.tscn").instance()
 	add_child(tn)
 	var mi: MeshInstance = tn.get_child(0)
-	var block: OwnWar_Block = OwnWar_Block.get_block(id)
+	var block: OwnWar_Block = OwnWar_BlockManager.new().get_block(id)
 	print("Generating block thumbnail for ", id)
 	var path := _get_block_path(id)
 	mi.scale = Vector3.ONE / max(block.aabb.size.x, max(block.aabb.size.y, block.aabb.size.z))

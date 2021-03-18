@@ -6,10 +6,10 @@
 
 [resource]
 script = ExtResource( 1 )
-mass = 10.0
+human_name = "Mainframe"
 revision = 0
 human_category = "Other"
-human_name = "Mainframe"
+mass = 10.0
 aabb = AABB( 0, 0, 0, 1, 1, 1 )
 id = 76
 health = 500
