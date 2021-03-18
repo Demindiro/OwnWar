@@ -878,6 +878,7 @@ mod godot {
 					basis: block::Block::rotation_to_basis(rotation)
 						.scaled(&Vec3::new(4.0, 4.0, 4.0)),
 				});
+				node.set("team_color", Color::rgb(0.0, 1.0, 0.976471));
 				if node.has_method("set_color") {
 					unsafe {
 						node.call("set_color", &[color.to_variant()]);

@@ -32,3 +32,6 @@ gd/icons/512x512/icon.png filter=lfs diff=lfs merge=lfs -text
 models/bay.blend filter=lfs diff=lfs merge=lfs -text
 gd/editor/models/bay.glb filter=lfs diff=lfs merge=lfs -text
 design/editor/concept_art/bay.kra filter=lfs diff=lfs merge=lfs -text
+design/weapons/concept_art/plasma_cannon.kra filter=lfs diff=lfs merge=lfs -text
+models/plasma_cannon.blend filter=lfs diff=lfs merge=lfs -text
+gd/blocks/weapons/plasma/cannon.glb filter=lfs diff=lfs merge=lfs -text
