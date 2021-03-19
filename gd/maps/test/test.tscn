@@ -43,6 +43,7 @@ spawn_point/3 = NodePath("SpawnPoints/-XY")
 spawn_point/4 = NodePath("SpawnPoints/XY")
 
 [node name="Outline" parent="." instance=ExtResource( 7 )]
+visible = false
 material = SubResource( 1 )
 use_parent_material = true
 main_camera_path = NodePath("../Camera")

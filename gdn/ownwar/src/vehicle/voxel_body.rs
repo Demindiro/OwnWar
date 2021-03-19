@@ -6,7 +6,7 @@ use crate::util::{convert_vec, swap_erase, VoxelRaycast, VoxelSphereIterator, AA
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{
 	BoxShape, CollisionShape, Engine, MeshInstance, PackedScene, PhysicsMaterial, Resource,
-	VehicleBody, VehicleWheel, OS,
+	VehicleBody, OS,
 };
 use gdnative::prelude::*;
 use num_traits::float::FloatConst;
@@ -46,7 +46,7 @@ pub(crate) struct VoxelBody {
 
 	body: Option<RefCell<Body>>,
 
-	wheels: Vec<Ref<VehicleWheel>>,
+	wheels: Vec<Ref<Spatial>>,
 	weapons: Vec<Ref<Spatial>>,
 	thrusters: Vec<Ref<Spatial>>,
 
@@ -653,8 +653,9 @@ impl VoxelBody {
 		if let Some(bb) = interpolation_state {
 			unsafe {
 				let bsn = bb.server_node.assume_safe();
-				if let Some(wheel) = bsn.cast::<VehicleWheel>() {
-					self.wheels.push(wheel.claim());
+				if bsn.has_method("set_engine_force") {
+					// TODO ditto as below
+					self.wheels.push(bb.server_node);
 				} else if bsn.has_method("fire") {
 					// TODO handle weapons properly
 					self.weapons.push(bb.server_node);
@@ -674,8 +675,8 @@ impl VoxelBody {
 		});
 		unsafe {
 			let bsn = interp.unwrap().server_node.assume_safe();
-			if let Some(wheel) = bsn.cast::<VehicleWheel>() {
-				swap_erase(&mut self.wheels, |e| e == &wheel.claim())
+			if bsn.has_method("set_engine_force") {
+				swap_erase(&mut self.wheels, |e| e == &bsn.claim())
 					.expect("Wheel not present in array!");
 			} else if bsn.has_method("fire") {
 				// TODO handle weapons properly
@@ -721,11 +722,13 @@ impl VoxelBody {
 			let bsn = block.server_node();
 			let pos = bsn.translation() - center;
 			bsn.set_translation(pos);
-			if let Some(wheel) = bsn.cast::<VehicleWheel>() {
-				owner.remove_child(wheel); // Necessary to force VehicleWheel to move
-				owner.add_child(wheel, false);
+			//if let Some(wheel) = bsn.cast::<VehicleWheel>() {
+			//	owner.remove_child(wheel); // Necessary to force VehicleWheel to move
+			//	owner.add_child(wheel, false);
+			if bsn.has_method("set_engine_force") {
 				let angle = pos.z.atan2(pos.x);
-				wheel.set(
+				//wheel.set(
+				bsn.set(
 					"max_angle",
 					if angle > f32::PI() / 2.0 {
 						f32::PI() - angle

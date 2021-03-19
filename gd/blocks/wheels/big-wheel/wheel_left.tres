@@ -1,19 +1,19 @@
 [gd_resource type="Resource" load_steps=3 format=2]
 
-[ext_resource path="res://blocks/block.gdns" type="Script" id=1]
-[ext_resource path="res://blocks/wheels/big-wheel/wheel.tscn" type="PackedScene" id=2]
+[ext_resource path="res://blocks/wheels/big-wheel/wheel_left.tscn" type="PackedScene" id=1]
+[ext_resource path="res://blocks/block.gdns" type="Script" id=2]
 
 [resource]
-script = ExtResource( 1 )
-human_name = "Wheel"
-revision = 0
+script = ExtResource( 2 )
 human_category = "Movement"
 mass = 15.0
+revision = 2
+human_name = "Wheel (left)"
 aabb = AABB( 0, 0, 0, 1, 1, 1 )
 id = 75
 health = 600
 cost = 10
-__mirror_block_id = null
-instance = ExtResource( 2 )
+__mirror_block_id = 74
+instance = ExtResource( 1 )
 mirror_rotation_offset = 0
 alternate_rotation_map = PoolByteArray( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )

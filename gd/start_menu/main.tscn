@@ -473,11 +473,11 @@ stream = ExtResource( 11 )
 volume_db = -10.0
 autoplay = true
 bus = "Music"
-[connection signal="vehicle_renamed" from="." to="Vehicle list" method="on_vehicle_renamed"]
 [connection signal="vehicle_renamed" from="." to="Vehicle info" method="on_vehicle_renamed"]
+[connection signal="vehicle_renamed" from="." to="Vehicle list" method="on_vehicle_renamed"]
 [connection signal="timeout" from="Vehicle preview/InputTimer" to="Vehicle preview" method="input_timeout"]
-[connection signal="select_vehicle" from="Vehicle list" to="Vehicle preview" method="set_preview"]
 [connection signal="select_vehicle" from="Vehicle list" to="." method="select_vehicle"]
+[connection signal="select_vehicle" from="Vehicle list" to="Vehicle preview" method="set_preview"]
 [connection signal="focus_exited" from="New vehicle/Box/Name" to="New vehicle" method="focus_lost"]
 [connection signal="gui_input" from="New vehicle/Box/Name" to="New vehicle" method="name_gui_input"]
 [connection signal="text_changed" from="New vehicle/Box/Name" to="New vehicle" method="on_name_changed"]

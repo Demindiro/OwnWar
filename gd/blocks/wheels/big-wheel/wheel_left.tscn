@@ -1,0 +1,93 @@
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://blocks/wheels/wheel_client.gd" type="Script" id=1]
+[ext_resource path="res://blocks/wheels/wheel_editor.gd" type="Script" id=2]
+[ext_resource path="res://blocks/block_instance.gd" type="Script" id=3]
+[ext_resource path="res://addons/hud/obituary_arrow.tres" type="Texture" id=4]
+[ext_resource path="res://blocks/wheels/big-wheel/tire.tscn" type="PackedScene" id=5]
+[ext_resource path="res://blocks/wheels/wheel.gd" type="Script" id=6]
+[ext_resource path="res://blocks/wheels/big-wheel/rim.tscn" type="PackedScene" id=7]
+[ext_resource path="res://addons/wheels/203602__mrauralization__dc-gear-motor.wav" type="AudioStream" id=8]
+[ext_resource path="res://blocks/wheels/big-wheel/rim_hinge.tscn" type="PackedScene" id=9]
+[ext_resource path="res://blocks/wheels/big-wheel/bar.tscn" type="PackedScene" id=10]
+
+[node name="Wheel" type="Node"]
+script = ExtResource( 3 )
+
+[node name="Server" type="Spatial" parent="."]
+script = ExtResource( 6 )
+__meta__ = {
+"_edit_lock_": true
+}
+max_power = 600.0
+max_rpm = 450.0
+
+[node name="Wheel" type="VehicleWheel" parent="Server"]
+process_priority = 50
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.687, 0, 0 )
+wheel_radius = 0.39
+wheel_rest_length = 0.2
+wheel_friction_slip = 1.5
+suspension_travel = 0.2
+suspension_stiffness = 25.0
+suspension_max_force = 1500.0
+
+[node name="Client" type="Spatial" parent="."]
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+dc_motor_audio_path = NodePath("Wheel/DC motor")
+rim_path = NodePath("Wheel/Rim")
+pitch_scale = 0.625
+
+[node name="Wheel" type="Spatial" parent="Client"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.687, 0, 0 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="Tire" parent="Client/Wheel" instance=ExtResource( 5 )]
+transform = Transform( -5.96046e-08, 1, -8.74228e-08, 1, 5.96046e-08, 0, 5.2108e-15, -8.74228e-08, -1, 0, 0, 0 )
+
+[node name="Rim" parent="Client/Wheel" instance=ExtResource( 7 )]
+
+[node name="DC motor" type="AudioStreamPlayer3D" parent="Client/Wheel"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.063, 0, 0 )
+stream = ExtResource( 8 )
+unit_db = -30.0
+bus = "Effects"
+doppler_tracking = 1
+
+[node name="Rim hinge" parent="Client" instance=ExtResource( 9 )]
+transform = Transform( 1, 0, -1.06581e-14, 0, 1, 0, 1.06581e-14, 0, 1, 0.687, 0, 0 )
+
+[node name="Bar" parent="Client" instance=ExtResource( 10 )]
+anchor = NodePath("../Wheel/Tire")
+
+[node name="Editor" type="Spatial" parent="."]
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
+tire = NodePath("Tire")
+color_nodes = [ NodePath("Rim"), NodePath("Rim hinge") ]
+arrow = NodePath("Arrow")
+
+[node name="Arrow" type="Sprite3D" parent="Editor"]
+transform = Transform( 0.560522, -4.26596e-09, -1.86471e-16, 0, -4.37114e-08, 1, -7.61069e-09, -1, -4.37114e-08, 0.687, -0.372, 0 )
+texture = ExtResource( 4 )
+__meta__ = {
+"no_outline": ""
+}
+
+[node name="Bar" parent="Editor" instance=ExtResource( 10 )]
+
+[node name="Tire" parent="Editor" instance=ExtResource( 5 )]
+transform = Transform( 5.96046e-08, -1, 0, 1, 5.96046e-08, 0, 0, 0, 1, 0.687, 0, 0 )
+
+[node name="Rim" parent="Editor" instance=ExtResource( 7 )]
+transform = Transform( 5.96046e-08, -1, 0, 1, 5.96046e-08, 0, 0, 0, 1, 0.687, 0, 0 )
+
+[node name="Rim hinge" parent="Editor" instance=ExtResource( 9 )]
+transform = Transform( 1, 0, -1.06581e-14, 0, 1, 0, 1.06581e-14, 0, 1, 0.687, 0, 0 )

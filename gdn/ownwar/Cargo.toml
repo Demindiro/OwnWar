@@ -12,3 +12,6 @@ gdnative = "*"
 euclid = "0.22"
 num-traits = "0.2"
 lazy_static = "*"
+
+[profile.release]
+lto = true
