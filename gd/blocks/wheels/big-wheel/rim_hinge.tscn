@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=4 format=2]
 
-[sub_resource type="ArrayMesh" id=8]
+[ext_resource path="res://effects/team_metal.tres" type="Material" id=1]
+[ext_resource path="res://addons/3d_batcher/batched_mesh_instance.gdns" type="Script" id=2]
+
+[sub_resource type="ArrayMesh" id=1]
 resource_name = "Rim hinge"
 surfaces/0 = {
 "aabb": AABB( -0.0622318, -0.124988, -0.0626524, 0.124699, 0.25001, 0.125 ),
@@ -9,12 +12,15 @@ surfaces/0 = {
 "blend_shape_data": [  ],
 "format": 97559,
 "index_count": 312,
+"material": ExtResource( 1 ),
 "primitive": 4,
 "skeleton_aabb": [  ],
 "vertex_count": 118
 }
 
-[node name="Rim hinge" type="MeshInstance"]
+[node name="Rim hinge" type="Spatial"]
 transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0 )
-mesh = SubResource( 8 )
-material/0 = null
+script = ExtResource( 2 )
+use_color = true
+mesh = SubResource( 1 )
+color = Color( 0.988235, 0.988235, 0.988235, 1 )

@@ -75,6 +75,10 @@ func _init():
 	BM.add_block(preload("res://blocks/weapons/plasma/cannon.tres"))
 
 
+func _ready():
+	BatchedMeshManager.enable_culling = false
+
+
 func _process(_delta):
 	if _loader != null:
 		_load_scene()

@@ -1,0 +1,26 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type spatial;
+render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlick_ggx;
+uniform float specular;
+uniform float metallic;
+uniform float roughness : hint_range(0,1);
+uniform float emission_energy;
+
+
+void fragment() {
+	ALBEDO = COLOR.rgb;
+	METALLIC = metallic;
+	ROUGHNESS = roughness;
+	SPECULAR = specular;
+	EMISSION = COLOR.rgb * emission_energy;
+}
+"
+
+[resource]
+shader = SubResource( 1 )
+shader_param/specular = 0.5
+shader_param/metallic = 0.0
+shader_param/roughness = 1.0
+shader_param/emission_energy = 10.0

@@ -1,4 +1,4 @@
-extends MeshInstance
+extends Spatial
 
 
 export var fix_at := NodePath()

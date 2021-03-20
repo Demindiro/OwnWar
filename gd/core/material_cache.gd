@@ -22,3 +22,13 @@ static func get_material(color: Color, base_material: Material = null) -> Materi
 		dict[color] = material
 	assert(material != null)
 	return material
+
+
+const _MESH_CACHE := {}
+
+static func get_mesh(tag, create_func: FuncRef) -> Mesh:
+	var m: Mesh = _MESH_CACHE.get(tag)
+	if m == null:
+		m = create_func.call_func(tag)
+		_MESH_CACHE[tag] = m
+	return m

@@ -12,7 +12,7 @@ var color: Color
 var team_color: Color
 
 onready var dc_motor_audio: AudioStreamPlayer3D = get_node(dc_motor_audio_path)
-onready var rim: MeshInstance = get_node(rim_path)
+onready var rim: Spatial = get_node(rim_path)
 onready var wheel: Spatial = get_node("Wheel")
 
 
@@ -24,11 +24,11 @@ var trf_dirty := false
 
 
 func _ready() -> void:
-	rim.material_override = MaterialCache.get_material(color)
+	rim.set_color(color)
 	rim.set_team_color(team_color)
 	$Bar.set_color(color)
 	$Bar.set_team_color(team_color)
-	$"Rim hinge".material_override = rim.material_override
+	$"Rim hinge".color = color
 	wheel.set_as_toplevel(true)
 
 
@@ -40,6 +40,8 @@ func _process(_delta: float) -> void:
 	if trf_dirty:
 		prev_trf = curr_trf
 		curr_trf = server_node.wheel.global_transform
+		# TODO figure out why in the name of God the scale of VehicelWheel is negative
+		#curr_trf.basis = curr_trf.basis.scaled(-Vector3.ONE)
 		prev_steer = curr_steer
 		curr_steer = server_node.steering
 		trf_dirty = false
@@ -48,7 +50,7 @@ func _process(_delta: float) -> void:
 	$"Rim hinge".global_transform = Transform(
 		global_transform.basis.rotated(
 			global_transform.basis.y,
-			lerp(prev_steer, curr_steer, frac) + PI if invert_hinge else 0
+			lerp(prev_steer, curr_steer, frac) + (PI if invert_hinge else 0)
 		),
 		wheel.global_transform.origin
 	)

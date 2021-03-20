@@ -1,0 +1,16 @@
+[package]
+name = "gd_3d_batcher"
+version = "0.1.0"
+authors = ["David Hoppenbrouwers <david@salt-inc.org>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+gdnative = "*"
+lazy_static = "*"
+
+[profile.release]
+lto = true
+#codegen-units = 1

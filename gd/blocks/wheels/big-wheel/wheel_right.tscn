@@ -49,10 +49,12 @@ __meta__ = {
 }
 
 [node name="Tire" parent="Client/Wheel" instance=ExtResource( 5 )]
-transform = Transform( -5.96046e-08, 1, -8.74228e-08, 1, 5.96046e-08, 0, 5.2108e-15, -8.74228e-08, -1, 0, 0, 0 )
+transform = Transform( 7.54979e-08, -1, 1.50996e-07, -1, -7.54979e-08, 4.23516e-22, -1.13999e-14, 1.50996e-07, 1, 0, 0, 0 )
+use_color = false
+color = Color( 1, 1, 1, 1 )
 
 [node name="Rim" parent="Client/Wheel" instance=ExtResource( 7 )]
-transform = Transform( 4.37114e-08, 1, -1.50996e-07, 1, -4.37114e-08, 5.2108e-15, -1.38944e-15, -1.50996e-07, -1, 0, 0, 0 )
+transform = Transform( 7.54979e-08, 1, 1.50996e-07, 1, -7.54979e-08, 8.74228e-08, -8.74228e-08, -1.50996e-07, 1, 0, 0, 9.47312e-16 )
 
 [node name="DC motor" type="AudioStreamPlayer3D" parent="Client/Wheel"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.062, 0, 0 )
@@ -63,6 +65,7 @@ doppler_tracking = 1
 
 [node name="Rim hinge" parent="Client" instance=ExtResource( 9 )]
 transform = Transform( -1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, -0.687, 0, 0 )
+color = Color( 0.984314, 0.984314, 0.984314, 1 )
 
 [node name="Bar" parent="Client" instance=ExtResource( 10 )]
 transform = Transform( -1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, 0, 0, 0 )
@@ -74,7 +77,6 @@ __meta__ = {
 "_edit_lock_": true
 }
 tire = NodePath("Tire")
-color_nodes = [ NodePath("Rim"), NodePath("Rim hinge") ]
 arrow = NodePath("Arrow")
 
 [node name="Arrow" type="Sprite3D" parent="Editor"]
@@ -89,9 +91,12 @@ transform = Transform( -1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, 0, 0, 0
 
 [node name="Tire" parent="Editor" instance=ExtResource( 5 )]
 transform = Transform( 5.96046e-08, -1, 0, 1, 5.96046e-08, 0, 0, 0, 1, -0.6875, 4.09782e-08, 0 )
+use_color = false
+color = Color( 1, 1, 1, 1 )
 
 [node name="Rim" parent="Editor" instance=ExtResource( 7 )]
 transform = Transform( 4.37114e-08, 1, -1.50996e-07, 1, -4.37114e-08, 5.2108e-15, -1.38944e-15, -1.50996e-07, -1, -0.688, 0, 0 )
 
 [node name="Rim hinge" parent="Editor" instance=ExtResource( 9 )]
 transform = Transform( -1, -7.86809e-22, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, -0.687, 1.76248e-15, -3.52496e-15 )
+color = Color( 0.984314, 0.984314, 0.984314, 1 )

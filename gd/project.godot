@@ -14,6 +14,16 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/aabb_camera.gd"
 }, {
+"base": "",
+"class": "BatchedMeshInstance",
+"language": "NativeScript",
+"path": "res://addons/3d_batcher/batched_mesh_instance.gdns"
+}, {
+"base": "",
+"class": "BatchedMeshManager",
+"language": "NativeScript",
+"path": "res://addons/3d_batcher/batched_mesh_manager.gdns"
+}, {
 "base": "Node",
 "class": "BrickAI",
 "language": "GDScript",
@@ -171,6 +181,8 @@ _global_script_classes=[ {
 } ]
 _global_script_class_icons={
 "AABBCamera": "",
+"BatchedMeshInstance": "",
+"BatchedMeshManager": "",
 "BrickAI": "",
 "FlowContainer": "",
 "FreeCamera": "",
@@ -224,6 +236,7 @@ OwnWar_NetInfo="*res://maps/net_info.gd"
 OwnWar_Lobby="*res://lobby/lobby.gd"
 OwnWar_Settings="*res://settings/autoload.gd"
 OwnWar_UiSounds="*res://ui/ui_sounds.gd"
+BatchedMeshManager="*res://addons/3d_batcher/batched_mesh_manager.gdns"
 
 [display]
 
@@ -234,7 +247,7 @@ window/size/test_height=810
 
 [editor_plugins]
 
-enabled=PoolStringArray( "metadata_inspector", "zylann.hterrain" )
+enabled=PoolStringArray( "3d_batcher", "metadata_inspector", "zylann.hterrain" )
 
 [gdnative]
 
