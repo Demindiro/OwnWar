@@ -36,25 +36,26 @@ func _physics_process(delta: float) -> void:
 	translation += velocity * delta
 	velocity.y -= GRAVITY * delta
 
-	var state := get_world().direct_space_state
-	var result := state.intersect_ray(old_tr, translation)
-	if len(result) > 0:
-		var collider = result["collider"]
-		var pos: Vector3 = result["position"]
-		if collider.has_method("raycast"):
-			var p = collider.raycast(old_tr, translation - old_tr)
-			if p == null:
-				return
-			# See https://github.com/bulletphysics/bullet3/issues/459, the moment we're inside
-			# we can no longer detect the body
-			# There may be a crafty workaround to this, but I can't be bothered
-			#if p.distance_squared_to(old_tr) > translation.distance_squared_to(old_tr):
-			#	return
-			pos = p
-		explode(pos)
+	if is_network_master():
+		var state := get_world().direct_space_state
+		var result := state.intersect_ray(old_tr, translation)
+		if len(result) > 0:
+			var collider = result["collider"]
+			var pos: Vector3 = result["position"]
+			if collider.has_method("raycast"):
+				var p = collider.raycast(old_tr, translation - old_tr)
+				if p == null:
+					return
+				# See https://github.com/bulletphysics/bullet3/issues/459, the moment we're inside
+				# we can no longer detect the body
+				# There may be a crafty workaround to this, but I can't be bothered
+				#if p.distance_squared_to(old_tr) > translation.distance_squared_to(old_tr):
+				#	return
+				pos = p
+			rpc("explode", pos)
 
 
-func explode(position: Vector3) -> void:
+puppetsync func explode(position: Vector3) -> void:
 	queue_free()
 	if is_network_master():
 		var param := PhysicsShapeQueryParameters.new()
