@@ -56,24 +56,25 @@ func _physics_process(delta: float) -> void:
 
 func explode(position: Vector3) -> void:
 	queue_free()
-	var param := PhysicsShapeQueryParameters.new()
-	var shape := SphereShape.new()
-	shape.radius = radius * BLOCK_SCALE
-	param.set_shape(shape)
-	param.transform.origin = position
-	param.collision_mask = explosion_mask
-	var entities := []
-	for result in get_world().direct_space_state.intersect_shape(param):
-		var collider = result["collider"]
-		if collider.has_method("apply_explosion_damage") and collider.get("team") != team:
-			entities.push_back(collider)
-	if len(entities) > 0:
-		var dmg := damage / len(entities)
-		for i in len(entities):
-			var e = entities[i]
-			# Make sure all damage is applied and somewhat evenly too
-			var d := dmg if damage - dmg < i else (dmg + 1)
-			e.apply_explosion_damage(position, radius, d)
+	if is_network_master():
+		var param := PhysicsShapeQueryParameters.new()
+		var shape := SphereShape.new()
+		shape.radius = radius * BLOCK_SCALE
+		param.set_shape(shape)
+		param.transform.origin = position
+		param.collision_mask = explosion_mask
+		var entities := []
+		for result in get_world().direct_space_state.intersect_shape(param):
+			var collider = result["collider"]
+			if collider.has_method("apply_explosion_damage") and collider.get("team") != team:
+				entities.push_back(collider)
+		if len(entities) > 0:
+			var dmg := damage / len(entities)
+			for i in len(entities):
+				var e = entities[i]
+				# Make sure all damage is applied and somewhat evenly too
+				var d := dmg if damage - dmg < i else (dmg + 1)
+				e.apply_explosion_damage(position, radius, d)
 	var n: Spatial = explosion.instance()
 	n.translation = position
 	n.radius = radius
