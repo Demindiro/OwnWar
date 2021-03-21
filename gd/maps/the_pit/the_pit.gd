@@ -169,7 +169,7 @@ func request_respawn() -> void:
 	if is_inside_tree():
 		yield(get_tree().create_timer(1.5), "timeout")
 		if server_mode:
-			request_vehicle(player_vehicle_data)
+			request_vehicle(player_vehicle_data, false)
 			hud.player_vehicle = clients[1]
 			var e: int = clients[1].connect("tree_exited", self, "request_respawn")
 			assert(e == OK)
