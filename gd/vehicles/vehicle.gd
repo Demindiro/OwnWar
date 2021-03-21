@@ -137,7 +137,7 @@ func _physics_process(delta: float) -> void:
 
 		for weapon in weapons:
 			weapon.aim_at(controller.aim_at)
-		if len(fireable_weapons) > 0:
+		if is_network_master() and len(fireable_weapons) > 0:
 			if controller.fire:
 				if delay_until_next_fire <= 0:
 					if fireable_weapons[0].volley:
