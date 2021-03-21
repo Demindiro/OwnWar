@@ -62,7 +62,9 @@ func spawn_player_vehicle() -> void:
 	var file := File.new()
 	assert(OwnWar_Settings.selected_vehicle_path != "")
 	var e := file.open_compressed(OwnWar_Settings.selected_vehicle_path, File.READ, File.COMPRESSION_GZIP)
-	assert(e == OK)
+	if e != OK:
+		e = file.open(OwnWar_Settings.selected_vehicle_path, File.READ)
+	assert(e == OK, "Failed to open file %s" % OwnWar_Settings.selected_vehicle_path)
 	var data := file.get_buffer(file.get_len())
 	if server_mode:
 		request_vehicle(data, false)

@@ -24,10 +24,12 @@ __meta__ = {
 [node name="Cancel" parent="." instance=ExtResource( 8 )]
 
 [node name="Direct" type="VBoxContainer" parent="."]
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
 margin_left = 40.0
-margin_top = 451.0
-margin_right = 1880.0
-margin_bottom = 629.0
+margin_right = -40.0
+grow_vertical = 2
 rect_min_size = Vector2( 300, 0 )
 script = ExtResource( 3 )
 __meta__ = {
@@ -65,29 +67,28 @@ value = 39983.0
 prefix = "Port"
 
 [node name="Password" type="LineEdit" parent="Direct"]
-visible = false
 margin_top = 119.0
-margin_right = 300.0
+margin_right = 1840.0
 margin_bottom = 148.0
 secret = true
 placeholder_text = "Password (optional)"
 
 [node name="Padding bottom" type="Control" parent="Direct"]
-margin_top = 119.0
+margin_top = 158.0
 margin_right = 1840.0
-margin_bottom = 139.0
+margin_bottom = 178.0
 rect_min_size = Vector2( 0, 20 )
 
 [node name="Connect" type="Button" parent="Direct"]
-margin_top = 149.0
+margin_top = 188.0
 margin_right = 1840.0
-margin_bottom = 178.0
+margin_bottom = 217.0
 text = "Connect"
 
 [node name="Status" parent="Direct" instance=ExtResource( 1 )]
-margin_top = 188.0
+margin_top = 227.0
 margin_right = 1840.0
-margin_bottom = 283.0
+margin_bottom = 258.0
 _error = NodePath("../../Direct/Status/Error")
 _icon = NodePath("../../Direct/Status/Box/Icon")
 [connection signal="pressed" from="Cancel" to="." method="set_visible" binds= [ false ]]

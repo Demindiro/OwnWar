@@ -42,6 +42,7 @@ _port = NodePath("Box/Box/Port")
 _max_players = NodePath("Box/Box/Max players")
 _password = NodePath("Box/Box/Password")
 _status = NodePath("Box/Box/Status")
+maps = PoolStringArray( "res://maps/the_pit/the_pit.tscn" )
 
 [node name="Title" type="Label" parent="Host"]
 margin_right = 1840.0
@@ -155,12 +156,12 @@ text = "Start server"
 [node name="Status" parent="Host/Box/Box" instance=ExtResource( 7 )]
 margin_top = 318.0
 margin_right = 918.0
-margin_bottom = 413.0
+margin_bottom = 349.0
 _error = NodePath("../../../../Host/Box/Box/Status/Error")
 _icon = NodePath("../../../../Host/Box/Box/Status/Box/Icon")
 
 [node name="Cancel" parent="." instance=ExtResource( 5 )]
-[connection signal="toggled" from="Host/Box/Box/List in lobby" to="Host/Box/Box/Description" method="set_visible"]
 [connection signal="toggled" from="Host/Box/Box/List in lobby" to="Host/Box/Box/Name" method="set_visible"]
+[connection signal="toggled" from="Host/Box/Box/List in lobby" to="Host/Box/Box/Description" method="set_visible"]
 [connection signal="pressed" from="Host/Box/Box/Start server" to="Host" method="launch"]
 [connection signal="pressed" from="Cancel" to="." method="set_visible" binds= [ false ]]
