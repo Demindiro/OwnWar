@@ -7,6 +7,7 @@ mod godot {
 
 	use super::data::{Vehicle, VehicleError};
 	use crate::block;
+	use crate::rotation::*;
 	use crate::util::{convert_vec, VoxelRaycast, AABB};
 	use crate::vehicle::VoxelMesh;
 	use euclid::Vector3D;
@@ -39,8 +40,7 @@ mod godot {
 		#[property]
 		data_path: String,
 
-		#[property]
-		rotation: u8,
+		rotation: Rotation,
 		#[property]
 		mirror: bool,
 		#[property]
@@ -181,6 +181,12 @@ mod godot {
 				.with_getter(Self::edit_mode)
 				.with_setter(Self::set_edit_mode)
 				.done();
+
+			builder
+				.add_property("rotation")
+				.with_getter(Self::gd_get_rotation)
+				.with_setter(Self::gd_set_rotation)
+				.done();
 		}
 
 		fn new(_owner: TRef<Node>) -> Self {
@@ -194,7 +200,7 @@ mod godot {
 				data_path: String::new(),
 
 				mirror: false,
-				rotation: 0,
+				rotation: Rotation::default(),
 				snap_face: true,
 				map_rotation: true,
 				selected_block: NonZeroU16::new(13).unwrap(), // Standard cube
@@ -782,7 +788,7 @@ mod godot {
 			id: NonZeroU16,
 			layer: u8,
 			position: Vec3<u8>,
-			rotation: u8,
+			rotation: Rotation,
 			color: u8,
 		) -> Result<(), &'static str> {
 			if position.x >= GRID_SIZE || position.y >= GRID_SIZE || position.z >= GRID_SIZE {
@@ -860,7 +866,7 @@ mod godot {
 			owner: TRef<Node>,
 			block: &block::Block,
 			position: Vec3<u8>,
-			rotation: u8,
+			rotation: Rotation,
 			color: Color,
 			nodes: &mut HashMap<Vec3<u8>, Ref<Spatial>>,
 		) {
@@ -875,8 +881,7 @@ mod godot {
 				};
 				node.set_transform(Transform {
 					origin: convert_vec(position),
-					basis: block::Block::rotation_to_basis(rotation)
-						.scaled(&Vec3::new(4.0, 4.0, 4.0)),
+					basis: rotation.basis().scaled(&Vec3::new(4.0, 4.0, 4.0)),
 				});
 				node.set("team_color", Color::rgb(0.0, 1.0, 0.976471));
 				if node.has_method("set_color") {
@@ -892,9 +897,9 @@ mod godot {
 
 		fn get_mirror_orientation(
 			position: Vec3<u8>,
-			rotation: u8,
+			rotation: Rotation,
 			id: NonZeroU16,
-		) -> Option<(Vec3<u8>, u8, NonZeroU16)> {
+		) -> Option<(Vec3<u8>, Rotation, NonZeroU16)> {
 			let mut pos = position;
 			pos.x = (GRID_SIZE - 1) - pos.x;
 			let block = block::Block::get(id).expect("Failed to get block");
@@ -1018,11 +1023,11 @@ mod godot {
 
 		fn rotate_ghost(&mut self, owner: TRef<Node>, amount: i32) {
 			let amount = amount.rem_euclid(24) as u8;
-			self.rotation = (self.rotation + amount) % 24;
+			self.rotation = Rotation::new((self.rotation.get() + amount) % 24).unwrap();
 			if self.snap_face {
 				self.snap_ghost(owner);
 			} else {
-				owner.emit_signal("ghost_rotation", &[self.rotation.to_variant()]);
+				owner.emit_signal("ghost_rotation", &[self.rotation.get().to_variant()]);
 			}
 			self.map_rotation();
 			owner.emit_signal("play_rotate_effect", &[]);
@@ -1034,17 +1039,16 @@ mod godot {
 				return; // Ray didn't collide with anything
 			}
 			let normal = (normal.x, normal.y, normal.z);
-			self.rotation =
-				block::Block::snap_rotation_to_direction(self.rotation, normal).unwrap();
+			self.rotation = self.rotation.snap_to_direction(normal).unwrap();
 			self.map_rotation();
-			owner.emit_signal("ghost_rotation", &[self.rotation.to_variant()]);
+			owner.emit_signal("ghost_rotation", &[self.rotation.get().to_variant()]);
 		}
 
 		fn map_rotation(&mut self) {
 			if self.map_rotation {
 				let block = block::Block::get(self.selected_block).expect("Failed to get block");
 				if let Some(map) = block.alternate_rotation_map {
-					self.rotation = map[self.rotation as usize];
+					self.rotation = map[self.rotation.get() as usize];
 				}
 			}
 		}
@@ -1176,7 +1180,7 @@ mod godot {
 			);
 			for (position, (rotation, node)) in nodes {
 				let position = convert_vec(position).to_variant();
-				let rotation = rotation.to_variant();
+				let rotation = rotation.get().to_variant();
 				owner.emit_signal("add_outline_node", &[position, rotation, node.to_variant()]);
 			}
 		}
@@ -1206,6 +1210,18 @@ mod godot {
 				self.selected_block = id;
 			} else {
 				godot_error!("Block ID {} is not valid", id);
+			}
+		}
+
+		fn gd_get_rotation(&self, _owner: TRef<Node>) -> u8 {
+			self.rotation.get()
+		}
+
+		fn gd_set_rotation(&mut self, _owner: TRef<Node>, rotation: u8) {
+			if let Ok(v) = Rotation::new(rotation) {
+				self.rotation = v;
+			} else {
+				godot_error!("Rotation is out of bounds");
 			}
 		}
 	}
@@ -1295,8 +1311,9 @@ mod godot {
 			let mut w = arr.write();
 			for (i, (p, b)) in layer.iter_blocks().enumerate() {
 				w[i * 2] = ((p.x as i32) << 16) | ((p.y as i32) << 8) | (p.z as i32);
-				w[i * 2 + 1] =
-					((b.rotation as i32) << 24) | ((b.color as i32) << 16) | (b.id.get() as i32);
+				w[i * 2 + 1] = ((b.rotation.get() as i32) << 24)
+					| ((b.color as i32) << 16)
+					| (b.id.get() as i32);
 			}
 			drop(w);
 			arr

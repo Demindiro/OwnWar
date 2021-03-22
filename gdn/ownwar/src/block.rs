@@ -1,8 +1,9 @@
+use crate::rotation::*;
 use crate::util::{convert_vec, AABB};
 use gdnative::api::{Mesh, Resource};
 use gdnative::prelude::*;
 use lazy_static::lazy_static;
-use std::convert::TryInto;
+use std::convert::{TryFrom, TryInto};
 use std::num::{NonZeroU16, NonZeroU32};
 use std::sync::RwLock;
 
@@ -36,12 +37,14 @@ pub struct Block {
 	pub cost: NonZeroU16,
 	pub aabb: AABB<i8>,
 
-	mirror_rotation_offset: u8,
+	mirror_rotation_offset: Rotation,
 	mirror_block_id: Option<NonZeroU16>,
 
-	mirror_rotation_map: [u8; 24],
+	mirror_rotation_map: [Rotation; 24],
 
-	pub alternate_rotation_map: Option<[u8; 24]>,
+	pub alternate_rotation_map: Option<[Rotation; 24]>,
+
+	solid_faces: u8,
 }
 
 #[derive(NativeClass)]
@@ -145,12 +148,14 @@ impl Block {
 			mass: 0.0,
 			mesh: None,
 			mirror_block_id: None,
-			mirror_rotation_offset: 0,
+			mirror_rotation_offset: Rotation::default(),
 			revision: 0,
 
-			mirror_rotation_map: [0; 24],
+			mirror_rotation_map: [Rotation::default(); 24],
 
 			alternate_rotation_map: None,
+
+			solid_faces: 0,
 		};
 		s.gd_set_mirror_rotation_offset(owner, 0);
 		s
@@ -158,12 +163,34 @@ impl Block {
 
 	#[export]
 	fn get_basis(&self, _owner: &Resource, rotation: u8) -> Basis {
-		Self::rotation_to_basis(rotation)
+		if let Ok(v) = Rotation::new(rotation) {
+			v.basis()
+		} else {
+			godot_error!("Rotation out of bounds");
+			Basis::identity()
+		}
 	}
 
 	#[export]
 	fn get_mirror_rotation(&self, _owner: &Resource, rotation: u8) -> u8 {
-		self.mirror_rotation_map[rotation as usize]
+		let rotation = if let Ok(v) = Rotation::new(rotation) {
+			v
+		} else {
+			godot_error!("Rotation out of bounds");
+			return 0;
+		};
+		self.mirror_rotation_map[rotation.get() as usize].get()
+	}
+
+	#[export]
+	fn get_solid_faces(&self, _owner: TRef<Resource>, rotation: u8) -> u8 {
+		let rotation = if let Ok(v) = Rotation::new(rotation) {
+			v
+		} else {
+			godot_error!("Rotation out of bounds");
+			return 0;
+		};
+		self.solid_faces_rotated(rotation)
 	}
 }
 
@@ -311,28 +338,17 @@ impl Block {
 	}
 
 	fn gd_get_mirror_rotation_offset(&self, _owner: TRef<Resource>) -> u8 {
-		self.mirror_rotation_offset
+		self.mirror_rotation_offset.get()
 	}
 
 	fn gd_set_mirror_rotation_offset(&mut self, _owner: TRef<Resource>, offset: u8) {
-		assert!(offset < 4);
-		for i in 0..24 {
-			let angle = i & 3;
-			let direction = i >> 2;
-
-			let angle = if offset % 2 == 0 {
-				[0, 3, 2, 1][angle]
-			} else {
-				[3, 2, 1, 0][angle]
-			};
-			let direction = match direction {
-				3 => 2,
-				2 => 3,
-				_ => direction,
-			};
-
-			self.mirror_rotation_map[i] = ((direction << 2) | angle) as u8;
-		}
+		let offset = if let Ok(v) = Rotation::new(offset) {
+			v
+		} else {
+			godot_error!("Offset is out of bounds");
+			return;
+		};
+		self.mirror_rotation_map = offset.rotation_map();
 		self.mirror_rotation_offset = offset;
 	}
 
@@ -342,7 +358,7 @@ impl Block {
 			map.resize(24);
 			let mut w = map.write();
 			for (i, &c) in arr.iter().enumerate() {
-				w[i] = c;
+				w[i] = c.get();
 			}
 			drop(w);
 			map
@@ -360,9 +376,16 @@ impl Block {
 				if r.len() == 0 {
 					None
 				} else {
-					let mut arr = self.alternate_rotation_map.unwrap_or([0; 24]);
+					let mut arr = self
+						.alternate_rotation_map
+						.unwrap_or([Rotation::default(); 24]);
 					for (i, &c) in r.iter().enumerate().take(arr.len()) {
-						arr[i] = c;
+						arr[i] = if let Ok(v) = Rotation::new(c) {
+							v
+						} else {
+							godot_error!("Rotation is out of bounds");
+							return;
+						};
 					}
 					Some(arr)
 				}
@@ -408,44 +431,6 @@ impl Block {
 		self.mesh.as_ref()
 	}
 
-	pub fn rotation_to_basis(rotation: u8) -> Basis {
-		use std::f32::consts::{FRAC_PI_2, PI};
-		assert!(rotation < 24);
-		let angle = rotation & 3;
-		let direction = rotation >> 2;
-		let f = |x, y, z| Basis::from_euler(Vector3::new(x, y, z));
-		let basis = f(0.0, FRAC_PI_2 * angle as f32, 0.0);
-		// TODO wtf rust?
-		let b2 = match direction {
-			0 => Basis::identity(),
-			1 => f(0.0, 0.0, PI),
-			2 => f(0.0, 0.0, -FRAC_PI_2),
-			3 => f(0.0, 0.0, FRAC_PI_2),
-			4 => f(FRAC_PI_2, 0.0, 0.0),
-			5 => f(0.0, PI, 0.0) * f(FRAC_PI_2, 0.0, 0.0),
-			_ => unreachable!(),
-		};
-		b2 * basis
-	}
-
-	pub fn snap_rotation_to_direction<T>(rotation: u8, axis: (T, T, T)) -> Result<u8, ()>
-	where
-		T: TryInto<i64> + Copy,
-	{
-		let f = |v: T| v.try_into().map_err(|_e| ());
-		let axis = (f(axis.0)?, f(axis.1)?, f(axis.2)?);
-		let d = match axis {
-			(0, 1, 0) => 0,
-			(0, -1, 0) => 1,
-			(1, 0, 0) => 2,
-			(-1, 0, 0) => 3,
-			(0, 0, 1) => 4,
-			(0, 0, -1) => 5,
-			_ => return Err(()),
-		};
-		Ok((rotation & 3) | (d << 2))
-	}
-
 	pub fn mirror_block(&self) -> &Block {
 		if let Some(id) = self.mirror_block_id {
 			Self::get(id).expect("Invalid mirror block")
@@ -454,22 +439,65 @@ impl Block {
 		}
 	}
 
-	pub fn mirror_rotation(&self, rotation: u8) -> u8 {
-		self.mirror_rotation_map[rotation as usize]
+	pub fn mirror_rotation(&self, rotation: Rotation) -> Rotation {
+		self.mirror_rotation_map[rotation.get() as usize]
 	}
 
-	pub fn map_rotation_counter_clockwise(rotation: u8) -> u8 {
-		let a = rotation & 3;
-		let (d, a) = match rotation >> 2 {
-			0 => (0, [1, 2, 3, 0][a as usize]),
-			1 => (1, [3, 0, 1, 2][a as usize]),
-			2 => (5, [3, 0, 1, 2][a as usize]),
-			3 => (4, (a + 1) & 3),
-			4 => (2, (a + 1) & 3),
-			5 => (3, [3, 4, 1, 2][a as usize]),
-			_ => unreachable!(),
-		};
-		(d << 2) | a
+	/// Returns true if the given face is entirely solid (i.e. no gaps)
+	pub fn solid_faces_rotated(&self, rotation: Rotation) -> u8 {
+		let mut bits = 0;
+		for i in 0..6 {
+			let dir = Direction::new(i).unwrap();
+			let dir = rotation.transform_direction(dir);
+			let k = dir.get();
+			bits |= ((self.solid_faces >> i) & 1) << k;
+		}
+		bits
+	}
+
+	/// Generate occlusion info used to optimize VoxelMeshes
+	fn generate_occlusion_info(&mut self) {
+		let mut surfaces = [0.0; 6];
+		for (_, array) in self.mesh_arrays() {
+			for array in array.data.iter() {
+				let iter = array
+					.chunks_exact(3)
+					.map(|v| <[MeshPoint; 3]>::try_from(v).expect("Failed to unpack chunks_exact"));
+				for [a, b, c] in iter {
+					let (a, b, c) = (a.vertex, b.vertex, c.vertex);
+					let (f, g) = (b - a, c - a);
+					let cross = f.cross(g);
+					let norm = cross.normalize();
+					let eq = |x: f32, y: f32, z: f32| {
+						(norm.x - x).abs() < 1e-4
+							&& (norm.y - y).abs() < 1e-4 && (norm.z - z).abs() < 1e-4
+					};
+					let cmp3 = |i| {
+						let s = SCALE / 2.0;
+						let (a, b, c): (f32, f32, f32) =
+							(a.to_array()[i], b.to_array()[i], c.to_array()[i]);
+						((a - s).abs() < 1e-4 || (a + s).abs() < 1e-4)
+							&& (a - b).abs() < 1e-4 && (a - c).abs() < 1e-4
+					};
+					let dir = match norm {
+						_ if eq(0.0, 1.0, 0.0) && cmp3(1) => 0,
+						_ if eq(0.0, -1.0, 0.0) && cmp3(1) => 1,
+						_ if eq(1.0, 0.0, 0.0) && cmp3(0) => 2,
+						_ if eq(-1.0, 0.0, 0.0) && cmp3(0) => 3,
+						_ if eq(0.0, 0.0, 1.0) && cmp3(2) => 4,
+						_ if eq(0.0, 0.0, -1.0) && cmp3(2) => 5,
+						_ => continue,
+					};
+					surfaces[dir] += cross.length() / 2.0;
+				}
+			}
+		}
+		self.solid_faces = 0;
+		for (i, &surface) in surfaces.iter().enumerate() {
+			if surface >= 0.99 * (SCALE * SCALE) {
+				self.solid_faces |= 1 << i;
+			}
+		}
 	}
 }
 
@@ -489,7 +517,11 @@ impl BlockManager {
 				.assume_safe()
 				.cast_instance::<Block>()
 				.unwrap()
-				.map(|block, _| {
+				.map_mut(|block, _| {
+					if block.mass == 0.0 {
+						godot_warn!("Mass of block {} is 0", block.id);
+					}
+					block.generate_occlusion_info();
 					let id = block.id.get();
 					let i = id as usize - 1;
 					let mut blocks = BLOCKS.write().unwrap();
@@ -505,9 +537,7 @@ impl BlockManager {
 						// This will do for now...
 						// FIXME this is such a terrible idea
 						blocks[i] = Some((std::mem::transmute(block), owner));
-					}
-					if block.mass == 0.0 {
-						godot_warn!("Mass of block {} is 0", block.id);
+						blocks[i].as_mut().unwrap().0
 					}
 				})
 				.unwrap();
@@ -516,7 +546,12 @@ impl BlockManager {
 
 	#[export]
 	fn rotation_to_basis(&self, _owner: &Reference, rotation: u8) -> Basis {
-		Block::rotation_to_basis(rotation)
+		if let Ok(rotation) = Rotation::new(rotation) {
+			rotation.basis()
+		} else {
+			godot_error!("Rotation is out of bounds");
+			Basis::identity()
+		}
 	}
 
 	#[export]

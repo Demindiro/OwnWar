@@ -1,17 +1,19 @@
 use crate::block;
+use crate::rotation::*;
 use crate::util::convert_vec;
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{ArrayMesh, Material, Mesh, Resource, SpatialMaterial};
 use gdnative::prelude::*;
 use lazy_static::lazy_static;
 use std::collections::{hash_map::Entry, HashMap};
+use std::convert::TryInto;
 use std::num::NonZeroU16;
 use std::sync::{Arc, RwLock};
 
 type Voxel = Vector3D<u8, UnknownUnit>;
 
 lazy_static! {
-	static ref SUBMESH_CACHE: RwLock<HashMap<(NonZeroU16, Voxel, u8, u8), SubMesh>> =
+	static ref SUBMESH_CACHE: RwLock<HashMap<(NonZeroU16, Voxel, Rotation, u8), SubMesh>> =
 		RwLock::new(HashMap::new());
 }
 
@@ -21,6 +23,7 @@ pub(crate) struct VoxelMesh {
 	#[property]
 	dirty: bool,
 	meshes: HashMap<(u8, u8, u8), (Ref<SpatialMaterial>, Vec<SubMesh>, bool)>,
+	occlusion_map: HashMap<Voxel, OcclusionInfo>,
 	remove_list_positions: Vec<Voxel>,
 }
 
@@ -31,6 +34,10 @@ struct SubMesh {
 	coordinate: Voxel,
 }
 
+struct OcclusionInfo {
+	solid_faces: u8,
+}
+
 #[methods]
 impl VoxelMesh {
 	pub(crate) fn new(_owner: &ArrayMesh) -> Self {
@@ -38,6 +45,7 @@ impl VoxelMesh {
 			dirty: false,
 			meshes: HashMap::new(),
 			remove_list_positions: Vec::new(),
+			occlusion_map: HashMap::new(),
 		}
 	}
 
@@ -50,6 +58,12 @@ impl VoxelMesh {
 		coordinate: Vector3,
 		rotation: u8,
 	) {
+		let rotation = if let Ok(v) = Rotation::new(rotation) {
+			v
+		} else {
+			godot_error!("Rotation is out of bounds");
+			return;
+		};
 		unsafe {
 			let v = convert_vec(coordinate);
 			block
@@ -68,7 +82,7 @@ impl VoxelMesh {
 		block: &block::Block,
 		color: Color,
 		coordinate: Voxel,
-		rotation: u8,
+		rotation: Rotation,
 	) {
 		if let Some((_, mesh_arrays)) = block.mesh_arrays() {
 			let key = Self::color_to_tuple(color);
@@ -88,11 +102,14 @@ impl VoxelMesh {
 				self.dirty = true
 			}
 		}
+		self.occlusion_map
+			.insert(coordinate, OcclusionInfo::new(block, rotation));
 	}
 
 	pub(crate) fn remove_block(&mut self, coordinate: Voxel) {
 		self.remove_list_positions.push(coordinate);
-		self.dirty = true
+		self.occlusion_map.remove(&coordinate);
+		self.dirty = true;
 	}
 
 	#[export]
@@ -110,7 +127,7 @@ impl VoxelMesh {
 			if list.is_empty() {
 				Self::remove_surface_array(owner, material.clone().upcast());
 				remove_colors.push(color);
-			} else if *array_dirty {
+			} else if *array_dirty || true {
 				Self::remove_surface_array(owner, material.clone().upcast());
 				let mut vertices = TypedArray::<Vector3>::new();
 				let mut normals = TypedArray::<Vector3>::new();
@@ -126,10 +143,12 @@ impl VoxelMesh {
 					let mut norms = normals.write();
 					let mut i = 0;
 					for sm in list.iter() {
-						for point in sm.array.iter() {
-							verts[i] = point.vertex;
-							norms[i] = point.normal;
-							i += 1;
+						if !Self::is_block_occluded(&self.occlusion_map, sm.coordinate) {
+							for point in sm.array.iter() {
+								verts[i] = point.vertex;
+								norms[i] = point.normal;
+								i += 1;
+							}
 						}
 					}
 				}
@@ -161,6 +180,43 @@ impl VoxelMesh {
 		self.dirty
 	}
 
+	fn is_block_occluded(map: &HashMap<Voxel, OcclusionInfo>, pos: Voxel) -> bool {
+		let pos = convert_vec(pos);
+		type V = Vector3D<i16, UnknownUnit>;
+		let offsets = [
+			(0, V::new(0, 1, 0)),
+			(1, V::new(0, -1, 0)),
+			(2, V::new(1, 0, 0)),
+			(3, V::new(-1, 0, 0)),
+			(4, V::new(0, 0, 1)),
+			(5, V::new(0, 0, -1)),
+		];
+		for &(dir, offset) in &offsets {
+			let pos = pos + offset;
+			let pos = pos.x.try_into().map(|x| {
+				pos.y
+					.try_into()
+					.map(|y| pos.z.try_into().map(|z| Voxel::new(x, y, z)))
+			});
+			// Flatten doesn't work, so nested Ok()s it is!
+			if let Ok(Ok(Ok(pos))) = pos {
+				if !map.get(&pos).map_or(false, |v| v.is_face_solid(dir)) {
+					return false;
+				}
+			} else {
+				// There is no block there, hence it's visible from that side
+				return false;
+			}
+		}
+		true
+	}
+
+	/*
+	fn is_vertex_occluded(map: &HashMap<Voxel, OcclusionInfo>, pos: Vector3) -> bool {
+		false
+	}
+	*/
+
 	fn remove_surface_array(owner: &ArrayMesh, material: Ref<Material>) {
 		for i in 0..owner.get_surface_count() {
 			if material == owner.surface_get_material(i).unwrap() {
@@ -190,7 +246,7 @@ impl VoxelMesh {
 	fn get_submesh(
 		id: NonZeroU16,
 		coordinate: Voxel,
-		rotation: u8,
+		rotation: Rotation,
 		index: u8,
 		array: &Vec<block::MeshPoint>,
 	) -> SubMesh {
@@ -200,7 +256,7 @@ impl VoxelMesh {
 			sm.clone()
 		} else {
 			drop(cache);
-			let basis = block::Block::rotation_to_basis(rotation);
+			let basis = rotation.basis();
 			let position = convert_vec(coordinate) * block::SCALE;
 			let mut a = Vec::with_capacity(array.len());
 			for point in array.iter() {
@@ -242,5 +298,17 @@ impl SubMesh {
 			array: Arc::new(array),
 			coordinate,
 		}
+	}
+}
+
+impl OcclusionInfo {
+	fn new(block: &block::Block, rotation: Rotation) -> Self {
+		Self {
+			solid_faces: block.solid_faces_rotated(rotation),
+		}
+	}
+
+	fn is_face_solid(&self, direction: u8) -> bool {
+		self.solid_faces & (1 << direction) > 0
 	}
 }

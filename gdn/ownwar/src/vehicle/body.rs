@@ -2,6 +2,7 @@ use super::interpolation_state::InterpolationState;
 use super::voxel_body::VoxelBody;
 use super::voxel_mesh::VoxelMesh;
 use crate::block;
+use crate::rotation::*;
 use crate::util::{convert_vec, BitArray, AABB};
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{Spatial, VehicleBody};
@@ -82,7 +83,7 @@ impl Body {
 		owner: TRef<VehicleBody>,
 		voxel_mesh: &mut VoxelMesh,
 		position: Voxel,
-		rotation: u8,
+		rotation: Rotation,
 		block: &block::Block,
 		color: Color,
 		state: Option<&TypedArray<i32>>,
@@ -131,7 +132,7 @@ impl Body {
 		self.count += 1;
 
 		if let Some(ref mut bb) = bb {
-			let basis = block::Block::rotation_to_basis(rotation);
+			let basis = rotation.basis();
 			let origin = Vector3::new(
 				position.x as f32 + 0.5,
 				position.y as f32 + 0.5,

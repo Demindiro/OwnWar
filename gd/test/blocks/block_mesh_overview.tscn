@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://test/blocks/block_mesh_overview.gd" type="Script" id=1]
+[ext_resource path="res://addons/free_camera.gd" type="Script" id=2]
+
+[node name="Block mesh overview" type="Node"]
+script = ExtResource( 1 )
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 3, 7 )
+script = ExtResource( 2 )
+actions = PoolStringArray( "editor_move_left", "editor_move_right", "editor_move_forward", "editor_move_back", "editor_move_up", "editor_move_down" )
+
+[node name="Rotation" type="HSlider" parent="."]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -553.0
+margin_top = -77.0
+margin_right = 553.0
+margin_bottom = -61.0
+grow_horizontal = 2
+grow_vertical = 0
+max_value = 23.0
+rounded = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Blocks" type="Node" parent="."]
+[connection signal="value_changed" from="Rotation" to="." method="set_rotation"]

@@ -1,4 +1,5 @@
 use super::data::Vehicle;
+use crate::rotation::Rotation;
 use std::convert::{TryFrom, TryInto};
 use std::num::NonZeroU16;
 use std::str::Utf8Error;
@@ -165,6 +166,7 @@ mod rev_1 {
 					(data, rotation) = read_u8(data)?;
 					(data, color) = read_u8(data)?;
 					// TODO don't unwrap, handle the error properly
+					let rotation = Rotation::new(rotation).unwrap();
 					vehicle
 						.add_block(layer, Vec3u8::new(x, y, z), id, rotation, color)
 						.unwrap();
@@ -230,7 +232,7 @@ mod rev_1 {
 			for (x, y, z) in iter_3d_inclusive((s.x, s.y, s.z), (e.x, e.y, e.z)) {
 				if let Some(block) = layer.get_block(Vec3u8::new(x, y, z)) {
 					block_data.extend(&block.id.get().to_le_bytes());
-					block_data.push(block.rotation);
+					block_data.push(block.rotation.get());
 					block_data.push(block.color);
 				} else {
 					block_data.extend(&0u16.to_le_bytes());
@@ -339,6 +341,8 @@ mod rev_0 {
 					// Silently discard extraneous colors to make sure the vehicle still loads
 					// Having more than 256 colors is valid in this revision
 					.or_insert_with(|| vehicle.add_color(color).unwrap_or(0));
+				// TODO don't unwrap
+				let rotation = Rotation::new(rotation).unwrap();
 				// Note that overlap only refers to overlapping _layers_, not overlap within the same layer
 				if vehicle
 					.add_block_with_overlap(layer, position, id, rotation, color)
@@ -366,7 +370,7 @@ mod tests {
 			let layer_name = "Layer 0";
 			let color = Vec3u8::new(255, 255, 255);
 			let id = NonZeroU16::new(1).unwrap();
-			let rotation = 0;
+			let rotation = Rotation::default();
 			let position = Vec3u8::new(5, 2, 9);
 
 			let mut vehicle = Vehicle::new();
@@ -377,7 +381,7 @@ mod tests {
 				.set_layer_name(layer_id, String::from(layer_name))
 				.unwrap();
 			vehicle
-				.add_block(layer_id, position, id, 0, color_id)
+				.add_block(layer_id, position, id, rotation, color_id)
 				.unwrap();
 
 			let data = save(&vehicle).unwrap();
@@ -401,7 +405,7 @@ mod tests {
 			let layer_name = "Layer 0";
 			let color = Vec3u8::new(255, 255, 255);
 			let id = NonZeroU16::new(1).unwrap();
-			let rotation = 0;
+			let rotation = Rotation::default();
 			let position = Vec3u8::new(5, 2, 9);
 
 			let mut vehicle = Vehicle::new();
@@ -413,7 +417,13 @@ mod tests {
 				.unwrap();
 			for (x, y, z) in iter_3d((0, 0, 0), (3, 3, 3)) {
 				vehicle
-					.add_block(layer_id, position + Vec3u8::new(x, y, z), id, 0, color_id)
+					.add_block(
+						layer_id,
+						position + Vec3u8::new(x, y, z),
+						id,
+						rotation,
+						color_id,
+					)
 					.unwrap();
 			}
 
@@ -440,7 +450,7 @@ mod tests {
 			let layer_name = "Layer";
 			let color = Vec3u8::new(255, 255, 255);
 			let id = NonZeroU16::new(1).unwrap();
-			let rotation = 0;
+			let rotation = Rotation::default();
 			let position = Vec3u8::new(5, 2, 9);
 
 			let mut vehicle = Vehicle::new();
@@ -452,7 +462,13 @@ mod tests {
 					.set_layer_name(layer_id, format!("{} {:?}", layer_name, (x, y, z)))
 					.unwrap();
 				vehicle
-					.add_block(layer_id, position + Vec3u8::new(x, y, z), id, 0, color_id)
+					.add_block(
+						layer_id,
+						position + Vec3u8::new(x, y, z),
+						id,
+						rotation,
+						color_id,
+					)
 					.unwrap();
 			}
 
@@ -479,7 +495,7 @@ mod tests {
 			let name = "Cube";
 			let layer_name = "Layer";
 			let id = NonZeroU16::new(1).unwrap();
-			let rotation = 0;
+			let rotation = Rotation::default();
 			let position = Vec3u8::new(5, 2, 9);
 
 			let mut vehicle = Vehicle::new();
@@ -493,7 +509,13 @@ mod tests {
 					.add_color(Vec3u8::new(x * 80, y * 80, z * 80))
 					.unwrap();
 				vehicle
-					.add_block(layer_id, position + Vec3u8::new(x, y, z), id, 0, color_id)
+					.add_block(
+						layer_id,
+						position + Vec3u8::new(x, y, z),
+						id,
+						rotation,
+						color_id,
+					)
 					.unwrap();
 			}
 
@@ -521,7 +543,7 @@ mod tests {
 			let name = "Cube";
 			let layer_name = "Layer";
 			let id = NonZeroU16::new(1).unwrap();
-			let rotation = 0;
+			let rotation = Rotation::default();
 			let position = Vec3u8::new(5, 2, 9);
 			let color = Vec3u8::new(255, 0, 255);
 
@@ -537,7 +559,13 @@ mod tests {
 					continue;
 				}
 				vehicle
-					.add_block(layer_id, position + Vec3u8::new(x, y, z), id, 0, color_id)
+					.add_block(
+						layer_id,
+						position + Vec3u8::new(x, y, z),
+						id,
+						rotation,
+						color_id,
+					)
 					.unwrap();
 			}
 

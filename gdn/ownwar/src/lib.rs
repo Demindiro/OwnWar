@@ -6,6 +6,7 @@
 
 mod block;
 mod editor;
+mod rotation;
 mod util;
 mod vehicle;
 

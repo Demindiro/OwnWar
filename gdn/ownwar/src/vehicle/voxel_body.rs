@@ -2,6 +2,7 @@ use super::body::{Block, Body, DamageState};
 use super::interpolation_state::InterpolationState;
 use super::voxel_mesh::VoxelMesh;
 use crate::block;
+use crate::rotation::*;
 use crate::util::{convert_vec, swap_erase, VoxelRaycast, VoxelSphereIterator, AABB};
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{
@@ -609,6 +610,13 @@ impl VoxelBody {
 		color: Color,
 		state: Option<TypedArray<i32>>,
 	) {
+		let rotation = if let Ok(rotation) = Rotation::new(rotation) {
+			rotation
+		} else {
+			godot_error!("Rotation is out of bounds");
+			return;
+		};
+
 		let mut body = self.body().borrow_mut();
 
 		let position = position.to_i32();

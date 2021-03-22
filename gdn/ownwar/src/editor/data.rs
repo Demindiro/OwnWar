@@ -1,3 +1,4 @@
+use crate::rotation::*;
 use crate::util::{convert_vec, AABB};
 use std::collections::{HashMap, HashSet};
 use std::convert::TryInto;
@@ -12,7 +13,7 @@ const MAX_COLORS: usize = 255;
 #[derive(Debug)]
 pub(crate) struct Block {
 	pub id: NonZeroU16,
-	pub rotation: u8,
+	pub rotation: Rotation,
 	pub color: u8,
 }
 
@@ -56,7 +57,7 @@ impl Layer {
 		self.blocks.get(&position)
 	}
 
-	fn set_block(&mut self, position: Vec3u8, id: NonZeroU16, rotation: u8, color: u8) {
+	fn set_block(&mut self, position: Vec3u8, id: NonZeroU16, rotation: Rotation, color: u8) {
 		self.blocks.insert(
 			position,
 			Block {
@@ -270,7 +271,7 @@ impl Vehicle {
 		layer: u8,
 		position: Vec3u8,
 		id: NonZeroU16,
-		rotation: u8,
+		rotation: Rotation,
 		color: u8,
 	) -> Result<(), VehicleError> {
 		if self.layer_count() <= layer {
@@ -347,7 +348,7 @@ impl Vehicle {
 						.checked_sub(position.x + 1)
 						.expect("Underflow during rotation"),
 				);
-				let rotation = crate::block::Block::map_rotation_counter_clockwise(block.rotation);
+				let rotation = block.rotation.map_counter_clockwise();
 				layer.set_block(position, block.id, rotation, block.color);
 			}
 		}
@@ -373,7 +374,7 @@ impl Vehicle {
 		layer: u8,
 		position: Vec3u8,
 		id: NonZeroU16,
-		rotation: u8,
+		rotation: Rotation,
 		color: u8,
 	) -> Result<(), VehicleError> {
 		if self.layers.len() <= layer as usize {
