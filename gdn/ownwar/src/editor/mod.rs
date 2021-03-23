@@ -270,6 +270,7 @@ mod godot {
 			} else if pressed("editor_place_block", true) {
 				match self.place_block(owner) {
 					Ok((pos, _)) => {
+						godot_dbg!(self.rotation);
 						let pos = convert_vec(pos).to_variant();
 						let id = self.selected_block.get().to_variant();
 						owner.emit_signal("block_placed", &[id, pos]);

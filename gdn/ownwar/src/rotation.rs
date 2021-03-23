@@ -201,6 +201,10 @@ impl Direction {
 			_ => unreachable!(),
 		}
 	}
+
+	pub fn invert(self) -> Self {
+		Self([1, 0, 3, 2, 5, 4][self.0 as usize])
+	}
 }
 
 impl Default for Rotation {
@@ -214,7 +218,6 @@ impl Default for Direction {
 		Self(0)
 	}
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -248,7 +251,14 @@ mod tests {
 			for e in org.elements.iter_mut() {
 				*e = e.round();
 			}
-			assert_eq!(r.basis(), org, "Rotation {}, angle {}, direction {}", i, i & 3, i >> 2);
+			assert_eq!(
+				r.basis(),
+				org,
+				"Rotation {}, angle {}, direction {}",
+				i,
+				i & 3,
+				i >> 2
+			);
 		}
 	}
 }

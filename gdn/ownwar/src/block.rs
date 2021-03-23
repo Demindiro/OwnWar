@@ -44,14 +44,14 @@ pub struct Block {
 
 	pub alternate_rotation_map: Option<[Rotation; 24]>,
 
-	solid_faces: u8,
+	occlusion_info: Option<OcclusionInfo>,
 }
 
 #[derive(NativeClass)]
 #[inherit(Reference)]
 struct BlockManager;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct MeshPoint {
 	pub vertex: Vector3,
 	pub normal: Vector3,
@@ -60,6 +60,11 @@ pub struct MeshPoint {
 
 pub struct MeshArrays {
 	data: Vec<Vec<MeshPoint>>,
+}
+
+pub struct OcclusionInfo {
+	vertices: Box<[([Box<[u16]>; 6], Box<[u16]>)]>,
+	solid_faces: u8,
 }
 
 #[methods]
@@ -155,7 +160,7 @@ impl Block {
 
 			alternate_rotation_map: None,
 
-			solid_faces: 0,
+			occlusion_info: None,
 		};
 		s.gd_set_mirror_rotation_offset(owner, 0);
 		s
@@ -443,27 +448,62 @@ impl Block {
 		self.mirror_rotation_map[rotation.get() as usize]
 	}
 
-	/// Returns true if the given face is entirely solid (i.e. no gaps)
+	/// Returns a bitmask of all solid faces accounting for the rotation
 	pub fn solid_faces_rotated(&self, rotation: Rotation) -> u8 {
+		let info = self
+			.occlusion_info
+			.as_ref()
+			.expect("Occlusion info is None");
 		let mut bits = 0;
 		for i in 0..6 {
 			let dir = Direction::new(i).unwrap();
 			let dir = rotation.transform_direction(dir);
 			let k = dir.get();
-			bits |= ((self.solid_faces >> i) & 1) << k;
+			bits |= ((info.solid_faces >> i) & 1) << k;
 		}
 		bits
+	}
+
+	/// Returns the vertex indices for a given side and rotation
+	pub fn face_vertex_indices(
+		&self,
+		mesh: u8,
+		face: Direction,
+		rotation: Rotation,
+	) -> &'static Box<[u16]> {
+		let face = rotation.transform_direction(face);
+		let info = self
+			.occlusion_info
+			.as_ref()
+			.expect("Occlusion info is None");
+		let verts = &info.vertices[mesh as usize].0[face.get() as usize];
+		// SAFETY: none lol, this code is trash
+		unsafe { std::mem::transmute(verts) }
+	}
+
+	/// Returns the global vertex indices
+	pub fn global_vertex_indices(&self, mesh: u8) -> &'static Box<[u16]> {
+		let info = self
+			.occlusion_info
+			.as_ref()
+			.expect("Occlusion info is None");
+		let verts = &info.vertices[mesh as usize].1;
+		// SAFETY: loooooooooooooooool
+		unsafe { std::mem::transmute(verts) }
 	}
 
 	/// Generate occlusion info used to optimize VoxelMeshes
 	fn generate_occlusion_info(&mut self) {
 		let mut surfaces = [0.0; 6];
+		let mut vertices = Vec::new();
 		for (_, array) in self.mesh_arrays() {
 			for array in array.data.iter() {
+				let mut face_vertices: [Vec<_>; 6] = Default::default();
+				let mut global_vertices = Vec::new();
 				let iter = array
 					.chunks_exact(3)
 					.map(|v| <[MeshPoint; 3]>::try_from(v).expect("Failed to unpack chunks_exact"));
-				for [a, b, c] in iter {
+				for (i, [a, b, c]) in iter.enumerate() {
 					let (a, b, c) = (a.vertex, b.vertex, c.vertex);
 					let (f, g) = (b - a, c - a);
 					let cross = f.cross(g);
@@ -479,6 +519,10 @@ impl Block {
 						((a - s).abs() < 1e-4 || (a + s).abs() < 1e-4)
 							&& (a - b).abs() < 1e-4 && (a - c).abs() < 1e-4
 					};
+					let i = (i * 3)
+						.try_into()
+						.expect("Mesh has more than u16::MAX vertices");
+					let indices = &[i, i + 1, i + 2];
 					let dir = match norm {
 						_ if eq(0.0, 1.0, 0.0) && cmp3(1) => 0,
 						_ if eq(0.0, -1.0, 0.0) && cmp3(1) => 1,
@@ -486,18 +530,35 @@ impl Block {
 						_ if eq(-1.0, 0.0, 0.0) && cmp3(0) => 3,
 						_ if eq(0.0, 0.0, 1.0) && cmp3(2) => 4,
 						_ if eq(0.0, 0.0, -1.0) && cmp3(2) => 5,
-						_ => continue,
+						_ => {
+							global_vertices.extend(indices);
+							continue;
+						}
 					};
 					surfaces[dir] += cross.length() / 2.0;
+					face_vertices[dir].extend(indices);
 				}
+				// Yikes, but it works
+				let face_vertices = Vec::from(face_vertices)
+					.into_iter()
+					.map(|v| v.into_boxed_slice())
+					.collect::<Vec<_>>()
+					.try_into()
+					.unwrap();
+				let global_vertices = global_vertices.into_boxed_slice();
+				vertices.push((face_vertices, global_vertices));
 			}
 		}
-		self.solid_faces = 0;
+		let mut solid_faces = 0;
 		for (i, &surface) in surfaces.iter().enumerate() {
 			if surface >= 0.99 * (SCALE * SCALE) {
-				self.solid_faces |= 1 << i;
+				solid_faces |= 1 << i;
 			}
 		}
+		self.occlusion_info = Some(OcclusionInfo {
+			solid_faces,
+			vertices: vertices.into_boxed_slice(),
+		});
 	}
 }
 

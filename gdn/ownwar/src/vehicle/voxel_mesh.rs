@@ -29,14 +29,16 @@ pub(crate) struct VoxelMesh {
 
 #[derive(Clone)]
 struct SubMesh {
-	array: Arc<Vec<block::MeshPoint>>,
-	//array: VariantArray,
+	face_vertices: Arc<[Box<[block::MeshPoint]>; 6]>,
+	global_vertices: Arc<Box<[block::MeshPoint]>>,
 	coordinate: Voxel,
 }
 
 struct OcclusionInfo {
 	solid_faces: u8,
 }
+
+struct OcclusionResult(u8);
 
 #[methods]
 impl VoxelMesh {
@@ -87,7 +89,7 @@ impl VoxelMesh {
 		if let Some((_, mesh_arrays)) = block.mesh_arrays() {
 			let key = Self::color_to_tuple(color);
 			for (i, array) in mesh_arrays.iter().enumerate() {
-				let sm = Self::get_submesh(block.id, coordinate, rotation, i as u8, array);
+				let sm = Self::get_submesh(block.id, coordinate, rotation, i as u8, array, block);
 				match self.meshes.entry(key) {
 					Entry::Occupied(mut e) => {
 						let e = e.get_mut();
@@ -132,10 +134,13 @@ impl VoxelMesh {
 				let mut vertices = TypedArray::<Vector3>::new();
 				let mut normals = TypedArray::<Vector3>::new();
 
-				{
+				let len = {
 					let mut len = 0;
 					for sm in list.iter() {
-						len += sm.array.len() as i32;
+						for fv in sm.face_vertices.iter() {
+							len += fv.len() as i32;
+						}
+						len += sm.global_vertices.len() as i32;
 					}
 					vertices.resize(len);
 					normals.resize(len);
@@ -143,15 +148,29 @@ impl VoxelMesh {
 					let mut norms = normals.write();
 					let mut i = 0;
 					for sm in list.iter() {
-						if !Self::is_block_occluded(&self.occlusion_map, sm.coordinate) {
-							for point in sm.array.iter() {
+						let result = Self::occlusion_check(&self.occlusion_map, sm.coordinate);
+						if result.0 != 0x3f {
+							for (u, fv) in sm.face_vertices.iter().enumerate() {
+								if result.0 & (1 << u) == 0 {
+									for point in fv.iter() {
+										verts[i] = point.vertex;
+										norms[i] = point.normal;
+										i += 1;
+									}
+								}
+							}
+							for point in sm.global_vertices.iter() {
 								verts[i] = point.vertex;
 								norms[i] = point.normal;
 								i += 1;
 							}
 						}
 					}
-				}
+					i
+				};
+
+				vertices.resize(len as i32);
+				normals.resize(len as i32);
 
 				let array = VariantArray::new();
 				array.resize(ArrayMesh::ARRAY_MAX as i32);
@@ -180,19 +199,13 @@ impl VoxelMesh {
 		self.dirty
 	}
 
-	fn is_block_occluded(map: &HashMap<Voxel, OcclusionInfo>, pos: Voxel) -> bool {
+	fn occlusion_check(map: &HashMap<Voxel, OcclusionInfo>, pos: Voxel) -> OcclusionResult {
 		let pos = convert_vec(pos);
 		type V = Vector3D<i16, UnknownUnit>;
-		let offsets = [
-			(0, V::new(0, 1, 0)),
-			(1, V::new(0, -1, 0)),
-			(2, V::new(1, 0, 0)),
-			(3, V::new(-1, 0, 0)),
-			(4, V::new(0, 0, 1)),
-			(5, V::new(0, 0, -1)),
-		];
-		for &(dir, offset) in &offsets {
-			let pos = pos + offset;
+		let mut result = 0;
+		for dir in 0..6 {
+			let dir = Direction::new(dir).unwrap();
+			let pos = pos + dir.vector();
 			let pos = pos.x.try_into().map(|x| {
 				pos.y
 					.try_into()
@@ -200,22 +213,13 @@ impl VoxelMesh {
 			});
 			// Flatten doesn't work, so nested Ok()s it is!
 			if let Ok(Ok(Ok(pos))) = pos {
-				if !map.get(&pos).map_or(false, |v| v.is_face_solid(dir)) {
-					return false;
+				if map.get(&pos).map_or(false, |v| v.is_face_solid(dir)) {
+					result |= 1 << dir.invert().get();
 				}
-			} else {
-				// There is no block there, hence it's visible from that side
-				return false;
 			}
 		}
-		true
+		OcclusionResult(result)
 	}
-
-	/*
-	fn is_vertex_occluded(map: &HashMap<Voxel, OcclusionInfo>, pos: Vector3) -> bool {
-		false
-	}
-	*/
 
 	fn remove_surface_array(owner: &ArrayMesh, material: Ref<Material>) {
 		for i in 0..owner.get_surface_count() {
@@ -249,6 +253,7 @@ impl VoxelMesh {
 		rotation: Rotation,
 		index: u8,
 		array: &Vec<block::MeshPoint>,
+		block: &block::Block,
 	) -> SubMesh {
 		let key = (id, coordinate, rotation, index);
 		let cache = SUBMESH_CACHE.read().unwrap();
@@ -266,7 +271,7 @@ impl VoxelMesh {
 					uv: point.uv,
 				})
 			}
-			let sm = SubMesh::new(a, coordinate);
+			let sm = SubMesh::new(block, index, a, coordinate, rotation);
 			SUBMESH_CACHE.write().unwrap().insert(key, sm.clone());
 			sm
 		}
@@ -293,9 +298,43 @@ impl VoxelMesh {
 }
 
 impl SubMesh {
-	fn new(array: Vec<block::MeshPoint>, coordinate: Voxel) -> Self {
+	fn new(block: &block::Block, index: u8, array: Vec<block::MeshPoint>, coordinate: Voxel, rotation: Rotation) -> Self {
+		let mut face_vertices = Vec::with_capacity(6);
+		for _ in 0..6 {
+			face_vertices.push(Vec::new().into_boxed_slice());
+		}
+		for i in 0..6 {
+			let dir = Direction::new(i).unwrap();
+			let indices = block.face_vertex_indices(index, dir, rotation);
+			let mut verts = Vec::with_capacity(indices.len());
+			for &i in indices.iter() {
+				verts.push(array[i as usize]);
+			}
+			if verts.len() == 0 {
+				continue;
+			}
+			let norm = (verts[1].vertex - verts[0].vertex).cross(verts[2].vertex - verts[0].vertex);
+			let norm = norm.normalize();
+			let norm = convert_vec::<_, i8>(norm);
+			// TODO fix the norm rotation in block.rs instead of deriving it ourselves
+			let dir = if dir.vector() != norm {
+				//godot_print!("dir != norm  {}", rotation.get());
+				//godot_print!("{:2} {:2} {:2} = {:2} {:2} {:2}", norm.x, norm.y, norm.z, dir.x, dir.y, dir.z);
+				Direction::from_vector(norm).unwrap()
+			} else {
+				dir
+			};
+			//face_vertices.push(verts.into_boxed_slice());
+			face_vertices[dir.get() as usize] = verts.into_boxed_slice();
+		}
+		let indices = block.global_vertex_indices(index);
+		let mut verts = Vec::with_capacity(indices.len());
+		for &i in indices.iter() {
+			verts.push(array[i as usize]);
+		}
 		Self {
-			array: Arc::new(array),
+			face_vertices: Arc::new(face_vertices.try_into().unwrap()),
+			global_vertices: Arc::new(verts.into_boxed_slice()),
 			coordinate,
 		}
 	}
@@ -308,7 +347,7 @@ impl OcclusionInfo {
 		}
 	}
 
-	fn is_face_solid(&self, direction: u8) -> bool {
-		self.solid_faces & (1 << direction) > 0
+	fn is_face_solid(&self, direction: Direction) -> bool {
+		self.solid_faces & (1 << direction.get()) > 0
 	}
 }
