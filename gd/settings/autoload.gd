@@ -133,6 +133,7 @@ func set_tonemap_mode(value: int) -> void:
 func save_settings() -> void:
 	if OS.has_feature("Server"):
 		print("Refusing to save settings in headless mode")
+		dirty = false
 		return
 
 	if not dirty:
