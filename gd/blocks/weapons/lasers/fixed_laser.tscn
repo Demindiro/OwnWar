@@ -20,6 +20,7 @@ inaccuracy = 0.01
 [node name="Ray" type="RayCast" parent="Server"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0289386, 0.625 )
 cast_to = Vector3( 0, 0, 1000 )
+collision_mask = 1048575
 
 [node name="Client" type="Spatial" parent="."]
 script = ExtResource( 4 )
@@ -66,6 +67,7 @@ __meta__ = {
 mesh = ExtResource( 5 )
 material/0 = null
 material/1 = null
+
 [connection signal="timeout" from="Client/Audio1/Timer" to="Client/Audio1" method="stop"]
 [connection signal="timeout" from="Client/Audio2/Timer" to="Client/Audio2" method="stop"]
 [connection signal="timeout" from="Client/Audio3/Timer" to="Client/Audio3" method="stop"]

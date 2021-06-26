@@ -10,7 +10,7 @@ var _coord_b: Vector3
 var _aim_pos := Vector3()
 var _body_b_mount := Spatial.new()
 var _heaviest_mass := 0.0 # Used to adjust joint precision
-onready var _joint: Generic6DOFJoint = get_node("Joint")
+onready var _joint: HingeJoint = get_node("Joint")
 
 
 func init(coordinate: Vector3, voxel_body: OwnWar_VoxelBody, vehicle: OwnWar_Vehicle) -> void:
@@ -54,16 +54,6 @@ func _ready() -> void:
 		assert(e == OK)
 		e = _body_b.connect("tree_exiting", self, "set_physics_process", [false])
 		assert(e == OK)
-		# TODO godot pls, fix the inspector
-		# Like seriously I was stuck on this shit for so long and the solution is
-		# literally just this?
-		# I'm going to buy another bottle tomorrow
-		# TODO convince the core devs NOT TO REMOVE THIS PROPERTY come on, it exists
-		# for a reason :(
-		var mass_ratio := _heaviest_mass / min(_body_a.mass, _body_b.mass)
-		var precision_factor := int(clamp(mass_ratio * 0.33, 10, 75))
-		#printt("Mass ratio", mass_ratio, "Precision", precision_factor)
-		_joint.set("precision", precision_factor)
 
 
 func _physics_process(delta: float) -> void:
@@ -74,7 +64,7 @@ func _physics_process(delta: float) -> void:
 	var side := sign(g_trf.basis.x.dot(proj_pos))
 	var max_turn := max_turn_speed * delta
 	var turn_rate := max_turn_speed * min(1.0, angle_diff / max_turn * 0.5)
-	_joint.set("angular_motor_z/target_velocity", turn_rate * side)
+	_joint.set("motor/target_velocity", turn_rate * side)
 
 
 func aim_at(position: Vector3):

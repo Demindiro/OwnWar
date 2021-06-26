@@ -28,8 +28,8 @@ script = ExtResource( 3 )
 __meta__ = {
 "_editor_description_": ""
 }
-use_color = true
 mesh = ExtResource( 5 )
+use_color = true
 color = Color( 1, 1, 1, 1 )
 
 [node name="Editor" type="Spatial" parent="."]
@@ -41,8 +41,8 @@ script = ExtResource( 3 )
 __meta__ = {
 "_editor_description_": ""
 }
-use_color = true
 mesh = ExtResource( 5 )
+use_color = true
 color = Color( 1, 1, 1, 1 )
 
 [node name="Arrow" type="Sprite3D" parent="Editor"]

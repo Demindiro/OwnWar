@@ -12,6 +12,15 @@ gdnative = "*"
 euclid = "0.22"
 num-traits = "0.2"
 lazy_static = "*"
+godot_rapier3d = { path = "../../../../game-assets/godot/godot_rapier3d/rapier3d" }
+
+[profile.dev.package."*"]
+opt-level = 1
+# LTO fixes no_mangle symbols being stripped
+# No, I don't get it either
+# See https://github.com/rust-lang/rust/issues/63125#issuecomment-516491570
+#lto = true
 
 [profile.release]
 lto = true
+#debug = true # Don't forget to remove this for final builds!

@@ -40,7 +40,7 @@ build-gdn-windows: build-gdn-ownwar-windows build-gdn-hterrain-windows build-gdn
 build-gdn-%-linux: gd/lib/
 	cd gdn/$* && cargo build --release --target $(TARGET_LINUX) --quiet
 	cp gdn/$*/target/$(TARGET_LINUX)/release/lib$*.so gd/lib/
-	strip gd/lib/lib$*.so
+	#strip gd/lib/lib$*.so
 
 build-gdn-%-osx: gd/lib/
 	cd gdn/$* && cargo build --release --target $(TARGET_OSX) --quiet

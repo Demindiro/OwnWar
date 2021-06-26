@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=23 format=2]
 
 [ext_resource path="res://maps/test/props/skate-loop.tscn" type="PackedScene" id=1]
 [ext_resource path="res://ui/theme.tres" type="Theme" id=2]
@@ -16,6 +16,7 @@
 [ext_resource path="res://settings/applier.gd" type="Script" id=14]
 [ext_resource path="res://settings/settings_blur.tscn" type="PackedScene" id=15]
 [ext_resource path="res://editor/shortcuts/goto_test_map.tres" type="ShortCut" id=16]
+[ext_resource path="res://debug/editor_ray.tscn" type="PackedScene" id=17]
 
 [sub_resource type="ShaderMaterial" id=1]
 resource_local_to_scene = true
@@ -33,14 +34,17 @@ background_sky_orientation = Basis( 0.939693, 0, -0.34202, 0, 1, 0, 0.34202, 0, 
 ambient_light_energy = 0.2
 tonemap_mode = 2
 
+[sub_resource type="BoxShape" id=4]
+extents = Vector3( 5, 1, 5 )
+
+[sub_resource type="CubeMesh" id=5]
+size = Vector3( 10, 2, 10 )
+
 [node name="Test" type="Node"]
 script = ExtResource( 12 )
 editor_scene_path = "res://editor/editor.tscn"
 spawn_point/0 = NodePath("SpawnPoints/Center")
-spawn_point/1 = NodePath("SpawnPoints/-X-Y")
-spawn_point/2 = NodePath("SpawnPoints/X-Y")
-spawn_point/3 = NodePath("SpawnPoints/-XY")
-spawn_point/4 = NodePath("SpawnPoints/XY")
+spawn_point/1 = NodePath("SpawnPoints/1")
 
 [node name="Outline" parent="." instance=ExtResource( 7 )]
 visible = false
@@ -141,19 +145,43 @@ transform = Transform( 4, 0, 0, 0, 3, 0, 0, 0, 2, 42, 0, 23 )
 [node name="SpawnPoints" type="Node" parent="."]
 
 [node name="Center" type="Position3D" parent="SpawnPoints"]
-transform = Transform( -1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, 0, 1, 0 )
+transform = Transform( -1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, 0, 4.57175, 0 )
 
-[node name="-X-Y" type="Position3D" parent="SpawnPoints"]
+[node name="1" type="Position3D" parent="SpawnPoints"]
 transform = Transform( 0.863721, 0, 0.50397, 0, 1, 0, -0.50397, 0, 0.863721, -16.3219, 1, 54.9045 )
 
-[node name="X-Y" type="Position3D" parent="SpawnPoints"]
+[node name="2" type="Position3D" parent="SpawnPoints"]
 transform = Transform( 0.852593, 0, 0.522576, 0, 1, 0, -0.522576, 0, 0.852593, -49, 1, 31 )
 
-[node name="-XY" type="Position3D" parent="SpawnPoints"]
+[node name="3" type="Position3D" parent="SpawnPoints"]
 transform = Transform( -0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, -0.866025, -23, 1, 43 )
 
-[node name="XY" type="Position3D" parent="SpawnPoints"]
+[node name="4" type="Position3D" parent="SpawnPoints"]
+transform = Transform( 0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, 0.5, -37.577, 1, 50.4727 )
+
+[node name="5" type="Position3D" parent="SpawnPoints"]
+transform = Transform( -0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, -0.866025, -32.6019, 1, 39.0906 )
+
+[node name="6" type="Position3D" parent="SpawnPoints"]
+transform = Transform( -0.5, 0, -0.866025, 0, 1, 0, 0.866025, 0, -0.5, -7.5186, 1, 49.0071 )
+
+[node name="7" type="Position3D" parent="SpawnPoints"]
+transform = Transform( 0.771435, 0, -0.636307, 0, 1, 0, 0.636307, 0, 0.771435, -8.49402, 1, 34.3575 )
+
+[node name="8" type="Position3D" parent="SpawnPoints"]
+transform = Transform( -0.456399, 0, 0.889775, 0, 1, 0, -0.889775, 0, -0.456399, -26.2979, 1, 24.4421 )
+
+[node name="9" type="Position3D" parent="SpawnPoints"]
+transform = Transform( -0.32565, 0, -0.94549, 0, 1, 0, 0.94549, 0, -0.32565, -45.3911, 1, 13.7547 )
+
+[node name="10" type="Position3D" parent="SpawnPoints"]
+transform = Transform( -0.258819, 0, -0.965925, 0, 1, 0, 0.965925, 0, -0.258819, -23.2417, 1, 57.6678 )
+
+[node name="11" type="Position3D" parent="SpawnPoints"]
 transform = Transform( -0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, -0.965926, -15, 1, 20 )
+
+[node name="12" type="Position3D" parent="SpawnPoints"]
+transform = Transform( -0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, -0.965926, -25.6665, 1, 9.22358 )
 
 [node name="HUD" parent="." instance=ExtResource( 11 )]
 mouse_filter = 2
@@ -223,6 +251,19 @@ shortcut = ExtResource( 16 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="StaticBody" type="StaticBody" parent="."]
+
+[node name="CollisionShape" type="CollisionShape" parent="StaticBody"]
+shape = SubResource( 4 )
+
+[node name="MeshInstance" type="MeshInstance" parent="StaticBody/CollisionShape"]
+mesh = SubResource( 5 )
+material/0 = null
+
+[node name="RayCast" parent="." instance=ExtResource( 17 )]
+transform = Transform( 10, 0, 0, 0, 10, 0, 0, 0, 10, -56.5482, 10.1933, -52.1067 )
+cast_to = Vector3( 0, -1000, 0 )
 [connection signal="hide" from="GUI" to="HUD" method="set_mouse_mode"]
 [connection signal="visibility_changed" from="GUI" to="HUD" method="poll_input"]
 [connection signal="pressed" from="GUI/Box/Continue" to="GUI" method="set_visible" binds= [ false ]]

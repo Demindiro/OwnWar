@@ -27,6 +27,9 @@ onready var _default_font := Control.new().get_font("font")
 
 var fps_only := false
 
+var physics_step_time_samples := PoolIntArray()
+const PHYSICS_STEP_TIME_SAMPLE_COUNT := 60
+
 
 func _init():
 	visible = OS.is_debug_build()
@@ -59,6 +62,16 @@ func _enter_tree():
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_debug"):
 		visible = not visible
+
+
+func _physics_process(_d):
+	if Engine.has_method("get_physics_step_time_usec"):
+		if len(physics_step_time_samples) > PHYSICS_STEP_TIME_SAMPLE_COUNT:
+			for i in len(physics_step_time_samples) - 1:
+				physics_step_time_samples[i] = physics_step_time_samples[i + 1]
+			physics_step_time_samples[PHYSICS_STEP_TIME_SAMPLE_COUNT - 1] = Engine.get_physics_step_time_usec()
+		else:
+			physics_step_time_samples.push_back(Engine.get_physics_step_time_usec())
 
 
 func _process(_delta):
@@ -222,3 +235,15 @@ func _draw_canvas_item():
 		Vector2(_canvas_item.rect_size.x / 2.0, 60.0),
 		"Vertices: " + str(vertices)
 	)
+
+	var avg := 0
+	for n in physics_step_time_samples:
+		avg += n
+	if avg > 0:
+		avg /= len(physics_step_time_samples)
+		_canvas_item.draw_string(
+			_default_font,
+			Vector2(_canvas_item.rect_size.x / 2.0, 80.0),
+			"Physics inverse step time (%d samples): %.3f" % [PHYSICS_STEP_TIME_SAMPLE_COUNT, (1000 * 1000.0 / avg)]
+		)
+

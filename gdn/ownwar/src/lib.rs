@@ -12,12 +12,20 @@ mod vehicle;
 
 use gdnative::prelude::*;
 
-// Function that registers all exposed classes to Godot
+
 fn init(handle: InitHandle) {
 	vehicle::init(handle);
 	block::init(handle);
 	editor::init(handle);
 }
 
-// Macro that creates the entry-points of the dynamic library.
 godot_init!(init);
+
+
+mod dummy {
+	use gdnative::prelude::*;
+	use godot_rapier3d::init as init;
+	godot_gdnative_init!(_ as gd_rapier3d_gdnative_init);
+	godot_nativescript_init!(init as gd_rapier3d_nativescript_init);
+	godot_gdnative_terminate!(_ as gd_rapier3d_gdnative_terminate);
+}

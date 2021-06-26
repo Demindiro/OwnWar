@@ -13,11 +13,10 @@ script = ExtResource( 5 )
 [node name="Server" type="Spatial" parent="."]
 script = ExtResource( 2 )
 
-[node name="Joint" type="Generic6DOFJoint" parent="Server"]
-transform = Transform( -1, 1.50996e-07, -6.60024e-15, 0, -4.37114e-08, -1, -1.50996e-07, -1, 4.37114e-08, 0, 0, 0 )
-angular_limit_z/enabled = false
-angular_motor_z/enabled = true
-angular_motor_z/force_limit = 2700.0
+[node name="Joint" type="HingeJoint" parent="Server"]
+transform = Transform( 1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0 )
+motor/enable = true
+motor/max_impulse = 2700.0
 
 [node name="Client" type="Spatial" parent="."]
 script = ExtResource( 4 )
@@ -25,8 +24,8 @@ script = ExtResource( 4 )
 [node name="Base" type="Spatial" parent="Client"]
 transform = Transform( 2.9, 0, 0, 0, 1, 0, 0, 0, 2.9, 0, 0.125, 0 )
 script = ExtResource( 3 )
-use_color = true
 mesh = ExtResource( 6 )
+use_color = true
 color = Color( 1, 1, 1, 1 )
 
 [node name="Editor" type="Spatial" parent="."]
@@ -35,8 +34,8 @@ script = ExtResource( 4 )
 [node name="Base" type="Spatial" parent="Editor"]
 transform = Transform( 2.9, 0, 0, 0, 1, 0, 0, 0, 2.9, 0, 0.125, 0 )
 script = ExtResource( 3 )
-use_color = true
 mesh = ExtResource( 6 )
+use_color = true
 color = Color( 1, 1, 1, 1 )
 
 [node name="Arrow" type="Sprite3D" parent="Editor"]

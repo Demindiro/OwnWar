@@ -5,10 +5,10 @@
 
 [resource]
 script = ExtResource( 1 )
-mass = 1.0
 human_name = "Thruster"
-revision = 0
+mass = 1.0
 human_category = "Movement"
+revision = 0
 aabb = AABB( 0, 0, 0, 1, 1, 1 )
 id = 100
 health = 100

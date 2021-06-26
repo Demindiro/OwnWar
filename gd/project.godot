@@ -536,9 +536,10 @@ map_focus_chat_input={
 [physics]
 
 common/physics_jitter_fix=0.0
-3d/physics_engine="Bullet"
+3d/physics_engine="Custom"
 3d/active_soft_world=false
 common/enable_object_picking=false
+3d/custom_library_path="res://lib/rapier3d.gdnlib"
 
 [rendering]
 

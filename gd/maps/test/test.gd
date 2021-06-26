@@ -3,21 +3,16 @@ extends Node
 
 
 var editor_scene_path: String
-var vehicle_name := "tank"
+var vehicle_name := "skunk"
 var vehicle_path := ""
 onready var _hud := get_node("HUD")
-var _spawn_points := []
+export var spawn_points := NodePath("SpawnPoints")
 var _spawn_point_index := 0
 
 
 
 func _get(name: String):
-	var split = name.split("/")
-	if len(split) == 2 and split[0] == "spawn_point":
-		var i := int(split[1])
-		if i < len(_spawn_points):
-			return _spawn_points[i]
-	elif name == "editor_scene":
+	if name == "editor_scene":
 		if editor_scene_path == "":
 			return null
 		# TODO the editor is crashing due to a cyclic reference most likely
@@ -30,23 +25,7 @@ func _get(name: String):
 
 
 func _set(name: String, value) -> bool:
-	var split = name.split("/")
-	if len(split) == 2 and split[0] == "spawn_point":
-		var i := int(split[1])
-		if value is NodePath and value != NodePath():
-			if i > len(_spawn_points):
-				return false
-			elif i <= len(_spawn_points):
-				property_list_changed_notify()
-				_spawn_points.resize(i + 1)
-			_spawn_points[i] = value
-			return true
-		elif value == null or value == NodePath():
-			if i < len(_spawn_points):
-				_spawn_points.remove(i)
-				property_list_changed_notify()
-				return true
-	elif name == "editor_scene":
+	if name == "editor_scene":
 		editor_scene_path = value.resource_path
 	elif name == "editor_scene_path":
 		editor_scene_path = value
@@ -72,16 +51,6 @@ func _get_property_list() -> Array:
 			#"usage": PROPERTY_USAGE_STORAGE,
 		}
 	]
-	for i in len(_spawn_points):
-		props.append({
-			"name": "spawn_point/%d" % i,
-			"type": TYPE_NODE_PATH,
-		})
-	props.append({
-		"name": "spawn_point/%d" % len(_spawn_points),
-		"type": TYPE_NODE_PATH,
-		"usage": PROPERTY_USAGE_EDITOR,
-	})
 	return props
 
 
@@ -108,15 +77,14 @@ func _ready() -> void:
 		vehicle.is_ally = true
 		var e := vehicle.load_from_file(vehicle_path)
 		assert(e == OK)
-		vehicle.transform = get_node(_spawn_points[_spawn_point_index]).transform
+		vehicle.transform = get_node(spawn_points).get_child(_spawn_point_index).transform
 		add_child(vehicle)
 		_hud.player_vehicle = vehicle
 		_spawn_point_index += 1
-		_spawn_point_index %= len(_spawn_points)
-		spawn_vehicle(vehicle_path)
-		spawn_vehicle(vehicle_path)
-		spawn_vehicle(vehicle_path)
-		spawn_vehicle(vehicle_path)
+		_spawn_point_index %= get_node(spawn_points).get_child_count()
+		if true:
+			for _i in 12:
+				spawn_vehicle(vehicle_path)
 
 
 func _exit_tree() -> void:
@@ -129,10 +97,10 @@ func spawn_vehicle(path: String) -> void:
 	vehicle.team = 1
 	var e := vehicle.load_from_file(path)
 	assert(e == OK)
-	vehicle.transform = get_node(_spawn_points[_spawn_point_index]).transform
+	vehicle.transform = get_node(spawn_points).get_child(_spawn_point_index).transform
 	add_child(vehicle)
 	_spawn_point_index += 1
-	_spawn_point_index %= len(_spawn_points)
+	_spawn_point_index %= get_node(spawn_points).get_child_count()
 	for n in Util.get_children_recursive(vehicle):
 		if n is MeshInstance and not n.has_meta("no_outline"):
 			get_node("Outline").add_outline(n)
