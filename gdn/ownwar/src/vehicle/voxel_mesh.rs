@@ -12,11 +12,6 @@ use std::sync::{Arc, RwLock};
 
 type Voxel = Vector3D<u8, UnknownUnit>;
 
-lazy_static! {
-	static ref SUBMESH_CACHE: RwLock<HashMap<(NonZeroU16, Voxel, Rotation, u8), SubMesh>> =
-		RwLock::new(HashMap::new());
-}
-
 #[derive(NativeClass)]
 #[inherit(ArrayMesh)]
 pub(crate) struct VoxelMesh {
@@ -255,26 +250,17 @@ impl VoxelMesh {
 		array: &Vec<block::MeshPoint>,
 		block: &block::Block,
 	) -> SubMesh {
-		let key = (id, coordinate, rotation, index);
-		let cache = SUBMESH_CACHE.read().unwrap();
-		if let Some(sm) = cache.get(&key) {
-			sm.clone()
-		} else {
-			drop(cache);
-			let basis = rotation.basis();
-			let position = convert_vec(coordinate) * block::SCALE;
-			let mut a = Vec::with_capacity(array.len());
-			for point in array.iter() {
-				a.push(block::MeshPoint {
-					vertex: basis.xform(point.vertex) + position,
-					normal: basis.xform(point.normal),
-					uv: point.uv,
-				})
-			}
-			let sm = SubMesh::new(block, index, a, coordinate, rotation);
-			SUBMESH_CACHE.write().unwrap().insert(key, sm.clone());
-			sm
+		let basis = rotation.basis();
+		let position = convert_vec(coordinate) * block::SCALE;
+		let mut a = Vec::with_capacity(array.len());
+		for point in array.iter() {
+			a.push(block::MeshPoint {
+				vertex: basis.xform(point.vertex) + position,
+				normal: basis.xform(point.normal),
+				uv: point.uv,
+			})
 		}
+		SubMesh::new(block, index, a, coordinate, rotation)
 	}
 
 	pub fn set_transparency(&mut self, alpha: f32) {
