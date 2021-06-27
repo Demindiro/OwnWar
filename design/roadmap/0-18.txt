@@ -31,7 +31,9 @@
 ## Decoration
 - Add glowing blocks
 
-# Damage system
-* Fix physics body not updating on damage
-* Fix mass not updating on damage
-* Fix blocks not properly disconnecting
+## Damage system
+- Fix physics body not updating on damage
+- Fix mass not updating on damage
+- Fix blocks not properly disconnecting
+- Disallow "cyclic" turrets (i.e. turrets with more than one connected). This is
+  necessary anyways due to physics spazzing out.

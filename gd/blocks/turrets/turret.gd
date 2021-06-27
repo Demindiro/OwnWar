@@ -14,9 +14,6 @@ onready var _joint: HingeJoint = get_node("Joint")
 
 
 func init(coordinate: Vector3, voxel_body: OwnWar_VoxelBody, vehicle: OwnWar_Vehicle) -> void:
-	if vehicle.kinematic:
-		set_physics_process(false)
-		return
 	_joint = get_node("Joint")
 	var connecting_coordinate := coordinate + transform.basis.y.round()
 	for body in vehicle.voxel_bodies:
@@ -56,7 +53,7 @@ func _ready() -> void:
 		assert(e == OK)
 
 
-func _physics_process(delta: float) -> void:
+func process_tick(delta: float) -> void:
 	var g_trf := _body_b_mount.global_transform
 	var plane := Plane(g_trf.basis.y, 0)
 	var proj_pos := plane.project(_aim_pos - g_trf.origin)

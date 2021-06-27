@@ -55,6 +55,7 @@ align = 1
 margin_top = 41.0
 margin_right = 1840.0
 margin_bottom = 70.0
+text = "localhost"
 placeholder_text = "Address"
 
 [node name="Port" type="SpinBox" parent="Direct"]
@@ -91,5 +92,6 @@ margin_right = 1840.0
 margin_bottom = 258.0
 _error = NodePath("../../Direct/Status/Error")
 _icon = NodePath("../../Direct/Status/Box/Icon")
+
 [connection signal="pressed" from="Cancel" to="." method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="Direct/Connect" to="Direct" method="launch"]

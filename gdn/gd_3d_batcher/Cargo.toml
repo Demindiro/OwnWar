@@ -13,4 +13,4 @@ lazy_static = "*"
 
 [profile.release]
 lto = true
-#codegen-units = 1
+codegen-units = 1

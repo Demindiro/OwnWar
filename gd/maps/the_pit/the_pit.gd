@@ -67,7 +67,7 @@ func spawn_player_vehicle() -> void:
 	assert(e == OK, "Failed to open file %s" % OwnWar_Settings.selected_vehicle_path)
 	var data := file.get_buffer(file.get_len())
 	if server_mode:
-		request_vehicle(data, false)
+		request_vehicle(data)
 		hud.player_vehicle = clients[1]
 		e = clients[1].connect("tree_exited", self, "request_respawn")
 		assert(e == OK)
@@ -110,7 +110,6 @@ puppet func sync_vehicle(data: PoolByteArray, name: String, team: int, \
 	vehicle.team = team
 	vehicle.name = name
 	vehicle.transform = transform
-	vehicle.kinematic = true
 	var e := vehicle.load_from_data(data, state)
 	assert(e == OK)
 	vehicle.add_to_group("vehicles")
@@ -118,7 +117,7 @@ puppet func sync_vehicle(data: PoolByteArray, name: String, team: int, \
 	add_child(vehicle)
 
 
-master func request_vehicle(data: PoolByteArray, kinematic := true) -> void:
+master func request_vehicle(data: PoolByteArray) -> void:
 	var is_ally := false
 	var id := get_tree().get_rpc_sender_id()
 	if id == 0:
@@ -129,7 +128,6 @@ master func request_vehicle(data: PoolByteArray, kinematic := true) -> void:
 		var vehicle := OwnWar_Vehicle.new()
 		vehicle.team = counter
 		vehicle.is_ally = is_ally
-		vehicle.kinematic = kinematic
 		var e := vehicle.load_from_data(data)
 		assert(e == OK)
 		var index := counter % get_node(spawn_points).get_child_count()
@@ -169,7 +167,7 @@ func request_respawn() -> void:
 	if is_inside_tree():
 		yield(get_tree().create_timer(1.5), "timeout")
 		if server_mode:
-			request_vehicle(player_vehicle_data, false)
+			request_vehicle(player_vehicle_data)
 			hud.player_vehicle = clients[1]
 			var e: int = clients[1].connect("tree_exited", self, "request_respawn")
 			assert(e == OK)
@@ -192,3 +190,16 @@ func spawn_vehicle(name: String) -> OwnWar_Vehicle:
 
 func remove_client_vehicle(id: int) -> void:
 	clients[id] = null
+
+
+func rollback(vehicle, steps: int) -> void:
+	var delta := 1.0 / Engine.iterations_per_second
+	print("Rollback ", steps)
+	for i in steps + 1:
+		for v in get_tree().get_nodes_in_group("vehicles"):
+			if v == vehicle:
+				v.rollback_copy_current(delta, steps - i)
+			else:
+				v.rollback_steps(delta, steps - i)
+		if i < steps:
+			PhysicsServer.step(delta)

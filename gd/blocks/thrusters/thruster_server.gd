@@ -14,22 +14,19 @@ var prev_delta := 1.0
 
 
 func init(_coordinate: Vector3, voxel_body: OwnWar_VoxelBody, vehicle: OwnWar_Vehicle) -> void:
-	if not vehicle.kinematic:
-		body = voxel_body
-		var b := transform.basis.z
-		if abs(b.dot(Vector3.BACK)) > 0.01:
-			direction = 0 if b.dot(Vector3.BACK) > 0 else 1
-		elif abs(b.dot(Vector3.LEFT)) > 0.01:
-			if (b.dot(Vector3.LEFT) > 0) == (transform.origin.z < 0):
-				direction = 2
-			else:
-				direction = 3
-		elif abs(b.dot(Vector3.UP)) > 0.01:
-			direction = 4 if b.dot(Vector3.UP) > 0 else 5
+	body = voxel_body
+	var b := transform.basis.z
+	if abs(b.dot(Vector3.BACK)) > 0.01:
+		direction = 0 if b.dot(Vector3.BACK) > 0 else 1
+	elif abs(b.dot(Vector3.LEFT)) > 0.01:
+		if (b.dot(Vector3.LEFT) > 0) == (transform.origin.z < 0):
+			direction = 2
 		else:
-			assert(false, "Can't determine direction")
+			direction = 3
+	elif abs(b.dot(Vector3.UP)) > 0.01:
+		direction = 4 if b.dot(Vector3.UP) > 0 else 5
 	else:
-		set_physics_process(false)
+		assert(false, "Can't determine direction")
 
 
 func _ready() -> void:
