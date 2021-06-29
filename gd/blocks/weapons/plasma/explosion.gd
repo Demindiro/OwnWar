@@ -4,13 +4,13 @@ extends MeshInstance
 var fade := 0.0
 var radius := 3.0 setget set_radius
 var layer := 1
+var color := Color.purple
 
 
 func _ready() -> void:
-	# TODO figure out how to make 
-	material_override = material_override.duplicate()
 	scale = Vector3(radius, radius, radius)
 	material_override.set_shader_param("time_offset", randf() * 64)
+	material_override.set_shader_param("color", color)
 
 
 # I'd use an animation player IF IT LET ME INSERT A DAMN KEY

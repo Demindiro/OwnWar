@@ -9,6 +9,8 @@ onready var _hud := get_node("HUD")
 export var spawn_points := NodePath("SpawnPoints")
 var _spawn_point_index := 0
 
+var vehicles := []
+var vehicle_free_slots := PoolIntArray()
 
 
 func _get(name: String):
@@ -69,22 +71,45 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	if not Engine.editor_hint:
+		_hud.vehicles = vehicles
 		if vehicle_path == "":
 			assert(vehicle_name != "")
 			vehicle_path = OwnWar.get_vehicle_path(vehicle_name)
 		var vehicle := OwnWar_Vehicle.new()
-		vehicle.team = 0
-		vehicle.is_ally = true
-		var e := vehicle.load_from_file(vehicle_path)
+		var transform = get_node(spawn_points).get_child(_spawn_point_index).transform 
+		var id = len(vehicles)
+		var e = vehicle.load_from_file(vehicle_path, 0, OwnWar.ALLY_COLOR, transform, true, id)
 		assert(e == OK)
-		vehicle.transform = get_node(spawn_points).get_child(_spawn_point_index).transform
-		add_child(vehicle)
-		_hud.player_vehicle = vehicle
+		var seri = vehicle.serialize()
+		vehicles.push_back(vehicle)
+		vehicle.spawn(self, true)
+		_hud.player_vehicle_id = id
 		_spawn_point_index += 1
 		_spawn_point_index %= get_node(spawn_points).get_child_count()
-		if true:
-			for _i in 12:
-				spawn_vehicle(vehicle_path)
+		for _i in 6:
+			spawn_vehicle(vehicle_path)
+		set_process(not OS.has_feature("Server"))
+
+
+func _process(delta: float) -> void:
+	for vehicle in vehicles:
+		if vehicle != null:
+			vehicle.visual_step(delta)
+
+
+func _physics_process(delta: float) -> void:
+	for v in vehicles:
+		if v != null:
+			v.apply_input(0, Vector3())
+	for v in vehicles:
+		if v != null:
+			v.process_input(delta, false)
+	for i in len(vehicles):
+		var v = vehicles[i]
+		if v != null:
+			if v.step(delta, false):
+				print("Destroyed ", i)
+				vehicles[i] = null
 
 
 func _exit_tree() -> void:
@@ -94,16 +119,13 @@ func _exit_tree() -> void:
 
 func spawn_vehicle(path: String) -> void:
 	var vehicle := OwnWar_Vehicle.new()
-	vehicle.team = 1
-	var e := vehicle.load_from_file(path)
+	var transform = get_node(spawn_points).get_child(_spawn_point_index).transform 
+	var e: int = vehicle.load_from_file(path, 1, OwnWar.ENEMY_COLOR, transform, true, len(vehicles))
 	assert(e == OK)
-	vehicle.transform = get_node(spawn_points).get_child(_spawn_point_index).transform
-	add_child(vehicle)
+	vehicles.push_back(vehicle)
+	vehicle.spawn(self, true)
 	_spawn_point_index += 1
 	_spawn_point_index %= get_node(spawn_points).get_child_count()
-	for n in Util.get_children_recursive(vehicle):
-		if n is MeshInstance and not n.has_meta("no_outline"):
-			get_node("Outline").add_outline(n)
 
 
 func exit() -> void:

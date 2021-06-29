@@ -22,3 +22,7 @@ test-loop:
 
 clean:
 	rm -r target/
+
+
+objdump:
+	objdump -SC target/release/libownwar.so

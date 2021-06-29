@@ -2,6 +2,7 @@ extends Node
 
 
 const TRAILER_MODE := false
+const AI_VEHICLES := ["skunk", "mini_tank", "tank"]
 
 signal server_disconnected()
 
@@ -16,9 +17,26 @@ var clients := {}
 var player_vehicle_data := PoolByteArray()
 onready var hud = get_node("HUD")
 
+var vehicles := []
+var inputs := []
+var free_vehicle_slots := []
+var ai := []
+
+var packet_counter = 0
+
+# Temporary vehicle data to be applied
+var pending_temporary_data := []
+# Permanent vehicle data to be applied
+var pending_permanent_data := []
+
+# Flag indicating whether we're done syncing with the server
+# Vehicles won't be stepped until this is done.
+var synced = false
+
 
 func _ready() -> void:
 	get_tree().multiplayer_poll = false
+	hud.vehicles = vehicles
 	if server_mode:
 		print("Server mode")
 		var network := NetworkedMultiplayerENet.new()
@@ -34,9 +52,26 @@ func _ready() -> void:
 		if not headless:
 			clients[1] = null
 			spawn_player_vehicle()
-		if TRAILER_MODE:
-			var vehicle := spawn_vehicle("skunk")
-			vehicle.add_child(BrickAI.new())
+
+		# Spawn some AI to keep the map busy even when there are no players.
+		# Tanky boy
+		if 0:
+			var vehicle_id = spawn_vehicle("tank")
+			var a = BrickAI.new()
+			a.vehicle_id = vehicle_id
+			ai.push_back(a)
+		# Speedy boy
+		if 0:
+			var vehicle_id = spawn_vehicle("mini_tank")
+			var a = BrickAI.new()
+			a.vehicle_id = vehicle_id
+			ai.push_back(a)
+		# Whimpy boy
+		if 0:
+			var vehicle_id = spawn_vehicle("skunk")
+			var a = BrickAI.new()
+			a.vehicle_id = vehicle_id
+			ai.push_back(a)
 	else:
 		assert(not headless, "Can't create client in headless mode")
 		spawn_player_vehicle()
@@ -52,8 +87,98 @@ func _exit_tree() -> void:
 	get_tree().multiplayer_poll = true
 
 
-func _physics_process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	for v in vehicles:
+		if v != null:
+			v.visual_step(delta)
+
+
+func _physics_process(delta: float) -> void:
+	# Send current client input
+	if !server_mode:
+		if hud.player_vehicle_id >= 0:
+			var v = vehicles[hud.player_vehicle_id]
+			if v != null:
+				print("   --  ", v.get_past_states_index())
+				rpc_unreliable("sync_client_input", v.get_past_states_index(), v.get_controller_bitmap(), v.aim_at)
+
+	# Receive client inputs _or_ receive server data
 	get_tree().multiplayer.poll()
+
+	if server_mode:
+		# Apply client inputs. If this is the client, any inputs from remote vehicles
+		# will be overridden anyways, so no worries.
+		for i in len(vehicles):
+			var v = vehicles[i]
+			inputs[i]
+			if v != null:
+				v.apply_input(inputs[i][0], inputs[i][1])
+
+		# Create packets with state to be applied to the vehicles & send it to the clients.
+		for i in len(vehicles):
+			var v = vehicles[i]
+			if v != null:
+				var pt = v.create_packet()
+				rpc_unreliable("sync_permanent_vehicle_data", i, pt[0]);
+				rpc("sync_temporary_vehicle_data", i, pt[1]);
+				
+	else:
+		var rb_index = null
+
+		# Apply temporary data
+		for pkt in pending_temporary_data:
+			if pkt[0] < len(vehicles):
+				var v = vehicles[pkt[0]]
+				if v != null:
+					print("Applying ", pkt[0])
+					var rb = v.process_temporary_packet(pkt[1])
+					if rb != null:
+						# Use the last state available, which is always most recent.
+						if rb_index == null or rb < rb_index:
+							rb_index = rb
+		pending_temporary_data.clear()
+
+		# Apply permanent data
+		for pkt in pending_permanent_data:
+			if pkt[0] < len(vehicles):
+				var v = vehicles[pkt[0]]
+				if v != null:
+					pass
+		pending_permanent_data.clear()
+
+		if rb_index != null:
+			# Rollback and resimulate state
+			rollback(rb_index)
+
+	# Step vehicles
+	for a in ai:
+		a.step(vehicles, delta)
+	for v in vehicles:
+		if v != null:
+			v.process_input(delta, false)
+	for i in len(vehicles):
+		var v = vehicles[i]
+		if v != null:
+			if v.step(delta, false):
+				if i == hud.player_vehicle_id:
+					hud.player_vehicle_id = -1
+					# Respawn the player after some time
+					get_tree() \
+						.create_timer(1.5) \
+						.connect("timeout", self, "spawn_player_vehicle")
+				else:
+					for a in ai:
+						if a.vehicle_id == i:
+							a.vehicle_id = -1
+							# Respawn the AI after some time
+							get_tree() \
+								.create_timer(3.0) \
+								.connect("timeout", self, "respawn_ai", [a])
+							break
+				free_vehicle_slot(i)
+
+	packet_counter += 1
+	packet_counter &= 0xffff
 
 
 func spawn_player_vehicle() -> void:
@@ -67,11 +192,10 @@ func spawn_player_vehicle() -> void:
 	assert(e == OK, "Failed to open file %s" % OwnWar_Settings.selected_vehicle_path)
 	var data := file.get_buffer(file.get_len())
 	if server_mode:
-		request_vehicle(data)
-		hud.player_vehicle = clients[1]
-		e = clients[1].connect("tree_exited", self, "request_respawn")
-		assert(e == OK)
+		hud.player_vehicle_id = request_vehicle(data, OwnWar.ALLY_COLOR)
+		print(hud.player_vehicle_id)
 	else:
+		print("Request sync")
 		rpc("request_sync_vehicles")
 		rpc("request_vehicle", data)
 	player_vehicle_data = data
@@ -82,124 +206,199 @@ func new_client(id: int) -> void:
 
 
 master func request_sync_vehicles() -> void:
+	print("Requested sync")
 	var id := get_tree().get_rpc_sender_id()
-	for vehicle in get_tree().get_nodes_in_group("vehicles"):
-		rpc_id(id, "sync_vehicle", vehicle.data, vehicle.name, vehicle.team, vehicle.transform,
-			vehicle.controller.get_network_master(), vehicle.serialize_state())
+	var data = []
+	for i in len(vehicles):
+		var v = vehicles[i]
+		if v != null:
+			print("Syncing vehicle ", i)
+			rpc_id(id, "sync_vehicle", i, v.serialize())
 	OwnWar_NetInfo.enable_broadcast(id)
 
 
-func remove_client(id: int) -> void:
-	var vehicle: OwnWar_Vehicle = clients[id]
-	if vehicle != null:
-		vehicle.queue_free()
-		rpc_id(-OwnWar_NetInfo.disable_broadcast_id, "destroy_vehicle", vehicle.get_path())
+func remove_client(id) -> void:
+	var i = clients[id]
+	var v = vehicles[i]
+	if v != null:
+		v.destroy()
+		rpc_id(-OwnWar_NetInfo.disable_broadcast_id, "destroy_vehicle", v.get_path())
+		free_vehicle_slot(i)
 	var e := clients.erase(id)
 	assert(e)
 
 
-puppet func destroy_vehicle(path: NodePath) -> void:
-	var vehicle: OwnWar_Vehicle = get_node_or_null(path)
-	if vehicle != null:
-		vehicle.queue_free()
+puppet func destroy_vehicle(id) -> void:
+	var v = vehicles[id]
+	if v != null:
+		v.destroy()
+		vehicles[id] = null
 
 
-puppet func sync_vehicle(data: PoolByteArray, name: String, team: int, \
-	transform: Transform, master_id: int, state := []) -> void:
-	var vehicle := OwnWar_Vehicle.new()
-	vehicle.team = team
-	vehicle.name = name
-	vehicle.transform = transform
-	var e := vehicle.load_from_data(data, state)
+puppet func sync_vehicle(id, data) -> void:
+	print("Synced vehicle ", id)
+	allocate_vehicle_slot(id)
+	var v = OwnWar_Vehicle.new()
+	var e = v.deserialize(data, id, OwnWar.ENEMY_COLOR, true)
 	assert(e == OK)
-	vehicle.add_to_group("vehicles")
-	vehicle.controller.set_network_master(master_id)
-	add_child(vehicle)
+	vehicles[id] = v
+	v.spawn(self, false)
 
 
-master func request_vehicle(data: PoolByteArray) -> void:
-	var is_ally := false
+master func request_vehicle(data: PoolByteArray, color = OwnWar.ENEMY_COLOR):
 	var id := get_tree().get_rpc_sender_id()
+	var is_local = false
 	if id == 0:
 		# Server requested vehicle
 		id = 1
-		is_ally = true
-	if clients[id] == null:
-		var vehicle := OwnWar_Vehicle.new()
-		vehicle.team = counter
-		vehicle.is_ally = is_ally
-		var e := vehicle.load_from_data(data)
-		assert(e == OK)
-		var index := counter % get_node(spawn_points).get_child_count()
-		vehicle.transform = get_node(spawn_points).get_child(index).transform
-		vehicle.add_to_group("vehicles")
-		vehicle.name = "Vehicle %d" % counter
-		vehicle.controller.set_network_master(id)
-		add_child(vehicle)
-		counter += 1
-		if id != 1:
-			rpc_id(id, "accepted_vehicle", vehicle.name, vehicle.team, vehicle.transform)
-			rpc_id(-id, "sync_vehicle", data, vehicle.name, vehicle.team,
-				vehicle.transform, vehicle.controller.get_network_master())
-		else:
-			rpc("sync_vehicle", data, vehicle.name, vehicle.team,
-				vehicle.transform, vehicle.controller.get_network_master())
-		clients[id] = vehicle
-		e = vehicle.connect("tree_exiting", self, "remove_client_vehicle", [id])
-		assert(e == OK)
+		is_local = true
 
-
-puppet func accepted_vehicle(name: String, team: int, transform: Transform) -> void:
 	var vehicle := OwnWar_Vehicle.new()
-	vehicle.name = name
-	vehicle.team = team
-	vehicle.transform = transform
-	vehicle.is_ally = true
-	vehicle.load_from_data(player_vehicle_data)
-	add_child(vehicle)
-	#player_vehicle_data = PoolByteArray()
-	hud.player_vehicle = vehicle
-	vehicle.controller.set_network_master(get_tree().get_network_unique_id())
-	vehicle.connect("tree_exited", self, "request_respawn")
+	var index := counter % get_node(spawn_points).get_child_count()
+	var team = counter
+	var transform = get_node(spawn_points).get_child(index).transform
+	var vehicle_id = reserve_vehicle_slot()
+	var e = vehicle.load_from_data(
+		data,
+		team,
+		color,
+		transform,
+		is_local,
+		vehicle_id
+	)
+	assert(e == OK)
+	vehicles[vehicle_id] = vehicle
+	clients[id] = vehicle_id
+	vehicle.spawn(self, true)
+	counter += 1
+	if id != 1:
+		rpc_id(id, "accepted_vehicle", vehicle_id, team, transform)
+		rpc_id(-id, "sync_vehicle", data, vehicle_id, team, transform)
+	else:
+		rpc("sync_vehicle", data, vehicle_id, team, transform)
+
+	clients[id] = vehicle_id
+
+	print("Respawned client ", id, ", vehicle ", vehicle_id)
+	return vehicle_id
+
+
+puppet func accepted_vehicle(id, team: int, transform: Transform) -> void:
+	allocate_vehicle_slot(id)
+	var v := OwnWar_Vehicle.new()
+	var e = v.load_from_data(
+		player_vehicle_data,
+		team,
+		OwnWar.ALLY_COLOR,
+		transform,
+		true,
+		id
+	)
+	assert(e == OK, "Failed to load vehicle")
+	vehicles[id] = v
+	hud.player_vehicle_id = id
+	v.spawn(self, true)
 
 
 func request_respawn() -> void:
 	if is_inside_tree():
 		yield(get_tree().create_timer(1.5), "timeout")
 		if server_mode:
-			request_vehicle(player_vehicle_data)
-			hud.player_vehicle = clients[1]
+			hud.player_vehicle_id = request_vehicle(player_vehicle_data)
 			var e: int = clients[1].connect("tree_exited", self, "request_respawn")
 			assert(e == OK)
 		else:
 			rpc_id(1, "request_vehicle", player_vehicle_data)
 
 
-func spawn_vehicle(name: String) -> OwnWar_Vehicle:
+func spawn_vehicle(name: String):
 	var vehicle := OwnWar_Vehicle.new()
-	vehicle.team = counter
-	vehicle.load_from_file(OwnWar.get_vehicle_path(name))
+	var team = counter
 	var index := counter % get_node(spawn_points).get_child_count()
-	vehicle.transform = get_node(spawn_points).get_child(index).transform
-	vehicle.add_to_group("vehicles")
-	vehicle.name = "Vehicle %d" % counter
-	add_child(vehicle)
+	var id = len(vehicles)
+	var e = vehicle.load_from_file(
+		OwnWar.get_vehicle_path(name),
+		team,
+		OwnWar.ENEMY_COLOR,
+		get_node(spawn_points).get_child(index).transform,
+		true,
+		id
+	)
+	assert(e == OK)
+	vehicles.push_back(vehicle)
+	vehicle.spawn(self, true)
 	counter += 1
-	return vehicle
+	return id
 
 
 func remove_client_vehicle(id: int) -> void:
 	clients[id] = null
 
 
-func rollback(vehicle, steps: int) -> void:
+func rollback(steps: int) -> void:
 	var delta := 1.0 / Engine.iterations_per_second
 	print("Rollback ", steps)
+	for v in vehicles:
+		if v != null:
+			v.rollback_steps(steps)
 	for i in steps + 1:
-		for v in get_tree().get_nodes_in_group("vehicles"):
-			if v == vehicle:
-				v.rollback_copy_current(delta, steps - i)
-			else:
-				v.rollback_steps(delta, steps - i)
 		if i < steps:
 			PhysicsServer.step(delta)
+		for v in vehicles:
+			if v != null:
+				v.step(delta, true)
+		for v in vehicles:
+			if v != null:
+				v.rollback_save()
+
+
+# Respawn the AI of a vehicle
+func respawn_ai(a):
+	var path = AI_VEHICLES[randi() % len(AI_VEHICLES)]
+	a.vehicle_id = spawn_vehicle(path)
+
+
+# Receive temporary from the server for a specific vehicle
+puppet func sync_temporary_vehicle_data(id, data):
+	pending_temporary_data.push_back([id, data])
+
+
+# Receive permanent from the server for a specific vehicle
+puppet func sync_permanent_vehicle_data(id, data):
+	pending_permanent_data.push_back([id, data])
+
+
+# Return a valid slot in the vehicle list.
+func reserve_vehicle_slot():
+	var e = free_vehicle_slots.pop_back()
+	if e == null:
+		vehicles.push_back(null)
+		inputs.push_back([0, Vector3()])
+		return len(vehicles) - 1
+	return e
+
+
+# Allocate a specific slot in the vehicle list.
+func allocate_vehicle_slot(id):
+	if len(vehicles) <= id:
+		vehicles.resize(id + 1)
+		inputs.push_back([0, Vector3()])
+	assert(vehicles[id] == null, "Vehicle slot already in use")
+
+
+# Clear a slot in the vehicle list.
+func free_vehicle_slot(id):
+	vehicles[id] = null
+	free_vehicle_slots.push_back(id)
+
+
+# Sync client input with the server
+master func sync_client_input(index, bitmap, aim_at):
+	var id = get_tree().get_rpc_sender_id()
+	id = clients[id]
+	if id != null:
+		var v = vehicles[id]
+		if v != null:
+			print(v.get_past_states_index(), " <= ", index)
+			v.set_past_states_index(index)
+			inputs[id] = [bitmap, aim_at]

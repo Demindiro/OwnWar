@@ -43,8 +43,6 @@ size = Vector3( 10, 2, 10 )
 [node name="Test" type="Node"]
 script = ExtResource( 12 )
 editor_scene_path = "res://editor/editor.tscn"
-spawn_point/0 = NodePath("SpawnPoints/Center")
-spawn_point/1 = NodePath("SpawnPoints/1")
 
 [node name="Outline" parent="." instance=ExtResource( 7 )]
 visible = false
@@ -60,14 +58,12 @@ far = 2000.0
 [node name="HTerrain" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -128.25, 0, -128.25 )
 script = ExtResource( 3 )
-ambient_wind = 0.0
-lod_scale = 2.0
 map_scale = Vector3( 0.5, 0.5, 0.5 )
 _terrain_data = ExtResource( 4 )
 chunk_size = 32
 collision_enabled = true
-collision_layer = 1
-collision_mask = 1
+collision_layer = 129
+collision_mask = 129
 shader_type = "Classic4Lite"
 custom_shader = null
 custom_globalmap_shader = null
@@ -264,6 +260,7 @@ material/0 = null
 [node name="RayCast" parent="." instance=ExtResource( 17 )]
 transform = Transform( 10, 0, 0, 0, 10, 0, 0, 0, 10, -56.5482, 10.1933, -52.1067 )
 cast_to = Vector3( 0, -1000, 0 )
+
 [connection signal="hide" from="GUI" to="HUD" method="set_mouse_mode"]
 [connection signal="visibility_changed" from="GUI" to="HUD" method="poll_input"]
 [connection signal="pressed" from="GUI/Box/Continue" to="GUI" method="set_visible" binds= [ false ]]

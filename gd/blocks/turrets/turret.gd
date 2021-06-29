@@ -1,67 +1,53 @@
 extends "../weapons/weapon.gd"
 
-
+export var max_impulse := 300
 var max_turn_speed := PI / 2
-#var _desired_direction := Vector3(0, 0, 1)
-var _body_a: OwnWar_VoxelBody
-var _body_b: OwnWar_VoxelBody
-var _coord_a: Vector3
-var _coord_b: Vector3
+var _body_a: RigidBody
+var _body_b: RigidBody
 var _aim_pos := Vector3()
-var _body_b_mount := Spatial.new()
-var _heaviest_mass := 0.0 # Used to adjust joint precision
-onready var _joint: HingeJoint = get_node("Joint")
+var _body_b_mount: Spatial
 
+var _joint_rid := RID()
 
-func init(coordinate: Vector3, voxel_body: OwnWar_VoxelBody, vehicle: OwnWar_Vehicle) -> void:
-	_joint = get_node("Joint")
-	var connecting_coordinate := coordinate + transform.basis.y.round()
-	for body in vehicle.voxel_bodies:
-		if body != null and body != voxel_body:
-			var other_id: int = body.get_block_id(connecting_coordinate)
-			if other_id > 0:
-				_create_joint(voxel_body, body)
-				_body_a.add_anchor(coordinate, _body_b)
-				_body_b.add_anchor(connecting_coordinate, _body_a)
-				var e: int = _body_a.connect("destroyed", self, "set", ["_body_a", null])
-				assert(e == OK)
-				e = _body_b.connect("destroyed", self, "set", ["_body_b", null])
-				assert(e == OK)
-				_coord_a = coordinate
-				_coord_b = connecting_coordinate
-				for b in vehicle.voxel_bodies:
-					_heaviest_mass = max(_heaviest_mass, b.mass)
-				assert(_heaviest_mass > 0.0, "Mass of heaviest body is 0!")
-				break
-
-
-func destroy() -> void:
-	if _body_a != null and _body_b != null:
-		_body_a.remove_anchor(_coord_a, _body_b)
-	if _body_a != null and _body_b != null:
-		_body_b.remove_anchor(_coord_b, _body_a)
+var base_position
+var steppable_index = 0
+var turret_index = 0
+var anchor_index = 0
+var anchor_mounts = PoolVector3Array([Vector3(0, 1, 0)])
+var anchor_mounts_bodies
 
 
 func _ready() -> void:
-	set_physics_process(_body_a != null)
+	call_deferred("_ready_deferred")
+
+
+func _ready_deferred():
+	for body in anchor_mounts_bodies:
+		_create_joint(get_parent(), body)
+
 	if _body_a != null:
+		_body_b_mount = Spatial.new()
 		_body_b.add_child(_body_b_mount)
-		_body_b_mount.global_transform = global_transform
+		_body_b_mount.transform.basis = transform.basis
 		var e := _body_b_mount.connect("tree_exiting", self, "set", ["_body_b_mount", null])
 		assert(e == OK)
-		e = _body_b.connect("tree_exiting", self, "set_physics_process", [false])
-		assert(e == OK)
 
 
-func process_tick(delta: float) -> void:
-	var g_trf := _body_b_mount.global_transform
-	var plane := Plane(g_trf.basis.y, 0)
-	var proj_pos := plane.project(_aim_pos - g_trf.origin)
-	var angle_diff := abs(g_trf.basis.z.angle_to(proj_pos.normalized()))
-	var side := sign(g_trf.basis.x.dot(proj_pos))
-	var max_turn := max_turn_speed * delta
-	var turn_rate := max_turn_speed * min(1.0, angle_diff / max_turn * 0.5)
-	_joint.set("motor/target_velocity", turn_rate * side)
+func step(delta) -> void:
+	if _body_b_mount != null && _joint_rid != RID():
+		delta = delta / 256.0
+		var g_trf := _body_b_mount.global_transform
+		var plane := Plane(g_trf.basis.y, 0)
+		var proj_pos := plane.project(_aim_pos - g_trf.origin)
+		var angle_diff := abs(g_trf.basis.z.angle_to(proj_pos.normalized()))
+		var side := -sign(g_trf.basis.x.dot(proj_pos))
+		var max_turn: float = max_turn_speed * delta
+		var turn_rate := max_turn_speed * min(1.0, angle_diff / max_turn * 0.5)
+		PhysicsServer.hinge_joint_set_param(
+			_joint_rid,
+			PhysicsServer.HINGE_JOINT_MOTOR_TARGET_VELOCITY,
+			turn_rate * side
+		)
 
 
 func aim_at(position: Vector3):
@@ -71,16 +57,23 @@ func aim_at(position: Vector3):
 func _create_joint(body_a: PhysicsBody, body_b: PhysicsBody) -> void:
 	_body_a = body_a
 	_body_b = body_b
-	_joint.set("nodes/node_a", _joint.get_path_to(body_a))
-	_joint.set("nodes/node_b", _joint.get_path_to(body_b))
-	# Needed to prevent bullet from complaining ("assert_no_constraints")
-	Util.assert_connect(body_a, "tree_exiting", self, "_remove_joint")
-	Util.assert_connect(body_b, "tree_exiting", self, "_remove_joint")
+	var vh = body_a.get_meta("ownwar_vehicle_list")[body_a.get_meta("ownwar_vehicle_index")]
+	var bd_a = body_a.get_meta("ownwar_body_index")
+	var bd_b = body_b.get_meta("ownwar_body_index")
+	var z_up = transform.basis * Basis(Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, 1, 0))
+	_joint_rid = PhysicsServer.joint_create_hinge(
+		body_a.get_rid(),
+		Transform(z_up, vh.voxel_to_translation(bd_a, base_position)),
+		body_b.get_rid(),
+		Transform(z_up, vh.voxel_to_translation(bd_b, base_position))
+	)
+	PhysicsServer.hinge_joint_set_param(
+		_joint_rid,
+		PhysicsServer.HINGE_JOINT_MOTOR_MAX_IMPULSE,
+		max_impulse
+	)
 
 
 func _remove_joint() -> void:
-	if _joint != null:
-		_joint.set("nodes/node_a", null)
-		_joint.set("nodes/node_b", null)
-		_joint.free()
-		_joint = null
+	if _joint_rid != RID():
+		PhysicsServer.free_rid(_joint_rid)

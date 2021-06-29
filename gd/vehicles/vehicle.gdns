@@ -3,6 +3,6 @@
 [ext_resource path="res://lib/ownwar.gdnlib" type="GDNativeLibrary" id=1]
 
 [resource]
-class_name = "VoxelBody"
+class_name = "Vehicle"
 library = ExtResource( 1 )
-script_class_name = "OwnWar_VoxelBody"
+script_class_name = "OwnWar_Vehicle"

@@ -23,11 +23,13 @@ data = PoolVector3Array( 2.5, 0, -2.5, -0.5, 0, -2.5, -0.5, 0, -0.5, -0.5, 0, -0
 
 [node name="Road bump" type="Spatial"]
 script = ExtResource( 2 )
-use_color = false
 mesh = SubResource( 1 )
+use_color = false
 color = Color( 1, 1, 1, 1 )
 
 [node name="StaticBody" type="StaticBody" parent="."]
+collision_layer = 129
+collision_mask = 129
 
 [node name="CollisionShape" type="CollisionShape" parent="StaticBody"]
 shape = SubResource( 2 )

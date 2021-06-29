@@ -14,6 +14,9 @@ export var inaccuracy := 0.05
 var team: int
 onready var _ray: RayCast = get_node("Ray")
 
+var weapon_index = 0
+var weapon_type = 0x000 # continuous fire, laser
+
 
 func fire() -> bool:
 	if not is_network_master():
@@ -27,27 +30,27 @@ func fire() -> bool:
 		_ray.force_raycast_update()
 		if _ray.is_colliding():
 			at = _ray.get_collision_point()
-			var collider := _ray.get_collider()
-			var body := collider as OwnWar_VoxelBody
-			if body != null:
-				if body.team == team:
-					var pos = body.raycast(at, global_transform * dir)
+			var body = _ray.get_collider()
+			if body != null && body.has_meta("ownwar_vehicle_team"):
+				var vh_list = get_parent().get_meta("ownwar_vehicle_list")
+				var vh_id = body.get_meta("ownwar_vehicle_index")
+				var body_id = body.get_meta("ownwar_body_index")
+				if body.get_meta("ownwar_vehicle_team") == team:
+					var pos = vh_list[vh_id].raycast(body_id, at, global_transform.basis * dir)
 					if pos != null:
 						at = pos
 						break
 				else:
 					assert(get_tree().is_network_server())
-					dmg = body.apply_damage(at, global_transform.basis * dir, dmg)
-					if dmg == 0:
-						var pos: Vector3 = body.last_hit_position
-						pos += Vector3(0.5, 0.5, 0.5)
-						pos *= BLOCK_SCALE
-						pos -= body.center_of_mass
-						at = body.to_global(pos)
-						break
+					var pos = vh_list[vh_id].raycast(body_id, at, global_transform.basis * dir)
+					if pos != null:
+						dmg = vh_list[vh_id].apply_ray_damage(body_id, at, global_transform.basis * dir, dmg)
+						if dmg == 0:
+							at = pos
+							break
 			else:
 				break
-			_ray.add_exception(collider)
+			_ray.add_exception(body)
 		else:
 			at = global_transform * _ray.cast_to
 			break

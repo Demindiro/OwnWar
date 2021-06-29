@@ -24,7 +24,7 @@ _global_script_classes=[ {
 "language": "NativeScript",
 "path": "res://addons/3d_batcher/batched_mesh_manager.gdns"
 }, {
-"base": "Node",
+"base": "Reference",
 "class": "BrickAI",
 "language": "GDScript",
 "path": "res://vehicles/brick_ai.gd"
@@ -119,10 +119,10 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://blocks/thrusters/thruster_server.gd"
 }, {
-"base": "Spatial",
+"base": "Reference",
 "class": "OwnWar_Vehicle",
-"language": "GDScript",
-"path": "res://vehicles/vehicle.gd"
+"language": "NativeScript",
+"path": "res://vehicles/vehicle.gdns"
 }, {
 "base": "Node",
 "class": "OwnWar_VehicleController",
@@ -138,11 +138,6 @@ _global_script_classes=[ {
 "class": "OwnWar_VehiclePreview",
 "language": "GDScript",
 "path": "res://vehicles/vehicle_preview.gd"
-}, {
-"base": "VehicleBody",
-"class": "OwnWar_VoxelBody",
-"language": "NativeScript",
-"path": "res://vehicles/voxel_body.gdns"
 }, {
 "base": "ArrayMesh",
 "class": "OwnWar_VoxelMesh",
@@ -206,7 +201,6 @@ _global_script_class_icons={
 "OwnWar_VehicleController": "",
 "OwnWar_VehicleLoader": "",
 "OwnWar_VehiclePreview": "",
-"OwnWar_VoxelBody": "",
 "OwnWar_VoxelMesh": "",
 "OwnWar_Weapon": "",
 "OwnWar_WeaponLaser": "",

@@ -12,7 +12,7 @@ uniform float emission_strength: hint_range(0.0, 10.0) = 5.0;
 void fragment() {
 	EMISSION = albedo_color.rgb * emission_strength;
 	ALBEDO = albedo_color.rgb;
-	float a = 1.0 - clamp(TIME - start_time, 0.0, 1.0);
+	float a = 1.0 - clamp((TIME - start_time) * 3.0, 0.0, 1.0);
 	ALPHA = pow(a, 2.0);
 }
 

@@ -284,7 +284,13 @@ impl VoxelMesh {
 }
 
 impl SubMesh {
-	fn new(block: &block::Block, index: u8, array: Vec<block::MeshPoint>, coordinate: Voxel, rotation: Rotation) -> Self {
+	fn new(
+		block: &block::Block,
+		index: u8,
+		array: Vec<block::MeshPoint>,
+		coordinate: Voxel,
+		rotation: Rotation,
+	) -> Self {
 		let mut face_vertices = Vec::with_capacity(6);
 		for _ in 0..6 {
 			face_vertices.push(Vec::new().into_boxed_slice());

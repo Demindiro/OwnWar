@@ -1,5 +1,5 @@
 mod data;
-mod serialize;
+pub mod serialize;
 
 mod godot {
 

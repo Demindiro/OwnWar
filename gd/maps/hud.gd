@@ -11,7 +11,8 @@ export var camera: NodePath
 export(float, 0.0, 100.0) var camera_zoom_min := 5.0
 export(float, 0.0, 100.0) var camera_zoom_max := 10.0
 export var camera_offset := Vector3()
-var player_vehicle: OwnWar_Vehicle setget set_player_vehicle
+var player_vehicle_id = -1 setget set_player_vehicle
+var vehicles
 
 var _camera_pan := 0.0
 var _camera_tilt := 0.0
@@ -28,9 +29,11 @@ func _ready() -> void:
 	_camera_ray.cast_to = Vector3(0, 0, -100000)
 	_camera.add_child(_camera_ray)
 	_camera_ray.transform = Transform.IDENTITY
+	_camera_ray.collision_mask = 0xffffffff
 	_camera.add_child(_camera_terrain_ray)
 	_camera_terrain_ray.set_as_toplevel(true)
 	_camera_terrain_ray.transform = Transform.IDENTITY
+	_camera_terrain_ray.collision_mask = 0xffffffff
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -55,40 +58,50 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("ui_cancel"):
 		_gui.visible = true
 		set_mouse_mode()
-	elif player_vehicle != null:
-		if event.is_action("combat_turn_left"):
-			player_vehicle.controller.turn_left = event.is_pressed()
-		elif event.is_action("combat_turn_right"):
-			player_vehicle.controller.turn_right = event.is_pressed()
-		elif event.is_action("combat_pitch_up"):
-			player_vehicle.controller.pitch_up = event.is_pressed()
-		elif event.is_action("combat_pitch_down"):
-			player_vehicle.controller.pitch_down = event.is_pressed()
-		elif event.is_action("combat_move_forward"):
-			player_vehicle.controller.move_forward = event.is_pressed()
-		elif event.is_action("combat_move_back"):
-			player_vehicle.controller.move_back = event.is_pressed()
-		elif event.is_action("combat_fire"):
-			player_vehicle.controller.fire = event.is_pressed()
-		elif event.is_action("combat_flip_vehicle"):
-			player_vehicle.controller.flip = event.is_pressed()
+	elif player_vehicle_id >= 0:
+		var player_vehicle = vehicles[player_vehicle_id]
+		if player_vehicle != null:
+			if event.is_action("combat_turn_left"):
+				player_vehicle.turn_left = event.is_pressed()
+			elif event.is_action("combat_turn_right"):
+				player_vehicle.turn_right = event.is_pressed()
+			elif event.is_action("combat_pitch_up"):
+				player_vehicle.pitch_up = event.is_pressed()
+			elif event.is_action("combat_pitch_down"):
+				player_vehicle.pitch_down = event.is_pressed()
+			elif event.is_action("combat_move_forward"):
+				player_vehicle.move_forward = event.is_pressed()
+			elif event.is_action("combat_move_back"):
+				player_vehicle.move_back = event.is_pressed()
+			elif event.is_action("combat_fire"):
+				player_vehicle.fire = event.is_pressed()
+			elif event.is_action("combat_flip_vehicle"):
+				player_vehicle.flip = event.is_pressed()
 
 
 
 func _process(_delta: float) -> void:
 	call_deferred("_set_camera")
-	if player_vehicle != null and player_vehicle.max_cost > 0:
-		_health_bar.value = player_vehicle.get_cost() / float(player_vehicle.max_cost)
-	else:
+	if player_vehicle_id < 0:
 		_health_bar.value = 0
+	else:
+		var player_vehicle = vehicles[player_vehicle_id]
+		if player_vehicle != null and player_vehicle.max_cost() > 0:
+			_health_bar.value = player_vehicle.get_cost() / float(player_vehicle.max_cost())
+		else:
+			_health_bar.value = 0
 
 
 func _set_camera() -> void:
+	if player_vehicle_id < 0:
+		return
+	var player_vehicle = vehicles[player_vehicle_id]
 	if player_vehicle == null:
 		return
+
 	var basis := Basis(Vector3(0, 1, 0), _camera_pan) * \
 		Basis(Vector3(1, 0, 0), _camera_tilt)
-	var pos := player_vehicle.get_visual_origin() + camera_offset
+	var pos: Vector3 = player_vehicle.get_visual_origin() + camera_offset
 	_camera_terrain_ray.translation = pos
 	pos += basis * (Vector3(0, 0, _camera_zoom))
 	_camera_terrain_ray.cast_to = pos - _camera_terrain_ray.translation
@@ -105,24 +118,19 @@ func _set_camera() -> void:
 	_camera.transform = Transform(basis, pos)
 	_camera_ray.force_raycast_update()
 	if _camera_ray.is_colliding():
-		player_vehicle.controller.aim_at = _camera_ray.get_collision_point()
+		player_vehicle.aim_at = _camera_ray.get_collision_point()
 	else:
-		player_vehicle.controller.aim_at = _camera.transform * Vector3(0, 0, -10000000000)
+		player_vehicle.aim_at = _camera.transform * Vector3(0, 0, -10000000000)
 
 
-func set_player_vehicle(p_vehicle) -> void:
-	player_vehicle = p_vehicle
-	if p_vehicle == null:
+func set_player_vehicle(vehicle_id) -> void:
+	player_vehicle_id = vehicle_id
+	if vehicle_id < 0:
 		return
+	var v = vehicles[vehicle_id]
 	if _camera_ray != null:
-		for body in Util.get_children_recursive(player_vehicle):
-			if body is PhysicsBody:
-				_camera_ray.add_exception(body)
-				_camera_terrain_ray.add_exception(body)
-		var aabb := player_vehicle.get_aabb()
+		var aabb: AABB = v.get_aabb()
 		camera_offset.y = aabb.size.y * BLOCK_SCALE + 1
-	var e: int = p_vehicle.connect("tree_exiting", self, "set", ["player_vehicle", null])
-	assert(e == OK)
 
 
 func set_mouse_mode() -> void:
@@ -135,20 +143,23 @@ func set_mouse_mode() -> void:
 
 
 func poll_input() -> void:
+	if player_vehicle_id < 0:
+		return
+	var player_vehicle = vehicles[player_vehicle_id]
 	if player_vehicle != null:
 		if _gui.visible:
-			player_vehicle.controller.turn_left = false
-			player_vehicle.controller.turn_right = false
-			player_vehicle.controller.pitch_up = false
-			player_vehicle.controller.pitch_down = false
-			player_vehicle.controller.move_forward = false
-			player_vehicle.controller.move_back = false
-			player_vehicle.controller.fire = false
+			player_vehicle.turn_left = false
+			player_vehicle.turn_right = false
+			player_vehicle.pitch_up = false
+			player_vehicle.pitch_down = false
+			player_vehicle.move_forward = false
+			player_vehicle.move_back = false
+			player_vehicle.fire = false
 		else:
-			player_vehicle.controller.turn_left = Input.is_action_pressed("combat_turn_left")
-			player_vehicle.controller.turn_right = Input.is_action_pressed("combat_turn_right")
-			player_vehicle.controller.pitch_up = Input.is_action_pressed("combat_pitch_up")
-			player_vehicle.controller.pitch_down = Input.is_action_pressed("combat_pitch_down")
-			player_vehicle.controller.move_forward = Input.is_action_pressed("combat_move_forward")
-			player_vehicle.controller.move_back = Input.is_action_pressed("combat_move_back")
-			player_vehicle.controller.fire = Input.is_action_pressed("combat_fire")
+			player_vehicle.turn_left = Input.is_action_pressed("combat_turn_left")
+			player_vehicle.turn_right = Input.is_action_pressed("combat_turn_right")
+			player_vehicle.pitch_up = Input.is_action_pressed("combat_pitch_up")
+			player_vehicle.pitch_down = Input.is_action_pressed("combat_pitch_down")
+			player_vehicle.move_forward = Input.is_action_pressed("combat_move_forward")
+			player_vehicle.move_back = Input.is_action_pressed("combat_move_back")
+			player_vehicle.fire = Input.is_action_pressed("combat_fire")

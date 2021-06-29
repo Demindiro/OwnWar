@@ -8,13 +8,10 @@ export var max_brake := 8.0
 export var max_rpm := 900.0
 export var suspension_max_force := 1500.0
 
-
-var steering := 0.0 setget set_steering
-var brake := 0.0 setget set_brake
-var engine_force := 0.0 setget set_engine_force
-
-
 onready var wheel: VehicleWheel = get_child(0)
+
+var movement_index = 0
+var temporary_index = 0
 
 
 func _ready() -> void:
@@ -29,20 +26,9 @@ func _post_ready() -> void:
 	get_parent().add_child(wheel)
 
 
-func set_steering(value: float) -> void:
-	steering = value
-	wheel.steering = value
-
-
-func set_brake(value: float) -> void:
-	brake = value
-	wheel.brake = value
-
-
-func set_engine_force(value: float) -> void:
-	engine_force = value
-	wheel.engine_force = value
-
-
-func get_rpm() -> float:
-	return wheel.get_rpm()
+func drive(forward: float, yaw: float, pitch: float, roll: float) -> void:
+	forward *= (1.0 - clamp(abs(wheel.get_rpm()) / max_rpm, 0.0, 1.0))
+	yaw *= 0.2 * (translation.z / abs(translation.x))
+	wheel.brake = 1.0 if forward == 0.0 else 0.0
+	wheel.engine_force = forward * max_power
+	wheel.steering = yaw

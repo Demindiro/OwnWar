@@ -423,6 +423,16 @@ impl Block {
 		self.client_node.map(|n| n.clone())
 	}
 
+	/// Return whether this is a multi block. It may be a multiblock if:
+	///
+	/// * It has nodes
+	/// * It has more than `u16::MAX` health points (TODO)
+	/// * It has multiple connection points (TODO)
+	#[must_use]
+	pub fn is_multi_block(&self) -> bool {
+		self.server_node.is_some()
+	}
+
 	/*
 	pub fn mesh_arrays(&self) -> Option<&MeshArrays> {
 		self.mesh.map(|v| {

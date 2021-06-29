@@ -12,11 +12,7 @@ script = ExtResource( 5 )
 
 [node name="Server" type="Spatial" parent="."]
 script = ExtResource( 2 )
-
-[node name="Joint" type="HingeJoint" parent="Server"]
-transform = Transform( 1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0 )
-motor/enable = true
-motor/max_impulse = 2700.0
+max_impulse = 2000
 
 [node name="Client" type="Spatial" parent="."]
 script = ExtResource( 4 )

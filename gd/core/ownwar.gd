@@ -12,6 +12,9 @@ const NET_COMPRESSION := NetworkedMultiplayerENet.COMPRESS_RANGE_CODER
 const SETTINGS_FILE := "user://settings.cfg"
 const MAINFRAME_ID := 76
 
+const ALLY_COLOR := Color(0.0, 1.0, 0.976471)
+const ENEMY_COLOR := Color(1.0, 0.15, 0.15)
+
 
 static func snap_transform(node) -> void:
 	var transform: Transform = node.global_transform

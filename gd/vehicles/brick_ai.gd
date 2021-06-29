@@ -1,42 +1,63 @@
-extends Node
 class_name BrickAI
 
 var min_distance := 10.0
 var max_distance := 30.0
 
-onready var vehicle: OwnWar_Vehicle = get_parent()
-onready var controller = get_node("../Controller")
+var vehicle_id = -1
 
 
-func _physics_process(_delta) -> void:
-	controller.clear()
-	var closest_vehicle: OwnWar_Vehicle = null
+func step(vehicles, _delta: float) -> void:
+	if vehicle_id == -1:
+		return
+
+	var vehicle = vehicles[vehicle_id]
+	vehicle.apply_input(0, Vector3())
+	var trf = vehicle.get_node().transform
+
+	# Flip if necessary
+	if trf.basis.y.dot(Vector3.DOWN) > 0.9:
+		vehicle.flip = true
+
+	# Find nearest enemy
+	var closest_vehicle
 	var closest_distance_2 := INF
-	for v in get_tree().get_nodes_in_group("vehicles"):
-		if v == vehicle:
+	for i in len(vehicles):
+		if i == vehicle_id:
 			continue
-		var d2: float = v.translation.distance_squared_to(vehicle.translation)
+		var v = vehicles[i]
+		if v == null:
+			continue
+		var d2: float = v.get_node().translation.distance_squared_to(trf.origin)
 		if d2 < closest_distance_2:
 			closest_vehicle = v
 			closest_distance_2 = d2
-	var v := closest_vehicle
+	var v = closest_vehicle
+
+	# Drive towards & fire at the nearest enemy
 	if v != null:
-		var rel_pos := v.translation - vehicle.translation
-		var dir := rel_pos.normalized()
-		var angle := acos(vehicle.transform.basis.z.dot(dir))
-		var side := sign(vehicle.transform.basis.x.dot(dir))
+		var rel_pos = v.get_node().translation - trf.origin
+		var dir = rel_pos.normalized()
+		var angle = acos(trf.basis.z.dot(dir))
+		var side = sign(trf.basis.x.dot(dir))
+
+		# Check if broadsiding would be useful
 		var desired_angle := PI / 2
 		if closest_distance_2 < min_distance * min_distance:
 			desired_angle = PI
 		elif closest_distance_2 > max_distance * max_distance:
 			desired_angle = 0.0
+
+		# Attempt to achieve the desired angle
 		var angle_diff := fposmod(desired_angle - angle, 2 * PI)
 		if angle_diff > PI:
 			angle_diff = -(PI * 2 - angle_diff)
-		if angle_diff < -PI / 6:
-			controller.turn_left = true
-		elif angle_diff > PI / 6:
-			controller.turn_right = true
-		controller.move_forward = true
-		controller.aim_at = v.translation
-		controller.fire = true
+
+		if angle_diff < -PI / 4:
+			vehicle.turn_left = true
+		elif angle_diff > PI / 4:
+			vehicle.turn_right = true
+
+		# Apply movement
+		vehicle.move_forward = true
+		vehicle.aim_at = v.get_node().translation
+		vehicle.fire = true

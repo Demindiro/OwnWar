@@ -43,7 +43,7 @@ func _process(_delta: float) -> void:
 		# TODO figure out why in the name of God the scale of VehicelWheel is negative
 		#curr_trf.basis = curr_trf.basis.scaled(-Vector3.ONE)
 		prev_steer = curr_steer
-		curr_steer = server_node.steering
+		curr_steer = server_node.wheel.steering
 		trf_dirty = false
 	var frac := Engine.get_physics_interpolation_fraction()
 	wheel.global_transform = prev_trf.interpolate_with(curr_trf, frac)
@@ -54,7 +54,7 @@ func _process(_delta: float) -> void:
 		),
 		wheel.global_transform.origin
 	)
-	var fraction := abs(server_node.get_rpm() / server_node.max_rpm)
+	var fraction := abs(server_node.wheel.get_rpm() / server_node.max_rpm)
 	var pitch := fraction * pitch_scale
 	if pitch <= 0.000001:
 		dc_motor_audio.stop()
