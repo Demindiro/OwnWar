@@ -14,6 +14,7 @@ func step(vehicles, _delta: float) -> void:
 	vehicle.turn_left = false
 	vehicle.turn_left = false
 	vehicle.move_forward = false
+	vehicle.flip = false
 	var trf = vehicle.get_node().transform
 
 	# Flip if necessary

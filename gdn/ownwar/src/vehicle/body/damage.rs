@@ -75,19 +75,21 @@ impl DamageEvent {
 
 	/// Deserialize the damage event.
 	pub(super) fn deserialize(in_: &mut impl io::Read) -> io::Result<Self> {
-		let mut buf = [0; 4];
-		in_.read_exact(&mut buf[..1])?;
-		match buf[0] {
+		let mut ty = 0;
+		in_.read_exact(slice::from_mut(&mut ty))?;
+		match ty {
 			0 => {
-				in_.read_exact(&mut buf)?;
-				let damage = u32::from_le_bytes(buf);
+				let mut damage = [0; 4];
+				in_.read_exact(&mut damage)?;
+				let damage = u32::from_le_bytes(damage);
 				let origin = super::Body::deserialize_vector3(in_)?;
 				let direction = super::Body::deserialize_vector3(in_)?;
 				Ok(Self::Ray { damage, origin, direction })
 			}
 			1 => {
-				in_.read_exact(&mut buf)?;
-				let damage = u32::from_le_bytes(buf);
+				let mut damage = [0; 4];
+				in_.read_exact(&mut damage)?;
+				let damage = u32::from_le_bytes(damage);
 				let origin = super::Body::deserialize_vector3(in_)?;
 				let mut radius = 0;
 				in_.read_exact(slice::from_mut(&mut radius))?;

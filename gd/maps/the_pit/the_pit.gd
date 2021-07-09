@@ -27,10 +27,6 @@ var pending_temporary_data := []
 # Permanent vehicle data to be applied
 var pending_permanent_data := []
 
-# Flag indicating whether we're done syncing with the server
-# Vehicles won't be stepped until this is done.
-var synced = false
-
 
 func _ready() -> void:
 	get_tree().multiplayer_poll = false
@@ -52,7 +48,7 @@ func _ready() -> void:
 			spawn_player_vehicle()
 
 		# Spawn some AI to keep the map busy even when there are no players.
-		if 1:
+		if 0:
 			# Tanky boy
 			if 1:
 				var vehicle_id = spawn_vehicle("tank")
@@ -73,6 +69,10 @@ func _ready() -> void:
 				ai.push_back(a)
 	else:
 		assert(not headless, "Can't create client in headless mode")
+		# Sync vehicles on the server side
+		print("Request sync")
+		rpc("request_sync_vehicles")
+		# Spawn our vehicle
 		spawn_player_vehicle()
 		var e := get_tree().multiplayer.connect(
 			"server_disconnected", self, "emit_signal", ["server_disconnected"])
@@ -177,8 +177,6 @@ func spawn_player_vehicle() -> void:
 	if server_mode:
 		hud.player_vehicle_id = request_vehicle(data, OwnWar.ALLY_COLOR)
 	else:
-		print("Request sync")
-		rpc("request_sync_vehicles")
 		rpc("request_vehicle", data)
 	player_vehicle_data = data
 
@@ -204,12 +202,13 @@ func remove_client(id) -> void:
 	var v = vehicles[i]
 	if v != null:
 		v.destroy()
-		rpc_id(-OwnWar_NetInfo.disable_broadcast_id, "destroy_vehicle", v.get_path())
+		rpc_id(-OwnWar_NetInfo.disable_broadcast_id, "destroy_vehicle", i)
 		free_vehicle_slot(i)
 	var e := clients.erase(id)
 	assert(e)
 
 
+# Instantly destroy a vehicle.
 puppet func destroy_vehicle(id) -> void:
 	var v = vehicles[id]
 	if v != null:
@@ -221,7 +220,7 @@ puppet func sync_vehicle(id, data) -> void:
 	print("Synced vehicle ", id)
 	allocate_vehicle_slot(id)
 	var v = OwnWar_Vehicle.new()
-	var e = v.deserialize(data, id, OwnWar.ENEMY_COLOR, true)
+	var e = v.deserialize(data, id, OwnWar.ENEMY_COLOR, false, false, true)
 	assert(e == OK)
 	vehicles[id] = v
 	v.spawn(self, false)
@@ -229,11 +228,9 @@ puppet func sync_vehicle(id, data) -> void:
 
 master func request_vehicle(data: PoolByteArray, color = OwnWar.ENEMY_COLOR):
 	var id := get_tree().get_rpc_sender_id()
-	var is_local = false
 	if id == 0:
 		# Server requested vehicle
 		id = 1
-		is_local = true
 
 	var vehicle := OwnWar_Vehicle.new()
 	var index := counter % get_node(spawn_points).get_child_count()
@@ -245,7 +242,8 @@ master func request_vehicle(data: PoolByteArray, color = OwnWar.ENEMY_COLOR):
 		team,
 		color,
 		transform,
-		is_local,
+		server_mode,
+		id == 1,
 		vehicle_id
 	)
 	assert(e == OK)
@@ -255,9 +253,9 @@ master func request_vehicle(data: PoolByteArray, color = OwnWar.ENEMY_COLOR):
 	counter += 1
 	if id != 1:
 		rpc_id(id, "accepted_vehicle", vehicle_id, team, transform)
-		rpc_id(-id, "sync_vehicle", data, vehicle_id, team, transform)
+		rpc_id(-id, "sync_vehicle", vehicle_id, vehicle.serialize())
 	else:
-		rpc("sync_vehicle", data, vehicle_id, team, transform)
+		rpc("sync_vehicle", vehicle_id, vehicle.serialize())
 
 	clients[id] = vehicle_id
 
@@ -273,6 +271,7 @@ puppet func accepted_vehicle(id, team: int, transform: Transform) -> void:
 		team,
 		OwnWar.ALLY_COLOR,
 		transform,
+		server_mode,
 		true,
 		id
 	)
@@ -293,22 +292,25 @@ func request_respawn() -> void:
 			rpc_id(1, "request_vehicle", player_vehicle_data)
 
 
+# Spawn a locally controlled vehicle for AI.
 func spawn_vehicle(name: String):
-	var vehicle := OwnWar_Vehicle.new()
+	var v = OwnWar_Vehicle.new()
 	var team = counter
 	var index := counter % get_node(spawn_points).get_child_count()
 	var id = reserve_vehicle_slot()
-	var e = vehicle.load_from_file(
+	var e = v.load_from_file(
 		OwnWar.get_vehicle_path(name),
 		team,
 		OwnWar.ENEMY_COLOR,
 		get_node(spawn_points).get_child(index).transform,
+		server_mode,
 		true,
 		id
 	)
 	assert(e == OK)
-	vehicles[id] = vehicle
-	vehicle.spawn(self, true)
+	vehicles[id] = v
+	v.spawn(self, true)
+	rpc("sync_vehicle", id, v.serialize())
 	counter += 1
 	return id
 

@@ -52,7 +52,6 @@ pub mod gd {
 		}
 
 		fn new(_: TRef<Reference>) -> Self {
-			const PBSE: Vec<PastBlockState> = Vec::new();
 			Self {
 				vehicle: super::Vehicle {
 					max_cost: 0,
@@ -81,7 +80,7 @@ pub mod gd {
 
 					last_processed_packet_index: Cell::new(0),
 
-					is_local: false,
+					mode: super::VehicleMode::RemotePuppet,
 				},
 				last_hit_position: Vector3::zero(),
 				controller: super::Controller::default(),
@@ -108,7 +107,7 @@ pub mod gd {
 
 		#[export]
 		fn apply_input(&mut self, _: TRef<Reference>, bitmap: u16, aim_at: Vector3) {
-			if !self.vehicle.is_local {
+			if !self.vehicle.mode.is_master() {
 				// Override input, otherwise ignore and use our own.
 				self.controller = super::Controller::new(bitmap, aim_at);
 			}
@@ -130,6 +129,7 @@ pub mod gd {
 			team_color: Color,
 			transform: Transform,
 			is_local: bool,
+			is_master: bool,
 			id: u16
 		) -> i32 {
 			let rot = transform.basis.to_quat();
@@ -141,6 +141,7 @@ pub mod gd {
 				team,
 				team_color,
 				is_local,
+				is_master,
 				vis,
 			)
 			.unwrap(); // FIXME;
@@ -164,6 +165,7 @@ pub mod gd {
 			team_color: Color,
 			transform: Transform,
 			is_local: bool,
+			is_master: bool,
 			id: u16,
 		) -> i32 {
 			let file = File::new();
@@ -178,7 +180,7 @@ pub mod gd {
 				}
 			}
 			let data = file.get_buffer(file.get_len());
-			self.load_from_data(owner, data, team, team_color, transform, is_local, id)
+			self.load_from_data(owner, data, team, team_color, transform, is_local, is_master, id)
 		}
 
 		fn delta_to_virt(delta: f32) -> VirtualTicks {
@@ -377,7 +379,25 @@ pub mod gd {
 		/// This returns `true` if the vehicle is destroyed.
 		#[export]
 		fn process_permanent_packet(&mut self, _: TRef<Reference>, data: TypedArray<u8>) -> bool {
-			self.vehicle.process_permanent_packet(&mut &data.read()[..]).expect("Failed to process permanent data")
+			let data = &data.read()[..];
+			#[cfg(debug_assertions)]
+			let mut data = {
+				struct PanicReader<'a>(&'a [u8]);
+
+				impl io::Read for PanicReader<'_> {
+					fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+						assert!(self.0.len() >= buf.len(), "Not enough data to write");
+						buf.copy_from_slice(&self.0[..buf.len()]);
+						self.0 = &self.0[buf.len()..];
+						Ok(buf.len())
+					}
+				}
+
+				PanicReader(data)
+			};
+			#[cfg(not(debug_assertions))]
+			let mut data = data;
+			self.vehicle.process_permanent_packet(&mut data).expect("Failed to process permanent data")
 		}
 
 		/// Serialize the vehicle's state for synchronization over a network.
@@ -397,9 +417,9 @@ pub mod gd {
 
 		/// Deserialize a vehicle's state. This will create a new vehicle structure.
 		#[export]
-		fn deserialize(&mut self, _: TRef<Reference>, data: TypedArray<u8>, id: u16, team_color: Color, is_visible: bool) -> i32 {
+		fn deserialize(&mut self, _: TRef<Reference>, data: TypedArray<u8>, id: u16, team_color: Color, is_local: bool, is_master: bool, is_visible: bool) -> i32 {
 			let mut d = &data.read()[..];
-			self.vehicle = match super::Vehicle::deserialize(&mut d, team_color, false, is_visible) {
+			self.vehicle = match super::Vehicle::deserialize(&mut d, team_color, is_local, is_master, is_visible) {
 				Ok(v) => v,
 				Err(e) => {
 					godot_error!("Failed to deserialize vehicle: {:?}", e);
@@ -488,10 +508,47 @@ pub(super) struct Shared {
 	pub colors: Box<[Color8]>,
 }
 
+/// Enum indicating how a vehicle should be processed
+enum VehicleMode {
+	/// The vehicle is remote and this instance has no authority over it.
+	RemotePuppet,
+	/// The vehicle is remote but this instance can apply inputs to it.
+	RemoteMaster,
+	/// The vehicle is local but this instance takes inputs remotely.
+	LocalPuppet,
+	/// The vehicle is local and takes inputs locally.
+	LocalMaster,
+}
+
+impl VehicleMode {
+	const fn new(is_local: bool, is_master: bool) -> Self {
+		match (is_local, is_master) {
+			(false, false) => Self::RemotePuppet,
+			(false, true) => Self::RemoteMaster,
+			(true, false) => Self::LocalPuppet,
+			(true, true) => Self::LocalMaster,
+		}
+	}
+
+	const fn is_local(&self) -> bool {
+		match self {
+			Self::RemotePuppet | Self::RemoteMaster => false,
+			Self::LocalPuppet | Self::LocalMaster => true,
+		}
+	}
+
+	const fn is_master(&self) -> bool {
+		match self {
+			Self::RemotePuppet | Self::LocalPuppet => false,
+			Self::RemoteMaster | Self::LocalMaster => true,
+		}
+	}
+}
+
 /// Representation of a vehicle.
 pub struct Vehicle {
-	/// Whether this client controls this vehicle.
-	is_local: bool,
+	/// Enum indicating how the vehicle should be processed
+	mode: VehicleMode,
 
 	max_cost: u32,
 	shared: Shared,
@@ -513,11 +570,6 @@ pub struct Vehicle {
 	/// For clients, this is the index of the last processed packet. 
 	/// For servers, this is the index of the packet to be sent.
 	last_processed_packet_index: Cell<u16>,
-}
-
-/// Per block past state.
-struct PastBlockState {
-	data: DynamicBlockState,
 }
 
 #[derive(Debug)]
@@ -550,6 +602,7 @@ impl Vehicle {
 		team: Team,
 		team_color: Color,
 		is_local: bool,
+		is_master: bool,
 		is_visible: bool,
 	) -> Result<Self, NewVehicleError> {
 		let data = serialize::load(&raw_data.read()[..]).map_err(NewVehicleError::LoadError)?;
@@ -606,9 +659,8 @@ impl Vehicle {
 			);
 		});
 
-		const PBSE: Vec<PastBlockState> = Vec::new();
 		Ok(Self {
-			is_local,
+			mode: VehicleMode::new(is_local, is_master),
 
 			max_cost,
 			shared,
@@ -777,7 +829,7 @@ impl Vehicle {
 		// Check if weapons need & can be fired.
 		// Only do this on local vehicles, as actual firing events & projectiles are handled
 		// separately.
-		if self.is_local {
+		if self.mode.is_local() {
 			if controller.fire() && self.shared.weapons.len() > 0 {
 				if delay == 0 {
 					let prev_index = next;
@@ -971,7 +1023,7 @@ impl Vehicle {
 	}
 
 	/// Deserialize a vehicle.
-	fn deserialize(in_: &mut impl io::Read, team_color: Color, is_local: bool, is_visible: bool) -> io::Result<Self> {
+	fn deserialize(in_: &mut impl io::Read, team_color: Color, is_local: bool, is_master: bool, is_visible: bool) -> io::Result<Self> {
 		// Get the last processed packet index
 		let mut last_processed_packet_index = [0; 2];
 		in_.read_exact(&mut last_processed_packet_index)?;
@@ -1018,15 +1070,13 @@ impl Vehicle {
 
 		let weapon_fire_volley = Self::init_weapons(&shared.weapons).unwrap();
 
-		const PBSE: Vec<PastBlockState> = Vec::new();
-
 		Ok(Self {
+			mode: VehicleMode::new(is_local, is_master),
+
 			weapon_fire_volley,
 			next_weapon: Cell::new(0),
 			delay_until_next_fire: Cell::new(0),
 			flipping_timeout: Cell::new(0),
-
-			is_local,
 
 			main_body: Some(main_body),
 			shared,

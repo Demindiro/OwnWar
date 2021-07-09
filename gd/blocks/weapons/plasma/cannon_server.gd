@@ -5,7 +5,6 @@ onready var spawn: Spatial = get_node("Spawn")
 onready var spawn_translation = translation + transform.basis * spawn.translation
 
 var team := -1
-var counter := 0
 
 var weapon_index = 0
 var weapon_type = 0x101 # volley fire, plasma
@@ -33,9 +32,8 @@ func fire() -> bool:
 		trf.origin,
 		Vector3(quat.x, quat.y, quat.z),
 		vel,
-		counter
+		randi()
 	)
-	counter += 1
 	return true
 
 
@@ -47,7 +45,6 @@ puppetsync func launch_projectile(pos: Vector3, rot: Vector3, vel: Vector3, id) 
 	n.velocity = vel
 	n.team = team
 	n.set_network_master(1)
-	n.name = name + " - " + str(id)
+	n.name = str(id)
 	n.color = color
-	counter += 1
 	get_tree().current_scene.add_child(n, true)

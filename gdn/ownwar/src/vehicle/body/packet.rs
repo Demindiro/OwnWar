@@ -66,9 +66,13 @@ impl super::Body {
 			let lv = Self::deserialize_vector3(packet)?;
 			let av = Self::deserialize_vector3(packet)?;
 
-			self.set_position(tr, rot.inverse());
-			self.set_linear_velocity(lv);
-			self.set_angular_velocity(av);
+			// We may still be receiving position updates even if the body is destroyed due to
+			// packets being old, so check.
+			if !self.is_destroyed() {
+				self.set_position(tr, rot.inverse());
+				self.set_linear_velocity(lv);
+				self.set_angular_velocity(av);
+			}
 
 			for b in self.children_mut() {
 				b.process_temporary_packet(packet)?;

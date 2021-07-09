@@ -1,6 +1,6 @@
 use crate::rotation::*;
 use crate::util::{convert_vec, AABB};
-use std::collections::{HashMap, HashSet};
+use fxhash::{FxHashMap, FxHashSet};
 use std::convert::TryInto;
 use std::mem;
 use std::num::NonZeroU16;
@@ -18,7 +18,9 @@ pub(crate) struct Block {
 }
 
 pub(crate) struct Layer {
-	blocks: HashMap<Vec3u8, Block>,
+	/// Blocks in a **FxHashMap**. The use of a non-cryptographic hash is important for
+	/// determinism! (this took me a while to figure out...)
+	blocks: FxHashMap<Vec3u8, Block>,
 	pub name: String,
 }
 
@@ -44,7 +46,7 @@ pub enum VehicleError {
 impl Layer {
 	fn new() -> Self {
 		Self {
-			blocks: HashMap::new(),
+			blocks: FxHashMap::default(),
 			name: String::new(),
 		}
 	}
@@ -213,8 +215,8 @@ impl Vehicle {
 	) -> Result<impl Iterator<Item = (&Vec3u8, &Block)>, VehicleError> {
 		fn get_connected_blocks(
 			start: Vec3u8,
-			marks: &mut HashSet<Vec3u8>,
-			remaining: &mut HashSet<Vec3u8>,
+			marks: &mut FxHashSet<Vec3u8>,
+			remaining: &mut FxHashSet<Vec3u8>,
 		) {
 			/* TODO this causes an ICE, report this */
 			//let gcb_wrapping = |p: Vec3u8, dx, dy, dz| {
@@ -242,12 +244,12 @@ impl Vehicle {
 		}
 		let layer = self.get_layer(layer)?;
 		let marks = if layer.block_count() == 0 {
-			HashSet::new()
+			FxHashSet::default()
 		} else {
-			let mut remaining = layer.iter_blocks().map(|(&p, _)| p).collect::<HashSet<_>>();
+			let mut remaining = layer.iter_blocks().map(|(&p, _)| p).collect::<FxHashSet<_>>();
 			let mut marks = Vec::new();
 			while remaining.len() > 0 {
-				let mut m = HashSet::new();
+				let mut m = FxHashSet::default();
 				for &p in remaining.iter() {
 					get_connected_blocks(p, &mut m, &mut remaining);
 					break;
@@ -324,7 +326,7 @@ impl Vehicle {
 				return Err(VehicleError::BlockOutOfBounds);
 			}
 			for layer in self.layers.iter_mut() {
-				let map = mem::replace(&mut layer.blocks, HashMap::new());
+				let map = mem::replace(&mut layer.blocks, FxHashMap::default());
 				for (position, block) in map {
 					let position = convert_vec(position) + by;
 					let position = convert_vec(position);
@@ -340,7 +342,7 @@ impl Vehicle {
 	// FIXME this can panic if a block is outside the grid_size range
 	pub fn rotate_all_blocks(&mut self, grid_size: u8) {
 		for layer in self.layers.iter_mut() {
-			let map = mem::replace(&mut layer.blocks, HashMap::new());
+			let map = mem::replace(&mut layer.blocks, FxHashMap::default());
 			for (mut position, block) in map {
 				(position.x, position.z) = (
 					position.z,

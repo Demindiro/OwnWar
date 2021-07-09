@@ -78,7 +78,7 @@ func _ready() -> void:
 		var vehicle := OwnWar_Vehicle.new()
 		var transform = get_node(spawn_points).get_child(_spawn_point_index).transform 
 		var id = len(vehicles)
-		var e = vehicle.load_from_file(vehicle_path, 0, OwnWar.ALLY_COLOR, transform, true, id)
+		var e = vehicle.load_from_file(vehicle_path, 0, OwnWar.ALLY_COLOR, transform, true, true, id)
 		assert(e == OK)
 		var seri = vehicle.serialize()
 		vehicles.push_back(vehicle)
@@ -120,7 +120,7 @@ func _exit_tree() -> void:
 func spawn_vehicle(path: String) -> void:
 	var vehicle := OwnWar_Vehicle.new()
 	var transform = get_node(spawn_points).get_child(_spawn_point_index).transform 
-	var e: int = vehicle.load_from_file(path, 1, OwnWar.ENEMY_COLOR, transform, true, len(vehicles))
+	var e: int = vehicle.load_from_file(path, 1, OwnWar.ENEMY_COLOR, transform, true, true, len(vehicles))
 	assert(e == OK)
 	vehicles.push_back(vehicle)
 	vehicle.spawn(self, true)
