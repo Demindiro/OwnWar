@@ -432,6 +432,7 @@ pub mod gd {
 			node.set_meta("ownwar_body_index", Variant::from_byte_array(&index_stack));
 			node.set_meta("ownwar_vehicle_index", Variant::from_u64(vehicle_id.into()));
 			node.set_meta("ownwar_vehicle_team", Variant::from_u64(team.into()));
+			node.set_name(format!("OwnWar VehicleBody {}.{:?}", vehicle_id, &index_stack.read()[..]));
 			for (i, body) in body.children_mut().enumerate() {
 				let mut index_stack = index_stack.clone();
 				index_stack.push(i.try_into().unwrap());

@@ -32,12 +32,14 @@ func fire() -> bool:
 		"launch_projectile",
 		trf.origin,
 		Vector3(quat.x, quat.y, quat.z),
-		vel
+		vel,
+		counter
 	)
+	counter += 1
 	return true
 
 
-puppetsync func launch_projectile(pos: Vector3, rot: Vector3, vel: Vector3) -> void:
+puppetsync func launch_projectile(pos: Vector3, rot: Vector3, vel: Vector3, id) -> void:
 	var quat := Quat(rot.x, rot.y, rot.z, sqrt(abs(1.0 - rot.length_squared())))
 	var transform = Transform(Basis(quat), pos)
 	var n = projectile.instance()
@@ -45,7 +47,7 @@ puppetsync func launch_projectile(pos: Vector3, rot: Vector3, vel: Vector3) -> v
 	n.velocity = vel
 	n.team = team
 	n.set_network_master(1)
-	n.name = name + " - " + str(counter)
+	n.name = name + " - " + str(id)
 	n.color = color
 	counter += 1
 	get_tree().current_scene.add_child(n, true)
