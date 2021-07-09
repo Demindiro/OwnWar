@@ -1,9 +1,8 @@
 use super::*;
 use crate::block;
 use crate::util::*;
-use gdnative::prelude::*;
 use gdnative::api::BoxShape;
-use euclid::Vector3D;
+use gdnative::prelude::*;
 
 /// Helper functions for initializing new bodies & blocks.
 impl super::Body {
@@ -15,11 +14,7 @@ impl super::Body {
 	/// # Panics
 	///
 	/// The position is out of range.
-	pub(super) fn init_block(
-		&mut self,
-		shared: &mut vehicle::Shared,
-		position: Voxel,
-	) {
+	pub(super) fn init_block(&mut self, shared: &mut vehicle::Shared, position: Voxel) {
 		let index = self.get_index(position).unwrap();
 
 		let id = if let Some(id) = self.ids[index as usize] {
@@ -118,7 +113,10 @@ impl super::Body {
 	/// Any of the nodes already exist.
 	pub(super) fn create_godot_nodes(&mut self) {
 		assert!(self.node.is_none(), "This will leak memory");
-		assert!(self.collision_shape_instance.is_none(), "This will leak memory");
+		assert!(
+			self.collision_shape_instance.is_none(),
+			"This will leak memory"
+		);
 		assert!(self.voxel_mesh_instance.is_none(), "This will leak memory");
 
 		let node = Ref::<VehicleBody, _>::new();
@@ -144,16 +142,17 @@ impl super::Body {
 			unsafe { node.assume_safe().add_child(voxel_mesh_instance, false) };
 
 			// Add voxel mesh to interpolation list
-			self.interpolation_states.push(Some(InterpolationState::from(
-				// TODO I don't get why a plain upcast won't work
-				unsafe { node.assume_safe().upcast::<Spatial>().claim() },
-				unsafe {
-					voxel_mesh_instance
-						.assume_safe()
-						.upcast::<Spatial>()
-						.claim()
-				},
-			)));
+			self.interpolation_states
+				.push(Some(InterpolationState::from(
+					// TODO I don't get why a plain upcast won't work
+					unsafe { node.assume_safe().upcast::<Spatial>().claim() },
+					unsafe {
+						voxel_mesh_instance
+							.assume_safe()
+							.upcast::<Spatial>()
+							.claim()
+					},
+				)));
 
 			self.voxel_mesh_instance = Some(voxel_mesh_instance);
 		};
@@ -174,7 +173,6 @@ impl super::Body {
 
 	/// Initialize this body and its children.
 	pub(in super::super) fn init(&mut self, shared: &mut vehicle::Shared) -> Result<(), InitError> {
-
 		// Setup total cost, health ... & find special blocks.
 		self.correct_mass();
 		self.cost = self.max_cost();
@@ -184,9 +182,7 @@ impl super::Body {
 				.unwrap()
 				.assume_safe()
 				.set_translation(
-					middle
-						- (self.center_of_mass() + Vector3::new(0.5, 0.5, 0.5))
-							* block::SCALE,
+					middle - (self.center_of_mass() + Vector3::new(0.5, 0.5, 0.5)) * block::SCALE,
 				);
 			self.collision_shape.assume_safe().set_extents(middle);
 		}
@@ -230,9 +226,8 @@ impl super::Body {
 							let k = u8::try_from(k).unwrap();
 							let m = convert_vec::<_, i16>(mount) - convert_vec(b.offset);
 							let m = m.x.try_into().and_then(|x| {
-								m.y.try_into().and_then(|y| {
-									m.z.try_into().map(|z| Voxel::new(x, y, z))
-								})
+								m.y.try_into()
+									.and_then(|y| m.z.try_into().map(|z| Voxel::new(x, y, z)))
 							});
 							let m = match m {
 								Ok(m) => m,
@@ -256,7 +251,7 @@ impl super::Body {
 				}
 			}
 		}
-		
+
 		// Initialize children
 		for body in self.children.iter_mut() {
 			body.init(shared)?;
@@ -264,7 +259,12 @@ impl super::Body {
 
 		// Setup node tree
 		for body in self.children.iter_mut() {
-			unsafe { self.node.unwrap().assume_safe().add_child(body.node.unwrap(), false); }
+			unsafe {
+				self.node
+					.unwrap()
+					.assume_safe()
+					.add_child(body.node.unwrap(), false);
+			}
 		}
 
 		Ok(())
@@ -276,10 +276,12 @@ impl super::Body {
 		// TODO find a way to avoid a temporary buffer
 		let mut nodes = Vec::new();
 		self.iter_all_bodies(&mut |b| nodes.push(b.node().clone()));
-		self.iter_all_bodies(&mut |b| nodes.iter().for_each(|a| unsafe {
-			if a != b.node() {
-				b.node().assume_safe().add_collision_exception_with(a);
-			}
-		}));
+		self.iter_all_bodies(&mut |b| {
+			nodes.iter().for_each(|a| unsafe {
+				if a != b.node() {
+					b.node().assume_safe().add_collision_exception_with(a);
+				}
+			})
+		});
 	}
 }

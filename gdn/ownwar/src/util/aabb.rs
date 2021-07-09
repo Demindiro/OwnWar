@@ -82,15 +82,6 @@ impl<T: Copy + Add<Output = T>> AABB<T> {
 	}
 }
 
-impl<T: Default> AABB<T> {
-	pub fn default() -> Self {
-		Self {
-			position: Vector3D::default(),
-			size: Vector3D::default(),
-		}
-	}
-}
-
 impl<T> Clone for AABB<T>
 where
 	T: Clone,

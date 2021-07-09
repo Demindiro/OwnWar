@@ -6,26 +6,15 @@ use core::fmt;
 use core::mem;
 use core::num::{NonZeroU16, NonZeroU32};
 use core::slice;
-use std::io;
-use std::error::Error;
 use euclid::{UnknownUnit, Vector3D};
-use gdnative::api::{
-	BoxShape, CollisionShape, Engine, MeshInstance, PackedScene, PhysicsMaterial, Resource,
-	VehicleBody, OS,
-};
 use gdnative::prelude::*;
-use num_traits::float::FloatConst;
-use std::collections::HashSet;
+use std::error::Error;
+use std::io;
 
 type Voxel = Vector3D<u8, UnknownUnit>;
 
 const DESTROY_BLOCK_EFFECT_SCENE: &str = "res://vehicles/destroy_block_effect.tscn";
-pub const DESTROY_BODY_EFFECT_SCENE: &str = "res://vehicles/destroy_body_effect.tscn";
-const PHYSICS_MATERIAL: &str = "res://vehicles/medium_friction.tres";
-
-const COLLISION_LAYER: u32 = 2;
-// Any + Vehicles + Terrain
-const COLLISION_MASK: u32 = 1 | 2 | (1 << 7);
+const DESTROY_BODY_EFFECT_SCENE: &str = "res://vehicles/destroy_body_effect.tscn";
 
 /// Damage event.
 pub enum DamageEvent {
@@ -57,13 +46,21 @@ impl DamageEvent {
 	/// Serialize the damage event for transmission over a network.
 	pub(super) fn serialize(&self, out: &mut impl io::Write) -> io::Result<()> {
 		match self {
-			Self::Ray { damage, origin, direction } => {
+			Self::Ray {
+				damage,
+				origin,
+				direction,
+			} => {
 				out.write_all(&[0])?;
 				out.write_all(&damage.to_le_bytes())?;
 				super::Body::serialize_vector3(out, *origin)?;
 				super::Body::serialize_vector3(out, *direction)?;
 			}
-			Self::Explosion { damage, origin, radius } => {
+			Self::Explosion {
+				damage,
+				origin,
+				radius,
+			} => {
 				out.write_all(&[1])?;
 				out.write_all(&damage.to_le_bytes())?;
 				super::Body::serialize_vector3(out, *origin)?;
@@ -84,7 +81,11 @@ impl DamageEvent {
 				let damage = u32::from_le_bytes(damage);
 				let origin = super::Body::deserialize_vector3(in_)?;
 				let direction = super::Body::deserialize_vector3(in_)?;
-				Ok(Self::Ray { damage, origin, direction })
+				Ok(Self::Ray {
+					damage,
+					origin,
+					direction,
+				})
 			}
 			1 => {
 				let mut damage = [0; 4];
@@ -93,9 +94,16 @@ impl DamageEvent {
 				let origin = super::Body::deserialize_vector3(in_)?;
 				let mut radius = 0;
 				in_.read_exact(slice::from_mut(&mut radius))?;
-				Ok(Self::Explosion { damage, origin, radius })
+				Ok(Self::Explosion {
+					damage,
+					origin,
+					radius,
+				})
 			}
-			ty => Err(io::Error::new(io::ErrorKind::InvalidData, UnknownDamageType(ty))),
+			ty => Err(io::Error::new(
+				io::ErrorKind::InvalidData,
+				UnknownDamageType(ty),
+			)),
 		}
 	}
 }
@@ -347,7 +355,7 @@ impl super::Body {
 		destroy_disconnected: &mut bool,
 		destroyed_blocks: &mut Vec<Voxel>,
 	) -> Result<bool, ()> {
-		if let Ok(result) = self.try_damage_block(shared, voxel, *damage) {
+		if let Ok(result) = self.try_damage_block(voxel, *damage) {
 			let node = unsafe { self.node().assume_safe() };
 			let center_of_mass = self.center_of_mass();
 			*damage = result.damage();
@@ -391,12 +399,7 @@ impl super::Body {
 		}
 	}
 
-	fn try_damage_block(
-		&mut self,
-		shared: &mut Shared,
-		position: Voxel,
-		damage: u32,
-	) -> Result<DamageBlockResult, ()> {
+	fn try_damage_block(&mut self, position: Voxel, damage: u32) -> Result<DamageBlockResult, ()> {
 		self.get_index(position).map(|i| {
 			let i = i as usize;
 			if let Some(id) = self.ids[i] {
@@ -412,7 +415,7 @@ impl super::Body {
 								self.multi_blocks[block_index] = None;
 								for &pos in block.reverse_indices.iter() {
 									self.health[self.get_index(pos).unwrap() as usize] = None;
-									if self.remove_all_anchors(shared, pos) {
+									if self.remove_all_anchors(pos) {
 										// Reinsert MultiBlock so it's properly destroyed
 										self.multi_blocks[block_index] = Some(block);
 										return DamageBlockResult::BodyDestroyed;
@@ -439,7 +442,7 @@ impl super::Body {
 							let damage = damage - hp;
 							self.health[i] = None;
 							self.cost -= block::Block::get(id).unwrap().cost.get() as u32;
-							if self.remove_all_anchors(shared, position) {
+							if self.remove_all_anchors(position) {
 								DamageBlockResult::BodyDestroyed
 							} else {
 								DamageBlockResult::BlockDestroyed { damage }
@@ -609,11 +612,11 @@ impl super::Body {
 		!self.parent_anchors.is_empty()
 	}
 
-	/// Remove all anchors at the given position and any children that relied on it.
+	/// Remove all parent anchors at the given position.
 	///
 	/// Returns `true` if all parent anchors are gone, i.e. the body is destroyed.
 	#[must_use]
-	fn remove_all_anchors(&mut self, shared: &mut super::vehicle::Shared, position: Voxel) -> bool {
+	fn remove_all_anchors(&mut self, position: Voxel) -> bool {
 		if let Some(i) = self.parent_anchors.iter().position(|&p| p == position) {
 			self.parent_anchors.swap_remove(i);
 			if self.parent_anchors.is_empty() {
@@ -641,7 +644,8 @@ impl super::Body {
 			if self.voxel_mesh_instance.is_some() {
 				if let Ok(n) = godot::instance_effect(damage::DESTROY_BODY_EFFECT_SCENE) {
 					unsafe {
-						if node.assume_safe().is_inside_tree() { // Doesn't print an error
+						if node.assume_safe().is_inside_tree() {
+							// Doesn't print an error
 							let tree = node.assume_safe().get_tree().unwrap();
 							if let Some(root) = tree.assume_safe().current_scene() {
 								n.set_translation(node.assume_safe().translation());

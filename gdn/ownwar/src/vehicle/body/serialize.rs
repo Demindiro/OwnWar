@@ -1,12 +1,11 @@
 use super::*;
-use core::convert::{TryInto, TryFrom};
+use core::convert::{TryFrom, TryInto};
 use core::mem;
 use core::num::NonZeroU16;
 use core::slice;
-use std::io;
 use euclid::Vector3D;
 use gdnative::prelude::*;
-use gdnative::api::OS;
+use std::io;
 
 /// Dummy value to ensure data is correctly transmitted. Only used for debugging
 /// purposes.
@@ -38,9 +37,18 @@ impl super::Body {
 		out.write_all(&self.colors)?;
 
 		// Serialize multiblock health
-		out.write_all(&u16::try_from(self.multi_blocks.len()).unwrap().to_le_bytes())?;
+		out.write_all(
+			&u16::try_from(self.multi_blocks.len())
+				.unwrap()
+				.to_le_bytes(),
+		)?;
 		for mb in self.multi_blocks.iter() {
-			out.write_all(&mb.as_ref().map(|mb| mb.health.get()).unwrap_or(0).to_le_bytes())?;
+			out.write_all(
+				&mb.as_ref()
+					.map(|mb| mb.health.get())
+					.unwrap_or(0)
+					.to_le_bytes(),
+			)?;
 		}
 
 		// Serialize bodies
@@ -65,7 +73,11 @@ impl super::Body {
 	}
 
 	/// Create a body by deserializing the given data.
-	pub(in super::super) fn deserialize(in_: &mut impl io::Read, shared: &mut vehicle::Shared, visible: bool) -> io::Result<Self> {
+	pub(in super::super) fn deserialize(
+		in_: &mut impl io::Read,
+		shared: &mut vehicle::Shared,
+		visible: bool,
+	) -> io::Result<Self> {
 		let mut buf = [0; 3];
 		in_.read_exact(&mut buf)?;
 		let offset = Voxel::new(buf[0], buf[1], buf[2]);
@@ -156,7 +168,7 @@ impl super::Body {
 		let mut slf = Self {
 			offset,
 			size,
-			
+
 			node: None,
 			voxel_mesh: visible.then(Self::create_voxel_mesh),
 			voxel_mesh_instance: None,
@@ -177,7 +189,6 @@ impl super::Body {
 			cost: 0,
 			max_cost: 0,
 
-			last_hit_position: Vector3::zero(),
 			#[cfg(debug_assertions)]
 			debug_hit_points: Cell::new(Vec::new()),
 

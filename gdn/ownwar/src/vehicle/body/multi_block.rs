@@ -32,7 +32,6 @@ pub(in super::super) struct MultiBlock {
 pub struct BodyAlreadySet;
 
 impl MultiBlock {
-
 	/// Destroys this MultiBlock, clearing it from the Shared and InterpolationState
 	/// structures. It returns the index of the anchored child body, if any.
 	#[must_use]
@@ -41,7 +40,6 @@ impl MultiBlock {
 		shared: &mut vehicle::Shared,
 		interpolation_states: &mut [Option<InterpolationState>],
 	) -> Option<u8> {
-
 		// Remove any nodes to be destroyed from the shared lists.
 		if self.turret_index < u16::MAX {
 			debug_assert!(shared.turrets[usize::from(self.turret_index)].is_some());
@@ -106,11 +104,6 @@ impl MultiBlock {
 			self.anchor_body_index = Some(body);
 			Ok(())
 		}
-	}
-
-	/// Return the anchored body, if any.
-	pub fn anchored_body(&self) -> Option<u8> {
-		self.anchor_body_index
 	}
 
 	/// Initialize the block for the given body.

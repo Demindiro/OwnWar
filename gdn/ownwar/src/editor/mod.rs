@@ -88,7 +88,6 @@ mod godot {
 		Panes,
 		Inventory,
 		ColorPicker,
-		Settings,
 	}
 
 	impl Window {
@@ -99,7 +98,6 @@ mod godot {
 				Panes => "Panes",
 				Inventory => "Inventory",
 				ColorPicker => "Color picker",
-				Settings => "Settings",
 			}
 		}
 	}

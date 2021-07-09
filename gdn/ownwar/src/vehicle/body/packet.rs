@@ -1,18 +1,22 @@
 use super::*;
 use core::convert::TryFrom;
-use std::io;
 use gdnative::prelude::*;
+use std::io;
 
 impl super::Body {
 	/// Write out data for a network packet
 	///
 	/// `permanent` is for data that *must* arrive *in order*
 	/// `temporary` is for data that *may* be lost without lasting consequences.
-	pub fn create_packet(&self, permanent: &mut impl io::Write, temporary: &mut impl io::Write) -> io::Result<()> {
+	pub fn create_packet(
+		&self,
+		permanent: &mut impl io::Write,
+		temporary: &mut impl io::Write,
+	) -> io::Result<()> {
 		if !self.is_destroyed() {
 			// Write temporary data
 			temporary.write_all(&[1])?; // Flag indicating we're alive
-			// FIXME
+							// FIXME
 			let (tr, mut rot) = self.position();
 			if rot.r < 0.0 {
 				// ijk == xyz, r == w
@@ -27,11 +31,11 @@ impl super::Body {
 			Self::serialize_vector3(temporary, av)?;
 
 			// Write permanent data
-	
+
 			// Write the amount of damage events and the events themselves.
 			let evt = u16::try_from(self.damage_events.len())
 				.expect("Too many damage events to serialize!");
-			permanent.write_all(&evt.to_le_bytes())?; 
+			permanent.write_all(&evt.to_le_bytes())?;
 			for evt in self.damage_events.iter() {
 				evt.serialize(permanent)?;
 			}
@@ -40,22 +44,18 @@ impl super::Body {
 			for b in self.children.iter() {
 				b.create_packet(permanent, temporary)?;
 			}
-
 		} else {
 			temporary.write_all(&0u8.to_le_bytes())?; // Flag indicating we're dead
-		   // No flag is needed for permanent data since it's deterministic anyways
-		   // Checks for determinism may be added later, but it will be done separately anyways
-		   // as such checks will use a _lot_ of data
+			                              // No flag is needed for permanent data since it's deterministic anyways
+			                              // Checks for determinism may be added later, but it will be done separately anyways
+			                              // as such checks will use a _lot_ of data
 		}
 
 		Ok(())
 	}
 
 	/// Apply the temporary data inside a packet.
-	pub fn process_temporary_packet(
-		&mut self,
-		packet: &mut impl io::Read,
-	) -> io::Result<()> {
+	pub fn process_temporary_packet(&mut self, packet: &mut impl io::Read) -> io::Result<()> {
 		let mut flag = [0; 1];
 		packet.read_exact(&mut flag)?;
 
@@ -89,12 +89,17 @@ impl super::Body {
 	/// The list of damage events isn't empty. This affects determinism.
 	pub fn process_permanent_packet(&mut self, packet: &mut impl io::Read) -> io::Result<()> {
 		if !self.is_destroyed() {
-			assert!(self.damage_events.is_empty(), "There are still damage events queued");
+			assert!(
+				self.damage_events.is_empty(),
+				"There are still damage events queued"
+			);
 			let mut evt = [0; 2];
 			packet.read_exact(&mut evt)?;
 			for _ in 0..u16::from_le_bytes(evt) {
 				// TODO don't panic
-				self.add_damage_event(DamageEvent::deserialize(packet).expect("Failed to decode damage event"));
+				self.add_damage_event(
+					DamageEvent::deserialize(packet).expect("Failed to decode damage event"),
+				);
 			}
 			for b in self.children.iter_mut() {
 				b.process_permanent_packet(packet)?;

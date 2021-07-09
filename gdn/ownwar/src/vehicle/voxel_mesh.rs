@@ -4,11 +4,8 @@ use crate::util::convert_vec;
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{ArrayMesh, Material, Mesh, Resource, SpatialMaterial};
 use gdnative::prelude::*;
-use lazy_static::lazy_static;
 use std::collections::{hash_map::Entry, HashMap};
 use std::convert::TryInto;
-use std::num::NonZeroU16;
-use std::sync::{Arc, RwLock};
 
 type Voxel = Vector3D<u8, UnknownUnit>;
 
@@ -24,8 +21,8 @@ pub(crate) struct VoxelMesh {
 
 #[derive(Clone)]
 struct SubMesh {
-	face_vertices: Arc<[Box<[block::MeshPoint]>; 6]>,
-	global_vertices: Arc<Box<[block::MeshPoint]>>,
+	face_vertices: Box<[Box<[block::MeshPoint]>; 6]>,
+	global_vertices: Box<Box<[block::MeshPoint]>>,
 	coordinate: Voxel,
 }
 
@@ -84,7 +81,7 @@ impl VoxelMesh {
 		if let Some((_, mesh_arrays)) = block.mesh_arrays() {
 			let key = Self::color_to_tuple(color);
 			for (i, array) in mesh_arrays.iter().enumerate() {
-				let sm = Self::get_submesh(block.id, coordinate, rotation, i as u8, array, block);
+				let sm = Self::get_submesh(coordinate, rotation, i as u8, array, block);
 				match self.meshes.entry(key) {
 					Entry::Occupied(mut e) => {
 						let e = e.get_mut();
@@ -196,7 +193,6 @@ impl VoxelMesh {
 
 	fn occlusion_check(map: &HashMap<Voxel, OcclusionInfo>, pos: Voxel) -> OcclusionResult {
 		let pos = convert_vec(pos);
-		type V = Vector3D<i16, UnknownUnit>;
 		let mut result = 0;
 		for dir in 0..6 {
 			let dir = Direction::new(dir).unwrap();
@@ -243,7 +239,6 @@ impl VoxelMesh {
 	}
 
 	fn get_submesh(
-		id: NonZeroU16,
 		coordinate: Voxel,
 		rotation: Rotation,
 		index: u8,
@@ -325,8 +320,8 @@ impl SubMesh {
 			verts.push(array[i as usize]);
 		}
 		Self {
-			face_vertices: Arc::new(face_vertices.try_into().unwrap()),
-			global_vertices: Arc::new(verts.into_boxed_slice()),
+			face_vertices: Box::new(face_vertices.try_into().unwrap()),
+			global_vertices: Box::new(verts.into_boxed_slice()),
 			coordinate,
 		}
 	}

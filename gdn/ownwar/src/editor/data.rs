@@ -28,7 +28,6 @@ pub(crate) struct Vehicle {
 	layers: Vec<Layer>,
 	colors: Vec<Vec3u8>,
 	pub name: String,
-	valid: bool,
 }
 
 #[derive(Debug)]
@@ -106,7 +105,6 @@ impl Vehicle {
 			layers: Vec::new(),
 			colors: Vec::new(),
 			name: String::new(),
-			valid: false,
 		}
 	}
 
@@ -246,7 +244,10 @@ impl Vehicle {
 		let marks = if layer.block_count() == 0 {
 			FxHashSet::default()
 		} else {
-			let mut remaining = layer.iter_blocks().map(|(&p, _)| p).collect::<FxHashSet<_>>();
+			let mut remaining = layer
+				.iter_blocks()
+				.map(|(&p, _)| p)
+				.collect::<FxHashSet<_>>();
 			let mut marks = Vec::new();
 			while remaining.len() > 0 {
 				let mut m = FxHashSet::default();
@@ -286,25 +287,6 @@ impl Vehicle {
 			self.layers[layer as usize].set_block(position, id, rotation, color);
 			Ok(())
 		}
-	}
-
-	pub fn get_block(&self, layer: u8, position: Vec3u8) -> Result<Option<&Block>, VehicleError> {
-		let layer = self.get_layer(layer)?;
-		if let Some(block) = layer.get_block(position) {
-			return Ok(Some(block));
-		} else {
-			Ok(None)
-		}
-	}
-
-	pub fn get_blocks(&self, position: Vec3u8) -> Vec<(u8, &Block)> {
-		let mut vec = Vec::new();
-		for (i, layer) in self.layers.iter().enumerate() {
-			if let Some(block) = layer.get_block(position) {
-				vec.push((i as u8, block));
-			}
-		}
-		vec
 	}
 
 	pub fn remove_block(
@@ -354,14 +336,6 @@ impl Vehicle {
 				layer.set_block(position, block.id, rotation, block.color);
 			}
 		}
-	}
-
-	pub fn block_count(&self) -> u32 {
-		let mut sum = 0;
-		for layer in self.layers.iter() {
-			sum += layer.blocks.len() as u32;
-		}
-		sum
 	}
 
 	pub fn layer_count(&self) -> u8 {

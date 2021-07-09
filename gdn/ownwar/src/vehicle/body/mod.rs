@@ -18,14 +18,13 @@ use super::*;
 use crate::block;
 use crate::rotation::*;
 use crate::util::*;
+#[cfg(debug_assertions)]
 use core::cell::Cell;
 use core::mem;
 use euclid::{UnknownUnit, Vector3D};
-use fxhash::FxHashMap;
-use gdnative::api::{BoxShape, CollisionShape, Engine, MeshInstance, Spatial, VehicleBody, OS};
+use gdnative::api::{BoxShape, CollisionShape, MeshInstance, VehicleBody};
 use gdnative::prelude::*;
 use num_traits::{AsPrimitive, PrimInt};
-use std::collections::hash_map::Entry;
 use std::convert::{TryFrom, TryInto};
 use std::num::{NonZeroU16, NonZeroU32};
 
@@ -67,7 +66,6 @@ pub(super) struct Body {
 	cost: u32,
 	max_cost: u32,
 
-	pub(super) last_hit_position: Vector3,
 	#[cfg(debug_assertions)]
 	debug_hit_points: Cell<Vec<Voxel>>,
 
@@ -129,7 +127,6 @@ impl Body {
 			cost: 0,
 			max_cost: 0,
 
-			last_hit_position: Vector3::zero(),
 			#[cfg(debug_assertions)]
 			debug_hit_points: Cell::new(Vec::new()),
 
@@ -211,10 +208,9 @@ impl Body {
 											.round(),
 									) + convert_vec(body.offset);
 								let mount = mount.x.try_into().and_then(|x| {
-									mount
-										.y
-										.try_into()
-										.and_then(|y| mount.z.try_into().map(|z| Voxel::new(x, y, z)))
+									mount.y.try_into().and_then(|y| {
+										mount.z.try_into().map(|z| Voxel::new(x, y, z))
+									})
 								});
 								let mount = match mount {
 									Ok(m) => m,
@@ -230,7 +226,8 @@ impl Body {
 								for (k, b) in iter {
 									let k = u8::try_from(k).unwrap();
 									if let Some(b) = b {
-										let m = convert_vec::<_, i16>(mount) - convert_vec(b.offset);
+										let m =
+											convert_vec::<_, i16>(mount) - convert_vec(b.offset);
 										let m = m.x.try_into().and_then(|x| {
 											m.y.try_into().and_then(|y| {
 												m.z.try_into().map(|z| Voxel::new(x, y, z))
@@ -244,7 +241,7 @@ impl Body {
 											b.parent_anchors.push(m);
 											if parent_anchors.iter().find(|b| **b == k).is_none() {
 												parent_anchors.push(k);
-												if let Err(e) = block.set_anchored_body(k) {
+												if block.set_anchored_body(k).is_err() {
 													return Err(InitError::MultipleBodiesPerAnchor);
 												}
 											};
@@ -285,7 +282,13 @@ impl Body {
 			parent: &mut Body,
 			tree: Vec<u8>,
 		) -> Result<(), InitError> {
-			unsafe { parent.node.unwrap().assume_safe().set_translation(Vector3::zero()) };
+			unsafe {
+				parent
+					.node
+					.unwrap()
+					.assume_safe()
+					.set_translation(Vector3::zero())
+			};
 			for i in tree.into_iter() {
 				let i = usize::from(i);
 				if let Some(mut child) = bodies[i].take() {
@@ -318,7 +321,7 @@ impl Body {
 		add_children(bodies, &mut body_tree, &mut body, bte)?;
 		Ok(body)
 	}
-	
+
 	/// Apply damage events. This should be called before `step`
 	///
 	/// Returns `true` if the body is destroyed.
@@ -328,7 +331,9 @@ impl Body {
 			self.destroy(shared);
 			true
 		} else {
-			self.children.iter_mut().for_each(|b| { b.apply_damage(shared); });
+			self.children.iter_mut().for_each(|b| {
+				let _ = b.apply_damage(shared);
+			});
 			false
 		}
 	}
@@ -344,10 +349,6 @@ impl Body {
 	#[track_caller]
 	pub fn node(&self) -> &Ref<VehicleBody> {
 		self.node.as_ref().expect("Body is already destroyed")
-	}
-
-	pub fn mesh_node(&self) -> Option<&Ref<MeshInstance>> {
-		self.voxel_mesh_instance.as_ref()
 	}
 
 	pub fn add_block(
@@ -383,7 +384,11 @@ impl Body {
 		self.colors[index as usize] = color;
 
 		if block.is_multi_block() {
-			let i: u16 = self.multi_blocks.len().try_into().expect("Too many multiblocks");
+			let i: u16 = self
+				.multi_blocks
+				.len()
+				.try_into()
+				.expect("Too many multiblocks");
 			self.health[index as usize] = NonZeroU16::new(0x8000 | i);
 			self.multi_blocks.push(Some(MultiBlock {
 				health: block.health,
@@ -496,36 +501,6 @@ impl Body {
 		self.center_of_mass = center_of_mass / total_mass;
 	}
 
-	pub fn serialize_state(&self) -> TypedArray<i32> {
-		let size = self.size.to_i32();
-		let mut array = TypedArray::new();
-		array.resize(size.x * size.y * size.z);
-		let mut write = array.write();
-		for (i, hp) in self.health.iter().enumerate() {
-			if let Some(hp) = hp {
-				let hp = hp.get();
-				if hp & 0x8000 != 0 {
-					if let Some(block) = self.multi_blocks[(hp & 0x7fff) as usize].as_ref() {
-						write[i] = block.health.get() as i32;
-					} else {
-						godot_error!("Block is destroyed but HP is not 0!");
-						write[i] = 0;
-					}
-				} else {
-					write[i] = hp as i32;
-				}
-			} else {
-				write[i] = 0;
-			}
-		}
-		drop(write);
-		array
-	}
-
-	pub fn offset(&self) -> Voxel {
-		self.offset
-	}
-
 	pub fn size(&self) -> Voxel {
 		self.size
 	}
@@ -568,10 +543,6 @@ impl Body {
 
 	pub fn set_angular_velocity(&self, velocity: Vector3) {
 		unsafe { self.node().assume_safe().set_angular_velocity(velocity) };
-	}
-
-	pub fn mass(&self) -> f32 {
-		unsafe { self.node().assume_safe().mass() as f32 }
 	}
 
 	pub fn aabb(&self) -> AABB<u8> {

@@ -8,8 +8,7 @@ pub mod gd {
 
 	use super::*;
 	use crate::util::AABB;
-	use core::mem;
-	use gdnative::api::{File, Node, Reference, Spatial, VehicleBody, OS};
+	use gdnative::api::{File, Node, Reference, VehicleBody, OS};
 	use gdnative::prelude::*;
 
 	#[derive(NativeClass)]
@@ -130,7 +129,7 @@ pub mod gd {
 			transform: Transform,
 			is_local: bool,
 			is_master: bool,
-			id: u16
+			id: u16,
 		) -> i32 {
 			let rot = transform.basis.to_quat();
 			let vis = !OS::godot_singleton().has_feature("Server");
@@ -180,7 +179,9 @@ pub mod gd {
 				}
 			}
 			let data = file.get_buffer(file.get_len());
-			self.load_from_data(owner, data, team, team_color, transform, is_local, is_master, id)
+			self.load_from_data(
+				owner, data, team, team_color, transform, is_local, is_master, id,
+			)
 		}
 
 		fn delta_to_virt(delta: f32) -> VirtualTicks {
@@ -195,7 +196,9 @@ pub mod gd {
 				let body = self.vehicle.body(&[]).unwrap();
 				let (tr, pos) = body.position();
 				body.iter_all_bodies(&mut |b| {
-					b.node().assume_safe().set_meta("ownwar_vehicle_list", vehicles.clone());
+					b.node()
+						.assume_safe()
+						.set_meta("ownwar_vehicle_list", vehicles.clone());
 				});
 				scene
 					.assume_safe()
@@ -231,7 +234,10 @@ pub mod gd {
 		#[export]
 		fn get_cost(&self, _: TRef<Reference>) -> u32 {
 			let mut cost = 0;
-			self.vehicle.body(&[]).unwrap().iter_all_bodies(&mut |b| cost += b.cost());
+			self.vehicle
+				.body(&[])
+				.unwrap()
+				.iter_all_bodies(&mut |b| cost += b.cost());
 			cost
 		}
 
@@ -357,7 +363,9 @@ pub mod gd {
 			unreliable.resize(size);
 			let (mut rel, mut unrel) = (reliable.write(), unreliable.write());
 			let (mut r, mut u) = (&mut rel[..], &mut unrel[..]);
-			self.vehicle.create_packet(&mut r, &mut u).expect("Failed to create packet");
+			self.vehicle
+				.create_packet(&mut r, &mut u)
+				.expect("Failed to create packet");
 			let (r, u) = (r.len(), u.len());
 			drop((rel, unrel));
 			reliable.resize(size - r as i32);
@@ -371,7 +379,9 @@ pub mod gd {
 		/// Process a packet with temporary data. This data includes inputs & physics state.
 		#[export]
 		fn process_temporary_packet(&mut self, _: TRef<Reference>, data: TypedArray<u8>) {
-			self.vehicle.process_temporary_packet(&mut &data.read()[..]).expect("Failed to process temporary data")
+			self.vehicle
+				.process_temporary_packet(&mut &data.read()[..])
+				.expect("Failed to process temporary data")
 		}
 
 		/// Process a packet with permanent data. This data includes damage events.
@@ -397,7 +407,9 @@ pub mod gd {
 			};
 			#[cfg(not(debug_assertions))]
 			let mut data = data;
-			self.vehicle.process_permanent_packet(&mut data).expect("Failed to process permanent data")
+			self.vehicle
+				.process_permanent_packet(&mut data)
+				.expect("Failed to process permanent data")
 		}
 
 		/// Serialize the vehicle's state for synchronization over a network.
@@ -405,10 +417,12 @@ pub mod gd {
 		fn serialize(&self, _: TRef<Reference>) -> TypedArray<u8> {
 			let mut data = TypedArray::<u8>::new();
 			let size = 1 << 16; // 64 KiB should be plenty
-			data.resize(size); 
+			data.resize(size);
 			let len = {
 				let mut d = &mut data.write()[..];
-				self.vehicle.serialize(&mut d).expect("Failed to serialize vehicle");
+				self.vehicle
+					.serialize(&mut d)
+					.expect("Failed to serialize vehicle");
 				size - d.len() as i32
 			};
 			data.resize(len);
@@ -417,13 +431,24 @@ pub mod gd {
 
 		/// Deserialize a vehicle's state. This will create a new vehicle structure.
 		#[export]
-		fn deserialize(&mut self, _: TRef<Reference>, data: TypedArray<u8>, id: u16, team_color: Color, is_local: bool, is_master: bool, is_visible: bool) -> i32 {
+		fn deserialize(
+			&mut self,
+			_: TRef<Reference>,
+			data: TypedArray<u8>,
+			id: u16,
+			team_color: Color,
+			is_local: bool,
+			is_master: bool,
+			is_visible: bool,
+		) -> i32 {
 			let mut d = &data.read()[..];
-			self.vehicle = match super::Vehicle::deserialize(&mut d, team_color, is_local, is_master, is_visible) {
+			self.vehicle = match super::Vehicle::deserialize(
+				&mut d, team_color, is_local, is_master, is_visible,
+			) {
 				Ok(v) => v,
 				Err(e) => {
 					godot_error!("Failed to deserialize vehicle: {:?}", e);
-					return 1
+					return 1;
 				}
 			};
 			Self::set_meta(
@@ -452,7 +477,11 @@ pub mod gd {
 			node.set_meta("ownwar_body_index", Variant::from_byte_array(&index_stack));
 			node.set_meta("ownwar_vehicle_index", Variant::from_u64(vehicle_id.into()));
 			node.set_meta("ownwar_vehicle_team", Variant::from_u64(team.into()));
-			node.set_name(format!("OwnWar VehicleBody {}.{:?}", vehicle_id, &index_stack.read()[..]));
+			node.set_name(format!(
+				"OwnWar VehicleBody {}.{:?}",
+				vehicle_id,
+				&index_stack.read()[..]
+			));
 			for (i, body) in body.children_mut().enumerate() {
 				let mut index_stack = index_stack.clone();
 				index_stack.push(i.try_into().unwrap());
@@ -469,8 +498,6 @@ use crate::util::{convert_vec, AABB};
 use core::cell::Cell;
 use core::convert::{TryFrom, TryInto};
 use core::mem;
-use core::num::NonZeroU16;
-use gdnative::api::{VehicleBody, VehicleWheel};
 use gdnative::prelude::*;
 use std::io;
 
@@ -567,25 +594,19 @@ pub struct Vehicle {
 
 	/// Index used to prevent state from older packets overwriting newer state.
 	///
-	/// For clients, this is the index of the last processed packet. 
+	/// For clients, this is the index of the last processed packet.
 	/// For servers, this is the index of the packet to be sent.
 	last_processed_packet_index: Cell<u16>,
 }
 
 #[derive(Debug)]
-enum ProcessPacketError {
-	Truncated,
-}
+enum ProcessPacketError {}
 
 /// Enum returned if Vehicle::new fails.
 #[derive(Debug)]
 enum NewVehicleError {
 	/// The data couldn't be deserialized.
 	LoadError(serialize::LoadError),
-	/// A block ID is invalid.
-	InvalidBlockID(NonZeroU16),
-	/// A color ID is invalid.
-	InvalidColorID(u8),
 	/// The vehicle has multiple incompatible weapons.
 	IncompatibleWeaponTypes,
 	/// The type of weapon isn't known.
@@ -621,20 +642,17 @@ impl Vehicle {
 			team_color,
 			colors: data.iter_colors().copied().collect(),
 		};
-		assert!(shared.colors.len() < 256, "Too many colors for serialization");
+		assert!(
+			shared.colors.len() < 256,
+			"Too many colors for serialization"
+		);
 
 		// Create bodies
 		for layer in data.iter_layers() {
 			if let Some(aabb) = layer.aabb() {
 				let mut body = Body::new(aabb, is_visible);
 				for (&pos, block) in layer.iter_blocks() {
-					body.add_block(
-						&mut shared,
-						pos,
-						block.rotation,
-						block.id,
-						block.color,
-					);
+					body.add_block(&mut shared, pos, block.rotation, block.id, block.color);
 				}
 				bodies.push(Some(body));
 			}
@@ -684,12 +702,14 @@ impl Vehicle {
 	/// Returns `true` if the body was destroyed.
 	#[must_use]
 	fn apply_damage(&mut self) -> bool {
-		self.main_body.as_mut().unwrap().apply_damage(&mut self.shared)
+		self.main_body
+			.as_mut()
+			.unwrap()
+			.apply_damage(&mut self.shared)
 	}
 
 	/// Advance the simulation.
 	fn step(&mut self, delta: VirtualTicks) -> bool {
-
 		// Step bodies
 		self.main_body.as_mut().unwrap().step();
 
@@ -815,7 +835,8 @@ impl Vehicle {
 					b.set_angular_velocity(rot_diff);
 				}
 			});
-			self.flipping_timeout.set(self.flipping_timeout.get().checked_sub(delta).unwrap_or(0));
+			self.flipping_timeout
+				.set(self.flipping_timeout.get().checked_sub(delta).unwrap_or(0));
 			return;
 		}
 
@@ -922,8 +943,7 @@ impl Vehicle {
 		self.controller = Controller::new(bitmap, aim_at);
 
 		// Read physics state
-		self
-			.main_body
+		self.main_body
 			.as_mut()
 			.unwrap()
 			.process_temporary_packet(packet)
@@ -934,7 +954,10 @@ impl Vehicle {
 	/// This returns `true` if the vehicle is destroyed.
 	#[must_use]
 	fn process_permanent_packet(&mut self, packet: &mut impl io::Read) -> io::Result<bool> {
-		self.main_body.as_mut().unwrap().process_permanent_packet(packet)?;
+		self.main_body
+			.as_mut()
+			.unwrap()
+			.process_permanent_packet(packet)?;
 		Ok(self.apply_damage())
 	}
 
@@ -942,19 +965,27 @@ impl Vehicle {
 	///
 	/// `permanent` is for data that *must* arrive *in order*
 	/// `temporary` is for data that *may* be lost without lasting consequences.
-	fn create_packet(&self, permanent: &mut impl io::Write, temporary: &mut impl io::Write) -> io::Result<()> {
+	fn create_packet(
+		&self,
+		permanent: &mut impl io::Write,
+		temporary: &mut impl io::Write,
+	) -> io::Result<()> {
 		// Write out the packet index
 		temporary.write_all(&self.last_processed_packet_index.get().to_le_bytes())?;
 
 		// Increment packet index.
-		self.last_processed_packet_index.set(self.last_processed_packet_index.get().wrapping_add(1));
+		self.last_processed_packet_index
+			.set(self.last_processed_packet_index.get().wrapping_add(1));
 
 		// Write out the inputs
 		temporary.write_all(&self.controller.bitmap.to_le_bytes())?;
 		Body::serialize_vector3(temporary, self.controller.aim_at)?;
 
 		// Write out physics state
-		self.main_body.as_ref().unwrap().create_packet(permanent, temporary)
+		self.main_body
+			.as_ref()
+			.unwrap()
+			.create_packet(permanent, temporary)
 	}
 
 	/// Attempt to fire a weapon. Returns `true` on success.
@@ -1002,7 +1033,10 @@ impl Vehicle {
 
 	/// Destroy all the bodies on this vehicle.
 	fn destroy(&mut self) {
-		self.main_body.as_mut().expect("Already destroyed").destroy(&mut self.shared);
+		self.main_body
+			.as_mut()
+			.expect("Already destroyed")
+			.destroy(&mut self.shared);
 	}
 
 	/// Serialize the vehicle for transmission over a network.
@@ -1014,7 +1048,11 @@ impl Vehicle {
 		out.write_all(&self.shared.team.to_le_bytes())?;
 
 		// Serialize color palette
-		out.write_all(&u8::try_from(self.shared.colors.len()).unwrap().to_le_bytes())?;
+		out.write_all(
+			&u8::try_from(self.shared.colors.len())
+				.unwrap()
+				.to_le_bytes(),
+		)?;
 		for clr in self.shared.colors.iter() {
 			out.write_all(&[clr.x, clr.y, clr.z])?;
 		}
@@ -1023,11 +1061,18 @@ impl Vehicle {
 	}
 
 	/// Deserialize a vehicle.
-	fn deserialize(in_: &mut impl io::Read, team_color: Color, is_local: bool, is_master: bool, is_visible: bool) -> io::Result<Self> {
+	fn deserialize(
+		in_: &mut impl io::Read,
+		team_color: Color,
+		is_local: bool,
+		is_master: bool,
+		is_visible: bool,
+	) -> io::Result<Self> {
 		// Get the last processed packet index
 		let mut last_processed_packet_index = [0; 2];
 		in_.read_exact(&mut last_processed_packet_index)?;
-		let last_processed_packet_index = Cell::new(u16::from_le_bytes(last_processed_packet_index));
+		let last_processed_packet_index =
+			Cell::new(u16::from_le_bytes(last_processed_packet_index));
 
 		// Get the team
 		let mut team = [0; 1];
@@ -1113,5 +1158,4 @@ impl Vehicle {
 		}
 		Ok(weapon_type.unwrap_or(false))
 	}
-
 }

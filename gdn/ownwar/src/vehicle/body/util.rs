@@ -1,8 +1,8 @@
 use super::*;
 use crate::block;
 use crate::util::*;
-use std::io;
 use gdnative::prelude::Vector3;
+use std::io;
 
 impl super::Body {
 	#[inline]
@@ -39,7 +39,10 @@ impl super::Body {
 	}
 
 	/// Serialize a Vector3
-	pub(in super::super) fn serialize_vector3(out: &mut impl io::Write, v: Vector3) -> io::Result<()> {
+	pub(in super::super) fn serialize_vector3(
+		out: &mut impl io::Write,
+		v: Vector3,
+	) -> io::Result<()> {
 		out.write_all(&v.x.to_le_bytes())?;
 		out.write_all(&v.y.to_le_bytes())?;
 		out.write_all(&v.z.to_le_bytes())
@@ -55,17 +58,5 @@ impl super::Body {
 		in_.read_exact(&mut buf)?;
 		let z = f32::from_le_bytes(buf);
 		Ok(Vector3::new(x, y, z))
-	}
-
-	/// Serialize a `f32`
-	pub(in super::super) fn serialize_f32(out: &mut impl io::Write, v: f32) -> io::Result<()> {
-		out.write_all(&v.to_le_bytes())
-	}
-
-	/// Deserialize a `f32`
-	pub(in super::super) fn deserialize_f32(in_: &mut impl io::Read) -> io::Result<f32> {
-		let mut buf = [0; 4];
-		in_.read_exact(&mut buf)?;
-		Ok(f32::from_le_bytes(buf))
 	}
 }

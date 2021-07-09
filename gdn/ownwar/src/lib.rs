@@ -6,8 +6,6 @@
 #![feature(maybe_uninit_array_assume_init)]
 #![feature(maybe_uninit_extra)]
 #![feature(new_uninit)]
-// Shuttt the fuckkkkkk upppp please
-#![cfg_attr(debug_assertions, allow(dead_code))]
 
 mod block;
 mod editor;

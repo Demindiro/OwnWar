@@ -14,7 +14,6 @@ pub struct Direction(u8);
 pub struct OutOfBounds;
 
 impl Rotation {
-	pub const MIN: Self = Self(0);
 	pub const MAX: Self = Self(23);
 
 	/// Create a new `Rotation`
@@ -150,7 +149,6 @@ impl Rotation {
 }
 
 impl Direction {
-	pub const MIN: Self = Self(0);
 	pub const MAX: Self = Self(5);
 
 	pub const fn new(n: u8) -> Result<Self, OutOfBounds> {
@@ -163,10 +161,6 @@ impl Direction {
 
 	pub const fn get(self) -> u8 {
 		self.0
-	}
-
-	pub fn from_rotation(rotation: Rotation) -> Self {
-		Self(rotation.0 >> 2)
 	}
 
 	pub fn from_vector<T>(axis: Vector3D<T, UnknownUnit>) -> Result<Self, OutOfBounds>
