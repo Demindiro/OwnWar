@@ -186,8 +186,6 @@ impl super::Body {
 			children,
 
 			parent_anchors: Vec::new(),
-
-			past_state: [PastState::new(); PAST_STATE_SIZE],
 		};
 
 		slf.create_godot_nodes();

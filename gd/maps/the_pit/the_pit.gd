@@ -22,8 +22,6 @@ var inputs := []
 var free_vehicle_slots := []
 var ai := []
 
-var packet_counter = 0
-
 # Temporary vehicle data to be applied
 var pending_temporary_data := []
 # Permanent vehicle data to be applied
@@ -55,19 +53,19 @@ func _ready() -> void:
 
 		# Spawn some AI to keep the map busy even when there are no players.
 		# Tanky boy
-		if 0:
+		if 1:
 			var vehicle_id = spawn_vehicle("tank")
 			var a = BrickAI.new()
 			a.vehicle_id = vehicle_id
 			ai.push_back(a)
 		# Speedy boy
-		if 0:
+		if 1:
 			var vehicle_id = spawn_vehicle("mini_tank")
 			var a = BrickAI.new()
 			a.vehicle_id = vehicle_id
 			ai.push_back(a)
 		# Whimpy boy
-		if 0:
+		if 1:
 			var vehicle_id = spawn_vehicle("skunk")
 			var a = BrickAI.new()
 			a.vehicle_id = vehicle_id
@@ -99,8 +97,7 @@ func _physics_process(delta: float) -> void:
 		if hud.player_vehicle_id >= 0:
 			var v = vehicles[hud.player_vehicle_id]
 			if v != null:
-				print("   --  ", v.get_past_states_index())
-				rpc_unreliable("sync_client_input", v.get_past_states_index(), v.get_controller_bitmap(), v.aim_at)
+				rpc_unreliable("sync_client_input", v.get_controller_bitmap(), v.aim_at)
 
 	# Receive client inputs _or_ receive server data
 	get_tree().multiplayer.poll()
@@ -110,7 +107,6 @@ func _physics_process(delta: float) -> void:
 		# will be overridden anyways, so no worries.
 		for i in len(vehicles):
 			var v = vehicles[i]
-			inputs[i]
 			if v != null:
 				v.apply_input(inputs[i][0], inputs[i][1])
 
@@ -123,19 +119,12 @@ func _physics_process(delta: float) -> void:
 				rpc("sync_temporary_vehicle_data", i, pt[1]);
 				
 	else:
-		var rb_index = null
-
 		# Apply temporary data
 		for pkt in pending_temporary_data:
 			if pkt[0] < len(vehicles):
 				var v = vehicles[pkt[0]]
 				if v != null:
-					print("Applying ", pkt[0])
-					var rb = v.process_temporary_packet(pkt[1])
-					if rb != null:
-						# Use the last state available, which is always most recent.
-						if rb_index == null or rb < rb_index:
-							rb_index = rb
+					v.process_temporary_packet(pkt[1])
 		pending_temporary_data.clear()
 
 		# Apply permanent data
@@ -146,20 +135,16 @@ func _physics_process(delta: float) -> void:
 					pass
 		pending_permanent_data.clear()
 
-		if rb_index != null:
-			# Rollback and resimulate state
-			rollback(rb_index)
-
 	# Step vehicles
 	for a in ai:
 		a.step(vehicles, delta)
 	for v in vehicles:
 		if v != null:
-			v.process_input(delta, false)
+			v.process_input(delta)
 	for i in len(vehicles):
 		var v = vehicles[i]
 		if v != null:
-			if v.step(delta, false):
+			if v.step(delta):
 				if i == hud.player_vehicle_id:
 					hud.player_vehicle_id = -1
 					# Respawn the player after some time
@@ -177,9 +162,6 @@ func _physics_process(delta: float) -> void:
 							break
 				free_vehicle_slot(i)
 
-	packet_counter += 1
-	packet_counter &= 0xffff
-
 
 func spawn_player_vehicle() -> void:
 	print("Spawning vehicle")
@@ -193,7 +175,6 @@ func spawn_player_vehicle() -> void:
 	var data := file.get_buffer(file.get_len())
 	if server_mode:
 		hud.player_vehicle_id = request_vehicle(data, OwnWar.ALLY_COLOR)
-		print(hud.player_vehicle_id)
 	else:
 		print("Request sync")
 		rpc("request_sync_vehicles")
@@ -315,7 +296,7 @@ func spawn_vehicle(name: String):
 	var vehicle := OwnWar_Vehicle.new()
 	var team = counter
 	var index := counter % get_node(spawn_points).get_child_count()
-	var id = len(vehicles)
+	var id = reserve_vehicle_slot()
 	var e = vehicle.load_from_file(
 		OwnWar.get_vehicle_path(name),
 		team,
@@ -325,7 +306,7 @@ func spawn_vehicle(name: String):
 		id
 	)
 	assert(e == OK)
-	vehicles.push_back(vehicle)
+	vehicles[id] = vehicle
 	vehicle.spawn(self, true)
 	counter += 1
 	return id
@@ -333,23 +314,6 @@ func spawn_vehicle(name: String):
 
 func remove_client_vehicle(id: int) -> void:
 	clients[id] = null
-
-
-func rollback(steps: int) -> void:
-	var delta := 1.0 / Engine.iterations_per_second
-	print("Rollback ", steps)
-	for v in vehicles:
-		if v != null:
-			v.rollback_steps(steps)
-	for i in steps + 1:
-		if i < steps:
-			PhysicsServer.step(delta)
-		for v in vehicles:
-			if v != null:
-				v.step(delta, true)
-		for v in vehicles:
-			if v != null:
-				v.rollback_save()
 
 
 # Respawn the AI of a vehicle
@@ -393,12 +357,10 @@ func free_vehicle_slot(id):
 
 
 # Sync client input with the server
-master func sync_client_input(index, bitmap, aim_at):
+master func sync_client_input(bitmap, aim_at):
 	var id = get_tree().get_rpc_sender_id()
 	id = clients[id]
 	if id != null:
 		var v = vehicles[id]
 		if v != null:
-			print(v.get_past_states_index(), " <= ", index)
-			v.set_past_states_index(index)
 			inputs[id] = [bitmap, aim_at]

@@ -11,7 +11,9 @@ func step(vehicles, _delta: float) -> void:
 		return
 
 	var vehicle = vehicles[vehicle_id]
-	vehicle.apply_input(0, Vector3())
+	vehicle.turn_left = false
+	vehicle.turn_left = false
+	vehicle.move_forward = false
 	var trf = vehicle.get_node().transform
 
 	# Flip if necessary

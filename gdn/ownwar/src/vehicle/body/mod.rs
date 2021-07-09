@@ -6,7 +6,6 @@ mod mesh;
 mod multi_block;
 mod packet;
 mod serialize;
-mod state;
 mod util;
 mod visual;
 
@@ -83,60 +82,12 @@ pub(super) struct Body {
 	/// This has one entry if it is the main body: the mainframe. The mainframe
 	/// is not a real anchor but pretending it is one simplifies things quite a bit.
 	parent_anchors: Vec<Voxel>,
-
-	/// Saved state, used for rollbacks
-	past_state: [PastState; super::PAST_STATE_SIZE],
 }
 
 pub(super) enum Block<'a> {
 	Destroyed(NonZeroU16),
 	Single(NonZeroU16, NonZeroU16),
 	Multi(NonZeroU16, &'a MultiBlock),
-}
-
-/// Past state, used for rollbacks.
-#[derive(Clone, Copy)]
-struct PastState {
-	translation: Vector3,
-	rotation: Quat,
-	linear_velocity: Vector3,
-	angular_velocity: Vector3,
-	/// Whether this state was received from the server or predicted by us.
-	predicted: bool,
-}
-
-impl PastState {
-	const fn new() -> Self {
-		use core::marker::PhantomData;
-		Self {
-			translation: Vector3 {
-				x: 0.0,
-				y: 0.0,
-				z: 0.0,
-				_unit: PhantomData,
-			},
-			rotation: Quat {
-				i: 0.0,
-				j: 0.0,
-				k: 0.0,
-				r: 0.0,
-				_unit: PhantomData,
-			},
-			linear_velocity: Vector3 {
-				x: 0.0,
-				y: 0.0,
-				z: 0.0,
-				_unit: PhantomData,
-			},
-			angular_velocity: Vector3 {
-				x: 0.0,
-				y: 0.0,
-				z: 0.0,
-				_unit: PhantomData,
-			},
-			predicted: true,
-		}
-	}
 }
 
 /// Enum returned when an error occurs during `init_all`
@@ -187,8 +138,6 @@ impl Body {
 			children: Vec::new(),
 
 			parent_anchors: Vec::new(),
-
-			past_state: [PastState::new(); PAST_STATE_SIZE],
 		};
 
 		slf.create_godot_nodes();

@@ -55,8 +55,6 @@ pub mod gd {
 			const PBSE: Vec<PastBlockState> = Vec::new();
 			Self {
 				vehicle: super::Vehicle {
-					is_local: false,
-
 					max_cost: 0,
 					shared: super::Shared {
 						weapons: Vec::new(),
@@ -77,12 +75,13 @@ pub mod gd {
 
 					flipping_timeout: Cell::new(0),
 
-					past_block_states: [PBSE; PAST_STATE_SIZE],
-					past_inputs: [Controller::new(0, Vector3::zero()); PAST_STATE_SIZE],
-					past_states_index: 0,
-					last_processed_index: 0,
+					controller: super::Controller::default(),
 
 					main_body: None,
+
+					last_processed_packet_index: Cell::new(0),
+
+					is_local: false,
 				},
 				last_hit_position: Vector3::zero(),
 				controller: super::Controller::default(),
@@ -90,8 +89,8 @@ pub mod gd {
 		}
 
 		#[export]
-		fn step(&mut self, _owner: TRef<Reference>, delta: f32, is_rollback: bool) -> bool {
-			self.vehicle.step(Self::delta_to_virt(delta), is_rollback)
+		fn step(&mut self, _owner: TRef<Reference>, delta: f32) -> bool {
+			self.vehicle.step(Self::delta_to_virt(delta))
 		}
 
 		#[export]
@@ -104,17 +103,14 @@ pub mod gd {
 			if !self.vehicle.is_local {
 				// Override input, otherwise ignore and use our own.
 				self.controller = super::Controller::new(bitmap, aim_at);
-				println!("{:x} - {:?}", bitmap, aim_at);
 			}
 			self.vehicle.apply_input(self.controller);
 		}
 
-		/// Process input. Should be preceded by `apply_input` if it is not a rollback.
-		///
-		/// If `rollback` is `true`, certain events will not occur, such as firing weapons.
+		/// Process input. Should be preceded by `apply_input`.
 		#[export]
-		fn process_input(&self, _: TRef<Reference>, delta: f32, is_rollback: bool) {
-			self.vehicle.process_input(Self::delta_to_virt(delta), is_rollback)
+		fn process_input(&self, _: TRef<Reference>, delta: f32) {
+			self.vehicle.process_input(Self::delta_to_virt(delta))
 		}
 
 		#[export]
@@ -362,10 +358,9 @@ pub mod gd {
 			arr.into_shared()
 		}
 
-		/// Process a packet with temporary data. Returns an integer with the amount of steps to
-		/// rewind if a rollback is necessary.
+		/// Process a packet with temporary data.
 		#[export]
-		fn process_temporary_packet(&mut self, _: TRef<Reference>, data: TypedArray<u8>) -> Option<u16> {
+		fn process_temporary_packet(&mut self, _: TRef<Reference>, data: TypedArray<u8>) {
 			self.vehicle.process_temporary_packet(&mut &data.read()[..]).expect("Failed to process temporary data")
 		}
 
@@ -404,36 +399,6 @@ pub mod gd {
 			0
 		}
 
-		/// Rolls back to a past state.
-		///
-		/// If the past state is from the server, the current state is updated to that state.
-		/// If the past state is predicted, nothing happens.
-		#[export]
-		fn rollback_steps(&mut self, _: TRef<Reference>, steps: u16) {
-			self.vehicle.rollback_steps(steps);
-		}
-
-		/// Save rollback state.
-		///
-		/// If the current state is from the server, nothing happens.
-		/// If the current state is predicted, it overwrites the past state.
-		#[export]
-		fn rollback_save(&mut self, _: TRef<Reference>) {
-			self.vehicle.rollback_save();
-		}
-
-		/// Override the past state index. Used by servers to help keep sync with clients.
-		#[export]
-		fn set_past_states_index(&mut self, _: TRef<Reference>, index: u16) {
-			self.vehicle.past_states_index = index;
-		}
-
-		/// Return the past state index. Used by clients to send it to servers.
-		#[export]
-		fn get_past_states_index(&self, _: TRef<Reference>) -> u16 {
-			self.vehicle.past_states_index
-		}
-
 		/// Return the controller bitmap
 		#[export]
 		fn get_controller_bitmap(&self, _: TRef<Reference>) -> u16 {
@@ -465,12 +430,12 @@ use crate::block;
 use crate::editor::serialize;
 use crate::util::{convert_vec, AABB};
 use core::cell::Cell;
-use core::convert::{self, TryFrom, TryInto};
+use core::convert::{TryFrom, TryInto};
 use core::mem;
 use core::num::NonZeroU16;
 use gdnative::api::{VehicleBody, VehicleWheel};
 use gdnative::prelude::*;
-use std::io::{self, Write};
+use std::io;
 
 type Team = u8;
 
@@ -520,18 +485,17 @@ pub struct Vehicle {
 
 	flipping_timeout: Cell<VirtualTicks>,
 
-	past_states_index: u16,
-	/// The index of the last processed packet.
-	last_processed_index: u16,
-
 	/// The main body of this vehicle. It is an option because Godot
 	main_body: Option<Body>,
 
-	/// Per block past state.
-	past_block_states: [Vec<PastBlockState>; PAST_STATE_SIZE],
+	/// The current input applied by the body.
+	controller: Controller,
 
-	/// Past inputs
-	past_inputs: [Controller; PAST_STATE_SIZE],
+	/// Index used to prevent state from older packets overwriting newer state.
+	///
+	/// For clients, this is the index of the last processed packet. 
+	/// For servers, this is the index of the packet to be sent.
+	last_processed_packet_index: Cell<u16>,
 }
 
 /// Per block past state.
@@ -640,27 +604,18 @@ impl Vehicle {
 
 			main_body: Some(main_body),
 
-			past_block_states: [PBSE; PAST_STATE_SIZE],
-			past_inputs: [Controller::new(0, Vector3::zero()); PAST_STATE_SIZE],
-			past_states_index: 0,
-			last_processed_index: 0,
+			controller: Controller::default(),
+
+			last_processed_packet_index: Cell::new(0),
 		})
 	}
 
 	/// Advance the simulation.
-	fn step(&mut self, delta: VirtualTicks, is_rollback: bool) -> bool {
+	fn step(&mut self, delta: VirtualTicks) -> bool {
 
 		// Step bodies
 		if self.main_body.as_mut().unwrap().step(&mut self.shared) {
 			return true;
-		}
-
-		// Save the current state.
-		let ps = usize::from(self.past_states_index) % PAST_STATE_SIZE;
-		if is_rollback {
-			self.main_body.as_mut().unwrap().save_state(ps);
-		} else {
-			self.main_body.as_mut().unwrap().rollback_save(ps);
 		}
 
 		// Step all dynamic blocks.
@@ -672,9 +627,6 @@ impl Vehicle {
 			}
 		}
 
-		// Increase the step
-		self.past_states_index = self.past_states_index.wrapping_add(1);
-
 		false
 	}
 
@@ -684,12 +636,12 @@ impl Vehicle {
 
 	/// Apply client input. Should only be used for the local client.
 	fn apply_input(&mut self, controller: Controller) {
-		self.past_inputs[usize::from(self.past_states_index) % PAST_STATE_SIZE] = controller;
+		self.controller = controller;
 	}
 
 	/// Process client input. This must be called only once per frame.
-	fn process_input(&self, delta: VirtualTicks, is_rollback: bool) {
-		let controller = &self.past_inputs[usize::from(self.past_states_index) % PAST_STATE_SIZE];
+	fn process_input(&self, delta: VirtualTicks) {
+		let controller = &self.controller;
 
 		// Terrain
 		const MASK: i64 = 1 << 7;
@@ -802,7 +754,7 @@ impl Vehicle {
 		// Check if weapons need & can be fired.
 		// Only do this on local vehicles, as actual firing events & projectiles are handled
 		// separately.
-		if self.is_local && !is_rollback {
+		if self.is_local {
 			if controller.fire() && self.shared.weapons.len() > 0 {
 				if delay == 0 {
 					let prev_index = next;
@@ -874,84 +826,32 @@ impl Vehicle {
 		}
 	}
 
-	/// Rolls back to a past state.
-	///
-	/// If the past state is from the server, the current state is updated to that state.
-	/// If the past state is predicted, nothing happens.
-	fn rollback_steps(&mut self, steps: u16) {
-		self.past_states_index = self.past_states_index.wrapping_sub(steps);
-		let ps = usize::from(self.past_states_index) % PAST_STATE_SIZE;
-		self.main_body.as_mut().unwrap().rollback(ps);
-	}
-
-	/// Save rollback state.
-	///
-	/// If the current state is from the server, nothing happens.
-	/// If the current state is predicted, it overwrites the past state.
-	fn rollback_save(&mut self) {
-		let ps = usize::from(self.past_states_index) % PAST_STATE_SIZE;
-		self.main_body.as_mut().unwrap().save_state(ps);
-		assert_eq!(self.past_block_states[ps].len(), self.shared.saveable.len());
-		for (block, ps) in self
-			.shared
-			.saveable
-			.iter()
-			.zip(self.past_block_states[ps].iter_mut())
-		{
-			block.map(|block| unsafe {
-				if block.assume_safe().has_method("save_state") {
-					ps.data = block.assume_safe().call("save_state", &[]);
-				}
-			});
-		}
-	}
-
 	/// Process & apply temporary data.
-	///
-	/// ## Returns
-	///
-	/// `true` if a rollback is needed, `false` otherwise.
-	fn process_temporary_packet(&mut self, packet: &mut impl io::Read) -> io::Result<Option<u16>> {
+	fn process_temporary_packet(&mut self, packet: &mut impl io::Read) -> io::Result<()> {
 		// Read index
 		let mut index = [0; mem::size_of::<u16>()];
 		packet.read_exact(&mut index)?;
 		let index = u16::from_le_bytes(index);
 
-		// TODO _what_ are we supposed to do in this case? Ignore it is my guess (unsynced index)
-		// but not sure
-		if self.is_local && self.past_states_index.wrapping_sub(index) > 0x1000 {
-			dbg!("Server is ahead of us!");
-			return Ok(None);
+		if self.last_processed_packet_index.get().wrapping_sub(index) < 0x5000 {
+			// The packet is older than the state we currently have, so just discard it.
+			return Ok(());
 		}
-
-		// If the index is ahead of the last processed, apply the state.
-		// If the index is behind ours, don't apply the state (but do save it).
-		let apply = self.last_processed_index.wrapping_sub(index) > 0x5000;
-		if apply {
-			self.last_processed_index = index;
-			if !self.is_local {
-				self.past_states_index = index;
-			}
-		}
+		self.last_processed_packet_index.set(index);
 
 		// Read controller input
 		let mut bitmap = [0; mem::size_of::<u16>()];
 		packet.read_exact(&mut bitmap)?;
 		let bitmap = u16::from_le_bytes(bitmap);
 		let aim_at = Body::deserialize_vector3(packet)?;
-		self.past_inputs[usize::from(index) % PAST_STATE_SIZE] = Controller::new(bitmap, aim_at);
-
-		let ps = usize::from(index) % PAST_STATE_SIZE;
+		self.controller = Controller::new(bitmap, aim_at);
 
 		// Read physics state
-		let rollback = self
+		self
 			.main_body
 			.as_mut()
 			.unwrap()
-			.process_temporary_packet(ps, packet, self.is_local, apply)
-			.unwrap();
-
-		Ok(rollback.then(|| self.past_states_index.wrapping_sub(index)))
+			.process_temporary_packet(packet)
 	}
 
 	/// Create a packet with state data.
@@ -959,13 +859,15 @@ impl Vehicle {
 	/// `permanent` is for data that *must* arrive *in order*
 	/// `temporary` is for data that *may* be lost without lasting consequences.
 	fn create_packet(&self, permanent: &mut impl io::Write, temporary: &mut impl io::Write) -> io::Result<()> {
-		// Write out the state index ID, used for rollbacks
-		temporary.write_all(&self.past_states_index.to_le_bytes())?;
+		// Write out the packet index
+		temporary.write_all(&self.last_processed_packet_index.get().to_le_bytes())?;
+
+		// Increment packet index.
+		self.last_processed_packet_index.set(self.last_processed_packet_index.get().wrapping_add(1));
 
 		// Write out the inputs
-		let ctrl = &self.past_inputs[usize::from(self.past_states_index) % PAST_STATE_SIZE];
-		temporary.write_all(&ctrl.bitmap.to_le_bytes())?;
-		Body::serialize_vector3(temporary, ctrl.aim_at)?;
+		temporary.write_all(&self.controller.bitmap.to_le_bytes())?;
+		Body::serialize_vector3(temporary, self.controller.aim_at)?;
 
 		// Write out physics state
 		self.main_body.as_ref().unwrap().create_packet(permanent, temporary)
@@ -1021,8 +923,8 @@ impl Vehicle {
 
 	/// Serialize the vehicle for transmission over a network.
 	fn serialize(&self, out: &mut impl io::Write) -> io::Result<()> {
-		// Serialize the past state index
-		out.write_all(&self.past_states_index.to_le_bytes())?;
+		// Serialize the last processed packet index
+		out.write_all(&self.last_processed_packet_index.get().to_le_bytes())?;
 
 		// Serialize the team
 		out.write_all(&self.shared.team.to_le_bytes())?;
@@ -1038,10 +940,10 @@ impl Vehicle {
 
 	/// Deserialize a vehicle.
 	fn deserialize(in_: &mut impl io::Read, team_color: Color, is_local: bool, is_visible: bool) -> io::Result<Self> {
-		// Get the past state index
-		let mut past_states_index = [0; 2];
-		in_.read_exact(&mut past_states_index)?;
-		let past_states_index = u16::from_le_bytes(past_states_index);
+		// Get the last processed packet index
+		let mut last_processed_packet_index = [0; 2];
+		in_.read_exact(&mut last_processed_packet_index)?;
+		let last_processed_packet_index = Cell::new(u16::from_le_bytes(last_processed_packet_index));
 
 		// Get the team
 		let mut team = [0; 1];
@@ -1098,10 +1000,9 @@ impl Vehicle {
 			shared,
 			max_cost,
 
-			past_block_states: [PBSE; PAST_STATE_SIZE],
-			past_inputs: [Controller::new(0, Vector3::zero()); PAST_STATE_SIZE],
-			past_states_index,
-			last_processed_index: 0,
+			controller: super::Controller::default(),
+
+			last_processed_packet_index,
 		})
 	}
 

@@ -50,18 +50,11 @@ impl super::Body {
 		Ok(())
 	}
 
-	/// Save & optionally apply the temporary data inside a packet.
-	///
-	/// ## Returns
-	///
-	/// `Some(true)` if a rollback is necessary.
+	/// Apply the temporary data inside a packet.
 	pub fn process_temporary_packet(
 		&mut self,
-		index: usize,
 		packet: &mut impl io::Read,
-		is_local: bool,
-		apply: bool
-	) -> io::Result<bool> {
+	) -> io::Result<()> {
 		let mut flag = [0; 1];
 		packet.read_exact(&mut flag)?;
 
@@ -72,38 +65,15 @@ impl super::Body {
 			let lv = Self::deserialize_vector3(packet)?;
 			let av = Self::deserialize_vector3(packet)?;
 
-			// Apply the state if necessary
-			let mut rollback = false;
-			if apply {
-				if is_local {
-					// The client is in control, so account for prediction
-					let ps = &mut self.past_state[index];
-					let divergence = tr.distance_squared_to(ps.translation);
-					dbg!(divergence);
-					rollback = divergence >= 0.01 * 0.01
-				} else {
-					// The client is _not_ in control, so update state directly
-					// FIXME see `set_position`
-					self.set_position(tr, rot.inverse());
-					self.set_linear_velocity(lv);
-					self.set_angular_velocity(av);
-				}
-			}
-
-			// Save the state
-			let ps = &mut self.past_state[index];
-			ps.translation = tr;
-			ps.rotation = rot;
-			ps.linear_velocity = lv;
-			ps.angular_velocity = av;
+			self.set_position(tr, rot.inverse());
+			self.set_linear_velocity(lv);
+			self.set_angular_velocity(av);
 
 			for b in self.children_mut() {
-				rollback |= b.process_temporary_packet(index, packet, is_local, apply)?;
+				b.process_temporary_packet(packet)?;
 			}
-
-			Ok(rollback)
-		} else {
-			Ok(false)
 		}
+
+		Ok(())
 	}
 }
