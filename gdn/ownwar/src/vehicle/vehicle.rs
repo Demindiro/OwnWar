@@ -88,8 +88,16 @@ pub mod gd {
 			}
 		}
 
+		/// Apply damage events. This should be called before `step`
+		///
+		/// Returns `true` if the body was destroyed.
 		#[export]
-		fn step(&mut self, _owner: TRef<Reference>, delta: f32) -> bool {
+		fn apply_damage(&mut self, _: TRef<Reference>) -> bool {
+			self.vehicle.apply_damage()
+		}
+
+		#[export]
+		fn step(&mut self, _: TRef<Reference>, delta: f32) -> bool {
 			self.vehicle.step(Self::delta_to_virt(delta))
 		}
 
@@ -358,10 +366,18 @@ pub mod gd {
 			arr.into_shared()
 		}
 
-		/// Process a packet with temporary data.
+		/// Process a packet with temporary data. This data includes inputs & physics state.
 		#[export]
 		fn process_temporary_packet(&mut self, _: TRef<Reference>, data: TypedArray<u8>) {
 			self.vehicle.process_temporary_packet(&mut &data.read()[..]).expect("Failed to process temporary data")
+		}
+
+		/// Process a packet with permanent data. This data includes damage events.
+		///
+		/// This returns `true` if the vehicle is destroyed.
+		#[export]
+		fn process_permanent_packet(&mut self, _: TRef<Reference>, data: TypedArray<u8>) -> bool {
+			self.vehicle.process_permanent_packet(&mut &data.read()[..]).expect("Failed to process permanent data")
 		}
 
 		/// Serialize the vehicle's state for synchronization over a network.
@@ -610,13 +626,19 @@ impl Vehicle {
 		})
 	}
 
+	/// Apply damage. This should be called before `step`
+	///
+	/// Returns `true` if the body was destroyed.
+	#[must_use]
+	fn apply_damage(&mut self) -> bool {
+		self.main_body.as_mut().unwrap().apply_damage(&mut self.shared)
+	}
+
 	/// Advance the simulation.
 	fn step(&mut self, delta: VirtualTicks) -> bool {
 
 		// Step bodies
-		if self.main_body.as_mut().unwrap().step(&mut self.shared) {
-			return true;
-		}
+		self.main_body.as_mut().unwrap().step();
 
 		// Step all dynamic blocks.
 		for block in self.shared.steppable.iter().filter_map(Option::as_ref) {
@@ -852,6 +874,15 @@ impl Vehicle {
 			.as_mut()
 			.unwrap()
 			.process_temporary_packet(packet)
+	}
+
+	/// Process a packet with permanent data. This data includes damage events.
+	///
+	/// This returns `true` if the vehicle is destroyed.
+	#[must_use]
+	fn process_permanent_packet(&mut self, packet: &mut impl io::Read) -> io::Result<bool> {
+		self.main_body.as_mut().unwrap().process_permanent_packet(packet)?;
+		Ok(self.apply_damage())
 	}
 
 	/// Create a packet with state data.

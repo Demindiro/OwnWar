@@ -5,6 +5,7 @@ use crate::vehicle::vehicle::Shared;
 use core::fmt;
 use core::mem;
 use core::num::{NonZeroU16, NonZeroU32};
+use core::slice;
 use std::io;
 use std::error::Error;
 use euclid::{UnknownUnit, Vector3D};
@@ -88,8 +89,8 @@ impl DamageEvent {
 				in_.read_exact(&mut buf)?;
 				let damage = u32::from_le_bytes(buf);
 				let origin = super::Body::deserialize_vector3(in_)?;
-				in_.read_exact(&mut buf)?;
-				let radius = buf[0];
+				let mut radius = 0;
+				in_.read_exact(slice::from_mut(&mut radius))?;
 				Ok(Self::Explosion { damage, origin, radius })
 			}
 			ty => Err(io::Error::new(io::ErrorKind::InvalidData, UnknownDamageType(ty))),

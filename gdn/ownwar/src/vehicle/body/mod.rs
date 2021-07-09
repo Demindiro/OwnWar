@@ -318,29 +318,27 @@ impl Body {
 		add_children(bodies, &mut body_tree, &mut body, bte)?;
 		Ok(body)
 	}
-
-	/// Step this, it's children & apply damage events.
+	
+	/// Apply damage events. This should be called before `step`
 	///
-	/// Returns `true` if the body was destroyed.
+	/// Returns `true` if the body is destroyed.
 	#[must_use]
-	pub fn step(&mut self, shared: &mut vehicle::Shared) -> bool {
-		if self.node.is_none() {
-			return true;
+	pub fn apply_damage(&mut self, shared: &mut vehicle::Shared) -> bool {
+		if self.apply_damage_events(shared) {
+			self.destroy(shared);
+			true
+		} else {
+			self.children.iter_mut().for_each(|b| { b.apply_damage(shared); });
+			false
 		}
+	}
 
+	/// Step this & it's children.
+	pub fn step(&mut self) {
 		// Indicate that interpolation should update the next position.
 		self.interpolation_state_dirty = true;
 
-		if self.apply_damage_events(shared) {
-			self.destroy(shared);
-			return true;
-		}
-
-		for i in (0..self.children.len()).rev() {
-			let _ = self.children[i].step(shared);
-		}
-
-		false
+		self.children.iter_mut().for_each(Self::step);
 	}
 
 	#[track_caller]

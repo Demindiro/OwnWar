@@ -52,24 +52,25 @@ func _ready() -> void:
 			spawn_player_vehicle()
 
 		# Spawn some AI to keep the map busy even when there are no players.
-		# Tanky boy
-		if 1:
-			var vehicle_id = spawn_vehicle("tank")
-			var a = BrickAI.new()
-			a.vehicle_id = vehicle_id
-			ai.push_back(a)
-		# Speedy boy
-		if 1:
-			var vehicle_id = spawn_vehicle("mini_tank")
-			var a = BrickAI.new()
-			a.vehicle_id = vehicle_id
-			ai.push_back(a)
-		# Whimpy boy
-		if 1:
-			var vehicle_id = spawn_vehicle("skunk")
-			var a = BrickAI.new()
-			a.vehicle_id = vehicle_id
-			ai.push_back(a)
+		if 0:
+			# Tanky boy
+			if 1:
+				var vehicle_id = spawn_vehicle("tank")
+				var a = BrickAI.new()
+				a.vehicle_id = vehicle_id
+				ai.push_back(a)
+			# Speedy boy
+			if 1:
+				var vehicle_id = spawn_vehicle("mini_tank")
+				var a = BrickAI.new()
+				a.vehicle_id = vehicle_id
+				ai.push_back(a)
+			# Whimpy boy
+			if 1:
+				var vehicle_id = spawn_vehicle("skunk")
+				var a = BrickAI.new()
+				a.vehicle_id = vehicle_id
+				ai.push_back(a)
 	else:
 		assert(not headless, "Can't create client in headless mode")
 		spawn_player_vehicle()
@@ -102,6 +103,7 @@ func _physics_process(delta: float) -> void:
 	# Receive client inputs _or_ receive server data
 	get_tree().multiplayer.poll()
 
+	# Apply client inputs
 	if server_mode:
 		# Apply client inputs. If this is the client, any inputs from remote vehicles
 		# will be overridden anyways, so no worries.
@@ -110,16 +112,9 @@ func _physics_process(delta: float) -> void:
 			if v != null:
 				v.apply_input(inputs[i][0], inputs[i][1])
 
-		# Create packets with state to be applied to the vehicles & send it to the clients.
-		for i in len(vehicles):
-			var v = vehicles[i]
-			if v != null:
-				var pt = v.create_packet()
-				rpc_unreliable("sync_permanent_vehicle_data", i, pt[0]);
-				rpc("sync_temporary_vehicle_data", i, pt[1]);
-				
-	else:
-		# Apply temporary data
+	# Process physics & server inputs
+	if !server_mode:
+		# Process temporary data (physics, inputs)
 		for pkt in pending_temporary_data:
 			if pkt[0] < len(vehicles):
 				var v = vehicles[pkt[0]]
@@ -127,40 +122,46 @@ func _physics_process(delta: float) -> void:
 					v.process_temporary_packet(pkt[1])
 		pending_temporary_data.clear()
 
-		# Apply permanent data
-		for pkt in pending_permanent_data:
-			if pkt[0] < len(vehicles):
-				var v = vehicles[pkt[0]]
-				if v != null:
-					pass
-		pending_permanent_data.clear()
-
-	# Step vehicles
+	# Apply inputs
 	for a in ai:
 		a.step(vehicles, delta)
 	for v in vehicles:
 		if v != null:
 			v.process_input(delta)
+
+	# Send packets including physics, inputs & damage events
+	if server_mode:
+		# Create packets with state to be applied to the vehicles & send it to the clients.
+		for i in len(vehicles):
+			var v = vehicles[i]
+			if v != null:
+				var pt = v.create_packet()
+				rpc_unreliable("sync_permanent_vehicle_data", i, pt[0]);
+				rpc("sync_temporary_vehicle_data", i, pt[1]);
+
+	# Process damage events
+	if !server_mode:
+		# Process permanent data (damage)
+		for pkt in pending_permanent_data:
+			if pkt[0] < len(vehicles):
+				var v = vehicles[pkt[0]]
+				if v != null:
+					if v.process_permanent_packet(pkt[1]):
+						cleanup_vehicle(pkt[0])
+		pending_permanent_data.clear()
+	else:
+		# Apply damage
+		for i in len(vehicles):
+			var v = vehicles[i]
+			if v != null:
+				if v.apply_damage():
+					cleanup_vehicle(i)
+
+	# Step vehicles
 	for i in len(vehicles):
 		var v = vehicles[i]
 		if v != null:
-			if v.step(delta):
-				if i == hud.player_vehicle_id:
-					hud.player_vehicle_id = -1
-					# Respawn the player after some time
-					get_tree() \
-						.create_timer(1.5) \
-						.connect("timeout", self, "spawn_player_vehicle")
-				else:
-					for a in ai:
-						if a.vehicle_id == i:
-							a.vehicle_id = -1
-							# Respawn the AI after some time
-							get_tree() \
-								.create_timer(3.0) \
-								.connect("timeout", self, "respawn_ai", [a])
-							break
-				free_vehicle_slot(i)
+			v.step(delta)
 
 
 func spawn_player_vehicle() -> void:
@@ -364,3 +365,23 @@ master func sync_client_input(bitmap, aim_at):
 		var v = vehicles[id]
 		if v != null:
 			inputs[id] = [bitmap, aim_at]
+
+
+# Cleanup vehicle & everything relying on it
+func cleanup_vehicle(id):
+	if id == hud.player_vehicle_id:
+		hud.player_vehicle_id = -1
+		# Respawn the player after some time
+		get_tree() \
+			.create_timer(1.5) \
+			.connect("timeout", self, "spawn_player_vehicle")
+	else:
+		for a in ai:
+			if a.vehicle_id == id:
+				a.vehicle_id = -1
+				# Respawn the AI after some time
+				get_tree() \
+					.create_timer(3.0) \
+					.connect("timeout", self, "respawn_ai", [a])
+				break
+	free_vehicle_slot(id)
