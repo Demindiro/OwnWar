@@ -103,6 +103,9 @@ func _physics_process(delta: float) -> void:
 			v.apply_input(0, Vector3())
 	for v in vehicles:
 		if v != null:
+			v.apply_damage()
+	for v in vehicles:
+		if v != null:
 			v.process_input(delta)
 	for i in len(vehicles):
 		var v = vehicles[i]

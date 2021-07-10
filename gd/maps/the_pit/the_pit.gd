@@ -48,7 +48,7 @@ func _ready() -> void:
 			spawn_player_vehicle()
 
 		# Spawn some AI to keep the map busy even when there are no players.
-		if 0:
+		if 1:
 			# Tanky boy
 			if 1:
 				var vehicle_id = spawn_vehicle("tank")
