@@ -58,6 +58,7 @@ func load_from_data(data: PoolByteArray) -> int:
 			voxel_mesh.add_block_gd(blk, block.color, block.position, block.rotation)
 			if blk.editor_node != null:
 				var node: Spatial = blk.editor_node.duplicate()
+				node.set("team_color", OwnWar.ALLY_COLOR)
 				add_child(node)
 				if node.has_method("set_preview_mode"):
 					node.set_preview_mode(true)

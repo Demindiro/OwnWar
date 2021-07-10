@@ -2,6 +2,9 @@ extends "window.gd"
 
 
 # TODO
+const BLOCK_SCALE := 0.25
+
+# TODO
 var BlockManager := OwnWar_BlockManager.new()
 
 export(NodePath) var preview_mesh
@@ -30,7 +33,7 @@ func _ready():
 
 
 func _process(delta: float) -> void:
-	_preview_mesh.rotate_y(delta * 0.3)
+	_preview_mesh.get_parent().rotate_y(delta * 0.3)
 
 
 func show_category(var category):
@@ -40,13 +43,18 @@ func show_category(var category):
 func show_block(id: int):
 	var block = BlockManager.get_block(id)
 	_preview_mesh.mesh = block.mesh
-	_preview_mesh.transform = Transform.IDENTITY
-	_preview_mesh.scale = \
-		Vector3.ONE / max(block.aabb.size.x, max(block.aabb.size.y, block.aabb.size.z))
+	var scl = Vector3.ONE / max(block.aabb.size.x, max(block.aabb.size.y, block.aabb.size.z))
+	_preview_mesh.scale = scl
+	_preview_mesh.translation = (-block.aabb.position - block.aabb.size / 2 + Vector3(0.5, 0.5, 0.5)) * scl * BLOCK_SCALE
 	for child in _preview_mesh.get_children():
 		child.queue_free()
 	if block.editor_node != null:
-		_preview_mesh.add_child(block.editor_node.duplicate())
+		var node = block.editor_node.duplicate()
+		node.set_color(Color.white)
+		node.set("team_color", OwnWar.ALLY_COLOR)
+		if node.has_method("set_preview_mode"):
+			node.set_preview_mode(true)
+		_preview_mesh.add_child(node)
 
 
 func _resolve_node_paths():

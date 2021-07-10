@@ -42,11 +42,6 @@ static func _get_block_path(id: int) -> String:
 
 
 static func _get_vehicle_path(path: String) -> String:
-	# Benchmark results using `openssl speed md5 sha1 sha256` on Ryzen 2700X:
-	# type     16 bytes    64 bytes    256 bytes   1024 bytes   8192 bytes   16384 bytes
-	# md5     155147.70k  362559.25k   644235.01k   794531.16k   850507.09k   853650.09k
-	# sha1    276964.39k  747917.50k  1506915.66k  2014328.83k  2226528.26k  2242155.86k
-	# sha256  233705.44k  629702.74k  1328235.43k  1842770.94k  2076098.56k  2087589.21k
 	return _THUMBNAIL_DIRECTORY \
 		.plus_file(_VEHICLE_DIRECTORY) \
 		.plus_file(path.sha1_text() + ".png")
@@ -76,10 +71,16 @@ func _create_block_thumbnail(id: int, callback: FuncRef, arguments: Array) -> vo
 	print("Generating block thumbnail for ", id)
 	var path := _get_block_path(id)
 	mi.scale = Vector3.ONE / max(block.aabb.size.x, max(block.aabb.size.y, block.aabb.size.z))
+	mi.translation = (-block.aabb.position - block.aabb.size / 2 + Vector3(0.5, 0.5, 0.5)) * mi.scale * BLOCK_SCALE
+	print("   ", block.aabb, mi.translation)
 	mi.mesh = block.mesh
 	if block.editor_node != null:
 		var node: Spatial = block.editor_node.duplicate()
 		node.transform = mi.transform
+		node.set_color(Color.white)
+		node.set("team_color", OwnWar.ALLY_COLOR)
+		if node.has_method("set_preview_mode"):
+			node.set_preview_mode(true)
 		tn.add_child(node)
 	yield(VisualServer, "frame_post_draw")
 	yield(VisualServer, "frame_post_draw")

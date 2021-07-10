@@ -60,7 +60,9 @@ fov = 30.0
 [node name="DirectionalLight" type="DirectionalLight" parent="Panel/ViewportContainer/Viewport"]
 transform = Transform( 0.866025, -0.17101, 0.469846, 0, 0.939693, 0.34202, -0.5, -0.296198, 0.813798, 0, 0, 0 )
 
-[node name="MeshInstance" type="MeshInstance" parent="Panel/ViewportContainer/Viewport"]
+[node name="Spatial" type="Spatial" parent="Panel/ViewportContainer/Viewport"]
+
+[node name="MeshInstance" type="MeshInstance" parent="Panel/ViewportContainer/Viewport/Spatial"]
 pause_mode = 1
 mesh = ExtResource( 1 )
 material/0 = null
@@ -74,7 +76,7 @@ script = ExtResource( 7 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-preview_mesh = NodePath("../ViewportContainer/Viewport/MeshInstance")
+preview_mesh = NodePath("../ViewportContainer/Viewport/Spatial/MeshInstance")
 block_item = ExtResource( 5 )
 _category_list = NodePath("Box/Categories/Box")
 _block_list = NodePath("Box/Blocks/Box")
@@ -112,17 +114,4 @@ custom_constants/vseparation = 0
 custom_constants/hseparation = 0
 script = ExtResource( 8 )
 
-[node name="Cancel" type="Button" parent="." instance=ExtResource( 4 )]
-anchor_left = 0.98
-anchor_top = 0.02
-anchor_right = 0.98
-anchor_bottom = 0.02
-margin_left = -40.0
-margin_bottom = 40.0
-rect_min_size = Vector2( 40, 40 )
-size_flags_horizontal = 0
-size_flags_vertical = 0
-text = "x"
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="Cancel" parent="." instance=ExtResource( 4 )]

@@ -43,11 +43,11 @@ shader_param/outline_color = Color( 1, 0, 0, 1 )
 
 [sub_resource type="SpatialMaterial" id=2]
 
-[sub_resource type="ViewportTexture" id=14]
+[sub_resource type="ViewportTexture" id=3]
 flags = 4
 
 [sub_resource type="SpatialMaterial" id=4]
-albedo_texture = SubResource( 14 )
+albedo_texture = SubResource( 3 )
 
 [sub_resource type="QuadMesh" id=5]
 size = Vector2( 16, 9 )
@@ -117,9 +117,9 @@ size = Vector3( 0.25, 0.25, 0.25 )
 [node name="Designer" type="Node"]
 pause_mode = 2
 script = ExtResource( 14 )
-camera_path = NodePath("Camera")
-data_path = "user://vehicles/one-block.owv"
 test_map = ExtResource( 21 )
+data_path = "user://vehicles/one-block.owv"
+camera_path = NodePath("Camera")
 
 [node name="Outline" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.5, 0.5 )
@@ -166,7 +166,7 @@ cull_mask = 2147483776
 
 [node name="Mesh" type="MeshInstance" parent="Camera/Box/Viewport/Camera"]
 pause_mode = 1
-transform = Transform( 0.945729, -0.0479753, 0.321394, 0.163176, 0.925416, -0.34202, -0.281015, 0.375902, 0.883022, 0.675385, -0.287656, -0.690228 )
+transform = Transform( -0.945729, -0.0479754, -0.321394, -0.163176, 0.925417, 0.34202, 0.281015, 0.375902, -0.883022, 0.675385, -0.287656, -0.690228 )
 layers = 128
 material_override = SubResource( 2 )
 mesh = ExtResource( 23 )
@@ -448,6 +448,7 @@ stream = ExtResource( 19 )
 [node name="OwnWar_Settings_Applier" type="Node" parent="."]
 script = ExtResource( 47 )
 environment = NodePath("../WorldEnvironment")
+
 [connection signal="add_color" from="." to="Color picker" method="add_color"]
 [connection signal="add_editor_node" from="." to="Offset" method="add_child"]
 [connection signal="add_layer" from="." to="HUD/Layers" method="add_layer"]
@@ -458,10 +459,10 @@ environment = NodePath("../WorldEnvironment")
 [connection signal="block_removed" from="." to="Room/Monitor/Viewport/Stats" method="block_removed"]
 [connection signal="change_color" from="." to="Color picker" method="change_color"]
 [connection signal="error" from="." to="Error window" method="show_error"]
-[connection signal="ghost_block" from="." to="Offset/Ghost" method="ghost_block"]
 [connection signal="ghost_block" from="." to="Camera/Box/Viewport/Camera/Mesh" method="ghost_block"]
-[connection signal="ghost_color" from="." to="Offset/Ghost" method="ghost_color"]
+[connection signal="ghost_block" from="." to="Offset/Ghost" method="ghost_block"]
 [connection signal="ghost_color" from="." to="Camera/Box/Viewport/Camera/Mesh" method="ghost_color"]
+[connection signal="ghost_color" from="." to="Offset/Ghost" method="ghost_color"]
 [connection signal="ghost_normal" from="." to="Offset/Block face highlight" method="set_normal"]
 [connection signal="ghost_position" from="." to="Offset/Ghost" method="set_translation"]
 [connection signal="ghost_position" from="." to="Offset/Block face highlight" method="set_translation"]
@@ -469,9 +470,9 @@ environment = NodePath("../WorldEnvironment")
 [connection signal="ghost_valid" from="." to="Offset/Block face highlight" method="set_valid"]
 [connection signal="ghost_visible" from="." to="Offset/Ghost" method="set_visible"]
 [connection signal="ghost_visible" from="." to="Offset/Block face highlight" method="set_visible"]
-[connection signal="open_window" from="." to="Color picker" method="open_window"]
 [connection signal="open_window" from="." to="Settings" method="open_window"]
 [connection signal="open_window" from="." to="Inventory" method="open_window"]
+[connection signal="open_window" from="." to="Color picker" method="open_window"]
 [connection signal="play_click_effect" from="." to="Sounds/Click" method="play"]
 [connection signal="play_fail_effect" from="." to="Sounds/Fail place or remove" method="play"]
 [connection signal="play_place_effect" from="." to="Sounds/Place block" method="play"]
