@@ -29,4 +29,5 @@ __meta__ = {
 }
 
 [node name="Blocks" type="Node" parent="."]
+
 [connection signal="value_changed" from="Rotation" to="." method="set_rotation"]

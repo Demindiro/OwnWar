@@ -19,6 +19,7 @@ script = ExtResource( 6 )
 [node name="Base" type="Spatial" parent="Client"]
 transform = Transform( 0.9, 0, 0, 0, 1, 0, 0, 0, 0.9, 0, 0.125, 0 )
 script = ExtResource( 3 )
+layers = 1
 mesh = ExtResource( 7 )
 use_color = true
 color = Color( 1, 1, 1, 1 )
@@ -33,6 +34,7 @@ texture = ExtResource( 1 )
 [node name="Base" type="Spatial" parent="Editor"]
 transform = Transform( 0.9, 0, 0, 0, 1, 0, 0, 0, 0.9, 0, 0.125, 0 )
 script = ExtResource( 3 )
+layers = 1
 mesh = ExtResource( 7 )
 use_color = true
 color = Color( 1, 1, 1, 1 )

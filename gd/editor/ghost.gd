@@ -5,6 +5,14 @@ var manager := OwnWar_BlockManager.new()
 
 onready var orig_translation = translation
 
+export var make_transparent := true
+
+
+func _ready():
+	# Forgetting to do this is entirely my own fault but still: fuck you Godot give
+	# per-instance parameters already fucking god damn it
+	material_override = material_override.duplicate()
+
 
 func ghost_block(id: int) -> void:
 	var block = manager.get_block(id)
@@ -15,14 +23,15 @@ func ghost_block(id: int) -> void:
 		var n = block.editor_node.duplicate()
 		add_child(n)
 		for c in Util.get_children_recursive(n):
-			if c is VisualInstance:
+			if "layers" in c:
 				c.layers = layers
 		n.transform = Transform()
 		if n.has_method("set_color"):
-			n.set_color(material_override.albedo_color)
+			#n.set_color(material_override.albedo_color)
+			n.set_color(Color.white)
 		n.set("team_color", OwnWar.ALLY_COLOR)
-		if n.has_method("set_transparency"):
-			n.set_transparency(material_override.albedo_color.a)
+		if n.has_method("set_transparent"):
+			n.set_transparent(make_transparent)
 		if n.has_method("set_preview_mode"):
 			n.set_preview_mode(true)
 
@@ -34,8 +43,12 @@ func ghost_block(id: int) -> void:
 
 
 func ghost_color(color: Color) -> void:
-	color.a = material_override.albedo_color.a
 	material_override.albedo_color = color
+	var i = 0;
+	for c in get_children():
+		i += 1
+		if c.has_method("set_color"):
+			c.set_color(color)
 
 
 func ghost_rotation(rotation: int) -> void:

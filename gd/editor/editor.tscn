@@ -30,6 +30,8 @@
 [ext_resource path="res://editor/hud/error_window.tscn" type="PackedScene" id=28]
 [ext_resource path="res://addons/ui/417794__lorenzothegreat__error.wav" type="AudioStream" id=29]
 [ext_resource path="res://ui/font_big_title.tres" type="DynamicFont" id=30]
+[ext_resource path="res://effects/team_metal.tres" type="Material" id=31]
+[ext_resource path="res://effects/team_metal_transparent.tres" type="Material" id=32]
 [ext_resource path="res://addons/ui/23909__nightflame__swinging-staff-whoosh/422503__nightflame__swinging-staff-whoosh-low-09.wav" type="AudioStream" id=44]
 [ext_resource path="res://settings/applier.gd" type="Script" id=47]
 [ext_resource path="res://effects/outline/outline.tscn" type="PackedScene" id=48]
@@ -41,20 +43,18 @@ shader = ExtResource( 49 )
 shader_param/size = 5.0
 shader_param/outline_color = Color( 1, 0, 0, 1 )
 
-[sub_resource type="SpatialMaterial" id=2]
-
-[sub_resource type="ViewportTexture" id=3]
+[sub_resource type="ViewportTexture" id=2]
 flags = 4
 
-[sub_resource type="SpatialMaterial" id=4]
-albedo_texture = SubResource( 3 )
+[sub_resource type="SpatialMaterial" id=3]
+albedo_texture = SubResource( 2 )
 
-[sub_resource type="QuadMesh" id=5]
+[sub_resource type="QuadMesh" id=4]
 size = Vector2( 16, 9 )
 
-[sub_resource type="World" id=6]
+[sub_resource type="World" id=5]
 
-[sub_resource type="Shader" id=7]
+[sub_resource type="Shader" id=6]
 code = "shader_type spatial;
 
 uniform vec4 color: hint_color;
@@ -89,37 +89,33 @@ void fragment() {
 	//ALPHA = f;
 }"
 
-[sub_resource type="ShaderMaterial" id=8]
-shader = SubResource( 7 )
+[sub_resource type="ShaderMaterial" id=7]
+shader = SubResource( 6 )
 shader_param/color = Color( 0, 0.858824, 1, 1 )
 shader_param/refraction = 0.095
 shader_param/wave_speed = 0.6
 shader_param/emission_exponent = 1.706
 shader_param/emission_factor = 10.0
 
-[sub_resource type="QuadMesh" id=9]
+[sub_resource type="QuadMesh" id=8]
 size = Vector2( 48.5, 38 )
 
-[sub_resource type="PlaneMesh" id=10]
+[sub_resource type="PlaneMesh" id=9]
 custom_aabb = AABB( 0, 0, 0, 50, 0, 50 )
 size = Vector2( 1, 1 )
 
-[sub_resource type="QuadMesh" id=11]
+[sub_resource type="QuadMesh" id=10]
 size = Vector2( 1.25, 1.25 )
 
-[sub_resource type="SpatialMaterial" id=12]
-flags_transparent = true
-albedo_color = Color( 1, 1, 1, 0.498039 )
-
-[sub_resource type="CubeMesh" id=13]
+[sub_resource type="CubeMesh" id=11]
 size = Vector3( 0.25, 0.25, 0.25 )
 
 [node name="Designer" type="Node"]
 pause_mode = 2
 script = ExtResource( 14 )
 test_map = ExtResource( 21 )
-data_path = "user://vehicles/one-block.owv"
 camera_path = NodePath("Camera")
+data_path = "user://vehicles/one-block.owv"
 
 [node name="Outline" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.5, 0.5 )
@@ -130,7 +126,7 @@ material = SubResource( 1 )
 main_camera_path = NodePath("../../Camera")
 
 [node name="Camera" type="Camera" parent="."]
-process_priority = -1
+process_priority = 1
 transform = Transform( -1, -1.5632e-13, -3.25842e-07, -1.62921e-07, 0.866025, 0.5, 2.82187e-07, 0.5, -0.866025, 10, 5.09171, 0 )
 cull_mask = 1
 far = 200.0
@@ -140,6 +136,7 @@ actions = PoolStringArray( "editor_move_left", "editor_move_right", "editor_move
 aabb = AABB( -2, 0.55, -2, 42, 39, 45 )
 
 [node name="RT" type="RemoteTransform" parent="Camera"]
+process_priority = -1
 transform = Transform( -1, -1.62921e-07, 2.82187e-07, -1.42109e-13, 0.866025, 0.5, -3.25842e-07, 0.5, -0.866025, 10, -4.40955, -2.54585 )
 remote_path = NodePath("../Box/Viewport/Camera")
 
@@ -162,16 +159,20 @@ gui_disable_input = true
 [node name="Camera" type="Camera" parent="Camera/Box/Viewport"]
 process_priority = 1
 transform = Transform( 1, 5.68434e-14, -1.13687e-13, -1.98952e-13, 1, -2.98023e-08, 3.41061e-13, 2.98023e-08, 1, 9.53674e-07, 9.53674e-07, -2.6226e-06 )
+visible = false
 cull_mask = 2147483776
 
 [node name="Mesh" type="MeshInstance" parent="Camera/Box/Viewport/Camera"]
 pause_mode = 1
 transform = Transform( -0.945729, -0.0479754, -0.321394, -0.163176, 0.925417, 0.34202, 0.281015, 0.375902, -0.883022, 0.675385, -0.287656, -0.690228 )
+visible = false
 layers = 128
-material_override = SubResource( 2 )
+material_override = ExtResource( 31 )
+cast_shadow = 0
 mesh = ExtResource( 23 )
 material/0 = null
 script = ExtResource( 22 )
+make_transparent = false
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = ExtResource( 11 )
@@ -211,14 +212,14 @@ spot_angle = 90.0
 
 [node name="Monitor" type="MeshInstance" parent="Room"]
 transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -14.49, 16.5, 11.5 )
-material_override = SubResource( 4 )
-mesh = SubResource( 5 )
+material_override = SubResource( 3 )
+mesh = SubResource( 4 )
 material/0 = null
 script = ExtResource( 6 )
 
 [node name="Viewport" type="Viewport" parent="Room/Monitor"]
 size = Vector2( 512, 256 )
-world = SubResource( 6 )
+world = SubResource( 5 )
 render_target_v_flip = true
 
 [node name="Stats" parent="Room/Monitor/Viewport" instance=ExtResource( 5 )]
@@ -233,8 +234,8 @@ transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 12.5, 0
 
 [node name="Window" type="MeshInstance" parent="Room"]
 transform = Transform( 1, 0, 0, 0, -0.977626, 0.210352, 0, -0.210352, -0.977626, 12.5, 19.9864, 40.6222 )
-material_override = SubResource( 8 )
-mesh = SubResource( 9 )
+material_override = SubResource( 7 )
+mesh = SubResource( 8 )
 material/0 = null
 
 [node name="Sun" type="DirectionalLight" parent="Room"]
@@ -244,7 +245,7 @@ light_energy = 0.5
 
 [node name="Floor" type="MeshInstance" parent="."]
 material_override = ExtResource( 8 )
-mesh = SubResource( 10 )
+mesh = SubResource( 9 )
 material/0 = null
 script = ExtResource( 16 )
 
@@ -262,13 +263,13 @@ script = ExtResource( 12 )
 [node name="Mesh" type="MeshInstance" parent="Offset/Block face highlight"]
 transform = Transform( 1.01, 0, 0, 0, 1.01, 0, 0, 0, 1.01, 0, 0, -0.499 )
 material_override = ExtResource( 10 )
-mesh = SubResource( 11 )
+mesh = SubResource( 10 )
 material/0 = null
 
 [node name="Ghost" type="MeshInstance" parent="Offset"]
 transform = Transform( 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, -1 )
-material_override = SubResource( 12 )
-mesh = SubResource( 13 )
+material_override = ExtResource( 32 )
+mesh = SubResource( 11 )
 material/0 = null
 script = ExtResource( 22 )
 
@@ -459,7 +460,6 @@ environment = NodePath("../WorldEnvironment")
 [connection signal="block_removed" from="." to="Room/Monitor/Viewport/Stats" method="block_removed"]
 [connection signal="change_color" from="." to="Color picker" method="change_color"]
 [connection signal="error" from="." to="Error window" method="show_error"]
-[connection signal="ghost_block" from="." to="Camera/Box/Viewport/Camera/Mesh" method="ghost_block"]
 [connection signal="ghost_block" from="." to="Offset/Ghost" method="ghost_block"]
 [connection signal="ghost_color" from="." to="Camera/Box/Viewport/Camera/Mesh" method="ghost_color"]
 [connection signal="ghost_color" from="." to="Offset/Ghost" method="ghost_color"]

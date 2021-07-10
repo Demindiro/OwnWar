@@ -258,17 +258,17 @@ impl VoxelMesh {
 		SubMesh::new(block, index, a, coordinate, rotation)
 	}
 
-	pub fn set_transparency(&mut self, alpha: f32) {
+	pub fn set_transparent(&mut self, enable: bool) {
 		for (&color, (material, _, _)) in self.meshes.iter() {
 			unsafe {
 				let mut color = Self::tuple_to_color(color);
-				color.a = alpha;
+				color.a = if enable { crate::constants::TRANSPARENT_BLOCK_ALPHA } else { 1.0 };
 				let material = material.assume_safe();
 				material.set_albedo(color);
-				material.set_feature(SpatialMaterial::FEATURE_TRANSPARENT, alpha < 1.0);
+				material.set_feature(SpatialMaterial::FEATURE_TRANSPARENT, enable);
 				// BLEND_MODE_MIX causes flickering and BLEND_MODE_ADD looks bad, but
 				// at least it doesn't flicker...
-				material.set_blend_mode(if alpha < 1.0 {
+				material.set_blend_mode(if enable {
 					SpatialMaterial::BLEND_MODE_ADD
 				} else {
 					SpatialMaterial::BLEND_MODE_MIX

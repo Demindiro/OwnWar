@@ -7,7 +7,14 @@ var color_node_paths := []
 var transparency_node_paths := []
 var team_glow_node_paths := []
 
+const MESH_CACHE = {}
 
+export var solid_material: Material = preload("res://effects/team_metal.tres")
+export var solid_team_glow: Material = preload("res://effects/team_glow.tres")
+export var transparent_material: Material = preload("res://effects/team_metal_transparent.tres")
+export var transparent_team_glow: Material = preload("res://effects/team_glow_transparent.tres")
+
+var transparent = false
 var team_color: Color
 
 
@@ -96,25 +103,37 @@ func set_color(color: Color) -> void:
 				sprite.modulate = color
 
 
-func set_transparency(alpha: float) -> void:
-	for path in transparency_node_paths + team_glow_node_paths:
+func set_transparent(enable: bool) -> void:
+	if transparent == enable:
+		return
+	transparent = enable
+
+	for path in transparency_node_paths:
 		var node: GeometryInstance = get_node(path)
 		var mi := node as MeshInstance
 		if mi != null:
-			mi.mesh = mi.mesh.duplicate()
-			for i in mi.mesh.get_surface_count():
-				var base_mat := mi.mesh.surface_get_material(i)
-				assert(base_mat != null, "base_mat is null. Check if the node has already been added")
-				assert(base_mat is SpatialMaterial, "TODO: handle other material types")
-				var color := (base_mat as SpatialMaterial).albedo_color
-				color.a = alpha
-				var mat := MaterialCache.get_material(color, base_mat)
-				mi.mesh.surface_set_material(i, mat)
+			var mesh = MESH_CACHE.get(mi.mesh)
+			if mesh == null:
+				mesh = mi.mesh.duplicate()
+				for i in mi.mesh.get_surface_count():
+					mi.mesh.surface_set_material(i, transparent_material)
+				MESH_CACHE[mi.mesh] = mesh
+			mi.mesh = mesh
 		else:
 			var sprite := node as Sprite3D
 			if sprite != null:
 				sprite.transparent = true
-				sprite.modulate.a *= alpha
+				sprite.modulate.a = 0.25 if enable else 1.0
+	for path in team_glow_node_paths:
+		var mi = get_node(path)
+		if mi != null:
+			var mesh = MESH_CACHE.get(mi.mesh)
+			if mesh == null:
+				mesh = mi.mesh.duplicate()
+				for i in mi.mesh.get_surface_count():
+					mi.mesh.surface_set_material(i, transparent_material)
+				MESH_CACHE[mi.mesh] = mesh
+			mi.mesh = mesh
 
 
 func _ready() -> void:

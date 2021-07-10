@@ -8,6 +8,7 @@
 #![feature(new_uninit)]
 
 mod block;
+mod constants;
 mod editor;
 mod rotation;
 mod util;

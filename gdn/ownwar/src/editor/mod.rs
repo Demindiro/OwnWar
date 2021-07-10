@@ -24,7 +24,6 @@ mod godot {
 	type Vec3<T> = Vector3D<T, euclid::UnknownUnit>;
 
 	const GRID_SIZE: u8 = 37;
-	const LAYER_TRANSPARENCY: f32 = 0.25;
 	const MAIN_MENU: &str = "res://start_menu/main.tscn";
 
 	#[derive(NativeClass)]
@@ -268,7 +267,6 @@ mod godot {
 			} else if pressed("editor_place_block", true) {
 				match self.place_block(owner) {
 					Ok((pos, _)) => {
-						godot_dbg!(self.rotation);
 						let pos = convert_vec(pos).to_variant();
 						let id = self.selected_block.get().to_variant();
 						owner.emit_signal("block_placed", &[id, pos]);
@@ -630,29 +628,29 @@ mod godot {
 				return;
 			}
 			if let Some((mesh, nodes)) = self.layers.get_mut(index as usize) {
-				fn set_nodes_alpha(nodes: &HashMap<Vec3<u8>, Ref<Spatial>>, alpha: f32) {
+				fn set_nodes_alpha(nodes: &HashMap<Vec3<u8>, Ref<Spatial>>, enable: bool) {
 					for node in nodes.values() {
 						unsafe {
 							let node = node.assume_safe();
-							if node.has_method("set_transparency") {
-								node.call("set_transparency", &[alpha.to_variant()]);
+							if node.has_method("set_transparent") {
+								node.call("set_transparent", &[enable.to_variant()]);
 							}
 						}
 					}
 				}
 				unsafe {
 					mesh.assume_safe()
-						.map_mut(|mesh, _| mesh.set_transparency(1.0))
+						.map_mut(|mesh, _| mesh.set_transparent(false))
 						.unwrap();
 				}
-				set_nodes_alpha(nodes, 1.0);
+				set_nodes_alpha(nodes, false);
 				let (mesh, nodes) = &self.layers[self.selected_layer as usize];
 				unsafe {
 					mesh.assume_safe()
-						.map_mut(|mesh, _| mesh.set_transparency(LAYER_TRANSPARENCY))
+						.map_mut(|mesh, _| mesh.set_transparent(true))
 						.unwrap();
 				}
-				set_nodes_alpha(nodes, LAYER_TRANSPARENCY);
+				set_nodes_alpha(nodes, true);
 				self.selected_layer = index;
 				owner.emit_signal("select_layer", &[index.to_variant()]);
 				self.create_outline(owner);
@@ -882,7 +880,7 @@ mod godot {
 					origin: convert_vec(position),
 					basis: rotation.basis().scaled(&Vec3::new(4.0, 4.0, 4.0)),
 				});
-				node.set("team_color", Color::rgb(0.0, 1.0, 0.976471));
+				node.set("team_color", crate::constants::ALLY_COLOR.to_variant());
 				if node.has_method("set_color") {
 					unsafe {
 						node.call("set_color", &[color.to_variant()]);

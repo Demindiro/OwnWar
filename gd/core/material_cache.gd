@@ -17,6 +17,7 @@ static func get_material(color: Color, base_material: Material = null) -> Materi
 			sm.roughness = 0.4
 			sm.albedo_color = color
 			sm.flags_transparent = color.a < 0.999
+			sm.params_blend_mode = SpatialMaterial.BLEND_MODE_MIX if color.a >= 0.999 else SpatialMaterial.BLEND_MODE_ADD
 		else:
 			assert(false, "TODO handle other material types somehow")
 		dict[color] = material

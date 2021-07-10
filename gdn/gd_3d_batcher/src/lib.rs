@@ -16,11 +16,13 @@ lazy_static! {
 		id_counter: 0,
 		no_color_map: HashMap::new(),
 		color_map: HashMap::new(),
-		enable_culling: true,
+		enable_culling: false,
 	});
 	static ref MANAGERS: RwLock<Vec<Ref<Node>>> = RwLock::new(Vec::new());
 	static ref EXITING: RwLock<bool> = RwLock::new(false);
 }
+
+type Layers = u32;
 
 struct NodeEntry {
 	id: usize,
@@ -36,8 +38,8 @@ struct MultiMeshEntry {
 
 struct State {
 	id_counter: usize,
-	no_color_map: HashMap<(Ref<World>, Ref<Mesh>), MultiMeshEntry>,
-	color_map: HashMap<(Ref<World>, Ref<Mesh>), MultiMeshEntry>,
+	no_color_map: HashMap<(Ref<World>, Ref<Mesh>, Layers), MultiMeshEntry>,
+	color_map: HashMap<(Ref<World>, Ref<Mesh>, Layers), MultiMeshEntry>,
 	enable_culling: bool,
 }
 
@@ -51,16 +53,21 @@ struct BatchedMeshManager {}
 #[register_with(Self::register)]
 struct BatchedMeshInstance {
 	#[property(
-		before_set = "Self::pre_change_mesh",
-		after_set = "Self::post_change_mesh"
+		before_set = "Self::remove_instance",
+		after_set = "Self::add_instance"
 	)]
 	mesh: Option<Ref<Mesh>>,
 	id: Option<usize>,
 	#[property(
-		before_set = "Self::toggling_use_color",
-		after_set = "Self::toggled_use_color"
+		before_set = "Self::remove_instance",
+		after_set = "Self::add_instance"
 	)]
 	use_color: bool,
+	#[property(
+		before_set = "Self::remove_instance",
+		after_set = "Self::add_instance"
+	)]
+	layers: Layers,
 	color: [u8; 4],
 }
 
@@ -140,7 +147,7 @@ impl BatchedMeshManager {
 			return;
 		};
 
-		for ((_, mesh), entry) in map.no_color_map.iter_mut() {
+		for ((_, mesh, _), entry) in map.no_color_map.iter_mut() {
 			let mut count = 0usize;
 			let mut w = entry.visualserver_data.write();
 			let aabb = unsafe { mesh.assume_safe().get_aabb() };
@@ -164,7 +171,7 @@ impl BatchedMeshManager {
 			vs.multimesh_set_visible_instances(entry.multimesh_rid, count as i64);
 			vs.multimesh_set_as_bulk_array(entry.multimesh_rid, entry.visualserver_data.clone());
 		}
-		for ((_, mesh), entry) in map.color_map.iter_mut() {
+		for ((_, mesh, _), entry) in map.color_map.iter_mut() {
 			let mut count = 0usize;
 			let mut w = entry.visualserver_data.write();
 			let aabb = unsafe { mesh.assume_safe().get_aabb() };
@@ -222,6 +229,7 @@ impl BatchedMeshInstance {
 			mesh: None,
 			id: None,
 			use_color: false,
+			layers: 1,
 			color: [255; 4],
 		}
 	}
@@ -231,9 +239,11 @@ impl BatchedMeshInstance {
 		debug_assert_eq!(self.id, None);
 		if let Some(mesh) = &self.mesh {
 			if self.visible(owner) {
+				assert!(self.id.is_none(), "Instance is added more than once!");
 				self.id = Some(add_instance(
 					owner.get_world().expect("World is None"),
 					mesh.clone(),
+					self.layers,
 					owner.cast_instance().unwrap().claim(),
 					self.use_color,
 				));
@@ -247,6 +257,7 @@ impl BatchedMeshInstance {
 			remove_instance(
 				&owner.get_world().expect("World is None"),
 				self.mesh.as_ref().expect("Mesh is None"),
+				self.layers,
 				id,
 				self.use_color,
 			);
@@ -261,6 +272,7 @@ impl BatchedMeshInstance {
 				remove_instance(
 					&owner.get_world().expect("World is None"),
 					self.mesh.as_ref().expect("Mesh is None"),
+					self.layers,
 					id,
 					self.use_color,
 				);
@@ -271,6 +283,7 @@ impl BatchedMeshInstance {
 					self.id = Some(add_instance(
 						owner.get_world().expect("World is None"),
 						mesh.clone(),
+						self.layers,
 						owner.cast_instance().unwrap().claim(),
 						self.use_color,
 					));
@@ -279,45 +292,23 @@ impl BatchedMeshInstance {
 		}
 	}
 
-	fn pre_change_mesh(&mut self, owner: TRef<Spatial>) {
+	fn remove_instance(&mut self, owner: TRef<Spatial>) {
 		if let Some(id) = self.id {
-			remove_instance(
-				&owner.get_world().expect("World is None"),
-				self.mesh.as_ref().expect("Mesh is None"),
-				id,
-				self.use_color,
-			);
+			let mesh = self.mesh.as_ref().expect("Mesh is None");
+			let world = owner.get_world().expect("World is None");
+			remove_instance(&world, &mesh, self.layers, id, self.use_color);
 			self.id = None;
 		}
 	}
 
-	fn post_change_mesh(&mut self, owner: TRef<Spatial>) {
-		if self.visible(owner) {
-			if let Some(mesh) = &self.mesh {
-				self.id = Some(add_instance(
-					owner.get_world().expect("World is None"),
-					mesh.clone(),
-					owner.cast_instance().unwrap().claim(),
-					self.use_color,
-				));
-			}
-		}
-	}
-
-	fn toggling_use_color(&mut self, owner: TRef<Spatial>) {
-		if let Some(id) = self.id {
-			let mesh = self.mesh.as_ref().expect("Mesh is None");
-			let world = owner.get_world().expect("World is None");
-			remove_instance(&world, &mesh, id, self.use_color);
-		}
-	}
-
-	fn toggled_use_color(&mut self, owner: TRef<Spatial>) {
+	fn add_instance(&mut self, owner: TRef<Spatial>) {
 		if let Some(mesh) = &self.mesh {
 			if self.visible(owner) {
+				assert!(self.id.is_none(), "Instance is added more than once!");
 				self.id = Some(add_instance(
 					owner.get_world().expect("World is None"),
 					mesh.clone(),
+					self.layers,
 					owner.cast_instance().unwrap().claim(),
 					self.use_color,
 				));
@@ -325,31 +316,18 @@ impl BatchedMeshInstance {
 		}
 	}
 
-	fn gd_get_color(&self, _owner: TRef<Spatial>) -> Color {
+	fn gd_get_color(&self, _r: TRef<Spatial>) -> Color {
 		let [r, g, b, a] = self.color;
 		let (r, g, b, a) = (r as f32, g as f32, b as f32, a as f32);
 		let (r, g, b, a) = (r / 255.0, g / 255.0, b / 255.0, a / 255.0);
 		Color::rgba(r, g, b, a)
 	}
 
-	fn gd_set_color(&mut self, owner: TRef<Spatial>, color: Color) {
+	fn gd_set_color(&mut self, _: TRef<Spatial>, color: Color) {
 		let Color { r, g, b, a } = color;
 		let (r, g, b, a) = (r * 255.0, g * 255.0, b * 255.0, a * 255.0);
 		let (r, g, b, a) = (r as u8, g as u8, b as u8, a as u8);
 		self.color = [r, g, b, a];
-		if self.use_color {
-			if let Some(id) = self.id {
-				let mesh = self.mesh.as_ref().expect("Mesh is None");
-				let world = owner.get_world().expect("World is None");
-				remove_instance(&world, mesh, id, self.use_color);
-				self.id = Some(add_instance(
-					world,
-					mesh.clone(),
-					owner.cast_instance().unwrap().claim(),
-					self.use_color,
-				));
-			}
-		}
 	}
 
 	fn visible(&self, owner: TRef<Spatial>) -> bool {
@@ -360,9 +338,13 @@ impl BatchedMeshInstance {
 fn add_instance(
 	world: Ref<World>,
 	mesh: Ref<Mesh>,
+	layers: Layers,
 	node: Instance<BatchedMeshInstance, Shared>,
 	use_color: bool,
 ) -> usize {
+
+	//prinln!("add_instance    {:?}, {:?}, {:?}, {:?}", 
+
 	let vs = unsafe { VisualServer::godot_singleton() };
 	let mut map = MULTI_MESHES.write().expect("Failed to access MULTI_MESHES");
 	let id = map.id_counter;
@@ -380,7 +362,7 @@ fn add_instance(
 
 	let scenario = unsafe { world.assume_safe().scenario() };
 
-	let entry = map.entry((world, mesh.clone())).or_insert_with(|| {
+	let entry = map.entry((world, mesh.clone(), layers)).or_insert_with(|| {
 		let mm_rid = vs.multimesh_create();
 		let mesh_rid = unsafe { mesh.assume_safe().get_rid() };
 		vs.multimesh_set_mesh(mm_rid, mesh_rid);
@@ -402,6 +384,7 @@ fn add_instance(
 		vs.instance_set_scenario(inst_rid, scenario);
 		vs.instance_set_base(inst_rid, mm_rid);
 		vs.instance_set_visible(inst_rid, true);
+		vs.instance_set_layer_mask(inst_rid, layers.into());
 		#[cfg(feature = "verbose")]
 		godot_print!("Adding {:?} & {:?}", inst_rid, mm_rid);
 		MultiMeshEntry {
@@ -444,7 +427,13 @@ fn add_instance(
 	id
 }
 
-fn remove_instance(world: &Ref<World>, mesh: &Ref<Mesh>, id: usize, uses_color: bool) {
+fn remove_instance(
+	world: &Ref<World>,
+	mesh: &Ref<Mesh>,
+	layers: Layers,
+	id: usize,
+	uses_color: bool,
+) {
 	let vs = unsafe { VisualServer::godot_singleton() };
 	let mut map = MULTI_MESHES.write().expect("Failed to access MULTI_MESHES");
 	let map = if uses_color {
@@ -453,7 +442,7 @@ fn remove_instance(world: &Ref<World>, mesh: &Ref<Mesh>, id: usize, uses_color: 
 		&mut map.no_color_map
 	};
 	// TODO find a way to do this without cloning
-	let key = &(world.clone(), mesh.clone());
+	let key = &(world.clone(), mesh.clone(), layers);
 	let entry = map.get_mut(key).expect("Entry not found");
 	let index = entry
 		.nodes
