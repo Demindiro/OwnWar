@@ -185,7 +185,8 @@ impl super::Body {
 			destroy_disconnected |= dd;
 		}
 		self.damage_events = evts;
-		body_destroyed || (destroy_disconnected && self.destroy_disconnected_blocks(shared, destroyed))
+		body_destroyed
+			|| (destroy_disconnected && self.destroy_disconnected_blocks(shared, destroyed))
 	}
 
 	/// Returns `true` if the body is destroyed.
@@ -662,7 +663,7 @@ impl super::Body {
 				}
 			}
 
-			self.children.iter_mut().enumerate().for_each(|(i, b)| {
+			self.children.iter_mut().for_each(|b| {
 				b.destroy(shared);
 			});
 

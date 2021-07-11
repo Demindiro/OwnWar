@@ -306,7 +306,7 @@ impl Body {
 					.set_translation(Vector3::zero())
 			};
 			let mut rev_body_map = [0xff; 256]; // 0xff is easier to spot as "wrong"
-			//for i in tree.into_iter() {
+									//for i in tree.into_iter() {
 			for i in tree.iter().copied() {
 				let i = usize::from(i);
 				if let Some(mut child) = bodies[i].take() {

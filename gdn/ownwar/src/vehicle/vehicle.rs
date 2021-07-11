@@ -866,7 +866,13 @@ impl Vehicle {
 		// Only do this on local vehicles, as actual firing events & projectiles are handled
 		// separately.
 		if self.mode.is_local() {
-			if controller.fire() && self.shared.weapons.len() > 0 {
+			let weapon_count = self
+				.shared
+				.weapons
+				.iter()
+				.filter_map(Option::as_ref)
+				.count();
+			if controller.fire() && weapon_count > 0 {
 				if delay == 0 {
 					let prev_index = next;
 					if self.weapon_fire_volley {
@@ -885,8 +891,8 @@ impl Vehicle {
 						delay += VIRTUAL_TICKS_PER_SECOND * 4;
 					} else {
 						// Fire one weapon at a time.
-						let d = VIRTUAL_TICKS_PER_SECOND
-							/ u16::try_from(self.shared.weapons.len().min(4)).unwrap();
+						let d =
+							VIRTUAL_TICKS_PER_SECOND / u16::try_from(weapon_count.min(4)).unwrap();
 						while {
 							next += 1;
 							if usize::from(next) >= self.shared.weapons.len() {
