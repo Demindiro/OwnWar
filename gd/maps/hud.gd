@@ -128,7 +128,7 @@ func _set_camera() -> void:
 			var p = _camera_ray.get_collision_point()
 			if col.has_meta("ownwar_vehicle_index"):
 				var v = vehicles[col.get_meta("ownwar_vehicle_index")]
-				p = v.raycast(col.get_meta("ownwar_body_index"), p, basis.y * 10000)
+				p = v.raycast(col.get_meta("ownwar_body_index"), p, -basis.z * 1000)
 				if p != null:
 					player_vehicle.aim_at = p
 					break
