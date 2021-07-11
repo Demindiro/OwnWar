@@ -38,6 +38,7 @@ func fire() -> bool:
 
 
 puppetsync func launch_projectile(pos: Vector3, rot: Vector3, vel: Vector3, id) -> void:
+	$Fire.play()
 	var quat := Quat(rot.x, rot.y, rot.z, sqrt(abs(1.0 - rot.length_squared())))
 	var transform = Transform(Basis(quat), pos)
 	var n = projectile.instance()

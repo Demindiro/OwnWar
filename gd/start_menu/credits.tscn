@@ -92,16 +92,16 @@ custom_constants/margin_left = 40
 custom_constants/margin_bottom = 40
 
 [node name="Box" type="VBoxContainer" parent="Box/Engine/Box"]
-margin_left = 348.0
-margin_top = 79.0
-margin_right = 1372.0
-margin_bottom = 856.0
+margin_left = 476.0
+margin_top = 131.0
+margin_right = 1244.0
+margin_bottom = 804.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
 alignment = 1
 
 [node name="Made in" type="ToolButton" parent="Box/Engine/Box/Box"]
-margin_right = 1024.0
+margin_right = 768.0
 margin_bottom = 26.0
 mouse_default_cursor_shape = 2
 custom_fonts/font = ExtResource( 6 )
@@ -114,8 +114,8 @@ url = "https://godotengine.org"
 
 [node name="China" type="TextureButton" parent="Box/Engine/Box/Box"]
 margin_top = 36.0
-margin_right = 1024.0
-margin_bottom = 450.0
+margin_right = 768.0
+margin_bottom = 346.0
 mouse_default_cursor_shape = 2
 size_flags_horizontal = 4
 texture_normal = ExtResource( 7 )
@@ -131,10 +131,10 @@ __meta__ = {
 url = "https://godotengine.org"
 
 [node name="Just kidding" type="Label" parent="Box/Engine/Box/Box"]
-margin_left = 254.0
-margin_top = 460.0
-margin_right = 770.0
-margin_bottom = 777.0
+margin_left = 126.0
+margin_top = 356.0
+margin_right = 642.0
+margin_bottom = 673.0
 size_flags_horizontal = 4
 custom_fonts/font = ExtResource( 8 )
 text = "Copyright (c) 2007-2021 Juan Linietsky, Ariel Manzur.
@@ -160,6 +160,7 @@ SOFTWARE."
 valign = 2
 
 [node name="Physics" type="ScrollContainer" parent="Box"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0
@@ -168,8 +169,8 @@ margin_right = -4.0
 margin_bottom = -4.0
 
 [node name="Box" type="MarginContainer" parent="Box/Physics"]
-margin_right = 1712.0
-margin_bottom = 3601.0
+margin_right = 1720.0
+margin_bottom = 3535.0
 size_flags_horizontal = 7
 size_flags_vertical = 7
 custom_constants/margin_right = 40
@@ -178,16 +179,16 @@ custom_constants/margin_left = 40
 custom_constants/margin_bottom = 40
 
 [node name="Box" type="VBoxContainer" parent="Box/Physics/Box"]
-margin_left = 329.0
+margin_left = 465.0
 margin_top = 40.0
-margin_right = 1383.0
-margin_bottom = 3561.0
+margin_right = 1255.0
+margin_bottom = 3495.0
 size_flags_horizontal = 4
 size_flags_vertical = 7
 alignment = 1
 
 [node name="Rapier" type="ToolButton" parent="Box/Physics/Box/Box"]
-margin_right = 1054.0
+margin_right = 790.0
 margin_bottom = 26.0
 mouse_default_cursor_shape = 2
 custom_fonts/font = ExtResource( 6 )
@@ -200,8 +201,8 @@ url = "https://rapier.rs/"
 
 [node name=">" type="TextureButton" parent="Box/Physics/Box/Box"]
 margin_top = 36.0
-margin_right = 1054.0
-margin_bottom = 298.0
+margin_right = 790.0
+margin_bottom = 232.0
 mouse_default_cursor_shape = 2
 size_flags_horizontal = 4
 texture_normal = ExtResource( 12 )
@@ -217,15 +218,15 @@ __meta__ = {
 url = "https://rapier.rs/"
 
 [node name="Bullet" type="HBoxContainer" parent="Box/Physics/Box/Box"]
-margin_top = 308.0
-margin_right = 1054.0
-margin_bottom = 3521.0
+margin_top = 242.0
+margin_right = 790.0
+margin_bottom = 3455.0
 size_flags_vertical = 3
 alignment = 1
 
 [node name="Heh" type="Label" parent="Box/Physics/Box/Box/Bullet"]
-margin_left = 299.0
-margin_right = 755.0
+margin_left = 167.0
+margin_right = 623.0
 margin_bottom = 3213.0
 size_flags_horizontal = 5
 size_flags_vertical = 7
@@ -905,7 +906,6 @@ __meta__ = {
 url = "https://creativecommons.org/publicdomain/zero/1.0/"
 
 [node name="Sounds" type="ScrollContainer" parent="Box"]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0
@@ -928,9 +928,9 @@ __meta__ = {
 
 [node name="Box" type="GridContainer" parent="Box/Sounds/Box"]
 margin_left = 40.0
-margin_top = 362.0
+margin_top = 300.0
 margin_right = 1680.0
-margin_bottom = 572.0
+margin_bottom = 635.0
 size_flags_horizontal = 5
 size_flags_vertical = 4
 custom_constants/vseparation = 40
@@ -1155,6 +1155,99 @@ __meta__ = {
 url = "https://freesound.org/people/MrAuralization/"
 
 [node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/DC gear motor"]
+margin_top = 72.0
+margin_right = 520.0
+margin_bottom = 85.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 8 )
+text = "CC BY 3.0"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/licenses/by/3.0/"
+
+[node name="Sci-Fi Gun - Mega Charge Cannon" type="VBoxContainer" parent="Box/Sounds/Box/Box"]
+margin_left = 1120.0
+margin_top = 125.0
+margin_right = 1640.0
+margin_bottom = 210.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Sci-Fi Gun - Mega Charge Cannon"]
+margin_right = 520.0
+margin_bottom = 31.0
+rect_pivot_offset = Vector2( 1616.52, -199.469 )
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 3 )
+text = "Sci-Fi Gun - Mega Charge Cannon"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://freesound.org/people/dpren/sounds/440147/"
+
+[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Sci-Fi Gun - Mega Charge Cannon"]
+margin_top = 41.0
+margin_right = 520.0
+margin_bottom = 62.0
+mouse_default_cursor_shape = 2
+text = "Made by dpren"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://freesound.org/people/MrAuralization/"
+
+[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Sci-Fi Gun - Mega Charge Cannon"]
+margin_top = 72.0
+margin_right = 520.0
+margin_bottom = 85.0
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 8 )
+text = "CC0"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/publicdomain/zero/1.0/"
+
+[node name="sci-fi cannon" type="VBoxContainer" parent="Box/Sounds/Box/Box"]
+margin_top = 250.0
+margin_right = 520.0
+margin_bottom = 335.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/sci-fi cannon"]
+margin_right = 520.0
+margin_bottom = 31.0
+rect_pivot_offset = Vector2( 1616.52, -199.469 )
+mouse_default_cursor_shape = 2
+custom_fonts/font = ExtResource( 3 )
+text = "sci-fi cannon"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://freesound.org/people/humanoide9000/sounds/422440/"
+
+[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/sci-fi cannon"]
+margin_top = 41.0
+margin_right = 520.0
+margin_bottom = 62.0
+mouse_default_cursor_shape = 2
+text = "Made by Luis Humanoide"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://freesound.org/people/MrAuralization/"
+
+[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/sci-fi cannon"]
 margin_top = 72.0
 margin_right = 520.0
 margin_bottom = 85.0

@@ -34,6 +34,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0283924, 0.621764 )
 stream = ExtResource( 6 )
 max_db = -10.0
 bus = "Effects"
+attenuation_filter_db = -15.0
 doppler_tracking = 1
 __meta__ = {
 "_editor_description_": ""
@@ -46,6 +47,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0283924, 0.621764 )
 stream = ExtResource( 6 )
 max_db = -10.0
 bus = "Effects"
+attenuation_filter_db = -15.0
 __meta__ = {
 "_editor_description_": ""
 }
@@ -57,6 +59,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0283924, 0.621764 )
 stream = ExtResource( 6 )
 max_db = -10.0
 bus = "Effects"
+attenuation_filter_db = -15.0
 __meta__ = {
 "_editor_description_": ""
 }

@@ -1,18 +1,41 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://blocks/block_instance.gd" type="Script" id=1]
 [ext_resource path="res://blocks/weapons/plasma/cannon_server.gd" type="Script" id=2]
 [ext_resource path="res://blocks/weapons/plasma/projectile.tscn" type="PackedScene" id=3]
 [ext_resource path="res://blocks/set_color.gd" type="Script" id=4]
+[ext_resource path="res://blocks/weapons/plasma/fire.ogg" type="AudioStream" id=5]
 
-[sub_resource type="SpatialMaterial" id=3]
+[sub_resource type="SpatialMaterial" id=1]
 emission_enabled = true
-emission = Color( 9.92188, 10, 0, 1 )
+emission = Color( 0, 0, 0, 5 )
 emission_energy = 1.0
 emission_operator = 0
 emission_on_uv2 = false
 
 [sub_resource type="ArrayMesh" id=2]
+resource_name = "Plane"
+surfaces/0 = {
+"aabb": AABB( -0.0312502, -0.28125, -0.03125, 0.0625, 1.00136e-05, 0.06251 ),
+"array_data": PoolByteArray( 47, 0, 0, 189, 0, 0, 144, 190, 245, 255, 255, 60, 0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 0, 60, 161, 255, 255, 60, 0, 0, 144, 190, 245, 255, 255, 60, 0, 127, 0, 0, 127, 0, 0, 127, 0, 60, 0, 60, 161, 255, 255, 60, 0, 0, 144, 190, 6, 0, 0, 189, 0, 127, 0, 0, 127, 0, 0, 127, 0, 60, 0, 0, 47, 0, 0, 189, 0, 0, 144, 190, 6, 0, 0, 189, 0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 0, 0 ),
+"array_index_data": PoolByteArray( 0, 0, 2, 0, 1, 0, 0, 0, 3, 0, 2, 0 ),
+"blend_shape_data": [  ],
+"format": 97559,
+"index_count": 6,
+"material": SubResource( 1 ),
+"primitive": 4,
+"skeleton_aabb": [  ],
+"vertex_count": 4
+}
+
+[sub_resource type="SpatialMaterial" id=3]
+emission_enabled = true
+emission = Color( 0, 0, 0, 5 )
+emission_energy = 1.0
+emission_operator = 0
+emission_on_uv2 = false
+
+[sub_resource type="ArrayMesh" id=4]
 resource_name = "Plane"
 surfaces/0 = {
 "aabb": AABB( -0.0312502, -0.28125, -0.03125, 0.0625, 1.00136e-05, 0.06251 ),
@@ -38,6 +61,13 @@ projectile = ExtResource( 3 )
 [node name="Spawn" type="Position3D" parent="Server"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.624637 )
 
+[node name="Fire" type="AudioStreamPlayer3D" parent="Server"]
+stream = ExtResource( 5 )
+unit_db = 1.0
+bus = "Effects"
+attenuation_filter_db = -4.0
+doppler_tracking = 2
+
 [node name="Client" type="Spatial" parent="."]
 script = ExtResource( 4 )
 color_node_0 = null
@@ -61,5 +91,5 @@ team_glow_node_1 = null
 
 [node name="Plane" type="MeshInstance" parent="Editor"]
 transform = Transform( 1.37344, 0, 0, 0, 5.96046e-08, -1.07087, 0, 1, 6.38288e-08, 0, -0.0589396, 0.535911 )
-mesh = SubResource( 2 )
+mesh = SubResource( 4 )
 material/0 = null

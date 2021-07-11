@@ -17,6 +17,8 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	fade += delta
 	if fade >= 1.0:
+		visible = false
+	if fade >= 2.0:
 		queue_free()
 	else:
 		material_override.set_shader_param("fade", fade)

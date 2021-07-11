@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://blocks/weapons/plasma/explosion.gd" type="Script" id=1]
+[ext_resource path="res://blocks/weapons/plasma/explosion.ogg" type="AudioStream" id=2]
 
 [sub_resource type="Shader" id=1]
 code = "shader_type spatial;
@@ -158,6 +159,7 @@ shader = SubResource( 1 )
 shader_param/color = Color( 0, 0.6, 1, 1 )
 shader_param/emission_strength = 5.0
 shader_param/fade = 0.0
+shader_param/time_offset = 0.0
 
 [sub_resource type="SphereMesh" id=3]
 radius = 0.25
@@ -168,4 +170,12 @@ material_override = SubResource( 2 )
 mesh = SubResource( 3 )
 material/0 = null
 script = ExtResource( 1 )
-layer = 1
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource( 2 )
+unit_db = 1.0
+unit_size = 2.0
+max_db = 5.0
+pitch_scale = 0.5
+autoplay = true
+attenuation_filter_db = -6.0
