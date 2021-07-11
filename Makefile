@@ -1,7 +1,12 @@
-GODOT=godot-headless
-TARGET_LINUX?=x86_64-unknown-linux-gnu
-TARGET_OSX?=x86_64-apple-darwin
-TARGET_WINDOWS?=x86_64-pc-windows-gnu
+default: build
+
+include godot_linux.mk
+
+OUTPUT_DIR     ?= bin/
+GODOT          ?= godot-headless
+TARGET_LINUX   ?= x86_64-unknown-linux-gnu
+TARGET_OSX     ?= x86_64-apple-darwin
+TARGET_WINDOWS ?= x86_64-pc-windows-gnu
 
 
 build: build-linux build-osx build-windows
@@ -9,21 +14,21 @@ build: build-linux build-osx build-windows
 build-linux: build-gdn-linux
 	@echo Building Linux
 	@mkdir -p bin/linux/
-	@cd gd && $(GODOT) --export linux ../bin/linux/ownwar > /dev/null 2> /dev/null
+	@cd gd && $(GODOT) --export linux ../bin/linux/ownwar
 	@echo Compressing Linux
 	@cd bin && tar zcf ownwar-linux.tar.gz linux/
 
 build-osx: build-gdn-osx
 	@echo Building OS X
 	@mkdir -p bin/osx/
-	@cd gd && $(GODOT) --export osx ../bin/ownwar-osx.zip > /dev/null 2> /dev/null
+	@cd gd && $(GODOT) --export osx ../bin/ownwar-osx.zip
 
 build-windows: build-gdn-windows
 	@echo Building Windows
 	@mkdir -p bin/windows/
-	@cd gd && $(GODOT) --export windows ../bin/windows/ownwar.exe > /dev/null 2> /dev/null
+	@cd gd && $(GODOT) --export windows ../bin/windows/ownwar.exe
 	@echo Compressing Windows
-	@cd bin && zip -r ownwar-windows.zip windows/ > /dev/null
+	@cd bin && zip -r ownwar-windows.zip windows/
 
 
 build-gdn: build-gdn-ownwar build-gdn-hterrain build-gdn-3d_batcher

@@ -6,6 +6,8 @@ bits = 64
 optimize = 'speed'
 production = True
 use_lto = True
+debug_symbols = False
+
 gdscript = True
 minizip = True
 #custom_modules = 
@@ -14,12 +16,13 @@ disable_advanced_gui = False
 pulseaudio = True
 udev = True # I guess? idk
 touch = True # Sure?
+
 module_bmp_enabled = True
 module_bullet_enabled = False # We use Rapier
 module_camera_enabled = True
 module_csg_enabled = False
 module_cvtt_enabled = True
-module_dds_enabled: True
+module_dds_enabled = True
 module_denoise_enabled = True
 module_enet_enabled = True
 module_etc_enabled = True
@@ -37,7 +40,7 @@ module_minimp3_enabled = True
 module_mobile_vr_enabled = False
 module_mono_enabled = False
 module_ogg_enabled = True
-module_opensimplex_enabled: True # TODO verify we're actually using it
+module_opensimplex_enabled = True # TODO verify we're actually using it
 module_opus_enabled = True
 module_pluggable_physics_enabled = True
 module_pvr_enabled = True
