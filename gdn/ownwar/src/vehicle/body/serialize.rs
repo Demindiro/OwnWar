@@ -57,17 +57,21 @@ impl super::Body {
 			body.serialize(out)?;
 		}
 
-		// Serialize position & velocity
-		let (tr, mut rot) = self.position();
-		let lv = self.linear_velocity();
-		let av = self.angular_velocity();
-		if rot.r < 0.0 {
-			rot = Quat::quaternion(-rot.i, -rot.j, -rot.k, -rot.r);
+		if !self.is_destroyed() {
+			// If alive, serialize position & velocity
+			// If not alive, just skip. The receiving end can figure out whether this data
+			// exists or not by checking if the current cost / alive blocks is > 0.
+			let (tr, mut rot) = self.position();
+			let lv = self.linear_velocity();
+			let av = self.angular_velocity();
+			if rot.r < 0.0 {
+				rot = Quat::quaternion(-rot.i, -rot.j, -rot.k, -rot.r);
+			}
+			Self::serialize_vector3(out, tr)?;
+			Self::serialize_vector3(out, Vector3D::new(rot.i, rot.j, rot.k))?;
+			Self::serialize_vector3(out, lv)?;
+			Self::serialize_vector3(out, av)?;
 		}
-		Self::serialize_vector3(out, tr)?;
-		Self::serialize_vector3(out, Vector3D::new(rot.i, rot.j, rot.k))?;
-		Self::serialize_vector3(out, lv)?;
-		Self::serialize_vector3(out, av)?;
 
 		Ok(())
 	}
@@ -205,6 +209,7 @@ impl super::Body {
 			parent_anchors: Vec::new(),
 		};
 
+		// FIXME this leaks memory if the body is dead.
 		slf.create_godot_nodes();
 		slf.correct_mass();
 
@@ -217,17 +222,19 @@ impl super::Body {
 			}
 		}
 
-		// Get & apply position & velocity
-		let tr = Self::deserialize_vector3(in_)?;
-		let rot = Self::deserialize_vector3(in_)?;
-		let w = (1.0 - rot.square_length()).max(0.0).sqrt();
-		let rot = Quat::quaternion(rot.x, rot.y, rot.z, w);
-		let lv = Self::deserialize_vector3(in_)?;
-		let av = Self::deserialize_vector3(in_)?;
+		if !slf.is_destroyed() {
+			// If alive, get & apply position & velocity
+			let tr = Self::deserialize_vector3(in_)?;
+			let rot = Self::deserialize_vector3(in_)?;
+			let w = (1.0 - rot.square_length()).max(0.0).sqrt();
+			let rot = Quat::quaternion(rot.x, rot.y, rot.z, w);
+			let lv = Self::deserialize_vector3(in_)?;
+			let av = Self::deserialize_vector3(in_)?;
 
-		slf.set_position(tr, rot);
-		slf.set_linear_velocity(lv);
-		slf.set_angular_velocity(av);
+			slf.set_position(tr, rot);
+			slf.set_linear_velocity(lv);
+			slf.set_angular_velocity(av);
+		}
 
 		Ok(slf)
 	}

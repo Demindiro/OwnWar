@@ -23,7 +23,13 @@ impl super::Body {
 			return;
 		};
 
+		// Update cost
+		let block = block::Block::get(id).expect("Invalid ID");
+		let cost = block.cost.get() as u32;
+		self.max_cost += cost;
+
 		let hp = if let Some(hp) = self.health[index as usize] {
+			self.cost += cost;
 			hp
 		} else {
 			return;
@@ -47,10 +53,6 @@ impl super::Body {
 		let rotation = self.rotations[index as usize];
 
 		let owner = unsafe { self.node.unwrap().assume_safe() };
-		let block = block::Block::get(id).expect("Invalid ID");
-
-		let cost = block.cost.get() as u32;
-		self.max_cost += cost;
 
 		// Update voxel mesh
 		#[cfg(not(feature = "server"))]
@@ -228,7 +230,6 @@ impl super::Body {
 	pub(in super::super) fn init(&mut self, shared: &mut vehicle::Shared) -> Result<(), InitError> {
 		// Setup total cost, health ... & find special blocks.
 		self.correct_mass();
-		self.cost = self.max_cost();
 		let middle = (self.size().to_f32() + Vector3::one()) * block::SCALE / 2.0;
 		unsafe {
 			self.collision_shape_instance

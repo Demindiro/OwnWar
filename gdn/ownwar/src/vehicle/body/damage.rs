@@ -146,16 +146,17 @@ impl super::Body {
 	/// Returns `true` if the body is destroyed.
 	#[must_use]
 	pub(super) fn apply_damage_events(&mut self, shared: &mut Shared) -> bool {
-		if self.node.is_none() {
+		if self.is_destroyed() {
 			return true;
 		}
 
 		let mut destroyed = Vec::new();
 		let mut destroy_disconnected = false;
 		let mut evts = mem::take(&mut self.damage_events);
+		let mut body_destroyed = false;
 		for evt in evts.drain(..) {
 			let mut dd = false;
-			let body_destroyed = match evt {
+			body_destroyed |= match evt {
 				DamageEvent::Ray {
 					damage,
 					origin,
@@ -181,13 +182,10 @@ impl super::Body {
 					&mut dd,
 				),
 			};
-			if body_destroyed {
-				return true;
-			}
 			destroy_disconnected |= dd;
 		}
 		self.damage_events = evts;
-		destroy_disconnected && self.destroy_disconnected_blocks(shared, destroyed)
+		body_destroyed || (destroy_disconnected && self.destroy_disconnected_blocks(shared, destroyed))
 	}
 
 	/// Returns `true` if the body is destroyed.
@@ -383,7 +381,7 @@ impl super::Body {
 						node.add_child(n, false);
 					}
 
-					// Properly cleanup multinlocks
+					// Properly cleanup multiblocks
 					if let DamageBlockResult::MultiBlockDestroyed { multi_block, .. } = result {
 						#[cfg(not(feature = "server"))]
 						let body = multi_block.destroy(shared, &mut self.interpolation_states[..]);
@@ -558,16 +556,19 @@ impl super::Body {
 			let vm = unsafe { vm.assume_safe() };
 			vm.map_mut(|vm, _| vm.remove_block(voxel)).unwrap();
 		}
-		self.cost -= block::Block::get(self.ids[index as usize].unwrap())
-			.unwrap()
-			.cost
-			.get() as u32;
-		if let Some(hp) = self.health[index as usize] {
+		if let Some(hp) = self.health[index as usize].take() {
+			self.cost -= block::Block::get(self.ids[index as usize].unwrap())
+				.unwrap()
+				.cost
+				.get() as u32;
 			let hp = hp.get();
-			self.health[index as usize] = None;
+
+			let _ = self.remove_all_anchors(voxel);
+
 			if hp & 0x8000 != 0 {
 				let index = hp & 0x7fff;
 				let block = self.multi_blocks[index as usize].take();
+
 				if let Some(block) = block {
 					#[cfg(not(feature = "server"))]
 					let body = block.destroy(shared, &mut self.interpolation_states[..]);
@@ -575,6 +576,12 @@ impl super::Body {
 					let body = block.destroy(shared);
 					body.map(|body| self.children[usize::from(body)].destroy(shared));
 				} else {
+					// FIXME can happen when actual multiblocks are introduced. How should we
+					// deal with it?
+					// Just setting all indices to None with reverse_indices will break this
+					// function as it may disconnect otherwise connected sections. Unless
+					// we move cf below upwards and call it. Which will still cause this error
+					// in some circumstances so nvm.
 					godot_error!("Multi block is None but HP is not zero!");
 				}
 			}
@@ -582,7 +589,7 @@ impl super::Body {
 		let size = self.size;
 		let cf = |x, y, z, index_offset: i32| {
 			let index = index as i32 + index_offset;
-			if self.health[index as usize] != None {
+			if self.health[index as usize].is_some() {
 				let voxel = convert_vec(voxel.to_i32() + Vector3D::new(x, y, z));
 				self.destroy_connected_blocks(shared, voxel, index as u32)
 			}
@@ -638,6 +645,8 @@ impl super::Body {
 	/// and children.
 	pub(in super::super) fn destroy(&mut self, shared: &mut vehicle::Shared) {
 		if let Some(node) = self.node.take() {
+			self.cost = 0;
+
 			// Destroy multiblocks.
 			#[cfg(not(feature = "server"))]
 			{
@@ -653,7 +662,7 @@ impl super::Body {
 				}
 			}
 
-			self.children.iter_mut().for_each(|b| {
+			self.children.iter_mut().enumerate().for_each(|(i, b)| {
 				b.destroy(shared);
 			});
 
@@ -685,6 +694,6 @@ impl super::Body {
 
 	/// Check whether the body is completely destroyed.
 	pub(in super::super) fn is_destroyed(&self) -> bool {
-		self.node.is_none()
+		self.cost == 0
 	}
 }

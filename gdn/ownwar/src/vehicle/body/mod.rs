@@ -305,7 +305,9 @@ impl Body {
 					.assume_safe()
 					.set_translation(Vector3::zero())
 			};
-			for i in tree.into_iter() {
+			let mut rev_body_map = [0xff; 256]; // 0xff is easier to spot as "wrong"
+			//for i in tree.into_iter() {
+			for i in tree.iter().copied() {
 				let i = usize::from(i);
 				if let Some(mut child) = bodies[i].take() {
 					let bte = mem::take(&mut anchors[i]);
@@ -318,14 +320,18 @@ impl Body {
 							.add_child(&child.node.unwrap(), false);
 					}
 					add_children(bodies, anchors, &mut child, bte)?;
-					for mb in parent.multi_blocks.iter_mut().filter_map(Option::as_mut) {
-						if let Some(v) = mb.anchor_body_index.as_mut() {
-							*v = parent.children.len().try_into().unwrap();
-						}
-					}
+					rev_body_map[i] = parent.children.len().try_into().unwrap();
 					parent.children.push(child);
 				} else {
 					return Err(InitError::CyclicAnchor);
+				}
+			}
+			for mb in parent.multi_blocks.iter_mut().filter_map(Option::as_mut) {
+				if let Some(i) = mb.anchor_body_index.map(usize::from) {
+					// The assert may trigger false positives in extreme cases, hence why it's
+					// debug only
+					debug_assert_ne!(rev_body_map[i], 0xff);
+					mb.anchor_body_index = Some(rev_body_map[i]);
 				}
 			}
 			Ok(())
@@ -343,13 +349,15 @@ impl Body {
 	/// Returns `true` if the body is destroyed.
 	#[must_use]
 	pub fn apply_damage(&mut self, shared: &mut vehicle::Shared) -> bool {
+		// Iterate the children first to ensure damage events are cleared
+		// (important for determinism).
+		self.children_mut().for_each(|b| {
+			let _ = b.apply_damage(shared);
+		});
 		if self.apply_damage_events(shared) {
 			self.destroy(shared);
 			true
 		} else {
-			self.children.iter_mut().for_each(|b| {
-				let _ = b.apply_damage(shared);
-			});
 			false
 		}
 	}
@@ -534,6 +542,7 @@ impl Body {
 		self.max_cost
 	}
 
+	#[track_caller]
 	pub fn position(&self) -> (Vector3, Quat) {
 		let trf = unsafe { self.node().assume_safe().transform() };
 		(trf.origin, trf.basis.to_quat())
