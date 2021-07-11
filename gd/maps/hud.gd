@@ -104,9 +104,11 @@ func _set_camera() -> void:
 	var pos: Vector3 = player_vehicle.get_visual_origin() + camera_offset
 	_camera_terrain_ray.translation = pos
 	pos += basis * (Vector3(0, 0, _camera_zoom))
+
 	_camera_terrain_ray.cast_to = pos - _camera_terrain_ray.translation
 	_camera_terrain_ray.cast_to += _camera_terrain_ray.cast_to.normalized()
 	_camera_terrain_ray.force_raycast_update()
+
 	if _camera_terrain_ray.is_colliding():
 		var r_pos := _camera_terrain_ray.get_collision_point()
 		var r_normal := _camera_terrain_ray.get_collision_normal()
@@ -115,12 +117,32 @@ func _set_camera() -> void:
 			# Multiply factor determined by trial and error
 			# I have no idea why 0.5 is "right"
 			pos = r_pos - _camera_terrain_ray.cast_to.normalized() * 0.5
+
 	_camera.transform = Transform(basis, pos)
 	_camera_ray.force_raycast_update()
-	if _camera_ray.is_colliding():
-		player_vehicle.aim_at = _camera_ray.get_collision_point()
-	else:
-		player_vehicle.aim_at = _camera.transform * Vector3(0, 0, -10000000000)
+	
+	var except_list = []
+	while true:
+		if _camera_ray.is_colliding():
+			var col = _camera_ray.get_collider()
+			var p = _camera_ray.get_collision_point()
+			if col.has_meta("ownwar_vehicle_index"):
+				var v = vehicles[col.get_meta("ownwar_vehicle_index")]
+				p = v.raycast(col.get_meta("ownwar_body_index"), p, basis.y * 10000)
+				if p != null:
+					player_vehicle.aim_at = p
+					break
+				_camera_ray.add_exception(col)
+				except_list.push_back(col)
+				_camera_ray.force_raycast_update()
+			else:
+				player_vehicle.aim_at = p
+				break
+		else:
+			player_vehicle.aim_at = _camera.transform * Vector3(0, 0, -10000000000)
+			break
+	for e in except_list:
+		_camera_ray.remove_exception(e)
 
 
 func set_player_vehicle(vehicle_id) -> void:
@@ -131,6 +153,18 @@ func set_player_vehicle(vehicle_id) -> void:
 	if _camera_ray != null:
 		var aabb: AABB = v.get_aabb()
 		camera_offset.y = aabb.size.y * BLOCK_SCALE + 1
+
+	if false: # TODO doesn't work with the raycast in _set_camera (intersect_ray pls)
+		# Create exception list
+		for c in Util.get_children_recursive(v.get_node()):
+			if c is RigidBody:
+				_camera_terrain_ray.add_exception(c)
+				var e = c.connect("tree_exiting", self, "remove_camera_ray_exception")
+				assert(e == OK)
+
+
+func remove_camera_ray_exception(body):
+	_camera_terrain_ray.remove_exception(body)
 
 
 func set_mouse_mode() -> void:
