@@ -139,8 +139,10 @@ impl super::Body {
 			multi_blocks.push(health.map(|health| MultiBlock {
 				health,
 				server_node: None,
+				#[cfg(not(feature = "server"))]
 				client_node: None,
 				reverse_indices: Box::new([]),
+				#[cfg(not(feature = "server"))]
 				interpolation_state_index: u16::MAX,
 				base_position: Voxel::new(u8::MAX, u8::MAX, u8::MAX),
 				rotation: Rotation::new(0).unwrap(),
@@ -170,12 +172,16 @@ impl super::Body {
 			size,
 
 			node: None,
+			#[cfg(not(feature = "server"))]
 			voxel_mesh: visible.then(Self::create_voxel_mesh),
+			#[cfg(not(feature = "server"))]
 			voxel_mesh_instance: None,
 			collision_shape: Self::create_collision_shape(),
 			collision_shape_instance: None,
 
+			#[cfg(not(feature = "server"))]
 			interpolation_states: Vec::new(),
+			#[cfg(not(feature = "server"))]
 			interpolation_state_dirty: true,
 
 			ids,

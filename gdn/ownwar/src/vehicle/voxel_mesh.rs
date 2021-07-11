@@ -262,7 +262,11 @@ impl VoxelMesh {
 		for (&color, (material, _, _)) in self.meshes.iter() {
 			unsafe {
 				let mut color = Self::tuple_to_color(color);
-				color.a = if enable { crate::constants::TRANSPARENT_BLOCK_ALPHA } else { 1.0 };
+				color.a = if enable {
+					crate::constants::TRANSPARENT_BLOCK_ALPHA
+				} else {
+					1.0
+				};
 				let material = material.assume_safe();
 				material.set_albedo(color);
 				material.set_feature(SpatialMaterial::FEATURE_TRANSPARENT, enable);

@@ -29,13 +29,20 @@ impl super::Body {
 			return;
 		};
 
-		let color = self.colors[index as usize];
-		let color = shared.colors[usize::from(color)];
-		let color = Color::rgb(
-			color.x as f32 / 255.0,
-			color.y as f32 / 255.0,
-			color.z as f32 / 255.0,
-		);
+		// Get color
+		#[cfg(not(feature = "server"))]
+		let color = {
+			let color = self.colors[index as usize];
+			let color = shared.colors[usize::from(color)];
+			Color::rgb(
+				color.x as f32 / 255.0,
+				color.y as f32 / 255.0,
+				color.z as f32 / 255.0,
+			)
+		};
+
+		#[cfg(feature = "server")]
+		let _ = shared; // TODO
 
 		let rotation = self.rotations[index as usize];
 
@@ -45,6 +52,8 @@ impl super::Body {
 		let cost = block.cost.get() as u32;
 		self.max_cost += cost;
 
+		// Update voxel mesh
+		#[cfg(not(feature = "server"))]
 		self.voxel_mesh.as_ref().map(|vm| unsafe {
 			vm.assume_safe().map_mut(|s, _| {
 				s.add_block(block, color, position, rotation);
@@ -58,50 +67,88 @@ impl super::Body {
 			self.parent_anchors.push(position);
 		}
 
-		let bb = InterpolationState::new(block);
-
-		if let Some(bb) = bb {
-			// TODO stop relying on InterpolationState to do the right thing
+		if block.is_multi_block() {
 			assert_eq!(hp.get() & 0x8000, 0x8000);
-			assert!(block.is_multi_block());
-
-			// Initialize server & client node.
-			let basis = rotation.basis();
-			let origin = Vector3::new(
-				position.x as f32 + 0.5,
-				position.y as f32 + 0.5,
-				position.z as f32 + 0.5,
-			) * block::SCALE;
-			let server_node = unsafe { bb.server_node.assume_safe() };
-			let client_node = unsafe { bb.client_node.assume_safe() };
-			server_node.set_name(format!("S {},{},{}", position.x, position.y, position.z));
-			client_node.set_name(format!("C {},{},{}", position.x, position.y, position.z));
-			server_node.set_transform(Transform { basis, origin });
-			client_node.set_transform(Transform { basis, origin });
-			if client_node.has_method("set_color") {
-				unsafe { client_node.call("set_color", &[color.to_variant()]) };
-			}
-			client_node.set("server_node", bb.server_node);
-			client_node.set("team_color", shared.team_color);
-			owner.add_child(bb.server_node, false);
-			owner.add_child(bb.client_node, false);
 
 			// Properly set up multiblock.
 			let mb = self.multi_blocks[usize::from(hp.get() & 0x7fff)]
 				.as_mut()
 				.expect("No multiblock at location");
-			mb.server_node = Some(bb.server_node);
-			mb.client_node = Some(bb.client_node);
 			mb.reverse_indices = Vec::from(&[position][..]).into_boxed_slice();
-			mb.interpolation_state_index = self.interpolation_states.len().try_into().unwrap();
 			mb.base_position = position;
 			mb.rotation = rotation;
 
-			self.interpolation_states.push(Some(bb));
+			// Initialize server & client node
+			if let Some(server_node) = block.server_node {
+				// Create transform
+				let basis = rotation.basis();
+				let origin = Vector3::new(
+					position.x as f32 + 0.5,
+					position.y as f32 + 0.5,
+					position.z as f32 + 0.5,
+				) * block::SCALE;
+				let transform = Transform { basis, origin };
+
+				// Initialize server node
+				let server_node = {
+					let server_node = unsafe {
+						server_node
+							.assume_safe()
+							.duplicate(7)
+							.unwrap()
+							.assume_safe()
+							.cast::<Spatial>()
+							.unwrap()
+					};
+					server_node.set_name(format!("S {},{},{}", position.x, position.y, position.z));
+					server_node.set_transform(transform);
+					let server_node = server_node.claim();
+					owner.add_child(server_node, false);
+					mb.server_node = Some(server_node);
+					server_node
+				};
+				#[cfg(feature = "server")]
+				let _ = server_node;
+
+				// Initialize client node
+				#[cfg(not(feature = "server"))]
+				let client_node = {
+					let client_node = unsafe {
+						block
+							.client_node
+							.unwrap()
+							.assume_safe()
+							.duplicate(7)
+							.unwrap()
+							.assume_safe()
+							.cast::<Spatial>()
+							.unwrap()
+					};
+					client_node.set_as_toplevel(true);
+					client_node.set_name(format!("C {},{},{}", position.x, position.y, position.z));
+					client_node.set_transform(transform);
+					if client_node.has_method("set_color") {
+						unsafe { client_node.call("set_color", &[color.to_variant()]) };
+					}
+					client_node.set("server_node", server_node);
+					client_node.set("team_color", shared.team_color);
+					let client_node = client_node.claim();
+					owner.add_child(client_node, false);
+					mb.client_node = Some(client_node);
+					client_node
+				};
+
+				// Set up interpolation
+				#[cfg(not(feature = "server"))]
+				{
+					let is = InterpolationState::new(server_node, client_node, transform);
+					mb.interpolation_state_index =
+						self.interpolation_states.len().try_into().unwrap();
+					self.interpolation_states.push(Some(is));
+				}
+			}
 		} else {
-			// TODO stop relying on InterpolationState to do the right thing
 			assert_eq!(hp.get() & 0x8000, 0);
-			assert!(!block.is_multi_block());
 			self.health[index as usize] = Some(hp);
 		}
 	}
@@ -117,6 +164,7 @@ impl super::Body {
 			self.collision_shape_instance.is_none(),
 			"This will leak memory"
 		);
+		#[cfg(not(feature = "server"))]
 		assert!(self.voxel_mesh_instance.is_none(), "This will leak memory");
 
 		let node = Ref::<VehicleBody, _>::new();
@@ -134,6 +182,7 @@ impl super::Body {
 		let node = node.into_shared();
 
 		// Add mesh
+		#[cfg(not(feature = "server"))]
 		if let Some(vm) = self.voxel_mesh.as_ref() {
 			let voxel_mesh_instance = Ref::<MeshInstance, Unique>::new();
 			voxel_mesh_instance.set_mesh(vm.base().clone());
@@ -142,17 +191,20 @@ impl super::Body {
 			unsafe { node.assume_safe().add_child(voxel_mesh_instance, false) };
 
 			// Add voxel mesh to interpolation list
-			self.interpolation_states
-				.push(Some(InterpolationState::from(
-					// TODO I don't get why a plain upcast won't work
-					unsafe { node.assume_safe().upcast::<Spatial>().claim() },
-					unsafe {
-						voxel_mesh_instance
-							.assume_safe()
-							.upcast::<Spatial>()
-							.claim()
-					},
-				)));
+			self.interpolation_states.push(Some(InterpolationState::new(
+				// TODO I don't get why a plain upcast won't work
+				unsafe { node.assume_safe().upcast::<Spatial>().claim() },
+				unsafe {
+					voxel_mesh_instance
+						.assume_safe()
+						.upcast::<Spatial>()
+						.claim()
+				},
+				Transform {
+					basis: Basis::identity(),
+					origin: Vector3::zero(),
+				},
+			)));
 
 			self.voxel_mesh_instance = Some(voxel_mesh_instance);
 		};
@@ -167,6 +219,7 @@ impl super::Body {
 	}
 
 	/// Create a voxel mesh
+	#[cfg(not(feature = "server"))]
 	pub(super) fn create_voxel_mesh() -> Instance<VoxelMesh, Shared> {
 		Instance::<VoxelMesh, Unique>::new().into_shared()
 	}

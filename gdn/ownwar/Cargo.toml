@@ -15,6 +15,9 @@ lazy_static = "*"
 godot_rapier3d = { path = "../../../../game-assets/godot/godot_rapier3d/rapier3d" }
 fxhash = "*"
 
+[features]
+server = []
+
 [profile.dev.package."*"]
 opt-level = 1
 # LTO fixes no_mangle symbols being stripped

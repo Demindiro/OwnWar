@@ -10,58 +10,12 @@ pub(super) struct InterpolationState {
 }
 
 impl InterpolationState {
-	pub fn new(block: &block::Block) -> Option<Self> {
-		if let Some(server_node) = block.server_node {
-			let server_node = unsafe {
-				server_node
-					.assume_safe()
-					.duplicate(7)
-					.unwrap()
-					.assume_safe()
-					.cast::<Spatial>()
-					.unwrap()
-			};
-			let client_node = unsafe {
-				block
-					.client_node
-					.unwrap()
-					.assume_safe()
-					.duplicate(7)
-					.unwrap()
-					.assume_safe()
-					.cast::<Spatial>()
-					.unwrap()
-			};
-			client_node.set_as_toplevel(true);
-			Some(Self {
-				server_node: server_node.claim(),
-				client_node: client_node.claim(),
-				previous_transform: Transform {
-					basis: Basis::identity(),
-					origin: Vector3::zero(),
-				},
-				current_transform: Transform {
-					basis: Basis::identity(),
-					origin: Vector3::zero(),
-				},
-			})
-		} else {
-			None
-		}
-	}
-
-	pub fn from(server_node: Ref<Spatial>, client_node: Ref<Spatial>) -> Self {
+	pub fn new(server_node: Ref<Spatial>, client_node: Ref<Spatial>, transform: Transform) -> Self {
 		Self {
 			server_node,
 			client_node,
-			previous_transform: Transform {
-				basis: Basis::identity(),
-				origin: Vector3::zero(),
-			},
-			current_transform: Transform {
-				basis: Basis::identity(),
-				origin: Vector3::zero(),
-			},
+			previous_transform: transform,
+			current_transform: transform,
 		}
 	}
 

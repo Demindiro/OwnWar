@@ -11,6 +11,9 @@ crate-type = ["cdylib"]
 gdnative = "*"
 lazy_static = "*"
 
+[features]
+server = []
+
 [profile.release]
 lto = true
 codegen-units = 1

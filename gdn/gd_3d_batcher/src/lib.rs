@@ -1,16 +1,25 @@
 #![feature(destructuring_assignment)]
 
+#[cfg(not(feature = "server"))]
 mod cull;
 
+#[cfg(not(feature = "server"))]
 use cull::*;
-use gdnative::api::{Engine, Mesh, Node, Object, VisualServer, World};
+use gdnative::api::{Mesh, Node};
+#[cfg(not(feature = "server"))]
+use gdnative::api::{Engine, Object, VisualServer, World};
 use gdnative::prelude::*;
+#[cfg(not(feature = "server"))]
 use lazy_static::lazy_static;
+#[cfg(not(feature = "server"))]
 use std::collections::HashMap;
+#[cfg(not(feature = "server"))]
 use std::sync::RwLock;
 
+#[cfg(not(feature = "server"))]
 const MULTIMESH_ALLOC_STEP: usize = 256;
 
+#[cfg(not(feature = "server"))]
 lazy_static! {
 	static ref MULTI_MESHES: RwLock<State> = RwLock::new(State {
 		id_counter: 0,
@@ -24,11 +33,13 @@ lazy_static! {
 
 type Layers = u32;
 
+#[cfg(not(feature = "server"))]
 struct NodeEntry {
 	id: usize,
 	node: Instance<BatchedMeshInstance, Shared>,
 }
 
+#[cfg(not(feature = "server"))]
 struct MultiMeshEntry {
 	instance_rid: Rid,
 	multimesh_rid: Rid,
@@ -36,6 +47,7 @@ struct MultiMeshEntry {
 	nodes: Vec<NodeEntry>,
 }
 
+#[cfg(not(feature = "server"))]
 struct State {
 	id_counter: usize,
 	no_color_map: HashMap<(Ref<World>, Ref<Mesh>, Layers), MultiMeshEntry>,
@@ -52,26 +64,19 @@ struct BatchedMeshManager {}
 #[inherit(Spatial)]
 #[register_with(Self::register)]
 struct BatchedMeshInstance {
-	#[property(
-		before_set = "Self::remove_instance",
-		after_set = "Self::add_instance"
-	)]
+	#[property(before_set = "Self::remove_instance", after_set = "Self::add_instance")]
 	mesh: Option<Ref<Mesh>>,
+	#[cfg(not(feature = "server"))]
 	id: Option<usize>,
-	#[property(
-		before_set = "Self::remove_instance",
-		after_set = "Self::add_instance"
-	)]
+	#[property(before_set = "Self::remove_instance", after_set = "Self::add_instance")]
 	use_color: bool,
-	#[property(
-		before_set = "Self::remove_instance",
-		after_set = "Self::add_instance"
-	)]
+	#[property(before_set = "Self::remove_instance", after_set = "Self::add_instance")]
 	layers: Layers,
 	color: [u8; 4],
 }
 
-#[methods]
+#[cfg(not(feature = "server"))]
+#[cfg_attr(not(feature = "server"), methods)]
 impl BatchedMeshManager {
 	fn register(builder: &ClassBuilder<Self>) {
 		builder.add_signal(Signal {
@@ -214,7 +219,35 @@ impl BatchedMeshManager {
 	}
 }
 
-#[methods]
+#[cfg(feature = "server")]
+#[cfg_attr(feature = "server", methods)]
+impl BatchedMeshManager {
+	fn register(builder: &ClassBuilder<Self>) {
+		builder.add_signal(Signal {
+			name: "reload",
+			args: &[],
+		});
+		builder
+			.add_property("enable_culling")
+			.with_getter(Self::gd_get_enable_culling)
+			.with_setter(Self::gd_set_enable_culling)
+			.done();
+	}
+
+	fn new(_: TRef<Node>) -> Self {
+		Self {}
+	}
+
+	fn gd_get_enable_culling(&self, _: TRef<Node>) -> bool {
+		false
+	}
+
+	fn gd_set_enable_culling(&mut self, _: TRef<Node>, _: bool) {
+	}
+}
+
+#[cfg(not(feature = "server"))]
+#[cfg_attr(not(feature = "server"), methods)]
 impl BatchedMeshInstance {
 	fn register(builder: &ClassBuilder<Self>) {
 		builder
@@ -224,7 +257,7 @@ impl BatchedMeshInstance {
 			.done();
 	}
 
-	fn new(_owner: TRef<Spatial>) -> Self {
+	fn new(_: TRef<Spatial>) -> Self {
 		Self {
 			mesh: None,
 			id: None,
@@ -316,6 +349,37 @@ impl BatchedMeshInstance {
 		}
 	}
 
+	fn visible(&self, owner: TRef<Spatial>) -> bool {
+		owner.is_inside_tree() && owner.is_visible_in_tree()
+	}
+}
+
+#[cfg(feature = "server")]
+#[cfg_attr(feature = "server", methods)]
+impl BatchedMeshInstance {
+	fn register(builder: &ClassBuilder<Self>) {
+		builder
+			.add_property("color")
+			.with_getter(Self::gd_get_color)
+			.with_setter(Self::gd_set_color)
+			.done();
+	}
+
+	fn new(_: TRef<Spatial>) -> Self {
+		Self {
+			mesh: None,
+			use_color: false,
+			layers: 1,
+			color: [255; 4],
+		}
+	}
+
+	fn remove_instance(&mut self, _: TRef<Spatial>) {}
+
+	fn add_instance(&mut self, _: TRef<Spatial>) {}
+}
+
+impl BatchedMeshInstance {
 	fn gd_get_color(&self, _r: TRef<Spatial>) -> Color {
 		let [r, g, b, a] = self.color;
 		let (r, g, b, a) = (r as f32, g as f32, b as f32, a as f32);
@@ -329,12 +393,9 @@ impl BatchedMeshInstance {
 		let (r, g, b, a) = (r as u8, g as u8, b as u8, a as u8);
 		self.color = [r, g, b, a];
 	}
-
-	fn visible(&self, owner: TRef<Spatial>) -> bool {
-		owner.is_inside_tree() && owner.is_visible_in_tree()
-	}
 }
 
+#[cfg(not(feature = "server"))]
 fn add_instance(
 	world: Ref<World>,
 	mesh: Ref<Mesh>,
@@ -342,8 +403,7 @@ fn add_instance(
 	node: Instance<BatchedMeshInstance, Shared>,
 	use_color: bool,
 ) -> usize {
-
-	//prinln!("add_instance    {:?}, {:?}, {:?}, {:?}", 
+	//prinln!("add_instance    {:?}, {:?}, {:?}, {:?}",
 
 	let vs = unsafe { VisualServer::godot_singleton() };
 	let mut map = MULTI_MESHES.write().expect("Failed to access MULTI_MESHES");
@@ -427,6 +487,7 @@ fn add_instance(
 	id
 }
 
+#[cfg(not(feature = "server"))]
 fn remove_instance(
 	world: &Ref<World>,
 	mesh: &Ref<Mesh>,
@@ -462,6 +523,7 @@ fn remove_instance(
 	}
 }
 
+#[cfg(not(feature = "server"))]
 fn transform_to_array(transform: Transform) -> [f32; 12] {
 	let tb = transform.basis;
 	let to = transform.origin;
@@ -476,6 +538,7 @@ fn init(handle: InitHandle) {
 	handle.add_tool_class::<BatchedMeshManager>();
 }
 
+/*
 fn terminate(_info: &gdnative::TerminateInfo) {
 	{
 		*EXITING.write().expect("Failed to write EXITING") = true;
@@ -491,5 +554,6 @@ fn terminate(_info: &gdnative::TerminateInfo) {
 		}
 	}
 }
+*/
 
 godot_init!(init);

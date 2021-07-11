@@ -10,8 +10,10 @@ pub(in super::super) struct MultiBlock {
 	pub(super) health: NonZeroU32,
 	// TODO fix borrow stuff
 	pub(in super::super) server_node: Option<Ref<Spatial>>,
+	#[cfg(not(feature = "server"))]
 	pub(super) client_node: Option<Ref<Spatial>>,
 	pub(super) reverse_indices: Box<[Voxel]>,
+	#[cfg(not(feature = "server"))]
 	pub(super) interpolation_state_index: u16,
 	pub(super) rotation: Rotation,
 	pub(super) base_position: Voxel,
@@ -38,7 +40,7 @@ impl MultiBlock {
 	pub fn destroy(
 		mut self,
 		shared: &mut vehicle::Shared,
-		interpolation_states: &mut [Option<InterpolationState>],
+		#[cfg(not(feature = "server"))] interpolation_states: &mut [Option<InterpolationState>],
 	) -> Option<u8> {
 		// Remove any nodes to be destroyed from the shared lists.
 		if self.turret_index < u16::MAX {
@@ -71,6 +73,7 @@ impl MultiBlock {
 		}
 
 		// Remove from interpolation list
+		#[cfg(not(feature = "server"))]
 		if self.interpolation_state_index < u16::MAX {
 			interpolation_states[usize::from(self.interpolation_state_index)] = None;
 		}
@@ -85,6 +88,7 @@ impl MultiBlock {
 				}
 			}
 		}
+		#[cfg(not(feature = "server"))]
 		if let Some(cn) = self.client_node.take() {
 			unsafe {
 				cn.assume_safe().queue_free();

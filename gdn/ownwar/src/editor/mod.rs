@@ -1,6 +1,9 @@
+#![cfg_attr(feature = "server", allow(dead_code))]
+
 mod data;
 pub mod serialize;
 
+#[cfg(not(feature = "server"))]
 mod godot {
 
 	const DEBUG_CAMERA_RAY: bool = false;
@@ -1333,6 +1336,10 @@ mod godot {
 }
 
 pub(crate) fn init(handle: gdnative::nativescript::InitHandle) {
+	#[cfg(not(feature = "server"))]
 	handle.add_class::<godot::Editor>();
+	#[cfg(not(feature = "server"))]
 	handle.add_class::<godot::VehicleData>();
+	#[cfg(feature = "server")]
+	let _ = handle;
 }

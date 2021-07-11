@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "server", allow(dead_code))]
+
 mod aabb;
 mod bitarray;
 mod iter_n_dim;

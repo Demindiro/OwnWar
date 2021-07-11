@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "server", allow(dead_code))]
+
 use crate::util::convert_vec;
 use euclid::UnknownUnit;
 use euclid::Vector3D;

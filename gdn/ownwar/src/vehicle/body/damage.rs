@@ -14,6 +14,7 @@ use std::io;
 type Voxel = Vector3D<u8, UnknownUnit>;
 
 const DESTROY_BLOCK_EFFECT_SCENE: &str = "res://vehicles/destroy_block_effect.tscn";
+#[cfg(not(feature = "server"))]
 const DESTROY_BODY_EFFECT_SCENE: &str = "res://vehicles/destroy_body_effect.tscn";
 
 /// Damage event.
@@ -325,6 +326,7 @@ impl super::Body {
 
 		let center = (self.center_of_mass() + Vector3::new(0.5, 0.5, 0.5)) * block::SCALE;
 
+		#[cfg(not(feature = "server"))]
 		unsafe {
 			if let Some(vmi) = self.voxel_mesh_instance {
 				let vmi = vmi.assume_safe();
@@ -368,6 +370,7 @@ impl super::Body {
 				| DamageBlockResult::MultiBlockDestroyed { .. } => {
 					*destroy_disconnected = true;
 					destroyed_blocks.push(voxel);
+					#[cfg(not(feature = "server"))]
 					if let Some(vm) = &self.voxel_mesh {
 						unsafe {
 							vm.assume_safe()
@@ -382,11 +385,12 @@ impl super::Body {
 
 					// Properly cleanup multinlocks
 					if let DamageBlockResult::MultiBlockDestroyed { multi_block, .. } = result {
+						#[cfg(not(feature = "server"))]
 						let body = multi_block.destroy(shared, &mut self.interpolation_states[..]);
+						#[cfg(feature = "server")]
+						let body = multi_block.destroy(shared);
 						// Destroy the connected body, if any.
-						if let Some(body) = body {
-							self.children[usize::from(body)].destroy(shared);
-						}
+						body.map(|body| self.children[usize::from(body)].destroy(shared));
 					}
 
 					Ok(false)
@@ -549,6 +553,7 @@ impl super::Body {
 	fn destroy_connected_blocks(&mut self, shared: &mut Shared, voxel: Voxel, index: u32) {
 		debug_assert_eq!(index, self.get_index(voxel).unwrap());
 		debug_assert_ne!(self.health[index as usize], Some(MAINFRAME_ID));
+		#[cfg(not(feature = "server"))]
 		if let Some(vm) = &self.voxel_mesh {
 			let vm = unsafe { vm.assume_safe() };
 			vm.map_mut(|vm, _| vm.remove_block(voxel)).unwrap();
@@ -564,9 +569,11 @@ impl super::Body {
 				let index = hp & 0x7fff;
 				let block = self.multi_blocks[index as usize].take();
 				if let Some(block) = block {
-					if let Some(body) = block.destroy(shared, &mut self.interpolation_states[..]) {
-						self.children[usize::from(body)].destroy(shared);
-					}
+					#[cfg(not(feature = "server"))]
+					let body = block.destroy(shared, &mut self.interpolation_states[..]);
+					#[cfg(feature = "server")]
+					let body = block.destroy(shared);
+					body.map(|body| self.children[usize::from(body)].destroy(shared));
 				} else {
 					godot_error!("Multi block is None but HP is not zero!");
 				}
@@ -631,35 +638,48 @@ impl super::Body {
 	/// and children.
 	pub(in super::super) fn destroy(&mut self, shared: &mut vehicle::Shared) {
 		if let Some(node) = self.node.take() {
-			let ip = &mut self.interpolation_states;
-			for block in self.multi_blocks.iter_mut() {
-				block.take().map(|b| b.destroy(shared, ip));
+			// Destroy multiblocks.
+			#[cfg(not(feature = "server"))]
+			{
+				let ip = &mut self.interpolation_states;
+				for block in self.multi_blocks.iter_mut() {
+					block.take().map(|b| b.destroy(shared, ip));
+				}
+			}
+			#[cfg(feature = "server")]
+			{
+				for block in self.multi_blocks.iter_mut() {
+					block.take().map(|b| b.destroy(shared));
+				}
 			}
 
 			self.children.iter_mut().for_each(|b| {
 				b.destroy(shared);
 			});
 
-			// Spawn an effect if there are visual effects.
-			if self.voxel_mesh_instance.is_some() {
-				if let Ok(n) = godot::instance_effect(damage::DESTROY_BODY_EFFECT_SCENE) {
-					unsafe {
-						if node.assume_safe().is_inside_tree() {
-							// Doesn't print an error
-							let tree = node.assume_safe().get_tree().unwrap();
-							if let Some(root) = tree.assume_safe().current_scene() {
-								n.set_translation(node.assume_safe().translation());
-								root.assume_safe().add_child(n, false);
+			#[cfg(not(feature = "server"))]
+			{
+				// Spawn an effect if there are visual effects.
+				if self.voxel_mesh_instance.is_some() {
+					if let Ok(n) = godot::instance_effect(damage::DESTROY_BODY_EFFECT_SCENE) {
+						unsafe {
+							if node.assume_safe().is_inside_tree() {
+								// Doesn't print an error
+								let tree = node.assume_safe().get_tree().unwrap();
+								if let Some(root) = tree.assume_safe().current_scene() {
+									n.set_translation(node.assume_safe().translation());
+									root.assume_safe().add_child(n, false);
+								}
 							}
 						}
 					}
 				}
+				self.voxel_mesh_instance = None;
 			}
 
 			// Remove the node itself. This will automatically free the collision
 			// shape, voxel mesh and child body nodes, as those are children.
 			unsafe { node.assume_unique().free() };
-			self.voxel_mesh_instance = None;
 		}
 	}
 

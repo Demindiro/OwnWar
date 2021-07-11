@@ -5,6 +5,10 @@
 pub mod gd {
 	//! The Godot exposed side of the Vehicle object. This is separate to decouple annoying
 	//! Godot implementation details from everything else.
+	//!
+	//! Note that it keeps client-only methods even if configured for servers to reduce the
+	//! risk of unexpected "Method not found" bugs in GDScript. These methods will return
+	//! a default value when queried.
 
 	use super::*;
 	use crate::util::AABB;
@@ -101,7 +105,10 @@ pub mod gd {
 
 		#[export]
 		fn visual_step(&mut self, _: TRef<Reference>, delta: f32) {
+			#[cfg(not(feature = "server"))]
 			self.vehicle.visual_step(delta);
+			#[cfg(feature = "server")]
+			let _ = delta;
 		}
 
 		#[export]
@@ -223,7 +230,14 @@ pub mod gd {
 
 		#[export]
 		fn get_visual_origin(&self, _: TRef<Reference>) -> Vector3 {
-			self.vehicle.body(&[]).unwrap().visual_origin()
+			#[cfg(not(feature = "server"))]
+			{
+				self.vehicle.body(&[]).unwrap().visual_origin()
+			}
+			#[cfg(feature = "server")]
+			{
+				Vector3::zero()
+			}
 		}
 
 		#[export]
@@ -725,6 +739,7 @@ impl Vehicle {
 		false
 	}
 
+	#[cfg(not(feature = "server"))]
 	fn visual_step(&mut self, delta: f32) {
 		self.main_body.as_mut().unwrap().visual_step(delta);
 	}

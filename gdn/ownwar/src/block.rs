@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "server", allow(dead_code))]
+
 use crate::rotation::*;
 use crate::util::{convert_vec, AABB};
 use gdnative::api::{Mesh, Resource};

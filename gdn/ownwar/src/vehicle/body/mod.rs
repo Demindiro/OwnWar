@@ -2,6 +2,7 @@ mod damage;
 mod debug;
 mod godot;
 mod init;
+#[cfg(not(feature = "server"))]
 mod mesh;
 mod multi_block;
 mod packet;
@@ -12,7 +13,9 @@ mod visual;
 pub(super) use damage::DamageEvent;
 pub(super) use multi_block::MultiBlock;
 
+#[cfg(not(feature = "server"))]
 use super::interpolation_state::InterpolationState;
+#[cfg(not(feature = "server"))]
 use super::voxel_mesh::VoxelMesh;
 use super::*;
 use crate::block;
@@ -22,7 +25,9 @@ use crate::util::*;
 use core::cell::Cell;
 use core::mem;
 use euclid::{UnknownUnit, Vector3D};
-use gdnative::api::{BoxShape, CollisionShape, MeshInstance, VehicleBody};
+#[cfg(not(feature = "server"))]
+use gdnative::api::MeshInstance;
+use gdnative::api::{BoxShape, CollisionShape, VehicleBody};
 use gdnative::prelude::*;
 use num_traits::{AsPrimitive, PrimInt};
 use std::convert::{TryFrom, TryInto};
@@ -38,12 +43,16 @@ const COLLISION_MASK: u32 = 1 | 2 | (1 << 7);
 
 pub(super) struct Body {
 	node: Option<Ref<VehicleBody>>,
+	#[cfg(not(feature = "server"))]
 	voxel_mesh: Option<Instance<VoxelMesh, Shared>>,
+	#[cfg(not(feature = "server"))]
 	voxel_mesh_instance: Option<Ref<MeshInstance>>,
 	collision_shape: Ref<BoxShape>,
 	collision_shape_instance: Option<Ref<CollisionShape>>,
 
+	#[cfg(not(feature = "server"))]
 	interpolation_states: Vec<Option<InterpolationState>>,
+	#[cfg(not(feature = "server"))]
 	interpolation_state_dirty: bool,
 
 	offset: Voxel,
@@ -98,20 +107,27 @@ pub enum InitError {
 }
 
 impl Body {
+	// TODO remove the "visible" argument, it's redundant now the "server" feature is a thing.
 	pub fn new(aabb: AABB<u8>, visible: bool) -> Self {
 		let (offset, size) = (aabb.position, aabb.size);
+
+		let _ = visible; // Make it shut up for now.
 
 		use std::iter::repeat;
 		let real_size = (size.x + 1) as usize * (size.y + 1) as usize * (size.z + 1) as usize;
 
 		let mut slf = Self {
 			node: None,
+			#[cfg(not(feature = "server"))]
 			voxel_mesh: visible.then(Self::create_voxel_mesh),
+			#[cfg(not(feature = "server"))]
 			voxel_mesh_instance: None,
 			collision_shape: Self::create_collision_shape(),
 			collision_shape_instance: None,
 
+			#[cfg(not(feature = "server"))]
 			interpolation_states: Vec::new(),
+			#[cfg(not(feature = "server"))]
 			interpolation_state_dirty: true,
 
 			offset,
@@ -341,7 +357,10 @@ impl Body {
 	/// Step this & it's children.
 	pub fn step(&mut self) {
 		// Indicate that interpolation should update the next position.
-		self.interpolation_state_dirty = true;
+		#[cfg(not(feature = "server"))]
+		{
+			self.interpolation_state_dirty = true;
+		}
 
 		self.children.iter_mut().for_each(Self::step);
 	}
@@ -393,8 +412,10 @@ impl Body {
 			self.multi_blocks.push(Some(MultiBlock {
 				health: block.health,
 				server_node: None,
+				#[cfg(not(feature = "server"))]
 				client_node: None,
 				reverse_indices: Box::new([]),
+				#[cfg(not(feature = "server"))]
 				interpolation_state_index: u16::MAX,
 				base_position: Voxel::new(u8::MAX, u8::MAX, u8::MAX),
 				rotation: Rotation::new(0).unwrap(),
