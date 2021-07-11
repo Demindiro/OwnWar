@@ -1,7 +1,7 @@
 class_name BrickAI
 
-var min_distance := 10.0
-var max_distance := 30.0
+var min_distance := 3.0
+var max_distance := 20.0
 
 var vehicle_id = -1
 
@@ -18,7 +18,7 @@ func step(vehicles, _delta: float) -> void:
 	var trf = vehicle.get_node().transform
 
 	# Flip if necessary
-	if trf.basis.y.dot(Vector3.DOWN) > 0.9:
+	if trf.basis.y.dot(Vector3.DOWN) > 0.7:
 		vehicle.flip = true
 
 	# Find nearest enemy
@@ -55,9 +55,9 @@ func step(vehicles, _delta: float) -> void:
 		if angle_diff > PI:
 			angle_diff = -(PI * 2 - angle_diff)
 
-		if angle_diff < -PI / 4:
+		if angle_diff < -PI / 5:
 			vehicle.turn_left = true
-		elif angle_diff > PI / 4:
+		elif angle_diff > PI / 5:
 			vehicle.turn_right = true
 
 		# Apply movement
