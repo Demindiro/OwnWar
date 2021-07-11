@@ -455,6 +455,7 @@ impl Body {
 				if let Some(hp) = self.health[i] {
 					if hp.get() & 0x8000 != 0 {
 						let index = (hp.get() & 0x7fff) as usize;
+						debug_assert!(self.multi_blocks[index].is_some());
 						if let Some(ref block) = self.multi_blocks[index] {
 							Ok(Some(Block::Multi(id, block)))
 						} else {

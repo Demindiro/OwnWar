@@ -687,6 +687,11 @@ impl super::Body {
 				self.voxel_mesh_instance = None;
 			}
 
+			// While it doesn't make much sense to zero out all blocks right now, it'll be useful
+			// if (when) some form of healing is introduced. It also fixes a synchronization issue
+			// with multiblocks right now (which can be fixed while avoiding this but w/e).
+			self.health.fill(None);
+
 			// Remove the node itself. This will automatically free the collision
 			// shape, voxel mesh and child body nodes, as those are children.
 			unsafe { node.assume_unique().free() };
