@@ -31,7 +31,7 @@ enum {
 signal server_list(entries)
 signal server_info(info)
 
-var lobby_address := "209.141.49.112"
+var lobby_address := "107.189.30.116"
 var lobby_port := 39984
 var lobby_peer := PacketPeerUDP.new()
 
