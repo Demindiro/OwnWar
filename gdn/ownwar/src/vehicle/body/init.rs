@@ -312,12 +312,14 @@ impl super::Body {
 		}
 
 		// Setup node tree
-		for body in self.children.iter_mut() {
+		for body in self.children.iter() {
 			unsafe {
-				self.node
-					.unwrap()
-					.assume_safe()
-					.add_child(body.node.unwrap(), false);
+				if let Some(bn) = body.node.as_ref() {
+					self.node
+						.unwrap()
+						.assume_safe()
+						.add_child(bn, false);
+				}
 			}
 		}
 
@@ -329,11 +331,13 @@ impl super::Body {
 	pub(in super::super) fn create_collision_exceptions(&mut self) {
 		// TODO find a way to avoid a temporary buffer
 		let mut nodes = Vec::new();
-		self.iter_all_bodies(&mut |b| nodes.push(b.node().clone()));
+		self.iter_all_bodies(&mut |b| { b.node.clone().map(|bn| nodes.push(bn)); });
 		self.iter_all_bodies(&mut |b| {
 			nodes.iter().for_each(|a| unsafe {
-				if a != b.node() {
-					b.node().assume_safe().add_collision_exception_with(a);
+				if let Some(b) = b.node.as_ref() {
+					if a != b {
+						b.assume_safe().add_collision_exception_with(a);
+					}
 				}
 			})
 		});

@@ -146,14 +146,11 @@ impl super::Body {
 	/// Returns `true` if the body is destroyed.
 	#[must_use]
 	pub(super) fn apply_damage_events(&mut self, shared: &mut Shared) -> bool {
-		if self.is_destroyed() {
-			return true;
-		}
 
 		let mut destroyed = Vec::new();
 		let mut destroy_disconnected = false;
 		let mut evts = mem::take(&mut self.damage_events);
-		let mut body_destroyed = false;
+		let mut body_destroyed = self.is_destroyed();
 
 		let old_mass = self.mass;
 
@@ -332,7 +329,7 @@ impl super::Body {
 
 	pub(super) fn correct_mass(&mut self) {
 		self.calculate_mass();
-		assert_ne!(self.mass, 0.0, "Mass is zero!");
+		//assert_ne!(self.mass, 0.0, "Mass is zero!");
 
 		let center = (self.center_of_mass() + Vector3::new(0.5, 0.5, 0.5)) * block::SCALE;
 
@@ -352,7 +349,9 @@ impl super::Body {
 			}
 		}
 
-		self.update_node_mass()
+		if !self.is_destroyed() {// TODO
+			self.update_node_mass()
+		}
 	}
 
 	/// Attempt to destroy a block.
@@ -368,7 +367,7 @@ impl super::Body {
 		destroyed_blocks: &mut Vec<Voxel>,
 	) -> Result<bool, ()> {
 		if let Ok(result) = self.try_damage_block(voxel, *damage) {
-			let node = unsafe { self.node().assume_safe() };
+			let node = unsafe { self.node().unwrap().assume_safe() };
 			let center_of_mass = self.center_of_mass();
 			*damage = result.damage();
 			match result {

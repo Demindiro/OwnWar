@@ -25,7 +25,7 @@ func _ready_deferred():
 	for body in anchor_mounts_bodies:
 		_create_joint(get_parent(), body)
 
-	if _body_a != null:
+	if _body_a != null && _body_b != null:
 		_body_b_mount = Spatial.new()
 		_body_b.add_child(_body_b_mount)
 		_body_b_mount.transform.basis = transform.basis
@@ -57,21 +57,22 @@ func aim_at(position: Vector3):
 func _create_joint(body_a: PhysicsBody, body_b: PhysicsBody) -> void:
 	_body_a = body_a
 	_body_b = body_b
-	var vh = body_a.get_meta("ownwar_vehicle_list")[body_a.get_meta("ownwar_vehicle_index")]
-	var bd_a = body_a.get_meta("ownwar_body_index")
-	var bd_b = body_b.get_meta("ownwar_body_index")
-	var z_up = transform.basis * Basis(Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, 1, 0))
-	_joint_rid = PhysicsServer.joint_create_hinge(
-		body_a.get_rid(),
-		Transform(z_up, vh.voxel_to_translation(bd_a, base_position)),
-		body_b.get_rid(),
-		Transform(z_up, vh.voxel_to_translation(bd_b, base_position))
-	)
-	PhysicsServer.hinge_joint_set_param(
-		_joint_rid,
-		PhysicsServer.HINGE_JOINT_MOTOR_MAX_IMPULSE,
-		max_impulse
-	)
+	if body_b != null && body_a != null:
+		var vh = body_a.get_meta("ownwar_vehicle_list")[body_a.get_meta("ownwar_vehicle_index")]
+		var bd_a = body_a.get_meta("ownwar_body_index")
+		var bd_b = body_b.get_meta("ownwar_body_index")
+		var z_up = transform.basis * Basis(Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, 1, 0))
+		_joint_rid = PhysicsServer.joint_create_hinge(
+			body_a.get_rid(),
+			Transform(z_up, vh.voxel_to_translation(bd_a, base_position)),
+			body_b.get_rid(),
+			Transform(z_up, vh.voxel_to_translation(bd_b, base_position))
+		)
+		PhysicsServer.hinge_joint_set_param(
+			_joint_rid,
+			PhysicsServer.HINGE_JOINT_MOTOR_MAX_IMPULSE,
+			max_impulse
+		)
 
 
 func _remove_joint() -> void:

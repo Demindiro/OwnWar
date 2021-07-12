@@ -11,6 +11,14 @@ case $1 in
 			done
 		done
 		;;
+	lib-only)
+		for SERVER in lu0 lv0; do
+			echo Installing PCK \& libraries on $SERVER
+			for file in *.so *.pck; do
+				scp "$file" "ownwar@$SERVER:$file"
+			done
+		done
+		;;
 	*)
 		for SERVER in lu0 lv0; do
 			echo Installing on $SERVER

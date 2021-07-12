@@ -203,13 +203,13 @@ pub mod gd {
 				let body = self.vehicle.body(&[]).unwrap();
 				let (tr, pos) = body.position();
 				body.iter_all_bodies(&mut |b| {
-					b.node()
-						.assume_safe()
-						.set_meta("ownwar_vehicle_list", vehicles.clone());
+					if let Some(b) = b.node() {
+						b.assume_safe().set_meta("ownwar_vehicle_list", vehicles.clone());
+					}
 				});
 				scene
 					.assume_safe()
-					.add_child(self.vehicle.body(&[]).unwrap().node(), true);
+					.add_child(self.vehicle.body(&[]).unwrap().node().unwrap(), true);
 				if reset_position {
 					body.iter_all_bodies(&mut |b| {
 						// TODO use proper offsets so that bodies don't "fly" into position.
@@ -337,7 +337,7 @@ pub mod gd {
 
 		#[export]
 		fn get_node(&self, _: TRef<Reference>) -> Ref<VehicleBody> {
-			self.vehicle.body(&[]).unwrap().node().clone()
+			self.vehicle.body(&[]).unwrap().node().unwrap().clone()
 		}
 
 		/// Map a global voxel coordinate to a local translation, accounting for center of mass &
@@ -487,19 +487,21 @@ pub mod gd {
 			vehicle_id: u16,
 			team: super::Team,
 		) {
-			let node = unsafe { body.node().assume_safe() };
-			node.set_meta("ownwar_body_index", Variant::from_byte_array(&index_stack));
-			node.set_meta("ownwar_vehicle_index", Variant::from_u64(vehicle_id.into()));
-			node.set_meta("ownwar_vehicle_team", Variant::from_u64(team.into()));
-			node.set_name(format!(
-				"OwnWar VehicleBody {}.{:?}",
-				vehicle_id,
-				&index_stack.read()[..]
-			));
-			for (i, body) in body.children_mut().enumerate() {
-				let mut index_stack = index_stack.clone();
-				index_stack.push(i.try_into().unwrap());
-				Self::set_meta(body, index_stack, vehicle_id, team);
+			if let Some(node) = body.node() {
+				let node = unsafe { node.assume_safe() };
+				node.set_meta("ownwar_body_index", Variant::from_byte_array(&index_stack));
+				node.set_meta("ownwar_vehicle_index", Variant::from_u64(vehicle_id.into()));
+				node.set_meta("ownwar_vehicle_team", Variant::from_u64(team.into()));
+				node.set_name(format!(
+					"OwnWar VehicleBody {}.{:?}",
+					vehicle_id,
+					&index_stack.read()[..]
+				));
+				for (i, body) in body.children_mut().enumerate() {
+					let mut index_stack = index_stack.clone();
+					index_stack.push(i.try_into().unwrap());
+					Self::set_meta(body, index_stack, vehicle_id, team);
+				}
 			}
 		}
 	}
@@ -761,6 +763,7 @@ impl Vehicle {
 			let mb = self.main_body.as_ref().unwrap();
 			let space = unsafe {
 				mb.node()
+					.unwrap()
 					.assume_safe()
 					.get_world()
 					.expect("No world")
@@ -799,6 +802,7 @@ impl Vehicle {
 			let mb = self.main_body.as_ref().unwrap();
 			let space = unsafe {
 				mb.node()
+					.unwrap()
 					.assume_safe()
 					.get_world()
 					.expect("No world")
@@ -832,9 +836,9 @@ impl Vehicle {
 
 			// Move the bodies
 			mb.iter_all_bodies(&mut |b| {
-				if !b.is_destroyed() {
+				if let Some(node) = b.node() {
 					//let (tr, rot) = b.position();
-					let trf = unsafe { b.node().assume_safe().global_transform() };
+					let trf = unsafe { node.assume_safe().global_transform() };
 
 					let xz = trf.basis.z();
 					let xz = Vector3::new(xz.x, 0.0, xz.z).normalize() * 2.0;

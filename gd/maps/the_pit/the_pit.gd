@@ -31,6 +31,9 @@ var pending_temporary_data := []
 # Permanent vehicle data to be applied
 var pending_permanent_data := []
 
+# Counter to reduce the amount of temporary packets send
+var temp_packet_counter = 0
+
 
 func _ready() -> void:
 	get_tree().multiplayer_poll = false
@@ -129,8 +132,8 @@ func _physics_process(delta: float) -> void:
 			var v = vehicles[i]
 			if v != null:
 				var pt = v.create_packet()
-				rpc_unreliable("sync_permanent_vehicle_data", i, pt[0]);
-				rpc("sync_temporary_vehicle_data", i, pt[1]);
+				rpc("sync_permanent_vehicle_data", i, pt[0]);
+				rpc_unreliable("sync_temporary_vehicle_data", i, pt[1]);
 
 	# Process damage events
 	if !server_mode:

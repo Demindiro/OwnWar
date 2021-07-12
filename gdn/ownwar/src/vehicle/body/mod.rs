@@ -42,6 +42,7 @@ const COLLISION_LAYER: u32 = 2;
 const COLLISION_MASK: u32 = 1 | 2 | (1 << 7);
 
 pub(super) struct Body {
+	// TODO don't make this public
 	node: Option<Ref<VehicleBody>>,
 	#[cfg(not(feature = "server"))]
 	voxel_mesh: Option<Instance<VoxelMesh, Shared>>,
@@ -373,9 +374,8 @@ impl Body {
 		self.children.iter_mut().for_each(Self::step);
 	}
 
-	#[track_caller]
-	pub fn node(&self) -> &Ref<VehicleBody> {
-		self.node.as_ref().expect("Body is already destroyed")
+	pub fn node(&self) -> Option<&Ref<VehicleBody>> {
+		self.node.as_ref()
 	}
 
 	pub fn add_block(
@@ -550,8 +550,10 @@ impl Body {
 
 	#[track_caller]
 	pub fn position(&self) -> (Vector3, Quat) {
-		let trf = unsafe { self.node().assume_safe().transform() };
-		(trf.origin, trf.basis.to_quat())
+		self.node().map(|n| {
+			let trf = unsafe { n.assume_safe().transform() };
+			(trf.origin, trf.basis.to_quat())
+		}).unwrap_or((Vector3::zero(), Quat::identity()))
 	}
 
 	pub fn set_position(&self, translation: Vector3, rotation: Quat) {
@@ -560,25 +562,24 @@ impl Body {
 		let trf = rotation.to_transform().then_translate(translation);
 		unsafe {
 			self.node()
-				.assume_safe()
-				.set_transform(Transform::from_transform(&trf))
-		};
+				.map(|b| b.assume_safe().set_transform(Transform::from_transform(&trf)));
+		}
 	}
 
 	pub fn linear_velocity(&self) -> Vector3 {
-		unsafe { self.node().assume_safe().linear_velocity() }
+		unsafe { self.node().map(|b| b.assume_safe().linear_velocity()).unwrap_or(Vector3::zero()) }
 	}
 
 	pub fn set_linear_velocity(&self, velocity: Vector3) {
-		unsafe { self.node().assume_safe().set_linear_velocity(velocity) };
+		unsafe { self.node().map(|b| b.assume_safe().set_linear_velocity(velocity)); }
 	}
 
 	pub fn angular_velocity(&self) -> Vector3 {
-		unsafe { self.node().assume_safe().angular_velocity() }
+		unsafe { self.node().map(|b| b.assume_safe().angular_velocity()).unwrap_or(Vector3::zero()) }
 	}
 
 	pub fn set_angular_velocity(&self, velocity: Vector3) {
-		unsafe { self.node().assume_safe().set_angular_velocity(velocity) };
+		unsafe { self.node().map(|b| b.assume_safe().set_angular_velocity(velocity)); }
 	}
 
 	pub fn aabb(&self) -> AABB<u8> {
@@ -616,7 +617,7 @@ impl Body {
 
 	/// Update the mass of the rigidbody with the current `mass`.
 	fn update_node_mass(&mut self) {
-		unsafe { self.node().assume_safe().set_mass(self.mass.into()) }
+		unsafe { self.node().map(|b| b.assume_safe().set_mass(self.mass.into())); }
 	}
 }
 

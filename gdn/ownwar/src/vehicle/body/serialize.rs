@@ -209,9 +209,8 @@ impl super::Body {
 			parent_anchors: Vec::new(),
 		};
 
-		// FIXME this leaks memory if the body is dead.
 		slf.create_godot_nodes();
-		slf.correct_mass();
+		slf.correct_mass(); // TODO should be done afterwards
 
 		for z in 0..=size.z {
 			for y in 0..=size.y {
@@ -223,6 +222,9 @@ impl super::Body {
 		}
 
 		if !slf.is_destroyed() {
+			//slf.correct_mass();
+			slf.update_node_mass();
+
 			// If alive, get & apply position & velocity
 			let tr = Self::deserialize_vector3(in_)?;
 			let rot = Self::deserialize_vector3(in_)?;
@@ -234,6 +236,8 @@ impl super::Body {
 			slf.set_position(tr, rot);
 			slf.set_linear_velocity(lv);
 			slf.set_angular_velocity(av);
+		} else {
+			unsafe { slf.node.take().map(|n| n.assume_unique().queue_free()) };
 		}
 
 		Ok(slf)
