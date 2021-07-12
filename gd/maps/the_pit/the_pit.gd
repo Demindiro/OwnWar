@@ -37,6 +37,8 @@ func _ready() -> void:
 	hud.vehicles = vehicles
 	if server_mode:
 		print("Server mode")
+		print("  port: ", OwnWar_Lobby.server_port)
+		print("  max players: ", OwnWar_Lobby.server_max_players)
 		var network := NetworkedMultiplayerENet.new()
 		network.compression_mode = OwnWar.NET_COMPRESSION
 		var e := network.create_server(OwnWar_Lobby.server_port, OwnWar_Lobby.server_max_players)

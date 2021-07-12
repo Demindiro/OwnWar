@@ -209,7 +209,7 @@ func load_settings() -> void:
 	var e := cf.load(get_settings_file())
 	match e:
 		OK:
-			for a in cf.get_section_keys("input_map"):
+			for a in cf.get_section_keys("input_map") if cf.has_section("input_map") else []:
 				var v: String = cf.get_value("input_map", a, "")
 				if v == "":
 					continue
@@ -233,7 +233,7 @@ func load_settings() -> void:
 					InputMap.action_erase_events(a)
 					InputMap.action_add_event(a, ev)
 			
-			for bus in cf.get_section_keys("audio_buses"):
+			for bus in cf.get_section_keys("audio_buses") if cf.has_section("audio_buses") else []:
 				var index := AudioServer.get_bus_index(bus)
 				if index < 0:
 					print("Audio bus not found: %s" % bus)
@@ -244,32 +244,36 @@ func load_settings() -> void:
 				if vol > 0:
 					AudioServer.set_bus_volume_db(index, linear2db(vol))
 
-			ProjectSettings.set_setting("rendering/quality/filters/msaa",
-				cf.get_value("graphics", "msaa"))
-			enable_shadows = cf.get_value("graphics", "shadows")
-			ProjectSettings.set_setting("rendering/quality/shadows/filter_mode",
-				cf.get_value("graphics", "shadows_filter_mode"))
-			enable_floor_mirror = cf.get_value("graphics", "floor_mirror")
-			OS.set_use_vsync(cf.get_value("graphics", "vsync", true))
-			OS.vsync_via_compositor = cf.get_value("graphics", "vsync_compositor", false)
-			OS.window_fullscreen = cf.get_value("graphics", "window_fullscreen", true)
-			OS.window_borderless = cf.get_value("graphics", "window_borderless", false)
-			Engine.target_fps = cf.get_value("graphics", "fps", 0)
-			tonemap_mode = cf.get_value("graphics", "tonemap", Environment.TONE_MAPPER_REINHARDT)
+			if cf.has_section("graphics"):
+				ProjectSettings.set_setting("rendering/quality/filters/msaa",
+					cf.get_value("graphics", "msaa"))
+				enable_shadows = cf.get_value("graphics", "shadows")
+				ProjectSettings.set_setting("rendering/quality/shadows/filter_mode",
+					cf.get_value("graphics", "shadows_filter_mode"))
+				enable_floor_mirror = cf.get_value("graphics", "floor_mirror")
+				OS.set_use_vsync(cf.get_value("graphics", "vsync", true))
+				OS.vsync_via_compositor = cf.get_value("graphics", "vsync_compositor", false)
+				OS.window_fullscreen = cf.get_value("graphics", "window_fullscreen", true)
+				OS.window_borderless = cf.get_value("graphics", "window_borderless", false)
+				Engine.target_fps = cf.get_value("graphics", "fps", 0)
+				tonemap_mode = cf.get_value("graphics", "tonemap", Environment.TONE_MAPPER_REINHARDT)
 
-			OwnWar_Lobby.player_name = cf.get_value("server", "username", "")
-			OwnWar_Lobby.disable_upnp = not cf.get_value("server", "upnp", true)
-			OwnWar_Lobby.disable_lobby = not cf.get_value("server", "lobby", true)
-			OwnWar_Lobby.upnp_ttl = cf.get_value("server", "upnp_ttl", 2)
-			OwnWar_Lobby.server_name = cf.get_value("server", "name", "")
-			OwnWar_Lobby.server_port = cf.get_value("server", "port", 39983)
-			OwnWar_Lobby.server_max_players = cf.get_value("server", "max_players", 10)
-			OwnWar_Lobby.server_description = cf.get_value("server", "description", "")
+			if cf.has_section("server"):
+				OwnWar_Lobby.player_name = cf.get_value("server", "username", "")
+				OwnWar_Lobby.disable_upnp = not cf.get_value("server", "upnp", true)
+				OwnWar_Lobby.disable_lobby = not cf.get_value("server", "lobby", true)
+				OwnWar_Lobby.upnp_ttl = cf.get_value("server", "upnp_ttl", 2)
+				OwnWar_Lobby.server_name = cf.get_value("server", "name", "")
+				OwnWar_Lobby.server_port = cf.get_value("server", "port", 39983)
+				OwnWar_Lobby.server_max_players = cf.get_value("server", "max_players", 10)
+				OwnWar_Lobby.server_description = cf.get_value("server", "description", "")
 
-			selected_vehicle_path = cf.get_value("menu", "selected_vehicle", "")
+			if cf.has_section("menu"):
+				selected_vehicle_path = cf.get_value("menu", "selected_vehicle", "")
 			
-			mouse_move_sensitivity = cf.get_value("mouse", "move_sensitivity", 1.0)
-			mouse_scroll_sensitivity = cf.get_value("mouse", "scroll_sensitivity", 1.0)
+			if cf.has_section("mouse"):
+				mouse_move_sensitivity = cf.get_value("mouse", "move_sensitivity", 1.0)
+				mouse_scroll_sensitivity = cf.get_value("mouse", "scroll_sensitivity", 1.0)
 
 			var root := get_tree().root
 			root.msaa = ProjectSettings.get_setting("rendering/quality/filters/msaa")
