@@ -9,6 +9,23 @@ The game is *libre* software: the AGPLv3 license permits you to do whatever
 you want with the source code provided you grant the same permissions to other
 people.
 
+It is recommended to read `TUTORIAL.md` to get started.
+
+
+## Features
+
+* You can create any vehicle using basic blocks. There are quite a few blocks to
+  give your creations detail as well as functional blocks such as wheels, weapons,
+  ...
+
+* The damage system is voxel-based: vehicles are torn down block-by-block.
+
+* The game supports multiplayer. You can join any server and host your own too.
+
+* Since the game is entirely free (as in [freedom][gnu free sw]) you can modify
+  it to any extent. In fact, I highly encourage people to tinker with it and
+  experiment with what works & doesn't work.
+
 
 ## Building the game.
 
@@ -31,3 +48,22 @@ been tested for Linux so far.
    in the `README` of `godot_rapier3d` to build the engine.
 
 2) Use the `Makefile` in this repository to build the game.
+
+
+## Downloads
+
+You can find stable releases [here](https://github.com/Demindiro/OwnWar/releases)
+
+
+## Gallery
+
+![Start menu](https://static.salt-inc.org/own_war/ownwar_start_menu.jpg)
+
+![Editor](https://static.salt-inc.org/own_war/ownwar_editor.jpg)
+
+![Test map](https://static.salt-inc.org/own_war/ownwar_test_map.jpg)
+
+![The Pit](https://static.salt-inc.org/own_war/ownwar_the_pit.jpg)
+
+
+[gnu free sw]: https://www.gnu.org/philosophy/free-sw.en.html
