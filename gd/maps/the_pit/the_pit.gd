@@ -2,7 +2,11 @@ extends Node
 
 
 const TRAILER_MODE := false
-const AI_VEHICLES := ["skunk", "mini_tank", "tank"]
+const AI_VEHICLES := [
+	"res://default_user_dir/vehicles/skunk.owv",
+	"res://default_user_dir/vehicles/tank.owv",
+	"res://default_user_dir/vehicles/mini_tank.owv"
+]
 
 signal server_disconnected()
 
@@ -49,21 +53,8 @@ func _ready() -> void:
 
 		# Spawn some AI to keep the map busy even when there are no players.
 		if 1:
-			# Tanky boy
-			if 1:
-				var vehicle_id = spawn_vehicle("tank")
-				var a = BrickAI.new()
-				a.vehicle_id = vehicle_id
-				ai.push_back(a)
-			# Speedy boy
-			if 1:
-				var vehicle_id = spawn_vehicle("mini_tank")
-				var a = BrickAI.new()
-				a.vehicle_id = vehicle_id
-				ai.push_back(a)
-			# Whimpy boy
-			if 1:
-				var vehicle_id = spawn_vehicle("skunk")
+			for path in AI_VEHICLES:
+				var vehicle_id = spawn_vehicle(path)
 				var a = BrickAI.new()
 				a.vehicle_id = vehicle_id
 				ai.push_back(a)
@@ -293,13 +284,13 @@ func request_respawn() -> void:
 
 
 # Spawn a locally controlled vehicle for AI.
-func spawn_vehicle(name: String):
+func spawn_vehicle(path: String):
 	var v = OwnWar_Vehicle.new()
 	var team = counter
 	var index := counter % get_node(spawn_points).get_child_count()
 	var id = reserve_vehicle_slot()
 	var e = v.load_from_file(
-		OwnWar.get_vehicle_path(name),
+		path,
 		team,
 		OwnWar.ENEMY_COLOR,
 		get_node(spawn_points).get_child(index).transform,
