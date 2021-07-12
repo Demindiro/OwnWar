@@ -71,7 +71,7 @@ pub(super) struct Body {
 	rotations: Box<[Rotation]>,
 
 	center_of_mass: Vector3,
-	total_mass: f32,
+	mass: f32,
 	cost: u32,
 	max_cost: u32,
 
@@ -139,7 +139,7 @@ impl Body {
 			rotations: repeat(Rotation::new(0).unwrap()).take(real_size).collect(),
 
 			center_of_mass: Vector3D::zero(),
-			total_mass: 0.0,
+			mass: 0.0,
 			cost: 0,
 			max_cost: 0,
 
@@ -514,6 +514,8 @@ impl Body {
 
 	pub fn calculate_mass(&mut self) {
 		let mut total_mass = 0.0;
+		// TODO temporary for now to make sure vehicles are synced correctly
+		let mut substract_mass = 0.0;
 		let mut center_of_mass = Vector3::zero();
 		let size = self.size;
 		for (x, y, z) in (0..=size.x)
@@ -525,9 +527,12 @@ impl Body {
 				let mass = block::Block::get(blk.id()).unwrap().mass;
 				center_of_mass += Vector3::new(x as f32, y as f32, z as f32) * mass;
 				total_mass += mass;
+				if blk.health() == 0 {
+					substract_mass += mass;
+				}
 			}
 		}
-		self.total_mass = total_mass;
+		self.mass = total_mass - substract_mass;
 		self.center_of_mass = center_of_mass / total_mass;
 	}
 
@@ -607,6 +612,11 @@ impl Body {
 	pub fn iter_all_bodies_mut(&mut self, f: &mut impl FnMut(&mut Self)) {
 		f(self);
 		self.children_mut().for_each(|b| b.iter_all_bodies_mut(f));
+	}
+
+	/// Update the mass of the rigidbody with the current `mass`.
+	fn update_node_mass(&mut self) {
+		unsafe { self.node().assume_safe().set_mass(self.mass.into()) }
 	}
 }
 

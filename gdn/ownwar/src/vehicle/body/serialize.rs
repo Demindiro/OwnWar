@@ -195,7 +195,7 @@ impl super::Body {
 			colors,
 
 			center_of_mass: Vector3D::zero(),
-			total_mass: 0.0,
+			mass: 0.0,
 			cost: 0,
 			max_cost: 0,
 

@@ -154,6 +154,9 @@ impl super::Body {
 		let mut destroy_disconnected = false;
 		let mut evts = mem::take(&mut self.damage_events);
 		let mut body_destroyed = false;
+
+		let old_mass = self.mass;
+
 		for evt in evts.drain(..) {
 			let mut dd = false;
 			body_destroyed |= match evt {
@@ -184,9 +187,17 @@ impl super::Body {
 			};
 			destroy_disconnected |= dd;
 		}
+
 		self.damage_events = evts;
-		body_destroyed
-			|| (destroy_disconnected && self.destroy_disconnected_blocks(shared, destroyed))
+
+		if body_destroyed {
+			true
+		} else {
+			if old_mass != self.mass {
+				self.update_node_mass()
+			}
+			destroy_disconnected && self.destroy_disconnected_blocks(shared, destroyed)
+		}
 	}
 
 	/// Returns `true` if the body is destroyed.
@@ -321,7 +332,7 @@ impl super::Body {
 
 	pub(super) fn correct_mass(&mut self) {
 		self.calculate_mass();
-		assert_ne!(self.total_mass, 0.0, "Mass is zero!");
+		assert_ne!(self.mass, 0.0, "Mass is zero!");
 
 		let center = (self.center_of_mass() + Vector3::new(0.5, 0.5, 0.5)) * block::SCALE;
 
@@ -341,7 +352,7 @@ impl super::Body {
 			}
 		}
 
-		unsafe { self.node().assume_safe() }.set_mass(self.total_mass as f64);
+		self.update_node_mass()
 	}
 
 	/// Attempt to destroy a block.
@@ -414,7 +425,7 @@ impl super::Body {
 							if hp <= damage {
 								let block = self.multi_blocks[block_index].take().unwrap();
 								let damage = damage - hp;
-								self.cost -= block::Block::get(id).unwrap().cost.get() as u32;
+								self.correct_for_removed_block(position, id);
 								self.multi_blocks[block_index] = None;
 								for &pos in block.reverse_indices.iter() {
 									self.health[self.get_index(pos).unwrap() as usize] = None;
@@ -444,7 +455,7 @@ impl super::Body {
 						if hp <= damage {
 							let damage = damage - hp;
 							self.health[i] = None;
-							self.cost -= block::Block::get(id).unwrap().cost.get() as u32;
+							self.correct_for_removed_block(position, id);
 							if self.remove_all_anchors(position) {
 								DamageBlockResult::BodyDestroyed
 							} else {
@@ -463,6 +474,25 @@ impl super::Body {
 				DamageBlockResult::Empty { damage }
 			}
 		})
+	}
+
+	/// Correct the mass & cost accounting for a removed block at the given position.
+	///
+	/// # Panics
+	///
+	/// The block ID is invalid.
+	fn correct_for_removed_block(&mut self, position: Voxel, id: NonZeroU16) {
+		let blk = block::Block::get(id).expect("Invalid block ID");
+		self.cost -= blk.cost.get() as u32;
+		let new_mass = self.mass - blk.mass;
+		// TODO correct center of mass. This is a bit tricky due to joint mounts being relative
+		// to the rigidbody & the rigidbody's CoM always being at the center.
+		// We can already do the math, we just can't apply it yet.
+		/*
+		self.center_of_mass = (self.center_of_mass * self.mass - blk.mass * position) / new_mass;
+		*/
+		let _ = position;
+		self.mass = new_mass;
 	}
 
 	/// Destroy any blocks not connected to a mainframe in any way.
