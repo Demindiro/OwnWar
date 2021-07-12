@@ -133,7 +133,11 @@ func _physics_process(delta: float) -> void:
 			if v != null:
 				var pt = v.create_packet()
 				rpc("sync_permanent_vehicle_data", i, pt[0]);
-				rpc_unreliable("sync_temporary_vehicle_data", i, pt[1]);
+				# Send a packet every 3 frames (20 packets/sec)
+				temp_packet_counter += 1
+				if temp_packet_counter >= 3:
+					rpc_unreliable("sync_temporary_vehicle_data", i, pt[1]);
+					temp_packet_counter = 0
 
 	# Process damage events
 	if !server_mode:
