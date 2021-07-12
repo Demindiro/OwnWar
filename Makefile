@@ -9,7 +9,7 @@ TARGET_OSX     ?= x86_64-apple-darwin
 TARGET_WINDOWS ?= x86_64-pc-windows-gnu
 
 
-build: build-linux build-osx build-windows
+build: build-linux build-osx build-windows build-server
 
 build-linux: build-gdn-linux
 	@echo Building Linux
@@ -18,7 +18,7 @@ build-linux: build-gdn-linux
 	@echo Compressing Linux
 	@cd bin && tar zcf ownwar-linux.tar.gz linux/
 
-build-osx: #build-gdn-osx
+build-osx: build-gdn-osx
 	@echo Building OS X
 	@mkdir -p bin/osx/
 	@cd gd && $(GODOT) --export osx ../bin/ownwar-osx.zip
