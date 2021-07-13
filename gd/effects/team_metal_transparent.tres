@@ -3,6 +3,7 @@
 [resource]
 flags_transparent = true
 vertex_color_use_as_albedo = true
+vertex_color_is_srgb = true
 params_blend_mode = 1
 albedo_color = Color( 1, 1, 1, 0.25098 )
 roughness = 0.4
