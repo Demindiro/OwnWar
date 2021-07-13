@@ -50,7 +50,6 @@ func _physics_process(delta: float) -> void:
 	velocity.y -= GRAVITY * delta
 
 	if is_network_master():
-		#var result := state.intersect_ray(old_tr, translation)
 		var results = PhysicsServer.space_intersections_with_ray(
 			get_world().space,
 			old_tr,
