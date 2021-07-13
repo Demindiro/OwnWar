@@ -26,5 +26,5 @@ func set_transparent(enable):
 		var mesh = c.mesh.duplicate()
 		mesh.surface_set_material(0, transparent_material)
 		TRANSPARENT_METAL_MESH.push_back(mesh)
-		SOLID_METAL_MESH.push_back(mesh)
+		SOLID_METAL_MESH.push_back(c.mesh)
 	c.mesh = TRANSPARENT_METAL_MESH[0] if enable else SOLID_METAL_MESH[0]
