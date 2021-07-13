@@ -7,7 +7,7 @@ const TRAILER_FREE_CAM := false
 const AI_VEHICLES := [
 	"res://default_user_dir/vehicles/skunk.owv",
 	"res://default_user_dir/vehicles/tank.owv",
-	"res://default_user_dir/vehicles/mini_tank.owv"
+	"res://default_user_dir/vehicles/mini_tank.owv",
 ]
 
 signal server_disconnected()
