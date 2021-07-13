@@ -50,16 +50,34 @@ func _physics_process(delta: float) -> void:
 	velocity.y -= GRAVITY * delta
 
 	if is_network_master():
-		var state := get_world().direct_space_state
-		var result := state.intersect_ray(old_tr, translation)
-		if len(result) > 0:
-			var col = result["collider"]
-			var pos: Vector3 = result["position"]
+		#var result := state.intersect_ray(old_tr, translation)
+		var results = PhysicsServer.space_intersections_with_ray(
+			get_world().space,
+			old_tr,
+			translation,
+			true
+		)
+		while len(results) > 0:
+			# Find the closest entry
+			var res = results.pop_back()
+			var toi = res["time_of_impact"]
+			for i in len(results):
+				var r = results[i]
+				var t = r["time_of_impact"]
+				if t < toi:
+					results[i] = res
+					res = r
+					toi = t
+
+			# Check if we should explode
+			var col = instance_from_id(res["object_id"])
+			var pos: Vector3 = res["position"]
 			if col.has_meta("ownwar_vehicle_index"):
 				var v = col.get_meta("ownwar_vehicle_list")[col.get_meta("ownwar_vehicle_index")]
 				var p = v.raycast(col.get_meta("ownwar_body_index"), old_tr, translation - old_tr)
 				if p == null:
-					return
+					# We hit nothing so continue
+					continue
 				# See https://github.com/bulletphysics/bullet3/issues/459, the moment we're inside
 				# we can no longer detect the body
 				# There may be a crafty workaround to this, but I can't be bothered
@@ -71,7 +89,10 @@ func _physics_process(delta: float) -> void:
 				#if p.distance_squared_to(old_tr) > translation.distance_squared_to(old_tr):
 				#	return
 				pos = p
+
+			# Explode & stop iterating
 			rpc("explode", pos)
+			break
 
 
 puppetsync func explode(position: Vector3) -> void:
