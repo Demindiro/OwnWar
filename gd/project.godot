@@ -14,12 +14,12 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/aabb_camera.gd"
 }, {
-"base": "",
+"base": "Spatial",
 "class": "BatchedMeshInstance",
 "language": "NativeScript",
 "path": "res://addons/3d_batcher/batched_mesh_instance.gdns"
 }, {
-"base": "",
+"base": "Node",
 "class": "BatchedMeshManager",
 "language": "NativeScript",
 "path": "res://addons/3d_batcher/batched_mesh_manager.gdns"

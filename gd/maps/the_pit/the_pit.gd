@@ -2,10 +2,12 @@ extends Node
 
 
 const TRAILER_MODE := false
+const TRAILER_FREE_CAM := false
+
 const AI_VEHICLES := [
 	"res://default_user_dir/vehicles/skunk.owv",
 	"res://default_user_dir/vehicles/tank.owv",
-	"res://default_user_dir/vehicles/mini_tank.owv"
+	"res://default_user_dir/vehicles/mini_tank.owv",
 ]
 
 signal server_disconnected()
@@ -52,7 +54,21 @@ func _ready() -> void:
 		e = get_tree().connect("network_peer_disconnected", self, "remove_client")
 		assert(e == OK)
 		OwnWar_Lobby.register_server(self)
-		if not headless:
+
+		if TRAILER_FREE_CAM:
+			var cam = FreeCamera.new()
+			cam.actions = PoolStringArray([
+				"editor_move_left",
+				"editor_move_right",
+				"editor_move_forward",
+				"editor_move_back",
+				"editor_move_up",
+				"editor_move_down"
+			])
+			add_child(cam)
+			cam.current = true
+			cam.far = 2000
+		elif not headless:
 			clients[1] = null
 			spawn_player_vehicle()
 
@@ -80,6 +96,12 @@ func _ready() -> void:
 func _exit_tree() -> void:
 	get_tree().network_peer = null
 	get_tree().multiplayer_poll = true
+
+
+func _input(e):
+	if e is InputEventKey and e.pressed and e.scancode == KEY_CAPSLOCK:
+		set_physics_process(not is_physics_processing())
+		PhysicsServer.set_active(is_physics_processing())
 
 
 func _process(delta: float) -> void:

@@ -1,7 +1,7 @@
 class_name BrickAI
 
 var min_distance := 3.0
-var max_distance := 20.0
+var max_distance := 30.0
 
 var vehicle_id = -1
 
@@ -12,7 +12,7 @@ func step(vehicles, _delta: float) -> void:
 
 	var vehicle = vehicles[vehicle_id]
 	vehicle.turn_left = false
-	vehicle.turn_left = false
+	vehicle.turn_right = false
 	vehicle.move_forward = false
 	vehicle.flip = false
 	var trf = vehicle.get_node().transform
@@ -42,6 +42,7 @@ func step(vehicles, _delta: float) -> void:
 		var dir = rel_pos.normalized()
 		var angle = acos(trf.basis.z.dot(dir))
 		var side = sign(trf.basis.x.dot(dir))
+		angle *= side
 
 		# Check if broadsiding would be useful
 		var desired_angle := PI / 2

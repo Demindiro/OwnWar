@@ -354,6 +354,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "rapier3d",
+ "wchar",
 ]
 
 [[package]]
@@ -417,9 +418,9 @@ checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
 name = "libc"
-version = "0.2.92"
+version = "0.2.98"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "56d855069fafbb9b344c0f962150cd2c1187975cb1c22c1522c240d8c4986714"
+checksum = "320cfe77175da3a483efed4bc0adc1968ca050b098ce4f2f1c13a56626128790"
 
 [[package]]
 name = "libloading"
@@ -1065,6 +1066,27 @@ name = "wasm-bindgen-shared"
 version = "0.2.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d9a543ae66aa233d14bb765ed9af4a33e81b8b58d1584cf1b47ff8cd0b9e4489"
+
+[[package]]
+name = "wchar"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "329ba7151d07f65f1ad4b38dc27369c952db9674bb65e6e8aad0b0bc206abf19"
+dependencies = [
+ "wchar-impl",
+]
+
+[[package]]
+name = "wchar-impl"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e98e30fc63796c670f6805bf5cbf2460766f663d7e804beef671ee845d33e39b"
+dependencies = [
+ "libc",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "winapi"
