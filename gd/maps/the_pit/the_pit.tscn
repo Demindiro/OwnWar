@@ -140,22 +140,28 @@ __meta__ = {
 }
 
 [node name="Continue" type="Button" parent="GUI/Box"]
-margin_top = 486.0
+margin_top = 467.0
 margin_right = 322.0
-margin_bottom = 515.0
+margin_bottom = 496.0
 shortcut = ExtResource( 12 )
 text = "Continue"
 
-[node name="Settings" type="Button" parent="GUI/Box"]
-margin_top = 525.0
+[node name="Self destruct" type="Button" parent="GUI/Box"]
+margin_top = 506.0
 margin_right = 322.0
-margin_bottom = 554.0
+margin_bottom = 535.0
+text = "Self destruct"
+
+[node name="Settings" type="Button" parent="GUI/Box"]
+margin_top = 545.0
+margin_right = 322.0
+margin_bottom = 574.0
 text = "Settings"
 
 [node name="Exit" type="Button" parent="GUI/Box"]
-margin_top = 564.0
+margin_top = 584.0
 margin_right = 322.0
-margin_bottom = 593.0
+margin_bottom = 613.0
 text = "Exit"
 
 [node name="OwnWar_Settings_Applier" type="Node" parent="."]
@@ -169,10 +175,11 @@ visible = false
 [node name="Disconnected" parent="." instance=ExtResource( 15 )]
 visible = false
 
-[connection signal="server_disconnected" from="." to="Disconnected" method="set_visible" binds= [ true ]]
 [connection signal="visibility_changed" from="GUI" to="HUD" method="set_mouse_mode"]
 [connection signal="visibility_changed" from="GUI" to="HUD" method="poll_input"]
 [connection signal="visibility_changed" from="GUI" to="GUI" method="grab_focus"]
 [connection signal="pressed" from="GUI/Box/Continue" to="GUI" method="set_visible" binds= [ false ]]
+[connection signal="pressed" from="GUI/Box/Self destruct" to="." method="request_destroy_player_vehicle"]
+[connection signal="pressed" from="GUI/Box/Self destruct" to="GUI" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="GUI/Box/Settings" to="Settings" method="set_visible" binds= [ true ]]
 [connection signal="pressed" from="GUI/Box/Exit" to="GUI" method="goto_main_menu"]

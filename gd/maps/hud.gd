@@ -146,6 +146,7 @@ func _set_camera() -> void:
 
 
 func set_player_vehicle(vehicle_id) -> void:
+	print("Setting jioergrijgoereigo ", vehicle_id)
 	player_vehicle_id = vehicle_id
 	if vehicle_id < 0:
 		return

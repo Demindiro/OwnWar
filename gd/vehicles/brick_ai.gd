@@ -11,6 +11,9 @@ func step(vehicles, _delta: float) -> void:
 		return
 
 	var vehicle = vehicles[vehicle_id]
+	if vehicle == null:
+		return
+
 	vehicle.turn_left = false
 	vehicle.turn_right = false
 	vehicle.move_forward = false
