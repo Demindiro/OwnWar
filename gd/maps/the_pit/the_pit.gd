@@ -225,9 +225,7 @@ func spawn_ai(path):
 		true,
 		id
 	)
-	while e != OK:
-		pass
-	assert(e == OK)
+	assert(e == null)
 
 	vehicles[id] = v
 	vehicle_data[id] = data
@@ -259,9 +257,10 @@ master func request_sync_vehicles() -> void:
 func remove_client(id) -> void:
 	print("Removing client ", id)
 	var i = clients[id]
-	var v = vehicles[i]
-	if v != null:
-		rpc("free_vehicle_slot", i)
+	if i != null:
+		var v = vehicles[i]
+		if v != null:
+			rpc("free_vehicle_slot", i)
 	var e := clients.erase(id)
 	assert(e)
 
@@ -274,7 +273,7 @@ puppet func sync_vehicle(id, serialized, data) -> void:
 	print("Synced vehicle ", id)
 	allocate_vehicle_slot(id)
 	var v = OwnWar_Vehicle.new()
-	var e = v.deserialize(serialized, id, OwnWar.ENEMY_COLOR, false, false, true)
+	var e = v.deserialize(serialized, id, OwnWar.ENEMY_COLOR, false, false)
 	assert(e == OK)
 	vehicles[id] = v
 	vehicle_data[id] = data
@@ -301,8 +300,8 @@ master func request_vehicle(data: PoolByteArray, color = OwnWar.ENEMY_COLOR):
 		id == 1,
 		vehicle_id
 	)
-	if e != OK:
-		rpc_id(id, "rejected_vehicle", "Invalid vehicle")
+	if e != null:
+		rpc_id(id, "rejected_vehicle", e)
 		return -1
 	else:
 		vehicles[vehicle_id] = vehicle
@@ -342,7 +341,7 @@ puppet func accepted_vehicle(id, transform: Transform) -> void:
 		true,
 		id
 	)
-	assert(e == OK, "Failed to load vehicle")
+	assert(e == null, "Failed to load vehicle")
 	vehicles[id] = v
 	vehicle_data[id] = player_vehicle_data
 	vehicle_is_local[id] = true
@@ -364,13 +363,9 @@ puppetsync func respawn_vehicle(id, transform):
 		vehicle_is_local[id],
 		id
 	)
-	assert(e == OK)
+	assert(e == null)
 	vehicles[id] = v
 	v.spawn(self, true)
-
-
-func remove_client_vehicle(id: int) -> void:
-	clients[id] = null
 
 
 # Receive temporary from the server for a specific vehicle

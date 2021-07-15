@@ -63,9 +63,7 @@ impl super::Body {
 		});
 
 		if block.id == MAINFRAME_ID {
-			if !self.parent_anchors.is_empty() {
-				panic!("Body has two mainframes!"); // TODO
-			}
+			// Even if there are multiple mainframes it's fine, it'll be detected later.
 			self.parent_anchors.push(position);
 		}
 
@@ -315,10 +313,7 @@ impl super::Body {
 		for body in self.children.iter() {
 			unsafe {
 				if let Some(bn) = body.node.as_ref() {
-					self.node
-						.unwrap()
-						.assume_safe()
-						.add_child(bn, false);
+					self.node.unwrap().assume_safe().add_child(bn, false);
 				}
 			}
 		}
@@ -331,7 +326,9 @@ impl super::Body {
 	pub(in super::super) fn create_collision_exceptions(&mut self) {
 		// TODO find a way to avoid a temporary buffer
 		let mut nodes = Vec::new();
-		self.iter_all_bodies(&mut |b| { b.node.clone().map(|bn| nodes.push(bn)); });
+		self.iter_all_bodies(&mut |b| {
+			b.node.clone().map(|bn| nodes.push(bn));
+		});
 		self.iter_all_bodies(&mut |b| {
 			nodes.iter().for_each(|a| unsafe {
 				if let Some(b) = b.node.as_ref() {

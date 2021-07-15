@@ -23,6 +23,7 @@ use crate::rotation::*;
 use crate::util::*;
 #[cfg(debug_assertions)]
 use core::cell::Cell;
+use core::fmt;
 use core::mem;
 use euclid::{UnknownUnit, Vector3D};
 #[cfg(not(feature = "server"))]
@@ -42,7 +43,6 @@ const COLLISION_LAYER: u32 = 2;
 const COLLISION_MASK: u32 = 1 | 2 | (1 << 7);
 
 pub(super) struct Body {
-	// TODO don't make this public
 	node: Option<Ref<VehicleBody>>,
 	#[cfg(not(feature = "server"))]
 	voxel_mesh: Option<Instance<VoxelMesh, Shared>>,
@@ -105,14 +105,26 @@ pub enum InitError {
 	CyclicAnchor,
 	/// There are multiple bodies connected to the same anchor.
 	MultipleBodiesPerAnchor,
+	/// No mainframes were found.
+	NoMainframe,
+	/// Multiple mainframes were found.
+	MultipleMainframes,
+}
+
+impl fmt::Display for InitError {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match self {
+			Self::CyclicAnchor => "cyclic anchor".fmt(f),
+			Self::MultipleBodiesPerAnchor => "multiple bodies on an anchor".fmt(f),
+			Self::NoMainframe => "no mainframe found".fmt(f),
+			Self::MultipleMainframes => "multiple mainframes found".fmt(f),
+		}
+	}
 }
 
 impl Body {
-	// TODO remove the "visible" argument, it's redundant now the "server" feature is a thing.
-	pub fn new(aabb: AABB<u8>, visible: bool) -> Self {
+	pub fn new(aabb: AABB<u8>) -> Self {
 		let (offset, size) = (aabb.position, aabb.size);
-
-		let _ = visible; // Make it shut up for now.
 
 		use std::iter::repeat;
 		let real_size = (size.x + 1) as usize * (size.y + 1) as usize * (size.z + 1) as usize;
@@ -120,7 +132,7 @@ impl Body {
 		let mut slf = Self {
 			node: None,
 			#[cfg(not(feature = "server"))]
-			voxel_mesh: visible.then(Self::create_voxel_mesh),
+			voxel_mesh: Some(Self::create_voxel_mesh()),
 			#[cfg(not(feature = "server"))]
 			voxel_mesh_instance: None,
 			collision_shape: Self::create_collision_shape(),
@@ -171,12 +183,16 @@ impl Body {
 		for (i, b) in bodies.iter().enumerate() {
 			if let Some(b) = b {
 				if !b.parent_anchors.is_empty() {
-					assert!(parent.is_none(), "Multiple mainframes");
+					if parent.is_some() || b.parent_anchors.len() != 1 {
+						return Err(InitError::MultipleMainframes);
+					}
 					parent = Some(u8::try_from(i).unwrap());
 				}
 			}
 		}
-		assert!(parent.is_some(), "No mainframe");
+		if parent.is_none() {
+			return Err(InitError::NoMainframe);
+		}
 
 		// Setup total cost, health ... & find special blocks.
 		for i in 0..u8::try_from(bodies.len()).unwrap() {
@@ -550,10 +566,12 @@ impl Body {
 
 	#[track_caller]
 	pub fn position(&self) -> (Vector3, Quat) {
-		self.node().map(|n| {
-			let trf = unsafe { n.assume_safe().transform() };
-			(trf.origin, trf.basis.to_quat())
-		}).unwrap_or((Vector3::zero(), Quat::identity()))
+		self.node()
+			.map(|n| {
+				let trf = unsafe { n.assume_safe().transform() };
+				(trf.origin, trf.basis.to_quat())
+			})
+			.unwrap_or((Vector3::zero(), Quat::identity()))
 	}
 
 	pub fn set_position(&self, translation: Vector3, rotation: Quat) {
@@ -561,25 +579,41 @@ impl Body {
 		// Not sure if it's a bug in to_transform, need to check.
 		let trf = rotation.to_transform().then_translate(translation);
 		unsafe {
-			self.node()
-				.map(|b| b.assume_safe().set_transform(Transform::from_transform(&trf)));
+			self.node().map(|b| {
+				b.assume_safe()
+					.set_transform(Transform::from_transform(&trf))
+			});
 		}
 	}
 
 	pub fn linear_velocity(&self) -> Vector3 {
-		unsafe { self.node().map(|b| b.assume_safe().linear_velocity()).unwrap_or(Vector3::zero()) }
+		unsafe {
+			self.node()
+				.map(|b| b.assume_safe().linear_velocity())
+				.unwrap_or(Vector3::zero())
+		}
 	}
 
 	pub fn set_linear_velocity(&self, velocity: Vector3) {
-		unsafe { self.node().map(|b| b.assume_safe().set_linear_velocity(velocity)); }
+		unsafe {
+			self.node()
+				.map(|b| b.assume_safe().set_linear_velocity(velocity));
+		}
 	}
 
 	pub fn angular_velocity(&self) -> Vector3 {
-		unsafe { self.node().map(|b| b.assume_safe().angular_velocity()).unwrap_or(Vector3::zero()) }
+		unsafe {
+			self.node()
+				.map(|b| b.assume_safe().angular_velocity())
+				.unwrap_or(Vector3::zero())
+		}
 	}
 
 	pub fn set_angular_velocity(&self, velocity: Vector3) {
-		unsafe { self.node().map(|b| b.assume_safe().set_angular_velocity(velocity)); }
+		unsafe {
+			self.node()
+				.map(|b| b.assume_safe().set_angular_velocity(velocity));
+		}
 	}
 
 	pub fn aabb(&self) -> AABB<u8> {
@@ -617,7 +651,10 @@ impl Body {
 
 	/// Update the mass of the rigidbody with the current `mass`.
 	fn update_node_mass(&mut self) {
-		unsafe { self.node().map(|b| b.assume_safe().set_mass(self.mass.into())); }
+		unsafe {
+			self.node()
+				.map(|b| b.assume_safe().set_mass(self.mass.into()));
+		}
 	}
 }
 

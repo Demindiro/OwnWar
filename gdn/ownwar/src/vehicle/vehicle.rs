@@ -12,7 +12,7 @@ pub mod gd {
 
 	use super::*;
 	use crate::util::AABB;
-	use gdnative::api::{File, Node, Reference, VehicleBody, OS};
+	use gdnative::api::{File, Node, Reference, VehicleBody};
 	use gdnative::prelude::*;
 
 	#[derive(NativeClass)]
@@ -137,20 +137,26 @@ pub mod gd {
 			is_local: bool,
 			is_master: bool,
 			id: u16,
-		) -> i32 {
+		) -> Option<GodotString> {
 			let rot = transform.basis.to_quat();
-			let vis = !OS::godot_singleton().has_feature("Server");
-			self.vehicle = super::Vehicle::new(
-				data,
+
+			let data = match serialize::load(&data.read()[..]) {
+				Err(e) => return Some(format!("{}", e).into()),
+				Ok(d) => d,
+			};
+
+			self.vehicle = match super::Vehicle::new(
+				&data,
 				transform.origin,
 				rot,
 				team,
 				team_color,
 				is_local,
 				is_master,
-				vis,
-			)
-			.unwrap(); // FIXME;
+			) {
+				Err(e) => return Some(format!("{}", e).into()),
+				Ok(d) => d,
+			};
 
 			Self::set_meta(
 				self.vehicle.main_body.as_mut().unwrap(),
@@ -159,7 +165,7 @@ pub mod gd {
 				team,
 			);
 
-			0
+			None
 		}
 
 		#[export]
@@ -173,7 +179,7 @@ pub mod gd {
 			is_local: bool,
 			is_master: bool,
 			id: u16,
-		) -> i32 {
+		) -> Option<GodotString> {
 			let file = File::new();
 			if file
 				.open_compressed(path.clone(), File::READ, File::COMPRESSION_GZIP)
@@ -181,8 +187,7 @@ pub mod gd {
 			{
 				let err = file.open(path, File::READ);
 				if let Err(err) = err {
-					godot_error!("Failed to open file: {:?}", err);
-					return -1;
+					return Some(GodotString::from(format!("Failed to open file: {:?}", err)));
 				}
 			}
 			let data = file.get_buffer(file.get_len());
@@ -204,7 +209,8 @@ pub mod gd {
 				let (tr, pos) = body.position();
 				body.iter_all_bodies(&mut |b| {
 					if let Some(b) = b.node() {
-						b.assume_safe().set_meta("ownwar_vehicle_list", vehicles.clone());
+						b.assume_safe()
+							.set_meta("ownwar_vehicle_list", vehicles.clone());
 					}
 				});
 				scene
@@ -453,18 +459,16 @@ pub mod gd {
 			team_color: Color,
 			is_local: bool,
 			is_master: bool,
-			is_visible: bool,
 		) -> i32 {
 			let mut d = &data.read()[..];
-			self.vehicle = match super::Vehicle::deserialize(
-				&mut d, team_color, is_local, is_master, is_visible,
-			) {
-				Ok(v) => v,
-				Err(e) => {
-					godot_error!("Failed to deserialize vehicle: {:?}", e);
-					return 1;
-				}
-			};
+			self.vehicle =
+				match super::Vehicle::deserialize(&mut d, team_color, is_local, is_master) {
+					Ok(v) => v,
+					Err(e) => {
+						godot_error!("Failed to deserialize vehicle: {:?}", e);
+						return 1;
+					}
+				};
 			Self::set_meta(
 				self.vehicle.main_body.as_mut().unwrap(),
 				TypedArray::new(),
@@ -509,10 +513,12 @@ pub mod gd {
 
 use super::*;
 use crate::block;
+use crate::editor::data;
 use crate::editor::serialize;
 use crate::util::{convert_vec, AABB};
 use core::cell::Cell;
 use core::convert::{TryFrom, TryInto};
+use core::fmt;
 use core::mem;
 use gdnative::prelude::*;
 use std::io;
@@ -620,30 +626,39 @@ enum ProcessPacketError {}
 
 /// Enum returned if Vehicle::new fails.
 #[derive(Debug)]
-enum NewVehicleError {
-	/// The data couldn't be deserialized.
-	LoadError(serialize::LoadError),
+pub(crate) enum NewVehicleError {
+	/// An error occured while initializing the bodies.
+	InitBodiesError(body::InitError),
 	/// The vehicle has multiple incompatible weapons.
 	IncompatibleWeaponTypes,
 	/// The type of weapon isn't known.
 	UnknownWeaponType,
 }
 
+impl fmt::Display for NewVehicleError {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match self {
+			Self::InitBodiesError(e) => e.fmt(f),
+			Self::IncompatibleWeaponTypes => {
+				"Multiple incompatible weapons are present".fmt(f)
+			}
+			Self::UnknownWeaponType => "The weapon type is not recognized (bug?)".fmt(f),
+		}
+	}
+}
+
 impl Vehicle {
 	/// Create a new vehicle from the given data. The state adds extra info such as which blocks
 	/// are damaged / destroyed, ...
-	fn new(
-		raw_data: VehicleData,
+	pub(crate) fn new(
+		data: &data::Vehicle,
 		translation: Vector3,
 		rotation: Quat,
 		team: Team,
 		team_color: Color,
 		is_local: bool,
 		is_master: bool,
-		is_visible: bool,
 	) -> Result<Self, NewVehicleError> {
-		let data = serialize::load(&raw_data.read()[..]).map_err(NewVehicleError::LoadError)?;
-
 		let mut bodies = Vec::with_capacity(data.layer_count().into());
 
 		let mut shared = Shared {
@@ -666,7 +681,7 @@ impl Vehicle {
 		// Create bodies
 		for layer in data.iter_layers() {
 			if let Some(aabb) = layer.aabb() {
-				let mut body = Body::new(aabb, is_visible);
+				let mut body = Body::new(aabb);
 				for (&pos, block) in layer.iter_blocks() {
 					body.add_block(&mut shared, pos, block.rotation, block.id, block.color);
 				}
@@ -675,7 +690,8 @@ impl Vehicle {
 		}
 
 		// Initialize bodies
-		let mut main_body = Body::init_all(&mut bodies, &mut shared).unwrap(); // FIXME don't panic
+		let mut main_body = Body::init_all(&mut bodies, &mut shared)
+			.map_err(NewVehicleError::InitBodiesError)?;
 		let mut max_cost = 0;
 		main_body.iter_all_bodies(&mut |b| max_cost += b.max_cost());
 
@@ -1057,7 +1073,7 @@ impl Vehicle {
 	}
 
 	/// Destroy all the bodies on this vehicle.
-	fn destroy(&mut self) {
+	pub(crate) fn destroy(&mut self) {
 		self.main_body
 			.as_mut()
 			.expect("Already destroyed")
@@ -1091,7 +1107,6 @@ impl Vehicle {
 		team_color: Color,
 		is_local: bool,
 		is_master: bool,
-		is_visible: bool,
 	) -> io::Result<Self> {
 		// Get the last processed packet index
 		let mut last_processed_packet_index = [0; 2];
@@ -1130,7 +1145,7 @@ impl Vehicle {
 			team_color,
 			colors,
 		};
-		let mut main_body = Body::deserialize(in_, &mut shared, is_visible)?;
+		let mut main_body = Body::deserialize(in_, &mut shared)?;
 
 		main_body.init(&mut shared).unwrap();
 

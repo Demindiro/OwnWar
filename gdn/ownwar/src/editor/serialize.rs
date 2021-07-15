@@ -1,5 +1,6 @@
 use super::data::Vehicle;
 use crate::rotation::Rotation;
+use core::fmt;
 use std::convert::{TryFrom, TryInto};
 use std::num::NonZeroU16;
 use std::str::Utf8Error;
@@ -9,10 +10,7 @@ const MAGIC: u32 = 493279249;
 type Vec3u8 = euclid::Vector3D<u8, euclid::UnknownUnit>;
 
 #[derive(Debug)]
-pub(crate) struct LoadError(LoadErrorKind);
-
-#[derive(Debug)]
-enum LoadErrorKind {
+pub(crate) enum LoadError {
 	BadMagic,
 	UnknownRevision,
 	CorruptDataTruncated,
@@ -24,10 +22,23 @@ enum LoadErrorKind {
 #[derive(Debug)]
 pub(crate) struct SaveError();
 
+impl fmt::Display for LoadError {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match self {
+			Self::BadMagic => "bad magic".fmt(f),
+			Self::UnknownRevision => "unknown revision".fmt(f),
+			Self::CorruptDataTruncated => "truncated data".fmt(f),
+			Self::InvalidBlockID => "invalid block ID".fmt(f),
+			Self::PositionAlreadyOccupied => "position already occupied".fmt(f),
+			Self::ParseUtf8Error(e) => write!(f, "{}", e),
+		}
+	}
+}
+
 pub(crate) fn load(data: &[u8]) -> Result<Vehicle, LoadError> {
 	let (data, magic) = read_u32(data)?;
 	if magic != MAGIC {
-		return Err(LoadError(LoadErrorKind::BadMagic));
+		return Err(LoadError::BadMagic);
 	}
 
 	let (data, revision) = read_u16(data)?;
@@ -35,7 +46,7 @@ pub(crate) fn load(data: &[u8]) -> Result<Vehicle, LoadError> {
 	match revision {
 		rev_0::REVISION => rev_0::load(data),
 		rev_1::REVISION => rev_1::load(data),
-		_ => Err(LoadError(LoadErrorKind::UnknownRevision)),
+		_ => Err(LoadError::UnknownRevision),
 	}
 }
 
@@ -53,7 +64,7 @@ fn read_u8(data: &[u8]) -> Result<(&[u8], u8), LoadError> {
 	if let Some(&s) = data.get(0) {
 		Ok((&data[1..], s))
 	} else {
-		Err(LoadError(LoadErrorKind::CorruptDataTruncated))
+		Err(LoadError::CorruptDataTruncated)
 	}
 }
 
@@ -61,7 +72,7 @@ fn read_u16(data: &[u8]) -> Result<(&[u8], u16), LoadError> {
 	if let Some(s) = data.get(0..2) {
 		Ok((&data[2..], u16::from_le_bytes(s.try_into().unwrap())))
 	} else {
-		Err(LoadError(LoadErrorKind::CorruptDataTruncated))
+		Err(LoadError::CorruptDataTruncated)
 	}
 }
 
@@ -69,7 +80,7 @@ fn read_u32(data: &[u8]) -> Result<(&[u8], u32), LoadError> {
 	if let Some(s) = data.get(0..4) {
 		Ok((&data[4..], u32::from_le_bytes(s.try_into().unwrap())))
 	} else {
-		Err(LoadError(LoadErrorKind::CorruptDataTruncated))
+		Err(LoadError::CorruptDataTruncated)
 	}
 }
 
@@ -83,12 +94,12 @@ fn read_vec3u8(data: &[u8]) -> Result<(&[u8], Vec3u8), LoadError> {
 fn read_u8_str(data: &[u8]) -> Result<(&[u8], &str), LoadError> {
 	let (data, len) = read_u8(data)?;
 	if data.len() < len as usize {
-		Err(LoadError(LoadErrorKind::CorruptDataTruncated))
+		Err(LoadError::CorruptDataTruncated)
 	} else {
 		let (string, data) = data.split_at(len as usize);
 		match std::str::from_utf8(string) {
 			Ok(s) => Ok((data, s)),
-			Err(e) => Err(LoadError(LoadErrorKind::ParseUtf8Error(e))),
+			Err(e) => Err(LoadError::ParseUtf8Error(e)),
 		}
 	}
 }
@@ -181,7 +192,7 @@ mod rev_1 {
 			(data, attribute) = read_u8(data)?;
 			(data, len) = read_u16(data)?;
 			if data.len() < len as usize {
-				return Err(LoadError(LoadErrorKind::CorruptDataTruncated));
+				return Err(LoadError::CorruptDataTruncated);
 			}
 			if let Some(attribute) = Attribute::from_int(attribute) {
 				use Attribute::*;
@@ -334,7 +345,7 @@ mod rev_0 {
 				let id = if let Some(id) = NonZeroU16::new(id) {
 					id
 				} else {
-					return Err(LoadError(LoadErrorKind::InvalidBlockID));
+					return Err(LoadError::InvalidBlockID);
 				};
 				let color = *color_map
 					.entry(color)
@@ -349,7 +360,7 @@ mod rev_0 {
 					.is_err()
 				{
 					// TODO properly detect the actual error
-					return Err(LoadError(LoadErrorKind::PositionAlreadyOccupied));
+					return Err(LoadError::PositionAlreadyOccupied);
 				}
 			}
 		}

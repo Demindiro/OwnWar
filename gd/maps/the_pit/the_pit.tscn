@@ -109,6 +109,7 @@ transform = Transform( 0.721094, 2.26375e-08, -0.692837, -3.13933e-08, 1, 9.3559
 transform = Transform( -0.692837, 2.26375e-08, -0.721094, 5.31481e-16, 1, 3.13933e-08, 0.721094, 2.17504e-08, -0.692837, 82.672, 12.5648, 28.2274 )
 
 [node name="Camera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 247.862, 0 )
 far = 1000.0
 
 [node name="HUD" parent="." instance=ExtResource( 9 )]
@@ -175,9 +176,11 @@ visible = false
 [node name="Disconnected" parent="." instance=ExtResource( 15 )]
 visible = false
 
+[connection signal="server_disconnected" from="." to="Disconnected" method="set_message" binds= [ "Disconnected from server" ]]
+[connection signal="vehicle_rejected" from="." to="Disconnected" method="set_message"]
+[connection signal="visibility_changed" from="GUI" to="GUI" method="grab_focus"]
 [connection signal="visibility_changed" from="GUI" to="HUD" method="set_mouse_mode"]
 [connection signal="visibility_changed" from="GUI" to="HUD" method="poll_input"]
-[connection signal="visibility_changed" from="GUI" to="GUI" method="grab_focus"]
 [connection signal="pressed" from="GUI/Box/Continue" to="GUI" method="set_visible" binds= [ false ]]
 [connection signal="pressed" from="GUI/Box/Self destruct" to="." method="request_destroy_player_vehicle"]
 [connection signal="pressed" from="GUI/Box/Self destruct" to="GUI" method="set_visible" binds= [ false ]]

@@ -1,6 +1,6 @@
 #![cfg_attr(feature = "server", allow(dead_code))]
 
-mod data;
+pub mod data;
 pub mod serialize;
 
 #[cfg(not(feature = "server"))]
@@ -12,7 +12,7 @@ mod godot {
 	use crate::block;
 	use crate::rotation::*;
 	use crate::util::{convert_vec, VoxelRaycast, AABB};
-	use crate::vehicle::VoxelMesh;
+	use crate::vehicle::{self, VoxelMesh};
 	use euclid::Vector3D;
 	use gdnative::api::{Camera, File, PackedScene, Spatial};
 	use gdnative::nativescript::property::Usage;
@@ -441,6 +441,25 @@ mod godot {
 				// This function has most likely already been called
 				return;
 			}
+
+			// Make sure the vehicle is valid before going to the test map.
+			let vehicle = vehicle::Vehicle::new(
+				&self.data,
+				Vector3::zero(),
+				Quat::identity(),
+				0,
+				Color::rgba(0.0, 0.0, 0.0, 0.0),
+				false,
+				false,
+			);
+			match vehicle {
+				Ok(mut v) => v.destroy(),
+				Err(e) => {
+					Self::emit_error(owner, format!("Can't go to test map: {}", e));
+					return;
+				}
+			}
+
 			unsafe {
 				let node = self
 					.test_map

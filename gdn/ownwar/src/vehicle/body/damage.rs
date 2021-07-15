@@ -146,7 +146,6 @@ impl super::Body {
 	/// Returns `true` if the body is destroyed.
 	#[must_use]
 	pub(super) fn apply_damage_events(&mut self, shared: &mut Shared) -> bool {
-
 		let mut destroyed = Vec::new();
 		let mut destroy_disconnected = false;
 		let mut evts = mem::take(&mut self.damage_events);
@@ -349,7 +348,8 @@ impl super::Body {
 			}
 		}
 
-		if !self.is_destroyed() {// TODO
+		if !self.is_destroyed() {
+			// TODO
 			self.update_node_mass()
 		}
 	}

@@ -14,6 +14,8 @@ var cost := 0
 var mass := 0.0
 var block_count := 0
 var mainframe_count := 0
+var is_valid := false
+var invalid_reason = null
 
 
 func _ready() -> void:
@@ -83,8 +85,13 @@ func load_from_data(data: PoolByteArray) -> int:
 	mesh_instance.translation -= Vector3.ONE * GRID_SIZE * BLOCK_SCALE / 2
 	mesh_instance.translation += Vector3.ONE * BLOCK_SCALE / 2
 
+	# Try to load the vehicle as an actual vehicle to see if it's valid.
+	var v = OwnWar_Vehicle.new()
+	var e = v.load_from_data(data, 0, Color(), Transform(), false, false, 0)
+	if e == null:
+		v.destroy()
+		is_valid = true
+	else:
+		invalid_reason = e
+
 	return OK
-
-
-func is_valid() -> bool:
-	return mainframe_count == 1

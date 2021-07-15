@@ -80,7 +80,6 @@ impl super::Body {
 	pub(in super::super) fn deserialize(
 		in_: &mut impl io::Read,
 		shared: &mut vehicle::Shared,
-		visible: bool,
 	) -> io::Result<Self> {
 		let mut buf = [0; 3];
 		in_.read_exact(&mut buf)?;
@@ -168,7 +167,7 @@ impl super::Body {
 		in_.read_exact(slice::from_mut(&mut count))?;
 		let mut children = Vec::with_capacity(count.into());
 		for _ in 0..count {
-			children.push(Self::deserialize(in_, shared, visible)?);
+			children.push(Self::deserialize(in_, shared)?);
 		}
 
 		let mut slf = Self {
@@ -177,7 +176,7 @@ impl super::Body {
 
 			node: None,
 			#[cfg(not(feature = "server"))]
-			voxel_mesh: visible.then(Self::create_voxel_mesh),
+			voxel_mesh: Some(Self::create_voxel_mesh()),
 			#[cfg(not(feature = "server"))]
 			voxel_mesh_instance: None,
 			collision_shape: Self::create_collision_shape(),

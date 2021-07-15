@@ -6,10 +6,10 @@ mod vehicle;
 #[cfg(not(feature = "server"))]
 mod voxel_mesh;
 
-type VehicleData = gdnative::prelude::TypedArray<u8>;
 type Color8 = euclid::Vector3D<u8, euclid::UnknownUnit>;
 
 pub(crate) use controller::Controller;
+pub(crate) use vehicle::Vehicle;
 #[cfg(not(feature = "server"))]
 pub(crate) use voxel_mesh::VoxelMesh;
 

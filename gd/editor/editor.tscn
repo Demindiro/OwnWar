@@ -43,11 +43,11 @@ shader = ExtResource( 49 )
 shader_param/size = 5.0
 shader_param/outline_color = Color( 1, 0, 0, 1 )
 
-[sub_resource type="ViewportTexture" id=2]
+[sub_resource type="ViewportTexture" id=12]
 flags = 4
 
 [sub_resource type="SpatialMaterial" id=3]
-albedo_texture = SubResource( 2 )
+albedo_texture = SubResource( 12 )
 
 [sub_resource type="QuadMesh" id=4]
 size = Vector2( 16, 9 )
@@ -461,8 +461,8 @@ environment = NodePath("../WorldEnvironment")
 [connection signal="change_color" from="." to="Color picker" method="change_color"]
 [connection signal="error" from="." to="Error window" method="show_error"]
 [connection signal="ghost_block" from="." to="Offset/Ghost" method="ghost_block"]
-[connection signal="ghost_color" from="." to="Camera/Box/Viewport/Camera/Mesh" method="ghost_color"]
 [connection signal="ghost_color" from="." to="Offset/Ghost" method="ghost_color"]
+[connection signal="ghost_color" from="." to="Camera/Box/Viewport/Camera/Mesh" method="ghost_color"]
 [connection signal="ghost_normal" from="." to="Offset/Block face highlight" method="set_normal"]
 [connection signal="ghost_position" from="." to="Offset/Ghost" method="set_translation"]
 [connection signal="ghost_position" from="." to="Offset/Block face highlight" method="set_translation"]
@@ -470,9 +470,9 @@ environment = NodePath("../WorldEnvironment")
 [connection signal="ghost_valid" from="." to="Offset/Block face highlight" method="set_valid"]
 [connection signal="ghost_visible" from="." to="Offset/Ghost" method="set_visible"]
 [connection signal="ghost_visible" from="." to="Offset/Block face highlight" method="set_visible"]
-[connection signal="open_window" from="." to="Settings" method="open_window"]
 [connection signal="open_window" from="." to="Inventory" method="open_window"]
 [connection signal="open_window" from="." to="Color picker" method="open_window"]
+[connection signal="open_window" from="." to="Settings" method="open_window"]
 [connection signal="play_click_effect" from="." to="Sounds/Click" method="play"]
 [connection signal="play_fail_effect" from="." to="Sounds/Fail place or remove" method="play"]
 [connection signal="play_place_effect" from="." to="Sounds/Place block" method="play"]
