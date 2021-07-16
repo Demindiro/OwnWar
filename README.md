@@ -47,7 +47,9 @@ been tested for Linux so far.
 1) Get the source code for Godot & the Rapier module. Follow the instructions
    in the `README` of `godot_rapier3d` to build the engine.
 
-2) Use the `Makefile` in this repository to build the game.
+2) Apply the patches in `patch/godot` to the Godot source.
+
+3) Use the `Makefile` in this repository to build the game.
 
 
 ## Downloads

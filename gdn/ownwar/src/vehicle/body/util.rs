@@ -13,7 +13,7 @@ impl super::Body {
 	) -> (Vector3, Vector3) {
 		let node = unsafe { self.node().unwrap().assume_safe() };
 		let local_unscaled_origin = node.to_local(origin);
-		let local_origin = local_unscaled_origin / block::SCALE + self.center_of_mass();
+		let local_origin = local_unscaled_origin / block::SCALE; // + self.center_of_mass();
 		let local_direction = node.to_local(origin + direction) - local_unscaled_origin;
 		(local_origin, local_direction)
 	}
@@ -25,7 +25,8 @@ impl super::Body {
 		direction: Vector3,
 	) -> (Vector3, Vector3) {
 		let node = unsafe { self.node().unwrap().assume_safe() };
-		let local_unscaled_origin = (origin - self.center_of_mass()) * block::SCALE;
+		//let local_unscaled_origin = (origin - self.center_of_mass()) * block::SCALE;
+		let local_unscaled_origin = origin * block::SCALE;
 		let global_origin = node.to_global(local_unscaled_origin);
 		let global_direction = node.to_global(origin + direction) - global_origin;
 		(global_origin, global_direction)

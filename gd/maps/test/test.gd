@@ -86,7 +86,7 @@ func _ready() -> void:
 		_hud.player_vehicle_id = id
 		_spawn_point_index += 1
 		_spawn_point_index %= get_node(spawn_points).get_child_count()
-		for _i in 0:
+		for _i in 6:
 			spawn_vehicle(vehicle_path)
 		set_process(not OS.has_feature("Server"))
 
@@ -101,18 +101,18 @@ func _physics_process(delta: float) -> void:
 	for v in vehicles:
 		if v != null:
 			v.apply_input(0, Vector3())
-	for v in vehicles:
-		if v != null:
-			v.apply_damage()
-	for v in vehicles:
-		if v != null:
-			v.process_input(delta)
 	for i in len(vehicles):
 		var v = vehicles[i]
 		if v != null:
-			if v.step(delta):
+			if v.apply_damage():
 				print("Destroyed ", i)
 				vehicles[i] = null
+	for v in vehicles:
+		if v != null:
+			v.process_input(delta)
+	for v in vehicles:
+		if v != null:
+			v.step(delta)
 
 
 func _exit_tree() -> void:

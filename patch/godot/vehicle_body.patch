@@ -1,0 +1,178 @@
+From 2411123098ae1882081a29e1b24f103b58a5ebc3 Mon Sep 17 00:00:00 2001
+From: David Hoppenbrouwers <david@salt-inc.org>
+Date: Fri, 16 Jul 2021 12:58:58 +0200
+Subject: Update VehicleBody & -Wheel to account for center of mass.
+
+While center of mass is a Rapier-specific thing, it also works with
+other engines due to defaulting to (0, 0, 0), i.e. the implicit CoM.
+---
+ scene/3d/vehicle_body.cpp | 60 ++++++++++++---------------------------
+ scene/3d/vehicle_body.h   |  7 +++--
+ 2 files changed, 22 insertions(+), 45 deletions(-)
+
+diff --git a/scene/3d/vehicle_body.cpp b/scene/3d/vehicle_body.cpp
+index 8f18720c1d..22e364f2e2 100644
+--- a/scene/3d/vehicle_body.cpp
++++ b/scene/3d/vehicle_body.cpp
+@@ -115,39 +115,6 @@ String VehicleWheel::get_configuration_warning() const {
+ 	return warning;
+ }
+ 
+-void VehicleWheel::_update(PhysicsDirectBodyState *s) {
+-
+-	if (m_raycastInfo.m_isInContact)
+-
+-	{
+-		real_t project = m_raycastInfo.m_contactNormalWS.dot(m_raycastInfo.m_wheelDirectionWS);
+-		Vector3 chassis_velocity_at_contactPoint;
+-		Vector3 relpos = m_raycastInfo.m_contactPointWS - s->get_transform().origin;
+-
+-		chassis_velocity_at_contactPoint = s->get_linear_velocity() +
+-										   (s->get_angular_velocity()).cross(relpos); // * mPos);
+-
+-		real_t projVel = m_raycastInfo.m_contactNormalWS.dot(chassis_velocity_at_contactPoint);
+-		if (project >= real_t(-0.1)) {
+-			m_suspensionRelativeVelocity = real_t(0.0);
+-			m_clippedInvContactDotSuspension = real_t(1.0) / real_t(0.1);
+-		} else {
+-			real_t inv = real_t(-1.) / project;
+-			m_suspensionRelativeVelocity = projVel * inv;
+-			m_clippedInvContactDotSuspension = inv;
+-		}
+-
+-	}
+-
+-	else // Not in contact : position wheel in a nice (rest length) position
+-	{
+-		m_raycastInfo.m_suspensionLength = m_suspensionRestLength;
+-		m_suspensionRelativeVelocity = real_t(0.0);
+-		m_raycastInfo.m_contactNormalWS = -m_raycastInfo.m_wheelDirectionWS;
+-		m_clippedInvContactDotSuspension = real_t(1.0);
+-	}
+-}
+-
+ void VehicleWheel::set_radius(float p_radius) {
+ 
+ 	m_wheelRadius = p_radius;
+@@ -493,8 +460,9 @@ real_t VehicleBody::_ray_cast(int p_idx, PhysicsDirectBodyState *s) {
+ 
+ 		//chassis_velocity_at_contactPoint = getRigidBody()->getVelocityInLocalPoint(relpos);
+ 
++		Vector3 relpos = wheel.m_raycastInfo.m_contactPointWS - m_world_com;
+ 		chassis_velocity_at_contactPoint = s->get_linear_velocity() +
+-										   (s->get_angular_velocity()).cross(wheel.m_raycastInfo.m_contactPointWS - s->get_transform().origin); // * mPos);
++										   (s->get_angular_velocity()).cross(relpos); // * mPos);
+ 
+ 		real_t projVel = wheel.m_raycastInfo.m_contactNormalWS.dot(chassis_velocity_at_contactPoint);
+ 
+@@ -575,17 +543,21 @@ void VehicleBody::_resolve_single_bilateral(PhysicsDirectBodyState *s, const Vec
+ 		return;
+ 	}
+ 
+-	Vector3 rel_pos1 = pos1 - s->get_transform().origin;
++	Vector3 rel_pos1 = pos1 - m_world_com;
+ 	Vector3 rel_pos2;
+-	if (body2)
+-		rel_pos2 = pos2 - body2->get_global_transform().origin;
++	if (body2) {
++		Vector3 local_com2 = PhysicsServer::get_singleton()->call("body_get_local_com", body2->get_rid());
++		Vector3 world_com2 = body2->get_global_transform().xform(local_com2);
++		rel_pos2 = pos2 - world_com2;
++	}
+ 	//this jacobian entry could be re-used for all iterations
+ 
+ 	Vector3 vel1 = s->get_linear_velocity() + (s->get_angular_velocity()).cross(rel_pos1); // * mPos);
+ 	Vector3 vel2;
+ 
+-	if (body2)
++	if (body2) {
+ 		vel2 = body2->get_linear_velocity() + body2->get_angular_velocity().cross(rel_pos2);
++	}
+ 
+ 	Vector3 vel = vel1 - vel2;
+ 
+@@ -642,9 +614,10 @@ void VehicleBody::_resolve_single_bilateral(PhysicsDirectBodyState *s, const Vec
+ #endif
+ }
+ 
+-VehicleBody::btVehicleWheelContactPoint::btVehicleWheelContactPoint(PhysicsDirectBodyState *s, PhysicsBody *body1, const Vector3 &frictionPosWorld, const Vector3 &frictionDirectionWorld, real_t maxImpulse) :
++VehicleBody::btVehicleWheelContactPoint::btVehicleWheelContactPoint(PhysicsDirectBodyState *s, PhysicsBody *body1, const Vector3 &worldCom, const Vector3 &frictionPosWorld, const Vector3 &frictionDirectionWorld, real_t maxImpulse) :
+ 		m_s(s),
+ 		m_body1(body1),
++		m_worldCom(worldCom),
+ 		m_frictionPositionWorld(frictionPosWorld),
+ 		m_frictionDirectionWorld(frictionDirectionWorld),
+ 		m_maxImpulse(maxImpulse) {
+@@ -652,7 +625,7 @@ VehicleBody::btVehicleWheelContactPoint::btVehicleWheelContactPoint(PhysicsDirec
+ 	float denom1 = 0;
+ 
+ 	{
+-		Vector3 r0 = frictionPosWorld - s->get_transform().origin;
++		Vector3 r0 = frictionPosWorld - worldCom;
+ 		Vector3 c0 = (r0).cross(frictionDirectionWorld);
+ 		Vector3 vec = s->get_inverse_inertia_tensor().xform_inv(c0).cross(r0);
+ 		denom0 = s->get_inverse_mass() + frictionDirectionWorld.dot(vec);
+@@ -772,7 +745,7 @@ void VehicleBody::_update_friction(PhysicsDirectBodyState *s) {
+ 				} else {
+ 					real_t defaultRollingFrictionImpulse = 0.f;
+ 					real_t maxImpulse = wheelInfo.m_brake ? wheelInfo.m_brake : defaultRollingFrictionImpulse;
+-					btVehicleWheelContactPoint contactPt(s, wheelInfo.m_raycastInfo.m_groundObject, wheelInfo.m_raycastInfo.m_contactPointWS, m_forwardWS[wheel], maxImpulse);
++					btVehicleWheelContactPoint contactPt(s, wheelInfo.m_raycastInfo.m_groundObject, m_world_com, wheelInfo.m_raycastInfo.m_contactPointWS, m_forwardWS[wheel], maxImpulse);
+ 					rollingFriction = _calc_rolling_friction(contactPt);
+ 				}
+ 			}
+@@ -862,6 +835,9 @@ void VehicleBody::_direct_state_changed(Object *p_state) {
+ 	state = Object::cast_to<PhysicsDirectBodyState>(p_state);
+ 	ERR_FAIL_COND_MSG(!state, "Method '_direct_state_changed' must receive a valid PhysicsDirectBodyState object as argument");
+ 
++	Vector3 local_com = PhysicsServer::get_singleton()->call("body_get_local_com", get_rid());
++	m_world_com = state->get_transform().xform(local_com);
++
+ 	float step = state->get_step();
+ 
+ 	for (int i = 0; i < wheels.size(); i++) {
+@@ -898,7 +874,7 @@ void VehicleBody::_direct_state_changed(Object *p_state) {
+ 
+ 	for (int i = 0; i < wheels.size(); i++) {
+ 		VehicleWheel &wheel = *wheels[i];
+-		Vector3 relpos = wheel.m_raycastInfo.m_hardPointWS - state->get_transform().origin;
++		Vector3 relpos = wheel.m_raycastInfo.m_hardPointWS - m_world_com;
+ 		Vector3 vel = state->get_linear_velocity() + (state->get_angular_velocity()).cross(relpos); // * mPos);
+ 
+ 		if (wheel.m_raycastInfo.m_isInContact) {
+diff --git a/scene/3d/vehicle_body.h b/scene/3d/vehicle_body.h
+index e55a96525f..a0a4fb13b0 100644
+--- a/scene/3d/vehicle_body.h
++++ b/scene/3d/vehicle_body.h
+@@ -91,8 +91,6 @@ class VehicleWheel : public Spatial {
+ 		PhysicsBody *m_groundObject; //could be general void* ptr
+ 	} m_raycastInfo;
+ 
+-	void _update(PhysicsDirectBodyState *s);
+-
+ protected:
+ 	void _notification(int p_what);
+ 	static void _bind_methods();
+@@ -169,15 +167,18 @@ class VehicleBody : public RigidBody {
+ 	Vector<real_t> m_forwardImpulse;
+ 	Vector<real_t> m_sideImpulse;
+ 
++	Vector3 m_world_com;
++
+ 	struct btVehicleWheelContactPoint {
+ 		PhysicsDirectBodyState *m_s;
+ 		PhysicsBody *m_body1;
++		Vector3 m_worldCom;
+ 		Vector3 m_frictionPositionWorld;
+ 		Vector3 m_frictionDirectionWorld;
+ 		real_t m_jacDiagABInv;
+ 		real_t m_maxImpulse;
+ 
+-		btVehicleWheelContactPoint(PhysicsDirectBodyState *s, PhysicsBody *body1, const Vector3 &frictionPosWorld, const Vector3 &frictionDirectionWorld, real_t maxImpulse);
++		btVehicleWheelContactPoint(PhysicsDirectBodyState *s, PhysicsBody *body1, const Vector3 &worldCom, const Vector3 &frictionPosWorld, const Vector3 &frictionDirectionWorld, real_t maxImpulse);
+ 	};
+ 
+ 	void _resolve_single_bilateral(PhysicsDirectBodyState *s, const Vector3 &pos1, PhysicsBody *body2, const Vector3 &pos2, const Vector3 &normal, real_t &impulse, const real_t p_rollInfluence);
+-- 
+2.20.1
+

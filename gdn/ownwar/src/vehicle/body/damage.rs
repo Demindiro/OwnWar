@@ -189,11 +189,12 @@ impl super::Body {
 		if body_destroyed {
 			true
 		} else {
+			let ret = destroy_disconnected && self.destroy_disconnected_blocks(shared, destroyed);
 			if old_mass != self.mass {
 				// Correct the mass and center of mass
 				self.update_node_mass();
 			}
-			destroy_disconnected && self.destroy_disconnected_blocks(shared, destroyed)
+			ret
 		}
 	}
 
@@ -329,25 +330,6 @@ impl super::Body {
 
 	pub(super) fn correct_mass(&mut self) {
 		self.calculate_mass();
-		//assert_ne!(self.mass, 0.0, "Mass is zero!");
-
-		let center = (self.center_of_mass() + Vector3::new(0.5, 0.5, 0.5)) * block::SCALE;
-
-		#[cfg(not(feature = "server"))]
-		unsafe {
-			if let Some(vmi) = self.voxel_mesh_instance {
-				let vmi = vmi.assume_safe();
-				//vmi.set_translation(vmi.translation() - center);
-			}
-		}
-
-		for block in self.iter_multi_blocks() {
-			if let Some(bsn) = block.server_node {
-				let bsn = unsafe { bsn.assume_safe() };
-				let pos = bsn.translation() - center;
-				//bsn.set_translation(pos);
-			}
-		}
 
 		if !self.is_destroyed() {
 			// TODO
@@ -369,7 +351,6 @@ impl super::Body {
 	) -> Result<bool, ()> {
 		if let Ok(result) = self.try_damage_block(voxel, *damage) {
 			let node = unsafe { self.node().unwrap().assume_safe() };
-			let center_of_mass = self.center_of_mass();
 			*damage = result.damage();
 			match result {
 				DamageBlockResult::BodyDestroyed => {
@@ -388,8 +369,9 @@ impl super::Body {
 								.unwrap()
 						}
 					}
+
 					if let Ok(n) = super::godot::instance_effect(DESTROY_BLOCK_EFFECT_SCENE) {
-						n.set_translation((voxel.to_f32() - center_of_mass) * block::SCALE);
+						n.set_translation(voxel.to_f32() * block::SCALE);
 						node.add_child(n, false);
 					}
 
@@ -400,7 +382,10 @@ impl super::Body {
 						#[cfg(feature = "server")]
 						let body = multi_block.destroy(shared);
 						// Destroy the connected body, if any.
-						body.map(|body| self.children[usize::from(body)].destroy(shared));
+						body.map(|body| {
+							let body = &mut self.children[usize::from(body)];
+							body.destroy(shared, body.center_of_mass);
+						});
 					}
 
 					Ok(false)
@@ -586,13 +571,10 @@ impl super::Body {
 			vm.map_mut(|vm, _| vm.remove_block(voxel)).unwrap();
 		}
 		if let Some(hp) = self.health[index as usize].take() {
-			self.cost -= block::Block::get(self.ids[index as usize].unwrap())
-				.unwrap()
-				.cost
-				.get() as u32;
 			let hp = hp.get();
 
 			let _ = self.remove_all_anchors(voxel);
+			self.correct_for_removed_block(voxel, self.ids[index as usize].unwrap());
 
 			if hp & 0x8000 != 0 {
 				let index = hp & 0x7fff;
@@ -603,7 +585,10 @@ impl super::Body {
 					let body = block.destroy(shared, &mut self.interpolation_states[..]);
 					#[cfg(feature = "server")]
 					let body = block.destroy(shared);
-					body.map(|body| self.children[usize::from(body)].destroy(shared));
+					body.map(|body| {
+						let body = &mut self.children[usize::from(body)];
+						body.destroy(shared, body.center_of_mass);
+					});
 				} else {
 					// FIXME can happen when actual multiblocks are introduced. How should we
 					// deal with it?
@@ -672,7 +657,11 @@ impl super::Body {
 
 	/// Clean up stale entries in the shared struct to avoid UB & remove rigidbody nodes of self
 	/// and children.
-	pub(in super::super) fn destroy(&mut self, shared: &mut vehicle::Shared) {
+	pub(in super::super) fn destroy(
+		&mut self,
+		shared: &mut vehicle::Shared,
+		old_center_of_mass: Vector3,
+	) {
 		if let Some(node) = self.node.take() {
 			self.cost = 0;
 
@@ -692,7 +681,7 @@ impl super::Body {
 			}
 
 			self.children.iter_mut().for_each(|b| {
-				b.destroy(shared);
+				b.destroy(shared, b.center_of_mass);
 			});
 
 			#[cfg(not(feature = "server"))]
@@ -705,7 +694,9 @@ impl super::Body {
 								// Doesn't print an error
 								let tree = node.assume_safe().get_tree().unwrap();
 								if let Some(root) = tree.assume_safe().current_scene() {
-									n.set_translation(node.assume_safe().translation());
+									let trf = node.assume_safe().transform();
+									let tr = trf.basis.xform(old_center_of_mass * block::SCALE);
+									n.set_translation(tr + trf.origin);
 									root.assume_safe().add_child(n, false);
 								}
 							}

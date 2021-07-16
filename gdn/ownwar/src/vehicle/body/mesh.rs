@@ -11,33 +11,25 @@ impl super::Body {
 
 		self.update_mesh();
 
-		if let Some(vmi) = self.voxel_mesh_instance.as_ref() {
-			if self.interpolation_state_dirty {
-				for state in self
-					.interpolation_states
-					.iter_mut()
-					.filter_map(Option::as_mut)
-				{
-					state.update();
-				}
-			}
-			self.interpolation_state_dirty = false;
-			let frac = Engine::godot_singleton().get_physics_interpolation_fraction() as f32;
+		if self.interpolation_state_dirty {
 			for state in self
 				.interpolation_states
 				.iter_mut()
 				.filter_map(Option::as_mut)
 			{
-				state.interpolate(frac);
+				state.update();
 			}
-			unsafe {
-				let vmi = vmi.assume_safe();
-				let trf = vmi.transform();
-				let com = self.center_of_mass() * block::SCALE;
-				//vmi.set_translation(trf.origin - trf.basis.xform(com));
-			}
-			self.children_mut().for_each(|b| b.visual_step(_delta));
 		}
+		self.interpolation_state_dirty = false;
+		let frac = Engine::godot_singleton().get_physics_interpolation_fraction() as f32;
+		for state in self
+			.interpolation_states
+			.iter_mut()
+			.filter_map(Option::as_mut)
+		{
+			state.interpolate(frac);
+		}
+		self.children_mut().for_each(|b| b.visual_step(_delta));
 	}
 
 	pub fn update_mesh(&mut self) {

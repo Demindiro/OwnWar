@@ -370,8 +370,9 @@ impl Body {
 		self.children_mut().for_each(|b| {
 			let _ = b.apply_damage(shared);
 		});
+		let old_com = self.center_of_mass;
 		if self.apply_damage_events(shared) {
-			self.destroy(shared);
+			self.destroy(shared, old_com);
 			true
 		} else {
 			false
@@ -654,9 +655,7 @@ impl Body {
 			let b = b.assume_safe();
 			b.set_mass(self.mass.into());
 			let rid = b.get_rid();
-			dbg!(self.center_of_mass);
 			let com = self.center_of_mass * block::SCALE;
-			dbg!(com);
 			PhysicsServer::godot_singleton()
 				.call("body_set_local_com", &[rid.to_variant(), com.to_variant()]);
 		});
