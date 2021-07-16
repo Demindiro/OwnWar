@@ -86,7 +86,7 @@ func _ready() -> void:
 		_hud.player_vehicle_id = id
 		_spawn_point_index += 1
 		_spawn_point_index %= get_node(spawn_points).get_child_count()
-		for _i in 6:
+		for _i in 0:
 			spawn_vehicle(vehicle_path)
 		set_process(not OS.has_feature("Server"))
 
@@ -127,6 +127,7 @@ func spawn_vehicle(path: String) -> void:
 	assert(e == null)
 	vehicles.push_back(vehicle)
 	vehicle.spawn(self, true)
+	var v = vehicle
 	_spawn_point_index += 1
 	_spawn_point_index %= get_node(spawn_points).get_child_count()
 
@@ -149,3 +150,13 @@ func restart() -> void:
 	tree.root.add_child(s)
 	tree.current_scene = s
 	queue_free()
+
+
+func debug_draw():
+	for v in vehicles:
+		if v != null:
+			for n in Util.get_children_recursive(v.get_node()) + [v.get_node()]:
+				if n is RigidBody:
+					var o = n.transform * PhysicsServer.body_get_local_com(n.get_rid())
+					Debug.draw_point(o, Color.purple, 0.5)
+					Debug.draw_point(n.translation, Color.red, 0.13)

@@ -639,9 +639,7 @@ impl fmt::Display for NewVehicleError {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		match self {
 			Self::InitBodiesError(e) => e.fmt(f),
-			Self::IncompatibleWeaponTypes => {
-				"Multiple incompatible weapons are present".fmt(f)
-			}
+			Self::IncompatibleWeaponTypes => "Multiple incompatible weapons are present".fmt(f),
 			Self::UnknownWeaponType => "The weapon type is not recognized (bug?)".fmt(f),
 		}
 	}
@@ -690,8 +688,8 @@ impl Vehicle {
 		}
 
 		// Initialize bodies
-		let mut main_body = Body::init_all(&mut bodies, &mut shared)
-			.map_err(NewVehicleError::InitBodiesError)?;
+		let mut main_body =
+			Body::init_all(&mut bodies, &mut shared).map_err(NewVehicleError::InitBodiesError)?;
 		let mut max_cost = 0;
 		main_body.iter_all_bodies(&mut |b| max_cost += b.max_cost());
 
@@ -808,6 +806,7 @@ impl Vehicle {
 					}
 				}
 			});
+			can_flip = true;
 			if can_flip {
 				self.flipping_timeout.set(VIRTUAL_TICKS_PER_SECOND);
 			}

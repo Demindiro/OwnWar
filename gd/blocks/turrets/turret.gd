@@ -10,6 +10,7 @@ var _body_b_mount: Spatial
 var _joint_rid := RID()
 
 var base_position
+var body_offset
 var steppable_index = 0
 var turret_index = 0
 var anchor_index = 0
@@ -64,14 +65,14 @@ func _create_joint(body_a: PhysicsBody, body_b: PhysicsBody) -> void:
 		var z_up = transform.basis * Basis(Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, 1, 0))
 		_joint_rid = PhysicsServer.joint_create_hinge(
 			body_a.get_rid(),
-			Transform(z_up, vh.voxel_to_translation(bd_a, base_position)),
+			Transform(z_up, vh.voxel_to_translation(bd_a, base_position + body_offset)),
 			body_b.get_rid(),
-			Transform(z_up, vh.voxel_to_translation(bd_b, base_position))
+			Transform(z_up, vh.voxel_to_translation(bd_b, base_position + body_offset))
 		)
 		PhysicsServer.hinge_joint_set_param(
 			_joint_rid,
 			PhysicsServer.HINGE_JOINT_MOTOR_MAX_IMPULSE,
-			max_impulse
+			max_impulse * 0.01
 		)
 
 

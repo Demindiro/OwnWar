@@ -27,8 +27,7 @@ use core::fmt;
 use core::mem;
 use euclid::{UnknownUnit, Vector3D};
 #[cfg(not(feature = "server"))]
-use gdnative::api::MeshInstance;
-use gdnative::api::{BoxShape, CollisionShape, VehicleBody};
+use gdnative::api::{BoxShape, CollisionShape, MeshInstance, PhysicsServer, VehicleBody};
 use gdnative::prelude::*;
 use num_traits::{AsPrimitive, PrimInt};
 use std::convert::{TryFrom, TryInto};
@@ -202,21 +201,19 @@ impl Body {
 			if let Some(body) = &mut body[0] {
 				body.correct_mass();
 				body.cost = body.max_cost();
-				let middle = (body.size().to_f32() + Vector3::one()) * block::SCALE / 2.0;
+				let middle = body.size().to_f32() * block::SCALE * 0.5;
 				unsafe {
 					body.collision_shape_instance
 						.unwrap()
 						.assume_safe()
-						.set_translation(
-							middle
-								- (body.center_of_mass() + Vector3::new(0.5, 0.5, 0.5))
-									* block::SCALE,
-						);
-					body.collision_shape.assume_safe().set_extents(middle);
+						.set_translation(middle);
+					body.collision_shape
+						.assume_safe()
+						.set_extents(middle + Vector3::one() * block::SCALE * 0.5);
 				}
 
 				for block in body.multi_blocks.iter_mut().filter_map(Option::as_mut) {
-					block.init(body.offset, shared);
+					block.init(body.offset, body.center_of_mass, shared);
 					if let Some(server_node) = block.server_node.as_ref() {
 						let server_node = unsafe { server_node.assume_safe() };
 
@@ -315,6 +312,7 @@ impl Body {
 			parent: &mut Body,
 			tree: Vec<u8>,
 		) -> Result<(), InitError> {
+			/*
 			unsafe {
 				parent
 					.node
@@ -322,6 +320,7 @@ impl Body {
 					.assume_safe()
 					.set_translation(Vector3::zero())
 			};
+			*/
 			let mut rev_body_map = [0xff; 256]; // 0xff is easier to spot as "wrong"
 									//for i in tree.into_iter() {
 			for i in tree.iter().copied() {
@@ -651,10 +650,16 @@ impl Body {
 
 	/// Update the mass of the rigidbody with the current `mass`.
 	fn update_node_mass(&mut self) {
-		unsafe {
-			self.node()
-				.map(|b| b.assume_safe().set_mass(self.mass.into()));
-		}
+		self.node().map(|b| unsafe {
+			let b = b.assume_safe();
+			b.set_mass(self.mass.into());
+			let rid = b.get_rid();
+			dbg!(self.center_of_mass);
+			let com = self.center_of_mass * block::SCALE;
+			dbg!(com);
+			PhysicsServer::godot_singleton()
+				.call("body_set_local_com", &[rid.to_variant(), com.to_variant()]);
+		});
 	}
 }
 

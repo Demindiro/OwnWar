@@ -82,11 +82,7 @@ impl super::Body {
 			if let Some(server_node) = block.server_node {
 				// Create transform
 				let basis = rotation.basis();
-				let origin = Vector3::new(
-					position.x as f32 + 0.5,
-					position.y as f32 + 0.5,
-					position.z as f32 + 0.5,
-				) * block::SCALE;
+				let origin = convert_vec(position) * block::SCALE;
 				let transform = Transform { basis, origin };
 
 				// Initialize server node
@@ -228,19 +224,17 @@ impl super::Body {
 	pub(in super::super) fn init(&mut self, shared: &mut vehicle::Shared) -> Result<(), InitError> {
 		// Setup total cost, health ... & find special blocks.
 		self.correct_mass();
-		let middle = (self.size().to_f32() + Vector3::one()) * block::SCALE / 2.0;
+		let middle = (self.size().to_f32() + Vector3::one()) * block::SCALE * 0.5;
 		unsafe {
 			self.collision_shape_instance
 				.unwrap()
 				.assume_safe()
-				.set_translation(
-					middle - (self.center_of_mass() + Vector3::new(0.5, 0.5, 0.5)) * block::SCALE,
-				);
+				.set_translation(self.size().to_f32() * 0.5 * block::SCALE);
 			self.collision_shape.assume_safe().set_extents(middle);
 		}
 
 		for block in self.multi_blocks.iter_mut().filter_map(Option::as_mut) {
-			block.init(self.offset, shared);
+			block.init(self.offset, self.center_of_mass, shared);
 			if let Some(server_node) = block.server_node.as_ref() {
 				let server_node = unsafe { server_node.assume_safe() };
 

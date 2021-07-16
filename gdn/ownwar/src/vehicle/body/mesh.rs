@@ -34,7 +34,7 @@ impl super::Body {
 				let vmi = vmi.assume_safe();
 				let trf = vmi.transform();
 				let com = self.center_of_mass() * block::SCALE;
-				vmi.set_translation(trf.origin - trf.basis.xform(com));
+				//vmi.set_translation(trf.origin - trf.basis.xform(com));
 			}
 			self.children_mut().for_each(|b| b.visual_step(_delta));
 		}

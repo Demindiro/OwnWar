@@ -190,7 +190,8 @@ impl super::Body {
 			true
 		} else {
 			if old_mass != self.mass {
-				self.update_node_mass()
+				// Correct the mass and center of mass
+				self.update_node_mass();
 			}
 			destroy_disconnected && self.destroy_disconnected_blocks(shared, destroyed)
 		}
@@ -336,7 +337,7 @@ impl super::Body {
 		unsafe {
 			if let Some(vmi) = self.voxel_mesh_instance {
 				let vmi = vmi.assume_safe();
-				vmi.set_translation(vmi.translation() - center);
+				//vmi.set_translation(vmi.translation() - center);
 			}
 		}
 
@@ -344,7 +345,7 @@ impl super::Body {
 			if let Some(bsn) = block.server_node {
 				let bsn = unsafe { bsn.assume_safe() };
 				let pos = bsn.translation() - center;
-				bsn.set_translation(pos);
+				//bsn.set_translation(pos);
 			}
 		}
 
@@ -487,10 +488,8 @@ impl super::Body {
 		// TODO correct center of mass. This is a bit tricky due to joint mounts being relative
 		// to the rigidbody & the rigidbody's CoM always being at the center.
 		// We can already do the math, we just can't apply it yet.
-		/*
-		self.center_of_mass = (self.center_of_mass * self.mass - blk.mass * position) / new_mass;
-		*/
-		let _ = position;
+		self.center_of_mass =
+			(self.center_of_mass * self.mass - convert_vec(position) * blk.mass) / new_mass;
 		self.mass = new_mass;
 	}
 
