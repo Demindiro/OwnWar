@@ -206,10 +206,15 @@ impl super::Body {
 			children,
 
 			parent_anchors: Vec::new(),
+
+			collider_start_point: Voxel::zero(),
+			collider_end_point: size,
 		};
 
 		slf.create_godot_nodes();
 		slf.correct_mass(); // TODO should be done afterwards
+		slf.resize_collider(slf.collider_start_point, slf.collider_end_point);
+		slf.correct_collider_size();
 
 		for z in 0..=size.z {
 			for y in 0..=size.y {

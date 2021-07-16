@@ -6,6 +6,7 @@ mod init;
 mod mesh;
 mod multi_block;
 mod packet;
+mod physics;
 mod serialize;
 mod util;
 mod visual;
@@ -89,6 +90,11 @@ pub(super) struct Body {
 	/// This has one entry if it is the main body: the mainframe. The mainframe
 	/// is not a real anchor but pretending it is one simplifies things quite a bit.
 	parent_anchors: Vec<Voxel>,
+
+	/// The lowest corner of the box collider.
+	collider_start_point: Voxel,
+	/// The highest corner of the box collider.
+	collider_end_point: Voxel,
 }
 
 pub(super) enum Block<'a> {
@@ -163,6 +169,9 @@ impl Body {
 			children: Vec::new(),
 
 			parent_anchors: Vec::new(),
+
+			collider_start_point: Voxel::zero(),
+			collider_end_point: size,
 		};
 
 		slf.create_godot_nodes();
@@ -201,16 +210,7 @@ impl Body {
 			if let Some(body) = &mut body[0] {
 				body.correct_mass();
 				body.cost = body.max_cost();
-				let middle = body.size().to_f32() * block::SCALE * 0.5;
-				unsafe {
-					body.collision_shape_instance
-						.unwrap()
-						.assume_safe()
-						.set_translation(middle);
-					body.collision_shape
-						.assume_safe()
-						.set_extents(middle + Vector3::one() * block::SCALE * 0.5);
-				}
+				body.resize_collider(body.collider_start_point, body.collider_end_point);
 
 				for block in body.multi_blocks.iter_mut().filter_map(Option::as_mut) {
 					block.init(body.offset, body.center_of_mass, shared);

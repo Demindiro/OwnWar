@@ -193,6 +193,8 @@ impl super::Body {
 			if old_mass != self.mass {
 				// Correct the mass and center of mass
 				self.update_node_mass();
+				// Correct the collision shape
+				self.correct_collider_size();
 			}
 			ret
 		}
