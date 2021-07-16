@@ -806,7 +806,6 @@ impl Vehicle {
 					}
 				}
 			});
-			can_flip = true;
 			if can_flip {
 				self.flipping_timeout.set(VIRTUAL_TICKS_PER_SECOND);
 			}
@@ -944,11 +943,13 @@ impl Vehicle {
 		for mov in self.shared.movement.iter().filter_map(Option::as_ref) {
 			unsafe {
 				let mov = mov.assume_safe();
-				let (mut fwd, mut yaw, pitch, roll) = (0.0, 0.0, 0.0, 0.0);
+				let (mut fwd, mut yaw, mut pitch, roll) = (0.0, 0.0, 0.0, 0.0);
 				fwd += f32::from(u8::from(controller.move_forward()));
 				fwd -= f32::from(u8::from(controller.move_back()));
 				yaw += f32::from(u8::from(controller.turn_left()));
 				yaw -= f32::from(u8::from(controller.turn_right()));
+				pitch += f32::from(u8::from(controller.pitch_up()));
+				pitch -= f32::from(u8::from(controller.pitch_down()));
 				mov.call(
 					"drive",
 					&[

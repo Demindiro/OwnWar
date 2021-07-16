@@ -4,6 +4,7 @@ class_name OwnWar_Thruster_Server
 
 const MAX_SPEED := 40.0
 const MAX_FORCE := 500.0
+
 var direction := 0
 var last_drive := 0.0
 
@@ -31,7 +32,8 @@ func _ready() -> void:
 
 func drive(forward: float, yaw: float, pitch: float, roll: float) -> void:
 	var body = get_parent()
-	var factor := 1.0 - clamp(body.linear_velocity.length() / MAX_SPEED, 0.0, 1.0)
+	#var factor := 1.0 - clamp(body.linear_velocity.length() / MAX_SPEED, 0.0, 1.0)
+	var factor = 1.0 - clamp(body.linear_velocity.dot(global_transform.basis.z) / MAX_SPEED, 0.0, 1.0)
 	var com = PhysicsServer.body_get_local_com(body.get_rid())
 	var pos = base_position * 0.25 # BLOCK_SCALE
 	match direction:

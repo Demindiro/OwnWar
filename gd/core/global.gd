@@ -73,6 +73,7 @@ func _init():
 	BM.add_block(preload("res://blocks/weapons/lasers/fixed_laser.tres"))
 	BM.add_block(preload("res://blocks/thrusters/thruster.tres"))
 	BM.add_block(preload("res://blocks/weapons/plasma/cannon.tres"))
+	BM.add_block(preload("res://blocks/wings/rudder.tres"))
 
 
 func _ready():
