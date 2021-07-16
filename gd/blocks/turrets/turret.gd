@@ -23,13 +23,14 @@ func _ready() -> void:
 
 
 func _ready_deferred():
+	var mount_b
 	for body in anchor_mounts_bodies:
-		_create_joint(get_parent(), body)
+		mount_b = _create_joint(get_parent(), body)
 
 	if _body_a != null && _body_b != null:
 		_body_b_mount = Spatial.new()
 		_body_b.add_child(_body_b_mount)
-		_body_b_mount.transform.basis = transform.basis
+		_body_b_mount.transform = Transform(transform.basis, mount_b.origin)
 		var e := _body_b_mount.connect("tree_exiting", self, "set", ["_body_b_mount", null])
 		assert(e == OK)
 
@@ -55,7 +56,7 @@ func aim_at(position: Vector3):
 	_aim_pos = position
 
 
-func _create_joint(body_a: PhysicsBody, body_b: PhysicsBody) -> void:
+func _create_joint(body_a: PhysicsBody, body_b: PhysicsBody):
 	_body_a = body_a
 	_body_b = body_b
 	if body_b != null && body_a != null:
@@ -63,17 +64,20 @@ func _create_joint(body_a: PhysicsBody, body_b: PhysicsBody) -> void:
 		var bd_a = body_a.get_meta("ownwar_body_index")
 		var bd_b = body_b.get_meta("ownwar_body_index")
 		var z_up = transform.basis * Basis(Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, 1, 0))
+		var mount_b = Transform(z_up, vh.voxel_to_translation(bd_b, base_position + body_offset))
 		_joint_rid = PhysicsServer.joint_create_hinge(
 			body_a.get_rid(),
 			Transform(z_up, vh.voxel_to_translation(bd_a, base_position + body_offset)),
 			body_b.get_rid(),
-			Transform(z_up, vh.voxel_to_translation(bd_b, base_position + body_offset))
+			mount_b
 		)
 		PhysicsServer.hinge_joint_set_param(
 			_joint_rid,
 			PhysicsServer.HINGE_JOINT_MOTOR_MAX_IMPULSE,
 			max_impulse * 0.01
 		)
+		return mount_b
+	return null
 
 
 func _remove_joint() -> void:
