@@ -23,6 +23,8 @@ onready var _camera: Camera = get_node(camera)
 onready var _gui: Control = get_node("../GUI")
 onready var _health_bar: HealthBar = get_node("Health")
 
+var old_player_vehicle
+
 
 func _ready() -> void:
 	set_mouse_mode()
@@ -99,6 +101,18 @@ func _set_camera() -> void:
 	if player_vehicle == null:
 		return
 
+	if old_player_vehicle != player_vehicle:
+		# Add collision exceptions
+		for n in Util.get_children_recursive(player_vehicle.get_node()) + [player_vehicle.get_node()]:
+			if n is PhysicsBody:
+				_camera_ray.add_exception(n)
+				_camera_terrain_ray.add_exception(n)
+				var e = n.connect("tree_exiting", _camera_ray, "remove_exception", [n])
+				assert(e == OK)
+				e = n.connect("tree_exiting", _camera_terrain_ray, "remove_exception", [n])
+				assert(e == OK)
+		old_player_vehicle = player_vehicle
+
 	var basis := Basis(Vector3(0, 1, 0), _camera_pan) * \
 		Basis(Vector3(1, 0, 0), _camera_tilt)
 	var pos: Vector3 = player_vehicle.get_visual_origin() + camera_offset
@@ -128,7 +142,8 @@ func _set_camera() -> void:
 			var p = _camera_ray.get_collision_point()
 			if col.has_meta("ownwar_vehicle_index"):
 				var v = vehicles[col.get_meta("ownwar_vehicle_index")]
-				p = v.raycast(col.get_meta("ownwar_body_index"), p, -basis.z * 1000)
+				var d = basis * _camera_ray.cast_to
+				p = v.raycast(col.get_meta("ownwar_body_index"), p, d * 1000)
 				if p != null:
 					player_vehicle.aim_at = p
 					break
@@ -197,3 +212,10 @@ func poll_input() -> void:
 			player_vehicle.move_forward = Input.is_action_pressed("combat_move_forward")
 			player_vehicle.move_back = Input.is_action_pressed("combat_move_back")
 			player_vehicle.fire = Input.is_action_pressed("combat_fire")
+
+func debug_draw():
+	if player_vehicle_id < 0:
+		return
+	var player_vehicle = vehicles[player_vehicle_id]
+	if player_vehicle != null:
+		Debug.draw_point(player_vehicle.aim_at, Color.green, 0.13)

@@ -52,8 +52,6 @@ camera_zoom_min = 0.0
 [node name="Crosshair" type="TextureRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 1.2937
-margin_right = 1.2937
 mouse_filter = 2
 texture = ExtResource( 3 )
 stretch_mode = 4
@@ -77,4 +75,3 @@ script = ExtResource( 4 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-value = 1.0
