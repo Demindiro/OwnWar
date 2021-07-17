@@ -1,3 +1,4 @@
+mod check;
 mod damage;
 mod debug;
 mod godot;
@@ -114,6 +115,8 @@ pub enum InitError {
 	NoMainframe,
 	/// Multiple mainframes were found.
 	MultipleMainframes,
+	/// Some blocks are not connected to an anchor.
+	DisconnectedBlocks,
 }
 
 impl fmt::Display for InitError {
@@ -123,6 +126,7 @@ impl fmt::Display for InitError {
 			Self::MultipleBodiesPerAnchor => "multiple bodies on an anchor".fmt(f),
 			Self::NoMainframe => "no mainframe found".fmt(f),
 			Self::MultipleMainframes => "multiple mainframes found".fmt(f),
+			Self::DisconnectedBlocks => "some blocks are disconnected".fmt(f),
 		}
 	}
 }
@@ -289,6 +293,13 @@ impl Body {
 						}
 					}
 				}
+			}
+		}
+
+		// Check if all blocks are connected
+		for b in bodies.iter().filter_map(Option::as_ref) {
+			if !b.are_all_blocks_connected() {
+				return Err(InitError::DisconnectedBlocks);
 			}
 		}
 

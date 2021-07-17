@@ -1,4 +1,4 @@
-use std::iter::repeat;
+use core::iter::repeat;
 
 pub struct BitArray(Box<[u8]>, usize);
 

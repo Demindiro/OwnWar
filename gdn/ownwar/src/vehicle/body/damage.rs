@@ -540,7 +540,7 @@ impl super::Body {
 		false
 	}
 
-	fn mark_connected_blocks(
+	pub(super) fn mark_connected_blocks(
 		&self,
 		marks: &mut BitArray,
 		voxel: Voxel,
