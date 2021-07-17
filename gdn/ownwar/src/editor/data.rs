@@ -1,3 +1,4 @@
+use crate::block;
 use crate::rotation::*;
 use crate::util::{convert_vec, AABB};
 use fxhash::{FxHashMap, FxHashSet};
@@ -10,6 +11,52 @@ type Vec3u8 = euclid::Vector3D<u8, euclid::UnknownUnit>;
 const MAX_LAYERS: usize = 255;
 const MAX_COLORS: usize = 255;
 
+/// Enum that indicates whether a position is occupied by a block or a mount point of a block
+enum BlockOrMount {
+	/// It's a block
+	Block(Block),
+	/// It's a mount point. The position points to the block
+	Mount(Vec3u8),
+}
+
+impl BlockOrMount {
+	/// Return as a block if it is one.
+	fn as_block(&self) -> Option<&Block> {
+		if let Self::Block(b) = self {
+			Some(b)
+		} else {
+			None
+		}
+	}
+
+	/// Return as a block if it is one.
+	fn as_block_mut(&mut self) -> Option<&mut Block> {
+		if let Self::Block(b) = self {
+			Some(b)
+		} else {
+			None
+		}
+	}
+
+	/// Return as a block if it is one.
+	fn into_block(self) -> Option<Block> {
+		if let Self::Block(b) = self {
+			Some(b)
+		} else {
+			None
+		}
+	}
+
+	/// Return as a mount point if it is one.
+	fn as_mount(&self) -> Option<&Vec3u8> {
+		if let Self::Mount(m) = self {
+			Some(m)
+		} else {
+			None
+		}
+	}
+}
+
 #[derive(Debug)]
 pub(crate) struct Block {
 	pub id: NonZeroU16,
@@ -20,7 +67,9 @@ pub(crate) struct Block {
 pub(crate) struct Layer {
 	/// Blocks in a **FxHashMap**. The use of a non-cryptographic hash is important for
 	/// determinism! (this took me a while to figure out...)
-	blocks: FxHashMap<Vec3u8, Block>,
+	blocks: FxHashMap<Vec3u8, BlockOrMount>,
+	/// The real amount of blocks.
+	block_count: u32,
 	pub name: String,
 }
 
@@ -42,10 +91,14 @@ pub enum VehicleError {
 	HasBlocks,
 }
 
+#[derive(Debug)]
+struct Occupied;
+
 impl Layer {
 	fn new() -> Self {
 		Self {
 			blocks: FxHashMap::default(),
+			block_count: 0,
 			name: String::new(),
 		}
 	}
@@ -54,35 +107,97 @@ impl Layer {
 		self.blocks.contains_key(&position)
 	}
 
-	pub fn get_block(&self, position: Vec3u8) -> Option<&Block> {
-		self.blocks.get(&position)
+	pub fn get_block(&self, position: Vec3u8) -> Option<(&Block, Vec3u8)> {
+		self.blocks.get(&position).map(|b| match b {
+			BlockOrMount::Block(blk) => (blk, position),
+			BlockOrMount::Mount(pos) => (self.blocks[pos].as_block().unwrap(), *pos),
+		})
 	}
 
-	fn set_block(&mut self, position: Vec3u8, id: NonZeroU16, rotation: Rotation, color: u8) {
+	fn add_block(
+		&mut self,
+		position: Vec3u8,
+		id: NonZeroU16,
+		rotation: Rotation,
+		color: u8,
+	) -> Result<(), Occupied> {
+		let blk = block::Block::get(id).unwrap();
+
+		// Checking first is less efficient but easier
+		if self.blocks.contains_key(&position) {
+			return Err(Occupied);
+		}
+		for d in blk.extra_mount_points.iter() {
+			// TODO account for rotation
+			let p = convert_vec::<_, isize>(position) + convert_vec::<_, isize>(*d);
+			let x = p.x.try_into();
+			let y = p.y.try_into();
+			let z = p.z.try_into();
+			if let (Ok(x), Ok(y), Ok(z)) = (x, y, z) {
+				if self.blocks.contains_key(&Vec3u8::new(x, y, z)) {
+					return Err(Occupied);
+				}
+			}
+		}
+
+		// Insert now that we know the positions aren't occupied.
 		self.blocks.insert(
 			position,
-			Block {
+			BlockOrMount::Block(Block {
 				id,
 				rotation,
 				color,
-			},
+			}),
 		);
+		for d in blk.extra_mount_points.iter() {
+			// TODO account for rotation
+			let p = convert_vec::<_, isize>(position) + convert_vec::<_, isize>(*d);
+			let x = p.x.try_into();
+			let y = p.y.try_into();
+			let z = p.z.try_into();
+			if let (Ok(x), Ok(y), Ok(z)) = (x, y, z) {
+				self.blocks
+					.insert(Vec3u8::new(x, y, z), BlockOrMount::Mount(position));
+			}
+		}
+
+		self.block_count += 1;
+
+		Ok(())
 	}
 
-	fn remove_block(&mut self, position: Vec3u8) -> Option<Block> {
-		self.blocks.remove(&position)
+	fn remove_block(&mut self, position: Vec3u8) -> Option<(Block, Vec3u8)> {
+		let blk_pos = self.blocks.remove(&position).map(|b| match b {
+			BlockOrMount::Block(b) => (b, position),
+			BlockOrMount::Mount(p) => (self.blocks.remove(&p).unwrap().into_block().unwrap(), p),
+		});
+		if let Some((blk, pos)) = blk_pos.as_ref() {
+			let blk = block::Block::get(blk.id).unwrap();
+			for d in blk.extra_mount_points.iter() {
+				// TODO account for rotation
+				let p = convert_vec::<_, isize>(*pos) + convert_vec::<_, isize>(*d);
+				let x = p.x.try_into();
+				let y = p.y.try_into();
+				let z = p.z.try_into();
+				if let (Ok(x), Ok(y), Ok(z)) = (x, y, z) {
+					self.blocks.remove(&Vec3u8::new(x, y, z)).map(|m| {
+						m.as_mount().unwrap();
+					});
+				}
+			}
+			self.block_count -= 1;
+		}
+		blk_pos
 	}
 
 	pub fn iter_blocks(&self) -> impl Iterator<Item = (&Vec3u8, &Block)> {
-		self.blocks.iter()
+		self.blocks
+			.iter()
+			.filter_map(|(p, b)| b.as_block().map(|b| (p, b)))
 	}
 
 	pub fn block_count(&self) -> u32 {
-		// Literally can't happen as u8 * 3 < u32 but lets be safe...
-		self.blocks
-			.len()
-			.try_into()
-			.expect("blocks.len() overflows u32")
+		self.block_count
 	}
 
 	pub fn aabb(&self) -> Option<AABB<u8>> {
@@ -169,7 +284,11 @@ impl Vehicle {
 		} else {
 			self.colors.remove(index as usize);
 			for layer in self.layers.iter_mut() {
-				for block in layer.blocks.values_mut() {
+				for block in layer
+					.blocks
+					.values_mut()
+					.filter_map(BlockOrMount::as_block_mut)
+				{
 					if block.color == index {
 						block.color = 0;
 					} else if block.color > index {
@@ -244,10 +363,23 @@ impl Vehicle {
 		let marks = if layer.block_count() == 0 {
 			FxHashSet::default()
 		} else {
-			let mut remaining = layer
-				.iter_blocks()
-				.map(|(&p, _)| p)
-				.collect::<FxHashSet<_>>();
+			// Make a map with all remaining blocks.
+			let mut remaining = FxHashSet::default();
+			for (&p, blk) in layer.iter_blocks() {
+				remaining.insert(p);
+				let blk = block::Block::get(blk.id).unwrap();
+				for &d in blk.extra_mount_points.iter() {
+					// TODO account for rotation
+					let p = convert_vec::<_, isize>(p) + convert_vec::<_, isize>(d);
+					let x = p.x.try_into();
+					let y = p.y.try_into();
+					let z = p.z.try_into();
+					if let (Ok(x), Ok(y), Ok(z)) = (x, y, z) {
+						remaining.insert(Vec3u8::new(x, y, z));
+					}
+				}
+			}
+
 			let mut marks = Vec::new();
 			while remaining.len() > 0 {
 				let mut m = FxHashSet::default();
@@ -284,8 +416,9 @@ impl Vehicle {
 		} else if self.has_block_at(position) {
 			Err(VehicleError::PositionOccupied)
 		} else {
-			self.layers[layer as usize].set_block(position, id, rotation, color);
-			Ok(())
+			self.layers[layer as usize]
+				.add_block(position, id, rotation, color)
+				.map_err(|_| VehicleError::PositionOccupied)
 		}
 	}
 
@@ -293,7 +426,7 @@ impl Vehicle {
 		&mut self,
 		layer: u8,
 		position: Vec3u8,
-	) -> Result<Option<Block>, VehicleError> {
+	) -> Result<Option<(Block, Vec3u8)>, VehicleError> {
 		Ok(self.get_layer_mut(layer)?.remove_block(position))
 	}
 
@@ -309,10 +442,15 @@ impl Vehicle {
 			}
 			for layer in self.layers.iter_mut() {
 				let map = mem::replace(&mut layer.blocks, FxHashMap::default());
-				for (position, block) in map {
-					let position = convert_vec(position) + by;
-					let position = convert_vec(position);
-					layer.set_block(position, block.id, block.rotation, block.color);
+				for (pos, blk) in map
+					.into_iter()
+					.filter_map(|(p, b)| b.into_block().map(|b| (p, b)))
+				{
+					let pos = convert_vec(pos) + by;
+					let pos = convert_vec(pos);
+					layer
+						.add_block(pos, blk.id, blk.rotation, blk.color)
+						.unwrap();
 				}
 			}
 			Ok(())
@@ -322,10 +460,14 @@ impl Vehicle {
 	}
 
 	// FIXME this can panic if a block is outside the grid_size range
-	pub fn rotate_all_blocks(&mut self, grid_size: u8) {
+	pub fn rotate_all_blocks(&mut self, grid_size: u8) -> Result<(), VehicleError> {
+		// FIXME do an AABB check before rotating
 		for layer in self.layers.iter_mut() {
 			let map = mem::replace(&mut layer.blocks, FxHashMap::default());
-			for (mut position, block) in map {
+			for (mut position, block) in map
+				.into_iter()
+				.filter_map(|(p, b)| b.into_block().map(|b| (p, b)))
+			{
 				(position.x, position.z) = (
 					position.z,
 					grid_size
@@ -333,9 +475,13 @@ impl Vehicle {
 						.expect("Underflow during rotation"),
 				);
 				let rotation = block.rotation.map_counter_clockwise();
-				layer.set_block(position, block.id, rotation, block.color);
+				layer
+					.add_block(position, block.id, rotation, block.color)
+					.unwrap();
 			}
 		}
+
+		Ok(())
 	}
 
 	pub fn layer_count(&self) -> u8 {
@@ -357,11 +503,10 @@ impl Vehicle {
 			Err(VehicleError::LayerOutOfBounds)
 		} else if self.colors.len() <= color as usize {
 			Err(VehicleError::ColorOutOfBounds)
-		} else if self.layers[layer as usize].has_block_at(position) {
-			Err(VehicleError::PositionOccupied)
 		} else {
-			self.layers[layer as usize].set_block(position, id, rotation, color);
-			Ok(())
+			self.layers[layer as usize]
+				.add_block(position, id, rotation, color)
+				.map_err(|_| VehicleError::PositionOccupied)
 		}
 	}
 

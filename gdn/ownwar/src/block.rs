@@ -2,6 +2,7 @@
 
 use crate::rotation::*;
 use crate::util::{convert_vec, AABB};
+use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{Mesh, Resource};
 use gdnative::prelude::*;
 use lazy_static::lazy_static;
@@ -47,6 +48,8 @@ pub struct Block {
 	pub alternate_rotation_map: Option<[Rotation; 24]>,
 
 	occlusion_info: Option<OcclusionInfo>,
+
+	pub extra_mount_points: Box<[Vector3D<i8, UnknownUnit>]>,
 }
 
 #[derive(NativeClass)]
@@ -69,71 +72,61 @@ pub struct OcclusionInfo {
 	solid_faces: u8,
 }
 
+macro_rules! add_prop {
+	($builder:ident, $name:literal, $get:ident, $set:ident) => {
+		$builder
+			.add_property($name)
+			.with_getter(&Self::$get)
+			.with_setter(&Self::$set)
+			.done();
+	};
+	($builder:ident, $name:literal, $get:ident) => {
+		$builder.add_property($name).with_getter(&Self::$get).done();
+	};
+}
+
 #[methods]
 impl Block {
 	fn register(builder: &ClassBuilder<Self>) {
-		builder
-			.add_property("aabb")
-			.with_getter(&Self::gd_get_aabb)
-			.with_setter(&Self::gd_set_aabb)
-			.done();
-		builder
-			.add_property("id")
-			.with_getter(&Self::gd_get_id)
-			.with_setter(&Self::gd_set_id)
-			.done();
-		builder
-			.add_property("health")
-			.with_getter(&Self::gd_get_health)
-			.with_setter(&Self::gd_set_health)
-			.done();
-		builder
-			.add_property("cost")
-			.with_getter(&Self::gd_get_cost)
-			.with_setter(&Self::gd_set_cost)
-			.done();
-		builder
-			.add_property("__mirror_block_id")
-			.with_getter(&Self::gd_get_mirror_block_id)
-			.with_setter(&Self::gd_set_mirror_block_id)
-			.done();
-		builder
-			.add_property("mirror_block")
-			.with_getter(&Self::gd_get_mirror_block)
-			.with_setter(&Self::gd_set_mirror_block)
-			.done();
-		builder
-			.add_property("mesh")
-			.with_getter(&Self::gd_get_mesh)
-			.with_setter(&Self::gd_set_mesh)
-			.done();
-		builder
-			.add_property("editor_node")
-			.with_getter(&Self::gd_editor_node)
-			.done();
-		builder
-			.add_property("server_node")
-			.with_getter(&Self::gd_server_node)
-			.done();
-		builder
-			.add_property("client_node")
-			.with_getter(&Self::gd_client_node)
-			.done();
-		builder
-			.add_property("instance")
-			.with_getter(&Self::gd_get_instance)
-			.with_setter(&Self::gd_set_instance)
-			.done();
-		builder
-			.add_property("mirror_rotation_offset")
-			.with_getter(&Self::gd_get_mirror_rotation_offset)
-			.with_setter(&Self::gd_set_mirror_rotation_offset)
-			.done();
-		builder
-			.add_property("alternate_rotation_map")
-			.with_getter(&Self::gd_get_alternate_rotation_map)
-			.with_setter(&Self::gd_set_alternate_rotation_map)
-			.done();
+		add_prop!(builder, "aabb", gd_get_aabb, gd_set_aabb);
+		add_prop!(builder, "id", gd_get_id, gd_set_id);
+		add_prop!(builder, "health", gd_get_health, gd_set_health);
+		add_prop!(builder, "cost", gd_get_cost, gd_set_cost);
+		add_prop!(
+			builder,
+			"__mirror_block_id",
+			gd_get_mirror_block_id,
+			gd_set_mirror_block_id
+		);
+		add_prop!(
+			builder,
+			"mirror_block",
+			gd_get_mirror_block,
+			gd_set_mirror_block
+		);
+		add_prop!(builder, "mesh", gd_get_mesh, gd_set_mesh);
+		add_prop!(builder, "editor_node", gd_editor_node);
+		add_prop!(builder, "server_node", gd_server_node);
+		add_prop!(builder, "client_node", gd_client_node);
+		add_prop!(builder, "instance", gd_get_instance, gd_set_instance);
+		add_prop!(
+			builder,
+			"mirror_rotation_offset",
+			gd_get_mirror_rotation_offset,
+			gd_set_mirror_rotation_offset
+		);
+		add_prop!(
+			builder,
+			"alternate_rotation_map",
+			gd_get_alternate_rotation_map,
+			gd_set_alternate_rotation_map
+		);
+		add_prop!(
+			builder,
+			"extra_mount_points",
+			gd_get_extra_mount_points,
+			gd_set_extra_mount_points
+		);
 	}
 
 	fn new(owner: TRef<Resource>) -> Self {
@@ -163,6 +156,8 @@ impl Block {
 			alternate_rotation_map: None,
 
 			occlusion_info: None,
+
+			extra_mount_points: Box::new([]),
 		};
 		s.gd_set_mirror_rotation_offset(owner, 0);
 		s
@@ -400,6 +395,28 @@ impl Block {
 				None
 			}
 		};
+	}
+
+	fn gd_get_extra_mount_points(&self, _: TRef<Resource>) -> TypedArray<Vector3> {
+		let mut arr = TypedArray::new();
+		arr.resize(self.extra_mount_points.len() as i32);
+		let mut a = arr.write();
+		for (i, m) in self.extra_mount_points.iter().enumerate() {
+			a[i] = convert_vec(*m);
+		}
+		drop(a);
+		arr
+	}
+
+	fn gd_set_extra_mount_points(&mut self, _: TRef<Resource>, mounts: TypedArray<Vector3>) {
+		let mut mp = Vec::with_capacity(mounts.len() as usize);
+		for r in mounts.read().iter() {
+			let r = Vector3D::new(r.x as i8, r.y as i8, r.z as i8);
+			if r != Vector3D::zero() && !mp.contains(&r) {
+				mp.push(r)
+			}
+		}
+		self.extra_mount_points = mp.into_boxed_slice();
 	}
 }
 

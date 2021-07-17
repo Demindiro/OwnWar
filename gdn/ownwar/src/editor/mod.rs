@@ -13,7 +13,7 @@ mod godot {
 	use crate::rotation::*;
 	use crate::util::{convert_vec, VoxelRaycast, AABB};
 	use crate::vehicle::{self, VoxelMesh};
-	use euclid::Vector3D;
+	use euclid::{UnknownUnit, Vector3D};
 	use gdnative::api::{Camera, File, PackedScene, Spatial};
 	use gdnative::nativescript::property::Usage;
 	use gdnative::prelude::*;
@@ -782,7 +782,7 @@ mod godot {
 				&& pos.z < grid_size
 			{
 				let pos = convert_vec(pos);
-				let id = self.delete_block(owner, self.selected_layer, pos)?;
+				let (pos, id) = self.delete_block(owner, self.selected_layer, pos)?;
 				let mirror = if self.mirror {
 					Self::get_mirror_orientation(pos, self.rotation, id)
 						.map(|(pos, _, _)| {
@@ -848,36 +848,33 @@ mod godot {
 
 		fn delete_block(
 			&mut self,
-			_owner: TRef<Node>,
+			_: TRef<Node>,
 			layer: u8,
 			position: Vec3<u8>,
-		) -> Result<NonZeroU16, &'static str> {
+		) -> Result<(Vector3D<u8, UnknownUnit>, NonZeroU16), &'static str> {
 			match self.data.remove_block(layer, position) {
 				Err(_) => {
 					panic!("Unhandled remove_block() error");
 				}
-				Ok(block) => {
-					if let Some(block) = block {
-						let (mesh, nodes) = &mut self
-							.layers
-							.get_mut(layer as usize)
-							.expect("Layer index out of bounds");
-						unsafe {
-							mesh.assume_safe()
-								.map_mut(|s, o| {
-									s.remove_block(position);
-									s.generate(&o);
-								})
-								.unwrap();
-						}
-						if let Some(node) = nodes.remove(&position) {
-							unsafe { node.assume_safe().queue_free() }
-						}
-						Ok(block.id)
-					} else {
-						Err("No block at location")
+				Ok(Some((block, pos))) => {
+					let (mesh, nodes) = &mut self
+						.layers
+						.get_mut(layer as usize)
+						.expect("Layer index out of bounds");
+					unsafe {
+						mesh.assume_safe()
+							.map_mut(|s, o| {
+								s.remove_block(pos);
+								s.generate(&o);
+							})
+							.unwrap();
 					}
+					if let Some(node) = nodes.remove(&pos) {
+						unsafe { node.assume_safe().queue_free() }
+					}
+					Ok((pos, block.id))
 				}
+				Ok(None) => Err("No block at location"),
 			}
 		}
 
@@ -1122,8 +1119,13 @@ mod godot {
 
 		#[profiled(tag = "Rotate vehicle")]
 		fn rotate_vehicle(&mut self, owner: TRef<Node>) {
-			self.data.rotate_all_blocks(GRID_SIZE);
-			self.refresh_meshes(owner);
+			match self.data.rotate_all_blocks(GRID_SIZE) {
+				Ok(()) => self.refresh_meshes(owner),
+				Err(e) => {
+					// TODO use Display trait
+					Self::emit_error(owner, format!("Failed to rotate vehicle: {:?}", e));
+				}
+			}
 		}
 
 		fn refresh_meshes(&mut self, owner: TRef<Node>) {

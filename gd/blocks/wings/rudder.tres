@@ -5,7 +5,6 @@
 
 [resource]
 script = ExtResource( 1 )
-revision = null
 human_category = "Movement"
 mass = 1.0
 human_name = "Rudder"
@@ -15,5 +14,4 @@ health = 100
 cost = 10
 __mirror_block_id = null
 instance = ExtResource( 2 )
-mirror_rotation_offset = null
 alternate_rotation_map = null

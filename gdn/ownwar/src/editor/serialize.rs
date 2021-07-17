@@ -1,9 +1,10 @@
 use super::data::Vehicle;
 use crate::rotation::Rotation;
+use core::convert::{TryFrom, TryInto};
 use core::fmt;
-use std::convert::{TryFrom, TryInto};
-use std::num::NonZeroU16;
-use std::str::Utf8Error;
+use core::num::NonZeroU16;
+use core::str::Utf8Error;
+use gdnative::godot_error;
 
 const MAGIC: u32 = 493279249;
 
@@ -178,9 +179,10 @@ mod rev_1 {
 					(data, color) = read_u8(data)?;
 					// TODO don't unwrap, handle the error properly
 					let rotation = Rotation::new(rotation).unwrap();
-					vehicle
-						.add_block(layer, Vec3u8::new(x, y, z), id, rotation, color)
-						.unwrap();
+					match vehicle.add_block(layer, Vec3u8::new(x, y, z), id, rotation, color) {
+						Ok(()) => (),
+						Err(e) => godot_error!("Failed to add block: {:?}", e),
+					}
 				}
 			}
 		}
@@ -240,14 +242,17 @@ mod rev_1 {
 			for &v in &[s.x, s.y, s.z, e.x, e.y, e.z] {
 				block_data.push(v);
 			}
-			for (x, y, z) in iter_3d_inclusive((s.x, s.y, s.z), (e.x, e.y, e.z)) {
-				if let Some(block) = layer.get_block(Vec3u8::new(x, y, z)) {
-					block_data.extend(&block.id.get().to_le_bytes());
-					block_data.push(block.rotation.get());
-					block_data.push(block.color);
-				} else {
-					block_data.extend(&0u16.to_le_bytes());
+			for pos in iter_3d_inclusive((s.x, s.y, s.z), (e.x, e.y, e.z)).map(Vec3u8::from) {
+				if let Some((block, p)) = layer.get_block(pos) {
+					// Make sure we don't add a multiblock twice
+					if pos == p {
+						block_data.extend(&block.id.get().to_le_bytes());
+						block_data.push(block.rotation.get());
+						block_data.push(block.color);
+						continue;
+					}
 				}
+				block_data.extend(&0u16.to_le_bytes());
 			}
 		}
 

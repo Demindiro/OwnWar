@@ -362,15 +362,6 @@ impl super::Body {
 				DamageBlockResult::BlockDestroyed { .. }
 				| DamageBlockResult::MultiBlockDestroyed { .. } => {
 					*destroy_disconnected = true;
-					destroyed_blocks.push(voxel);
-					#[cfg(not(feature = "server"))]
-					if let Some(vm) = &self.voxel_mesh {
-						unsafe {
-							vm.assume_safe()
-								.map_mut(|s, _| s.remove_block(voxel))
-								.unwrap()
-						}
-					}
 
 					if let Ok(n) = super::godot::instance_effect(DESTROY_BLOCK_EFFECT_SCENE) {
 						n.set_translation(voxel.to_f32() * block::SCALE);
@@ -378,17 +369,55 @@ impl super::Body {
 					}
 
 					// Properly cleanup multiblocks
-					if let DamageBlockResult::MultiBlockDestroyed { multi_block, .. } = result {
+					let pos = if let DamageBlockResult::MultiBlockDestroyed {
+						multi_block, ..
+					} = result
+					{
+						let pos = multi_block.base_position;
 						#[cfg(not(feature = "server"))]
 						let body = multi_block.destroy(shared, &mut self.interpolation_states[..]);
 						#[cfg(feature = "server")]
 						let body = multi_block.destroy(shared);
+
 						// Destroy the connected body, if any.
 						body.map(|body| {
 							let body = &mut self.children[usize::from(body)];
 							body.destroy(shared, body.center_of_mass);
 						});
+
+						let index = self.get_index(pos).unwrap();
+						let blk = block::Block::get(self.ids[index as usize].unwrap()).unwrap();
+
+						// Set the base position to 0 HP
+						self.health[self.get_index(pos).unwrap() as usize] = None;
+
+						// Set all mount points to 0 HP
+						for d in blk.extra_mount_points.iter().copied() {
+							// TODO account for rotation
+							let p = convert_vec::<_, isize>(pos) + convert_vec::<_, isize>(d);
+							if let Ok(index) = self.get_index(p) {
+								self.health[index as usize] = None;
+								destroyed_blocks.push(convert_vec(p));
+							}
+						}
+
+						pos
+					} else {
+						voxel
+					};
+
+					destroyed_blocks.push(pos);
+
+					#[cfg(not(feature = "server"))]
+					if let Some(vm) = &self.voxel_mesh {
+						unsafe {
+							vm.assume_safe()
+								.map_mut(|s, _| s.remove_block(pos))
+								.unwrap()
+						}
 					}
+					#[cfg(feature = "server")]
+					let _ = pos;
 
 					Ok(false)
 				}
@@ -403,59 +432,61 @@ impl super::Body {
 	fn try_damage_block(&mut self, position: Voxel, damage: u32) -> Result<DamageBlockResult, ()> {
 		self.get_index(position).map(|i| {
 			let i = i as usize;
-			if let Some(id) = self.ids[i] {
-				if let Some(hp) = self.health[i] {
-					if hp.get() & 0x8000 != 0 {
-						let block_index = (hp.get() & 0x7fff) as usize;
-						if let Some(ref block) = self.multi_blocks[block_index] {
-							let hp = block.health.get();
-							if hp <= damage {
-								let block = self.multi_blocks[block_index].take().unwrap();
-								let damage = damage - hp;
-								self.correct_for_removed_block(position, id);
-								self.multi_blocks[block_index] = None;
-								for &pos in block.reverse_indices.iter() {
-									self.health[self.get_index(pos).unwrap() as usize] = None;
-									if self.remove_all_anchors(pos) {
-										// Reinsert MultiBlock so it's properly destroyed
-										self.multi_blocks[block_index] = Some(block);
-										return DamageBlockResult::BodyDestroyed;
-									}
-								}
-								DamageBlockResult::MultiBlockDestroyed {
-									multi_block: block,
-									damage,
-								}
-							} else {
-								self.multi_blocks[block_index].as_mut().unwrap().health =
-									NonZeroU32::new(block.health.get() - damage).unwrap();
-								DamageBlockResult::Absorbed
-							}
-						} else {
-							godot_error!("Block was already destroyed!");
-							// Try to carry on anyways, we can recover from this
-							self.health[i] = None;
-							DamageBlockResult::Empty { damage }
-						}
-					} else {
-						let hp = hp.get() as u32;
+			if let Some(hp) = self.health[i] {
+				if hp.get() & 0x8000 != 0 {
+					let block_index = (hp.get() & 0x7fff) as usize;
+					if let Some(ref block) = self.multi_blocks[block_index] {
+						let hp = block.health.get();
 						if hp <= damage {
+							let id = self
+								.get_index(block.base_position)
+								.ok()
+								.and_then(|i| self.ids[i as usize])
+								.unwrap();
+							let block = self.multi_blocks[block_index].take().unwrap();
 							let damage = damage - hp;
-							self.health[i] = None;
 							self.correct_for_removed_block(position, id);
-							if self.remove_all_anchors(position) {
-								DamageBlockResult::BodyDestroyed
-							} else {
-								DamageBlockResult::BlockDestroyed { damage }
+							self.multi_blocks[block_index] = None;
+							for &pos in block.reverse_indices.iter() {
+								self.health[self.get_index(pos).unwrap() as usize] = None;
+								if self.remove_all_anchors(pos) {
+									// Reinsert MultiBlock so it's properly destroyed
+									self.multi_blocks[block_index] = Some(block);
+									return DamageBlockResult::BodyDestroyed;
+								}
+							}
+							DamageBlockResult::MultiBlockDestroyed {
+								multi_block: block,
+								damage,
 							}
 						} else {
-							// unwrap() may seem silly, but the check is worth it
-							self.health[i] = Some(NonZeroU16::new((hp - damage) as u16).unwrap());
+							self.multi_blocks[block_index].as_mut().unwrap().health =
+								NonZeroU32::new(block.health.get() - damage).unwrap();
 							DamageBlockResult::Absorbed
 						}
+					} else {
+						godot_error!("Block was already destroyed!");
+						// Try to carry on anyways, we can recover from this
+						self.health[i] = None;
+						DamageBlockResult::Empty { damage }
 					}
 				} else {
-					DamageBlockResult::Empty { damage }
+					let hp = hp.get() as u32;
+					if hp <= damage {
+						let id = self.ids[i].unwrap();
+						let damage = damage - hp;
+						self.health[i] = None;
+						self.correct_for_removed_block(position, id);
+						if self.remove_all_anchors(position) {
+							DamageBlockResult::BodyDestroyed
+						} else {
+							DamageBlockResult::BlockDestroyed { damage }
+						}
+					} else {
+						// unwrap() may seem silly, but the check is worth it
+						self.health[i] = Some(NonZeroU16::new((hp - damage) as u16).unwrap());
+						DamageBlockResult::Absorbed
+					}
 				}
 			} else {
 				DamageBlockResult::Empty { damage }
@@ -489,7 +520,7 @@ impl super::Body {
 		shared: &mut Shared,
 		destroyed_blocks: Vec<Voxel>,
 	) -> bool {
-		if self.parent_anchors.len() == 0 || !self.is_connected_to_parent() {
+		if self.parent_anchors.is_empty() || !self.is_connected_to_parent() {
 			return true;
 		}
 
@@ -502,9 +533,15 @@ impl super::Body {
 		for voxel in destroyed_blocks {
 			let mut connections = Vec::new();
 			let mut add_conn_fn = |direction| {
-				let voxel = convert_vec(voxel.to_i32() + direction);
-				if self.get_block_health(voxel) > 0 {
-					connections.push(voxel);
+				let p = voxel.to_i32() + direction;
+				if self
+					.get_index(p)
+					.ok()
+					.map(|p| self.health[p as usize])
+					.flatten()
+					.is_some()
+				{
+					connections.push(convert_vec(p));
 				}
 			};
 			add_conn_fn(X.to_i32());
@@ -515,21 +552,15 @@ impl super::Body {
 			add_conn_fn(-Z.to_i32());
 			while let Some(side_voxel) = connections.pop() {
 				let index = self.get_index(side_voxel).unwrap();
-				if marks
-					.get(self.get_index(side_voxel).unwrap() as usize)
-					.unwrap()
-				{
+				if marks.get(index as usize).unwrap() {
 					continue;
 				}
 				let anchor_found = self.mark_connected_blocks(&mut marks, side_voxel, index, false);
 				if anchor_found {
-					while let Some(side_voxel) = connections.pop() {
-						if !marks
-							.get(self.get_index(side_voxel).unwrap() as usize)
-							.unwrap()
-						{
-							connections.push(side_voxel);
-							break;
+					for i in (0..connections.len()).rev() {
+						let index = self.get_index(connections[i]).unwrap();
+						if marks.get(index as usize).unwrap() {
+							connections.swap_remove(i);
 						}
 					}
 				} else {
@@ -554,7 +585,7 @@ impl super::Body {
 		let size = self.size;
 		let cf = |x, y, z, index_offset: i32| {
 			let index = index as i32 + index_offset;
-			if !marks.get(index as usize).unwrap() && self.health[index as usize] != None {
+			if !marks.get(index as usize).unwrap() && self.health[index as usize].is_some() {
 				let voxel = convert_vec(voxel.to_i32() + Vector3D::new(x, y, z));
 				found = self.mark_connected_blocks(marks, voxel, index as u32, found);
 			}
@@ -567,50 +598,101 @@ impl super::Body {
 	fn destroy_connected_blocks(&mut self, shared: &mut Shared, voxel: Voxel, index: u32) {
 		debug_assert_eq!(index, self.get_index(voxel).unwrap());
 		debug_assert_ne!(self.health[index as usize], Some(MAINFRAME_ID));
-		#[cfg(not(feature = "server"))]
-		if let Some(vm) = &self.voxel_mesh {
-			let vm = unsafe { vm.assume_safe() };
-			vm.map_mut(|vm, _| vm.remove_block(voxel)).unwrap();
+
+		let size = self.size;
+		fn closure(
+			slf: &mut Body,
+			shared: &mut Shared,
+			voxel: Voxel,
+			index: u32,
+			x: i32,
+			y: i32,
+			z: i32,
+			index_offset: i32,
+		) {
+			let index = index as i32 + index_offset;
+			if slf.health[index as usize].is_some() {
+				let voxel = convert_vec(voxel.to_i32() + Vector3D::new(x, y, z));
+				slf.destroy_connected_blocks(shared, voxel, index as u32)
+			}
 		}
+
 		if let Some(hp) = self.health[index as usize].take() {
 			let hp = hp.get();
 
 			let _ = self.remove_all_anchors(voxel);
-			self.correct_for_removed_block(voxel, self.ids[index as usize].unwrap());
 
-			if hp & 0x8000 != 0 {
+			let pos = if hp & 0x8000 == 0 {
+				self.correct_for_removed_block(voxel, self.ids[index as usize].unwrap());
+				let cf = |x, y, z, index_offset| {
+					closure(self, shared, voxel, index, x, y, z, index_offset)
+				};
+				Self::apply_to_all_sides(size, voxel, cf);
+				voxel
+			} else {
 				let index = hp & 0x7fff;
 				let block = self.multi_blocks[index as usize].take();
+				let block = block.expect("Multi block is None but HP is not zero!");
 
-				if let Some(block) = block {
-					#[cfg(not(feature = "server"))]
-					let body = block.destroy(shared, &mut self.interpolation_states[..]);
-					#[cfg(feature = "server")]
-					let body = block.destroy(shared);
-					body.map(|body| {
-						let body = &mut self.children[usize::from(body)];
-						body.destroy(shared, body.center_of_mass);
-					});
-				} else {
-					// FIXME can happen when actual multiblocks are introduced. How should we
-					// deal with it?
-					// Just setting all indices to None with reverse_indices will break this
-					// function as it may disconnect otherwise connected sections. Unless
-					// we move cf below upwards and call it. Which will still cause this error
-					// in some circumstances so nvm.
-					godot_error!("Multi block is None but HP is not zero!");
+				let pos = block.base_position;
+
+				// Destroy the block & any attached bodies.
+				#[cfg(not(feature = "server"))]
+				let body = block.destroy(shared, &mut self.interpolation_states[..]);
+				#[cfg(feature = "server")]
+				let body = block.destroy(shared);
+				body.map(|body| {
+					let body = &mut self.children[usize::from(body)];
+					body.destroy(shared, body.center_of_mass);
+				});
+
+				let index = self.get_index(pos).unwrap();
+				let id = self.ids[index as usize].unwrap();
+				let blk = block::Block::get(id).unwrap();
+
+				self.correct_for_removed_block(pos, id);
+
+				// Set the base position to 0 HP
+				self.health[self.get_index(pos).unwrap() as usize] = None;
+
+				// Set all mount points to 0 HP
+				for d in blk.extra_mount_points.iter().copied() {
+					// TODO account for rotation
+					let p = convert_vec::<_, isize>(pos) + convert_vec::<_, isize>(d);
+					if let Ok(index) = self.get_index(p) {
+						self.health[index as usize] = None;
+					}
 				}
+
+				// Destroy all blocks attached to the base position
+				let cf = |x, y, z, index_offset| {
+					closure(self, shared, voxel, index, x, y, z, index_offset)
+				};
+				Self::apply_to_all_sides(size, pos, cf);
+
+				// Destroy all blocks attached to the mount points.
+				for d in blk.extra_mount_points.iter().copied() {
+					// TODO account for rotation
+					let p = convert_vec::<_, isize>(pos) + convert_vec::<_, isize>(d);
+					if let Ok(index) = self.get_index(p) {
+						let cf = |x, y, z, index_offset| {
+							closure(self, shared, voxel, index, x, y, z, index_offset)
+						};
+						Self::apply_to_all_sides(size, convert_vec(p), cf);
+					}
+				}
+
+				pos
+			};
+
+			#[cfg(not(feature = "server"))]
+			if let Some(vm) = &self.voxel_mesh {
+				let vm = unsafe { vm.assume_safe() };
+				vm.map_mut(|vm, _| vm.remove_block(pos)).unwrap();
 			}
+			#[cfg(feature = "server")]
+			let _ = pos;
 		}
-		let size = self.size;
-		let cf = |x, y, z, index_offset: i32| {
-			let index = index as i32 + index_offset;
-			if self.health[index as usize].is_some() {
-				let voxel = convert_vec(voxel.to_i32() + Vector3D::new(x, y, z));
-				self.destroy_connected_blocks(shared, voxel, index as u32)
-			}
-		};
-		Self::apply_to_all_sides(size, voxel, cf);
 	}
 
 	fn apply_to_all_sides(size: Voxel, voxel: Voxel, mut f: impl FnMut(i32, i32, i32, i32)) {

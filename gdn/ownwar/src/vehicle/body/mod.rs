@@ -223,10 +223,10 @@ impl Body {
 
 						// Check if the block is an anchor
 						if !server_node.get("anchor_index").is_nil() {
-							let anchor_bodies = VariantArray::new();
+							let mut anchor_body = None;
 							let parent_anchors = &mut body_tree[usize::from(i)];
 
-							'find_mount: for mount in server_node
+							for mount in server_node
 								.get("anchor_mounts")
 								.to_vector3_array()
 								.read()
@@ -279,16 +279,15 @@ impl Body {
 													return Err(InitError::MultipleBodiesPerAnchor);
 												}
 											};
-											anchor_bodies.push(b.node);
-											break 'find_mount;
+											anchor_body = Some(b.node);
 										}
 									}
 								}
 							}
 
 							server_node.set(
-								"anchor_mounts_bodies",
-								anchor_bodies.into_shared().to_variant(),
+								"anchor_mount_body",
+								anchor_body.to_variant(),
 							);
 						}
 					}
@@ -444,6 +443,13 @@ impl Body {
 				.try_into()
 				.expect("Too many multiblocks");
 			self.health[index as usize] = NonZeroU16::new(0x8000 | i);
+			for d in block.extra_mount_points.iter() {
+				// TODO account for rotation
+				let p = convert_vec::<_, isize>(position) + convert_vec::<_, isize>(*d);
+				if let Ok(index) = self.get_index(p) {
+					self.health[index as usize] = NonZeroU16::new(0x8000 | i);
+				}
+			}
 			self.multi_blocks.push(Some(MultiBlock {
 				health: block.health,
 				server_node: None,

@@ -6,10 +6,10 @@
 
 [resource]
 script = ExtResource( 1 )
-human_name = "Turret Connector"
-mass = 27.0
-human_category = "Weapons"
 revision = 0
+human_name = "Turret Connector"
+human_category = "Weapons"
+mass = 27.0
 aabb = AABB( -1, 0, -1, 3, 1, 3 )
 id = 79
 health = 2700
@@ -19,3 +19,4 @@ mesh = ExtResource( 3 )
 instance = ExtResource( 2 )
 mirror_rotation_offset = 0
 alternate_rotation_map = null
+extra_mount_points = PoolVector3Array( 1, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, -1 )

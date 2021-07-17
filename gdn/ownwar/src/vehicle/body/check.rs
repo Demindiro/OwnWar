@@ -17,11 +17,11 @@ impl super::Body {
 			let index = self.get_index(pos).unwrap();
 			self.mark_connected_blocks(&mut marks, pos, index, false);
 		}
-			
+
 		// Check if any block isn't marked.
 		for pos in iter_3d_inclusive((0, 0, 0), self.size.to_tuple()).map(Voxel::from) {
 			let index = self.get_index(pos).unwrap();
-			if self.ids[index as usize].is_some() != marks.get(index as usize).unwrap() {
+			if self.health[index as usize].is_some() != marks.get(index as usize).unwrap() {
 				return false;
 			}
 		}
