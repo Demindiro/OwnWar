@@ -1,16 +1,21 @@
-#![feature(map_into_keys_values)]
+#![feature(allocator_api)]
+#![feature(alloc_layout_extra)]
 #![feature(destructuring_assignment)]
-#![feature(step_trait)]
+#![feature(map_into_keys_values)]
 #![feature(map_try_insert)]
 #![feature(maybe_uninit_uninit_array)]
 #![feature(maybe_uninit_array_assume_init)]
 #![feature(maybe_uninit_extra)]
 #![feature(new_uninit)]
+#![feature(nonnull_slice_from_raw_parts)]
+#![feature(slice_ptr_get)]
+#![feature(step_trait)]
 
 mod block;
 mod constants;
 mod editor;
 mod rotation;
+mod types;
 mod util;
 mod vehicle;
 

@@ -1,5 +1,6 @@
 #![cfg_attr(feature = "server", allow(dead_code))]
 
+use crate::types::voxel;
 use crate::util::convert_vec;
 use euclid::UnknownUnit;
 use euclid::Vector3D;
@@ -194,6 +195,19 @@ impl Direction {
 			3 => Vector3D::new(-1, 0, 0),
 			4 => Vector3D::new(0, 0, 1),
 			5 => Vector3D::new(0, 0, -1),
+			_ => unreachable!(),
+		}
+	}
+
+	/// Return the corresponding `Delta` for this `Direction`.
+	pub fn delta(self) -> voxel::Delta {
+		match self.0 {
+			0 => voxel::Delta::Y,
+			1 => -voxel::Delta::Y,
+			2 => voxel::Delta::X,
+			3 => -voxel::Delta::X,
+			4 => voxel::Delta::Z,
+			5 => -voxel::Delta::Z,
 			_ => unreachable!(),
 		}
 	}

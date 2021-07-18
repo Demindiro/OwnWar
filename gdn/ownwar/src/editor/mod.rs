@@ -11,20 +11,19 @@ mod godot {
 	use super::data::{Vehicle, VehicleError};
 	use crate::block;
 	use crate::rotation::*;
-	use crate::util::{convert_vec, VoxelRaycast, AABB};
+	use crate::types::*;
+	use crate::util::{convert_vec, VoxelRaycast};
 	use crate::vehicle::{self, VoxelMesh};
 	use euclid::{UnknownUnit, Vector3D};
+	use fxhash::{FxHashMap, FxHashSet};
 	use gdnative::api::{Camera, File, PackedScene, Spatial};
 	use gdnative::nativescript::property::Usage;
 	use gdnative::prelude::*;
 	#[cfg(debug_assertions)]
 	use std::cell::Cell;
-	use std::collections::{HashMap, HashSet};
 	use std::convert::TryInto;
 	use std::mem;
 	use std::num::NonZeroU16;
-
-	type Vec3<T> = Vector3D<T, euclid::UnknownUnit>;
 
 	const GRID_SIZE: u8 = 37;
 	const MAIN_MENU: &str = "res://start_menu/main.tscn";
@@ -59,27 +58,30 @@ mod godot {
 
 		data: Vehicle,
 
-		layers: Vec<(Instance<VoxelMesh, Shared>, HashMap<Vec3<u8>, Ref<Spatial>>)>,
-		outline: (Instance<VoxelMesh, Shared>, HashSet<Vec3<u8>>),
+		layers: Vec<(
+			Instance<VoxelMesh, Shared>,
+			FxHashMap<voxel::Position, Ref<Spatial>>,
+		)>,
+		outline: (Instance<VoxelMesh, Shared>, FxHashSet<voxel::Position>),
 
 		focused_window: Window,
 
 		#[cfg(debug_assertions)]
-		debug_points: Cell<Vec<Vec3<u8>>>,
+		debug_points: Cell<Vec<voxel::Position>>,
 	}
 
 	enum RayResult {
 		InsideGrid {
-			position: Vec3<u8>,
-			normal: Vec3<i8>,
+			position: voxel::Position,
+			normal: voxel::Delta,
 		},
 		OutsideGrid {
-			position: Vec3<i32>,
-			normal: Vec3<i8>,
+			position: voxel::Delta,
+			normal: voxel::Delta,
 		},
 		Collides {
-			position: Vec3<u8>,
-			normal: Vec3<i8>,
+			position: voxel::Position,
+			normal: voxel::Delta,
 		},
 		NoCollision,
 	}
@@ -208,7 +210,7 @@ mod godot {
 				selected_color: 0,
 				edit_mode: true,
 
-				outline: (Instance::new().into_shared(), HashSet::new()),
+				outline: (Instance::new().into_shared(), FxHashSet::default()),
 				layers: Vec::new(),
 
 				focused_window: Window::None,
@@ -270,9 +272,8 @@ mod godot {
 			} else if pressed("editor_place_block", true) {
 				match self.place_block(owner) {
 					Ok((pos, _)) => {
-						let pos = convert_vec(pos).to_variant();
 						let id = self.selected_block.get().to_variant();
-						owner.emit_signal("block_placed", &[id, pos]);
+						owner.emit_signal("block_placed", &[id, pos.to_variant()]);
 						owner.emit_signal("play_place_effect", &[]);
 					}
 					Err(e) => Self::emit_error(owner, e),
@@ -280,9 +281,8 @@ mod godot {
 			} else if pressed("editor_remove_block", true) {
 				match self.remove_block(owner) {
 					Ok((pos, id, _)) => {
-						let pos = Variant::from_vector3(&convert_vec(pos));
 						let id = id.get().to_variant();
-						owner.emit_signal("block_removed", &[id, pos]);
+						owner.emit_signal("block_removed", &[id, pos.to_variant()]);
 						owner.emit_signal("play_remove_effect", &[]);
 					}
 					Err(e) => Self::emit_error(owner, e),
@@ -302,17 +302,17 @@ mod godot {
 					owner.call_deferred("goto_test_scene", &[]);
 				}
 			} else if pressed("editor_vehicle_left", true) {
-				self.move_vehicle(owner, Vec3::new(1, 0, 0));
+				self.move_vehicle(owner, voxel::Delta::X);
 			} else if pressed("editor_vehicle_right", true) {
-				self.move_vehicle(owner, Vec3::new(-1, 0, 0));
+				self.move_vehicle(owner, -voxel::Delta::X);
 			} else if pressed("editor_vehicle_up", true) {
-				self.move_vehicle(owner, Vec3::new(0, 1, 0));
+				self.move_vehicle(owner, voxel::Delta::Y);
 			} else if pressed("editor_vehicle_down", true) {
-				self.move_vehicle(owner, Vec3::new(0, -1, 0));
+				self.move_vehicle(owner, -voxel::Delta::Y);
 			} else if pressed("editor_vehicle_forward", true) {
-				self.move_vehicle(owner, Vec3::new(0, 0, 1));
+				self.move_vehicle(owner, voxel::Delta::Z);
 			} else if pressed("editor_vehicle_back", true) {
-				self.move_vehicle(owner, Vec3::new(0, 0, -1));
+				self.move_vehicle(owner, -voxel::Delta::Z);
 			} else if pressed("editor_vehicle_rotate", true) {
 				self.rotate_vehicle(owner);
 			} else if pressed("editor_toggle_snap_faces", false) {
@@ -342,17 +342,16 @@ mod godot {
 
 		#[export]
 		fn _process(&mut self, owner: TRef<Node>, _delta: f32) {
-			let signal = |position, normal, valid: bool| {
-				owner.emit_signal("ghost_position", &[convert_vec(position).to_variant()]);
-				owner.emit_signal("ghost_normal", &[convert_vec(normal).to_variant()]);
+			let signal = |position: voxel::Delta, normal: voxel::Delta, valid: bool| {
+				owner.emit_signal("ghost_position", &[position.to_variant()]);
+				owner.emit_signal("ghost_normal", &[normal.to_variant()]);
 				owner.emit_signal("ghost_valid", &[valid.to_variant()]);
 				true
 			};
-			let signal_u8 = |p, n, v| signal(convert_vec(p), n, v);
 			let visible = match self.place_block_orientation_from_camera() {
-				RayResult::InsideGrid { position, normal } => signal_u8(position, normal, true),
+				RayResult::InsideGrid { position, normal } => signal(position.into(), normal, true),
 				RayResult::OutsideGrid { position, normal } => signal(position, normal, false),
-				RayResult::Collides { position, normal } => signal_u8(position, normal, false),
+				RayResult::Collides { position, normal } => signal(position.into(), normal, false),
 				RayResult::NoCollision => false,
 			};
 
@@ -401,10 +400,9 @@ mod godot {
 				file.close();
 				self.data = super::serialize::load(&data).expect("Failed to deserialize data");
 				for layer in self.data.iter_layers() {
-					for (&position, block) in layer.iter_blocks() {
-						let position = convert_vec(position).to_variant();
+					for (&pos, block) in layer.iter_blocks() {
 						let id = block.id.get().to_variant();
-						owner.emit_signal("block_placed", &[id, position]);
+						owner.emit_signal("block_placed", &[id, pos.to_variant()]);
 					}
 				}
 				self.refresh_meshes(owner);
@@ -420,8 +418,6 @@ mod godot {
 					self.add_color(owner, Color::rgb(1.0, 1.0, 1.0));
 				}
 				for color in self.data.iter_colors() {
-					let f = |v| v as f32 / 255.0;
-					let color = Color::rgb(f(color.x), f(color.y), f(color.z));
 					owner.emit_signal("add_color", &[color.to_variant()]);
 				}
 				0
@@ -497,10 +493,8 @@ mod godot {
 
 		#[export]
 		fn add_color(&mut self, owner: TRef<Node>, color: Color) -> Option<u8> {
-			let clr = (color.r * 255.0, color.g * 255.0, color.b * 255.0);
-			let clr = (clr.0.round(), clr.1.round(), clr.2.round());
-			let clr = Vec3::new(clr.0 as u8, clr.1 as u8, clr.2 as u8);
-			match self.data.add_color(clr) {
+			let color = color::RGB8::lossy_from_color(color);
+			match self.data.add_color(color) {
 				Ok(i) => {
 					owner.emit_signal("add_color", &[color.to_variant()]);
 					Some(i)
@@ -538,11 +532,6 @@ mod godot {
 				if let Some(index) = change_index {
 					self.selected_color = index;
 					let color = self.data.get_color(index).expect("Failed to get color");
-					let color = Color::rgb(
-						color.x as f32 / 255.0,
-						color.y as f32 / 255.0,
-						color.z as f32 / 255.0,
-					);
 					owner.emit_signal("ghost_color", &[color.to_variant()]);
 				}
 				owner.emit_signal("remove_color", &[index.to_variant()]);
@@ -556,12 +545,7 @@ mod godot {
 			match self.data.get_color(index) {
 				Ok(color) => {
 					self.selected_color = index;
-					let color = Color::rgb(
-						color.x as f32 / 255.0,
-						color.y as f32 / 255.0,
-						color.z as f32 / 255.0,
-					);
-					owner.emit_signal("ghost_color", &[color.to_variant()]);
+					owner.emit_signal("ghost_color", &[Color::from(color).to_variant()]);
 				}
 				Err(_) => Self::emit_error(owner, "Color doesn't exist"),
 			}
@@ -569,10 +553,8 @@ mod godot {
 
 		#[export]
 		fn change_color(&mut self, owner: TRef<Node>, index: u8, color: Color) {
-			let clr = (color.r * 255.0, color.g * 255.0, color.b * 255.0);
-			let clr = (clr.0.round(), clr.1.round(), clr.2.round());
-			let clr = Vec3::new(clr.0 as u8, clr.1 as u8, clr.2 as u8);
-			match self.data.change_color(index, clr) {
+			let color = color::RGB8::lossy_from_color(color);
+			match self.data.change_color(index, color) {
 				Ok(_) => {
 					let color = color.to_variant();
 					owner.emit_signal("change_color", &[index.to_variant(), color.clone()]);
@@ -593,7 +575,7 @@ mod godot {
 				Ok(i) => {
 					let mesh = Instance::<VoxelMesh, _>::new().into_shared();
 					owner.emit_signal("add_voxel_mesh", &[mesh.base().to_variant()]);
-					self.layers.push((mesh, HashMap::new()));
+					self.layers.push((mesh, FxHashMap::default()));
 					self.data
 						.set_layer_name(i, name)
 						.expect("Failed to set layer name");
@@ -650,7 +632,7 @@ mod godot {
 				return;
 			}
 			if let Some((mesh, nodes)) = self.layers.get_mut(index as usize) {
-				fn set_nodes_alpha(nodes: &HashMap<Vec3<u8>, Ref<Spatial>>, enable: bool) {
+				fn set_nodes_alpha(nodes: &FxHashMap<voxel::Position, Ref<Spatial>>, enable: bool) {
 					for node in nodes.values() {
 						unsafe {
 							let node = node.assume_safe();
@@ -712,7 +694,7 @@ mod godot {
 			let debug = owner.get_node("/root/Debug").unwrap();
 			let dhp = self.debug_points.replace(Vec::new());
 			for point in &dhp {
-				let point = point.to_f32() + Vec3::new(0.5, 0.5, 0.5);
+				let point = Vector3::from(*point) + Vector3::new(0.5, 0.5, 0.5);
 				unsafe {
 					debug.assume_safe().call(
 						"draw_point",
@@ -729,7 +711,7 @@ mod godot {
 		// cfg_attr doesn't work sadly, so this will do for now
 		#[cfg(not(debug_assertions))]
 		#[inline(always)]
-		fn debug_draw(&self, _owner: TRef<Node>) {}
+		fn debug_draw(&self, _: TRef<Node>) {}
 	}
 
 	/// Methods that are not exposed to Godot
@@ -737,7 +719,7 @@ mod godot {
 		fn place_block(
 			&mut self,
 			owner: TRef<Node>,
-		) -> Result<(Vec3<u8>, Option<(Vec3<u8>, NonZeroU16)>), &str> {
+		) -> Result<(voxel::Position, Option<(voxel::Position, NonZeroU16)>), &str> {
 			if !self.edit_mode {
 				return Err("Enter edit mode to place blocks");
 			}
@@ -769,33 +751,32 @@ mod godot {
 		fn remove_block(
 			&mut self,
 			owner: TRef<Node>,
-		) -> Result<(Vec3<u8>, NonZeroU16, Option<(Vec3<u8>, NonZeroU16)>), &str> {
+		) -> Result<(voxel::Position, NonZeroU16, Option<(voxel::Position, NonZeroU16)>), &str> {
 			if !self.edit_mode {
 				return Err("Enter edit mode to remove blocks");
 			}
 			let (pos, _, _) = self.raycast_from_camera();
-			let grid_size = GRID_SIZE as i32;
-			if 0 <= pos.x
-				&& 0 <= pos.y && 0 <= pos.z
-				&& pos.x < grid_size
-				&& pos.y < grid_size
-				&& pos.z < grid_size
-			{
-				let pos = convert_vec(pos);
-				let (pos, id) = self.delete_block(owner, self.selected_layer, pos)?;
-				let mirror = if self.mirror {
-					Self::get_mirror_orientation(pos, self.rotation, id)
-						.map(|(pos, _, _)| {
-							self.delete_block(owner, self.selected_layer, pos)
-								.map(|_| (pos, id))
-								.ok()
-						})
-						.flatten()
+			if let Ok(pos) = pos.try_into() {
+				let gs = GRID_SIZE - 1;
+				let grid_aabb = voxel::AABB::new(voxel::Position::ZERO, voxel::Position::new(gs, gs, gs));
+				if grid_aabb.has_point(pos) {
+					let (pos, id) = self.delete_block(owner, self.selected_layer, pos)?;
+					let mirror = if self.mirror {
+						Self::get_mirror_orientation(pos, self.rotation, id)
+							.map(|(pos, _, _)| {
+								self.delete_block(owner, self.selected_layer, pos)
+									.map(|_| (pos, id))
+									.ok()
+							})
+							.flatten()
+					} else {
+						None
+					};
+					self.create_outline(owner);
+					Ok((pos, id, mirror))
 				} else {
-					None
-				};
-				self.create_outline(owner);
-				Ok((pos, id, mirror))
+					Err("Location is outside grid")
+				}
 			} else {
 				Err("Location is outside grid")
 			}
@@ -806,7 +787,7 @@ mod godot {
 			owner: TRef<Node>,
 			id: NonZeroU16,
 			layer: u8,
-			position: Vec3<u8>,
+			position: voxel::Position,
 			rotation: Rotation,
 			color: u8,
 		) -> Result<(), &'static str> {
@@ -829,11 +810,6 @@ mod godot {
 				.data
 				.get_color(color)
 				.map_err(|_| "Failed to get color")?;
-			let color = Color::rgb(
-				color.x as f32 / 255.0,
-				color.y as f32 / 255.0,
-				color.z as f32 / 255.0,
-			);
 			unsafe {
 				mesh.assume_safe()
 					.map_mut(|mesh, mesh_owner| {
@@ -850,8 +826,8 @@ mod godot {
 			&mut self,
 			_: TRef<Node>,
 			layer: u8,
-			position: Vec3<u8>,
-		) -> Result<(Vector3D<u8, UnknownUnit>, NonZeroU16), &'static str> {
+			position: voxel::Position,
+		) -> Result<(voxel::Position, NonZeroU16), &'static str> {
 			match self.data.remove_block(layer, position) {
 				Err(_) => {
 					panic!("Unhandled remove_block() error");
@@ -881,10 +857,10 @@ mod godot {
 		fn add_editor_node(
 			owner: TRef<Node>,
 			block: &block::Block,
-			position: Vec3<u8>,
+			position: voxel::Position,
 			rotation: Rotation,
-			color: Color,
-			nodes: &mut HashMap<Vec3<u8>, Ref<Spatial>>,
+			color: color::RGB8,
+			nodes: &mut FxHashMap<voxel::Position, Ref<Spatial>>,
 		) {
 			if let Some(node) = block.editor_node {
 				let node = unsafe {
@@ -896,8 +872,8 @@ mod godot {
 						.expect("Failed to cast node")
 				};
 				node.set_transform(Transform {
-					origin: convert_vec(position),
-					basis: rotation.basis().scaled(&Vec3::new(4.0, 4.0, 4.0)),
+					origin: position.into(),
+					basis: rotation.basis().scaled(&Vector3::new(4.0, 4.0, 4.0)),
 				});
 				node.set("team_color", crate::constants::ALLY_COLOR.to_variant());
 				if node.has_method("set_color") {
@@ -912,10 +888,10 @@ mod godot {
 		}
 
 		fn get_mirror_orientation(
-			position: Vec3<u8>,
+			position: voxel::Position,
 			rotation: Rotation,
 			id: NonZeroU16,
-		) -> Option<(Vec3<u8>, Rotation, NonZeroU16)> {
+		) -> Option<(voxel::Position, Rotation, NonZeroU16)> {
 			let mut pos = position;
 			pos.x = (GRID_SIZE - 1) - pos.x;
 			let block = block::Block::get(id).expect("Failed to get block");
@@ -925,40 +901,44 @@ mod godot {
 		}
 
 		fn place_block_orientation_from_camera(&self) -> RayResult {
-			let (pos, normal, collided) = self.raycast_from_camera();
-			if collided || (pos.y == -1 && normal == Vec3::new(0, 1, 0)) {
-				let pos = pos + convert_vec(normal);
-				let gs = GRID_SIZE.into();
-				if pos.x < gs && pos.y < gs && pos.z < gs && pos.x >= 0 && pos.y >= 0 && pos.z >= 0
-				{
-					let f = |v: i32| v.try_into().unwrap();
-					let position = Vec3::new(f(pos.x), f(pos.y), f(pos.z));
-					if self.data.has_block_at(position) {
-						RayResult::Collides { position, normal }
+			let (position, normal, collided) = self.raycast_from_camera();
+			if collided || (position.y == -1 && normal == voxel::Delta::Y) {
+				if let Ok(position) = (position + normal).try_into() {
+					let gs = GRID_SIZE - 1;
+					let grid_aabb =
+						voxel::AABB::new(voxel::Position::ZERO, voxel::Position::new(gs, gs, gs));
+					if grid_aabb.has_point(position) {
+						if self.data.has_block_at(position) {
+							RayResult::Collides { position, normal }
+						} else {
+							RayResult::InsideGrid { position, normal }
+						}
 					} else {
-						RayResult::InsideGrid { position, normal }
+						let position = position.into();
+						RayResult::OutsideGrid { position, normal }
 					}
 				} else {
-					RayResult::OutsideGrid {
-						position: pos,
-						normal,
-					}
+					let position = position + normal;
+					RayResult::OutsideGrid { position, normal }
 				}
 			} else {
 				RayResult::NoCollision
 			}
 		}
 
-		fn raycast_from_camera(&self) -> (Vec3<i32>, Vec3<i8>, bool) {
+		fn raycast_from_camera(&self) -> (voxel::Delta, voxel::Delta, bool) {
 			let (start, direction) = unsafe {
 				let cam = self.camera.expect("Camera is None").assume_safe();
 				(cam.translation(), -cam.transform().basis.z())
 			};
-			let grid_size = GRID_SIZE.into();
+			let gs = GRID_SIZE - 1;
 			let mut ray = VoxelRaycast::start(
 				start,
 				direction,
-				AABB::new(Vec3::zero(), Vec3::new(grid_size, grid_size, grid_size)),
+				voxel::AABB::new(
+					voxel::Position::ZERO,
+					voxel::Position::new(gs, gs, gs),
+				),
 			);
 			let mut final_pos = None;
 			let mut collided = false;
@@ -967,28 +947,14 @@ mod godot {
 				let pos = (pos.x.try_into(), pos.y.try_into(), pos.z.try_into());
 				if let (Ok(x), Ok(y), Ok(z)) = pos {
 					if DEBUG_CAMERA_RAY {
-						self.debug_add_point(Vec3::new(x, y, z));
+						self.debug_add_point(voxel::Position::new(x, y, z));
 					}
-					/*
-					let layer = self
-						.data
-						.get_layer(self.selected_layer)
-						.expect("Failed to get layer");
-					if layer.has_block_at(Vec3::new(x, y, z)) {
-						collided = true;
-						break;
-					}
-					*/
 					// TODO maybe let the user switch between the two modes?
-					if self.data.has_block_at(Vec3::new(x, y, z)) {
+					if self.data.has_block_at(voxel::Position::new(x, y, z)) {
 						collided = true;
 						break;
 					}
 				}
-			}
-			if false && collided {
-				// Step once to ensure normal is correct
-				//ray.next();
 			}
 			if DEBUG_CAMERA_RAY {
 				if let Some((p, n)) = final_pos {
@@ -1024,12 +990,11 @@ mod godot {
 			}
 			let (mesh, blocks) = mem::replace(
 				&mut self.outline,
-				(Instance::new().into_shared(), HashSet::new()),
+				(Instance::new().into_shared(), FxHashSet::default()),
 			);
 			owner.emit_signal("remove_outline_voxel_mesh", &[mesh.to_variant()]);
 			for position in blocks {
-				let position = convert_vec(position).to_variant();
-				owner.emit_signal("remove_outline_node", &[position]);
+				owner.emit_signal("remove_outline_node", &[position.to_variant()]);
 			}
 			owner.emit_signal(
 				"add_outline_voxel_mesh",
@@ -1098,22 +1063,24 @@ mod godot {
 		}
 
 		#[profiled(tag = "Move vehicle")]
-		fn move_vehicle(&mut self, owner: TRef<Node>, by: Vec3<i32>) {
+		fn move_vehicle(&mut self, owner: TRef<Node>, by: voxel::Delta) {
 			if let Some(aabb) = self.data.aabb() {
-				let mut aabb = AABB::new(convert_vec(aabb.position), convert_vec(aabb.size));
-				aabb.position += by;
-				let grid_size = GRID_SIZE.into();
-				let grid_aabb = AABB::new(Vec3::zero(), Vec3::new(grid_size, grid_size, grid_size));
-				if grid_aabb.encloses(aabb) {
-					self.data
-						.move_all_blocks(by)
-						.expect("Failed to move vehicle");
-					self.refresh_meshes(owner);
+				if let (Ok(s), Ok(e)) = (aabb.start + by, aabb.end + by) {
+					let aabb = voxel::AABB::new(s, e);
+					let gs = GRID_SIZE - 1;
+					let grid_aabb =
+						voxel::AABB::new(voxel::Position::ZERO, voxel::Position::new(gs, gs, gs));
+					if grid_aabb.encloses(aabb) {
+						self.data
+							.move_all_blocks(by)
+							.expect("Failed to move vehicle");
+						self.refresh_meshes(owner);
+					} else {
+						Self::emit_error(owner, "Can't move vehicle outside grid");
+					}
 				} else {
 					Self::emit_error(owner, "Can't move vehicle outside grid");
 				}
-			} else {
-				Self::emit_error(owner, "No blocks to move");
 			}
 		}
 
@@ -1132,7 +1099,7 @@ mod godot {
 			self.clear_meshes(owner);
 			for layer in self.data.iter_layers() {
 				let mesh = Instance::<VoxelMesh, _>::new();
-				let mut nodes = HashMap::new();
+				let mut nodes = FxHashMap::default();
 				mesh.map_mut(|mesh, mesh_owner| {
 					for (&position, block) in layer.iter_blocks() {
 						let rotation = block.rotation;
@@ -1140,11 +1107,6 @@ mod godot {
 							.data
 							.get_color(block.color)
 							.expect("Failed to get color");
-						let color = Color::rgb(
-							color.x as f32 / 255.0,
-							color.y as f32 / 255.0,
-							color.z as f32 / 255.0,
-						);
 						let block = block::Block::get(block.id).expect("Block not found");
 						mesh.add_block(block, color, position, rotation);
 						Self::add_editor_node(owner, block, position, rotation, color, &mut nodes);
@@ -1163,7 +1125,7 @@ mod godot {
 		fn create_outline(&mut self, owner: TRef<Node>) {
 			// Create current (do it now so we can get a unique reference to mesh without unsafe)
 			let mesh = Instance::new();
-			let mut node_positions = HashSet::new();
+			let mut node_positions = FxHashSet::default();
 			let mut nodes = Vec::new();
 
 			mesh.map_mut(|mesh: &mut VoxelMesh, mesh_owner| {
@@ -1174,7 +1136,7 @@ mod godot {
 				{
 					let rotation = block.rotation;
 					let block = block::Block::get(block.id).expect("Failed to get block");
-					mesh.add_block(block, Color::rgb(1.0, 1.0, 1.0), position, rotation);
+					mesh.add_block(block, color::RGB8::WHITE, position, rotation);
 					if let Some(node) = block.editor_node {
 						nodes.push((position, (rotation, node.clone())));
 						node_positions.insert(position);
@@ -1189,7 +1151,7 @@ mod godot {
 				let (mesh, nodes) =
 					mem::replace(&mut self.outline, (mesh.into_shared(), node_positions));
 				owner.emit_signal("remove_outline_voxel_mesh", &[mesh.to_variant()]);
-				for position in nodes.into_iter().map(convert_vec) {
+				for position in nodes.into_iter() {
 					owner.emit_signal("remove_outline_node", &[position.to_variant()]);
 				}
 			}
@@ -1199,15 +1161,15 @@ mod godot {
 				"add_outline_voxel_mesh",
 				&[self.outline.0.clone().to_variant()],
 			);
-			for (position, (rotation, node)) in nodes {
-				let position = convert_vec(position).to_variant();
-				let rotation = rotation.get().to_variant();
-				owner.emit_signal("add_outline_node", &[position, rotation, node.to_variant()]);
+			for (pos, (rot, node)) in nodes {
+				let pos = pos.to_variant();
+				let rot = rot.get().to_variant();
+				owner.emit_signal("add_outline_node", &[pos, rot, node.to_variant()]);
 			}
 		}
 
 		#[cfg(debug_assertions)]
-		fn debug_add_point(&self, point: Vec3<u8>) {
+		fn debug_add_point(&self, point: voxel::Position) {
 			let mut v = self.debug_points.replace(Vec::new());
 			v.push(point);
 			self.debug_points.set(v);
@@ -1215,7 +1177,7 @@ mod godot {
 
 		#[cfg(not(debug_assertions))]
 		#[inline(always)]
-		fn debug_add_point(&self, point: Vec3<u8>) {
+		fn debug_add_point(&self, point: voxel::Position) {
 			let _ = point;
 		}
 	}
@@ -1304,8 +1266,8 @@ mod godot {
 			let mut arr = TypedArray::new();
 			arr.resize(self.data.color_count() as i32);
 			let mut w = arr.write();
-			for (i, c) in self.data.iter_colors().enumerate() {
-				w[i] = Color::rgb(c.x as f32 / 255.0, c.y as f32 / 255.0, c.z as f32 / 255.0);
+			for (w, c) in w.iter_mut().zip(self.data.iter_colors().copied()) {
+				*w = c.into();
 			}
 			drop(w);
 			arr
@@ -1341,17 +1303,12 @@ mod godot {
 		}
 
 		#[export]
-		fn get_layer_aabb(&self, _owner: TRef<Reference>, index: u8) -> Aabb {
-			let aabb = self
-				.data
+		fn get_layer_aabb(&self, _: TRef<Reference>, index: u8) -> Option<Aabb> {
+			self.data
 				.get_layer(index)
 				.unwrap()
 				.aabb()
-				.expect("layer is empty");
-			Aabb {
-				position: convert_vec(aabb.position),
-				size: convert_vec(aabb.size),
-			}
+				.map(voxel::AABB::into)
 		}
 	}
 }

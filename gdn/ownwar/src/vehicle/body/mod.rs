@@ -22,6 +22,7 @@ use super::voxel_mesh::VoxelMesh;
 use super::*;
 use crate::block;
 use crate::rotation::*;
+use crate::types::*;
 use crate::util::*;
 #[cfg(debug_assertions)]
 use core::cell::Cell;
@@ -35,13 +36,26 @@ use num_traits::{AsPrimitive, PrimInt};
 use std::convert::{TryFrom, TryInto};
 use std::num::{NonZeroU16, NonZeroU32};
 
-type Voxel = Vector3D<u8, UnknownUnit>;
+type Vec3u8 = Vector3D<u8, UnknownUnit>;
 
 const MAINFRAME_ID: NonZeroU16 = unsafe { NonZeroU16::new_unchecked(76) };
 
 const COLLISION_LAYER: u32 = 2;
 // Any + Vehicles + Terrain
 const COLLISION_MASK: u32 = 1 | 2 | (1 << 7);
+
+/// A single voxel. Each voxel represents a block's ID and health.
+#[derive(Default)]
+struct Voxel {
+	/// The ID of the block. `None` if there is no block.
+	///
+	/// Multiblocks use only one spot.
+	id: Option<NonZeroU16>,
+	/// The health of the block. The upper bit (`0x8000`) is set if it points to a multiblock.
+	///
+	/// Multiblocks use one or more spots.
+	health: Option<NonZeroU16>,
+}
 
 pub(super) struct Body {
 	node: Option<Ref<VehicleBody>>,
@@ -57,14 +71,10 @@ pub(super) struct Body {
 	#[cfg(not(feature = "server"))]
 	interpolation_state_dirty: bool,
 
-	offset: Voxel,
-	size: Voxel,
+	offset: voxel::Position,
 
-	/// The ID of each block of this body. Multiblocks use only one spot.
-	ids: Box<[Option<NonZeroU16>]>,
-	/// The health of each block. The upper bit indicates whether it points
-	/// to a multiblock or if it is a regular single block.
-	health: Box<[Option<NonZeroU16>]>,
+	/// The ID & health of each block of this body.
+	blocks: voxel::Grid<Voxel>,
 	/// All multiblocks.
 	multi_blocks: Vec<Option<MultiBlock>>,
 	/// The color of each block. Needed for serialization.
@@ -78,7 +88,7 @@ pub(super) struct Body {
 	max_cost: u32,
 
 	#[cfg(debug_assertions)]
-	debug_hit_points: Cell<Vec<Voxel>>,
+	debug_hit_points: Cell<Vec<voxel::Position>>,
 
 	/// Damage events to be applied.
 	damage_events: Vec<DamageEvent>,
@@ -90,12 +100,12 @@ pub(super) struct Body {
 	///
 	/// This has one entry if it is the main body: the mainframe. The mainframe
 	/// is not a real anchor but pretending it is one simplifies things quite a bit.
-	parent_anchors: Vec<Voxel>,
+	parent_anchors: Vec<voxel::Position>,
 
 	/// The lowest corner of the box collider.
-	collider_start_point: Voxel,
+	collider_start_point: voxel::Position,
 	/// The highest corner of the box collider.
-	collider_end_point: Voxel,
+	collider_end_point: voxel::Position,
 }
 
 pub(super) enum Block<'a> {
@@ -132,11 +142,13 @@ impl fmt::Display for InitError {
 }
 
 impl Body {
-	pub fn new(aabb: AABB<u8>) -> Self {
-		let (offset, size) = (aabb.position, aabb.size);
+	pub fn new(aabb: voxel::AABB) -> Self {
+		let (offset, end) = (aabb.start, aabb.end);
+		let end = (end - offset).try_into().expect("Failed to convert Delta");
 
-		use std::iter::repeat;
-		let real_size = (size.x + 1) as usize * (size.y + 1) as usize * (size.z + 1) as usize;
+		use core::iter::repeat;
+		let blocks = voxel::Grid::new(end);
+		let size = blocks.len();
 
 		let mut slf = Self {
 			node: None,
@@ -153,12 +165,10 @@ impl Body {
 			interpolation_state_dirty: true,
 
 			offset,
-			size,
-			ids: repeat(None).take(real_size).collect(),
-			health: repeat(None).take(real_size).collect(),
+			blocks,
 			multi_blocks: Vec::new(),
-			colors: repeat(0).take(real_size).collect(),
-			rotations: repeat(Rotation::new(0).unwrap()).take(real_size).collect(),
+			colors: repeat(0).take(size).collect(),
+			rotations: repeat(Rotation::new(0).unwrap()).take(size).collect(),
 
 			center_of_mass: Vector3D::zero(),
 			mass: 0.0,
@@ -174,8 +184,8 @@ impl Body {
 
 			parent_anchors: Vec::new(),
 
-			collider_start_point: Voxel::zero(),
-			collider_end_point: size,
+			collider_start_point: voxel::Position::ZERO,
+			collider_end_point: end,
 		};
 
 		slf.create_godot_nodes();
@@ -216,6 +226,7 @@ impl Body {
 				body.cost = body.max_cost();
 				body.resize_collider(body.collider_start_point, body.collider_end_point);
 
+				let offt = body.offset();
 				for block in body.multi_blocks.iter_mut().filter_map(Option::as_mut) {
 					block.init(body.offset, body.center_of_mass, shared);
 					if let Some(server_node) = block.server_node.as_ref() {
@@ -231,22 +242,17 @@ impl Body {
 								.to_vector3_array()
 								.read()
 								.iter()
+								.copied()
 							{
-								let mount = convert_vec::<_, i16>(block.base_position)
-									+ convert_vec(
-										block
-											.rotation
-											.basis()
-											.to_quat()
-											.transform_vector3d(*mount)
-											.round(),
-									) + convert_vec(body.offset);
-								let mount = mount.x.try_into().and_then(|x| {
-									mount.y.try_into().and_then(|y| {
-										mount.z.try_into().map(|z| Voxel::new(x, y, z))
-									})
-								});
-								let mount = match mount {
+								let mount = match voxel::Delta::try_from(mount) {
+									Ok(m) => m,
+									Err(e) => {
+										godot_error!("Failed to convert mount: {:?}", e);
+										continue;
+									}
+								};
+								let delta = block.rotation * mount + offt;
+								let mount = match block.base_position + delta {
 									Ok(m) => m,
 									Err(_) => continue,
 								};
@@ -260,18 +266,11 @@ impl Body {
 								for (k, b) in iter {
 									let k = u8::try_from(k).unwrap();
 									if let Some(b) = b {
-										let m =
-											convert_vec::<_, i16>(mount) - convert_vec(b.offset);
-										let m = m.x.try_into().and_then(|x| {
-											m.y.try_into().and_then(|y| {
-												m.z.try_into().map(|z| Voxel::new(x, y, z))
-											})
-										});
-										let m = match m {
+										let m = match mount - b.offset() {
 											Ok(m) => m,
 											Err(_) => continue,
 										};
-										if let Ok(Some(_)) = b.try_get_block(m) {
+										if let Some(Some(_)) = b.blocks.get(m).map(|b| b.health) {
 											b.parent_anchors.push(m);
 											if parent_anchors.iter().find(|b| **b == k).is_none() {
 												parent_anchors.push(k);
@@ -285,10 +284,7 @@ impl Body {
 								}
 							}
 
-							server_node.set(
-								"anchor_mount_body",
-								anchor_body.to_variant(),
-							);
+							server_node.set("anchor_mount_body", anchor_body.to_variant());
 						}
 					}
 				}
@@ -324,11 +320,11 @@ impl Body {
 		) -> Result<(), InitError> {
 			/*
 			unsafe {
-				parent
-					.node
-					.unwrap()
-					.assume_safe()
-					.set_translation(Vector3::zero())
+			parent
+			.node
+			.unwrap()
+			.assume_safe()
+			.set_translation(Vector3::zero())
 			};
 			*/
 			let mut rev_body_map = [0xff; 256]; // 0xff is easier to spot as "wrong"
@@ -407,32 +403,22 @@ impl Body {
 	pub fn add_block(
 		&mut self,
 		shared: &mut vehicle::Shared,
-		position: Voxel,
+		position: voxel::Position,
 		rotation: Rotation,
 		block_id: NonZeroU16,
 		color: u8,
 	) {
-		let position = position - self.offset;
-
-		let index = if let Ok(index) = self.get_index(position) {
-			index
-		} else {
-			godot_error!(
-				"Position out of bounds! {:?} outside {:?}",
-				position,
-				self.size
-			);
-			return;
-		};
-
-		if self.ids[index as usize].is_some() {
-			godot_error!("Position is already occupied! {:?}", position);
-			return;
-		}
+		let position =
+			(position - voxel::Delta::from(self.offset)).expect("Position is out of bounds");
+		let index = self.get_index(position).expect("Position is out of bounds");
+		assert!(
+			self.blocks[position].health.is_none(),
+			"Position is already occupied"
+		);
 
 		let block = block::Block::get(block_id).expect("Invalid block ID");
 
-		self.ids[index as usize] = Some(block.id);
+		self.blocks[position].id = Some(block.id);
 		self.rotations[index as usize] = rotation;
 		self.colors[index as usize] = color;
 
@@ -442,12 +428,13 @@ impl Body {
 				.len()
 				.try_into()
 				.expect("Too many multiblocks");
-			self.health[index as usize] = NonZeroU16::new(0x8000 | i);
+			self.blocks[position].health = NonZeroU16::new(0x8000 | i);
 			for d in block.extra_mount_points.iter() {
-				// TODO account for rotation
-				let p = convert_vec::<_, isize>(position) + convert_vec::<_, isize>(*d);
-				if let Ok(index) = self.get_index(p) {
-					self.health[index as usize] = NonZeroU16::new(0x8000 | i);
+				let d = voxel::Delta::new(d.x.into(), d.y.into(), d.z.into());
+				if let Ok(pos) = position + rotation * d {
+					self.blocks
+						.get_mut(pos)
+						.map(|b| b.health = NonZeroU16::new(0x8000 | i));
 				}
 			}
 			self.multi_blocks.push(Some(MultiBlock {
@@ -458,7 +445,7 @@ impl Body {
 				reverse_indices: Box::new([]),
 				#[cfg(not(feature = "server"))]
 				interpolation_state_index: u16::MAX,
-				base_position: Voxel::new(u8::MAX, u8::MAX, u8::MAX),
+				base_position: position,
 				rotation: Rotation::new(0).unwrap(),
 
 				weapon_index: u16::MAX,
@@ -472,105 +459,39 @@ impl Body {
 				anchor_body_index: None,
 			}));
 		} else {
-			self.health[index as usize] = Some(block.health.try_into().unwrap());
+			self.blocks[position].health = Some(block.health.try_into().unwrap());
 		}
 
 		self.init_block(shared, position);
 	}
 
-	pub fn try_get_block<T: PrimInt + AsPrimitive<isize>>(
-		&self,
-		position: Vector3D<T, UnknownUnit>,
-	) -> Result<Option<Block>, ()> {
-		self.get_index(position).and_then(|i| {
-			let i = i as usize;
-			if let Some(id) = self.ids[i] {
-				if let Some(hp) = self.health[i] {
-					if hp.get() & 0x8000 != 0 {
-						let index = (hp.get() & 0x7fff) as usize;
-						debug_assert!(self.multi_blocks[index].is_some());
-						if let Some(ref block) = self.multi_blocks[index] {
-							Ok(Some(Block::Multi(id, block)))
-						} else {
-							godot_error!("Block is already destroyed!");
-							// We can recover from this, move on.
-							// This won't leak nodes as long as the vehicle itself is destroyed
-							//self.multi_blocks[index] = None; // self is immutable :/
-							Ok(Some(Block::Destroyed(id)))
-						}
-					} else {
-						Ok(Some(Block::Single(id, hp)))
-					}
-				} else {
-					Ok(Some(Block::Destroyed(id)))
-				}
-			} else {
-				Ok(None)
-			}
-		})
-	}
-
-	fn get_block_health<T: PrimInt + AsPrimitive<isize>>(
-		&self,
-		position: Vector3D<T, UnknownUnit>,
-	) -> u32 {
-		if let Ok(Some(block)) = self.try_get_block(position) {
-			block.health()
-		} else {
-			0
-		}
-	}
-
-	fn get_index<T: PrimInt + AsPrimitive<isize>>(
-		&self,
-		position: Vector3D<T, UnknownUnit>,
-	) -> Result<u32, ()> {
-		let position = convert_vec(position);
-		let size = convert_vec(self.size);
-		if AABB::new(Vector3D::zero(), size).has_point(position) {
-			Ok(
-				((position.x * (size.y + 1) + position.y) * (size.z + 1) + position.z)
-					.try_into()
-					.unwrap(),
-			)
+	fn get_index(&self, position: voxel::Position) -> Result<usize, ()> {
+		if self.blocks.get(position).is_some() {
+			let voxel::Delta { x, y, z } = self.size();
+			let (sx, sy, sz) = (x as usize, y as usize, z as usize);
+			let (x, y, z): (usize, _, _) = position.into();
+			Ok((x * sy + y) * sz + z)
 		} else {
 			Err(())
 		}
 	}
 
-	pub fn is_valid_voxel<T: PrimInt + AsPrimitive<isize>>(
-		&self,
-		position: Vector3D<T, UnknownUnit>,
-	) -> bool {
-		self.get_index(position) != Err(())
-	}
-
 	pub fn calculate_mass(&mut self) {
 		let mut total_mass = 0.0;
-		// TODO temporary for now to make sure vehicles are synced correctly
-		let mut substract_mass = 0.0;
 		let mut center_of_mass = Vector3::zero();
-		let size = self.size;
-		for (x, y, z) in (0..=size.x)
-			.flat_map(move |x| (0..=size.y).map(move |y| (x, y)))
-			.flat_map(move |(x, y)| (0..=size.z).map(move |z| (x, y, z)))
-		{
-			let blk = self.try_get_block(Voxel::new(x, y, z)).unwrap();
-			if let Some(blk) = blk {
-				let mass = block::Block::get(blk.id()).unwrap().mass;
-				center_of_mass += Vector3::new(x as f32, y as f32, z as f32) * mass;
+		for pos in iter_3d_inclusive((0, 0, 0), self.end().into()).map(voxel::Position::from) {
+			if let Voxel {
+				id: Some(id),
+				health: Some(hp),
+			} = self.blocks[pos]
+			{
+				let mass = block::Block::get(id).unwrap().mass;
+				center_of_mass += Vector3::from(pos) * mass;
 				total_mass += mass;
-				if blk.health() == 0 {
-					substract_mass += mass;
-				}
 			}
 		}
-		self.mass = total_mass - substract_mass;
+		self.mass = total_mass;
 		self.center_of_mass = center_of_mass / total_mass;
-	}
-
-	pub fn size(&self) -> Voxel {
-		self.size
 	}
 
 	pub fn center_of_mass(&self) -> Vector3 {
@@ -633,8 +554,8 @@ impl Body {
 		}
 	}
 
-	pub fn aabb(&self) -> AABB<u8> {
-		AABB::new(self.offset, self.size)
+	pub fn aabb(&self) -> voxel::AABB {
+		voxel::AABB::new(self.offset, self.end())
 	}
 
 	/// Return the total cost of all blocks of this body.
@@ -648,6 +569,21 @@ impl Body {
 
 	pub fn children_mut(&mut self) -> impl Iterator<Item = &mut Self> {
 		self.children.iter_mut()
+	}
+
+	/// The end/top point of this body.
+	fn end(&self) -> voxel::Position {
+		self.blocks.end()
+	}
+
+	/// The offset of this body, expressed as a `Delta`
+	fn offset(&self) -> voxel::Delta {
+		self.offset.into()
+	}
+
+	/// The size of this body, expressed as a `Delta`
+	fn size(&self) -> voxel::Delta {
+		voxel::Delta::from(self.blocks.end()) + voxel::Delta::ONE
 	}
 
 	/// Iterate all children and subchildren of this body

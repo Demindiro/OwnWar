@@ -7,12 +7,12 @@ impl super::Body {
 		let mut start = self.collider_end_point;
 		let mut end = self.collider_start_point;
 		for v in iter_3d_inclusive(
-			self.collider_start_point.to_tuple(),
-			self.collider_end_point.to_tuple(),
+			self.collider_start_point.into(),
+			self.collider_end_point.into(),
 		)
-		.map(Voxel::from)
+		.map(voxel::Position::from)
 		{
-			if self.get_block_health(v) > 0 {
+			if self.blocks[v].health.is_some() {
 				start = start.min(v);
 				end = end.max(v);
 			}
@@ -23,12 +23,11 @@ impl super::Body {
 	}
 
 	/// Resize the collider according to the given start and end position.
-	pub(super) fn resize_collider(&mut self, start: Voxel, end: Voxel) {
+	pub(super) fn resize_collider(&mut self, start: voxel::Position, end: voxel::Position) {
 		self.collider_start_point = start;
 		self.collider_end_point = end;
-		let middle = convert_vec::<_, usize>(start) + convert_vec::<_, usize>(end);
-		let middle = convert_vec::<_, f32>(middle) * 0.5 * block::SCALE;
-		let extents = convert_vec::<_, f32>(end - start + Vector3D::one()) * 0.5 * block::SCALE;
+		let middle = (Vector3::from(start) + Vector3::from(end)) * 0.5 * block::SCALE;
+		let extents = Vector3::from(end - start + voxel::Delta::ONE) * 0.5 * block::SCALE;
 		unsafe {
 			let col = self.collision_shape.assume_safe();
 			col.set_extents(extents);

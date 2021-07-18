@@ -14,10 +14,10 @@ impl super::Body {
 	/// # Panics
 	///
 	/// The position is out of range.
-	pub(super) fn init_block(&mut self, shared: &mut vehicle::Shared, position: Voxel) {
+	pub(super) fn init_block(&mut self, shared: &mut vehicle::Shared, position: voxel::Position) {
 		let index = self.get_index(position).unwrap();
 
-		let id = if let Some(id) = self.ids[index as usize] {
+		let id = if let Some(id) = self.blocks[position].id {
 			id
 		} else {
 			return;
@@ -28,7 +28,7 @@ impl super::Body {
 		let cost = block.cost.get() as u32;
 		self.max_cost += cost;
 
-		let hp = if let Some(hp) = self.health[index as usize] {
+		let hp = if let Some(hp) = self.blocks[position].health {
 			self.cost += cost;
 			hp
 		} else {
@@ -39,12 +39,7 @@ impl super::Body {
 		#[cfg(not(feature = "server"))]
 		let color = {
 			let color = self.colors[index as usize];
-			let color = shared.colors[usize::from(color)];
-			Color::rgb(
-				color.x as f32 / 255.0,
-				color.y as f32 / 255.0,
-				color.z as f32 / 255.0,
-			)
+			shared.colors[usize::from(color)]
 		};
 
 		#[cfg(feature = "server")]
@@ -57,9 +52,8 @@ impl super::Body {
 		// Update voxel mesh
 		#[cfg(not(feature = "server"))]
 		self.voxel_mesh.as_ref().map(|vm| unsafe {
-			vm.assume_safe().map_mut(|s, _| {
-				s.add_block(block, color, position, rotation);
-			})
+			vm.assume_safe()
+				.map_mut(|s, _| s.add_block(block, color, position, rotation))
 		});
 
 		if block.id == MAINFRAME_ID {
@@ -82,7 +76,7 @@ impl super::Body {
 			if let Some(server_node) = block.server_node {
 				// Create transform
 				let basis = rotation.basis();
-				let origin = convert_vec(position) * block::SCALE;
+				let origin = Vector3::from(position) * block::SCALE;
 				let transform = Transform { basis, origin };
 
 				// Initialize server node
@@ -145,7 +139,7 @@ impl super::Body {
 			}
 		} else {
 			assert_eq!(hp.get() & 0x8000, 0);
-			self.health[index as usize] = Some(hp);
+			self.blocks[position].health = Some(hp);
 		}
 	}
 
@@ -224,15 +218,16 @@ impl super::Body {
 	pub(in super::super) fn init(&mut self, shared: &mut vehicle::Shared) -> Result<(), InitError> {
 		// Setup total cost, health ... & find special blocks.
 		self.correct_mass();
-		let middle = (self.size().to_f32() + Vector3::one()) * block::SCALE * 0.5;
+		let middle = (Vector3::from(self.end()) + Vector3::one()) * block::SCALE * 0.5;
 		unsafe {
 			self.collision_shape_instance
 				.unwrap()
 				.assume_safe()
-				.set_translation(self.size().to_f32() * 0.5 * block::SCALE);
+				.set_translation(Vector3::from(self.end()) * 0.5 * block::SCALE);
 			self.collision_shape.assume_safe().set_extents(middle);
 		}
 
+		let offt = self.offset();
 		for block in self.multi_blocks.iter_mut().filter_map(Option::as_mut) {
 			block.init(self.offset, self.center_of_mass, shared);
 			if let Some(server_node) = block.server_node.as_ref() {
@@ -240,60 +235,44 @@ impl super::Body {
 
 				// Check if the block is an anchor
 				if !server_node.get("anchor_index").is_nil() {
-					let anchor_bodies = VariantArray::new();
+					let mut anchor_body = None;
 
-					'find_mount: for mount in server_node
+					for mount in server_node
 						.get("anchor_mounts")
 						.to_vector3_array()
 						.read()
 						.iter()
+						.copied()
 					{
-						let mount = convert_vec::<_, i16>(block.base_position)
-							+ convert_vec(
-								block
-									.rotation
-									.basis()
-									.to_quat()
-									.transform_vector3d(*mount)
-									.round(),
-							) + convert_vec(self.offset);
-						let mount = mount.x.try_into().and_then(|x| {
-							mount
-								.y
-								.try_into()
-								.and_then(|y| mount.z.try_into().map(|z| Voxel::new(x, y, z)))
-						});
-						let mount = match mount {
+						let mount = match voxel::Delta::try_from(mount) {
+							Ok(m) => m,
+							Err(e) => {
+								godot_error!("Failed to convert mount: {:?}", e);
+								continue;
+							}
+						};
+						let delta = block.rotation * mount + offt;
+						let mount = match block.base_position + delta {
 							Ok(m) => m,
 							Err(_) => continue,
 						};
-
 						for (k, b) in self.children.iter_mut().enumerate() {
 							let k = u8::try_from(k).unwrap();
-							let m = convert_vec::<_, i16>(mount) - convert_vec(b.offset);
-							let m = m.x.try_into().and_then(|x| {
-								m.y.try_into()
-									.and_then(|y| m.z.try_into().map(|z| Voxel::new(x, y, z)))
-							});
-							let m = match m {
+							let m = match mount - b.offset() {
 								Ok(m) => m,
 								Err(_) => continue,
 							};
-							if let Ok(Some(_)) = b.try_get_block(m) {
+							if let Some(Some(_)) = b.blocks.get(m).map(|b| b.health) {
 								b.parent_anchors.push(m);
 								if let Err(_) = block.set_anchored_body(k) {
 									return Err(InitError::MultipleBodiesPerAnchor);
 								}
-								anchor_bodies.push(b.node);
-								break 'find_mount;
+								anchor_body = Some(b.node);
 							}
 						}
 					}
 
-					server_node.set(
-						"anchor_mounts_bodies",
-						anchor_bodies.into_shared().to_variant(),
-					);
+					server_node.set("anchor_mount_body", anchor_body.to_variant());
 				}
 			}
 		}

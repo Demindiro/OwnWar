@@ -1,7 +1,8 @@
 #![cfg_attr(feature = "server", allow(dead_code))]
 
 use crate::rotation::*;
-use crate::util::{convert_vec, AABB};
+use crate::types::*;
+use crate::util::convert_vec;
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{Mesh, Resource};
 use gdnative::prelude::*;
@@ -38,7 +39,8 @@ pub struct Block {
 	#[property]
 	pub mass: f32,
 	pub cost: NonZeroU16,
-	pub aabb: AABB<i8>,
+	pub aabb_start: voxel::Delta,
+	pub aabb_end: voxel::Delta,
 
 	mirror_rotation_offset: Rotation,
 	mirror_block_id: Option<NonZeroU16>,
@@ -133,7 +135,8 @@ impl Block {
 		let _ = owner;
 		use euclid::Vector3D;
 		let mut s = Self {
-			aabb: AABB::new(Vector3D::zero(), Vector3D::new(1, 1, 1)),
+			aabb_start: voxel::Delta::ZERO,
+			aabb_end: voxel::Delta::ZERO,
 			cost: NonZeroU16::new(1).unwrap(),
 			health: NonZeroU32::new(100).unwrap(),
 			human_category: String::new(),
@@ -164,7 +167,7 @@ impl Block {
 	}
 
 	#[export]
-	fn get_basis(&self, _owner: &Resource, rotation: u8) -> Basis {
+	fn get_basis(&self, _: &Resource, rotation: u8) -> Basis {
 		if let Ok(v) = Rotation::new(rotation) {
 			v.basis()
 		} else {
@@ -174,7 +177,7 @@ impl Block {
 	}
 
 	#[export]
-	fn get_mirror_rotation(&self, _owner: &Resource, rotation: u8) -> u8 {
+	fn get_mirror_rotation(&self, _: &Resource, rotation: u8) -> u8 {
 		let rotation = if let Ok(v) = Rotation::new(rotation) {
 			v
 		} else {
@@ -185,7 +188,7 @@ impl Block {
 	}
 
 	#[export]
-	fn get_solid_faces(&self, _owner: TRef<Resource>, rotation: u8) -> u8 {
+	fn get_solid_faces(&self, _: TRef<Resource>, rotation: u8) -> u8 {
 		let rotation = if let Ok(v) = Rotation::new(rotation) {
 			v
 		} else {
@@ -198,50 +201,48 @@ impl Block {
 
 /// Methods specifically intended for communication with GDScript
 impl Block {
-	fn gd_get_aabb(&self, _owner: TRef<Resource>) -> Aabb {
+	fn gd_get_aabb(&self, _: TRef<Resource>) -> Aabb {
+		let size = self.aabb_end - self.aabb_start + voxel::Delta::ONE;
 		Aabb {
-			position: convert_vec(self.aabb.position),
-			size: convert_vec(self.aabb.size),
+			position: self.aabb_start.into(),
+			size: size.into(),
 		}
 	}
 
-	fn gd_set_aabb(&mut self, _owner: TRef<Resource>, aabb: Aabb) {
-		self.aabb = AABB {
-			position: convert_vec(aabb.position),
-			size: convert_vec(aabb.size),
-		}
+	fn gd_set_aabb(&mut self, _: TRef<Resource>, aabb: Aabb) {
+		self.aabb_start = aabb.position.try_into().expect("Failed to convert start");
+		self.aabb_end = (aabb.position + aabb.size - Vector3::one()).try_into().expect("Failed to convert end");
 	}
 
-	fn gd_get_id(&self, _owner: TRef<Resource>) -> u16 {
+	fn gd_get_id(&self, _: TRef<Resource>) -> u16 {
 		self.id.into()
 	}
 
-	fn gd_set_id(&mut self, _owner: TRef<Resource>, id: u16) {
-		//godot_warn!("{}", &self.human_name);
+	fn gd_set_id(&mut self, _: TRef<Resource>, id: u16) {
 		self.id = id.try_into().unwrap();
 	}
 
-	fn gd_get_health(&self, _owner: TRef<Resource>) -> u32 {
+	fn gd_get_health(&self, _: TRef<Resource>) -> u32 {
 		self.health.into()
 	}
 
-	fn gd_set_health(&mut self, _owner: TRef<Resource>, health: u32) {
+	fn gd_set_health(&mut self, _: TRef<Resource>, health: u32) {
 		self.health = health.try_into().unwrap();
 	}
 
-	fn gd_get_cost(&self, _owner: TRef<Resource>) -> u16 {
+	fn gd_get_cost(&self, _: TRef<Resource>) -> u16 {
 		self.cost.into()
 	}
 
-	fn gd_set_cost(&mut self, _owner: TRef<Resource>, cost: u16) {
+	fn gd_set_cost(&mut self, _: TRef<Resource>, cost: u16) {
 		self.cost = cost.try_into().unwrap();
 	}
 
-	fn gd_get_mirror_block_id(&self, _owner: TRef<Resource>) -> Option<u16> {
+	fn gd_get_mirror_block_id(&self, _: TRef<Resource>) -> Option<u16> {
 		self.mirror_block_id.map(|v| v.get())
 	}
 
-	fn gd_set_mirror_block_id(&mut self, _owner: TRef<Resource>, id: Option<u16>) {
+	fn gd_set_mirror_block_id(&mut self, _: TRef<Resource>, id: Option<u16>) {
 		self.mirror_block_id = id.map(NonZeroU16::new).flatten();
 	}
 
@@ -261,7 +262,7 @@ impl Block {
 		)
 	}
 
-	fn gd_set_mirror_block(&mut self, _owner: TRef<Resource>, block: Option<Ref<Resource>>) {
+	fn gd_set_mirror_block(&mut self, _: TRef<Resource>, block: Option<Ref<Resource>>) {
 		unsafe {
 			self.mirror_block_id = block.and_then(|block| {
 				block
@@ -274,34 +275,34 @@ impl Block {
 		}
 	}
 
-	fn gd_get_mesh(&self, _owner: TRef<Resource>) -> Option<Ref<Mesh>> {
+	fn gd_get_mesh(&self, _: TRef<Resource>) -> Option<Ref<Mesh>> {
 		self.mesh.as_ref().map(|m| m.0.clone())
 	}
 
-	fn gd_set_mesh(&mut self, _owner: TRef<Resource>, mesh: Option<Ref<Mesh>>) {
+	fn gd_set_mesh(&mut self, _: TRef<Resource>, mesh: Option<Ref<Mesh>>) {
 		self.mesh = mesh.map(|m| {
 			let ma = MeshArrays::from(&m);
 			(m, ma)
 		});
 	}
 
-	fn gd_editor_node(&self, _owner: TRef<Resource>) -> Option<Ref<Spatial>> {
+	fn gd_editor_node(&self, _: TRef<Resource>) -> Option<Ref<Spatial>> {
 		self.editor_node()
 	}
 
-	fn gd_server_node(&self, _owner: TRef<Resource>) -> Option<Ref<Spatial>> {
+	fn gd_server_node(&self, _: TRef<Resource>) -> Option<Ref<Spatial>> {
 		self.server_node()
 	}
 
-	fn gd_client_node(&self, _owner: TRef<Resource>) -> Option<Ref<Spatial>> {
+	fn gd_client_node(&self, _: TRef<Resource>) -> Option<Ref<Spatial>> {
 		self.client_node()
 	}
 
-	fn gd_get_instance(&self, _owner: TRef<Resource>) -> Option<Ref<PackedScene>> {
+	fn gd_get_instance(&self, _: TRef<Resource>) -> Option<Ref<PackedScene>> {
 		self.instance.clone()
 	}
 
-	fn gd_set_instance(&mut self, _owner: TRef<Resource>, instance: Option<Ref<PackedScene>>) {
+	fn gd_set_instance(&mut self, _: TRef<Resource>, instance: Option<Ref<PackedScene>>) {
 		unsafe {
 			let f = |p: &mut Option<Ref<Spatial>>| {
 				if let Some(n) = p {
@@ -339,11 +340,11 @@ impl Block {
 		}
 	}
 
-	fn gd_get_mirror_rotation_offset(&self, _owner: TRef<Resource>) -> u8 {
+	fn gd_get_mirror_rotation_offset(&self, _: TRef<Resource>) -> u8 {
 		self.mirror_rotation_offset.get()
 	}
 
-	fn gd_set_mirror_rotation_offset(&mut self, _owner: TRef<Resource>, offset: u8) {
+	fn gd_set_mirror_rotation_offset(&mut self, _: TRef<Resource>, offset: u8) {
 		let offset = if let Ok(v) = Rotation::new(offset) {
 			v
 		} else {
@@ -354,7 +355,7 @@ impl Block {
 		self.mirror_rotation_offset = offset;
 	}
 
-	fn gd_get_alternate_rotation_map(&self, _owner: TRef<Resource>) -> Option<TypedArray<u8>> {
+	fn gd_get_alternate_rotation_map(&self, _: TRef<Resource>) -> Option<TypedArray<u8>> {
 		self.alternate_rotation_map.map(|arr| {
 			let mut map = TypedArray::<u8>::new();
 			map.resize(24);
@@ -369,7 +370,7 @@ impl Block {
 
 	fn gd_set_alternate_rotation_map(
 		&mut self,
-		_owner: TRef<Resource>,
+		_: TRef<Resource>,
 		map: Option<TypedArray<u8>>,
 	) {
 		self.alternate_rotation_map = {
@@ -589,18 +590,25 @@ impl Block {
 			vertices: vertices.into_boxed_slice(),
 		});
 	}
+
+	/// Return the extra mount points as `Delta`s
+	pub fn extra_mount_points<'a>(&'a self) -> impl Iterator<Item = voxel::Delta> + 'a {
+		self.extra_mount_points
+			.iter()
+			.map(|v| voxel::Delta::new(v.x.into(), v.y.into(), v.z.into()))
+	}
 }
 
 /// Helper class intended for GDScript usage
 // TODO find a way to make this a static class
 #[methods]
 impl BlockManager {
-	fn new(_owner: &Reference) -> Self {
+	fn new(_: &Reference) -> Self {
 		Self
 	}
 
 	#[export]
-	fn add_block(&self, _owner: &Reference, block: Ref<Resource>) {
+	fn add_block(&self, _: &Reference, block: Ref<Resource>) {
 		let owner = block.clone();
 		unsafe {
 			block
@@ -635,7 +643,7 @@ impl BlockManager {
 	}
 
 	#[export]
-	fn rotation_to_basis(&self, _owner: &Reference, rotation: u8) -> Basis {
+	fn rotation_to_basis(&self, _: &Reference, rotation: u8) -> Basis {
 		if let Ok(rotation) = Rotation::new(rotation) {
 			rotation.basis()
 		} else {
@@ -645,7 +653,7 @@ impl BlockManager {
 	}
 
 	#[export]
-	fn get_block(&self, _owner: &Reference, id: u16) -> Option<Ref<Resource>> {
+	fn get_block(&self, _: &Reference, id: u16) -> Option<Ref<Resource>> {
 		if id == 0 {
 			None
 		} else {
@@ -658,7 +666,7 @@ impl BlockManager {
 	}
 
 	#[export]
-	fn get_all_blocks(&self, _owner: &Reference) -> VariantArray {
+	fn get_all_blocks(&self, _: &Reference) -> VariantArray {
 		let arr = VariantArray::new();
 		for b in BLOCKS.read().unwrap().iter() {
 			if let Some(b) = b {
@@ -669,7 +677,7 @@ impl BlockManager {
 	}
 
 	#[export]
-	fn axis_to_direction(&self, _owner: &Reference, axis: Vector3) -> u8 {
+	fn axis_to_direction(&self, _: &Reference, axis: Vector3) -> u8 {
 		let axis = axis.round();
 		let axis = (axis.x, axis.y, axis.z);
 		let d = match axis {

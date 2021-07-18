@@ -11,7 +11,7 @@ use gdnative::prelude::*;
 use std::error::Error;
 use std::io;
 
-type Voxel = Vector3D<u8, UnknownUnit>;
+type Vec3u8 = Vector3D<u8, UnknownUnit>;
 
 const DESTROY_BLOCK_EFFECT_SCENE: &str = "res://vehicles/destroy_block_effect.tscn";
 #[cfg(not(feature = "server"))]
@@ -208,7 +208,7 @@ impl super::Body {
 		origin: Vector3,
 		direction: Vector3,
 		mut damage: u32,
-		destroyed_blocks: &mut Vec<Voxel>,
+		destroyed_blocks: &mut Vec<voxel::Position>,
 		destroy_disconnected: &mut bool,
 	) -> bool {
 		*destroy_disconnected = true;
@@ -216,14 +216,18 @@ impl super::Body {
 		let mut raycast = VoxelRaycast::start(
 			origin + Vector3::new(0.5, 0.5, 0.5), // TODO figure out why +0.5 is suddenly needed
 			direction,
-			AABB::new(Vector3D::zero(), self.size.to_i32() + Vector3D::one()),
+			voxel::AABB::new(voxel::Position::ZERO, self.end()),
 		);
 		if raycast.finished() {
 			return false;
 		}
-		if !AABB::new(Vector3D::zero(), self.size.to_i32()).has_point(raycast.voxel()) {
-			// TODO fix the raycast algorithm
-			//godot_print!("Raycast started out of bounds! Stepping once...");
+		if let Ok(pos) = raycast.voxel().try_into() {
+			if !voxel::AABB::new(voxel::Position::ZERO, self.end()).has_point(pos) {
+				// TODO fix the raycast algorithm
+				raycast.next();
+			}
+		} else {
+			// TODO ditto
 			raycast.next();
 		}
 
@@ -231,28 +235,34 @@ impl super::Body {
 
 		// TODO rewrite to use proper Iterator functionality
 		while !raycast.finished() {
-			let voxel = convert_vec(raycast.voxel());
+			let pos = raycast.voxel();
+			let x = u8::try_from(pos.x);
+			let y = u8::try_from(pos.y);
+			let z = u8::try_from(pos.z);
+			if let (Ok(x), Ok(y), Ok(z)) = (x, y, z) {
+				let pos = voxel::Position::new(x, y, z);
 
-			self.debug_add_point(voxel);
+				self.debug_add_point(pos);
 
-			if let Ok(body_destroyed) = self.destroy_block(
-				shared,
-				voxel,
-				&mut damage,
-				destroy_disconnected,
-				destroyed_blocks,
-			) {
-				if body_destroyed {
-					return true;
-				}
-				if damage == 0 {
+				if let Ok(body_destroyed) = self.destroy_block(
+					shared,
+					pos,
+					&mut damage,
+					destroy_disconnected,
+					destroyed_blocks,
+				) {
+					if body_destroyed {
+						return true;
+					}
+					if damage == 0 {
+						break;
+					}
+					if let None = raycast.next() {
+						break;
+					}
+				} else {
 					break;
 				}
-				if let None = raycast.next() {
-					break;
-				}
-			} else {
-				break;
 			}
 		}
 
@@ -267,7 +277,7 @@ impl super::Body {
 		origin: Vector3,
 		radius: u8,
 		mut damage: u32,
-		destroyed_blocks: &mut Vec<Voxel>,
+		destroyed_blocks: &mut Vec<voxel::Position>,
 		destroy_disconnected: &mut bool,
 	) -> bool {
 		*destroy_disconnected = true;
@@ -275,24 +285,30 @@ impl super::Body {
 
 		self.debug_clear_points();
 
-		for v in VoxelSphereIterator::new(origin, radius.into()) {
-			if self.is_valid_voxel(v) {
-				self.debug_add_point(convert_vec(v));
-				if let Ok(body_destroyed) = self.destroy_block(
-					shared,
-					convert_vec(v),
-					&mut damage,
-					destroy_disconnected,
-					destroyed_blocks,
-				) {
-					if body_destroyed {
-						return true;
-					}
-					if damage == 0 {
+		for pos in VoxelSphereIterator::new(origin, radius.into()) {
+			let x = u8::try_from(pos.x);
+			let y = u8::try_from(pos.y);
+			let z = u8::try_from(pos.z);
+			if let (Ok(x), Ok(y), Ok(z)) = (x, y, z) {
+				let pos = voxel::Position::new(x, y, z);
+				if self.blocks.get(pos).is_some() {
+					self.debug_add_point(pos);
+					if let Ok(body_destroyed) = self.destroy_block(
+						shared,
+						pos,
+						&mut damage,
+						destroy_disconnected,
+						destroyed_blocks,
+					) {
+						if body_destroyed {
+							return true;
+						}
+						if damage == 0 {
+							break;
+						}
+					} else {
 						break;
 					}
-				} else {
-					break;
 				}
 			}
 		}
@@ -303,7 +319,7 @@ impl super::Body {
 	pub(in super::super) fn raycast(&self, origin: Vector3, direction: Vector3) -> Option<Vector3> {
 		let (origin, direction) = self.global_to_voxel_space(origin, direction);
 		self.raycast_local(origin, direction).map(|pos| {
-			self.voxel_to_global_space(convert_vec(pos), Vector3::zero())
+			self.voxel_to_global_space(Vector3::from(pos), Vector3::zero())
 				.0
 		})
 	}
@@ -312,18 +328,20 @@ impl super::Body {
 		&self,
 		origin: Vector3,
 		direction: Vector3,
-	) -> Option<Voxel> {
+	) -> Option<voxel::Position> {
 		let raycast = VoxelRaycast::start(
 			origin + Vector3::new(0.5, 0.5, 0.5), // TODO figure out why +0.5 is needed
 			direction,
-			AABB::new(Vector3D::zero(), self.size().to_i32() + Vector3D::one()),
+			voxel::AABB::new(voxel::Position::ZERO, self.end()),
 		);
-		for (voxel, _) in raycast {
-			if let Ok(Some(block)) = self.try_get_block(voxel) {
-				if let super::Block::Destroyed(_) = block {
-					/* pass */
-				} else {
-					return Some(convert_vec(voxel));
+		for (pos, _) in raycast {
+			let x = u8::try_from(pos.x);
+			let y = u8::try_from(pos.y);
+			let z = u8::try_from(pos.z);
+			if let (Ok(x), Ok(y), Ok(z)) = (x, y, z) {
+				let pos = voxel::Position::new(x, y, z);
+				if let Some(Some(_)) = self.blocks.get(pos).map(|b| b.health) {
+					return Some(pos);
 				}
 			}
 		}
@@ -346,12 +364,12 @@ impl super::Body {
 	fn destroy_block(
 		&mut self,
 		shared: &mut Shared,
-		voxel: Voxel,
+		position: voxel::Position,
 		damage: &mut u32,
 		destroy_disconnected: &mut bool,
-		destroyed_blocks: &mut Vec<Voxel>,
+		destroyed_blocks: &mut Vec<voxel::Position>,
 	) -> Result<bool, ()> {
-		if let Ok(result) = self.try_damage_block(voxel, *damage) {
+		if let Ok(result) = self.try_damage_block(position, *damage) {
 			let node = unsafe { self.node().unwrap().assume_safe() };
 			*damage = result.damage();
 			match result {
@@ -363,9 +381,15 @@ impl super::Body {
 				| DamageBlockResult::MultiBlockDestroyed { .. } => {
 					*destroy_disconnected = true;
 
+					#[cfg(not(feature = "server"))]
 					if let Ok(n) = super::godot::instance_effect(DESTROY_BLOCK_EFFECT_SCENE) {
-						n.set_translation(voxel.to_f32() * block::SCALE);
-						node.add_child(n, false);
+						n.set_translation(Vector3::from(position) * block::SCALE);
+						unsafe {
+							self.voxel_mesh_instance
+								.unwrap()
+								.assume_safe()
+								.add_child(n, false);
+						}
 					}
 
 					// Properly cleanup multiblocks
@@ -374,6 +398,8 @@ impl super::Body {
 					} = result
 					{
 						let pos = multi_block.base_position;
+						let rot = multi_block.rotation;
+
 						#[cfg(not(feature = "server"))]
 						let body = multi_block.destroy(shared, &mut self.interpolation_states[..]);
 						#[cfg(feature = "server")]
@@ -386,24 +412,25 @@ impl super::Body {
 						});
 
 						let index = self.get_index(pos).unwrap();
-						let blk = block::Block::get(self.ids[index as usize].unwrap()).unwrap();
+						let blk = block::Block::get(self.blocks[pos].id.unwrap()).unwrap();
 
 						// Set the base position to 0 HP
-						self.health[self.get_index(pos).unwrap() as usize] = None;
+						self.blocks[pos].health = None;
 
 						// Set all mount points to 0 HP
 						for d in blk.extra_mount_points.iter().copied() {
-							// TODO account for rotation
-							let p = convert_vec::<_, isize>(pos) + convert_vec::<_, isize>(d);
-							if let Ok(index) = self.get_index(p) {
-								self.health[index as usize] = None;
-								destroyed_blocks.push(convert_vec(p));
+							let d = voxel::Delta::new(d.x.into(), d.y.into(), d.z.into());
+							if let Ok(pos) = pos + rot * d {
+								if let Some(blk) = self.blocks.get_mut(pos) {
+									blk.health = None;
+									destroyed_blocks.push(pos);
+								}
 							}
 						}
 
 						pos
 					} else {
-						voxel
+						position
 					};
 
 					destroyed_blocks.push(pos);
@@ -424,67 +451,63 @@ impl super::Body {
 				DamageBlockResult::Empty { .. } | DamageBlockResult::Absorbed => Ok(false),
 			}
 		} else {
-			godot_error!("Position is out of bounds! {:?} in {:?}", voxel, self.size);
+			godot_error!(
+				"Position is out of bounds! {:?} in {:?}",
+				position,
+				self.size()
+			);
 			Err(())
 		}
 	}
 
-	fn try_damage_block(&mut self, position: Voxel, damage: u32) -> Result<DamageBlockResult, ()> {
+	fn try_damage_block(
+		&mut self,
+		position: voxel::Position,
+		damage: u32,
+	) -> Result<DamageBlockResult, ()> {
 		self.get_index(position).map(|i| {
-			let i = i as usize;
-			if let Some(hp) = self.health[i] {
+			if let Some(hp) = self.blocks[position].health {
 				if hp.get() & 0x8000 != 0 {
 					let block_index = (hp.get() & 0x7fff) as usize;
-					if let Some(ref block) = self.multi_blocks[block_index] {
-						let hp = block.health.get();
-						if hp <= damage {
-							let id = self
-								.get_index(block.base_position)
-								.ok()
-								.and_then(|i| self.ids[i as usize])
-								.unwrap();
-							let block = self.multi_blocks[block_index].take().unwrap();
-							let damage = damage - hp;
-							self.correct_for_removed_block(position, id);
-							self.multi_blocks[block_index] = None;
-							for &pos in block.reverse_indices.iter() {
-								self.health[self.get_index(pos).unwrap() as usize] = None;
-								if self.remove_all_anchors(pos) {
-									// Reinsert MultiBlock so it's properly destroyed
-									self.multi_blocks[block_index] = Some(block);
-									return DamageBlockResult::BodyDestroyed;
-								}
+					let block = self.multi_blocks[block_index]
+						.as_mut()
+						.expect("Block was already destroyed");
+					let hp = block.health.get();
+					if hp <= damage {
+						let block = self.multi_blocks[block_index].take().unwrap();
+						let damage = damage - hp;
+						self.correct_for_removed_block(block.base_position);
+						self.multi_blocks[block_index] = None;
+						for &pos in block.reverse_indices.iter() {
+							self.blocks[position].health = None;
+							if self.remove_all_anchors(pos) {
+								// Reinsert MultiBlock so it's properly destroyed
+								self.multi_blocks[block_index] = Some(block);
+								return DamageBlockResult::BodyDestroyed;
 							}
-							DamageBlockResult::MultiBlockDestroyed {
-								multi_block: block,
-								damage,
-							}
-						} else {
-							self.multi_blocks[block_index].as_mut().unwrap().health =
-								NonZeroU32::new(block.health.get() - damage).unwrap();
-							DamageBlockResult::Absorbed
+						}
+						DamageBlockResult::MultiBlockDestroyed {
+							multi_block: block,
+							damage,
 						}
 					} else {
-						godot_error!("Block was already destroyed!");
-						// Try to carry on anyways, we can recover from this
-						self.health[i] = None;
-						DamageBlockResult::Empty { damage }
+						self.multi_blocks[block_index].as_mut().unwrap().health =
+							NonZeroU32::new(block.health.get() - damage).unwrap();
+						DamageBlockResult::Absorbed
 					}
 				} else {
 					let hp = hp.get() as u32;
 					if hp <= damage {
-						let id = self.ids[i].unwrap();
 						let damage = damage - hp;
-						self.health[i] = None;
-						self.correct_for_removed_block(position, id);
+						self.blocks[position].health = None;
+						self.correct_for_removed_block(position);
 						if self.remove_all_anchors(position) {
 							DamageBlockResult::BodyDestroyed
 						} else {
 							DamageBlockResult::BlockDestroyed { damage }
 						}
 					} else {
-						// unwrap() may seem silly, but the check is worth it
-						self.health[i] = Some(NonZeroU16::new((hp - damage) as u16).unwrap());
+						self.blocks[position].health = NonZeroU16::new((hp - damage) as u16);
 						DamageBlockResult::Absorbed
 					}
 				}
@@ -499,7 +522,8 @@ impl super::Body {
 	/// # Panics
 	///
 	/// The block ID is invalid.
-	fn correct_for_removed_block(&mut self, position: Voxel, id: NonZeroU16) {
+	fn correct_for_removed_block(&mut self, position: voxel::Position) {
+		let id = self.blocks[position].id.unwrap();
 		let blk = block::Block::get(id).expect("Invalid block ID");
 		self.cost -= blk.cost.get() as u32;
 		let new_mass = self.mass - blk.mass;
@@ -507,7 +531,7 @@ impl super::Body {
 		// to the rigidbody & the rigidbody's CoM always being at the center.
 		// We can already do the math, we just can't apply it yet.
 		self.center_of_mass =
-			(self.center_of_mass * self.mass - convert_vec(position) * blk.mass) / new_mass;
+			(self.center_of_mass * self.mass - Vector3::from(position) * blk.mass) / new_mass;
 		self.mass = new_mass;
 	}
 
@@ -518,44 +542,39 @@ impl super::Body {
 	pub fn destroy_disconnected_blocks(
 		&mut self,
 		shared: &mut Shared,
-		destroyed_blocks: Vec<Voxel>,
+		destroyed_blocks: Vec<voxel::Position>,
 	) -> bool {
 		if self.parent_anchors.is_empty() || !self.is_connected_to_parent() {
 			return true;
 		}
 
-		const X: Voxel = Voxel::new(1, 0, 0);
-		const Y: Voxel = Voxel::new(0, 1, 0);
-		const Z: Voxel = Voxel::new(0, 0, 1);
-
-		let marks = convert_vec::<_, usize>(self.size) + Vector3D::one();
-		let mut marks = BitArray::new(marks.x * marks.y * marks.z);
-		for voxel in destroyed_blocks {
+		let mut marks = BitArray::new(self.blocks.len());
+		for pos in destroyed_blocks {
 			let mut connections = Vec::new();
 			let mut add_conn_fn = |direction| {
-				let p = voxel.to_i32() + direction;
-				if self
-					.get_index(p)
-					.ok()
-					.map(|p| self.health[p as usize])
-					.flatten()
-					.is_some()
-				{
-					connections.push(convert_vec(p));
+				if let Ok(p) = pos + direction {
+					if self
+						.blocks
+						.get(p)
+						.map(|b| b.health.is_some())
+						.unwrap_or(false)
+					{
+						connections.push(p);
+					}
 				}
 			};
-			add_conn_fn(X.to_i32());
-			add_conn_fn(-X.to_i32());
-			add_conn_fn(Y.to_i32());
-			add_conn_fn(-Y.to_i32());
-			add_conn_fn(Z.to_i32());
-			add_conn_fn(-Z.to_i32());
+			add_conn_fn(voxel::Delta::Z);
+			add_conn_fn(-voxel::Delta::Z);
+			add_conn_fn(voxel::Delta::Y);
+			add_conn_fn(-voxel::Delta::Y);
+			add_conn_fn(voxel::Delta::X);
+			add_conn_fn(-voxel::Delta::X);
 			while let Some(side_voxel) = connections.pop() {
 				let index = self.get_index(side_voxel).unwrap();
 				if marks.get(index as usize).unwrap() {
 					continue;
 				}
-				let anchor_found = self.mark_connected_blocks(&mut marks, side_voxel, index, false);
+				let anchor_found = self.mark_connected_blocks(&mut marks, side_voxel, false);
 				if anchor_found {
 					for i in (0..connections.len()).rev() {
 						let index = self.get_index(connections[i]).unwrap();
@@ -564,7 +583,7 @@ impl super::Body {
 						}
 					}
 				} else {
-					self.destroy_connected_blocks(shared, side_voxel, index);
+					self.destroy_connected_blocks(shared, side_voxel);
 				}
 			}
 		}
@@ -574,111 +593,92 @@ impl super::Body {
 	pub(super) fn mark_connected_blocks(
 		&self,
 		marks: &mut BitArray,
-		voxel: Voxel,
-		index: u32,
+		position: voxel::Position,
 		mut found: bool,
 	) -> bool {
-		debug_assert_eq!(index, self.get_index(voxel).unwrap());
-		marks.set(index as usize, true).unwrap();
-		found |= self.parent_anchors.contains(&voxel);
+		let index = self.get_index(position).unwrap();
+		marks.set(index, true).unwrap();
+		found |= self.parent_anchors.contains(&position);
 
-		let size = self.size;
-		let cf = |x, y, z, index_offset: i32| {
-			let index = index as i32 + index_offset;
-			if !marks.get(index as usize).unwrap() && self.health[index as usize].is_some() {
-				let voxel = convert_vec(voxel.to_i32() + Vector3D::new(x, y, z));
-				found = self.mark_connected_blocks(marks, voxel, index as u32, found);
+		let cf = |pos| {
+			if let Ok(index) = self.get_index(pos) {
+				if !marks.get(index).unwrap() && self.blocks[pos].health.is_some() {
+					found = self.mark_connected_blocks(marks, pos, found);
+				}
 			}
 		};
-		Self::apply_to_all_sides(size, voxel, cf);
+		Self::apply_to_all_sides(position, cf);
 		found
 	}
 
 	/// Destroy all blocks and bodies connected to a certain other block in any way.
-	fn destroy_connected_blocks(&mut self, shared: &mut Shared, voxel: Voxel, index: u32) {
-		debug_assert_eq!(index, self.get_index(voxel).unwrap());
-		debug_assert_ne!(self.health[index as usize], Some(MAINFRAME_ID));
+	fn destroy_connected_blocks(&mut self, shared: &mut Shared, position: voxel::Position) {
+		debug_assert_ne!(self.blocks[position].id, Some(MAINFRAME_ID));
 
-		let size = self.size;
-		fn closure(
-			slf: &mut Body,
-			shared: &mut Shared,
-			voxel: Voxel,
-			index: u32,
-			x: i32,
-			y: i32,
-			z: i32,
-			index_offset: i32,
-		) {
-			let index = index as i32 + index_offset;
-			if slf.health[index as usize].is_some() {
-				let voxel = convert_vec(voxel.to_i32() + Vector3D::new(x, y, z));
-				slf.destroy_connected_blocks(shared, voxel, index as u32)
+		let size = self.size();
+
+		fn closure(slf: &mut Body, shared: &mut Shared, position: voxel::Position) {
+			if slf
+				.blocks
+				.get(position)
+				.map(|b| b.health.is_some())
+				.unwrap_or(false)
+			{
+				slf.destroy_connected_blocks(shared, position)
 			}
 		}
 
-		if let Some(hp) = self.health[index as usize].take() {
+		if let Some(hp) = self.blocks[position].health.take() {
 			let hp = hp.get();
 
-			let _ = self.remove_all_anchors(voxel);
+			let _ = self.remove_all_anchors(position);
 
 			let pos = if hp & 0x8000 == 0 {
-				self.correct_for_removed_block(voxel, self.ids[index as usize].unwrap());
-				let cf = |x, y, z, index_offset| {
-					closure(self, shared, voxel, index, x, y, z, index_offset)
-				};
-				Self::apply_to_all_sides(size, voxel, cf);
-				voxel
+				self.correct_for_removed_block(position);
+				Self::apply_to_all_sides(position, |pos| closure(self, shared, pos));
+				position
 			} else {
 				let index = hp & 0x7fff;
-				let block = self.multi_blocks[index as usize].take();
-				let block = block.expect("Multi block is None but HP is not zero!");
+				let mb = self.multi_blocks[index as usize].take();
+				let mb = mb.expect("Multi mb is None but HP is not zero!");
 
-				let pos = block.base_position;
+				let pos = mb.base_position;
+				let rot = mb.rotation;
 
 				// Destroy the block & any attached bodies.
 				#[cfg(not(feature = "server"))]
-				let body = block.destroy(shared, &mut self.interpolation_states[..]);
+				let body = mb.destroy(shared, &mut self.interpolation_states[..]);
 				#[cfg(feature = "server")]
-				let body = block.destroy(shared);
+				let body = mb.destroy(shared);
 				body.map(|body| {
 					let body = &mut self.children[usize::from(body)];
 					body.destroy(shared, body.center_of_mass);
 				});
 
-				let index = self.get_index(pos).unwrap();
-				let id = self.ids[index as usize].unwrap();
+				let id = self.blocks[pos].id.unwrap();
 				let blk = block::Block::get(id).unwrap();
 
-				self.correct_for_removed_block(pos, id);
+				self.correct_for_removed_block(pos);
 
 				// Set the base position to 0 HP
-				self.health[self.get_index(pos).unwrap() as usize] = None;
+				self.blocks[pos].health = None;
 
 				// Set all mount points to 0 HP
 				for d in blk.extra_mount_points.iter().copied() {
-					// TODO account for rotation
-					let p = convert_vec::<_, isize>(pos) + convert_vec::<_, isize>(d);
-					if let Ok(index) = self.get_index(p) {
-						self.health[index as usize] = None;
+					let d = voxel::Delta::new(d.x.into(), d.y.into(), d.z.into());
+					if let Ok(p) = pos + rot * d {
+						self.blocks.get_mut(p).map(|b| b.health = None);
 					}
 				}
 
 				// Destroy all blocks attached to the base position
-				let cf = |x, y, z, index_offset| {
-					closure(self, shared, voxel, index, x, y, z, index_offset)
-				};
-				Self::apply_to_all_sides(size, pos, cf);
+				Self::apply_to_all_sides(pos, |pos| closure(self, shared, pos));
 
 				// Destroy all blocks attached to the mount points.
 				for d in blk.extra_mount_points.iter().copied() {
-					// TODO account for rotation
-					let p = convert_vec::<_, isize>(pos) + convert_vec::<_, isize>(d);
-					if let Ok(index) = self.get_index(p) {
-						let cf = |x, y, z, index_offset| {
-							closure(self, shared, voxel, index, x, y, z, index_offset)
-						};
-						Self::apply_to_all_sides(size, convert_vec(p), cf);
+					let d = voxel::Delta::new(d.x.into(), d.y.into(), d.z.into());
+					if let Ok(pos) = pos + rot * d {
+						Self::apply_to_all_sides(pos, |pos| closure(self, shared, pos));
 					}
 				}
 
@@ -695,27 +695,13 @@ impl super::Body {
 		}
 	}
 
-	fn apply_to_all_sides(size: Voxel, voxel: Voxel, mut f: impl FnMut(i32, i32, i32, i32)) {
-		let size = convert_vec::<_, i32>(size) + Vector3D::one();
-		let voxel = convert_vec::<_, i32>(voxel);
-		if voxel.x < size.x - 1 {
-			f(1, 0, 0, size.y as i32 * size.z as i32);
-		}
-		if voxel.x > 0 {
-			f(-1, 0, 0, -(size.y as i32 * size.z as i32));
-		}
-		if voxel.y < size.y - 1 {
-			f(0, 1, 0, size.z as i32);
-		}
-		if voxel.y > 0 {
-			f(0, -1, 0, -(size.z as i32));
-		}
-		if voxel.z < size.z - 1 {
-			f(0, 0, 1, 1);
-		}
-		if voxel.z > 0 {
-			f(0, 0, -1, -1);
-		}
+	fn apply_to_all_sides(voxel: voxel::Position, mut f: impl FnMut(voxel::Position)) {
+		(voxel + voxel::Delta::Z).ok().map(&mut f);
+		(voxel - voxel::Delta::Z).ok().map(&mut f);
+		(voxel + voxel::Delta::Y).ok().map(&mut f);
+		(voxel - voxel::Delta::Y).ok().map(&mut f);
+		(voxel + voxel::Delta::X).ok().map(&mut f);
+		(voxel - voxel::Delta::X).ok().map(&mut f);
 	}
 
 	/// Check whether this body is still connected to its parent.
@@ -728,7 +714,7 @@ impl super::Body {
 	///
 	/// Returns `true` if all parent anchors are gone, i.e. the body is destroyed.
 	#[must_use]
-	fn remove_all_anchors(&mut self, position: Voxel) -> bool {
+	fn remove_all_anchors(&mut self, position: voxel::Position) -> bool {
 		if let Some(i) = self.parent_anchors.iter().position(|&p| p == position) {
 			self.parent_anchors.swap_remove(i);
 			if self.parent_anchors.is_empty() {
@@ -793,7 +779,7 @@ impl super::Body {
 			// While it doesn't make much sense to zero out all blocks right now, it'll be useful
 			// if (when) some form of healing is introduced. It also fixes a synchronization issue
 			// with multiblocks right now (which can be fixed while avoiding this but w/e).
-			self.health.fill(None);
+			self.blocks.values_mut().for_each(|v| v.health = None);
 
 			// Remove the node itself. This will automatically free the collision
 			// shape, voxel mesh and child body nodes, as those are children.

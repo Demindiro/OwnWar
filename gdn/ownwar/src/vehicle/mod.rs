@@ -6,8 +6,6 @@ mod vehicle;
 #[cfg(not(feature = "server"))]
 mod voxel_mesh;
 
-type Color8 = euclid::Vector3D<u8, euclid::UnknownUnit>;
-
 pub(crate) use controller::Controller;
 pub(crate) use vehicle::Vehicle;
 #[cfg(not(feature = "server"))]

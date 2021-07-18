@@ -1,14 +1,12 @@
-use crate::util::AABB;
+use crate::types::voxel;
+use core::convert::TryFrom;
 use euclid::{UnknownUnit, Vector3D};
 use gdnative::prelude::Vector3;
 
-pub type Vector3i = Vector3D<i32, UnknownUnit>;
-pub type Vector3i8 = Vector3D<i8, UnknownUnit>;
-
 pub struct VoxelRaycast {
-	voxel: Vector3i,
-	limit: Vector3i,
-	step: Vector3i8,
+	voxel: voxel::Delta,
+	limit: voxel::Delta,
+	step: voxel::Delta,
 	t_max: Vector3,
 	t_delta: Vector3,
 	last_step: LastStep,
@@ -26,21 +24,22 @@ fn vector_div(a: Vector3, b: Vector3) -> Vector3 {
 }
 
 impl VoxelRaycast {
-	pub fn start(mut start: Vector3, direction: Vector3, aabb: AABB<i32>) -> VoxelRaycast {
-		let in_aabb = aabb.convert().has_point(start);
+	pub fn start(mut start: Vector3, direction: Vector3, aabb: voxel::AABB) -> VoxelRaycast {
+		let in_aabb = voxel::Position::try_from(start)
+			.map(|s| aabb.has_point(s))
+			.unwrap_or(false);
 		let mut last_step = LastStep::X;
 
 		if !in_aabb {
-			let aabb = aabb.convert();
-			let t_a = vector_div(aabb.position - start, direction);
-			let t_b = vector_div(aabb.end() - start, direction);
+			let t_a = vector_div(Vector3::from(aabb.start) - start, direction);
+			let t_b = vector_div(Vector3::from(aabb.end) + Vector3::one() - start, direction);
 			let t_min = t_a.x.min(t_b.x).max(t_a.y.min(t_b.y)).max(t_a.z.min(t_b.z));
 			let t_max = t_a.x.max(t_b.x).min(t_a.y.max(t_b.y)).min(t_a.z.max(t_b.z));
 			if t_min > t_max || t_min < 0.0 {
 				return Self {
-					voxel: Vector3D::zero(),
-					limit: Vector3D::zero(),
-					step: Vector3D::zero(),
+					voxel: voxel::Delta::ZERO,
+					limit: voxel::Delta::ZERO,
+					step: voxel::Delta::ZERO,
 					t_max: Vector3D::zero(),
 					t_delta: Vector3D::zero(),
 					last_step: LastStep::X,
@@ -62,54 +61,39 @@ impl VoxelRaycast {
 		}
 
 		let voxel_f = start.floor();
-		let voxel = voxel_f.to_i32();
+		let voxel = voxel::Delta::try_from(voxel_f).expect("Failed to convert voxel");
 
-		let step = Vector3i8::new(
-			direction.x.signum() as i8,
-			direction.y.signum() as i8,
-			direction.z.signum() as i8,
+		let step = voxel::Delta::new(
+			direction.x.signum() as i16,
+			direction.y.signum() as i16,
+			direction.z.signum() as i16,
 		);
 
-		let limit = Vector3i::new(
-			if step.x > 0 {
-				aabb.end().x
-			} else {
-				aabb.position.x - 1
-			},
-			if step.y > 0 {
-				aabb.end().y
-			} else {
-				aabb.position.y - 1
-			},
-			if step.z > 0 {
-				aabb.end().z
-			} else {
-				aabb.position.z - 1
-			},
+		let (s, e): (voxel::Delta, voxel::Delta) = (aabb.start.into(), aabb.end.into());
+		let limit = voxel::Delta::new(
+			(step.x > 0).then(|| e.x + 1).unwrap_or(s.x - 1),
+			(step.y > 0).then(|| e.y + 1).unwrap_or(s.y - 1),
+			(step.z > 0).then(|| e.z + 1).unwrap_or(s.z - 1),
 		);
 
 		let planes = Vector3::new(
-			if step.x > 0 { 1.0 } else { 0.0 },
-			if step.y > 0 { 1.0 } else { 0.0 },
-			if step.z > 0 { 1.0 } else { 0.0 },
+			f32::from(u8::from(step.x > 0)),
+			f32::from(u8::from(step.y > 0)),
+			f32::from(u8::from(step.z > 0)),
 		);
 		let impact_rel_pos = start - voxel_f;
 		let t_max = vector_div(planes - impact_rel_pos, direction);
-		let t_delta = vector_div(step.to_f32(), direction);
+		let t_delta = vector_div(step.into(), direction);
 
 		let last_step = if in_aabb {
 			if t_max.x > t_max.y {
-				if t_max.x > t_max.z {
-					LastStep::X
-				} else {
-					LastStep::Z
-				}
+				(t_max.x > t_max.z)
+					.then(|| LastStep::X)
+					.unwrap_or(LastStep::Z)
 			} else {
-				if t_max.y > t_max.z {
-					LastStep::Y
-				} else {
-					LastStep::Z
-				}
+				(t_max.y > t_max.z)
+					.then(|| LastStep::Y)
+					.unwrap_or(LastStep::Z)
 			}
 		} else {
 			last_step
@@ -127,15 +111,16 @@ impl VoxelRaycast {
 	}
 
 	// FIXME The naming is wrong: a voxel represents a value in a cell, not a coordinate
-	pub fn voxel(&self) -> Vector3i {
+	pub fn voxel(&self) -> voxel::Delta {
 		self.voxel
 	}
 
-	pub fn normal(&self) -> Vector3i8 {
+	/// Return the normal of the last step, i.e. the last `Delta`.
+	pub fn normal(&self) -> voxel::Delta {
 		match self.last_step {
-			LastStep::X => Vector3D::new(-self.step.x, 0, 0),
-			LastStep::Y => Vector3D::new(0, -self.step.y, 0),
-			LastStep::Z => Vector3D::new(0, 0, -self.step.z),
+			LastStep::X => voxel::Delta::new(-self.step.x, 0, 0),
+			LastStep::Y => voxel::Delta::new(0, -self.step.y, 0),
+			LastStep::Z => voxel::Delta::new(0, 0, -self.step.z),
 		}
 	}
 
@@ -145,7 +130,7 @@ impl VoxelRaycast {
 }
 
 impl Iterator for VoxelRaycast {
-	type Item = (Vector3i, Vector3i8);
+	type Item = (voxel::Delta, voxel::Delta);
 
 	/// FIXME this method effectively buffers the position, which is _very_
 	/// unintuitive as voxel() and normal() don't work as expected now.
@@ -157,24 +142,24 @@ impl Iterator for VoxelRaycast {
 		let normal = self.normal();
 		if self.t_max.x < self.t_max.y {
 			if self.t_max.x < self.t_max.z {
-				self.voxel.x += self.step.x as i32;
+				self.voxel.x += self.step.x as i16;
 				self.finished = self.voxel.x == self.limit.x;
 				self.t_max.x += self.t_delta.x;
 				self.last_step = LastStep::X
 			} else {
-				self.voxel.z += self.step.z as i32;
+				self.voxel.z += self.step.z as i16;
 				self.finished = self.voxel.z == self.limit.z;
 				self.t_max.z += self.t_delta.z;
 				self.last_step = LastStep::Z
 			}
 		} else {
 			if self.t_max.y < self.t_max.z {
-				self.voxel.y += self.step.y as i32;
+				self.voxel.y += self.step.y as i16;
 				self.finished = self.voxel.y == self.limit.y;
 				self.t_max.y += self.t_delta.y;
 				self.last_step = LastStep::Y
 			} else {
-				self.voxel.z += self.step.z as i32;
+				self.voxel.z += self.step.z as i16;
 				self.finished = self.voxel.z == self.limit.z;
 				self.t_max.z += self.t_delta.z;
 				self.last_step = LastStep::Z

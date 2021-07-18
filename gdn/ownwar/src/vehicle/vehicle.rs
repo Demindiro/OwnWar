@@ -11,7 +11,7 @@ pub mod gd {
 	//! a default value when queried.
 
 	use super::*;
-	use crate::util::AABB;
+	use crate::types::*;
 	use gdnative::api::{File, Node, Reference, VehicleBody};
 	use gdnative::prelude::*;
 
@@ -227,11 +227,7 @@ pub mod gd {
 
 		#[export]
 		fn get_aabb(&self, _: TRef<Reference>) -> Aabb {
-			let AABB { position, size } = self.vehicle.aabb();
-			Aabb {
-				position: convert_vec(position),
-				size: convert_vec(size),
-			}
+			self.vehicle.aabb().into()
 		}
 
 		#[export]
@@ -515,7 +511,8 @@ use super::*;
 use crate::block;
 use crate::editor::data;
 use crate::editor::serialize;
-use crate::util::{convert_vec, AABB};
+use crate::types::*;
+use crate::util::convert_vec;
 use core::cell::Cell;
 use core::convert::{TryFrom, TryInto};
 use core::fmt;
@@ -554,7 +551,7 @@ pub(super) struct Shared {
 	/// The team color.
 	pub team_color: Color,
 	/// The color palette.
-	pub colors: Box<[Color8]>,
+	pub colors: Box<[color::RGB8]>,
 }
 
 /// Enum indicating how a vehicle should be processed
@@ -681,6 +678,7 @@ impl Vehicle {
 			if let Some(aabb) = layer.aabb() {
 				let mut body = Body::new(aabb);
 				for (&pos, block) in layer.iter_blocks() {
+					let pos = voxel::Position::new(pos.x, pos.y, pos.z);
 					body.add_block(&mut shared, pos, block.rotation, block.id, block.color);
 				}
 				bodies.push(Some(body));
@@ -1039,17 +1037,11 @@ impl Vehicle {
 
 	/// Return the sum of all body AABBs in their default position.
 	#[must_use]
-	fn aabb(&self) -> AABB<u8> {
-		// FIXME
-		/*
-		let mut aabb = AABB::default();
-		for body in self.children().iter().filter_map(Option::as_ref) {
-			let b = body.aabb();
-			aabb = aabb.expand(b.position).expand(b.end());
-		}
+	fn aabb(&self) -> voxel::AABB {
+		let mb = self.main_body.as_ref().unwrap();
+		let mut aabb = self.main_body.as_ref().unwrap().aabb();
+		mb.iter_all_bodies(&mut |b| aabb = aabb.union(b.aabb()));
 		aabb
-		*/
-		self.main_body.as_ref().unwrap().aabb()
 	}
 
 	/// Return a reference to the body at the given position.
@@ -1093,7 +1085,7 @@ impl Vehicle {
 				.to_le_bytes(),
 		)?;
 		for clr in self.shared.colors.iter() {
-			out.write_all(&[clr.x, clr.y, clr.z])?;
+			out.write_all(&[clr.r, clr.g, clr.b])?;
 		}
 		// Serialize bodies.
 		self.body(&[]).expect("Destroyed").serialize(out)
@@ -1125,7 +1117,7 @@ impl Vehicle {
 		for clr in colors.iter_mut() {
 			let mut buf = [0; 3];
 			in_.read_exact(&mut buf)?;
-			clr.write(Color8::new(buf[0], buf[1], buf[2]));
+			clr.write(color::RGB8::new(buf[0], buf[1], buf[2]));
 		}
 		// SAFETY: all elements have been initialized
 		let colors = unsafe { colors.assume_init() };

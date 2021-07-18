@@ -32,9 +32,10 @@ impl super::Body {
 	}
 
 	/// Map a local voxel coordinate to a local translation, accounting for scale.
-	pub fn voxel_to_translation(&self, coordinate: Voxel) -> Vector3 {
+	pub fn voxel_to_translation(&self, coordinate: Vec3u8) -> Vector3 {
 		let coordinate = convert_vec::<_, isize>(coordinate);
-		let offset = convert_vec::<_, isize>(self.offset);
+		let (x, y, z) = self.offset.into();
+		let offset = Vector3D::new(x, y, z);
 		convert_vec::<_, f32>(coordinate - offset) * block::SCALE
 	}
 
