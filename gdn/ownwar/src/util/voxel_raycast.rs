@@ -1,6 +1,5 @@
 use crate::types::voxel;
 use core::convert::TryFrom;
-use euclid::{UnknownUnit, Vector3D};
 use gdnative::prelude::Vector3;
 
 pub struct VoxelRaycast {
@@ -40,8 +39,8 @@ impl VoxelRaycast {
 					voxel: voxel::Delta::ZERO,
 					limit: voxel::Delta::ZERO,
 					step: voxel::Delta::ZERO,
-					t_max: Vector3D::zero(),
-					t_delta: Vector3D::zero(),
+					t_max: Vector3::zero(),
+					t_delta: Vector3::zero(),
 					last_step: LastStep::X,
 					finished: true,
 				};

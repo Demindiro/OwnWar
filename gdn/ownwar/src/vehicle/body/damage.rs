@@ -6,12 +6,9 @@ use core::fmt;
 use core::mem;
 use core::num::{NonZeroU16, NonZeroU32};
 use core::slice;
-use euclid::{UnknownUnit, Vector3D};
 use gdnative::prelude::*;
 use std::error::Error;
 use std::io;
-
-type Vec3u8 = Vector3D<u8, UnknownUnit>;
 
 const DESTROY_BLOCK_EFFECT_SCENE: &str = "res://vehicles/destroy_block_effect.tscn";
 #[cfg(not(feature = "server"))]
@@ -27,7 +24,7 @@ pub enum DamageEvent {
 	Explosion {
 		damage: u32,
 		origin: Vector3,
-		radius: u8,
+		radius: i8,
 	},
 }
 
@@ -98,7 +95,7 @@ impl DamageEvent {
 				Ok(Self::Explosion {
 					damage,
 					origin,
-					radius,
+					radius: radius as i8,
 				})
 			}
 			ty => Err(io::Error::new(
@@ -275,17 +272,21 @@ impl super::Body {
 		&mut self,
 		shared: &mut Shared,
 		origin: Vector3,
-		radius: u8,
+		radius: i8,
 		mut damage: u32,
 		destroyed_blocks: &mut Vec<voxel::Position>,
 		destroy_disconnected: &mut bool,
 	) -> bool {
 		*destroy_disconnected = true;
-		let origin = convert_vec(origin);
+
+		let origin = match origin.try_into() {
+			Ok(o) => o,
+			Err(_) => return false, // Just return, we won't be hitting anything anyways.
+		};
 
 		self.debug_clear_points();
 
-		for pos in VoxelSphereIterator::new(origin, radius.into()) {
+		for pos in VoxelSphereIterator::new(origin, radius) {
 			let x = u8::try_from(pos.x);
 			let y = u8::try_from(pos.y);
 			let z = u8::try_from(pos.z);
@@ -370,7 +371,6 @@ impl super::Body {
 		destroyed_blocks: &mut Vec<voxel::Position>,
 	) -> Result<bool, ()> {
 		if let Ok(result) = self.try_damage_block(position, *damage) {
-			let node = unsafe { self.node().unwrap().assume_safe() };
 			*damage = result.damage();
 			match result {
 				DamageBlockResult::BodyDestroyed => {
@@ -411,7 +411,6 @@ impl super::Body {
 							body.destroy(shared, body.center_of_mass);
 						});
 
-						let index = self.get_index(pos).unwrap();
 						let blk = block::Block::get(self.blocks[pos].id.unwrap()).unwrap();
 
 						// Set the base position to 0 HP
@@ -465,8 +464,8 @@ impl super::Body {
 		position: voxel::Position,
 		damage: u32,
 	) -> Result<DamageBlockResult, ()> {
-		self.get_index(position).map(|i| {
-			if let Some(hp) = self.blocks[position].health {
+		if let Some(blk) = self.blocks.get(position) {
+			Ok(if let Some(hp) = blk.health {
 				if hp.get() & 0x8000 != 0 {
 					let block_index = (hp.get() & 0x7fff) as usize;
 					let block = self.multi_blocks[block_index]
@@ -483,7 +482,7 @@ impl super::Body {
 							if self.remove_all_anchors(pos) {
 								// Reinsert MultiBlock so it's properly destroyed
 								self.multi_blocks[block_index] = Some(block);
-								return DamageBlockResult::BodyDestroyed;
+								return Ok(DamageBlockResult::BodyDestroyed);
 							}
 						}
 						DamageBlockResult::MultiBlockDestroyed {
@@ -513,8 +512,10 @@ impl super::Body {
 				}
 			} else {
 				DamageBlockResult::Empty { damage }
-			}
-		})
+			})
+		} else {
+			Err(())
+		}
 	}
 
 	/// Correct the mass & cost accounting for a removed block at the given position.
@@ -614,8 +615,6 @@ impl super::Body {
 	/// Destroy all blocks and bodies connected to a certain other block in any way.
 	fn destroy_connected_blocks(&mut self, shared: &mut Shared, position: voxel::Position) {
 		debug_assert_ne!(self.blocks[position].id, Some(MAINFRAME_ID));
-
-		let size = self.size();
 
 		fn closure(slf: &mut Body, shared: &mut Shared, position: voxel::Position) {
 			if slf

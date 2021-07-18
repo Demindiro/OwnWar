@@ -28,15 +28,11 @@ use crate::util::*;
 use core::cell::Cell;
 use core::fmt;
 use core::mem;
-use euclid::{UnknownUnit, Vector3D};
 #[cfg(not(feature = "server"))]
 use gdnative::api::{BoxShape, CollisionShape, MeshInstance, PhysicsServer, VehicleBody};
 use gdnative::prelude::*;
-use num_traits::{AsPrimitive, PrimInt};
 use std::convert::{TryFrom, TryInto};
 use std::num::{NonZeroU16, NonZeroU32};
-
-type Vec3u8 = Vector3D<u8, UnknownUnit>;
 
 const MAINFRAME_ID: NonZeroU16 = unsafe { NonZeroU16::new_unchecked(76) };
 
@@ -108,12 +104,6 @@ pub(super) struct Body {
 	collider_end_point: voxel::Position,
 }
 
-pub(super) enum Block<'a> {
-	Destroyed(NonZeroU16),
-	Single(NonZeroU16, NonZeroU16),
-	Multi(NonZeroU16, &'a MultiBlock),
-}
-
 /// Enum returned when an error occurs during `init_all`
 #[derive(Debug)]
 pub enum InitError {
@@ -170,7 +160,7 @@ impl Body {
 			colors: repeat(0).take(size).collect(),
 			rotations: repeat(Rotation::new(0).unwrap()).take(size).collect(),
 
-			center_of_mass: Vector3D::zero(),
+			center_of_mass: Vector3::zero(),
 			mass: 0.0,
 			cost: 0,
 			max_cost: 0,
@@ -468,7 +458,7 @@ impl Body {
 	fn get_index(&self, position: voxel::Position) -> Result<usize, ()> {
 		if self.blocks.get(position).is_some() {
 			let voxel::Delta { x, y, z } = self.size();
-			let (sx, sy, sz) = (x as usize, y as usize, z as usize);
+			let (_, sy, sz) = (x as usize, y as usize, z as usize);
 			let (x, y, z): (usize, _, _) = position.into();
 			Ok((x * sy + y) * sz + z)
 		} else {
@@ -482,7 +472,7 @@ impl Body {
 		for pos in iter_3d_inclusive((0, 0, 0), self.end().into()).map(voxel::Position::from) {
 			if let Voxel {
 				id: Some(id),
-				health: Some(hp),
+				health: Some(_),
 			} = self.blocks[pos]
 			{
 				let mass = block::Block::get(id).unwrap().mass;
@@ -612,23 +602,5 @@ impl Body {
 			PhysicsServer::godot_singleton()
 				.call("body_set_local_com", &[rid.to_variant(), com.to_variant()]);
 		});
-	}
-}
-
-impl Block<'_> {
-	pub fn id(&self) -> NonZeroU16 {
-		match self {
-			Block::Destroyed(id) => *id,
-			Block::Single(id, _) => *id,
-			Block::Multi(id, _) => *id,
-		}
-	}
-
-	pub fn health(&self) -> u32 {
-		match self {
-			Block::Destroyed(_) => 0,
-			Block::Single(_, hp) => hp.get() as u32,
-			Block::Multi(_, mb) => mb.health.get(),
-		}
 	}
 }

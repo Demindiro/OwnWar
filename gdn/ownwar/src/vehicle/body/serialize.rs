@@ -3,7 +3,6 @@ use core::convert::{TryFrom, TryInto};
 use core::mem;
 use core::num::NonZeroU16;
 use core::slice;
-use euclid::Vector3D;
 use gdnative::prelude::*;
 use std::io;
 
@@ -64,7 +63,7 @@ impl super::Body {
 				rot = Quat::quaternion(-rot.i, -rot.j, -rot.k, -rot.r);
 			}
 			Self::serialize_vector3(out, tr)?;
-			Self::serialize_vector3(out, Vector3D::new(rot.i, rot.j, rot.k))?;
+			Self::serialize_vector3(out, Vector3::new(rot.i, rot.j, rot.k))?;
 			Self::serialize_vector3(out, lv)?;
 			Self::serialize_vector3(out, av)?;
 		}
@@ -81,14 +80,11 @@ impl super::Body {
 		in_.read_exact(&mut buf)?;
 		let offset = voxel::Position::new(buf[0], buf[1], buf[2]);
 		in_.read_exact(&mut buf)?;
-		let end = Vec3u8::new(buf[0], buf[1], buf[2]);
-
-		let count = convert_vec::<_, usize>(end) + Vector3D::one();
-		let count = count.x * count.y * count.z;
-
 		let end = voxel::Position::new(buf[0], buf[1], buf[2]);
+
 		// Get the ID & health of each block
 		let mut blocks = voxel::Grid::new_uninit(end);
+		let count = blocks.len();
 		for blk in blocks.values_mut() {
 			let mut buf = [0; mem::size_of::<Option<NonZeroU16>>()];
 			in_.read_exact(&mut buf)?;
@@ -99,16 +95,6 @@ impl super::Body {
 		}
 		// SAFETY: all elements have been initialized
 		let blocks = unsafe { blocks.assume_init() };
-
-		// Get the health
-		let mut health = Box::new_uninit_slice(count);
-		for health in health.iter_mut() {
-			let mut buf = [0; mem::size_of::<Option<NonZeroU16>>()];
-			in_.read_exact(&mut buf)?;
-			health.write(NonZeroU16::new(u16::from_le_bytes(buf)));
-		}
-		// SAFETY: all elements have been initialized
-		let health = unsafe { health.assume_init() };
 
 		// Get the rotations
 		let mut rotations = Box::new_uninit_slice(count.try_into().unwrap());
@@ -191,7 +177,7 @@ impl super::Body {
 			rotations,
 			colors,
 
-			center_of_mass: Vector3D::zero(),
+			center_of_mass: Vector3::zero(),
 			mass: 0.0,
 			cost: 0,
 			max_cost: 0,

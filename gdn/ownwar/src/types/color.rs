@@ -44,7 +44,11 @@ impl fmt::Display for RGB8 {
 impl From<RGB8> for Color {
 	/// Perform a lossless conversion to a `Color`.
 	fn from(rgb: RGB8) -> Color {
-		Color::rgb(rgb.r as f32 / 255.0, rgb.g as f32 / 255.0, rgb.b as f32 / 255.0)
+		Color::rgb(
+			rgb.r as f32 / 255.0,
+			rgb.g as f32 / 255.0,
+			rgb.b as f32 / 255.0,
+		)
 	}
 }
 

@@ -2,8 +2,6 @@
 
 use crate::rotation::*;
 use crate::types::*;
-use crate::util::convert_vec;
-use euclid::{UnknownUnit, Vector3D};
 use gdnative::api::{Mesh, Resource};
 use gdnative::prelude::*;
 use lazy_static::lazy_static;
@@ -39,8 +37,7 @@ pub struct Block {
 	#[property]
 	pub mass: f32,
 	pub cost: NonZeroU16,
-	pub aabb_start: voxel::Delta,
-	pub aabb_end: voxel::Delta,
+	pub aabb: voxel::SmallAABB,
 
 	mirror_rotation_offset: Rotation,
 	mirror_block_id: Option<NonZeroU16>,
@@ -51,7 +48,7 @@ pub struct Block {
 
 	occlusion_info: Option<OcclusionInfo>,
 
-	pub extra_mount_points: Box<[Vector3D<i8, UnknownUnit>]>,
+	pub extra_mount_points: Box<[voxel::SmallDelta]>,
 }
 
 #[derive(NativeClass)]
@@ -133,10 +130,8 @@ impl Block {
 
 	fn new(owner: TRef<Resource>) -> Self {
 		let _ = owner;
-		use euclid::Vector3D;
 		let mut s = Self {
-			aabb_start: voxel::Delta::ZERO,
-			aabb_end: voxel::Delta::ZERO,
+			aabb: voxel::SmallAABB::new(voxel::SmallDelta::ZERO, voxel::SmallDelta::ZERO),
 			cost: NonZeroU16::new(1).unwrap(),
 			health: NonZeroU32::new(100).unwrap(),
 			human_category: String::new(),
@@ -202,16 +197,18 @@ impl Block {
 /// Methods specifically intended for communication with GDScript
 impl Block {
 	fn gd_get_aabb(&self, _: TRef<Resource>) -> Aabb {
-		let size = self.aabb_end - self.aabb_start + voxel::Delta::ONE;
 		Aabb {
-			position: self.aabb_start.into(),
-			size: size.into(),
+			position: self.aabb.start.into(),
+			size: self.aabb.size().into(),
 		}
 	}
 
 	fn gd_set_aabb(&mut self, _: TRef<Resource>, aabb: Aabb) {
-		self.aabb_start = aabb.position.try_into().expect("Failed to convert start");
-		self.aabb_end = (aabb.position + aabb.size - Vector3::one()).try_into().expect("Failed to convert end");
+		let start = aabb.position.try_into().expect("Failed to convert start");
+		let end = (aabb.position + aabb.size - Vector3::one())
+			.try_into()
+			.expect("Failed to convert end");
+		self.aabb = voxel::SmallAABB::new(start, end);
 	}
 
 	fn gd_get_id(&self, _: TRef<Resource>) -> u16 {
@@ -368,11 +365,7 @@ impl Block {
 		})
 	}
 
-	fn gd_set_alternate_rotation_map(
-		&mut self,
-		_: TRef<Resource>,
-		map: Option<TypedArray<u8>>,
-	) {
+	fn gd_set_alternate_rotation_map(&mut self, _: TRef<Resource>, map: Option<TypedArray<u8>>) {
 		self.alternate_rotation_map = {
 			if let Some(map) = map {
 				let r = map.read();
@@ -402,8 +395,8 @@ impl Block {
 		let mut arr = TypedArray::new();
 		arr.resize(self.extra_mount_points.len() as i32);
 		let mut a = arr.write();
-		for (i, m) in self.extra_mount_points.iter().enumerate() {
-			a[i] = convert_vec(*m);
+		for (i, m) in self.extra_mount_points.iter().copied().enumerate() {
+			a[i] = m.into();
 		}
 		drop(a);
 		arr
@@ -411,9 +404,9 @@ impl Block {
 
 	fn gd_set_extra_mount_points(&mut self, _: TRef<Resource>, mounts: TypedArray<Vector3>) {
 		let mut mp = Vec::with_capacity(mounts.len() as usize);
-		for r in mounts.read().iter() {
-			let r = Vector3D::new(r.x as i8, r.y as i8, r.z as i8);
-			if r != Vector3D::zero() && !mp.contains(&r) {
+		for r in mounts.read().iter().copied() {
+			let r = r.try_into().expect("Failed to convert mount point");
+			if r != voxel::SmallDelta::ZERO && !mp.contains(&r) {
 				mp.push(r)
 			}
 		}

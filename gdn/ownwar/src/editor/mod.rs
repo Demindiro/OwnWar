@@ -12,9 +12,8 @@ mod godot {
 	use crate::block;
 	use crate::rotation::*;
 	use crate::types::*;
-	use crate::util::{convert_vec, VoxelRaycast};
+	use crate::util::VoxelRaycast;
 	use crate::vehicle::{self, VoxelMesh};
-	use euclid::{UnknownUnit, Vector3D};
 	use fxhash::{FxHashMap, FxHashSet};
 	use gdnative::api::{Camera, File, PackedScene, Spatial};
 	use gdnative::nativescript::property::Usage;
@@ -751,14 +750,22 @@ mod godot {
 		fn remove_block(
 			&mut self,
 			owner: TRef<Node>,
-		) -> Result<(voxel::Position, NonZeroU16, Option<(voxel::Position, NonZeroU16)>), &str> {
+		) -> Result<
+			(
+				voxel::Position,
+				NonZeroU16,
+				Option<(voxel::Position, NonZeroU16)>,
+			),
+			&str,
+		> {
 			if !self.edit_mode {
 				return Err("Enter edit mode to remove blocks");
 			}
 			let (pos, _, _) = self.raycast_from_camera();
 			if let Ok(pos) = pos.try_into() {
 				let gs = GRID_SIZE - 1;
-				let grid_aabb = voxel::AABB::new(voxel::Position::ZERO, voxel::Position::new(gs, gs, gs));
+				let grid_aabb =
+					voxel::AABB::new(voxel::Position::ZERO, voxel::Position::new(gs, gs, gs));
 				if grid_aabb.has_point(pos) {
 					let (pos, id) = self.delete_block(owner, self.selected_layer, pos)?;
 					let mirror = if self.mirror {
@@ -935,10 +942,7 @@ mod godot {
 			let mut ray = VoxelRaycast::start(
 				start,
 				direction,
-				voxel::AABB::new(
-					voxel::Position::ZERO,
-					voxel::Position::new(gs, gs, gs),
-				),
+				voxel::AABB::new(voxel::Position::ZERO, voxel::Position::new(gs, gs, gs)),
 			);
 			let mut final_pos = None;
 			let mut collided = false;

@@ -1,6 +1,5 @@
 use super::*;
 use crate::block;
-use crate::util::*;
 use gdnative::api::BoxShape;
 use gdnative::prelude::*;
 

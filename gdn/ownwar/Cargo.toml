@@ -9,8 +9,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 gdnative = "*"
-euclid = "0.22"
-num-traits = "0.2"
 lazy_static = "*"
 godot_rapier3d = { path = "../../../../game-assets/godot/godot_rapier3d/rapier3d" }
 fxhash = "*"

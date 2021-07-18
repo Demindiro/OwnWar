@@ -1,7 +1,6 @@
 use crate::block;
 use crate::rotation::*;
 use crate::types::*;
-use crate::util::convert_vec;
 use fxhash::{FxHashMap, FxHashSet};
 use std::convert::TryInto;
 use std::mem;
@@ -424,7 +423,7 @@ impl Vehicle {
 
 	pub fn move_all_blocks(&mut self, by: voxel::Delta) -> Result<(), VehicleError> {
 		if let Some(aabb) = self.aabb() {
-			if let (Ok(s), Ok(e)) = (aabb.start + by, aabb.end + by) {
+			if let (Ok(_), Ok(_)) = (aabb.start + by, aabb.end + by) {
 				for layer in self.layers.iter_mut() {
 					let map = mem::replace(&mut layer.blocks, FxHashMap::default());
 					for (pos, blk) in map

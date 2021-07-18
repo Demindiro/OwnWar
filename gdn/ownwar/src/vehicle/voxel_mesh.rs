@@ -1,9 +1,7 @@
 use crate::block;
 use crate::rotation::*;
 use crate::types::*;
-use crate::util::convert_vec;
-use core::convert::TryInto;
-use euclid::{UnknownUnit, Vector3D};
+use core::convert::{TryFrom, TryInto};
 use fxhash::FxHashMap;
 use gdnative::api::{ArrayMesh, Material, Mesh, Resource, SpatialMaterial};
 use gdnative::prelude::*;
@@ -291,12 +289,10 @@ impl SubMesh {
 			}
 			let norm = (verts[1].vertex - verts[0].vertex).cross(verts[2].vertex - verts[0].vertex);
 			let norm = norm.normalize();
-			let norm = convert_vec::<_, i8>(norm);
+			let norm = voxel::Delta::try_from(norm).unwrap();
 			// TODO fix the norm rotation in block.rs instead of deriving it ourselves
-			let dir = if dir.vector() != norm {
-				//godot_print!("dir != norm  {}", rotation.get());
-				//godot_print!("{:2} {:2} {:2} = {:2} {:2} {:2}", norm.x, norm.y, norm.z, dir.x, dir.y, dir.z);
-				Direction::from_vector(norm).unwrap()
+			let dir = if dir.delta() != norm {
+				Direction::from_vector(norm.into()).unwrap()
 			} else {
 				dir
 			};

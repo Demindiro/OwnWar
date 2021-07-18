@@ -1,5 +1,4 @@
 use crate::types::voxel;
-use euclid::{UnknownUnit, Vector3D};
 
 impl super::Body {
 	#[cfg(debug_assertions)]

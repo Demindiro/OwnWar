@@ -11,7 +11,6 @@ pub mod gd {
 	//! a default value when queried.
 
 	use super::*;
-	use crate::types::*;
 	use gdnative::api::{File, Node, Reference, VehicleBody};
 	use gdnative::prelude::*;
 
@@ -320,7 +319,7 @@ pub mod gd {
 			_: TRef<Reference>,
 			body: TypedArray<u8>,
 			origin: Vector3,
-			radius: u8,
+			radius: i8,
 			damage: u32,
 		) -> u32 {
 			if let Some(body) = self.vehicle.body_mut(&body.read()[..]) {
@@ -351,7 +350,6 @@ pub mod gd {
 			body: TypedArray<u8>,
 			coordinate: Vector3,
 		) -> Option<Vector3> {
-			let coordinate = convert_vec(coordinate);
 			self.vehicle
 				.body(&body.read()[..])
 				.map(|b| b.voxel_to_translation(coordinate))
@@ -510,9 +508,8 @@ pub mod gd {
 use super::*;
 use crate::block;
 use crate::editor::data;
-use crate::editor::serialize;
 use crate::types::*;
-use crate::util::convert_vec;
+use crate::editor::serialize;
 use core::cell::Cell;
 use core::convert::{TryFrom, TryInto};
 use core::fmt;

@@ -1,9 +1,6 @@
 #![cfg_attr(feature = "server", allow(dead_code))]
 
 use crate::types::voxel;
-use crate::util::convert_vec;
-use euclid::UnknownUnit;
-use euclid::Vector3D;
 use gdnative::prelude::{Basis, Vector3};
 use std::convert::TryInto;
 
@@ -145,7 +142,7 @@ impl Rotation {
 		Direction::from_vector(
 			self.basis()
 				.to_quat()
-				.transform_vector3d(convert_vec(direction.vector())),
+				.transform_vector3d(direction.delta().into()),
 		)
 		.expect("Failed to get direction from vector")
 	}
@@ -166,14 +163,11 @@ impl Direction {
 		self.0
 	}
 
-	pub fn from_vector<T>(axis: Vector3D<T, UnknownUnit>) -> Result<Self, OutOfBounds>
-	where
-		T: Into<f64>,
-	{
+	pub fn from_vector(axis: Vector3) -> Result<Self, OutOfBounds> {
 		let axis = (
-			axis.x.into().round(),
-			axis.y.into().round(),
-			axis.z.into().round(),
+			axis.x.round(),
+			axis.y.round(),
+			axis.z.round(),
 		);
 		let d = match axis {
 			_ if axis == (0.0, 1.0, 0.0) => 0,
@@ -185,18 +179,6 @@ impl Direction {
 			_ => return Err(OutOfBounds),
 		};
 		Ok(Self(d))
-	}
-
-	pub fn vector(self) -> Vector3D<i8, UnknownUnit> {
-		match self.0 {
-			0 => Vector3D::new(0, 1, 0),
-			1 => Vector3D::new(0, -1, 0),
-			2 => Vector3D::new(1, 0, 0),
-			3 => Vector3D::new(-1, 0, 0),
-			4 => Vector3D::new(0, 0, 1),
-			5 => Vector3D::new(0, 0, -1),
-			_ => unreachable!(),
-		}
 	}
 
 	/// Return the corresponding `Delta` for this `Direction`.

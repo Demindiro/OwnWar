@@ -1,6 +1,4 @@
-use super::*;
 use crate::block;
-use crate::util::*;
 use gdnative::prelude::Vector3;
 use std::io;
 
@@ -32,11 +30,8 @@ impl super::Body {
 	}
 
 	/// Map a local voxel coordinate to a local translation, accounting for scale.
-	pub fn voxel_to_translation(&self, coordinate: Vec3u8) -> Vector3 {
-		let coordinate = convert_vec::<_, isize>(coordinate);
-		let (x, y, z) = self.offset.into();
-		let offset = Vector3D::new(x, y, z);
-		convert_vec::<_, f32>(coordinate - offset) * block::SCALE
+	pub fn voxel_to_translation(&self, coordinate: Vector3) -> Vector3 {
+		(coordinate - Vector3::from(self.offset())) * block::SCALE
 	}
 
 	/// Serialize a Vector3

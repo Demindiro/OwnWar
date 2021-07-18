@@ -1,6 +1,5 @@
 use super::*;
 use crate::rotation::Rotation;
-use crate::util::convert_vec;
 use core::convert::TryInto;
 use core::num::NonZeroU32;
 use gdnative::api::Spatial;
