@@ -5,7 +5,7 @@ export var lift_factor := 1.0
 export var speed_factor := 1.0
 export var drive_angle := 0.1
 
-var last_drive := 0.0
+var current_angle := 0.0
 
 var pitch_factor = 0.0
 var roll_factor = 0.0
@@ -14,9 +14,12 @@ var movement_index = 0
 var base_position
 var body_center_of_mass
 
+onready var lift_point = $Lift
+onready var lift_transform = transform * $Lift.transform
+
 
 func _ready() -> void:
-	var b = transform.basis
+	var b = lift_transform.basis
 	var delta_pos = base_position - body_center_of_mass
 	if abs(b.z.dot(Vector3.BACK)) > 0.01:
 		#pitch_factor = 1.0 * sign(round(f.dot(Vector3.FORWARD))) * sign(round(b.y.dot(Vector3.DOWN))) * sign(round(b.x.dot(Vector3.LEFT)))
@@ -34,16 +37,16 @@ func drive(forward: float, yaw: float, pitch: float, roll: float) -> void:
 	var body = get_parent()
 	var com = PhysicsServer.body_get_local_com(body.get_rid())
 	var world_com = body.global_transform * com
-	var pos = base_position * 0.25 # BLOCK_SCALE
 
 	roll = yaw
 	pitch = pitch * pitch_factor
 	roll = roll * roll_factor
-	last_drive = clamp(pitch + roll, -1.0, 1.0)
+	var drive = clamp(pitch + roll, -1.0, 1.0)
 
-	var trf = global_transform
+	var trf = lift_point.global_transform
 	# Apply drive
-	var basis = trf.basis * Basis(Vector3(1, 0, 0), last_drive * drive_angle)
+	current_angle = drive * drive_angle
+	var basis = trf.basis * Basis(Vector3(1, 0, 0), current_angle)
 	_aoa = basis.y
 
 	# The linear velocity at the wing
@@ -60,8 +63,8 @@ func drive(forward: float, yaw: float, pitch: float, roll: float) -> void:
 
 	PhysicsServer.body_add_local_force(
 		body.get_rid(),
-		transform.basis.y * lift,
-		pos
+		lift_transform.basis.y * lift,
+		lift_transform.origin
 	)
 
 var _vel = Vector3()
@@ -69,7 +72,8 @@ var _perp_vel = Vector3()
 var _fwd_vel = Vector3()
 var _aoa = Vector3()
 func debug_draw():
-	Debug.draw_line(global_transform.origin, global_transform.origin + _vel, Color.red)
-	Debug.draw_line(global_transform.origin, global_transform.origin + _perp_vel, Color.cyan)
-	Debug.draw_line(global_transform.origin, global_transform.origin + _fwd_vel, Color.yellow)
-	Debug.draw_line(global_transform.origin, global_transform.origin + _aoa, Color.orange)
+	var trf = lift_point.global_transform
+	Debug.draw_line(trf.origin, trf.origin + _vel, Color.red)
+	Debug.draw_line(trf.origin, trf.origin + _perp_vel, Color.cyan)
+	Debug.draw_line(trf.origin, trf.origin + _fwd_vel, Color.yellow)
+	Debug.draw_line(trf.origin, trf.origin + _aoa, Color.orange)
