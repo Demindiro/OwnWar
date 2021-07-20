@@ -4,6 +4,10 @@ extends Spatial
 export var lift_factor := 1.0
 export var speed_factor := 1.0
 export var drive_angle := 0.1
+# Maximum lift to prevent the physics from exploding.
+#
+# The current implementation may oscillate into infinity due to timesteps being a thing.
+const MAX_LIFT := 10000.0
 
 var current_angle := 0.0
 
@@ -59,11 +63,12 @@ func drive(forward: float, yaw: float, pitch: float, roll: float) -> void:
 	_perp_vel = perp_vel * basis.y * 0.1
 	_fwd_vel = fwd_vel * basis.z * 0.1
 
-	var lift = lift_factor * -(perp_vel * abs(perp_vel) * (1.0 + fwd_vel * fwd_vel * speed_factor))
+	var lift = lift_factor * -(perp_vel * (1.0 + fwd_vel * fwd_vel * speed_factor))
+	lift = clamp(lift, -MAX_LIFT, MAX_LIFT)
 
 	PhysicsServer.body_add_local_force(
 		body.get_rid(),
-		lift_transform.basis.y * lift,
+		(lift_transform.basis * Basis(Vector3(1, 0, 0), current_angle)).y * lift,
 		lift_transform.origin
 	)
 

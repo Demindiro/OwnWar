@@ -1,6 +1,6 @@
 use super::*;
 use crate::block;
-use gdnative::api::BoxShape;
+use gdnative::api::{BoxShape, PhysicsMaterial};
 use gdnative::prelude::*;
 
 /// Helper functions for initializing new bodies & blocks.
@@ -156,10 +156,18 @@ impl super::Body {
 		#[cfg(not(feature = "server"))]
 		assert!(self.voxel_mesh_instance.is_none(), "This will leak memory");
 
+		// Create physics material
+		let mat = PhysicsMaterial::new();
+		mat.set_friction(FRICTION.into());
+
+		// Add physics body
 		let node = Ref::<VehicleBody, _>::new();
 		node.set_as_toplevel(true);
 		node.set_collision_layer(COLLISION_LAYER.into());
 		node.set_collision_mask(COLLISION_MASK.into());
+		node.set_physics_material_override(mat);
+		node.set_linear_damp(LINEAR_DAMPING.into());
+		node.set_angular_damp(ANGULAR_DAMPING.into());
 
 		// Add collision
 		let collision_shape_instance = Ref::<CollisionShape, Unique>::new();

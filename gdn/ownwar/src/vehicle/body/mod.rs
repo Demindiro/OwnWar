@@ -39,6 +39,12 @@ const MAINFRAME_ID: NonZeroU16 = unsafe { NonZeroU16::new_unchecked(76) };
 const COLLISION_LAYER: u32 = 2;
 // Any + Vehicles + Terrain
 const COLLISION_MASK: u32 = 1 | 2 | (1 << 7);
+// Helps with preventing the physics from exploding.
+const LINEAR_DAMPING: f32 = 0.2;
+const ANGULAR_DAMPING: f32 = 0.2;
+// A slippery surface makes it easier to take off in planes & prevents getting stuck
+// on corners.
+const FRICTION: f32 = 0.1;
 
 /// A single voxel. Each voxel represents a block's ID and health.
 #[derive(Default)]
