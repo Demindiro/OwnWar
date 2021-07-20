@@ -77,6 +77,10 @@ pub(super) struct Body {
 
 	/// The ID & health of each block of this body.
 	blocks: voxel::Grid<Voxel>,
+	/// A bitmap indicating which sides of each block can form connections.
+	///
+	/// This is stored separately from `blocks` due to alignment requirements.
+	///connections: voxel::BitGrid,
 	/// All multiblocks.
 	multi_blocks: Vec<Option<MultiBlock>>,
 	/// The color of each block. Needed for serialization.

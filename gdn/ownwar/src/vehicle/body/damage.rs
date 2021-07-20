@@ -549,7 +549,7 @@ impl super::Body {
 			return true;
 		}
 
-		let mut marks = BitArray::new(self.blocks.len());
+		let mut marks = voxel::BitGrid::new(self.blocks.end());
 		for pos in destroyed_blocks {
 			let mut connections = Vec::new();
 			let mut add_conn_fn = |direction| {
@@ -570,21 +570,19 @@ impl super::Body {
 			add_conn_fn(-voxel::Delta::Y);
 			add_conn_fn(voxel::Delta::X);
 			add_conn_fn(-voxel::Delta::X);
-			while let Some(side_voxel) = connections.pop() {
-				let index = self.get_index(side_voxel).unwrap();
-				if marks.get(index as usize).unwrap() {
+			while let Some(side_pos) = connections.pop() {
+				if marks[side_pos] {
 					continue;
 				}
-				let anchor_found = self.mark_connected_blocks(&mut marks, side_voxel, false);
+				let anchor_found = self.mark_connected_blocks(&mut marks, side_pos, false);
 				if anchor_found {
 					for i in (0..connections.len()).rev() {
-						let index = self.get_index(connections[i]).unwrap();
-						if marks.get(index as usize).unwrap() {
+						if marks[connections[i]] {
 							connections.swap_remove(i);
 						}
 					}
 				} else {
-					self.destroy_connected_blocks(shared, side_voxel);
+					self.destroy_connected_blocks(shared, side_pos);
 				}
 			}
 		}
@@ -593,17 +591,16 @@ impl super::Body {
 
 	pub(super) fn mark_connected_blocks(
 		&self,
-		marks: &mut BitArray,
+		marks: &mut voxel::BitGrid,
 		position: voxel::Position,
 		mut found: bool,
 	) -> bool {
-		let index = self.get_index(position).unwrap();
-		marks.set(index, true).unwrap();
+		marks.set(position, true).unwrap();
 		found |= self.parent_anchors.contains(&position);
 
 		let cf = |pos| {
-			if let Ok(index) = self.get_index(pos) {
-				if !marks.get(index).unwrap() && self.blocks[pos].health.is_some() {
+			if let Some(blk) = self.blocks.get(pos) {
+				if blk.health.is_some() && !marks[pos] {
 					found = self.mark_connected_blocks(marks, pos, found);
 				}
 			}

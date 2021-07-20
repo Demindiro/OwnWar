@@ -22,6 +22,7 @@ where
 	T: Default,
 {
 	/// Create a new grid with the given top/end corner.
+	#[must_use]
 	pub fn new(end: Position) -> Self {
 		Self::new_in(end, Global)
 	}
@@ -55,6 +56,7 @@ where
 	A: Allocator,
 {
 	/// Create a new grid with the given top/end corner where all the elements are unintialized.
+	#[must_use]
 	pub fn new_uninit_in(end: Position, allocator: A) -> Grid<MaybeUninit<T>, A> {
 		let (x, y, z): (usize, _, _) = end.into();
 		let size = (x + 1) * (y + 1) * (z + 1);
@@ -76,23 +78,21 @@ where
 	A: Allocator,
 {
 	/// Return an element at the given position.
+	#[must_use]
 	pub fn get(&self, position: Position) -> Option<&T> {
-		let (x, y, z) = <(usize, usize, usize)>::from(position);
-		let (sx, sy, sz) = <(usize, usize, usize)>::from(self.end);
-		(x <= sx && y <= sy && z <= sz).then(|| unsafe {
+		self.is_in_range(position).then(|| unsafe {
 			// SAFETY: the position is in range.
-			let offt = (sy + 1) * (sz + 1) * x + (sz + 1) * y + z;
+			let offt = self.get_index(position);
 			&*self.ptr.as_ptr().add(offt)
 		})
 	}
 
 	/// Return an element at the given position.
+	#[must_use]
 	pub fn get_mut(&mut self, position: Position) -> Option<&mut T> {
-		let (x, y, z) = <(usize, usize, usize)>::from(position);
-		let (sx, sy, sz) = <(usize, usize, usize)>::from(self.end);
-		(x <= sx && y <= sy && z <= sz).then(|| unsafe {
+		self.is_in_range(position).then(|| unsafe {
 			// SAFETY: the position is in range and not borrowed yet.
-			let offt = (sy + 1) * (sz + 1) * x + (sz + 1) * y + z;
+			let offt = self.get_index(position);
 			&mut *self.ptr.as_ptr().add(offt)
 		})
 	}
@@ -102,29 +102,30 @@ where
 	/// Returns the old element if the position is in range.
 	#[allow(dead_code)]
 	pub fn set(&mut self, position: Position, value: T) -> Option<T> {
-		let (x, y, z) = <(usize, usize, usize)>::from(position);
-		let (sx, sy, sz) = <(usize, usize, usize)>::from(self.end);
-		(x <= sx && y <= sy && z <= sz).then(|| unsafe {
+		self.is_in_range(position).then(|| unsafe {
 			// SAFETY: the position is in range and not borrowed yet.
-			let offt = (sy + 1) * (sz + 1) * x + (sz + 1) * y + z;
+			let offt = self.get_index(position);
 			let elem = &mut *self.ptr.as_ptr().add(offt);
 			mem::replace(elem, value)
 		})
 	}
 
 	/// Return the total amount of elements in this grid.
+	#[must_use]
 	pub fn len(&self) -> usize {
 		let (x, y, z): (usize, _, _) = self.end.into();
 		(x + 1) * (y + 1) * (z + 1)
 	}
 
 	/// Return the total amount of elements in this grid as a `u32`.
+	#[must_use]
 	pub fn len_u32(&self) -> u32 {
 		let (x, y, z): (u32, _, _) = self.end.into();
 		(x + 1) * (y + 1) * (z + 1)
 	}
 
 	/// Return the end/top point of this grid.
+	#[must_use]
 	pub fn end(&self) -> Position {
 		self.end
 	}
@@ -132,6 +133,7 @@ where
 	/// Iterate all the elements in this grid.
 	///
 	/// The order of the elements is unspecified, but the same as `iter_mut`.
+	#[must_use]
 	pub fn values<'a>(&'a self) -> Values<'a, T, A> {
 		Values {
 			grid: self,
@@ -143,6 +145,7 @@ where
 	/// Iterate all the elements in this grid.
 	///
 	/// The order of the elements is unspecified, but the same as `iter`.
+	#[must_use]
 	pub fn values_mut<'a>(&'a mut self) -> ValuesMut<'a, T, A> {
 		let size = self.len_u32();
 		ValuesMut {
@@ -150,6 +153,20 @@ where
 			index: 0,
 			size,
 		}
+	}
+
+	/// Map a position to an index.
+	#[must_use]
+	fn get_index(&self, position: Position) -> usize {
+		let (x, y, z) = <(usize, usize, usize)>::from(position);
+		let (_, sy, sz) = <(usize, usize, usize)>::from(self.end);
+		((sy + 1) * x + y) * (sz + 1) + z
+	}
+
+	/// Check if the position is in range.
+	#[must_use]
+	fn is_in_range(&self, position: Position) -> bool {
+		position.min(self.end) == position
 	}
 }
 
