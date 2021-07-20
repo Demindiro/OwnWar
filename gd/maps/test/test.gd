@@ -86,7 +86,7 @@ func _ready() -> void:
 		_hud.player_vehicle_id = id
 		_spawn_point_index += 1
 		_spawn_point_index %= get_node(spawn_points).get_child_count()
-		for _i in 6:
+		for _i in 4:
 			spawn_vehicle(vehicle_path)
 		set_process(not OS.has_feature("Server"))
 

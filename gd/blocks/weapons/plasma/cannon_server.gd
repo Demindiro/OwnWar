@@ -1,6 +1,7 @@
 extends OwnWar_Weapon
 
 export var projectile: PackedScene
+export var projectile_velocity := 100.0 # 360 km/h
 onready var spawn: Spatial = get_node("Spawn")
 
 var team := -1
@@ -24,7 +25,7 @@ func fire() -> bool:
 		quat = -quat
 	var prt = get_parent()
 	var com = prt.transform * PhysicsServer.body_get_local_com(prt.get_rid())
-	var vel = trf.basis.z * 50.0 \
+	var vel = trf.basis.z * projectile_velocity \
 			+ prt.linear_velocity \
 			+ prt.angular_velocity.cross(trf.origin - com)
 	rpc(

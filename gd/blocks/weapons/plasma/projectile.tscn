@@ -45,12 +45,12 @@ emission_on_uv2 = false
 script = ExtResource( 2 )
 explosion = ExtResource( 3 )
 damage = 1500
-radius = 3
+radius = 7
 explosion_mask = 2
 
 [node name="Timer" type="Timer" parent="."]
 process_mode = 0
-wait_time = 10.0
+wait_time = 30.0
 autostart = true
 
 [node name="Visual" type="MeshInstance" parent="."]
