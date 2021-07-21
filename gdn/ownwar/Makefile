@@ -1,15 +1,15 @@
 TARGET_PATH?=target/debug/libownwar.so
-RELEASE_TARGET_PATH?=target/release/libownwar.so
+RELEASE_NO_LTO_TARGET_PATH?=target/release_no_lto/libownwar.so
 OUTPUT?=../../gd/lib/libownwar.so
 
 
 install:
 	cargo build
-	cp $(TARGET_PATH) $(OUTPUT)
+	mv $(TARGET_PATH) $(OUTPUT)
 
 install-release:
 	cargo build --profile release_no_lto -Z unstable-options
-	cp $(RELEASE_TARGET_PATH) $(OUTPUT)
+	mv $(RELEASE_NO_LTO_TARGET_PATH) $(OUTPUT)
 
 compile-loop:
 	while true; do cargo build --color always 2>&1 | less -R; done

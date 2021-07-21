@@ -2,6 +2,7 @@
 
 use crate::rotation::*;
 use crate::types::*;
+use core::fmt;
 use core::ops;
 use gdnative::api::{Mesh, Resource};
 use gdnative::prelude::*;
@@ -42,6 +43,24 @@ impl MountSides {
 	pub fn set_connectable(&mut self, direction: Direction, enable: bool) {
 		self.0 &= !(1 << direction.get());
 		self.0 |= u8::from(enable) << direction.get();
+	}
+}
+
+impl fmt::Debug for MountSides {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		stringify!(MountSides, "(").fmt(f)?;
+		let mut insert_comma = false;
+		for i in 0..6 {
+			if self.0 & (1 << i) > 0 {
+				if insert_comma {
+					", ".fmt(f)?;
+				}
+				insert_comma = true;
+				Direction::new(i).unwrap().fmt(f)?;
+			}
+		}
+		")".fmt(f)?;
+		Ok(())
 	}
 }
 
