@@ -40,7 +40,7 @@ func save_data():
 
 
 func update():
-	transform = Transform(OwnWar_Block.rotation_to_basis(rotation), Vector3.ZERO)
+	transform = Transform(OwnWar_BlockManager.new().rotation_to_basis(rotation), Vector3.ZERO)
 	transform = transform.scaled(Vector3.ONE * 2)
 	transform = transform.translated(-Vector3.ONE / 2)
 	.update()
@@ -73,7 +73,7 @@ func update_mirror():
 		flip_faces = true
 	else:
 		mirror_transform = Transform(
-			OwnWar_Block.rotation_to_basis(mirror),
+			OwnWar_BlockManager.new().rotation_to_basis(mirror),
 			Vector3.ZERO
 		) * transform
 	$MirrorInstance.mesh = generator.get_mesh(meshes[variant_index], mirror_transform, flip_faces)

@@ -8,7 +8,7 @@ install:
 	cp $(TARGET_PATH) $(OUTPUT)
 
 install-release:
-	cargo build --release
+	cargo build --profile release_no_lto -Z unstable-options
 	cp $(RELEASE_TARGET_PATH) $(OUTPUT)
 
 compile-loop:

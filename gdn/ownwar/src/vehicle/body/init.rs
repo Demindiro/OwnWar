@@ -319,4 +319,69 @@ impl super::Body {
 			})
 		});
 	}
+
+	/// Setup interblock connection bitmaps
+	pub(super) fn setup_connection_bitmaps(&mut self) {
+		let end = self.blocks.end();
+
+		// Create a per-block connection map.
+		let mut connections = voxel::Grid::<block::MountSides>::new(end);
+		for pos in iter_3d_inclusive((0, 0, 0), end.into()).map(voxel::Position::from) {
+			if let Some(id) = self.blocks[pos].id {
+				let blk = block::Block::get(id).unwrap();
+				let rot = self.rotations[self.get_index(pos).unwrap()];
+				for mount in blk.mount_points() {
+					if let Ok(pos) = pos + rot * mount.position {
+						 connections[pos] = rot * mount.sides;
+					}
+				}
+			}
+		}
+
+		// Map X
+		self.connections_x.as_mut().map(|map| {
+			for x in 0..end.x {
+				for y in 0..=end.y {
+					for z in 0..=end.z {
+						let pos = voxel::Position::new(x, y, z);
+						let a = connections[pos];
+						let b = connections[(pos + voxel::Delta::X).unwrap()];
+						if a.can_connect(Direction::Right) && b.can_connect(Direction::Left) {
+							map.set(pos, true);
+						}
+					}
+				}
+			}
+		});
+		// Map Y
+		self.connections_y.as_mut().map(|map| {
+			for x in 0..=end.x {
+				for y in 0..end.y {
+					for z in 0..=end.z {
+						let pos = voxel::Position::new(x, y, z);
+						let a = connections[pos];
+						let b = connections[(pos + voxel::Delta::Y).unwrap()];
+						if a.can_connect(Direction::Up) && b.can_connect(Direction::Down) {
+							map.set(pos, true);
+						}
+					}
+				}
+			}
+		});
+		// Map Z
+		self.connections_z.as_mut().map(|map| {
+			for x in 0..=end.x {
+				for y in 0..=end.y {
+					for z in 0..end.z {
+						let pos = voxel::Position::new(x, y, z);
+						let a = connections[pos];
+						let b = connections[(pos + voxel::Delta::Z).unwrap()];
+						if a.can_connect(Direction::Forward) && b.can_connect(Direction::Back) {
+							map.set(pos, true);
+						}
+					}
+				}
+			}
+		});
+	}
 }

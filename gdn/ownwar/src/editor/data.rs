@@ -126,7 +126,7 @@ impl Layer {
 			return Err(Occupied);
 		}
 		for d in blk.extra_mount_points.iter() {
-			let d = voxel::Delta::new(d.x.into(), d.y.into(), d.z.into());
+			let d = voxel::Delta::from(d.position);
 			let position = voxel::Position::new(position.x, position.y, position.z);
 			if let Ok(pos) = position + rotation * d {
 				if self
@@ -148,7 +148,7 @@ impl Layer {
 			}),
 		);
 		for d in blk.extra_mount_points.iter() {
-			let d = voxel::Delta::new(d.x.into(), d.y.into(), d.z.into());
+			let d = voxel::Delta::from(d.position);
 			let pos = voxel::Position::new(position.x, position.y, position.z);
 			if let Ok(pos) = pos + rotation * d {
 				let pos = voxel::Position::new(pos.x, pos.y, pos.z);
@@ -170,7 +170,7 @@ impl Layer {
 			let rot = blk.rotation;
 			let blk = block::Block::get(blk.id).unwrap();
 			for d in blk.extra_mount_points.iter() {
-				let d = voxel::Delta::new(d.x.into(), d.y.into(), d.z.into());
+				let d = voxel::Delta::from(d.position);
 				let pos = voxel::Position::new(pos.x, pos.y, pos.z);
 				if let Ok(pos) = pos + rot * d {
 					let pos = voxel::Position::new(pos.x, pos.y, pos.z);
@@ -364,7 +364,8 @@ impl Vehicle {
 				remaining.insert(pos);
 				let rot = blk.rotation;
 				let blk = block::Block::get(blk.id).unwrap();
-				for d in blk.extra_mount_points() {
+				for d in blk.extra_mount_points.iter() {
+					let d = voxel::Delta::from(d.position);
 					if let Ok(pos) = pos + rot * d {
 						remaining.insert(pos);
 					}

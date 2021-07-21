@@ -508,8 +508,8 @@ pub mod gd {
 use super::*;
 use crate::block;
 use crate::editor::data;
-use crate::types::*;
 use crate::editor::serialize;
+use crate::types::*;
 use core::cell::Cell;
 use core::convert::{TryFrom, TryInto};
 use core::fmt;

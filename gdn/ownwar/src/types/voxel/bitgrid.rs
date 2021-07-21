@@ -34,8 +34,7 @@ where
 	pub fn new_in(end: Position, allocator: A) -> Self {
 		let (x, y, z): (usize, _, _) = end.into();
 		let size = (x + 1) * (y + 1) * (z + 1);
-		let size = (size + 7) & !7; // Round up
-		let size = size / 8;
+		let size = ((size + 7) & !7) / 8; // Round up
 		let layout = Layout::new::<u8>().repeat(size).unwrap().0;
 		let ptr = match allocator.allocate_zeroed(layout) {
 			Ok(v) => Unique::new(v.as_non_null_ptr()),
@@ -55,6 +54,7 @@ where
 		self.is_in_range(position).then(|| unsafe {
 			// SAFETY: the position is in range.
 			let offt = self.get_index(position);
+			#[cfg(debug_assertions)]
 			debug_assert!(offt / 8 < self.size);
 			let val = *self.ptr.as_ptr().add(offt / 8);
 			val & (1 << offt % 8) > 0
@@ -68,12 +68,15 @@ where
 		self.is_in_range(position).then(|| unsafe {
 			// SAFETY: the position is in range.
 			let offt = self.get_index(position);
+			#[cfg(debug_assertions)]
 			debug_assert!(offt / 8 < self.size);
 			let elem = &mut *self.ptr.as_ptr().add(offt / 8);
 			let prev = *elem & (1 << offt % 8) > 0;
+			#[cfg(debug_assertions)]
 			debug_assert_eq!(self.get(position).unwrap(), prev);
 			*elem &= !(1 << offt % 8);
 			*elem |= u8::from(value) << offt % 8;
+			#[cfg(debug_assertions)]
 			debug_assert_eq!(self.get(position).unwrap(), value);
 			prev
 		})
@@ -116,10 +119,9 @@ where
 	}
 }
 
-
 impl<A> Index<Position> for BitGrid<A>
 where
-	A: Allocator
+	A: Allocator,
 {
 	type Output = bool;
 

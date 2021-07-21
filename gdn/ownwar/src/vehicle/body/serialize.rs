@@ -173,6 +173,9 @@ impl super::Body {
 			interpolation_state_dirty: true,
 
 			blocks,
+			connections_x: (end - voxel::Delta::X).map(|e| voxel::BitGrid::new(e)).ok(),
+			connections_z: (end - voxel::Delta::Y).map(|e| voxel::BitGrid::new(e)).ok(),
+			connections_y: (end - voxel::Delta::Z).map(|e| voxel::BitGrid::new(e)).ok(),
 			multi_blocks,
 			rotations,
 			colors,

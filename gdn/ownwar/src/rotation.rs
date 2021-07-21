@@ -1,14 +1,22 @@
 #![cfg_attr(feature = "server", allow(dead_code))]
 
 use crate::types::voxel;
+use core::convert::TryInto;
+use core::ops;
 use gdnative::prelude::{Basis, Vector3};
-use std::convert::TryInto;
 
 #[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
 pub struct Rotation(u8);
 
 #[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
-pub struct Direction(u8);
+pub enum Direction {
+	Up,
+	Down,
+	Right,
+	Left,
+	Forward,
+	Back,
+}
 
 #[derive(Debug)]
 pub struct OutOfBounds;
@@ -149,53 +157,56 @@ impl Rotation {
 }
 
 impl Direction {
-	pub const MAX: Self = Self(5);
-
 	pub const fn new(n: u8) -> Result<Self, OutOfBounds> {
-		if n <= Self::MAX.0 {
-			Ok(Self(n))
-		} else {
-			Err(OutOfBounds)
+		match n {
+			0 => Ok(Self::Up),
+			1 => Ok(Self::Down),
+			2 => Ok(Self::Right),
+			3 => Ok(Self::Left),
+			4 => Ok(Self::Forward),
+			5 => Ok(Self::Back),
+			_ => Err(OutOfBounds),
 		}
 	}
 
 	pub const fn get(self) -> u8 {
-		self.0
+		match self {
+			Self::Up => 0,
+			Self::Down => 1,
+			Self::Right => 2,
+			Self::Left => 3,
+			Self::Forward => 4,
+			Self::Back => 5,
+		}
 	}
 
 	pub fn from_vector(axis: Vector3) -> Result<Self, OutOfBounds> {
-		let axis = (
-			axis.x.round(),
-			axis.y.round(),
-			axis.z.round(),
-		);
-		let d = match axis {
-			_ if axis == (0.0, 1.0, 0.0) => 0,
-			_ if axis == (0.0, -1.0, 0.0) => 1,
-			_ if axis == (1.0, 0.0, 0.0) => 2,
-			_ if axis == (-1.0, 0.0, 0.0) => 3,
-			_ if axis == (0.0, 0.0, 1.0) => 4,
-			_ if axis == (0.0, 0.0, -1.0) => 5,
-			_ => return Err(OutOfBounds),
-		};
-		Ok(Self(d))
+		let axis = (axis.x.round(), axis.y.round(), axis.z.round());
+		match axis {
+			_ if axis == (0.0, 1.0, 0.0) => Ok(Self::Up),
+			_ if axis == (0.0, -1.0, 0.0) => Ok(Self::Down),
+			_ if axis == (1.0, 0.0, 0.0) => Ok(Self::Right),
+			_ if axis == (-1.0, 0.0, 0.0) => Ok(Self::Left),
+			_ if axis == (0.0, 0.0, 1.0) => Ok(Self::Forward),
+			_ if axis == (0.0, 0.0, -1.0) => Ok(Self::Back),
+			_ => Err(OutOfBounds),
+		}
 	}
 
 	/// Return the corresponding `Delta` for this `Direction`.
 	pub fn delta(self) -> voxel::Delta {
-		match self.0 {
-			0 => voxel::Delta::Y,
-			1 => -voxel::Delta::Y,
-			2 => voxel::Delta::X,
-			3 => -voxel::Delta::X,
-			4 => voxel::Delta::Z,
-			5 => -voxel::Delta::Z,
-			_ => unreachable!(),
+		match self {
+			Self::Up => voxel::Delta::Y,
+			Self::Down => -voxel::Delta::Y,
+			Self::Right => voxel::Delta::X,
+			Self::Left => -voxel::Delta::X,
+			Self::Forward => voxel::Delta::Z,
+			Self::Back => -voxel::Delta::Z,
 		}
 	}
 
 	pub fn invert(self) -> Self {
-		Self([1, 0, 3, 2, 5, 4][self.0 as usize])
+		Self::new([1, 0, 3, 2, 5, 4][self.get() as usize]).unwrap()
 	}
 }
 
@@ -207,7 +218,22 @@ impl Default for Rotation {
 
 impl Default for Direction {
 	fn default() -> Self {
-		Self(0)
+		Self::Up
+	}
+}
+
+impl ops::Neg for Direction {
+	type Output = Self;
+
+	fn neg(self) -> Self::Output {
+		match self {
+			Self::Up => Self::Down,
+			Self::Down => Self::Up,
+			Self::Right => Self::Left,
+			Self::Left => Self::Right,
+			Self::Forward => Self::Back,
+			Self::Back => Self::Forward,
+		}
 	}
 }
 

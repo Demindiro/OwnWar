@@ -77,10 +77,12 @@ pub(super) struct Body {
 
 	/// The ID & health of each block of this body.
 	blocks: voxel::Grid<Voxel>,
-	/// A bitmap indicating which sides of each block can form connections.
-	///
-	/// This is stored separately from `blocks` due to alignment requirements.
-	///connections: voxel::BitGrid,
+	/// A bitmap indicating if the left & right side of each pair of blocks connect.
+	connections_x: Option<voxel::BitGrid>,
+	/// A bitmap indicating if the top & bottom side of each pair of blocks connect.
+	connections_y: Option<voxel::BitGrid>,
+	/// A bitmap indicating if the front & back side of each pair of blocks connect.
+	connections_z: Option<voxel::BitGrid>,
 	/// All multiblocks.
 	multi_blocks: Vec<Option<MultiBlock>>,
 	/// The color of each block. Needed for serialization.
@@ -166,6 +168,9 @@ impl Body {
 
 			offset,
 			blocks,
+			connections_x: (end - voxel::Delta::X).map(|e| voxel::BitGrid::new(e)).ok(),
+			connections_y: (end - voxel::Delta::Y).map(|e| voxel::BitGrid::new(e)).ok(),
+			connections_z: (end - voxel::Delta::Z).map(|e| voxel::BitGrid::new(e)).ok(),
 			multi_blocks: Vec::new(),
 			colors: repeat(0).take(size).collect(),
 			rotations: repeat(Rotation::new(0).unwrap()).take(size).collect(),
@@ -202,7 +207,7 @@ impl Body {
 		let mut parent = None;
 
 		// Find the body with the mainframe.
-		for (i, b) in bodies.iter().enumerate() {
+		for (i, b) in bodies.iter_mut().enumerate() {
 			if let Some(b) = b {
 				if !b.parent_anchors.is_empty() {
 					if parent.is_some() || b.parent_anchors.len() != 1 {
@@ -210,6 +215,7 @@ impl Body {
 					}
 					parent = Some(u8::try_from(i).unwrap());
 				}
+				b.setup_connection_bitmaps();
 			}
 		}
 		if parent.is_none() {
@@ -430,7 +436,7 @@ impl Body {
 				.expect("Too many multiblocks");
 			self.blocks[position].health = NonZeroU16::new(0x8000 | i);
 			for d in block.extra_mount_points.iter() {
-				let d = voxel::Delta::new(d.x.into(), d.y.into(), d.z.into());
+				let d = voxel::Delta::from(d.position);
 				if let Ok(pos) = position + rotation * d {
 					self.blocks
 						.get_mut(pos)

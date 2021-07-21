@@ -418,7 +418,7 @@ impl super::Body {
 
 						// Set all mount points to 0 HP
 						for d in blk.extra_mount_points.iter().copied() {
-							let d = voxel::Delta::new(d.x.into(), d.y.into(), d.z.into());
+							let d = voxel::Delta::from(d.position);
 							if let Ok(pos) = pos + rot * d {
 								if let Some(blk) = self.blocks.get_mut(pos) {
 									blk.health = None;
@@ -549,7 +549,6 @@ impl super::Body {
 			return true;
 		}
 
-		let mut marks = voxel::BitGrid::new(self.blocks.end());
 		for pos in destroyed_blocks {
 			let mut connections = Vec::new();
 			let mut add_conn_fn = |direction| {
@@ -571,9 +570,10 @@ impl super::Body {
 			add_conn_fn(voxel::Delta::X);
 			add_conn_fn(-voxel::Delta::X);
 			while let Some(side_pos) = connections.pop() {
-				if marks[side_pos] {
+				if self.blocks[side_pos].health.is_none() {
 					continue;
 				}
+				let mut marks = voxel::BitGrid::new(self.blocks.end());
 				let anchor_found = self.mark_connected_blocks(&mut marks, side_pos, false);
 				if anchor_found {
 					for i in (0..connections.len()).rev() {
@@ -582,7 +582,7 @@ impl super::Body {
 						}
 					}
 				} else {
-					self.destroy_connected_blocks(shared, side_pos);
+					self.destroy_connected_blocks(shared, side_pos, &mut marks);
 				}
 			}
 		}
@@ -598,40 +598,55 @@ impl super::Body {
 		marks.set(position, true).unwrap();
 		found |= self.parent_anchors.contains(&position);
 
-		let cf = |pos| {
-			if let Some(blk) = self.blocks.get(pos) {
-				if blk.health.is_some() && !marks[pos] {
+		let mut f = |pos, conn_pos, n| {
+			let map = match n {
+				0 => self.connections_x.as_ref(),
+				1 => self.connections_y.as_ref(),
+				2 => self.connections_z.as_ref(),
+				_ => unreachable!(),
+			};
+			if Some(false) == marks.get(pos) {
+				if self.blocks[pos].health.is_some() && map.map_or(false, |m| m[conn_pos]) {
 					found = self.mark_connected_blocks(marks, pos, found);
 				}
 			}
 		};
-		Self::apply_to_all_sides(position, cf);
+
+		(position + voxel::Delta::Z).ok().map(|p| f(p, position, 2));
+		(position - voxel::Delta::Z).ok().map(|p| f(p, p, 2));
+		(position + voxel::Delta::Y).ok().map(|p| f(p, position, 1));
+		(position - voxel::Delta::Y).ok().map(|p| f(p, p, 1));
+		(position + voxel::Delta::X).ok().map(|p| f(p, position, 0));
+		(position - voxel::Delta::X).ok().map(|p| f(p, p, 0));
+
 		found
 	}
 
 	/// Destroy all blocks and bodies connected to a certain other block in any way.
-	fn destroy_connected_blocks(&mut self, shared: &mut Shared, position: voxel::Position) {
-		debug_assert_ne!(self.blocks[position].id, Some(MAINFRAME_ID));
+	fn destroy_connected_blocks(&mut self, shared: &mut Shared, position: voxel::Position, marks: &mut voxel::BitGrid) {
 
-		fn closure(slf: &mut Body, shared: &mut Shared, position: voxel::Position) {
+		fn closure(slf: &mut Body, shared: &mut Shared, position: voxel::Position, marks: &mut voxel::BitGrid) {
 			if slf
 				.blocks
 				.get(position)
 				.map(|b| b.health.is_some())
 				.unwrap_or(false)
 			{
-				slf.destroy_connected_blocks(shared, position)
+				slf.destroy_connected_blocks(shared, position, marks)
 			}
 		}
 
-		if let Some(hp) = self.blocks[position].health.take() {
-			let hp = hp.get();
+		//if let Some(hp) = self.blocks[position].health.take() {
+		if marks.set(position, false).unwrap() {
+			debug_assert_ne!(self.blocks[position].id, Some(MAINFRAME_ID));
+
+			let hp = self.blocks[position].health.take().unwrap().get();
 
 			let _ = self.remove_all_anchors(position);
 
 			let pos = if hp & 0x8000 == 0 {
 				self.correct_for_removed_block(position);
-				Self::apply_to_all_sides(position, |pos| closure(self, shared, pos));
+				Self::apply_to_all_sides(position, |pos| closure(self, shared, pos, marks));
 				position
 			} else {
 				let index = hp & 0x7fff;
@@ -661,20 +676,20 @@ impl super::Body {
 
 				// Set all mount points to 0 HP
 				for d in blk.extra_mount_points.iter().copied() {
-					let d = voxel::Delta::new(d.x.into(), d.y.into(), d.z.into());
+					let d = voxel::Delta::from(d.position);
 					if let Ok(p) = pos + rot * d {
 						self.blocks.get_mut(p).map(|b| b.health = None);
 					}
 				}
 
 				// Destroy all blocks attached to the base position
-				Self::apply_to_all_sides(pos, |pos| closure(self, shared, pos));
+				Self::apply_to_all_sides(pos, |pos| closure(self, shared, pos, marks));
 
 				// Destroy all blocks attached to the mount points.
 				for d in blk.extra_mount_points.iter().copied() {
-					let d = voxel::Delta::new(d.x.into(), d.y.into(), d.z.into());
+					let d = voxel::Delta::from(d.position);
 					if let Ok(pos) = pos + rot * d {
-						Self::apply_to_all_sides(pos, |pos| closure(self, shared, pos));
+						Self::apply_to_all_sides(pos, |pos| closure(self, shared, pos, marks));
 					}
 				}
 

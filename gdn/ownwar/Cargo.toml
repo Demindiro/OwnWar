@@ -1,3 +1,5 @@
+cargo-features = ["named-profiles"]
+
 [package]
 name = "ownwar"
 version = "0.1.0"
@@ -22,6 +24,10 @@ opt-level = 1
 # No, I don't get it either
 # See https://github.com/rust-lang/rust/issues/63125#issuecomment-516491570
 #lto = true
+
+[profile.release_no_lto]
+inherits = "release"
+lto = false
 
 [profile.release]
 lto = true

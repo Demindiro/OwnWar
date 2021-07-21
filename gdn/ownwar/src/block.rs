@@ -2,6 +2,7 @@
 
 use crate::rotation::*;
 use crate::types::*;
+use core::ops;
 use gdnative::api::{Mesh, Resource};
 use gdnative::prelude::*;
 use lazy_static::lazy_static;
@@ -13,6 +14,75 @@ pub const SCALE: f32 = 0.25;
 lazy_static! {
 	static ref BLOCKS: RwLock<Vec<Option<(&'static Block, Ref<Resource>)>>> =
 		RwLock::new(Vec::new());
+}
+
+/// A structure to check which sides a mount can connect to.
+#[derive(Clone, Copy)]
+pub struct MountSides(u8);
+
+impl MountSides {
+	/// Create a new MountSides with the default value, which is all ones.
+	fn new() -> Self {
+		Self(0x3f)
+	}
+
+	/// Check whether this block can connect in the given direction.
+	///
+	/// Two blocks can connect if `a.can_connect(d) == b.can_connect(-d)`.
+	#[must_use]
+	pub fn can_connect(&self, direction: Direction) -> bool {
+		self.0 & (1 << direction.get()) > 0
+	}
+
+	/// Set whether this block can connect in the given direction.
+	///
+	/// Two blocks can connect if `a.can_connect(d) == b.can_connect(-d)`.
+	#[must_use]
+	#[allow(dead_code)]
+	pub fn set_connectable(&mut self, direction: Direction, enable: bool) {
+		self.0 &= !(1 << direction.get());
+		self.0 |= u8::from(enable) << direction.get();
+	}
+}
+
+impl Default for MountSides {
+	fn default() -> Self {
+		Self(0) // No connections makes more sense for certain structures such as a voxel Grid
+	}
+}
+
+impl ops::Mul<MountSides> for Rotation {
+	type Output = MountSides;
+
+	fn mul(self, rhs: MountSides) -> Self::Output {
+		let mut pos_p = voxel::Delta::ZERO;
+		let mut pos_n = voxel::Delta::ZERO;
+		pos_p.y |= i16::from(rhs.0 & 1 > 0);
+		pos_n.y |= i16::from(rhs.0 & 2 > 0);
+		pos_p.x |= i16::from(rhs.0 & 4 > 0);
+		pos_n.x |= i16::from(rhs.0 & 8 > 0);
+		pos_p.z |= i16::from(rhs.0 & 16 > 0);
+		pos_n.z |= i16::from(rhs.0 & 32 > 0);
+		pos_p = self * pos_p;
+		pos_n = self * pos_n;
+		let mut ms = 0;
+		ms |= u8::from(pos_p.y > 0 || pos_n.y < 0) << 0;
+		ms |= u8::from(pos_n.y > 0 || pos_p.y < 0) << 1;
+		ms |= u8::from(pos_p.x > 0 || pos_n.x < 0) << 2;
+		ms |= u8::from(pos_n.x > 0 || pos_p.x < 0) << 3;
+		ms |= u8::from(pos_p.z > 0 || pos_n.z < 0) << 4;
+		ms |= u8::from(pos_n.z > 0 || pos_p.z < 0) << 5;
+		MountSides(ms)
+	}
+}
+
+/// A structure denoting a mount point for a block.
+#[derive(Clone, Copy)]
+pub struct MountPoint {
+	/// The relative position of the mount point.
+	pub position: voxel::SmallDelta,
+	/// The sides from which the mount point can be connected to.
+	pub sides: MountSides,
 }
 
 #[derive(NativeClass)]
@@ -48,7 +118,8 @@ pub struct Block {
 
 	occlusion_info: Option<OcclusionInfo>,
 
-	pub extra_mount_points: Box<[voxel::SmallDelta]>,
+	pub mount_sides: MountSides,
+	pub extra_mount_points: Box<[MountPoint]>,
 }
 
 #[derive(NativeClass)]
@@ -126,6 +197,18 @@ impl Block {
 			gd_get_extra_mount_points,
 			gd_set_extra_mount_points
 		);
+		add_prop!(
+			builder,
+			"extra_mount_sides",
+			gd_get_extra_mount_sides,
+			gd_set_extra_mount_sides
+		);
+		add_prop!(
+			builder,
+			"mount_sides",
+			gd_get_mount_sides,
+			gd_set_mount_sides
+		);
 	}
 
 	fn new(owner: TRef<Resource>) -> Self {
@@ -155,6 +238,7 @@ impl Block {
 
 			occlusion_info: None,
 
+			mount_sides: MountSides::new(),
 			extra_mount_points: Box::new([]),
 		};
 		s.gd_set_mirror_rotation_offset(owner, 0);
@@ -180,6 +264,17 @@ impl Block {
 			return 0;
 		};
 		self.mirror_rotation_map[rotation.get() as usize].get()
+	}
+
+	#[export]
+	fn get_mount_sides_rotated(&self, _: TRef<Resource>, rotation: u8) -> u8 {
+		let rotation = if let Ok(v) = Rotation::new(rotation) {
+			v
+		} else {
+			godot_error!("Rotation out of bounds");
+			return 0;
+		};
+		(rotation * self.mount_sides).0
 	}
 
 	#[export]
@@ -396,21 +491,53 @@ impl Block {
 		arr.resize(self.extra_mount_points.len() as i32);
 		let mut a = arr.write();
 		for (i, m) in self.extra_mount_points.iter().copied().enumerate() {
-			a[i] = m.into();
+			a[i] = m.position.into();
 		}
 		drop(a);
 		arr
 	}
 
 	fn gd_set_extra_mount_points(&mut self, _: TRef<Resource>, mounts: TypedArray<Vector3>) {
-		let mut mp = Vec::with_capacity(mounts.len() as usize);
+		let mut mp = Vec::<MountPoint>::with_capacity(mounts.len() as usize);
 		for r in mounts.read().iter().copied() {
 			let r = r.try_into().expect("Failed to convert mount point");
-			if r != voxel::SmallDelta::ZERO && !mp.contains(&r) {
-				mp.push(r)
+			if r != voxel::SmallDelta::ZERO && mp.iter().position(|p| p.position == r).is_none() {
+				mp.push(MountPoint {
+					position: r,
+					sides: MountSides::new(),
+				});
 			}
 		}
 		self.extra_mount_points = mp.into_boxed_slice();
+	}
+
+	fn gd_get_extra_mount_sides(&self, _: TRef<Resource>) -> TypedArray<u8> {
+		let mut arr = TypedArray::new();
+		arr.resize(self.extra_mount_points.len() as i32);
+		let mut a = arr.write();
+		for (i, m) in self.extra_mount_points.iter().copied().enumerate() {
+			a[i] = m.sides.0;
+		}
+		drop(a);
+		arr
+	}
+
+	fn gd_set_extra_mount_sides(&mut self, _: TRef<Resource>, sides: TypedArray<u8>) {
+		if sides.len() as usize != self.extra_mount_points.len() {
+			godot_error!("Amount of sides doesn't match amount of mount points");
+		} else {
+			for (w, r) in self.extra_mount_points.iter_mut().zip(sides.read().iter()) {
+				w.sides = MountSides(*r);
+			}
+		}
+	}
+
+	fn gd_get_mount_sides(&self, _: TRef<Resource>) -> u8 {
+		self.mount_sides.0
+	}
+
+	fn gd_set_mount_sides(&mut self, _: TRef<Resource>, sides: u8) {
+		self.mount_sides.0 = sides;
 	}
 }
 
@@ -584,11 +711,12 @@ impl Block {
 		});
 	}
 
-	/// Return the extra mount points as `Delta`s
-	pub fn extra_mount_points<'a>(&'a self) -> impl Iterator<Item = voxel::Delta> + 'a {
-		self.extra_mount_points
-			.iter()
-			.map(|v| voxel::Delta::new(v.x.into(), v.y.into(), v.z.into()))
+	/// Return all mount points.
+	pub fn mount_points<'a>(&'a self) -> impl Iterator<Item = MountPoint> + 'a {
+		let position = voxel::SmallDelta::ZERO;
+		let sides = self.mount_sides;
+		let extra = self.extra_mount_points.iter().copied();
+		Some(MountPoint { position, sides }).into_iter().chain(extra)
 	}
 }
 
