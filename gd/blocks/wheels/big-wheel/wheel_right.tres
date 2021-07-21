@@ -17,3 +17,5 @@ __mirror_block_id = 75
 instance = ExtResource( 2 )
 mirror_rotation_offset = 0
 alternate_rotation_map = PoolByteArray( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
+extra_mount_sides = PoolByteArray()
+mount_sides = 4

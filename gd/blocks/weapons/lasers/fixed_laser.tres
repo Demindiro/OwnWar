@@ -19,3 +19,6 @@ mesh = ExtResource( 2 )
 instance = ExtResource( 3 )
 mirror_rotation_offset = 0
 alternate_rotation_map = null
+extra_mount_points = PoolVector3Array(  )
+extra_mount_sides = PoolByteArray()
+mount_sides = 2

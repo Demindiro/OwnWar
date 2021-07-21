@@ -20,3 +20,5 @@ instance = ExtResource( 2 )
 mirror_rotation_offset = 0
 alternate_rotation_map = null
 extra_mount_points = PoolVector3Array( 1, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, -1 )
+extra_mount_sides = PoolByteArray( 62, 62, 62, 62 )
+mount_sides = 62
