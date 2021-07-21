@@ -60,26 +60,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("ui_cancel"):
 		_gui.visible = true
 		set_mouse_mode()
-	elif player_vehicle_id >= 0:
-		var player_vehicle = vehicles[player_vehicle_id]
-		if player_vehicle != null:
-			if event.is_action("combat_turn_left"):
-				player_vehicle.turn_left = event.is_pressed()
-			elif event.is_action("combat_turn_right"):
-				player_vehicle.turn_right = event.is_pressed()
-			elif event.is_action("combat_pitch_up"):
-				player_vehicle.pitch_up = event.is_pressed()
-			elif event.is_action("combat_pitch_down"):
-				player_vehicle.pitch_down = event.is_pressed()
-			elif event.is_action("combat_move_forward"):
-				player_vehicle.move_forward = event.is_pressed()
-			elif event.is_action("combat_move_back"):
-				player_vehicle.move_back = event.is_pressed()
-			elif event.is_action("combat_fire"):
-				player_vehicle.fire = event.is_pressed()
-			elif event.is_action("combat_flip_vehicle"):
-				player_vehicle.flip = event.is_pressed()
-
 
 
 func _process(_delta: float) -> void:
@@ -92,6 +72,19 @@ func _process(_delta: float) -> void:
 			_health_bar.value = player_vehicle.get_cost() / float(player_vehicle.max_cost())
 		else:
 			_health_bar.value = 0
+
+	# Polling is a lot more reliable than _unhandled_input. No stuck keys or whatever
+	if player_vehicle_id >= 0 and not _gui.visible:
+		var player_vehicle = vehicles[player_vehicle_id]
+		if player_vehicle != null:
+			player_vehicle.turn_left = Input.is_action_pressed("combat_turn_left")
+			player_vehicle.turn_right = Input.is_action_pressed("combat_turn_right")
+			player_vehicle.pitch_up = Input.is_action_pressed("combat_pitch_up")
+			player_vehicle.pitch_down = Input.is_action_pressed("combat_pitch_down")
+			player_vehicle.move_forward = Input.is_action_pressed("combat_move_forward")
+			player_vehicle.move_back = Input.is_action_pressed("combat_move_back")
+			player_vehicle.fire = Input.is_action_pressed("combat_fire")
+			player_vehicle.flip = Input.is_action_pressed("combat_flip_vehicle")
 
 
 func _set_camera() -> void:
