@@ -1,25 +1,51 @@
-tool
-extends OwnWar_SetColor
-class_name OwnWar_Thruster_Editor
+extends Spatial
 
-var color: Color
+var team_color setget set_team_color
 
-func set_color(p_color: Color) -> void:
-	var mi: MeshInstance = get_node("Thruster")
-	mi.mesh = mi.mesh.duplicate()
-	p_color.a = color.a
-	mi.mesh.surface_set_material(1, MaterialCache.get_material(p_color))
-	color = p_color
+const TRANSPARENT_MESH = []
+const SOLID_MESH = []
+var transparent = false
 
 
-func set_transparent(enable: bool) -> void:
-	color.a = 0.25 if enable else 1.0
-	set_color(color)
-	var mi: MeshInstance = get_node("Thruster")
-	for i in mi.mesh.get_surface_count():
-		if i != 1:
-			var mat = mi.mesh.surface_get_material(i).duplicate()
-			mat.albedo_color.a = color.a
-			mat.params_blend_mode = SpatialMaterial.BLEND_MODE_MIX if !enable else SpatialMaterial.BLEND_MODE_ADD
-			mi.mesh.surface_set_material(i, mat)
 
+func set_color(color):
+	$Hull.color = color
+	$Mount.color = color
+
+
+func set_team_color(color):
+	$Glow.color = color
+
+
+func set_transparent(enable):
+	if enable != transparent:
+		transparent = enable
+		if enable:
+			if len(TRANSPARENT_MESH) == 0:
+
+				SOLID_MESH.push_back($Hull.mesh)
+				SOLID_MESH.push_back($Mount.mesh)
+				for sm in SOLID_MESH:
+					var tm = sm.duplicate()
+					tm.surface_set_material(0, preload("res://effects/team_metal_transparent.tres"))
+					TRANSPARENT_MESH.push_back(tm)
+
+				SOLID_MESH.push_back($Glow.mesh)
+				var tm = SOLID_MESH[2].duplicate()
+				tm.surface_set_material(0, preload("res://effects/team_glow_transparent.tres"))
+				TRANSPARENT_MESH.push_back(tm)
+
+				SOLID_MESH.push_back($"Exhaust fixed".mesh)
+				tm = SOLID_MESH[3].duplicate()
+				tm.surface_set_material(0, preload("fixed_exhaust_transparent_shader.tres"))
+				TRANSPARENT_MESH.push_back(tm)
+
+			$Hull.mesh = TRANSPARENT_MESH[0]
+			$Mount.mesh = TRANSPARENT_MESH[1]
+			$Glow.mesh = TRANSPARENT_MESH[2]
+			$"Exhaust fixed".mesh = TRANSPARENT_MESH[3]
+		else:
+			$Hull.mesh = SOLID_MESH[0]
+			$Mount.mesh = SOLID_MESH[1]
+			$Glow.mesh = SOLID_MESH[2]
+			$"Exhaust fixed".mesh = SOLID_MESH[3]

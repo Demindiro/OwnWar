@@ -1,0 +1,31 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type spatial;
+render_mode shadows_disabled, ambient_light_disabled, cull_back;
+
+uniform vec4 start: hint_color = vec4(0.988, 0.224, 0.0, 1.0);
+uniform float strength = 1.0;
+uniform float emission_strength = 3.0;
+
+void vertex() {
+	//UV.y = VERTEX.y + 0.5;
+	UV.y = COLOR.y;
+}
+
+void fragment() {
+	vec4 color = start;
+	EMISSION = color.rgb * emission_strength * strength;
+	ALPHA = 0.25;
+}
+
+void light() {
+	DIFFUSE_LIGHT = vec3(0.0);
+	SPECULAR_LIGHT = vec3(0.0);
+}"
+
+[resource]
+shader = SubResource( 1 )
+shader_param/start = Color( 0.988235, 0.223529, 0, 1 )
+shader_param/strength = 1.0
+shader_param/emission_strength = 10.0
