@@ -32,7 +32,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Developer" type="ScrollContainer" parent="Box"]
+[node name="Developer & license" type="ScrollContainer" parent="Box"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -41,36 +41,84 @@ margin_top = 33.0
 margin_right = -4.0
 margin_bottom = -4.0
 
-[node name="Box" type="VBoxContainer" parent="Box/Developer"]
+[node name="Box" type="VBoxContainer" parent="Box/Developer & license"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Meeeeeeeee" type="VBoxContainer" parent="Box/Developer & license/Box"]
+margin_right = 1720.0
+margin_bottom = 462.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Title" type="Label" parent="Box/Developer & license/Box/Meeeeeeeee"]
+margin_top = 175.0
+margin_right = 1720.0
+margin_bottom = 206.0
+custom_fonts/font = ExtResource( 3 )
+text = "Lead developer"
+align = 1
+
+[node name="Name" type="Label" parent="Box/Developer & license/Box/Meeeeeeeee"]
+margin_top = 216.0
+margin_right = 1720.0
+margin_bottom = 255.0
+custom_fonts/font = ExtResource( 4 )
+text = "David Hoppenbrouwers"
+align = 1
+
+[node name="Nick" type="Label" parent="Box/Developer & license/Box/Meeeeeeeee"]
+margin_top = 265.0
+margin_right = 1720.0
+margin_bottom = 286.0
+custom_fonts/font = ExtResource( 5 )
+text = "AKA Demindiro"
+align = 1
+
+[node name="License" type="VBoxContainer" parent="Box/Developer & license/Box"]
+margin_top = 472.0
 margin_right = 1720.0
 margin_bottom = 935.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 alignment = 1
 
-[node name="Title" type="Label" parent="Box/Developer/Box"]
-margin_top = 412.0
+[node name="Title" type="Label" parent="Box/Developer & license/Box/License"]
+margin_top = 176.0
 margin_right = 1720.0
-margin_bottom = 443.0
+margin_bottom = 207.0
 custom_fonts/font = ExtResource( 3 )
-text = "Lead developer"
+text = "License"
 align = 1
 
-[node name="Name" type="Label" parent="Box/Developer/Box"]
-margin_top = 453.0
+[node name="Name" type="ToolButton" parent="Box/Developer & license/Box/License"]
+margin_top = 217.0
 margin_right = 1720.0
-margin_bottom = 492.0
+margin_bottom = 256.0
+mouse_default_cursor_shape = 2
 custom_fonts/font = ExtResource( 4 )
-text = "David Hoppenbrouwers"
-align = 1
+text = "AGPLv3"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 
-[node name="Nick" type="Label" parent="Box/Developer/Box"]
-margin_top = 502.0
+[node name="Nick" type="ToolButton" parent="Box/Developer & license/Box/License"]
+margin_top = 266.0
 margin_right = 1720.0
-margin_bottom = 523.0
+margin_bottom = 287.0
+mouse_default_cursor_shape = 2
 custom_fonts/font = ExtResource( 5 )
-text = "AKA Demindiro"
-align = 1
+text = "Source available at GitHub"
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://github.com/Demindiro/OwnWar"
 
 [node name="Engine" type="ScrollContainer" parent="Box"]
 visible = false
@@ -667,38 +715,67 @@ __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="Box" type="GridContainer" parent="Box/Textures/Box"]
+[node name="Box" type="VBoxContainer" parent="Box/Textures/Box"]
 margin_left = 40.0
-margin_top = 362.0
+margin_top = 40.0
 margin_right = 1680.0
-margin_bottom = 572.0
+margin_bottom = 895.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 32
+alignment = 1
+
+[node name="Label" type="ToolButton" parent="Box/Textures/Box/Box"]
+margin_top = 278.0
+margin_right = 1640.0
+margin_bottom = 299.0
+mouse_default_cursor_shape = 2
+text = "All textures are licensed under the CC-BY-SA 4.0 unless otherwise noted."
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/licenses/by-sa/4.0/"
+
+[node name="HSeparator" type="HSeparator" parent="Box/Textures/Box/Box"]
+margin_top = 331.0
+margin_right = 1640.0
+margin_bottom = 335.0
+
+[node name="Box" type="GridContainer" parent="Box/Textures/Box/Box"]
+margin_top = 367.0
+margin_right = 1640.0
+margin_bottom = 577.0
 size_flags_horizontal = 3
 size_flags_vertical = 4
 custom_constants/vseparation = 40
 custom_constants/hseparation = 40
 columns = 3
 
-[node name="AllSky" type="VBoxContainer" parent="Box/Textures/Box/Box"]
+[node name="AllSky Free" type="VBoxContainer" parent="Box/Textures/Box/Box/Box"]
 margin_right = 520.0
 margin_bottom = 85.0
 size_flags_horizontal = 3
 size_flags_vertical = 4
 alignment = 1
+__meta__ = {
+"_editor_description_": "The GitHub account is definitely owned by Richard Whitelock: https://twitter.com/rpgwhitelock/status/1240636936177541126"
+}
 
-[node name="Title" type="ToolButton" parent="Box/Textures/Box/Box/AllSky"]
+[node name="Title" type="ToolButton" parent="Box/Textures/Box/Box/Box/AllSky Free"]
 margin_right = 520.0
 margin_bottom = 31.0
 rect_pivot_offset = Vector2( 1616.52, -199.469 )
 mouse_default_cursor_shape = 2
 custom_fonts/font = ExtResource( 3 )
-text = "AllSky"
+text = "AllSky Free : Godot Edition"
 script = ExtResource( 9 )
 __meta__ = {
 "ui_audio_disable": ""
 }
-url = "https://assetstore.unity.com/packages/2d/textures-materials/sky/allsky-free-10-sky-skybox-set-146014"
+url = "https://github.com/rpgwhitelock/AllSkyFree_Godot"
 
-[node name="Made by" type="ToolButton" parent="Box/Textures/Box/Box/AllSky"]
+[node name="Made by" type="ToolButton" parent="Box/Textures/Box/Box/Box/AllSky Free"]
 margin_top = 41.0
 margin_right = 520.0
 margin_bottom = 62.0
@@ -710,17 +787,20 @@ __meta__ = {
 }
 url = "http://www.richardwhitelock.com/"
 
-[node name="License" type="ToolButton" parent="Box/Textures/Box/Box/AllSky"]
+[node name="License" type="ToolButton" parent="Box/Textures/Box/Box/Box/AllSky Free"]
 margin_top = 72.0
 margin_right = 520.0
 margin_bottom = 85.0
 custom_fonts/font = ExtResource( 8 )
-text = "Unity Single Entity"
+text = "MIT License"
+script = ExtResource( 9 )
 __meta__ = {
+"_editor_description_": "Yes, it's MIT license. No, it doesn't make sense but what can you do.",
 "ui_audio_disable": ""
 }
+url = "https://github.com/rpgwhitelock/AllSkyFree_Godot/blob/master/LICENSE"
 
-[node name="Crosshairs" type="VBoxContainer" parent="Box/Textures/Box/Box"]
+[node name="Crosshairs" type="VBoxContainer" parent="Box/Textures/Box/Box/Box"]
 margin_left = 560.0
 margin_right = 1080.0
 margin_bottom = 85.0
@@ -728,7 +808,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 4
 alignment = 1
 
-[node name="Title" type="ToolButton" parent="Box/Textures/Box/Box/Crosshairs"]
+[node name="Title" type="ToolButton" parent="Box/Textures/Box/Box/Box/Crosshairs"]
 margin_right = 520.0
 margin_bottom = 31.0
 rect_pivot_offset = Vector2( 1616.52, -199.469 )
@@ -741,7 +821,7 @@ __meta__ = {
 }
 url = "https://opengameart.org/content/64-crosshairs-pack-split"
 
-[node name="Made by" type="ToolButton" parent="Box/Textures/Box/Box/Crosshairs"]
+[node name="Made by" type="ToolButton" parent="Box/Textures/Box/Box/Box/Crosshairs"]
 margin_top = 41.0
 margin_right = 520.0
 margin_bottom = 62.0
@@ -753,7 +833,7 @@ __meta__ = {
 }
 url = "https://opengameart.org/content/64-crosshairs-pack-split"
 
-[node name="License" type="ToolButton" parent="Box/Textures/Box/Box/Crosshairs"]
+[node name="License" type="ToolButton" parent="Box/Textures/Box/Box/Box/Crosshairs"]
 margin_top = 72.0
 margin_right = 520.0
 margin_bottom = 85.0
@@ -766,7 +846,7 @@ __meta__ = {
 }
 url = "https://creativecommons.org/publicdomain/zero/1.0/"
 
-[node name="Obituary" type="VBoxContainer" parent="Box/Textures/Box/Box"]
+[node name="Obituary" type="VBoxContainer" parent="Box/Textures/Box/Box/Box"]
 margin_left = 1120.0
 margin_right = 1640.0
 margin_bottom = 85.0
@@ -774,7 +854,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 4
 alignment = 1
 
-[node name="Title" type="ToolButton" parent="Box/Textures/Box/Box/Obituary"]
+[node name="Title" type="ToolButton" parent="Box/Textures/Box/Box/Box/Obituary"]
 margin_right = 520.0
 margin_bottom = 31.0
 rect_pivot_offset = Vector2( 1616.52, -199.469 )
@@ -787,7 +867,7 @@ __meta__ = {
 }
 url = "https://opengameart.org/content/obituary-kill-or-death-icons"
 
-[node name="Made by" type="ToolButton" parent="Box/Textures/Box/Box/Obituary"]
+[node name="Made by" type="ToolButton" parent="Box/Textures/Box/Box/Box/Obituary"]
 margin_top = 41.0
 margin_right = 520.0
 margin_bottom = 62.0
@@ -799,7 +879,7 @@ __meta__ = {
 }
 url = "https://opengameart.org/content/obituary-kill-or-death-icons"
 
-[node name="License" type="ToolButton" parent="Box/Textures/Box/Box/Obituary"]
+[node name="License" type="ToolButton" parent="Box/Textures/Box/Box/Box/Obituary"]
 margin_top = 72.0
 margin_right = 520.0
 margin_bottom = 85.0
@@ -812,7 +892,7 @@ __meta__ = {
 }
 url = "https://creativecommons.org/licenses/by-sa/3.0/"
 
-[node name="0 AD Textures" type="VBoxContainer" parent="Box/Textures/Box/Box"]
+[node name="0 AD Textures" type="VBoxContainer" parent="Box/Textures/Box/Box/Box"]
 margin_top = 125.0
 margin_right = 520.0
 margin_bottom = 210.0
@@ -820,7 +900,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 4
 alignment = 1
 
-[node name="Title" type="ToolButton" parent="Box/Textures/Box/Box/0 AD Textures"]
+[node name="Title" type="ToolButton" parent="Box/Textures/Box/Box/Box/0 AD Textures"]
 margin_right = 520.0
 margin_bottom = 31.0
 rect_pivot_offset = Vector2( 1616.52, -199.469 )
@@ -833,7 +913,7 @@ __meta__ = {
 }
 url = "https://opengameart.org/content/0-ad-textures"
 
-[node name="Made by" type="ToolButton" parent="Box/Textures/Box/Box/0 AD Textures"]
+[node name="Made by" type="ToolButton" parent="Box/Textures/Box/Box/Box/0 AD Textures"]
 margin_top = 41.0
 margin_right = 520.0
 margin_bottom = 62.0
@@ -845,7 +925,7 @@ __meta__ = {
 }
 url = "http://www.wildfiregames.com/"
 
-[node name="License" type="ToolButton" parent="Box/Textures/Box/Box/0 AD Textures"]
+[node name="License" type="ToolButton" parent="Box/Textures/Box/Box/Box/0 AD Textures"]
 margin_top = 72.0
 margin_right = 520.0
 margin_bottom = 85.0
@@ -858,7 +938,7 @@ __meta__ = {
 }
 url = "https://creativecommons.org/licenses/by-sa/3.0/"
 
-[node name="Red arrow" type="VBoxContainer" parent="Box/Textures/Box/Box"]
+[node name="Red arrow" type="VBoxContainer" parent="Box/Textures/Box/Box/Box"]
 margin_left = 560.0
 margin_top = 125.0
 margin_right = 1080.0
@@ -867,7 +947,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 4
 alignment = 1
 
-[node name="Title" type="ToolButton" parent="Box/Textures/Box/Box/Red arrow"]
+[node name="Title" type="ToolButton" parent="Box/Textures/Box/Box/Box/Red arrow"]
 margin_right = 520.0
 margin_bottom = 31.0
 rect_pivot_offset = Vector2( 1616.52, -199.469 )
@@ -880,7 +960,7 @@ __meta__ = {
 }
 url = "https://opengameart.org/content/glow-arrow"
 
-[node name="Made by" type="ToolButton" parent="Box/Textures/Box/Box/Red arrow"]
+[node name="Made by" type="ToolButton" parent="Box/Textures/Box/Box/Box/Red arrow"]
 margin_top = 41.0
 margin_right = 520.0
 margin_bottom = 62.0
@@ -892,7 +972,7 @@ __meta__ = {
 }
 url = "https://opengameart.org/users/oglsdl"
 
-[node name="License" type="ToolButton" parent="Box/Textures/Box/Box/Red arrow"]
+[node name="License" type="ToolButton" parent="Box/Textures/Box/Box/Box/Red arrow"]
 margin_top = 72.0
 margin_right = 520.0
 margin_bottom = 85.0
@@ -926,25 +1006,49 @@ __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="Box" type="GridContainer" parent="Box/Sounds/Box"]
+[node name="Box" type="VBoxContainer" parent="Box/Sounds/Box"]
 margin_left = 40.0
-margin_top = 300.0
+margin_top = 40.0
 margin_right = 1680.0
-margin_bottom = 635.0
+margin_bottom = 895.0
+custom_constants/separation = 32
+alignment = 1
+
+[node name="Label" type="ToolButton" parent="Box/Sounds/Box/Box"]
+margin_top = 215.0
+margin_right = 1640.0
+margin_bottom = 236.0
+mouse_default_cursor_shape = 2
+text = "All sounds are licensed under the CC-BY-SA 4.0 unless otherwise noted."
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/licenses/by-sa/4.0/"
+
+[node name="HSeparator" type="HSeparator" parent="Box/Sounds/Box/Box"]
+margin_top = 268.0
+margin_right = 1640.0
+margin_bottom = 272.0
+
+[node name="Box" type="GridContainer" parent="Box/Sounds/Box/Box"]
+margin_top = 304.0
+margin_right = 1640.0
+margin_bottom = 639.0
 size_flags_horizontal = 5
 size_flags_vertical = 4
 custom_constants/vseparation = 40
 custom_constants/hseparation = 40
 columns = 3
 
-[node name="Swinging staff whoosh" type="VBoxContainer" parent="Box/Sounds/Box/Box"]
+[node name="Swinging staff whoosh" type="VBoxContainer" parent="Box/Sounds/Box/Box/Box"]
 margin_right = 520.0
 margin_bottom = 85.0
 size_flags_horizontal = 3
 size_flags_vertical = 4
 alignment = 1
 
-[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Swinging staff whoosh"]
+[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Box/Swinging staff whoosh"]
 margin_right = 520.0
 margin_bottom = 31.0
 rect_pivot_offset = Vector2( 1616.52, -199.469 )
@@ -957,7 +1061,7 @@ __meta__ = {
 }
 url = "https://freesound.org/people/Nightflame/packs/23909/"
 
-[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Swinging staff whoosh"]
+[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Box/Swinging staff whoosh"]
 margin_top = 41.0
 margin_right = 520.0
 margin_bottom = 62.0
@@ -969,7 +1073,7 @@ __meta__ = {
 }
 url = "https://freesound.org/people/Nightflame"
 
-[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Swinging staff whoosh"]
+[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Box/Swinging staff whoosh"]
 margin_top = 72.0
 margin_right = 520.0
 margin_bottom = 85.0
@@ -982,7 +1086,7 @@ __meta__ = {
 }
 url = "https://creativecommons.org/publicdomain/zero/1.0/"
 
-[node name="Blaster" type="VBoxContainer" parent="Box/Sounds/Box/Box"]
+[node name="Blaster" type="VBoxContainer" parent="Box/Sounds/Box/Box/Box"]
 margin_left = 560.0
 margin_right = 1080.0
 margin_bottom = 85.0
@@ -990,7 +1094,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 4
 alignment = 1
 
-[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Blaster"]
+[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Box/Blaster"]
 margin_right = 520.0
 margin_bottom = 31.0
 rect_pivot_offset = Vector2( 1616.52, -199.469 )
@@ -1003,7 +1107,7 @@ __meta__ = {
 }
 url = "https://freesound.org/people/C3Sabertooth/sounds/480872/"
 
-[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Blaster"]
+[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Box/Blaster"]
 margin_top = 41.0
 margin_right = 520.0
 margin_bottom = 62.0
@@ -1015,7 +1119,7 @@ __meta__ = {
 }
 url = "https://freesound.org/people/C3Sabertooth/"
 
-[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Blaster"]
+[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Box/Blaster"]
 margin_top = 72.0
 margin_right = 520.0
 margin_bottom = 85.0
@@ -1028,7 +1132,7 @@ __meta__ = {
 }
 url = "https://creativecommons.org/publicdomain/zero/1.0/"
 
-[node name="Glass shatter" type="VBoxContainer" parent="Box/Sounds/Box/Box"]
+[node name="Glass shatter" type="VBoxContainer" parent="Box/Sounds/Box/Box/Box"]
 margin_left = 1120.0
 margin_right = 1640.0
 margin_bottom = 85.0
@@ -1036,7 +1140,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 4
 alignment = 1
 
-[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Glass shatter"]
+[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Box/Glass shatter"]
 margin_right = 520.0
 margin_bottom = 31.0
 rect_pivot_offset = Vector2( 1616.52, -199.469 )
@@ -1049,7 +1153,7 @@ __meta__ = {
 }
 url = "https://freesound.org/people/datasoundsample/sounds/41348/"
 
-[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Glass shatter"]
+[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Box/Glass shatter"]
 margin_top = 41.0
 margin_right = 520.0
 margin_bottom = 62.0
@@ -1061,7 +1165,7 @@ __meta__ = {
 }
 url = "https://freesound.org/people/datasoundsample"
 
-[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Glass shatter"]
+[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Box/Glass shatter"]
 margin_top = 72.0
 margin_right = 520.0
 margin_bottom = 85.0
@@ -1074,7 +1178,7 @@ __meta__ = {
 }
 url = "https://creativecommons.org/licenses/by/3.0/"
 
-[node name="Error" type="VBoxContainer" parent="Box/Sounds/Box/Box"]
+[node name="Error" type="VBoxContainer" parent="Box/Sounds/Box/Box/Box"]
 margin_top = 125.0
 margin_right = 520.0
 margin_bottom = 210.0
@@ -1082,7 +1186,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 4
 alignment = 1
 
-[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Error"]
+[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Box/Error"]
 margin_right = 520.0
 margin_bottom = 31.0
 rect_pivot_offset = Vector2( 1616.52, -199.469 )
@@ -1095,7 +1199,7 @@ __meta__ = {
 }
 url = "https://freesound.org/people/LorenzoTheGreat/sounds/417794/"
 
-[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Error"]
+[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Box/Error"]
 margin_top = 41.0
 margin_right = 520.0
 margin_bottom = 62.0
@@ -1107,7 +1211,7 @@ __meta__ = {
 }
 url = "https://freesound.org/people/LorenzoTheGreat"
 
-[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Error"]
+[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Box/Error"]
 margin_top = 72.0
 margin_right = 520.0
 margin_bottom = 85.0
@@ -1120,7 +1224,7 @@ __meta__ = {
 }
 url = "https://creativecommons.org/licenses/by/3.0/"
 
-[node name="DC gear motor" type="VBoxContainer" parent="Box/Sounds/Box/Box"]
+[node name="DC gear motor" type="VBoxContainer" parent="Box/Sounds/Box/Box/Box"]
 margin_left = 560.0
 margin_top = 125.0
 margin_right = 1080.0
@@ -1129,7 +1233,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 4
 alignment = 1
 
-[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/DC gear motor"]
+[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Box/DC gear motor"]
 margin_right = 520.0
 margin_bottom = 31.0
 rect_pivot_offset = Vector2( 1616.52, -199.469 )
@@ -1142,7 +1246,7 @@ __meta__ = {
 }
 url = "https://freesound.org/people/MrAuralization/sounds/203602/"
 
-[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/DC gear motor"]
+[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Box/DC gear motor"]
 margin_top = 41.0
 margin_right = 520.0
 margin_bottom = 62.0
@@ -1154,7 +1258,7 @@ __meta__ = {
 }
 url = "https://freesound.org/people/MrAuralization/"
 
-[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/DC gear motor"]
+[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Box/DC gear motor"]
 margin_top = 72.0
 margin_right = 520.0
 margin_bottom = 85.0
@@ -1167,7 +1271,7 @@ __meta__ = {
 }
 url = "https://creativecommons.org/licenses/by/3.0/"
 
-[node name="Sci-Fi Gun - Mega Charge Cannon" type="VBoxContainer" parent="Box/Sounds/Box/Box"]
+[node name="Sci-Fi Gun - Mega Charge Cannon" type="VBoxContainer" parent="Box/Sounds/Box/Box/Box"]
 margin_left = 1120.0
 margin_top = 125.0
 margin_right = 1640.0
@@ -1176,7 +1280,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 4
 alignment = 1
 
-[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Sci-Fi Gun - Mega Charge Cannon"]
+[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Box/Sci-Fi Gun - Mega Charge Cannon"]
 margin_right = 520.0
 margin_bottom = 31.0
 rect_pivot_offset = Vector2( 1616.52, -199.469 )
@@ -1189,7 +1293,7 @@ __meta__ = {
 }
 url = "https://freesound.org/people/dpren/sounds/440147/"
 
-[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Sci-Fi Gun - Mega Charge Cannon"]
+[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Box/Sci-Fi Gun - Mega Charge Cannon"]
 margin_top = 41.0
 margin_right = 520.0
 margin_bottom = 62.0
@@ -1201,7 +1305,7 @@ __meta__ = {
 }
 url = "https://freesound.org/people/MrAuralization/"
 
-[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Sci-Fi Gun - Mega Charge Cannon"]
+[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Box/Sci-Fi Gun - Mega Charge Cannon"]
 margin_top = 72.0
 margin_right = 520.0
 margin_bottom = 85.0
@@ -1214,7 +1318,7 @@ __meta__ = {
 }
 url = "https://creativecommons.org/publicdomain/zero/1.0/"
 
-[node name="sci-fi cannon" type="VBoxContainer" parent="Box/Sounds/Box/Box"]
+[node name="sci-fi cannon" type="VBoxContainer" parent="Box/Sounds/Box/Box/Box"]
 margin_top = 250.0
 margin_right = 520.0
 margin_bottom = 335.0
@@ -1222,7 +1326,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 4
 alignment = 1
 
-[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/sci-fi cannon"]
+[node name="Title" type="ToolButton" parent="Box/Sounds/Box/Box/Box/sci-fi cannon"]
 margin_right = 520.0
 margin_bottom = 31.0
 rect_pivot_offset = Vector2( 1616.52, -199.469 )
@@ -1235,7 +1339,7 @@ __meta__ = {
 }
 url = "https://freesound.org/people/humanoide9000/sounds/422440/"
 
-[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/sci-fi cannon"]
+[node name="Made by" type="ToolButton" parent="Box/Sounds/Box/Box/Box/sci-fi cannon"]
 margin_top = 41.0
 margin_right = 520.0
 margin_bottom = 62.0
@@ -1247,7 +1351,7 @@ __meta__ = {
 }
 url = "https://freesound.org/people/MrAuralization/"
 
-[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/sci-fi cannon"]
+[node name="License" type="ToolButton" parent="Box/Sounds/Box/Box/Box/sci-fi cannon"]
 margin_top = 72.0
 margin_right = 520.0
 margin_bottom = 85.0
@@ -1259,6 +1363,65 @@ __meta__ = {
 "ui_audio_disable": ""
 }
 url = "https://creativecommons.org/licenses/by/3.0/"
+
+[node name="Models" type="ScrollContainer" parent="Box"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 33.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="Box" type="MarginContainer" parent="Box/Models"]
+margin_right = 1720.0
+margin_bottom = 935.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 40
+custom_constants/margin_top = 40
+custom_constants/margin_left = 40
+custom_constants/margin_bottom = 40
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Box" type="VBoxContainer" parent="Box/Models/Box"]
+margin_left = 40.0
+margin_top = 40.0
+margin_right = 1680.0
+margin_bottom = 895.0
+custom_constants/separation = 32
+alignment = 1
+
+[node name="Label" type="ToolButton" parent="Box/Models/Box/Box"]
+margin_top = 215.0
+margin_right = 1640.0
+margin_bottom = 236.0
+mouse_default_cursor_shape = 2
+text = "All models are licensed under the CC-BY-SA 4.0."
+script = ExtResource( 9 )
+__meta__ = {
+"ui_audio_disable": ""
+}
+url = "https://creativecommons.org/licenses/by-sa/4.0/"
+
+[node name="HSeparator" type="HSeparator" parent="Box/Models/Box/Box"]
+visible = false
+margin_top = 268.0
+margin_right = 1640.0
+margin_bottom = 272.0
+
+[node name="Box" type="GridContainer" parent="Box/Models/Box/Box"]
+visible = false
+margin_top = 304.0
+margin_right = 1640.0
+margin_bottom = 639.0
+size_flags_horizontal = 5
+size_flags_vertical = 4
+custom_constants/vseparation = 40
+custom_constants/hseparation = 40
+columns = 3
 
 [node name="Fonts" type="ScrollContainer" parent="Box"]
 visible = false
