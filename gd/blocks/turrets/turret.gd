@@ -1,6 +1,8 @@
 extends "../weapons/weapon.gd"
 
 export var max_impulse := 300
+export var offset := Vector3()
+
 var max_turn_speed := PI / 2
 var _aim_pos := Vector3()
 var _body_b_mount: Spatial
@@ -60,10 +62,11 @@ func _create_joint():
 	var bd_a = body_a.get_meta("ownwar_body_index")
 	var bd_b = body_b.get_meta("ownwar_body_index")
 	var z_up = transform.basis * Basis(Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, 1, 0))
-	var mount_b = Transform(z_up, vh.voxel_to_translation(bd_b, base_position + body_offset))
+	var mount_a = Transform(z_up, vh.voxel_to_translation(bd_a, base_position + body_offset) + offset)
+	var mount_b = Transform(z_up, vh.voxel_to_translation(bd_b, base_position + body_offset) + offset)
 	_joint_rid = PhysicsServer.joint_create_hinge(
 		body_a.get_rid(),
-		Transform(z_up, vh.voxel_to_translation(bd_a, base_position + body_offset)),
+		mount_a,
 		body_b.get_rid(),
 		mount_b
 	)
