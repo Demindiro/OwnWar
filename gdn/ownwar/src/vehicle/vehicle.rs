@@ -1064,7 +1064,10 @@ impl Vehicle {
 	/// Destroy all the bodies on this vehicle.
 	pub(crate) fn destroy(&mut self) {
 		let mb = self.main_body.as_mut().expect("Already destroyed");
+		#[cfg(not(feature = "server"))]
 		mb.destroy(&mut self.shared, mb.center_of_mass());
+		#[cfg(feature = "server")]
+		mb.destroy(&mut self.shared);
 	}
 
 	/// Serialize the vehicle for transmission over a network.

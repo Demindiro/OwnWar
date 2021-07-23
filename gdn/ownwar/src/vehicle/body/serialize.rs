@@ -174,8 +174,8 @@ impl super::Body {
 
 			blocks,
 			connections_x: (end - voxel::Delta::X).map(|e| voxel::BitGrid::new(e)).ok(),
-			connections_z: (end - voxel::Delta::Y).map(|e| voxel::BitGrid::new(e)).ok(),
-			connections_y: (end - voxel::Delta::Z).map(|e| voxel::BitGrid::new(e)).ok(),
+			connections_y: (end - voxel::Delta::Y).map(|e| voxel::BitGrid::new(e)).ok(),
+			connections_z: (end - voxel::Delta::Z).map(|e| voxel::BitGrid::new(e)).ok(),
 			multi_blocks,
 			rotations,
 			colors,
@@ -206,6 +206,8 @@ impl super::Body {
 		for pos in iter_3d_inclusive((0, 0, 0), slf.end().into()).map(voxel::Position::from) {
 			slf.init_block(shared, pos);
 		}
+
+		slf.setup_connection_bitmaps();
 
 		if !slf.is_destroyed() {
 			//slf.correct_mass();

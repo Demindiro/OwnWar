@@ -1,6 +1,7 @@
 mod check;
 mod damage;
 mod debug;
+#[cfg(not(feature = "server"))]
 mod godot;
 mod init;
 #[cfg(not(feature = "server"))]
@@ -28,8 +29,9 @@ use crate::util::*;
 use core::cell::Cell;
 use core::fmt;
 use core::mem;
+use gdnative::api::{BoxShape, CollisionShape, PhysicsServer, VehicleBody};
 #[cfg(not(feature = "server"))]
-use gdnative::api::{BoxShape, CollisionShape, MeshInstance, PhysicsServer, VehicleBody};
+use gdnative::api::MeshInstance;
 use gdnative::prelude::*;
 use std::convert::{TryFrom, TryInto};
 use std::num::{NonZeroU16, NonZeroU32};
@@ -382,9 +384,16 @@ impl Body {
 		self.children_mut().for_each(|b| {
 			let _ = b.apply_damage(shared);
 		});
+
+		#[cfg(not(feature = "server"))]
 		let old_com = self.center_of_mass;
 		if self.apply_damage_events(shared) {
+
+			#[cfg(not(feature = "server"))]
 			self.destroy(shared, old_com);
+			#[cfg(feature = "server")]
+			self.destroy(shared);
+
 			true
 		} else {
 			false

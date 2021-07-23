@@ -66,7 +66,7 @@ build-gdn-%-windows: gd/lib/
 	strip gd/lib/$*.dll
 
 build-gdn-%-server: gd/lib/
-	cd gdn/$* && cargo build --release --target $(TARGET_WINDOWS) --quiet --features=server
+	cd gdn/$* && cargo build --release --target $(TARGET_LINUX) --quiet --features=server
 	cp gdn/$*/target/$(TARGET_WINDOWS)/release/$*.dll gd/lib/
 	strip gd/lib/$*.dll
 

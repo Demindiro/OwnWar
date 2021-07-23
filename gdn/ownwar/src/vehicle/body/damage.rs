@@ -10,6 +10,7 @@ use gdnative::prelude::*;
 use std::error::Error;
 use std::io;
 
+#[cfg(not(feature = "server"))]
 const DESTROY_BLOCK_EFFECT_SCENE: &str = "res://vehicles/destroy_block_effect.tscn";
 #[cfg(not(feature = "server"))]
 const DESTROY_BODY_EFFECT_SCENE: &str = "res://vehicles/destroy_body_effect.tscn";
@@ -408,7 +409,10 @@ impl super::Body {
 						// Destroy the connected body, if any.
 						body.map(|body| {
 							let body = &mut self.children[usize::from(body)];
+							#[cfg(not(feature = "server"))]
 							body.destroy(shared, body.center_of_mass);
+							#[cfg(feature = "server")]
+							body.destroy(shared);
 						});
 
 						let blk = block::Block::get(self.blocks[pos].id.unwrap()).unwrap();
@@ -663,7 +667,10 @@ impl super::Body {
 				let body = mb.destroy(shared);
 				body.map(|body| {
 					let body = &mut self.children[usize::from(body)];
+					#[cfg(not(feature = "server"))]
 					body.destroy(shared, body.center_of_mass);
+					#[cfg(feature = "server")]
+					body.destroy(shared);
 				});
 
 				let id = self.blocks[pos].id.unwrap();
@@ -741,6 +748,7 @@ impl super::Body {
 	pub(in super::super) fn destroy(
 		&mut self,
 		shared: &mut vehicle::Shared,
+		#[cfg(not(feature = "server"))]
 		old_center_of_mass: Vector3,
 	) {
 		if let Some(node) = self.node.take() {
@@ -762,7 +770,10 @@ impl super::Body {
 			}
 
 			self.children.iter_mut().for_each(|b| {
+				#[cfg(not(feature = "server"))]
 				b.destroy(shared, b.center_of_mass);
+				#[cfg(feature = "server")]
+				b.destroy(shared);
 			});
 
 			#[cfg(not(feature = "server"))]

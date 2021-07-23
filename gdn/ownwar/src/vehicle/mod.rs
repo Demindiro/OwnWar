@@ -7,6 +7,7 @@ mod vehicle;
 mod voxel_mesh;
 
 pub(crate) use controller::Controller;
+#[allow(unused_imports)]
 pub(crate) use vehicle::Vehicle;
 #[cfg(not(feature = "server"))]
 pub(crate) use voxel_mesh::VoxelMesh;
