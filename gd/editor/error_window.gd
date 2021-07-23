@@ -11,9 +11,16 @@ onready var timer: Timer = get_node(timer_path)
 
 
 func show_error(text: String) -> void:
+	# This is stupid but idk else how I get the damn window to shrink as it should
+	# in the first damn place
+	var p = get_parent()
+	p.remove_child(self)
+
 	visible = true
 	message.text = text
+
+	p.add_child(self)
+
 	animation.stop()
 	animation.play(animation_name)
 	timer.start()
-	

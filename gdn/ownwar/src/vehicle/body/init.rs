@@ -1,7 +1,6 @@
 use super::*;
 use crate::block;
-use crate::util::*;
-use gdnative::api::BoxShape;
+use gdnative::api::{BoxShape, PhysicsMaterial};
 use gdnative::prelude::*;
 
 /// Helper functions for initializing new bodies & blocks.
@@ -14,10 +13,10 @@ impl super::Body {
 	/// # Panics
 	///
 	/// The position is out of range.
-	pub(super) fn init_block(&mut self, shared: &mut vehicle::Shared, position: Voxel) {
+	pub(super) fn init_block(&mut self, shared: &mut vehicle::Shared, position: voxel::Position) {
 		let index = self.get_index(position).unwrap();
 
-		let id = if let Some(id) = self.ids[index as usize] {
+		let id = if let Some(id) = self.blocks[position].id {
 			id
 		} else {
 			return;
@@ -28,7 +27,7 @@ impl super::Body {
 		let cost = block.cost.get() as u32;
 		self.max_cost += cost;
 
-		let hp = if let Some(hp) = self.health[index as usize] {
+		let hp = if let Some(hp) = self.blocks[position].health {
 			self.cost += cost;
 			hp
 		} else {
@@ -39,12 +38,7 @@ impl super::Body {
 		#[cfg(not(feature = "server"))]
 		let color = {
 			let color = self.colors[index as usize];
-			let color = shared.colors[usize::from(color)];
-			Color::rgb(
-				color.x as f32 / 255.0,
-				color.y as f32 / 255.0,
-				color.z as f32 / 255.0,
-			)
+			shared.colors[usize::from(color)]
 		};
 
 		#[cfg(feature = "server")]
@@ -57,15 +51,12 @@ impl super::Body {
 		// Update voxel mesh
 		#[cfg(not(feature = "server"))]
 		self.voxel_mesh.as_ref().map(|vm| unsafe {
-			vm.assume_safe().map_mut(|s, _| {
-				s.add_block(block, color, position, rotation);
-			})
+			vm.assume_safe()
+				.map_mut(|s, _| s.add_block(block, color, position, rotation))
 		});
 
 		if block.id == MAINFRAME_ID {
-			if !self.parent_anchors.is_empty() {
-				panic!("Body has two mainframes!"); // TODO
-			}
+			// Even if there are multiple mainframes it's fine, it'll be detected later.
 			self.parent_anchors.push(position);
 		}
 
@@ -84,11 +75,7 @@ impl super::Body {
 			if let Some(server_node) = block.server_node {
 				// Create transform
 				let basis = rotation.basis();
-				let origin = Vector3::new(
-					position.x as f32 + 0.5,
-					position.y as f32 + 0.5,
-					position.z as f32 + 0.5,
-				) * block::SCALE;
+				let origin = Vector3::from(position) * block::SCALE;
 				let transform = Transform { basis, origin };
 
 				// Initialize server node
@@ -151,7 +138,7 @@ impl super::Body {
 			}
 		} else {
 			assert_eq!(hp.get() & 0x8000, 0);
-			self.health[index as usize] = Some(hp);
+			self.blocks[position].health = Some(hp);
 		}
 	}
 
@@ -169,10 +156,18 @@ impl super::Body {
 		#[cfg(not(feature = "server"))]
 		assert!(self.voxel_mesh_instance.is_none(), "This will leak memory");
 
+		// Create physics material
+		let mat = PhysicsMaterial::new();
+		mat.set_friction(FRICTION.into());
+
+		// Add physics body
 		let node = Ref::<VehicleBody, _>::new();
 		node.set_as_toplevel(true);
 		node.set_collision_layer(COLLISION_LAYER.into());
 		node.set_collision_mask(COLLISION_MASK.into());
+		node.set_physics_material_override(mat);
+		node.set_linear_damp(LINEAR_DAMPING.into());
+		node.set_angular_damp(ANGULAR_DAMPING.into());
 
 		// Add collision
 		let collision_shape_instance = Ref::<CollisionShape, Unique>::new();
@@ -230,78 +225,61 @@ impl super::Body {
 	pub(in super::super) fn init(&mut self, shared: &mut vehicle::Shared) -> Result<(), InitError> {
 		// Setup total cost, health ... & find special blocks.
 		self.correct_mass();
-		let middle = (self.size().to_f32() + Vector3::one()) * block::SCALE / 2.0;
+		let middle = (Vector3::from(self.end()) + Vector3::one()) * block::SCALE * 0.5;
 		unsafe {
 			self.collision_shape_instance
 				.unwrap()
 				.assume_safe()
-				.set_translation(
-					middle - (self.center_of_mass() + Vector3::new(0.5, 0.5, 0.5)) * block::SCALE,
-				);
+				.set_translation(Vector3::from(self.end()) * 0.5 * block::SCALE);
 			self.collision_shape.assume_safe().set_extents(middle);
 		}
 
+		let offt = self.offset();
 		for block in self.multi_blocks.iter_mut().filter_map(Option::as_mut) {
-			block.init(self.offset, shared);
+			block.init(self.offset, self.center_of_mass, shared);
 			if let Some(server_node) = block.server_node.as_ref() {
 				let server_node = unsafe { server_node.assume_safe() };
 
 				// Check if the block is an anchor
 				if !server_node.get("anchor_index").is_nil() {
-					let anchor_bodies = VariantArray::new();
+					let mut anchor_body = None;
 
-					'find_mount: for mount in server_node
+					for mount in server_node
 						.get("anchor_mounts")
 						.to_vector3_array()
 						.read()
 						.iter()
+						.copied()
 					{
-						let mount = convert_vec::<_, i16>(block.base_position)
-							+ convert_vec(
-								block
-									.rotation
-									.basis()
-									.to_quat()
-									.transform_vector3d(*mount)
-									.round(),
-							) + convert_vec(self.offset);
-						let mount = mount.x.try_into().and_then(|x| {
-							mount
-								.y
-								.try_into()
-								.and_then(|y| mount.z.try_into().map(|z| Voxel::new(x, y, z)))
-						});
-						let mount = match mount {
+						let mount = match voxel::Delta::try_from(mount) {
+							Ok(m) => m,
+							Err(e) => {
+								godot_error!("Failed to convert mount: {:?}", e);
+								continue;
+							}
+						};
+						let delta = block.rotation * mount + offt;
+						let mount = match block.base_position + delta {
 							Ok(m) => m,
 							Err(_) => continue,
 						};
-
 						for (k, b) in self.children.iter_mut().enumerate() {
 							let k = u8::try_from(k).unwrap();
-							let m = convert_vec::<_, i16>(mount) - convert_vec(b.offset);
-							let m = m.x.try_into().and_then(|x| {
-								m.y.try_into()
-									.and_then(|y| m.z.try_into().map(|z| Voxel::new(x, y, z)))
-							});
-							let m = match m {
+							let m = match mount - b.offset() {
 								Ok(m) => m,
 								Err(_) => continue,
 							};
-							if let Ok(Some(_)) = b.try_get_block(m) {
+							if let Some(Some(_)) = b.blocks.get(m).map(|b| b.health) {
 								b.parent_anchors.push(m);
 								if let Err(_) = block.set_anchored_body(k) {
 									return Err(InitError::MultipleBodiesPerAnchor);
 								}
-								anchor_bodies.push(b.node);
-								break 'find_mount;
+								anchor_body = Some(b.node);
 							}
 						}
 					}
 
-					server_node.set(
-						"anchor_mounts_bodies",
-						anchor_bodies.into_shared().to_variant(),
-					);
+					server_node.set("anchor_mount_body", anchor_body.to_variant());
 				}
 			}
 		}
@@ -315,10 +293,7 @@ impl super::Body {
 		for body in self.children.iter() {
 			unsafe {
 				if let Some(bn) = body.node.as_ref() {
-					self.node
-						.unwrap()
-						.assume_safe()
-						.add_child(bn, false);
+					self.node.unwrap().assume_safe().add_child(bn, false);
 				}
 			}
 		}
@@ -331,7 +306,9 @@ impl super::Body {
 	pub(in super::super) fn create_collision_exceptions(&mut self) {
 		// TODO find a way to avoid a temporary buffer
 		let mut nodes = Vec::new();
-		self.iter_all_bodies(&mut |b| { b.node.clone().map(|bn| nodes.push(bn)); });
+		self.iter_all_bodies(&mut |b| {
+			b.node.clone().map(|bn| nodes.push(bn));
+		});
 		self.iter_all_bodies(&mut |b| {
 			nodes.iter().for_each(|a| unsafe {
 				if let Some(b) = b.node.as_ref() {
@@ -340,6 +317,71 @@ impl super::Body {
 					}
 				}
 			})
+		});
+	}
+
+	/// Setup interblock connection bitmaps
+	pub(super) fn setup_connection_bitmaps(&mut self) {
+		let end = self.blocks.end();
+
+		// Create a per-block connection map.
+		let mut connections = voxel::Grid::<block::MountSides>::new(end);
+		for pos in iter_3d_inclusive((0, 0, 0), end.into()).map(voxel::Position::from) {
+			if let Some(id) = self.blocks[pos].id {
+				let blk = block::Block::get(id).unwrap();
+				let rot = self.rotations[self.get_index(pos).unwrap()];
+				for mount in blk.mount_points() {
+					if let Ok(pos) = pos + rot * mount.position {
+						 connections[pos] = rot * mount.sides;
+					}
+				}
+			}
+		}
+
+		// Map X
+		self.connections_x.as_mut().map(|map| {
+			for x in 0..end.x {
+				for y in 0..=end.y {
+					for z in 0..=end.z {
+						let pos = voxel::Position::new(x, y, z);
+						let a = connections[pos];
+						let b = connections[(pos + voxel::Delta::X).unwrap()];
+						if a.can_connect(Direction::Right) && b.can_connect(Direction::Left) {
+							map.set(pos, true);
+						}
+					}
+				}
+			}
+		});
+		// Map Y
+		self.connections_y.as_mut().map(|map| {
+			for x in 0..=end.x {
+				for y in 0..end.y {
+					for z in 0..=end.z {
+						let pos = voxel::Position::new(x, y, z);
+						let a = connections[pos];
+						let b = connections[(pos + voxel::Delta::Y).unwrap()];
+						if a.can_connect(Direction::Up) && b.can_connect(Direction::Down) {
+							map.set(pos, true);
+						}
+					}
+				}
+			}
+		});
+		// Map Z
+		self.connections_z.as_mut().map(|map| {
+			for x in 0..=end.x {
+				for y in 0..=end.y {
+					for z in 0..end.z {
+						let pos = voxel::Position::new(x, y, z);
+						let a = connections[pos];
+						let b = connections[(pos + voxel::Delta::Z).unwrap()];
+						if a.can_connect(Direction::Forward) && b.can_connect(Direction::Back) {
+							map.set(pos, true);
+						}
+					}
+				}
+			}
 		});
 	}
 }

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://blocks/block.gdns" type="Script" id=1]
+[ext_resource path="res://blocks/wings/rudder.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+human_name = "Rudder"
+revision = 2
+mass = 1.0
+human_category = "Movement"
+aabb = AABB( 0, 0, -1, 1, 5, 3 )
+id = 110
+health = 100
+cost = 10
+__mirror_block_id = null
+instance = ExtResource( 2 )
+mirror_rotation_offset = 0
+alternate_rotation_map = null
+extra_mount_points = PoolVector3Array()
+extra_mount_sides = PoolByteArray()
+mount_sides = 2

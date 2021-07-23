@@ -51,7 +51,7 @@ func _exit_tree() -> void:
 func launch() -> void:
 	if not OwnWar_Lobby.player_vehicle_valid:
 		# Show this error first so the user doesn't waste time with an address or whatever
-		status.set_status(Status.STATUS_ERR, "Vehicle isn't valid", user_error_icon)
+		status.set_status(Status.STATUS_ERR, "Vehicle isn't valid: %s" % OwnWar_Lobby.player_vehicle_invalid_reason, user_error_icon)
 		return
 	if selected_entry == null:
 		status.set_status(Status.STATUS_ERR, "No server selected", failed_connect_icon)

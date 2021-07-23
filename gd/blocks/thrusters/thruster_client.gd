@@ -1,6 +1,5 @@
 tool
-extends OwnWar_SetColor
-class_name OwnWar_Thruster_Client
+extends Spatial
 
 
 onready var mesh: MeshInstance = get_node("Exhaust/Mesh")
@@ -8,6 +7,8 @@ onready var mesh: MeshInstance = get_node("Exhaust/Mesh")
 var server_node: OwnWar_Thruster_Server
 
 var visual_drive := 0.0
+
+var team_color setget set_team_color
 
 
 func _ready() -> void:
@@ -29,6 +30,9 @@ func _process(delta: float) -> void:
 
 
 func set_color(color: Color) -> void:
-	var mi: MeshInstance = get_node("Thruster")
-	mi.mesh = mi.mesh.duplicate()
-	mi.mesh.surface_set_material(1, MaterialCache.get_material(color))
+	$Hull.color = color
+	$Mount.color = color
+
+
+func set_team_color(p_color):
+	$Glow.color = p_color

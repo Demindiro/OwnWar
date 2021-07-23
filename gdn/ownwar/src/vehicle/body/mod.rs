@@ -1,11 +1,14 @@
+mod check;
 mod damage;
 mod debug;
+#[cfg(not(feature = "server"))]
 mod godot;
 mod init;
 #[cfg(not(feature = "server"))]
 mod mesh;
 mod multi_block;
 mod packet;
+mod physics;
 mod serialize;
 mod util;
 mod visual;
@@ -20,29 +23,45 @@ use super::voxel_mesh::VoxelMesh;
 use super::*;
 use crate::block;
 use crate::rotation::*;
+use crate::types::*;
 use crate::util::*;
 #[cfg(debug_assertions)]
 use core::cell::Cell;
+use core::fmt;
 use core::mem;
-use euclid::{UnknownUnit, Vector3D};
+use gdnative::api::{BoxShape, CollisionShape, PhysicsServer, VehicleBody};
 #[cfg(not(feature = "server"))]
 use gdnative::api::MeshInstance;
-use gdnative::api::{BoxShape, CollisionShape, VehicleBody};
 use gdnative::prelude::*;
-use num_traits::{AsPrimitive, PrimInt};
 use std::convert::{TryFrom, TryInto};
 use std::num::{NonZeroU16, NonZeroU32};
-
-type Voxel = Vector3D<u8, UnknownUnit>;
 
 const MAINFRAME_ID: NonZeroU16 = unsafe { NonZeroU16::new_unchecked(76) };
 
 const COLLISION_LAYER: u32 = 2;
 // Any + Vehicles + Terrain
 const COLLISION_MASK: u32 = 1 | 2 | (1 << 7);
+// Helps with preventing the physics from exploding.
+const LINEAR_DAMPING: f32 = 0.2;
+const ANGULAR_DAMPING: f32 = 0.2;
+// A slippery surface makes it easier to take off in planes & prevents getting stuck
+// on corners.
+const FRICTION: f32 = 0.1;
+
+/// A single voxel. Each voxel represents a block's ID and health.
+#[derive(Default)]
+struct Voxel {
+	/// The ID of the block. `None` if there is no block.
+	///
+	/// Multiblocks use only one spot.
+	id: Option<NonZeroU16>,
+	/// The health of the block. The upper bit (`0x8000`) is set if it points to a multiblock.
+	///
+	/// Multiblocks use one or more spots.
+	health: Option<NonZeroU16>,
+}
 
 pub(super) struct Body {
-	// TODO don't make this public
 	node: Option<Ref<VehicleBody>>,
 	#[cfg(not(feature = "server"))]
 	voxel_mesh: Option<Instance<VoxelMesh, Shared>>,
@@ -56,14 +75,16 @@ pub(super) struct Body {
 	#[cfg(not(feature = "server"))]
 	interpolation_state_dirty: bool,
 
-	offset: Voxel,
-	size: Voxel,
+	offset: voxel::Position,
 
-	/// The ID of each block of this body. Multiblocks use only one spot.
-	ids: Box<[Option<NonZeroU16>]>,
-	/// The health of each block. The upper bit indicates whether it points
-	/// to a multiblock or if it is a regular single block.
-	health: Box<[Option<NonZeroU16>]>,
+	/// The ID & health of each block of this body.
+	blocks: voxel::Grid<Voxel>,
+	/// A bitmap indicating if the left & right side of each pair of blocks connect.
+	connections_x: Option<voxel::BitGrid>,
+	/// A bitmap indicating if the top & bottom side of each pair of blocks connect.
+	connections_y: Option<voxel::BitGrid>,
+	/// A bitmap indicating if the front & back side of each pair of blocks connect.
+	connections_z: Option<voxel::BitGrid>,
 	/// All multiblocks.
 	multi_blocks: Vec<Option<MultiBlock>>,
 	/// The color of each block. Needed for serialization.
@@ -77,7 +98,7 @@ pub(super) struct Body {
 	max_cost: u32,
 
 	#[cfg(debug_assertions)]
-	debug_hit_points: Cell<Vec<Voxel>>,
+	debug_hit_points: Cell<Vec<voxel::Position>>,
 
 	/// Damage events to be applied.
 	damage_events: Vec<DamageEvent>,
@@ -89,13 +110,12 @@ pub(super) struct Body {
 	///
 	/// This has one entry if it is the main body: the mainframe. The mainframe
 	/// is not a real anchor but pretending it is one simplifies things quite a bit.
-	parent_anchors: Vec<Voxel>,
-}
+	parent_anchors: Vec<voxel::Position>,
 
-pub(super) enum Block<'a> {
-	Destroyed(NonZeroU16),
-	Single(NonZeroU16, NonZeroU16),
-	Multi(NonZeroU16, &'a MultiBlock),
+	/// The lowest corner of the box collider.
+	collider_start_point: voxel::Position,
+	/// The highest corner of the box collider.
+	collider_end_point: voxel::Position,
 }
 
 /// Enum returned when an error occurs during `init_all`
@@ -105,22 +125,39 @@ pub enum InitError {
 	CyclicAnchor,
 	/// There are multiple bodies connected to the same anchor.
 	MultipleBodiesPerAnchor,
+	/// No mainframes were found.
+	NoMainframe,
+	/// Multiple mainframes were found.
+	MultipleMainframes,
+	/// Some blocks are not connected to an anchor.
+	DisconnectedBlocks,
+}
+
+impl fmt::Display for InitError {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match self {
+			Self::CyclicAnchor => "cyclic anchor".fmt(f),
+			Self::MultipleBodiesPerAnchor => "multiple bodies on an anchor".fmt(f),
+			Self::NoMainframe => "no mainframe found".fmt(f),
+			Self::MultipleMainframes => "multiple mainframes found".fmt(f),
+			Self::DisconnectedBlocks => "some blocks are disconnected".fmt(f),
+		}
+	}
 }
 
 impl Body {
-	// TODO remove the "visible" argument, it's redundant now the "server" feature is a thing.
-	pub fn new(aabb: AABB<u8>, visible: bool) -> Self {
-		let (offset, size) = (aabb.position, aabb.size);
+	pub fn new(aabb: voxel::AABB) -> Self {
+		let (offset, end) = (aabb.start, aabb.end);
+		let end = (end - offset).try_into().expect("Failed to convert Delta");
 
-		let _ = visible; // Make it shut up for now.
-
-		use std::iter::repeat;
-		let real_size = (size.x + 1) as usize * (size.y + 1) as usize * (size.z + 1) as usize;
+		use core::iter::repeat;
+		let blocks = voxel::Grid::new(end);
+		let size = blocks.len();
 
 		let mut slf = Self {
 			node: None,
 			#[cfg(not(feature = "server"))]
-			voxel_mesh: visible.then(Self::create_voxel_mesh),
+			voxel_mesh: Some(Self::create_voxel_mesh()),
 			#[cfg(not(feature = "server"))]
 			voxel_mesh_instance: None,
 			collision_shape: Self::create_collision_shape(),
@@ -132,14 +169,15 @@ impl Body {
 			interpolation_state_dirty: true,
 
 			offset,
-			size,
-			ids: repeat(None).take(real_size).collect(),
-			health: repeat(None).take(real_size).collect(),
+			blocks,
+			connections_x: (end - voxel::Delta::X).map(|e| voxel::BitGrid::new(e)).ok(),
+			connections_y: (end - voxel::Delta::Y).map(|e| voxel::BitGrid::new(e)).ok(),
+			connections_z: (end - voxel::Delta::Z).map(|e| voxel::BitGrid::new(e)).ok(),
 			multi_blocks: Vec::new(),
-			colors: repeat(0).take(real_size).collect(),
-			rotations: repeat(Rotation::new(0).unwrap()).take(real_size).collect(),
+			colors: repeat(0).take(size).collect(),
+			rotations: repeat(Rotation::new(0).unwrap()).take(size).collect(),
 
-			center_of_mass: Vector3D::zero(),
+			center_of_mass: Vector3::zero(),
 			mass: 0.0,
 			cost: 0,
 			max_cost: 0,
@@ -152,6 +190,9 @@ impl Body {
 			children: Vec::new(),
 
 			parent_anchors: Vec::new(),
+
+			collider_start_point: voxel::Position::ZERO,
+			collider_end_point: end,
 		};
 
 		slf.create_godot_nodes();
@@ -168,15 +209,20 @@ impl Body {
 		let mut parent = None;
 
 		// Find the body with the mainframe.
-		for (i, b) in bodies.iter().enumerate() {
+		for (i, b) in bodies.iter_mut().enumerate() {
 			if let Some(b) = b {
 				if !b.parent_anchors.is_empty() {
-					assert!(parent.is_none(), "Multiple mainframes");
+					if parent.is_some() || b.parent_anchors.len() != 1 {
+						return Err(InitError::MultipleMainframes);
+					}
 					parent = Some(u8::try_from(i).unwrap());
 				}
+				b.setup_connection_bitmaps();
 			}
 		}
-		assert!(parent.is_some(), "No mainframe");
+		if parent.is_none() {
+			return Err(InitError::NoMainframe);
+		}
 
 		// Setup total cost, health ... & find special blocks.
 		for i in 0..u8::try_from(bodies.len()).unwrap() {
@@ -186,50 +232,35 @@ impl Body {
 			if let Some(body) = &mut body[0] {
 				body.correct_mass();
 				body.cost = body.max_cost();
-				let middle = (body.size().to_f32() + Vector3::one()) * block::SCALE / 2.0;
-				unsafe {
-					body.collision_shape_instance
-						.unwrap()
-						.assume_safe()
-						.set_translation(
-							middle
-								- (body.center_of_mass() + Vector3::new(0.5, 0.5, 0.5))
-									* block::SCALE,
-						);
-					body.collision_shape.assume_safe().set_extents(middle);
-				}
+				body.resize_collider(body.collider_start_point, body.collider_end_point);
 
+				let offt = body.offset();
 				for block in body.multi_blocks.iter_mut().filter_map(Option::as_mut) {
-					block.init(body.offset, shared);
+					block.init(body.offset, body.center_of_mass, shared);
 					if let Some(server_node) = block.server_node.as_ref() {
 						let server_node = unsafe { server_node.assume_safe() };
 
 						// Check if the block is an anchor
 						if !server_node.get("anchor_index").is_nil() {
-							let anchor_bodies = VariantArray::new();
+							let mut anchor_body = None;
 							let parent_anchors = &mut body_tree[usize::from(i)];
 
-							'find_mount: for mount in server_node
+							for mount in server_node
 								.get("anchor_mounts")
 								.to_vector3_array()
 								.read()
 								.iter()
+								.copied()
 							{
-								let mount = convert_vec::<_, i16>(block.base_position)
-									+ convert_vec(
-										block
-											.rotation
-											.basis()
-											.to_quat()
-											.transform_vector3d(*mount)
-											.round(),
-									) + convert_vec(body.offset);
-								let mount = mount.x.try_into().and_then(|x| {
-									mount.y.try_into().and_then(|y| {
-										mount.z.try_into().map(|z| Voxel::new(x, y, z))
-									})
-								});
-								let mount = match mount {
+								let mount = match voxel::Delta::try_from(mount) {
+									Ok(m) => m,
+									Err(e) => {
+										godot_error!("Failed to convert mount: {:?}", e);
+										continue;
+									}
+								};
+								let delta = block.rotation * mount + offt;
+								let mount = match block.base_position + delta {
 									Ok(m) => m,
 									Err(_) => continue,
 								};
@@ -243,18 +274,11 @@ impl Body {
 								for (k, b) in iter {
 									let k = u8::try_from(k).unwrap();
 									if let Some(b) = b {
-										let m =
-											convert_vec::<_, i16>(mount) - convert_vec(b.offset);
-										let m = m.x.try_into().and_then(|x| {
-											m.y.try_into().and_then(|y| {
-												m.z.try_into().map(|z| Voxel::new(x, y, z))
-											})
-										});
-										let m = match m {
+										let m = match mount - b.offset() {
 											Ok(m) => m,
 											Err(_) => continue,
 										};
-										if let Ok(Some(_)) = b.try_get_block(m) {
+										if let Some(Some(_)) = b.blocks.get(m).map(|b| b.health) {
 											b.parent_anchors.push(m);
 											if parent_anchors.iter().find(|b| **b == k).is_none() {
 												parent_anchors.push(k);
@@ -262,20 +286,23 @@ impl Body {
 													return Err(InitError::MultipleBodiesPerAnchor);
 												}
 											};
-											anchor_bodies.push(b.node);
-											break 'find_mount;
+											anchor_body = Some(b.node);
 										}
 									}
 								}
 							}
 
-							server_node.set(
-								"anchor_mounts_bodies",
-								anchor_bodies.into_shared().to_variant(),
-							);
+							server_node.set("anchor_mount_body", anchor_body.to_variant());
 						}
 					}
 				}
+			}
+		}
+
+		// Check if all blocks are connected
+		for b in bodies.iter().filter_map(Option::as_ref) {
+			if !b.are_all_blocks_connected() {
+				return Err(InitError::DisconnectedBlocks);
 			}
 		}
 
@@ -299,13 +326,15 @@ impl Body {
 			parent: &mut Body,
 			tree: Vec<u8>,
 		) -> Result<(), InitError> {
+			/*
 			unsafe {
-				parent
-					.node
-					.unwrap()
-					.assume_safe()
-					.set_translation(Vector3::zero())
+			parent
+			.node
+			.unwrap()
+			.assume_safe()
+			.set_translation(Vector3::zero())
 			};
+			*/
 			let mut rev_body_map = [0xff; 256]; // 0xff is easier to spot as "wrong"
 									//for i in tree.into_iter() {
 			for i in tree.iter().copied() {
@@ -355,8 +384,16 @@ impl Body {
 		self.children_mut().for_each(|b| {
 			let _ = b.apply_damage(shared);
 		});
+
+		#[cfg(not(feature = "server"))]
+		let old_com = self.center_of_mass;
 		if self.apply_damage_events(shared) {
+
+			#[cfg(not(feature = "server"))]
+			self.destroy(shared, old_com);
+			#[cfg(feature = "server")]
 			self.destroy(shared);
+
 			true
 		} else {
 			false
@@ -381,32 +418,22 @@ impl Body {
 	pub fn add_block(
 		&mut self,
 		shared: &mut vehicle::Shared,
-		position: Voxel,
+		position: voxel::Position,
 		rotation: Rotation,
 		block_id: NonZeroU16,
 		color: u8,
 	) {
-		let position = position - self.offset;
-
-		let index = if let Ok(index) = self.get_index(position) {
-			index
-		} else {
-			godot_error!(
-				"Position out of bounds! {:?} outside {:?}",
-				position,
-				self.size
-			);
-			return;
-		};
-
-		if self.ids[index as usize].is_some() {
-			godot_error!("Position is already occupied! {:?}", position);
-			return;
-		}
+		let position =
+			(position - voxel::Delta::from(self.offset)).expect("Position is out of bounds");
+		let index = self.get_index(position).expect("Position is out of bounds");
+		assert!(
+			self.blocks[position].health.is_none(),
+			"Position is already occupied"
+		);
 
 		let block = block::Block::get(block_id).expect("Invalid block ID");
 
-		self.ids[index as usize] = Some(block.id);
+		self.blocks[position].id = Some(block.id);
 		self.rotations[index as usize] = rotation;
 		self.colors[index as usize] = color;
 
@@ -416,7 +443,15 @@ impl Body {
 				.len()
 				.try_into()
 				.expect("Too many multiblocks");
-			self.health[index as usize] = NonZeroU16::new(0x8000 | i);
+			self.blocks[position].health = NonZeroU16::new(0x8000 | i);
+			for d in block.extra_mount_points.iter() {
+				let d = voxel::Delta::from(d.position);
+				if let Ok(pos) = position + rotation * d {
+					self.blocks
+						.get_mut(pos)
+						.map(|b| b.health = NonZeroU16::new(0x8000 | i));
+				}
+			}
 			self.multi_blocks.push(Some(MultiBlock {
 				health: block.health,
 				server_node: None,
@@ -425,7 +460,7 @@ impl Body {
 				reverse_indices: Box::new([]),
 				#[cfg(not(feature = "server"))]
 				interpolation_state_index: u16::MAX,
-				base_position: Voxel::new(u8::MAX, u8::MAX, u8::MAX),
+				base_position: position,
 				rotation: Rotation::new(0).unwrap(),
 
 				weapon_index: u16::MAX,
@@ -439,105 +474,39 @@ impl Body {
 				anchor_body_index: None,
 			}));
 		} else {
-			self.health[index as usize] = Some(block.health.try_into().unwrap());
+			self.blocks[position].health = Some(block.health.try_into().unwrap());
 		}
 
 		self.init_block(shared, position);
 	}
 
-	pub fn try_get_block<T: PrimInt + AsPrimitive<isize>>(
-		&self,
-		position: Vector3D<T, UnknownUnit>,
-	) -> Result<Option<Block>, ()> {
-		self.get_index(position).and_then(|i| {
-			let i = i as usize;
-			if let Some(id) = self.ids[i] {
-				if let Some(hp) = self.health[i] {
-					if hp.get() & 0x8000 != 0 {
-						let index = (hp.get() & 0x7fff) as usize;
-						debug_assert!(self.multi_blocks[index].is_some());
-						if let Some(ref block) = self.multi_blocks[index] {
-							Ok(Some(Block::Multi(id, block)))
-						} else {
-							godot_error!("Block is already destroyed!");
-							// We can recover from this, move on.
-							// This won't leak nodes as long as the vehicle itself is destroyed
-							//self.multi_blocks[index] = None; // self is immutable :/
-							Ok(Some(Block::Destroyed(id)))
-						}
-					} else {
-						Ok(Some(Block::Single(id, hp)))
-					}
-				} else {
-					Ok(Some(Block::Destroyed(id)))
-				}
-			} else {
-				Ok(None)
-			}
-		})
-	}
-
-	fn get_block_health<T: PrimInt + AsPrimitive<isize>>(
-		&self,
-		position: Vector3D<T, UnknownUnit>,
-	) -> u32 {
-		if let Ok(Some(block)) = self.try_get_block(position) {
-			block.health()
-		} else {
-			0
-		}
-	}
-
-	fn get_index<T: PrimInt + AsPrimitive<isize>>(
-		&self,
-		position: Vector3D<T, UnknownUnit>,
-	) -> Result<u32, ()> {
-		let position = convert_vec(position);
-		let size = convert_vec(self.size);
-		if AABB::new(Vector3D::zero(), size).has_point(position) {
-			Ok(
-				((position.x * (size.y + 1) + position.y) * (size.z + 1) + position.z)
-					.try_into()
-					.unwrap(),
-			)
+	fn get_index(&self, position: voxel::Position) -> Result<usize, ()> {
+		if self.blocks.get(position).is_some() {
+			let voxel::Delta { x, y, z } = self.size();
+			let (_, sy, sz) = (x as usize, y as usize, z as usize);
+			let (x, y, z): (usize, _, _) = position.into();
+			Ok((x * sy + y) * sz + z)
 		} else {
 			Err(())
 		}
 	}
 
-	pub fn is_valid_voxel<T: PrimInt + AsPrimitive<isize>>(
-		&self,
-		position: Vector3D<T, UnknownUnit>,
-	) -> bool {
-		self.get_index(position) != Err(())
-	}
-
 	pub fn calculate_mass(&mut self) {
 		let mut total_mass = 0.0;
-		// TODO temporary for now to make sure vehicles are synced correctly
-		let mut substract_mass = 0.0;
 		let mut center_of_mass = Vector3::zero();
-		let size = self.size;
-		for (x, y, z) in (0..=size.x)
-			.flat_map(move |x| (0..=size.y).map(move |y| (x, y)))
-			.flat_map(move |(x, y)| (0..=size.z).map(move |z| (x, y, z)))
-		{
-			let blk = self.try_get_block(Voxel::new(x, y, z)).unwrap();
-			if let Some(blk) = blk {
-				let mass = block::Block::get(blk.id()).unwrap().mass;
-				center_of_mass += Vector3::new(x as f32, y as f32, z as f32) * mass;
+		for pos in iter_3d_inclusive((0, 0, 0), self.end().into()).map(voxel::Position::from) {
+			if let Voxel {
+				id: Some(id),
+				health: Some(_),
+			} = self.blocks[pos]
+			{
+				let mass = block::Block::get(id).unwrap().mass;
+				center_of_mass += Vector3::from(pos) * mass;
 				total_mass += mass;
-				if blk.health() == 0 {
-					substract_mass += mass;
-				}
 			}
 		}
-		self.mass = total_mass - substract_mass;
+		self.mass = total_mass;
 		self.center_of_mass = center_of_mass / total_mass;
-	}
-
-	pub fn size(&self) -> Voxel {
-		self.size
 	}
 
 	pub fn center_of_mass(&self) -> Vector3 {
@@ -550,10 +519,12 @@ impl Body {
 
 	#[track_caller]
 	pub fn position(&self) -> (Vector3, Quat) {
-		self.node().map(|n| {
-			let trf = unsafe { n.assume_safe().transform() };
-			(trf.origin, trf.basis.to_quat())
-		}).unwrap_or((Vector3::zero(), Quat::identity()))
+		self.node()
+			.map(|n| {
+				let trf = unsafe { n.assume_safe().transform() };
+				(trf.origin, trf.basis.to_quat())
+			})
+			.unwrap_or((Vector3::zero(), Quat::identity()))
 	}
 
 	pub fn set_position(&self, translation: Vector3, rotation: Quat) {
@@ -561,29 +532,45 @@ impl Body {
 		// Not sure if it's a bug in to_transform, need to check.
 		let trf = rotation.to_transform().then_translate(translation);
 		unsafe {
-			self.node()
-				.map(|b| b.assume_safe().set_transform(Transform::from_transform(&trf)));
+			self.node().map(|b| {
+				b.assume_safe()
+					.set_transform(Transform::from_transform(&trf))
+			});
 		}
 	}
 
 	pub fn linear_velocity(&self) -> Vector3 {
-		unsafe { self.node().map(|b| b.assume_safe().linear_velocity()).unwrap_or(Vector3::zero()) }
+		unsafe {
+			self.node()
+				.map(|b| b.assume_safe().linear_velocity())
+				.unwrap_or(Vector3::zero())
+		}
 	}
 
 	pub fn set_linear_velocity(&self, velocity: Vector3) {
-		unsafe { self.node().map(|b| b.assume_safe().set_linear_velocity(velocity)); }
+		unsafe {
+			self.node()
+				.map(|b| b.assume_safe().set_linear_velocity(velocity));
+		}
 	}
 
 	pub fn angular_velocity(&self) -> Vector3 {
-		unsafe { self.node().map(|b| b.assume_safe().angular_velocity()).unwrap_or(Vector3::zero()) }
+		unsafe {
+			self.node()
+				.map(|b| b.assume_safe().angular_velocity())
+				.unwrap_or(Vector3::zero())
+		}
 	}
 
 	pub fn set_angular_velocity(&self, velocity: Vector3) {
-		unsafe { self.node().map(|b| b.assume_safe().set_angular_velocity(velocity)); }
+		unsafe {
+			self.node()
+				.map(|b| b.assume_safe().set_angular_velocity(velocity));
+		}
 	}
 
-	pub fn aabb(&self) -> AABB<u8> {
-		AABB::new(self.offset, self.size)
+	pub fn aabb(&self) -> voxel::AABB {
+		voxel::AABB::new(self.offset, self.end())
 	}
 
 	/// Return the total cost of all blocks of this body.
@@ -597,6 +584,21 @@ impl Body {
 
 	pub fn children_mut(&mut self) -> impl Iterator<Item = &mut Self> {
 		self.children.iter_mut()
+	}
+
+	/// The end/top point of this body.
+	fn end(&self) -> voxel::Position {
+		self.blocks.end()
+	}
+
+	/// The offset of this body, expressed as a `Delta`
+	fn offset(&self) -> voxel::Delta {
+		self.offset.into()
+	}
+
+	/// The size of this body, expressed as a `Delta`
+	fn size(&self) -> voxel::Delta {
+		voxel::Delta::from(self.blocks.end()) + voxel::Delta::ONE
 	}
 
 	/// Iterate all children and subchildren of this body
@@ -617,24 +619,13 @@ impl Body {
 
 	/// Update the mass of the rigidbody with the current `mass`.
 	fn update_node_mass(&mut self) {
-		unsafe { self.node().map(|b| b.assume_safe().set_mass(self.mass.into())); }
-	}
-}
-
-impl Block<'_> {
-	pub fn id(&self) -> NonZeroU16 {
-		match self {
-			Block::Destroyed(id) => *id,
-			Block::Single(id, _) => *id,
-			Block::Multi(id, _) => *id,
-		}
-	}
-
-	pub fn health(&self) -> u32 {
-		match self {
-			Block::Destroyed(_) => 0,
-			Block::Single(_, hp) => hp.get() as u32,
-			Block::Multi(_, mb) => mb.health.get(),
-		}
+		self.node().map(|b| unsafe {
+			let b = b.assume_safe();
+			b.set_mass(self.mass.into());
+			let rid = b.get_rid();
+			let com = self.center_of_mass * block::SCALE;
+			PhysicsServer::godot_singleton()
+				.call("body_set_local_com", &[rid.to_variant(), com.to_variant()]);
+		});
 	}
 }

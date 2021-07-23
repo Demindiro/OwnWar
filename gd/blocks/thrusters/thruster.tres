@@ -6,14 +6,17 @@
 [resource]
 script = ExtResource( 1 )
 human_name = "Thruster"
-mass = 1.0
 human_category = "Movement"
-revision = 0
+mass = 1.0
+revision = 2
 aabb = AABB( 0, 0, -1, 1, 1, 2 )
 id = 100
 health = 100
-cost = 1
+cost = 20
 __mirror_block_id = null
 instance = ExtResource( 2 )
 mirror_rotation_offset = 0
 alternate_rotation_map = null
+extra_mount_points = PoolVector3Array( 0, 0, -1 )
+extra_mount_sides = PoolByteArray( 16 )
+mount_sides = 34

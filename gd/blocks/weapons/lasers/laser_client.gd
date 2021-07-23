@@ -7,7 +7,7 @@ export var audio_sample_length := 3.0
 export var audio_sample_count := 10
 
 var server_node: OwnWar_WeaponLaser setget set_server_node
-var team_color := Color.red
+var team_color setget set_team_color
 onready var fire_point: Position3D = get_node("FirePoint")
 onready var audio_nodes := [
 	get_node("Audio1"),
@@ -22,6 +22,15 @@ func set_server_node(value: OwnWar_WeaponLaser) -> void:
 	server_node = value
 	var e := server_node.connect("fired", self, "_on_fired")
 	assert(e == OK)
+
+
+func set_color(color):
+	$Hull.color = color
+
+
+func set_team_color(color):
+	$Glow.color = color
+	team_color = color
 
 
 func _on_fired(at: Vector3) -> void:

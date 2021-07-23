@@ -1,18 +1,16 @@
 use super::data::Vehicle;
 use crate::rotation::Rotation;
-use std::convert::{TryFrom, TryInto};
-use std::num::NonZeroU16;
-use std::str::Utf8Error;
+use crate::types::*;
+use core::convert::{TryFrom, TryInto};
+use core::fmt;
+use core::num::NonZeroU16;
+use core::str::Utf8Error;
+use gdnative::godot_error;
 
 const MAGIC: u32 = 493279249;
 
-type Vec3u8 = euclid::Vector3D<u8, euclid::UnknownUnit>;
-
 #[derive(Debug)]
-pub(crate) struct LoadError(LoadErrorKind);
-
-#[derive(Debug)]
-enum LoadErrorKind {
+pub(crate) enum LoadError {
 	BadMagic,
 	UnknownRevision,
 	CorruptDataTruncated,
@@ -24,10 +22,23 @@ enum LoadErrorKind {
 #[derive(Debug)]
 pub(crate) struct SaveError();
 
+impl fmt::Display for LoadError {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match self {
+			Self::BadMagic => "bad magic".fmt(f),
+			Self::UnknownRevision => "unknown revision".fmt(f),
+			Self::CorruptDataTruncated => "truncated data".fmt(f),
+			Self::InvalidBlockID => "invalid block ID".fmt(f),
+			Self::PositionAlreadyOccupied => "position already occupied".fmt(f),
+			Self::ParseUtf8Error(e) => write!(f, "{}", e),
+		}
+	}
+}
+
 pub(crate) fn load(data: &[u8]) -> Result<Vehicle, LoadError> {
 	let (data, magic) = read_u32(data)?;
 	if magic != MAGIC {
-		return Err(LoadError(LoadErrorKind::BadMagic));
+		return Err(LoadError::BadMagic);
 	}
 
 	let (data, revision) = read_u16(data)?;
@@ -35,7 +46,7 @@ pub(crate) fn load(data: &[u8]) -> Result<Vehicle, LoadError> {
 	match revision {
 		rev_0::REVISION => rev_0::load(data),
 		rev_1::REVISION => rev_1::load(data),
-		_ => Err(LoadError(LoadErrorKind::UnknownRevision)),
+		_ => Err(LoadError::UnknownRevision),
 	}
 }
 
@@ -53,7 +64,7 @@ fn read_u8(data: &[u8]) -> Result<(&[u8], u8), LoadError> {
 	if let Some(&s) = data.get(0) {
 		Ok((&data[1..], s))
 	} else {
-		Err(LoadError(LoadErrorKind::CorruptDataTruncated))
+		Err(LoadError::CorruptDataTruncated)
 	}
 }
 
@@ -61,7 +72,7 @@ fn read_u16(data: &[u8]) -> Result<(&[u8], u16), LoadError> {
 	if let Some(s) = data.get(0..2) {
 		Ok((&data[2..], u16::from_le_bytes(s.try_into().unwrap())))
 	} else {
-		Err(LoadError(LoadErrorKind::CorruptDataTruncated))
+		Err(LoadError::CorruptDataTruncated)
 	}
 }
 
@@ -69,26 +80,33 @@ fn read_u32(data: &[u8]) -> Result<(&[u8], u32), LoadError> {
 	if let Some(s) = data.get(0..4) {
 		Ok((&data[4..], u32::from_le_bytes(s.try_into().unwrap())))
 	} else {
-		Err(LoadError(LoadErrorKind::CorruptDataTruncated))
+		Err(LoadError::CorruptDataTruncated)
 	}
 }
 
-fn read_vec3u8(data: &[u8]) -> Result<(&[u8], Vec3u8), LoadError> {
+fn read_position(data: &[u8]) -> Result<(&[u8], voxel::Position), LoadError> {
 	let (data, x) = read_u8(data)?;
 	let (data, y) = read_u8(data)?;
 	let (data, z) = read_u8(data)?;
-	Ok((data, Vec3u8::new(x, y, z)))
+	Ok((data, voxel::Position::new(x, y, z)))
+}
+
+fn read_color(data: &[u8]) -> Result<(&[u8], color::RGB8), LoadError> {
+	let (data, r) = read_u8(data)?;
+	let (data, g) = read_u8(data)?;
+	let (data, b) = read_u8(data)?;
+	Ok((data, color::RGB8::new(r, g, b)))
 }
 
 fn read_u8_str(data: &[u8]) -> Result<(&[u8], &str), LoadError> {
 	let (data, len) = read_u8(data)?;
 	if data.len() < len as usize {
-		Err(LoadError(LoadErrorKind::CorruptDataTruncated))
+		Err(LoadError::CorruptDataTruncated)
 	} else {
 		let (string, data) = data.split_at(len as usize);
 		match std::str::from_utf8(string) {
 			Ok(s) => Ok((data, s)),
-			Err(e) => Err(LoadError(LoadErrorKind::ParseUtf8Error(e))),
+			Err(e) => Err(LoadError::ParseUtf8Error(e)),
 		}
 	}
 }
@@ -142,10 +160,10 @@ mod rev_1 {
 		let mut data = data;
 
 		for _ in 0..color_count {
-			let mut color = Vec3u8::zero();
-			(data, color.x) = read_u8(data)?;
-			(data, color.y) = read_u8(data)?;
-			(data, color.z) = read_u8(data)?;
+			let mut color = color::RGB8::BLACK;
+			(data, color.r) = read_u8(data)?;
+			(data, color.g) = read_u8(data)?;
+			(data, color.b) = read_u8(data)?;
 			vehicle.add_color(color).expect("Failed to add color");
 		}
 
@@ -167,9 +185,16 @@ mod rev_1 {
 					(data, color) = read_u8(data)?;
 					// TODO don't unwrap, handle the error properly
 					let rotation = Rotation::new(rotation).unwrap();
-					vehicle
-						.add_block(layer, Vec3u8::new(x, y, z), id, rotation, color)
-						.unwrap();
+					match vehicle.add_block(
+						layer,
+						voxel::Position::new(x, y, z),
+						id,
+						rotation,
+						color,
+					) {
+						Ok(()) => (),
+						Err(e) => godot_error!("Failed to add block: {:?}", e),
+					}
 				}
 			}
 		}
@@ -181,7 +206,7 @@ mod rev_1 {
 			(data, attribute) = read_u8(data)?;
 			(data, len) = read_u16(data)?;
 			if data.len() < len as usize {
-				return Err(LoadError(LoadErrorKind::CorruptDataTruncated));
+				return Err(LoadError::CorruptDataTruncated);
 			}
 			if let Some(attribute) = Attribute::from_int(attribute) {
 				use Attribute::*;
@@ -219,24 +244,30 @@ mod rev_1 {
 		block_data.push(vehicle.color_count());
 		block_data.push(vehicle.layer_count());
 		for color in vehicle.iter_colors() {
-			block_data.push(color.x);
-			block_data.push(color.y);
-			block_data.push(color.z);
+			block_data.push(color.r);
+			block_data.push(color.g);
+			block_data.push(color.b);
 		}
 		for layer in vehicle.iter_layers() {
-			let aabb = layer.aabb().expect("Layer has no blocks");
-			let (s, e) = (aabb.position, aabb.end());
-			for &v in &[s.x, s.y, s.z, e.x, e.y, e.z] {
-				block_data.push(v);
-			}
-			for (x, y, z) in iter_3d_inclusive((s.x, s.y, s.z), (e.x, e.y, e.z)) {
-				if let Some(block) = layer.get_block(Vec3u8::new(x, y, z)) {
-					block_data.extend(&block.id.get().to_le_bytes());
-					block_data.push(block.rotation.get());
-					block_data.push(block.color);
-				} else {
+			if let Some(aabb) = layer.aabb() {
+				let (s, e) = (aabb.start, aabb.end);
+				block_data.extend(&[s.x, s.y, s.z, e.x, e.y, e.z]);
+				for pos in iter_3d_inclusive(s.into(), e.into()).map(voxel::Position::from) {
+					if let Some((block, p)) = layer.get_block(pos) {
+						// Make sure we don't add a multiblock twice
+						if pos == p {
+							block_data.extend(&block.id.get().to_le_bytes());
+							block_data.push(block.rotation.get());
+							block_data.push(block.color);
+							continue;
+						}
+					}
 					block_data.extend(&0u16.to_le_bytes());
 				}
+			} else {
+				// Insert a 1x1x1 layer with a None block
+				block_data.extend(&[0; 6]);
+				block_data.extend(&0u16.to_le_bytes());
 			}
 		}
 
@@ -322,19 +353,19 @@ mod rev_0 {
 			vehicle
 				.set_layer_name(layer, format!("Layer {}", layer))
 				.unwrap();
-			(data, _start) = read_vec3u8(data)?;
-			(data, _end) = read_vec3u8(data)?;
+			(data, _start) = read_position(data)?;
+			(data, _end) = read_position(data)?;
 			(data, size) = read_u32(data)?;
 			for _ in 0..size {
 				let (position, id, rotation, color);
-				(data, position) = read_vec3u8(data)?;
+				(data, position) = read_position(data)?;
 				(data, id) = read_u16(data)?;
 				(data, rotation) = read_u8(data)?;
-				(data, color) = read_vec3u8(data)?;
+				(data, color) = read_color(data)?;
 				let id = if let Some(id) = NonZeroU16::new(id) {
 					id
 				} else {
-					return Err(LoadError(LoadErrorKind::InvalidBlockID));
+					return Err(LoadError::InvalidBlockID);
 				};
 				let color = *color_map
 					.entry(color)
@@ -349,7 +380,7 @@ mod rev_0 {
 					.is_err()
 				{
 					// TODO properly detect the actual error
-					return Err(LoadError(LoadErrorKind::PositionAlreadyOccupied));
+					return Err(LoadError::PositionAlreadyOccupied);
 				}
 			}
 		}
@@ -368,10 +399,10 @@ mod tests {
 		fn cube_1x1x1() {
 			let name = "Cube";
 			let layer_name = "Layer 0";
-			let color = Vec3u8::new(255, 255, 255);
+			let color = voxel::Position::new(255, 255, 255);
 			let id = NonZeroU16::new(1).unwrap();
 			let rotation = Rotation::default();
-			let position = Vec3u8::new(5, 2, 9);
+			let position = voxel::Position::new(5, 2, 9);
 
 			let mut vehicle = Vehicle::new();
 			vehicle.name = String::from(name);
@@ -403,10 +434,10 @@ mod tests {
 		fn cube_3x3x3() {
 			let name = "Cube";
 			let layer_name = "Layer 0";
-			let color = Vec3u8::new(255, 255, 255);
+			let color = color::RGB8::new(255, 255, 255);
 			let id = NonZeroU16::new(1).unwrap();
 			let rotation = Rotation::default();
-			let position = Vec3u8::new(5, 2, 9);
+			let position = voxel::Position::new(5, 2, 9);
 
 			let mut vehicle = Vehicle::new();
 			vehicle.name = String::from(name);
@@ -419,7 +450,7 @@ mod tests {
 				vehicle
 					.add_block(
 						layer_id,
-						position + Vec3u8::new(x, y, z),
+						position + voxel::Position::new(x, y, z),
 						id,
 						rotation,
 						color_id,
@@ -437,7 +468,9 @@ mod tests {
 			assert_eq!(vehicle.get_color(0).unwrap(), color);
 			let layer = vehicle.iter_layers().next().unwrap();
 			for (x, y, z) in iter_3d((0, 0, 0), (3, 3, 3)) {
-				let block = layer.get_block(position + Vec3u8::new(x, y, z)).unwrap();
+				let block = layer
+					.get_block(position + voxel::Position::new(x, y, z))
+					.unwrap();
 				assert_eq!(block.id, id);
 				assert_eq!(block.rotation, rotation);
 				assert_eq!(layer.name, layer_name);
@@ -448,10 +481,10 @@ mod tests {
 		fn cube_3x3x3_layered() {
 			let name = "Cube";
 			let layer_name = "Layer";
-			let color = Vec3u8::new(255, 255, 255);
+			let color = voxel::Position::new(255, 255, 255);
 			let id = NonZeroU16::new(1).unwrap();
 			let rotation = Rotation::default();
-			let position = Vec3u8::new(5, 2, 9);
+			let position = voxel::Position::new(5, 2, 9);
 
 			let mut vehicle = Vehicle::new();
 			vehicle.name = String::from(name);
@@ -464,7 +497,7 @@ mod tests {
 				vehicle
 					.add_block(
 						layer_id,
-						position + Vec3u8::new(x, y, z),
+						position + voxel::Position::new(x, y, z),
 						id,
 						rotation,
 						color_id,
@@ -481,7 +514,7 @@ mod tests {
 			assert_eq!(vehicle.block_count(), 27);
 			assert_eq!(vehicle.get_color(0).unwrap(), color);
 			for (x, y, z) in iter_3d((0, 0, 0), (3, 3, 3)) {
-				let blocks = vehicle.get_blocks(position + Vec3u8::new(x, y, z));
+				let blocks = vehicle.get_blocks(position + voxel::Position::new(x, y, z));
 				assert_eq!(blocks.len(), 1);
 				assert_eq!(blocks[0].1.id, id);
 				assert_eq!(blocks[0].1.rotation, rotation);
@@ -496,7 +529,7 @@ mod tests {
 			let layer_name = "Layer";
 			let id = NonZeroU16::new(1).unwrap();
 			let rotation = Rotation::default();
-			let position = Vec3u8::new(5, 2, 9);
+			let position = voxel::Position::new(5, 2, 9);
 
 			let mut vehicle = Vehicle::new();
 			vehicle.name = String::from(name);
@@ -506,12 +539,12 @@ mod tests {
 				.unwrap();
 			for (x, y, z) in iter_3d((0, 0, 0), (3, 3, 3)) {
 				let color_id = vehicle
-					.add_color(Vec3u8::new(x * 80, y * 80, z * 80))
+					.add_color(voxel::Position::new(x * 80, y * 80, z * 80))
 					.unwrap();
 				vehicle
 					.add_block(
 						layer_id,
-						position + Vec3u8::new(x, y, z),
+						position + voxel::Position::new(x, y, z),
 						id,
 						rotation,
 						color_id,
@@ -528,12 +561,12 @@ mod tests {
 			assert_eq!(vehicle.block_count(), 27);
 			let layer = vehicle.iter_layers().next().unwrap();
 			for (x, y, z) in iter_3d((0, 0, 0), (3, 3, 3)) {
-				let blocks = vehicle.get_blocks(position + Vec3u8::new(x, y, z));
+				let blocks = vehicle.get_blocks(position + voxel::Position::new(x, y, z));
 				assert_eq!(blocks.len(), 1);
 				assert_eq!(blocks[0].1.id, id);
 				assert_eq!(blocks[0].1.rotation, rotation);
 				let color = vehicle.get_color(blocks[0].1.color).unwrap();
-				assert_eq!(color, Vec3u8::new(x * 80, y * 80, z * 80));
+				assert_eq!(color, voxel::Position::new(x * 80, y * 80, z * 80));
 				assert_eq!(layer.name, layer_name);
 			}
 		}
@@ -544,8 +577,8 @@ mod tests {
 			let layer_name = "Layer";
 			let id = NonZeroU16::new(1).unwrap();
 			let rotation = Rotation::default();
-			let position = Vec3u8::new(5, 2, 9);
-			let color = Vec3u8::new(255, 0, 255);
+			let position = voxel::Position::new(5, 2, 9);
+			let color = voxel::Position::new(255, 0, 255);
 
 			let mut vehicle = Vehicle::new();
 			vehicle.name = String::from(name);
@@ -561,7 +594,7 @@ mod tests {
 				vehicle
 					.add_block(
 						layer_id,
-						position + Vec3u8::new(x, y, z),
+						position + voxel::Position::new(x, y, z),
 						id,
 						rotation,
 						color_id,
@@ -580,7 +613,7 @@ mod tests {
 			let layer = vehicle.iter_layers().next().unwrap();
 			assert_eq!(layer.name, layer_name);
 			for (x, y, z) in iter_3d((0, 0, 0), (3, 3, 3)) {
-				let blocks = vehicle.get_blocks(position + Vec3u8::new(x, y, z));
+				let blocks = vehicle.get_blocks(position + voxel::Position::new(x, y, z));
 				if (x + y + z) % 2 == 0 {
 					assert_eq!(blocks.len(), 0);
 				} else {

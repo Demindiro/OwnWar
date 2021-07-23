@@ -72,7 +72,6 @@ func _create_block_thumbnail(id: int, callback: FuncRef, arguments: Array) -> vo
 	var path := _get_block_path(id)
 	mi.scale = Vector3.ONE / max(block.aabb.size.x, max(block.aabb.size.y, block.aabb.size.z))
 	mi.translation = (-block.aabb.position - block.aabb.size / 2 + Vector3(0.5, 0.5, 0.5)) * mi.scale * BLOCK_SCALE
-	print("   ", block.aabb, mi.translation)
 	mi.mesh = block.mesh
 	if block.editor_node != null:
 		var node: Spatial = block.editor_node.duplicate()

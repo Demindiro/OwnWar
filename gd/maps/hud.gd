@@ -23,6 +23,8 @@ onready var _camera: Camera = get_node(camera)
 onready var _gui: Control = get_node("../GUI")
 onready var _health_bar: HealthBar = get_node("Health")
 
+var old_player_vehicle
+
 
 func _ready() -> void:
 	set_mouse_mode()
@@ -58,26 +60,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("ui_cancel"):
 		_gui.visible = true
 		set_mouse_mode()
-	elif player_vehicle_id >= 0:
-		var player_vehicle = vehicles[player_vehicle_id]
-		if player_vehicle != null:
-			if event.is_action("combat_turn_left"):
-				player_vehicle.turn_left = event.is_pressed()
-			elif event.is_action("combat_turn_right"):
-				player_vehicle.turn_right = event.is_pressed()
-			elif event.is_action("combat_pitch_up"):
-				player_vehicle.pitch_up = event.is_pressed()
-			elif event.is_action("combat_pitch_down"):
-				player_vehicle.pitch_down = event.is_pressed()
-			elif event.is_action("combat_move_forward"):
-				player_vehicle.move_forward = event.is_pressed()
-			elif event.is_action("combat_move_back"):
-				player_vehicle.move_back = event.is_pressed()
-			elif event.is_action("combat_fire"):
-				player_vehicle.fire = event.is_pressed()
-			elif event.is_action("combat_flip_vehicle"):
-				player_vehicle.flip = event.is_pressed()
-
 
 
 func _process(_delta: float) -> void:
@@ -91,6 +73,19 @@ func _process(_delta: float) -> void:
 		else:
 			_health_bar.value = 0
 
+	# Polling is a lot more reliable than _unhandled_input. No stuck keys or whatever
+	if player_vehicle_id >= 0 and not _gui.visible:
+		var player_vehicle = vehicles[player_vehicle_id]
+		if player_vehicle != null:
+			player_vehicle.turn_left = Input.is_action_pressed("combat_turn_left")
+			player_vehicle.turn_right = Input.is_action_pressed("combat_turn_right")
+			player_vehicle.pitch_up = Input.is_action_pressed("combat_pitch_up")
+			player_vehicle.pitch_down = Input.is_action_pressed("combat_pitch_down")
+			player_vehicle.move_forward = Input.is_action_pressed("combat_move_forward")
+			player_vehicle.move_back = Input.is_action_pressed("combat_move_back")
+			player_vehicle.fire = Input.is_action_pressed("combat_fire")
+			player_vehicle.flip = Input.is_action_pressed("combat_flip_vehicle")
+
 
 func _set_camera() -> void:
 	if player_vehicle_id < 0:
@@ -98,6 +93,18 @@ func _set_camera() -> void:
 	var player_vehicle = vehicles[player_vehicle_id]
 	if player_vehicle == null:
 		return
+
+	if old_player_vehicle != player_vehicle:
+		# Add collision exceptions
+		for n in Util.get_children_recursive(player_vehicle.get_node()) + [player_vehicle.get_node()]:
+			if n is PhysicsBody:
+				_camera_ray.add_exception(n)
+				_camera_terrain_ray.add_exception(n)
+				var e = n.connect("tree_exiting", _camera_ray, "remove_exception", [n])
+				assert(e == OK)
+				e = n.connect("tree_exiting", _camera_terrain_ray, "remove_exception", [n])
+				assert(e == OK)
+		old_player_vehicle = player_vehicle
 
 	var basis := Basis(Vector3(0, 1, 0), _camera_pan) * \
 		Basis(Vector3(1, 0, 0), _camera_tilt)
@@ -128,7 +135,8 @@ func _set_camera() -> void:
 			var p = _camera_ray.get_collision_point()
 			if col.has_meta("ownwar_vehicle_index"):
 				var v = vehicles[col.get_meta("ownwar_vehicle_index")]
-				p = v.raycast(col.get_meta("ownwar_body_index"), p, -basis.z * 1000)
+				var d = basis * _camera_ray.cast_to
+				p = v.raycast(col.get_meta("ownwar_body_index"), p, d * 1000)
 				if p != null:
 					player_vehicle.aim_at = p
 					break
@@ -197,3 +205,10 @@ func poll_input() -> void:
 			player_vehicle.move_forward = Input.is_action_pressed("combat_move_forward")
 			player_vehicle.move_back = Input.is_action_pressed("combat_move_back")
 			player_vehicle.fire = Input.is_action_pressed("combat_fire")
+
+func debug_draw():
+	if player_vehicle_id < 0:
+		return
+	var player_vehicle = vehicles[player_vehicle_id]
+	if player_vehicle != null:
+		Debug.draw_point(player_vehicle.aim_at, Color.green, 0.13)

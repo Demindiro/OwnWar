@@ -2,20 +2,24 @@ extends Spatial
 class_name OwnWar_Thruster_Server
 
 
-const MAX_SPEED := 40.0
+const MAX_SPEED := 100.0 # 360 km/h
 const MAX_FORCE := 500.0
+
 var direction := 0
 var last_drive := 0.0
 
 var movement_index = 0
+var base_position
+var body_center_of_mass
 
 
 func _ready() -> void:
 	var b := transform.basis.z
+	var delta_pos = base_position - body_center_of_mass
 	if abs(b.dot(Vector3.BACK)) > 0.01:
 		direction = 0 if b.dot(Vector3.BACK) > 0 else 1
 	elif abs(b.dot(Vector3.LEFT)) > 0.01:
-		if (b.dot(Vector3.LEFT) > 0) == (transform.origin.z < 0):
+		if (b.dot(Vector3.LEFT) > 0) == (delta_pos.z < 0):
 			direction = 2
 		else:
 			direction = 3
@@ -27,8 +31,10 @@ func _ready() -> void:
 	
 
 func drive(forward: float, yaw: float, pitch: float, roll: float) -> void:
-	var body: RigidBody = get_parent()
-	var factor := 1.0 - clamp(body.linear_velocity.length() / MAX_SPEED, 0.0, 1.0)
+	var body = get_parent()
+	var factor = 1.0 - clamp(body.linear_velocity.dot(global_transform.basis.z) / MAX_SPEED, 0.0, 1.0)
+	var com = PhysicsServer.body_get_local_com(body.get_rid())
+	var pos = base_position * 0.25 # BLOCK_SCALE
 	match direction:
 		0:
 			last_drive = max(forward, 0.0)
@@ -44,7 +50,8 @@ func drive(forward: float, yaw: float, pitch: float, roll: float) -> void:
 			last_drive = max(-pitch, 0.0)
 		_:
 			assert(false, "Invalid direction!")
-	body.add_force(
-		global_transform.basis.z * last_drive * MAX_FORCE * factor,
-		global_transform.origin - body.global_transform.origin
+	PhysicsServer.body_add_local_force(
+		body.get_rid(),
+		transform.basis.z * last_drive * MAX_FORCE * factor,
+		pos
 	)

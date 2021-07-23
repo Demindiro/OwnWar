@@ -40,7 +40,8 @@ func set_preview(path: String, save := true) -> void:
 		return
 	_vehicle.transform = _origin.transform
 	_vehicle.translation.y += GRID_SIZE * BLOCK_SCALE / 2
-	OwnWar_Lobby.player_vehicle_valid = _vehicle.is_valid()
+	OwnWar_Lobby.player_vehicle_valid = _vehicle.is_valid
+	OwnWar_Lobby.player_vehicle_invalid_reason = _vehicle.invalid_reason
 	if save:
 		OwnWar_Settings.dirty = true
 	add_child(_vehicle)

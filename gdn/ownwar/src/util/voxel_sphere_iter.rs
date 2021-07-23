@@ -1,22 +1,20 @@
-use euclid::UnknownUnit;
-use euclid::Vector3D;
+use crate::types::*;
 use lazy_static::lazy_static;
 use std::collections::BTreeMap;
 use std::sync::RwLock;
 
-type Vec3i = Vector3D<i32, UnknownUnit>;
 type Index = u32;
-type Radius = i16;
+type Radius = i8;
 
 /// Algorithm that returns coordinates in a spherical radius in close to far order
 pub struct VoxelSphereIterator {
-	origin: Vec3i,
+	origin: voxel::Delta,
 	index: Index,
 	length: Index,
 }
 
 struct Cache {
-	points: Vec<Vector3D<i16, UnknownUnit>>,
+	points: Vec<(i8, i8, i8)>,
 	radius_to_length: Vec<Index>,
 }
 
@@ -28,8 +26,9 @@ lazy_static! {
 }
 
 impl VoxelSphereIterator {
-	pub fn new(origin: Vec3i, radius: Radius) -> Self {
+	pub fn new(origin: voxel::Delta, radius: Radius) -> Self {
 		{
+			let radius = radius.abs();
 			let cache = CACHE.read().unwrap();
 			if cache.radius_to_length.len() <= radius as usize {
 				drop(cache);
@@ -45,13 +44,13 @@ impl VoxelSphereIterator {
 }
 
 impl Iterator for VoxelSphereIterator {
-	type Item = Vec3i;
+	type Item = voxel::Delta;
 
 	fn next(&mut self) -> Option<Self::Item> {
 		if self.index < self.length {
 			let v = CACHE.read().unwrap().points[self.index as usize];
 			self.index += 1;
-			Some(Vector3D::new(v.x as i32, v.y as i32, v.z as i32) + self.origin)
+			Some(Self::Item::from(v) + self.origin)
 		} else {
 			None
 		}
@@ -59,7 +58,7 @@ impl Iterator for VoxelSphereIterator {
 }
 
 fn calculate_points(radius: Radius) {
-	assert!(radius >= 0);
+	let radius = radius.abs();
 	let cache = CACHE.read().unwrap();
 	let inner_radius = cache.radius_to_length.len() as Radius;
 	drop(cache);
@@ -82,7 +81,7 @@ fn calculate_points(radius: Radius) {
 				let len_z_2 = len_z_2 as usize;
 				// Skip already calculated points (that are closer anyways), skip points outside circle
 				if len_z_2 >= inner_radius_2 && len_z_2 <= radius_2 {
-					let v = Vector3D::<_, UnknownUnit>::new(x as i16, y as i16, z as i16);
+					let v = (x as i8, y as i8, z as i8);
 					btree.entry(len_z_2).or_insert(Vec::new()).push(v);
 					for (i, r2) in radii_map.iter().enumerate().rev() {
 						if len_z_2 >= *r2 {

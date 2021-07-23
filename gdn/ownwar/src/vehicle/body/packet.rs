@@ -20,7 +20,7 @@ impl super::Body {
 			let (tr, mut rot) = self.position();
 			if rot.r < 0.0 {
 				// ijk == xyz, r == w
-				rot = euclid::Rotation3D::quaternion(-rot.i, -rot.j, -rot.k, -rot.r);
+				rot = Quat::quaternion(-rot.i, -rot.j, -rot.k, -rot.r);
 			}
 			let lv = self.linear_velocity();
 			let av = self.angular_velocity();

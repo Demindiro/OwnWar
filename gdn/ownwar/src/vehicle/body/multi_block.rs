@@ -1,6 +1,5 @@
 use super::*;
 use crate::rotation::Rotation;
-use crate::util::convert_vec;
 use core::convert::TryInto;
 use core::num::NonZeroU32;
 use gdnative::api::Spatial;
@@ -12,11 +11,11 @@ pub(in super::super) struct MultiBlock {
 	pub(in super::super) server_node: Option<Ref<Spatial>>,
 	#[cfg(not(feature = "server"))]
 	pub(super) client_node: Option<Ref<Spatial>>,
-	pub(super) reverse_indices: Box<[Voxel]>,
+	pub(super) reverse_indices: Box<[voxel::Position]>,
 	#[cfg(not(feature = "server"))]
 	pub(super) interpolation_state_index: u16,
 	pub(super) rotation: Rotation,
-	pub(super) base_position: Voxel,
+	pub(super) base_position: voxel::Position,
 
 	pub(super) weapon_index: u16,
 	pub(super) turret_index: u16,
@@ -111,13 +110,19 @@ impl MultiBlock {
 	}
 
 	/// Initialize the block for the given body.
-	pub(super) fn init(&mut self, offset: Voxel, shared: &mut vehicle::Shared) {
+	pub(super) fn init(
+		&mut self,
+		offset: voxel::Position,
+		center_of_mass: Vector3,
+		shared: &mut vehicle::Shared,
+	) {
 		if let Some(server_node) = self.server_node.as_ref() {
 			let server_node = unsafe { server_node.assume_safe() };
 
 			server_node.set("team", shared.team);
-			let base_position = convert_vec(self.base_position + offset);
-			server_node.set("base_position", Variant::from_vector3(&base_position));
+			server_node.set("base_position", self.base_position.to_variant());
+			server_node.set("body_offset", offset.to_variant());
+			server_node.set("body_center_of_mass", center_of_mass.to_variant());
 
 			// Check if the block has a "step" function
 			if !server_node.get("steppable_index").is_nil() {
@@ -161,11 +166,5 @@ impl MultiBlock {
 				shared.permanent.push(self.server_node);
 			}
 		}
-	}
-}
-
-impl super::Body {
-	pub fn iter_multi_blocks(&self) -> impl Iterator<Item = &MultiBlock> {
-		self.multi_blocks.iter().filter_map(Option::as_ref)
 	}
 }

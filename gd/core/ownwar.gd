@@ -1,7 +1,7 @@
 class_name OwnWar
 
 
-const VERSION := Vector3(0, 18, 0)
+const VERSION := Vector3(0, 18, 1)
 const COLLISION_MASK_TERRAIN := 1 << (8 - 1)
 const COLLISION_MASK_UNIT := 1 << (19 - 1)
 const COLLISION_MASK_STRUCTURE := 1 << (20 - 1)

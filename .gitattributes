@@ -37,3 +37,4 @@ models/plasma_cannon.blend filter=lfs diff=lfs merge=lfs -text
 gd/blocks/weapons/plasma/cannon.glb filter=lfs diff=lfs merge=lfs -text
 models/wheel.blend filter=lfs diff=lfs merge=lfs -text
 design/movement/concept_art/wheel.kra filter=lfs diff=lfs merge=lfs -text
+*.blend filter=lfs diff=lfs merge=lfs -text

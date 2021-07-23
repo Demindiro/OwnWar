@@ -3,7 +3,6 @@ use core::convert::{TryFrom, TryInto};
 use core::mem;
 use core::num::NonZeroU16;
 use core::slice;
-use euclid::Vector3D;
 use gdnative::prelude::*;
 use std::io;
 
@@ -16,16 +15,12 @@ impl super::Body {
 	pub(in super::super) fn serialize(&self, out: &mut impl io::Write) -> io::Result<()> {
 		// Serialize AABB
 		out.write_all(&[self.offset.x, self.offset.y, self.offset.z])?;
-		out.write_all(&[self.size.x, self.size.y, self.size.z])?;
+		out.write_all(&[self.end().x, self.end().y, self.end().z])?;
 
-		// Serialize block ids
-		for id in self.ids.iter() {
-			out.write_all(&id.map(NonZeroU16::get).unwrap_or(0).to_le_bytes())?;
-		}
-
-		// Serialize health
-		for health in self.health.iter() {
-			out.write_all(&health.map(NonZeroU16::get).unwrap_or(0).to_le_bytes())?;
+		// Serialize block ids & health
+		for blk in self.blocks.values() {
+			out.write_all(&blk.id.map(NonZeroU16::get).unwrap_or(0).to_le_bytes())?;
+			out.write_all(&blk.health.map(NonZeroU16::get).unwrap_or(0).to_le_bytes())?;
 		}
 
 		// Serialize block rotations
@@ -68,7 +63,7 @@ impl super::Body {
 				rot = Quat::quaternion(-rot.i, -rot.j, -rot.k, -rot.r);
 			}
 			Self::serialize_vector3(out, tr)?;
-			Self::serialize_vector3(out, Vector3D::new(rot.i, rot.j, rot.k))?;
+			Self::serialize_vector3(out, Vector3::new(rot.i, rot.j, rot.k))?;
 			Self::serialize_vector3(out, lv)?;
 			Self::serialize_vector3(out, av)?;
 		}
@@ -80,36 +75,26 @@ impl super::Body {
 	pub(in super::super) fn deserialize(
 		in_: &mut impl io::Read,
 		shared: &mut vehicle::Shared,
-		visible: bool,
 	) -> io::Result<Self> {
 		let mut buf = [0; 3];
 		in_.read_exact(&mut buf)?;
-		let offset = Voxel::new(buf[0], buf[1], buf[2]);
+		let offset = voxel::Position::new(buf[0], buf[1], buf[2]);
 		in_.read_exact(&mut buf)?;
-		let size = Voxel::new(buf[0], buf[1], buf[2]);
+		let end = voxel::Position::new(buf[0], buf[1], buf[2]);
 
-		let count = convert_vec::<_, usize>(size) + Vector3D::one();
-		let count = count.x * count.y * count.z;
-
-		// Get the IDs
-		let mut ids = Box::new_uninit_slice(count);
-		for id in ids.iter_mut() {
+		// Get the ID & health of each block
+		let mut blocks = voxel::Grid::new_uninit(end);
+		let count = blocks.len();
+		for blk in blocks.values_mut() {
 			let mut buf = [0; mem::size_of::<Option<NonZeroU16>>()];
 			in_.read_exact(&mut buf)?;
-			id.write(NonZeroU16::new(u16::from_le_bytes(buf)));
-		}
-		// SAFETY: all elements have been initialized
-		let ids = unsafe { ids.assume_init() };
-
-		// Get the health
-		let mut health = Box::new_uninit_slice(count);
-		for health in health.iter_mut() {
-			let mut buf = [0; mem::size_of::<Option<NonZeroU16>>()];
+			let id = NonZeroU16::new(u16::from_le_bytes(buf));
 			in_.read_exact(&mut buf)?;
-			health.write(NonZeroU16::new(u16::from_le_bytes(buf)));
+			let health = NonZeroU16::new(u16::from_le_bytes(buf));
+			blk.write(Voxel { id, health });
 		}
 		// SAFETY: all elements have been initialized
-		let health = unsafe { health.assume_init() };
+		let blocks = unsafe { blocks.assume_init() };
 
 		// Get the rotations
 		let mut rotations = Box::new_uninit_slice(count.try_into().unwrap());
@@ -148,7 +133,7 @@ impl super::Body {
 				reverse_indices: Box::new([]),
 				#[cfg(not(feature = "server"))]
 				interpolation_state_index: u16::MAX,
-				base_position: Voxel::new(u8::MAX, u8::MAX, u8::MAX),
+				base_position: voxel::Position::new(u8::MAX, u8::MAX, u8::MAX),
 				rotation: Rotation::new(0).unwrap(),
 
 				weapon_index: u16::MAX,
@@ -168,16 +153,15 @@ impl super::Body {
 		in_.read_exact(slice::from_mut(&mut count))?;
 		let mut children = Vec::with_capacity(count.into());
 		for _ in 0..count {
-			children.push(Self::deserialize(in_, shared, visible)?);
+			children.push(Self::deserialize(in_, shared)?);
 		}
 
 		let mut slf = Self {
 			offset,
-			size,
 
 			node: None,
 			#[cfg(not(feature = "server"))]
-			voxel_mesh: visible.then(Self::create_voxel_mesh),
+			voxel_mesh: Some(Self::create_voxel_mesh()),
 			#[cfg(not(feature = "server"))]
 			voxel_mesh_instance: None,
 			collision_shape: Self::create_collision_shape(),
@@ -188,13 +172,15 @@ impl super::Body {
 			#[cfg(not(feature = "server"))]
 			interpolation_state_dirty: true,
 
-			ids,
-			health,
+			blocks,
+			connections_x: (end - voxel::Delta::X).map(|e| voxel::BitGrid::new(e)).ok(),
+			connections_y: (end - voxel::Delta::Y).map(|e| voxel::BitGrid::new(e)).ok(),
+			connections_z: (end - voxel::Delta::Z).map(|e| voxel::BitGrid::new(e)).ok(),
 			multi_blocks,
 			rotations,
 			colors,
 
-			center_of_mass: Vector3D::zero(),
+			center_of_mass: Vector3::zero(),
 			mass: 0.0,
 			cost: 0,
 			max_cost: 0,
@@ -207,19 +193,21 @@ impl super::Body {
 			children,
 
 			parent_anchors: Vec::new(),
+
+			collider_start_point: voxel::Position::ZERO,
+			collider_end_point: end,
 		};
 
 		slf.create_godot_nodes();
 		slf.correct_mass(); // TODO should be done afterwards
+		slf.resize_collider(slf.collider_start_point, slf.collider_end_point);
+		slf.correct_collider_size();
 
-		for z in 0..=size.z {
-			for y in 0..=size.y {
-				for x in 0..=size.x {
-					let pos = Voxel::new(x, y, z);
-					slf.init_block(shared, pos);
-				}
-			}
+		for pos in iter_3d_inclusive((0, 0, 0), slf.end().into()).map(voxel::Position::from) {
+			slf.init_block(shared, pos);
 		}
+
+		slf.setup_connection_bitmaps();
 
 		if !slf.is_destroyed() {
 			//slf.correct_mass();

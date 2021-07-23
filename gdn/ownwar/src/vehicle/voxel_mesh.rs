@@ -1,29 +1,27 @@
 use crate::block;
 use crate::rotation::*;
-use crate::util::convert_vec;
-use euclid::{UnknownUnit, Vector3D};
+use crate::types::*;
+use core::convert::{TryFrom, TryInto};
+use fxhash::FxHashMap;
 use gdnative::api::{ArrayMesh, Material, Mesh, Resource, SpatialMaterial};
 use gdnative::prelude::*;
-use std::collections::{hash_map::Entry, HashMap};
-use std::convert::TryInto;
-
-type Voxel = Vector3D<u8, UnknownUnit>;
+use std::collections::hash_map::Entry;
 
 #[derive(NativeClass)]
 #[inherit(ArrayMesh)]
 pub(crate) struct VoxelMesh {
 	#[property]
 	dirty: bool,
-	meshes: HashMap<(u8, u8, u8), (Ref<SpatialMaterial>, Vec<SubMesh>, bool)>,
-	occlusion_map: HashMap<Voxel, OcclusionInfo>,
-	remove_list_positions: Vec<Voxel>,
+	meshes: FxHashMap<color::RGB8, (Ref<SpatialMaterial>, Vec<SubMesh>, bool)>,
+	occlusion_map: FxHashMap<voxel::Position, OcclusionInfo>,
+	remove_list_positions: Vec<voxel::Position>,
 }
 
 #[derive(Clone)]
 struct SubMesh {
 	face_vertices: Box<[Box<[block::MeshPoint]>; 6]>,
 	global_vertices: Box<Box<[block::MeshPoint]>>,
-	coordinate: Voxel,
+	coordinate: voxel::Position,
 }
 
 struct OcclusionInfo {
@@ -37,9 +35,9 @@ impl VoxelMesh {
 	pub(crate) fn new(_owner: &ArrayMesh) -> Self {
 		Self {
 			dirty: false,
-			meshes: HashMap::new(),
+			meshes: FxHashMap::default(),
 			remove_list_positions: Vec::new(),
-			occlusion_map: HashMap::new(),
+			occlusion_map: FxHashMap::default(),
 		}
 	}
 
@@ -58,8 +56,9 @@ impl VoxelMesh {
 			godot_error!("Rotation is out of bounds");
 			return;
 		};
+		let v = coordinate.try_into().expect("Failed to convert coordinate");
+		let color = color::RGB8::lossy_from_color(color);
 		unsafe {
-			let v = convert_vec(coordinate);
 			block
 				.assume_safe()
 				.cast_instance::<block::Block>()
@@ -74,15 +73,14 @@ impl VoxelMesh {
 	pub(crate) fn add_block(
 		&mut self,
 		block: &block::Block,
-		color: Color,
-		coordinate: Voxel,
+		color: color::RGB8,
+		coordinate: voxel::Position,
 		rotation: Rotation,
 	) {
 		if let Some((_, mesh_arrays)) = block.mesh_arrays() {
-			let key = Self::color_to_tuple(color);
 			for (i, array) in mesh_arrays.iter().enumerate() {
 				let sm = Self::get_submesh(coordinate, rotation, i as u8, array, block);
-				match self.meshes.entry(key) {
+				match self.meshes.entry(color) {
 					Entry::Occupied(mut e) => {
 						let e = e.get_mut();
 						e.1.push(sm);
@@ -100,7 +98,7 @@ impl VoxelMesh {
 			.insert(coordinate, OcclusionInfo::new(block, rotation));
 	}
 
-	pub(crate) fn remove_block(&mut self, coordinate: Voxel) {
+	pub(crate) fn remove_block(&mut self, coordinate: voxel::Position) {
 		self.remove_list_positions.push(coordinate);
 		self.occlusion_map.remove(&coordinate);
 		self.dirty = true;
@@ -191,19 +189,14 @@ impl VoxelMesh {
 		self.dirty
 	}
 
-	fn occlusion_check(map: &HashMap<Voxel, OcclusionInfo>, pos: Voxel) -> OcclusionResult {
-		let pos = convert_vec(pos);
+	fn occlusion_check(
+		map: &FxHashMap<voxel::Position, OcclusionInfo>,
+		pos: voxel::Position,
+	) -> OcclusionResult {
 		let mut result = 0;
 		for dir in 0..6 {
 			let dir = Direction::new(dir).unwrap();
-			let pos = pos + dir.vector();
-			let pos = pos.x.try_into().map(|x| {
-				pos.y
-					.try_into()
-					.map(|y| pos.z.try_into().map(|z| Voxel::new(x, y, z)))
-			});
-			// Flatten doesn't work, so nested Ok()s it is!
-			if let Ok(Ok(Ok(pos))) = pos {
+			if let Ok(pos) = pos + dir.delta() {
 				if map.get(&pos).map_or(false, |v| v.is_face_solid(dir)) {
 					result |= 1 << dir.invert().get();
 				}
@@ -221,32 +214,22 @@ impl VoxelMesh {
 		}
 	}
 
-	fn color_to_tuple(color: Color) -> (u8, u8, u8) {
-		let c = (color.r * 255.0, color.g * 255.0, color.b * 255.0);
-		(c.0 as u8, c.1 as u8, c.2 as u8)
-	}
-
-	fn tuple_to_color(color: (u8, u8, u8)) -> Color {
-		let c = (color.0 as f32, color.1 as f32, color.2 as f32);
-		Color::rgb(c.0 / 255.0, c.1 / 255.0, c.2 / 255.0)
-	}
-
-	fn create_material(color: Color) -> Ref<SpatialMaterial> {
+	fn create_material(color: color::RGB8) -> Ref<SpatialMaterial> {
 		let mat = Ref::<SpatialMaterial, Unique>::new();
-		mat.set_albedo(color);
+		mat.set_albedo(Color::from(color));
 		mat.set_roughness(0.4);
 		mat.into_shared()
 	}
 
 	fn get_submesh(
-		coordinate: Voxel,
+		coordinate: voxel::Position,
 		rotation: Rotation,
 		index: u8,
 		array: &Vec<block::MeshPoint>,
 		block: &block::Block,
 	) -> SubMesh {
 		let basis = rotation.basis();
-		let position = convert_vec(coordinate) * block::SCALE;
+		let position = Vector3::from(coordinate) * block::SCALE;
 		let mut a = Vec::with_capacity(array.len());
 		for point in array.iter() {
 			a.push(block::MeshPoint {
@@ -261,7 +244,7 @@ impl VoxelMesh {
 	pub fn set_transparent(&mut self, enable: bool) {
 		for (&color, (material, _, _)) in self.meshes.iter() {
 			unsafe {
-				let mut color = Self::tuple_to_color(color);
+				let mut color = Color::from(color);
 				color.a = if enable {
 					crate::constants::TRANSPARENT_BLOCK_ALPHA
 				} else {
@@ -287,7 +270,7 @@ impl SubMesh {
 		block: &block::Block,
 		index: u8,
 		array: Vec<block::MeshPoint>,
-		coordinate: Voxel,
+		coordinate: voxel::Position,
 		rotation: Rotation,
 	) -> Self {
 		let mut face_vertices = Vec::with_capacity(6);
@@ -306,12 +289,10 @@ impl SubMesh {
 			}
 			let norm = (verts[1].vertex - verts[0].vertex).cross(verts[2].vertex - verts[0].vertex);
 			let norm = norm.normalize();
-			let norm = convert_vec::<_, i8>(norm);
+			let norm = voxel::Delta::try_from(norm).unwrap();
 			// TODO fix the norm rotation in block.rs instead of deriving it ourselves
-			let dir = if dir.vector() != norm {
-				//godot_print!("dir != norm  {}", rotation.get());
-				//godot_print!("{:2} {:2} {:2} = {:2} {:2} {:2}", norm.x, norm.y, norm.z, dir.x, dir.y, dir.z);
-				Direction::from_vector(norm).unwrap()
+			let dir = if dir.delta() != norm {
+				Direction::from_vector(norm.into()).unwrap()
 			} else {
 				dir
 			};

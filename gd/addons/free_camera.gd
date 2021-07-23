@@ -66,12 +66,13 @@ func _input(event):
 
 
 func _process(delta):
-	var direction = Vector3()
-	var directions = [Vector3.LEFT, Vector3.RIGHT, Vector3.FORWARD, Vector3.BACK, Vector3.UP, Vector3.DOWN]
-	for i in len(actions):
-		if Input.is_action_pressed(actions[i]):
-			direction += directions[i]
-	translate_object_local(direction * speed * delta)
+	if !Engine.editor_hint:
+		var direction = Vector3()
+		var directions = [Vector3.LEFT, Vector3.RIGHT, Vector3.FORWARD, Vector3.BACK, Vector3.UP, Vector3.DOWN]
+		for i in len(actions):
+			if Input.is_action_pressed(actions[i]):
+				direction += directions[i]
+		translate_object_local(direction * speed * delta)
 
 
 func set_transform(p_transform: Transform) -> void:
