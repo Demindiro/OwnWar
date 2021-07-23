@@ -59,13 +59,15 @@ You can find stable releases [here](https://github.com/Demindiro/OwnWar/releases
 
 ## Gallery
 
-![Start menu](https://static.salt-inc.org/own_war/ownwar_start_menu.jpg)
+![Start menu with the Skunk](https://static.salt-inc.org/own_war/0.19/start_skunk_new.jpg)
 
-![Editor](https://static.salt-inc.org/own_war/ownwar_editor.jpg)
+![Editor with a tank](https://static.salt-inc.org/own_war/0.19/editor_0.jpg)
 
-![Test map](https://static.salt-inc.org/own_war/ownwar_test_map.jpg)
+![Test map with bomber](https://static.salt-inc.org/own_war/0.19/bomber_0.jpg)
 
-![The Pit](https://static.salt-inc.org/own_war/ownwar_the_pit.jpg)
+![The Pit with a 4 legged chicken](https://static.salt-inc.org/own_war/0.19/chicken_0.jpg)
+
+![Flying cars because why not?](https://static.salt-inc.org/own_war/0.19/flying_car_0.jpg)
 
 
 [gnu free sw]: https://www.gnu.org/philosophy/free-sw.en.html
