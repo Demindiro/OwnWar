@@ -38,6 +38,22 @@ godot-server:
 
 
 godot-clean-osx:
+	scons -C $(GODOT_SOURCE) -c platform=osx osxcross_sdk=$(OSXCROSS_SDK) profile=$$PWD/godot_config.py
 	rm -rf $(GODOT_SOURCE)/bin/$(GODOT_NAME).app
 	rm -f $(GODOT_SOURCE)/bin/godot.osx.opt.x64
 	rm -f bin/$(GODOT_NAME).zip
+
+
+godot-clean-windows:
+	scons -C $(GODOT_SOURCE) -c platform=windows profile=$$PWD/godot_config.py
+
+
+godot-clean-linux:
+	scons -C $(GODOT_SOURCE) -c platform=linux profile=$$PWD/godot_config.py
+
+
+godot-clean-server:
+	scons -C $(GODOT_SOURCE) -c platform=server profile=$$PWD/godot_config.py
+
+
+godot-clean: godot-clean-osx godot-clean-linux godot-clean-windows godot-clean-server

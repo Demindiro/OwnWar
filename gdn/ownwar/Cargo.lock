@@ -503,9 +503,9 @@ dependencies = [
 
 [[package]]
 name = "nalgebra"
-version = "0.27.1"
+version = "0.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "462fffe4002f4f2e1f6a9dcf12cc1a6fc0e15989014efc02a941d3e0f5dc2120"
+checksum = "39fe9195887b501f296ac918ecbff4650b6935da164d4902ef73e140c46a0dce"
 dependencies = [
  "approx 0.5.0",
  "matrixmultiply",
@@ -641,9 +641,9 @@ dependencies = [
 
 [[package]]
 name = "parry3d"
-version = "0.5.1"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70409213da33840548c12f25c6eb31e2d5af8156eae94472c105b5c4d09bd1e1"
+checksum = "7a7e0712f29e99bcce34c63d0e5548967dcebc7ea5f7c184a57233213f2e219b"
 dependencies = [
  "approx 0.5.0",
  "bitflags",
@@ -696,8 +696,8 @@ dependencies = [
 
 [[package]]
 name = "rapier3d"
-version = "0.9.2"
-source = "git+https://github.com/Demindiro/rapier?branch=godot-0.9#a9485e13346620d73511f84deae8a5a65624c055"
+version = "0.10.1"
+source = "git+https://github.com/Demindiro/rapier?branch=godot-0.10#c615750814feb239fab035acd8e905a8dd537b05"
 dependencies = [
  "approx 0.5.0",
  "arrayvec",
